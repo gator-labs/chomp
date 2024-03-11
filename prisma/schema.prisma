@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  wallets        Wallet[]
+  QuestionAnswer QuestionAnswer[]
+}
+
+model Wallet {
+  address String @id
+  userId  Int
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model Question {
+  id       Int              @id @default(autoincrement())
+  question String
+  type     QuestionType
+  options  QuestionOption[]
+  tags     QuestionTag[]
+  answers  QuestionAnswer[]
+}
+
+model QuestionOption {
+  id         Int      @id @default(autoincrement())
+  option     String
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+model Tag {
+  id           Int           @id @default(autoincrement())
+  tag          String
+  questionTags QuestionTag[]
+}
+
+model QuestionTag {
+  id         Int      @id @default(autoincrement())
+  tagId      Int
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+model QuestionAnswer {
+  id               Int      @id @default(autoincrement())
+  questionOptionId Int
+  questionOption   Question @relation(fields: [questionOptionId], references: [id])
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id])
+  percentage       Int
+  selected         Boolean
+}
+
+enum QuestionType {
+  TrueFalse
+  YesNo
+  MultiChoice
+}
