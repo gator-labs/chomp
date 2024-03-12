@@ -10,7 +10,8 @@
     "compose:db:up": "docker compose -f db-compose.yml up",
     "compose:db:down": "docker compose -f db-compose.yml down",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:generate": "prisma generate"
+    "prisma:generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@dynamic-labs/sdk-react-core": "^1.2.1",
