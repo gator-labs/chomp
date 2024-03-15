@@ -37,4 +37,7 @@ next-env.d.ts
 
 # postgres
 postgres-data/
+
+# storybook
+storybook-static
 *storybook.log
