@@ -25,7 +25,7 @@ import { ComposeIcon } from "../app/components/Icons/ComposeIcon";
 import { ChallengeIcon } from "../app/components/Icons/ChallengeIcon";
 import { SearchIcon } from "../app/components/Icons/SearchIcon";
 import { FilterIcon } from "../app/components/Icons/FilterIcon";
-import { SettingsSliders } from "../app/components/Icons/SettingsSliders";
+import { SettingsSlidersIcon } from "../app/components/Icons/SettingsSlidersIcon";
 import { CommentIcon } from "../app/components/Icons/CommentIcon";
 import { InfoIcon } from "../app/components/Icons/InfoIcon";
 import { NotificationIcon } from "../app/components/Icons/NotificationIcon";
@@ -232,9 +232,9 @@ export const Filter: Story = {
   },
 };
 
-export const SettingsSlidersIcon: Story = {
+export const SettingsSliders: Story = {
   args: {
-    icon: <SettingsSliders />,
+    icon: <SettingsSlidersIcon />,
   },
 };
 

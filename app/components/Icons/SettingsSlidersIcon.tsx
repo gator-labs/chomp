@@ -1,11 +1,16 @@
 import React from "react";
+import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from ".";
 
-export function SettingsSliders({ fill = "#fff" }: IconProps) {
+export function SettingsSlidersIcon({
+  fill = "#fff",
+  width = ICON_DEFAULT_WIDTH_HEIGHT,
+  height = ICON_DEFAULT_WIDTH_HEIGHT,
+}: IconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
+      width={width}
+      height={height}
       fill="none"
       viewBox="0 0 24 24"
     >
