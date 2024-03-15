@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { Button } from "../app/components/Button/Button";
+import { ShareIcon } from "../app/components/Icons/ShareIcon";
 
 const meta = {
   title: "Button",
@@ -45,6 +46,19 @@ export const Secondary: Story = {
 export const White: Story = {
   args: {
     variant: "white",
+  },
+  decorators: (Story) => (
+    <div className="bg-black p-2">
+      <Story />
+    </div>
+  ),
+};
+
+export const Share: Story = {
+  args: {
+    variant: "secondary",
+    size: "small",
+    children: <ShareIcon />,
   },
   decorators: (Story) => (
     <div className="bg-black p-2">
