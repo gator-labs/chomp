@@ -1,4 +1,5 @@
 import type { StorybookConfig } from "@storybook/nextjs";
+import { join } from "path";
 
 const config: StorybookConfig = {
   stories: [
@@ -19,6 +20,6 @@ const config: StorybookConfig = {
   docs: {
     autodocs: "tag",
   },
-  staticDirs: ["..\\public"],
+  staticDirs: [join("..", "public")],
 };
 export default config;
