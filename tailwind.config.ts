@@ -13,6 +13,10 @@ const colors = {
   "btn-text-warning": "#0D0D0D",
   disabled: "#EDEDED",
   "btn-text-disabled": "#999999",
+  "border-white": "#E9E9E9",
+  aqua: "#6DECAF",
+  gray: "#999999",
+  "input-gray": "#929292",
 };
 
 module.exports = {
@@ -24,6 +28,9 @@ module.exports = {
     extend: {
       fontFamily: {
         sora: ["var(--font-sora)"],
+      },
+      boxShadow: {
+        input: "0 0 4px 0",
       },
     },
     colors: colors,
