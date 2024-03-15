@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import classNames from "classnames";
+
 import DynamicProvider from "./providers/DynamicProvider";
 import { AuthRedirect } from "./components/AuthRedirect/AuthRedirect";
 
-import "@/styles/global.css";
-
-const inter = Inter({ subsets: ["latin"], variable: "--inter" });
+import "@/styles/globals.css";
+import { sora } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "Chomp",
@@ -18,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className={inter.className}>
+    <html lang="en" className={classNames(sora.variable)}>
+      <body className="font-sora">
         <DynamicProvider>
           {children}
           <AuthRedirect />
