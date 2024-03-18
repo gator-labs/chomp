@@ -1,4 +1,8 @@
+"use server";
+
 import jwt, { JwtPayload, Secret, VerifyErrors } from "jsonwebtoken";
+import type { DynamicJwt } from "@dynamic-labs/sdk-react-core";
+import { cookies } from "next/headers";
 
 export const getKey = (
   _headers: unknown,
@@ -29,11 +33,11 @@ export const getKey = (
     });
 };
 
-export const validateJWT = async (
+export const decodeJwtPayload = async (
   token: string
-): Promise<JwtPayload | null> => {
+): Promise<DynamicJwt | null> => {
   try {
-    const decodedToken = await new Promise<JwtPayload | null>(
+    const decodedToken = await new Promise<DynamicJwt | null>(
       (resolve, reject) => {
         jwt.verify(
           token,
@@ -47,7 +51,7 @@ export const validateJWT = async (
               reject(err);
             } else {
               if (typeof decoded === "object" && decoded !== null) {
-                resolve(decoded);
+                resolve(decoded as DynamicJwt);
               } else {
                 reject(new Error("Invalid token"));
               }
@@ -61,4 +65,36 @@ export const validateJWT = async (
     console.error("Invalid token:", error);
     return null;
   }
+};
+
+export const getJwtPayload = async () => {
+  const token = cookies().get("token");
+
+  if (!token) {
+    return null;
+  }
+
+  return await decodeJwtPayload(token.value);
+};
+
+export const setJwt = async (token: string) => {
+  if (!token) {
+    clearJwt();
+    return;
+  }
+
+  const payload = await decodeJwtPayload(token);
+
+  if (!payload) {
+    clearJwt();
+    return;
+  }
+
+  // TODO: insert user in db here
+
+  cookies().set("token", token, { expires: payload.exp, httpOnly: true });
+};
+
+export const clearJwt = () => {
+  cookies().set("token", "", { expires: new Date(0) });
 };
