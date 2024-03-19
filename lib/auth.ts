@@ -92,7 +92,11 @@ export const setJwt = async (token: string) => {
 
   // TODO: insert user in db here
 
-  cookies().set("token", token, { expires: payload.exp, httpOnly: true });
+  cookies().set("token", token, {
+    expires: payload.exp && payload.exp * 1000,
+    secure: true,
+    httpOnly: true,
+  });
 };
 
 export const clearJwt = () => {
