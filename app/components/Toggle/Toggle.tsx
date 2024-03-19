@@ -7,7 +7,8 @@ type ToggleProps = {
 
 export function Toggle({ isOn, onToggle }: ToggleProps) {
   return (
-    <div
+    <button
+      onClick={onToggle}
       className={classNames(
         "bg-[#eee] border-[1px] border-btn-text-disabled rounded-full p-1 flex",
         {
@@ -26,6 +27,6 @@ export function Toggle({ isOn, onToggle }: ToggleProps) {
           "!visible": isOn,
         })}
       ></div>
-    </div>
+    </button>
   );
 }
