@@ -4,13 +4,21 @@ import jwt, { JwtPayload, Secret, VerifyErrors } from "jsonwebtoken";
 import { cookies } from "next/headers";
 import prisma from "@/app/services/prisma";
 
+interface VerifiedWallet {
+  format: "blockchain";
+  address: string;
+  chain: string;
+}
+
+interface VerifiedEmail {
+  format: "email";
+  email: string;
+}
+
 interface DynamicJwtPayload {
   sub: string;
   exp: number;
-  verified_credentials: {
-    address: string;
-    chain: string;
-  }[];
+  verified_credentials: (VerifiedWallet | VerifiedEmail)[];
 }
 
 export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
@@ -92,12 +100,13 @@ export const setJwt = async (token: string) => {
     update: {},
     include: {
       wallets: true,
+      emails: true,
     },
   });
 
   const walletAddresses = payload.verified_credentials
-    .filter((vc) => vc.address && vc.chain === "solana")
-    .map((vc) => vc.address as string);
+    .filter((vc) => vc.format === "blockchain" && vc.chain === "solana")
+    .map((vc) => (vc as VerifiedWallet).address);
 
   const userWalletAddresses = user.wallets.map((wallet) => wallet.address);
 
@@ -128,7 +137,38 @@ export const setJwt = async (token: string) => {
     });
   }
 
-  console.log({ user, walletsToCreate, walletsToDelete });
+  const emailAdresses = payload.verified_credentials
+    .filter((vc) => vc.format === "email")
+    .map((vc) => (vc as VerifiedEmail).email);
+
+  const userEmailAddresses = user.emails.map((email) => email.address);
+
+  const emailsToCreate = emailAdresses.filter(
+    (address) => !userEmailAddresses.includes(address)
+  );
+
+  if (emailsToCreate.length > 0) {
+    await prisma.email.createMany({
+      data: emailsToCreate.map((address) => ({
+        address,
+        userId: user.id,
+      })),
+    });
+  }
+
+  const emailsToDelete = userEmailAddresses.filter(
+    (address) => !emailAdresses.includes(address)
+  );
+
+  if (emailsToDelete.length > 0) {
+    await prisma.email.deleteMany({
+      where: {
+        address: {
+          in: emailsToDelete,
+        },
+      },
+    });
+  }
 
   cookies().set("token", token, {
     expires: payload.exp * 1000,

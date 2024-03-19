@@ -11,10 +11,17 @@ datasource db {
 model User {
   id             String           @id
   wallets        Wallet[]
+  emails         Email[]
   QuestionAnswer QuestionAnswer[]
 }
 
 model Wallet {
+  address String @id
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+}
+
+model Email {
   address String @id
   userId  String
   user    User   @relation(fields: [userId], references: [id])
