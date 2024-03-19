@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={classNames(sora.variable)}>
-      <body className="font-sora">
+      <body className="font-sora bg-black text-white">
         <DynamicProvider>
           {children}
           <AuthRedirect />

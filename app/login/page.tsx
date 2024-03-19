@@ -1,9 +1,10 @@
 "use client";
 
-import { DynamicWidget, useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import c from "./page.module.css";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
+import { Button } from "../components/Button/Button";
 
 export default function Page() {
   const { user } = useDynamicContext();
@@ -16,7 +17,10 @@ export default function Page() {
 
   return (
     <main className={c.main}>
-      <DynamicWidget />
+      <Button variant="primary" size="big" dynamic>
+        Connect Wallet
+      </Button>
+      <p className="text-[13px]">Connect your wallet to begin</p>
     </main>
   );
 }
