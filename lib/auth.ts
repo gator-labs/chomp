@@ -13,10 +13,7 @@ interface DynamicJwtPayload {
   }[];
 }
 
-export const getKey = (
-  _headers: unknown,
-  callback: (err: Error | null, key?: Secret) => void
-): void => {
+export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
   const options = {
     method: "GET",
     headers: {
@@ -24,52 +21,38 @@ export const getKey = (
     },
   };
 
-  fetch(
-    `https://app.dynamicauth.com/api/v0/environments/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/keys`,
-    options
-  )
-    .then((response) => {
-      return response.json();
-    })
-    .then((json) => {
-      const publicKey = json.key.publicKey;
-      const pemPublicKey = Buffer.from(publicKey, "base64").toString("ascii");
-      callback(null, pemPublicKey);
-    })
-    .catch((err) => {
-      console.error(err);
-      callback(err);
-    });
+  try {
+    const response = await fetch(
+      `https://app.dynamicauth.com/api/v0/environments/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/keys`,
+      options
+    );
+    const responseJson = await response.json();
+    const publicKey = responseJson.key.publicKey;
+    return { key: Buffer.from(publicKey, "base64").toString("ascii") };
+  } catch (ex: unknown) {
+    console.error(ex);
+    return { error: ex };
+  }
 };
 
 export const decodeJwtPayload = async (
   token: string
 ): Promise<DynamicJwtPayload | null> => {
   try {
-    const decodedToken = await new Promise<DynamicJwtPayload | null>(
-      (resolve, reject) => {
-        jwt.verify(
-          token,
-          getKey,
-          { algorithms: ["RS256"] },
-          (
-            err: VerifyErrors | null,
-            decoded: string | JwtPayload | undefined
-          ) => {
-            if (err) {
-              reject(err);
-            } else {
-              if (typeof decoded === "object" && decoded !== null) {
-                resolve(decoded as DynamicJwtPayload);
-              } else {
-                reject(new Error("Invalid token"));
-              }
-            }
-          }
-        );
-      }
-    );
-    return decodedToken;
+    const key = await getKey();
+    if (key.error || !key.key) {
+      return null;
+    }
+
+    const result = jwt.verify(token, key.key, {
+      algorithms: ["RS256"],
+    });
+
+    if (typeof result === "object" && result !== null) {
+      return result as DynamicJwtPayload;
+    }
+
+    return null;
   } catch (error) {
     console.error("Invalid token:", error);
     return null;
@@ -144,6 +127,8 @@ export const setJwt = async (token: string) => {
       },
     });
   }
+
+  console.log({ user, walletsToCreate, walletsToDelete });
 
   cookies().set("token", token, {
     expires: payload.exp * 1000,
