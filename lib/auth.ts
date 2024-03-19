@@ -1,8 +1,17 @@
 "use server";
 
 import jwt, { JwtPayload, Secret, VerifyErrors } from "jsonwebtoken";
-import type { DynamicJwt } from "@dynamic-labs/sdk-react-core";
 import { cookies } from "next/headers";
+import prisma from "@/app/services/prisma";
+
+interface DynamicJwtPayload {
+  sub: string;
+  exp: number;
+  verified_credentials: {
+    address: string;
+    chain: string;
+  }[];
+}
 
 export const getKey = (
   _headers: unknown,
@@ -35,9 +44,9 @@ export const getKey = (
 
 export const decodeJwtPayload = async (
   token: string
-): Promise<DynamicJwt | null> => {
+): Promise<DynamicJwtPayload | null> => {
   try {
-    const decodedToken = await new Promise<DynamicJwt | null>(
+    const decodedToken = await new Promise<DynamicJwtPayload | null>(
       (resolve, reject) => {
         jwt.verify(
           token,
@@ -51,7 +60,7 @@ export const decodeJwtPayload = async (
               reject(err);
             } else {
               if (typeof decoded === "object" && decoded !== null) {
-                resolve(decoded as DynamicJwt);
+                resolve(decoded as DynamicJwtPayload);
               } else {
                 reject(new Error("Invalid token"));
               }
@@ -85,15 +94,59 @@ export const setJwt = async (token: string) => {
 
   const payload = await decodeJwtPayload(token);
 
-  if (!payload) {
+  if (!payload || !payload.sub) {
     clearJwt();
     return;
   }
 
-  // TODO: insert user in db here
+  const user = await prisma.user.upsert({
+    where: {
+      id: payload.sub,
+    },
+    create: {
+      id: payload.sub,
+    },
+    update: {},
+    include: {
+      wallets: true,
+    },
+  });
+
+  const walletAddresses = payload.verified_credentials
+    .filter((vc) => vc.address && vc.chain === "solana")
+    .map((vc) => vc.address as string);
+
+  const userWalletAddresses = user.wallets.map((wallet) => wallet.address);
+
+  const walletsToCreate = walletAddresses.filter(
+    (address) => !userWalletAddresses.includes(address)
+  );
+
+  if (walletsToCreate.length > 0) {
+    await prisma.wallet.createMany({
+      data: walletsToCreate.map((address) => ({
+        address,
+        userId: user.id,
+      })),
+    });
+  }
+
+  const walletsToDelete = userWalletAddresses.filter(
+    (address) => !walletAddresses.includes(address)
+  );
+
+  if (walletsToDelete.length > 0) {
+    await prisma.wallet.deleteMany({
+      where: {
+        address: {
+          in: walletsToDelete,
+        },
+      },
+    });
+  }
 
   cookies().set("token", token, {
-    expires: payload.exp && payload.exp * 1000,
+    expires: payload.exp * 1000,
     secure: true,
     httpOnly: true,
   });

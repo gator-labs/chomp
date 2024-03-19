@@ -9,14 +9,14 @@ datasource db {
 }
 
 model User {
-  id             Int              @id @default(autoincrement())
+  id             String           @id
   wallets        Wallet[]
   QuestionAnswer QuestionAnswer[]
 }
 
 model Wallet {
   address String @id
-  userId  Int
+  userId  String
   user    User   @relation(fields: [userId], references: [id])
 }
 
@@ -54,7 +54,7 @@ model QuestionAnswer {
   id               Int      @id @default(autoincrement())
   questionOptionId Int
   questionOption   Question @relation(fields: [questionOptionId], references: [id])
-  userId           Int
+  userId           String
   user             User     @relation(fields: [userId], references: [id])
   percentage       Int
   selected         Boolean
