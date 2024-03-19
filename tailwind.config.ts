@@ -17,6 +17,7 @@ const colors = {
   aqua: "#6DECAF",
   gray: "#999999",
   "input-gray": "#929292",
+  "search-gray": "#4D4D4D",
 };
 
 module.exports = {
