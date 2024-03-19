@@ -18,6 +18,7 @@ const colors = {
   gray: "#999999",
   "input-gray": "#929292",
   "search-gray": "#4D4D4D",
+  purple: "#E3DCFF",
 };
 
 module.exports = {
