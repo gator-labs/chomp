@@ -3,12 +3,14 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 
 type ButtonProps = {
-  variant: "primary" | "secondary" | "warning" | "white" | "black";
+  variant?: "primary" | "secondary" | "warning" | "white" | "black";
   onClick?: () => void;
   size?: "big" | "normal" | "small";
   isDisabled?: boolean;
   children: ReactNode;
   dynamic?: boolean;
+  isFullWidth?: boolean;
+  className?: string;
 };
 
 export function Button({
@@ -18,9 +20,11 @@ export function Button({
   isDisabled = false,
   children,
   dynamic,
+  isFullWidth = true,
+  className,
 }: ButtonProps) {
-  const className = classNames(
-    `bg-${variant} text-btn-text-${variant} rounded-lg w-full inline-flex justify-center`,
+  const classNameResult = classNames(
+    `bg-${variant} text-btn-text-${variant} rounded-lg inline-flex justify-center`,
     {
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
       "!bg-disabled": isDisabled,
@@ -34,19 +38,21 @@ export function Button({
       "font-bold": size === "big",
       "text-sm": size === "normal" || size === "small",
       "text-base": size === "big",
-    }
+      "w-full": isFullWidth,
+    },
+    className
   );
 
   if (dynamic) {
     return (
-      <DynamicConnectButton buttonClassName={className}>
+      <DynamicConnectButton buttonClassName={classNameResult}>
         {children}
       </DynamicConnectButton>
     );
   }
 
   return (
-    <button onClick={onClick} className={className}>
+    <button onClick={onClick} className={classNameResult}>
       {children}
     </button>
   );
