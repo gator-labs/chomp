@@ -1,13 +1,19 @@
+import classNames from "classnames";
 import Image from "next/image";
+import { CSSProperties } from "react";
 
 type AvatarProps = {
   src: string;
-  size: "small" | "medium" | "large";
+  size: "extrasmall" | "small" | "medium" | "large";
+  className?: string;
+  style?: CSSProperties;
 };
 
-export function Avatar({ src, size }: AvatarProps) {
+export function Avatar({ src, size, className, style }: AvatarProps) {
   const resolveDimensions = () => {
     switch (size) {
+      case "extrasmall":
+        return 16;
       case "small":
         return 24;
       case "medium":
@@ -25,7 +31,8 @@ export function Avatar({ src, size }: AvatarProps) {
       alt="Avatar"
       width={resolveDimensions()}
       height={resolveDimensions()}
-      className="rounded-full border-2 border-white"
+      className={classNames("rounded-full border-2 border-white", className)}
+      style={style}
     />
   );
 }
