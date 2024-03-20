@@ -18,7 +18,7 @@ export function TabNavigation() {
   const pathname = usePathname();
 
   return (
-    <div className="flex justify-center p-1 space-x-6 py-3 w-full">
+    <div className="flex justify-center p-1 space-x-6 py-3 w-full bg-black">
       {navigationItems.map((ni, index) => (
         <Link
           key={index}
