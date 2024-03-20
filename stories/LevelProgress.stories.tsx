@@ -1,28 +1,29 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ProgressBar } from "../app/components/ProgressBar/ProgressBar";
+import { LevelProgress } from "../app/components/LevelProgress/LevelProgress";
 
 const meta = {
-  title: "Progress/Bar",
-  component: ProgressBar,
+  title: "Progress/Level",
+  component: LevelProgress,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
   argTypes: {
-    percentage: { type: "number" },
+    progress: { type: "number" },
   },
   decorators: (Story) => (
-    <div className="w-52">
+    <div className="w-52 bg-black p-4">
       <Story />
     </div>
   ),
-} satisfies Meta<typeof ProgressBar>;
+} satisfies Meta<typeof LevelProgress>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    percentage: 50,
+    level: "43",
+    progress: 50,
   },
 };
