@@ -16,7 +16,7 @@ export default function Page() {
   }, [user]);
 
   return (
-    <main className={c.main}>
+    <main className="flex flex-col justify-center items-center gap-3 h-full">
       <Button variant="primary" size="big" dynamic>
         Connect Wallet
       </Button>

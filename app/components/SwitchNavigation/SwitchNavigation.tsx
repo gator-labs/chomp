@@ -3,7 +3,11 @@ import { Button } from "../Button/Button";
 import classNames from "classnames";
 
 type SwitchNavigationProps = {
-  navigationItems: { href: string; label: string; isActive: boolean }[];
+  navigationItems: {
+    href: string;
+    label: string;
+    isActive: boolean;
+  }[];
 };
 
 export function SwitchNavigation({ navigationItems }: SwitchNavigationProps) {
