@@ -18,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={classNames(sora.variable)}>
-      <body className="font-sora bg-black text-white">
+    <html lang="en" className={classNames(sora.variable, "h-full")}>
+      <body className="font-sora bg-black text-white h-full">
         <DynamicProvider>
           {children}
           <AuthRedirect />

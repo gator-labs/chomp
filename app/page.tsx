@@ -1,18 +1,17 @@
 "use client";
 
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { useTokenBalance } from "./hooks/useTokenBalance";
-import c from "./page.module.css";
+import { PageLayout } from "./components/PageLayout/PageLayout";
 
 export default function Page() {
-  const { balance } = useTokenBalance();
   const { handleLogOut } = useDynamicContext();
 
   return (
-    <main className={c.main}>
+    <PageLayout>
       home page
-      <div>bonk balance: {balance}</div>
-      <button onClick={() => handleLogOut()}>Log out</button>
-    </main>
+      <div>
+        <button onClick={() => handleLogOut()}>Log out</button>
+      </div>
+    </PageLayout>
   );
 }
