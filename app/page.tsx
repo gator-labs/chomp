@@ -1,17 +1,15 @@
-"use client";
-
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { LogoutButton } from "./components/LogoutButton/LogoutButton";
 import { PageLayout } from "./components/PageLayout/PageLayout";
+import { getUserTokenBalances } from "../lib/web3";
 
-export default function Page() {
-  const { handleLogOut } = useDynamicContext();
+export default async function Page() {
+  const { bonk } = await getUserTokenBalances();
 
   return (
     <PageLayout>
-      home page
-      <div>
-        <button onClick={() => handleLogOut()}>Log out</button>
-      </div>
+      <div>home page</div>
+      <div>bonk balance: {bonk}</div>
+      <LogoutButton />
     </PageLayout>
   );
 }
