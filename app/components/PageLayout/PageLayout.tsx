@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { TabNavigation } from "../TabNavigation/TabNavigation";
+import { Navbar } from "../Navbar/Navbar";
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -8,7 +9,7 @@ type PageLayoutProps = {
 export function PageLayout({ children }: PageLayoutProps) {
   return (
     <div className="flex flex-col h-full">
-      <header>header</header>
+      <Navbar avatarSrc="" avatarLink="" walletLink="" />
       <main className="flex-grow">{children}</main>
       <TabNavigation />
     </div>

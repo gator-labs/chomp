@@ -3,7 +3,6 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { cookies } from "next/headers";
 import { getJwtPayload } from "./auth";
 import prisma from "@/app/services/prisma";
 
