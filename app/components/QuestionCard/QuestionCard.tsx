@@ -46,7 +46,7 @@ export function QuestionCard({
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILISECONDS);
 
   return (
-    <div className="bg-[#333] min-h-[304px] w-full rounded-xl px-4 py-6 flex flex-col justify-between">
+    <div className="questions-card">
       <div className="text-white font-sora font-semibold text-base">
         {question}
       </div>

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { HomeIndicator } from "../app/components/HomeIndicator/HomeIndicator";
 
 const meta = {
-  title: "HomeIndicator",
+  title: "Home Indicator",
   component: HomeIndicator,
   parameters: {
     layout: "centered",
