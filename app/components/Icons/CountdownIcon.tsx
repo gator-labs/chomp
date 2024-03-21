@@ -13,6 +13,7 @@ export function CountdownIcon({
       height={height}
       fill="none"
       viewBox="0 0 24 24"
+      className="animate-spin"
     >
       <path
         fill="#666"
