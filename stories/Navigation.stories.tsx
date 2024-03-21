@@ -20,14 +20,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     items: [
-      {
-        label: "Answer",
-        icon: <ChallengeIcon />,
-        href: "/answer",
-        isActive: false,
-      },
-      { label: "Home", icon: <HomeIcon />, href: "/", isActive: false },
-      { label: "Ask", icon: <ComposeIcon />, href: "/ask", isActive: false },
+      { label: "Answer", icon: <ChallengeIcon />, href: "/answer" },
+      { label: "Home", icon: <HomeIcon />, href: "/" },
+      { label: "Ask", icon: <ComposeIcon />, href: "/ask" },
     ],
   },
 };
@@ -39,10 +34,9 @@ export const MyProfileActive: Story = {
         label: "Answer",
         icon: <ChallengeIcon />,
         href: "/answer",
-        isActive: true,
       },
-      { label: "Home", icon: <HomeIcon />, href: "/", isActive: false },
-      { label: "Ask", icon: <ComposeIcon />, href: "/ask", isActive: false },
+      { label: "Home", icon: <HomeIcon />, href: "/" },
+      { label: "Ask", icon: <ComposeIcon />, href: "/ask" },
     ],
   },
 };
