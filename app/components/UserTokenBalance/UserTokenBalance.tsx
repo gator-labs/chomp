@@ -1,4 +1,4 @@
-import { getUserTokenBalances } from "@/lib/web3";
+import { getUserTokenBalances } from "@/app/queries/user";
 
 export const UserTokenBalance = async () => {
   const { bonk } = await getUserTokenBalances();

@@ -1,12 +1,17 @@
+"use client";
+
 import classNames from "classnames";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
 type NavigationProps = {
-  items: { label: string; icon: ReactNode; href: string; isActive: boolean }[];
+  items: { label: string; icon: ReactNode; href: string; altHref?: string[] }[];
 };
 
 export function Navigation({ items }: NavigationProps) {
+  const pathname = usePathname();
+
   return (
     <div className="flex justify-center p-1 space-x-6 py-3 w-full bg-black">
       {items.map((item, index) => (
@@ -17,8 +22,8 @@ export function Navigation({ items }: NavigationProps) {
         >
           <span
             className={classNames("px-4 py-1 rounded-full", {
-              "bg-btn-border-black": item.isActive,
-              "svg-active-fill": item.isActive,
+              "bg-btn-border-black": item.href === pathname,
+              "svg-active-fill": item.href === pathname,
             })}
           >
             {item.icon}

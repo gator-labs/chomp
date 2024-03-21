@@ -4,24 +4,23 @@ import { ReactNode } from "react";
 
 type ButtonProps = {
   variant?: "primary" | "secondary" | "warning" | "white" | "black";
-  onClick?: () => void;
   size?: "big" | "normal" | "small";
   isDisabled?: boolean;
   children: ReactNode;
   dynamic?: boolean;
   isFullWidth?: boolean;
   className?: string;
-};
+} & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button({
   variant = "secondary",
   size = "normal",
-  onClick,
   isDisabled = false,
   children,
   dynamic,
   isFullWidth = true,
   className,
+  ...props
 }: ButtonProps) {
   const classNameResult = classNames(
     `bg-${variant} text-btn-text-${variant} rounded-lg inline-flex justify-center`,
@@ -52,7 +51,7 @@ export function Button({
   }
 
   return (
-    <button onClick={onClick} className={classNameResult}>
+    <button {...props} className={classNameResult}>
       {children}
     </button>
   );

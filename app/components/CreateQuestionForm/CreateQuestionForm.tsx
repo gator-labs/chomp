@@ -4,6 +4,7 @@ import { CreateQuestionState, createQuestion } from "@/app/actions/question";
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { QuestionType } from "@prisma/client";
 import { useFormState } from "react-dom";
+import { TextInput } from "../TextInput/TextInput";
 
 const initialState = {
   errors: {},
@@ -17,25 +18,25 @@ export default function CreateQuestion() {
 
   return (
     <form action={createQuestionAction}>
-      <input type="text" name="question" />
-      {state.errors?.question &&
-        state.errors.question.map((e) => <div key={e}>{e}</div>)}
+      <div>
+        <TextInput variant="secondary" type="text" name="question" />
+        {state.errors?.question &&
+          state.errors.question.map((e) => <div key={e}>{e}</div>)}
+      </div>
+
       <div>
         <select name="type">
-          <option value={QuestionType.TrueFalse}>
-            {QuestionType.TrueFalse}
-          </option>
-          <option value={QuestionType.YesNo}>{QuestionType.YesNo}</option>
-          <option value={QuestionType.MultiChoice}>
-            {QuestionType.MultiChoice}
-          </option>
+          {Object.values(QuestionType).map((type) => (
+            <option value={type} key={type}>
+              {type}
+            </option>
+          ))}
         </select>
+        {state.errors?.type &&
+          state.errors.type.map((e) => <div key={e}>{e}</div>)}
       </div>
-      {state.errors?.type &&
-        state.errors.type.map((e) => <div key={e}>{e}</div>)}
-      <div>
-        <SubmitButton />
-      </div>
+
+      <SubmitButton />
     </form>
   );
 }
