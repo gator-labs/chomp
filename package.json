@@ -9,6 +9,7 @@
     "lint": "next lint",
     "compose:db:up": "docker compose -f db-compose.yml up",
     "compose:db:down": "docker compose -f db-compose.yml down",
+    "prisma:studio": "dotenv -c -- prisma studio",
     "prisma:migrate": "dotenv -c -- prisma migrate dev",
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate",

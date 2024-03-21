@@ -1,8 +1,8 @@
 "use client";
 
-import { clearJwt, setJwt } from "@/lib/auth";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { SolanaWalletConnectors } from "@dynamic-labs/solana";
+import { clearJwt, setJwt } from "../actions/jwt";
 
 export default function DynamicProvider({
   children,

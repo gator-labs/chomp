@@ -1,18 +1,13 @@
 import classNames from "classnames";
 
 type TextInputProps = {
-  name?: string;
-  onChange: () => string;
-  value: string;
   variant: "primary" | "secondary";
-};
+} & React.InputHTMLAttributes<HTMLInputElement>;
 
-export function TextInput({ onChange, value, name, variant }: TextInputProps) {
+export function TextInput({ variant, ...props }: TextInputProps) {
   return (
     <input
-      onChange={onChange}
-      value={value}
-      name={name}
+      {...props}
       className={classNames(
         "uppercase border-[1px] border-border-white py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray",
         {

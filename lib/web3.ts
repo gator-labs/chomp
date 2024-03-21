@@ -3,8 +3,6 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { getJwtPayload } from "./auth";
-import prisma from "@/app/services/prisma";
 
 export const findSplTokenPda = (
   pubKey: PublicKey,
@@ -48,20 +46,4 @@ export const getTokenBalances = async (addr: string | string[]) => {
   }
 
   return tokenBalances;
-};
-
-export const getUserTokenBalances = async () => {
-  const user = await getJwtPayload();
-
-  if (!user) {
-    return { bonk: 0 };
-  }
-
-  const wallets = await prisma.wallet.findMany({
-    where: {
-      userId: user.sub,
-    },
-  });
-
-  return getTokenBalances(wallets.map((wallet) => wallet.address));
 };
