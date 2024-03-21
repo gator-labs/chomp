@@ -7,21 +7,20 @@ import { usePathname } from "next/navigation";
 import { Navigation } from "../Navigation/Navigation";
 
 const navigationItems = [
-  {
-    label: "Answer",
-    icon: <ChallengeIcon />,
-    href: "/answer",
-    isActive: false,
-  },
-  { label: "Home", icon: <HomeIcon />, href: "/", isActive: false },
-  { label: "Ask", icon: <ComposeIcon />, href: "/ask", isActive: false },
+  { label: "Answer", icon: <ChallengeIcon />, href: "/answer" },
+  { label: "Home", icon: <HomeIcon />, href: "/", subHref: ["/profile"] },
+  { label: "Ask", icon: <ComposeIcon />, href: "/ask" },
 ];
 
 export function TabNavigation() {
   const pathname = usePathname();
-  navigationItems.forEach((ni) => {
-    ni.isActive = ni.href === pathname;
-  });
 
-  return <Navigation items={navigationItems} />;
+  return (
+    <Navigation
+      items={navigationItems.map((ni) => ({
+        ...ni,
+        isActive: ni.href === pathname || (ni.subHref || []).includes(pathname),
+      }))}
+    />
+  );
 }
