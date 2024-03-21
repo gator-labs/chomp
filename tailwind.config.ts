@@ -31,6 +31,11 @@ module.exports = {
       fontFamily: {
         sora: ["var(--font-sora)"],
       },
+      fontSize: {
+        xs: ["10px", "12.6px"],
+        sm: ["13px", "16.38px"],
+        base: ["16px", "20px"],
+      },
       boxShadow: {
         input: "0 0 4px 0",
       },

@@ -3,7 +3,7 @@ import { TrueFalseScale } from "../app/components/TrueFalseScale/TrueFalseScale"
 import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
-  title: "TrueFalseScale",
+  title: "True False Scale",
   component: TrueFalseScale,
   parameters: {
     layout: "centered",

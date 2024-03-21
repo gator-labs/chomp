@@ -4,7 +4,7 @@ import { RadioInput } from "../app/components/RadioInput/RadioInput";
 import dayjs from "dayjs";
 
 const meta = {
-  title: "QuestionCard",
+  title: "Cards/Question Card",
   component: QuestionCard,
   parameters: {
     layout: "centered",
