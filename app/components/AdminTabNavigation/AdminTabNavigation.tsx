@@ -9,18 +9,22 @@ import { CommentIcon } from "../Icons/CommentIcon";
 const navigationItems = [
   { label: "App", icon: <BackIcon />, href: "/" },
   { label: "Home", icon: <HomeIcon />, href: "/admin" },
-  { label: "Questions", icon: <CommentIcon />, href: "/admin/questions" },
+  {
+    label: "Questions",
+    icon: <CommentIcon />,
+    href: "/admin/questions",
+    isActiveRegex: "/admin/questions.*",
+  },
+  {
+    label: "Decks",
+    icon: <CommentIcon />,
+    href: "/admin/decks",
+    isActiveRegex: "/admin/decks.*",
+  },
 ];
 
 export function AdminTabNavigation() {
   const pathname = usePathname();
 
-  return (
-    <Navigation
-      items={navigationItems.map((ni) => ({
-        ...ni,
-        isActive: ni.href === pathname,
-      }))}
-    />
-  );
+  return <Navigation items={navigationItems} />;
 }

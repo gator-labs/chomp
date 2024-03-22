@@ -7,7 +7,12 @@ import { SettingsIcon } from "../Icons/SettingsIcon";
 
 const navigationItems = [
   { label: "Answer", icon: <ChallengeIcon />, href: "/answer" },
-  { label: "Home", icon: <HomeIcon />, href: "/", altHref: ["/profile"] },
+  {
+    label: "Home",
+    icon: <HomeIcon />,
+    href: "/",
+    isActiveRegex: "^/$|^/profile$",
+  },
   { label: "Ask", icon: <ComposeIcon />, href: "/ask" },
 ];
 

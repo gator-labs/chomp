@@ -1,3 +1,3 @@
 export default async function Page() {
-  return <div>some app stats</div>;
+  return <div>new question page</div>;
 }
