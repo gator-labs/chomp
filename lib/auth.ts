@@ -43,6 +43,10 @@ export const decodeJwtPayload = async (
   token: string
 ): Promise<DynamicJwtPayload | null> => {
   try {
+    if (!token) {
+      return null;
+    }
+
     const key = await getKey();
     if (key.error || !key.key) {
       return null;
