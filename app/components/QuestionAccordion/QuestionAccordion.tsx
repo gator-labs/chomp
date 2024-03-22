@@ -6,7 +6,7 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import classNames from "classnames";
 
 type StatusUnion = "chomped" | "new";
-type QuestionAccordianProps = {
+type QuestionAccordionProps = {
   question: string;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
@@ -27,7 +27,7 @@ const parseStatus = (status: StatusUnion) => {
   }
 };
 
-export function QuestionAccordian({
+export function QuestionAccordion({
   question,
   isCollapsed,
   onToggleCollapse,
@@ -35,7 +35,7 @@ export function QuestionAccordian({
   actionChild,
   children,
   status,
-}: QuestionAccordianProps) {
+}: QuestionAccordionProps) {
   return (
     <div className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2">
       <div className="w-72 flex flex-col gap-y-2">

@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { QuestionAccordian } from "../app/components/QuestionAccordian/QuestionAccordian";
+import { QuestionAccordion } from "../app/components/QuestionAccordion/QuestionAccordion";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";
 import { Button } from "../app/components/Button/Button";
 import { TrueFalseScale } from "../app/components/TrueFalseScale/TrueFalseScale";
 
 const meta = {
-  title: "Cards/Question Accordian",
-  component: QuestionAccordian,
+  title: "Cards/Question Accordion",
+  component: QuestionAccordion,
   parameters: {
     layout: "centered",
   },
@@ -15,7 +15,7 @@ const meta = {
     onToggleCollapse: fn(),
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof QuestionAccordian>;
+} satisfies Meta<typeof QuestionAccordion>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
