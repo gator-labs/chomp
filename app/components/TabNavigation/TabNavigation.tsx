@@ -6,9 +6,14 @@ import { getIsUserAdmin } from "@/app/queries/user";
 import { SettingsIcon } from "../Icons/SettingsIcon";
 
 const navigationItems = [
-  { label: "Answer", icon: <ChallengeIcon />, href: "/answer" },
-  { label: "Home", icon: <HomeIcon />, href: "/", altHref: ["/profile"] },
-  { label: "Ask", icon: <ComposeIcon />, href: "/ask" },
+  { label: "Answer", icon: <ChallengeIcon />, href: "/application/answer" },
+  {
+    label: "Home",
+    icon: <HomeIcon />,
+    href: "/application",
+    altHref: ["/application/profile"],
+  },
+  { label: "Ask", icon: <ComposeIcon />, href: "/application/ask" },
 ];
 
 const adminNavigationItems = [

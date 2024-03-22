@@ -1,7 +1,6 @@
 "use client";
 
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import c from "./page.module.css";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "../components/Button/Button";
@@ -11,7 +10,7 @@ export default function Page() {
 
   useEffect(() => {
     if (user) {
-      redirect("/");
+      redirect("/application");
     }
   }, [user]);
 

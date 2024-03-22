@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import classNames from "classnames";
 
 import DynamicProvider from "./providers/DynamicProvider";
-import { AuthRedirect } from "./components/AuthRedirect/AuthRedirect";
 
 import "@/styles/globals.css";
 import { sora } from "@/lib/fonts";
@@ -20,10 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={classNames(sora.variable, "h-full")}>
       <body className="font-sora bg-[#0D0D0D] text-white h-full">
-        <DynamicProvider>
-          {children}
-          <AuthRedirect />
-        </DynamicProvider>
+        <DynamicProvider>{children}</DynamicProvider>
       </body>
     </html>
   );

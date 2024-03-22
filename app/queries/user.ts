@@ -15,7 +15,11 @@ export const getUserTokenBalances = async () => {
     },
   });
 
-  return getTokenBalances(wallets.map((wallet) => wallet.address));
+  try {
+    return await getTokenBalances(wallets.map((wallet) => wallet.address));
+  } catch (ex) {
+    return { bonk: 0 };
+  }
 };
 
 export async function getIsUserAdmin() {

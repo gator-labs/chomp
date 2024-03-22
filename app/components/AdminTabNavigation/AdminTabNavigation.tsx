@@ -7,7 +7,7 @@ import { BackIcon } from "../Icons/BackIcon";
 import { CommentIcon } from "../Icons/CommentIcon";
 
 const navigationItems = [
-  { label: "App", icon: <BackIcon />, href: "/" },
+  { label: "App", icon: <BackIcon />, href: "/application" },
   { label: "Home", icon: <HomeIcon />, href: "/admin" },
   { label: "Questions", icon: <CommentIcon />, href: "/admin/questions" },
 ];
