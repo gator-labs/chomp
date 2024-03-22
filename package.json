@@ -17,8 +17,8 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "@dynamic-labs/sdk-react-core": "^1.2.1",
-    "@dynamic-labs/solana": "^1.2.1",
+    "@dynamic-labs/sdk-react-core": "^1.4.0",
+    "@dynamic-labs/solana": "^1.4.0",
     "@prisma/client": "^5.10.2",
     "@solana/spl-token": "^0.4.1",
     "@solana/web3.js": "^1.91.0",
