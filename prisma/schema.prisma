@@ -9,11 +9,11 @@ datasource db {
 }
 
 model User {
-  id             String           @id
-  isAdmin        Boolean          @default(false)
-  wallets        Wallet[]
-  emails         Email[]
-  QuestionAnswer QuestionAnswer[]
+  id              String           @id
+  isAdmin         Boolean          @default(false)
+  wallets         Wallet[]
+  emails          Email[]
+  questionAnswers QuestionAnswer[]
 }
 
 model Wallet {
@@ -29,12 +29,13 @@ model Email {
 }
 
 model Question {
-  id       Int              @id @default(autoincrement())
-  question String
-  type     QuestionType
-  options  QuestionOption[]
-  tags     QuestionTag[]
-  answers  QuestionAnswer[]
+  id              Int              @id @default(autoincrement())
+  question        String
+  type            QuestionType
+  questionOptions QuestionOption[]
+  questionTags    QuestionTag[]
+  questionAnswers QuestionAnswer[]
+  questionDecks   QuestionDeck[]
 }
 
 model QuestionOption {
@@ -56,6 +57,21 @@ model QuestionTag {
   tag        Tag      @relation(fields: [tagId], references: [id])
   questionId Int
   question   Question @relation(fields: [questionId], references: [id])
+}
+
+model Deck {
+  id            Int            @id @default(autoincrement())
+  deck          String
+  questionDecks QuestionDeck[]
+}
+
+model QuestionDeck {
+  id         Int       @id @default(autoincrement())
+  date       DateTime?
+  deckId     Int
+  deck       Deck      @relation(fields: [deckId], references: [id])
+  questionId Int
+  question   Question  @relation(fields: [questionId], references: [id])
 }
 
 model QuestionAnswer {
