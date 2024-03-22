@@ -4,8 +4,7 @@ import Link from "next/link";
 import { CountdownIcon } from "../Icons/CountdownIcon";
 import classNames from "classnames";
 import { useInterval } from "../../hooks/useInterval";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
+import { ONE_SECOND_IN_MILISECONDS, getDueAtString } from "../../utils/dateUtils";
 
 type QuestionCardProps = {
   question: string;
@@ -14,18 +13,6 @@ type QuestionCardProps = {
   numberOfSteps: number;
   viewImageSrc?: string;
   children?: ReactNode;
-};
-
-const ONE_SECOND_IN_MILISECONDS = 1000;
-
-dayjs.extend(duration);
-const getDueAtString = (dueAt: Date) => {
-  const miliseconds = dayjs(dueAt).diff(new Date());
-  if (miliseconds <= 0) {
-    return "0:00";
-  }
-
-  return dayjs.duration(miliseconds).format("m:ss");
 };
 
 export function QuestionCard({
