@@ -4,7 +4,7 @@ import { ProgressBar } from "../ProgressBar/ProgressBar";
 type TrueFalseScaleProps = {
   ratioTrue: number;
   valueSelected?: number;
-  avatarSrc: string;
+  avatarSrc?: string;
 };
 
 export function TrueFalseScale({
@@ -26,7 +26,7 @@ export function TrueFalseScale({
         bgColor="#CFC5F7"
         className="h-[21px]"
       />
-      {valueSelected !== undefined && (
+      {valueSelected !== undefined && avatarSrc && (
         <Avatar
           src={avatarSrc}
           size="extrasmall"
