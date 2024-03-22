@@ -6,9 +6,9 @@ export default async function Page() {
   const questions = await getQuestions();
 
   return (
-    <>
+    <div>
       <CreateQuestion />
       <Questions questions={questions} />
-    </>
+    </div>
   );
 }

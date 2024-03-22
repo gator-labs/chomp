@@ -12,6 +12,7 @@ const navigationItems = [
     icon: <HomeIcon />,
     href: "/application",
     altHref: ["/application/profile"],
+    isActiveRegex: "^/application$|^/application/profile$",
   },
   { label: "Ask", icon: <ComposeIcon />, href: "/application/ask" },
 ];

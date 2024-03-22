@@ -6,7 +6,12 @@ import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 
 type NavigationProps = {
-  items: { label: string; icon: ReactNode; href: string; altHref?: string[] }[];
+  items: {
+    label: string;
+    icon: ReactNode;
+    href: string;
+    isActiveRegex?: string;
+  }[];
 };
 
 export function Navigation({ items }: NavigationProps) {
@@ -22,8 +27,12 @@ export function Navigation({ items }: NavigationProps) {
         >
           <span
             className={classNames("px-4 py-1 rounded-full", {
-              "bg-btn-border-black": item.href === pathname,
-              "svg-active-fill": item.href === pathname,
+              "bg-btn-border-black": item.isActiveRegex
+                ? new RegExp(item.isActiveRegex).test(pathname)
+                : item.href === pathname,
+              "svg-active-fill": item.isActiveRegex
+                ? new RegExp(item.isActiveRegex).test(pathname)
+                : item.href === pathname,
             })}
           >
             {item.icon}
