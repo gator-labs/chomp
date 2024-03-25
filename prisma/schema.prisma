@@ -36,7 +36,6 @@ model Question {
   revealTokenAmount   Int              @default(0)
   revealAtDate        DateTime?
   revealAtAnswerCount Int?
-  startAt             DateTime         @default(now())
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
   questionAnswers     QuestionAnswer[]
@@ -68,6 +67,7 @@ model QuestionTag {
 model Deck {
   id            Int            @id @default(autoincrement())
   deck          String
+  startAt       DateTime       @default(now())
   questionDecks QuestionDeck[]
 }
 
