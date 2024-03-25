@@ -6,14 +6,15 @@ import { getIsUserAdmin } from "@/app/queries/user";
 import { SettingsIcon } from "../Icons/SettingsIcon";
 
 const navigationItems = [
-  { label: "Answer", icon: <ChallengeIcon />, href: "/answer" },
+  { label: "Answer", icon: <ChallengeIcon />, href: "/application/answer" },
   {
     label: "Home",
     icon: <HomeIcon />,
-    href: "/",
-    isActiveRegex: "^/$|^/profile$",
+    href: "/application",
+    altHref: ["/application/profile"],
+    isActiveRegex: "^/application$|^/application/profile$",
   },
-  { label: "Ask", icon: <ComposeIcon />, href: "/ask" },
+  { label: "Ask", icon: <ComposeIcon />, href: "/application/ask" },
 ];
 
 const adminNavigationItems = [
