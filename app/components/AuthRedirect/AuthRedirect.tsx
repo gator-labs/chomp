@@ -12,10 +12,6 @@ export const AuthRedirect = () => {
     if (!user && pathname !== "/login") {
       redirect("/login");
     }
-
-    if (pathname === "/") {
-      redirect("/application");
-    }
   }, [user, pathname]);
 
   return <></>;

@@ -1,5 +1,12 @@
-import { AuthRedirect } from "./components/AuthRedirect/AuthRedirect";
+"use client";
 
-export default async function Page() {
-  return <AuthRedirect />;
+import { redirect } from "next/navigation";
+import { useEffect } from "react";
+
+export default function Page() {
+  useEffect(() => {
+    redirect("/application");
+  }, []);
+
+  return <></>;
 }

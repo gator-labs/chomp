@@ -7,8 +7,8 @@ export function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button variant="primary" type="submit" aria-disabled={pending}>
-      Add
+    <Button variant="primary" type="submit" disabled={pending}>
+      Submit
     </Button>
   );
 }
