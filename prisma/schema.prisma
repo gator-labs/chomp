@@ -67,7 +67,6 @@ model QuestionTag {
 model Deck {
   id            Int            @id @default(autoincrement())
   deck          String
-  startAt       DateTime       @default(now())
   questionDecks QuestionDeck[]
 }
 
