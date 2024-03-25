@@ -1,18 +1,27 @@
-import { ReactNode, useCallback, useState } from "react";
+"use client";
+import { CSSProperties, ReactNode, useCallback, useState } from "react";
 import { ImageIcon } from "../Icons/ImageIcon";
 import Link from "next/link";
 import { CountdownIcon } from "../Icons/CountdownIcon";
 import classNames from "classnames";
 import { useInterval } from "../../hooks/useInterval";
-import { ONE_SECOND_IN_MILISECONDS, getDueAtString } from "../../utils/dateUtils";
+import {
+  ONE_SECOND_IN_MILISECONDS,
+  getDueAtString,
+} from "../../utils/dateUtils";
+import dayjs from "dayjs";
 
 type QuestionCardProps = {
   question: string;
   dueAt: Date;
+  onDurationRanOut?: () => void;
   step: number;
   numberOfSteps: number;
   viewImageSrc?: string;
+  className?: string;
   children?: ReactNode;
+  style?: CSSProperties;
+  isBlurred?: boolean;
 };
 
 export function QuestionCard({
@@ -22,19 +31,31 @@ export function QuestionCard({
   numberOfSteps,
   step,
   dueAt,
+  className,
+  onDurationRanOut,
+  style,
+  isBlurred,
 }: QuestionCardProps) {
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
     getDueAtString(dueAt)
   );
   const handleDueAtFormatted = useCallback(() => {
     setDueAtFormatted(getDueAtString(dueAt));
-  }, [setDueAtFormatted, dueAt]);
+    if (dayjs(dueAt).diff(new Date(), "seconds") <= 0) {
+      onDurationRanOut && onDurationRanOut();
+    }
+  }, [setDueAtFormatted, dueAt, onDurationRanOut]);
 
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILISECONDS);
 
   return (
-    <div className="questions-card">
-      <div className="text-white font-sora font-semibold text-base">
+    <div className={classNames("questions-card", className)} style={style}>
+      <div
+        className={classNames("text-white font-sora font-semibold text-base", {
+          "blur-sm": isBlurred,
+          "opacity-30": isBlurred,
+        })}
+      >
         {question}
       </div>
       <div>{children}</div>

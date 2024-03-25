@@ -31,6 +31,7 @@ model Email {
 model Question {
   id                  Int              @id @default(autoincrement())
   question            String
+  durationMiliseconds BigInt?
   type                QuestionType
   revealToken         Token            @default(Bonk)
   revealTokenAmount   Int              @default(0)
@@ -67,16 +68,16 @@ model QuestionTag {
 model Deck {
   id            Int            @id @default(autoincrement())
   deck          String
+  date          DateTime?
   questionDecks QuestionDeck[]
 }
 
 model QuestionDeck {
-  id         Int       @id @default(autoincrement())
-  date       DateTime?
+  id         Int      @id @default(autoincrement())
   deckId     Int
-  deck       Deck      @relation(fields: [deckId], references: [id])
+  deck       Deck     @relation(fields: [deckId], references: [id])
   questionId Int
-  question   Question  @relation(fields: [questionId], references: [id])
+  question   Question @relation(fields: [questionId], references: [id])
 }
 
 model QuestionAnswer {
