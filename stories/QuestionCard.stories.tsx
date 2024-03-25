@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { QuestionCard } from "../app/components/QuestionCard/QuestionCard";
 import { RadioInput } from "../app/components/RadioInput/RadioInput";
+import { fn } from "@storybook/test";
 import dayjs from "dayjs";
 
 const meta = {
@@ -15,6 +16,7 @@ const meta = {
     step: 1,
     viewImageSrc: undefined,
     dueAt: dayjs().add(2, "minutes").toDate(),
+    onDurationRanOut: fn(),
   },
   tags: ["autodocs"],
   decorators: (Story) => (
@@ -29,6 +31,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {},
+};
+
+export const Blurred: Story = {
+  args: { isBlurred: true },
 };
 
 export const ViewImage: Story = {

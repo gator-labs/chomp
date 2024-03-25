@@ -39,6 +39,9 @@ module.exports = {
       boxShadow: {
         input: "0 0 4px 0",
       },
+      dropShadow: {
+        "question-card": "0 -4px 4px #00000020",
+      },
     },
     colors: colors,
   },
