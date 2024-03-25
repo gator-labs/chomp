@@ -29,18 +29,24 @@ model Email {
 }
 
 model Question {
-  id              Int              @id @default(autoincrement())
-  question        String
-  type            QuestionType
-  questionOptions QuestionOption[]
-  questionTags    QuestionTag[]
-  questionAnswers QuestionAnswer[]
-  questionDecks   QuestionDeck[]
+  id                  Int              @id @default(autoincrement())
+  question            String
+  type                QuestionType
+  revealToken         Token            @default(Bonk)
+  revealTokenAmount   Int              @default(0)
+  revealAtDate        DateTime?
+  revealAtAnswerCount Int?
+  startAt             DateTime         @default(now())
+  questionOptions     QuestionOption[]
+  questionTags        QuestionTag[]
+  questionAnswers     QuestionAnswer[]
+  questionDecks       QuestionDeck[]
 }
 
 model QuestionOption {
   id         Int      @id @default(autoincrement())
   option     String
+  isTrue     Boolean  @default(false)
   questionId Int
   question   Question @relation(fields: [questionId], references: [id])
 }
@@ -88,4 +94,8 @@ enum QuestionType {
   TrueFalse
   YesNo
   MultiChoice
+}
+
+enum Token {
+  Bonk
 }

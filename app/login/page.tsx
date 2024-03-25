@@ -1,6 +1,9 @@
 "use client";
 
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import {
+  DynamicConnectButton,
+  useDynamicContext,
+} from "@dynamic-labs/sdk-react-core";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";
 import { Button } from "../components/Button/Button";
@@ -16,9 +19,9 @@ export default function Page() {
 
   return (
     <main className="flex flex-col justify-center items-center gap-3 h-full">
-      <Button variant="primary" size="big" dynamic>
+      <DynamicConnectButton buttonClassName="bg-primary text-btn-text-primary rounded-lg inline-flex justify-center py-4 px-16 rounded-2xl font-bold text-base">
         Connect Wallet
-      </Button>
+      </DynamicConnectButton>
       <p className="text-[13px]">Connect your wallet to begin</p>
     </main>
   );
