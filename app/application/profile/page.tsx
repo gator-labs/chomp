@@ -4,7 +4,7 @@ export default function Page() {
   return (
     <>
       <HomeSwitchNavigation />
-      home page
+      profile page
     </>
   );
 }

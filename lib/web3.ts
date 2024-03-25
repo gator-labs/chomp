@@ -32,16 +32,18 @@ export const getTokenBalances = async (addr: string | string[]) => {
 
   for (const [token, tokenAddress] of Object.entries(tokenAddresses)) {
     for (const walletAddress of walletAddresses) {
-      const tokenAccount = findSplTokenPda(
-        new PublicKey(walletAddress),
-        new PublicKey(tokenAddress)
-      );
+      try {
+        const tokenAccount = findSplTokenPda(
+          new PublicKey(walletAddress),
+          new PublicKey(tokenAddress)
+        );
 
-      const tokenAccountBalance =
-        await connection.getTokenAccountBalance(tokenAccount);
+        const tokenAccountBalance =
+          await connection.getTokenAccountBalance(tokenAccount);
 
-      tokenBalances[token as keyof typeof tokenAddresses] +=
-        tokenAccountBalance.value.uiAmount ?? 0;
+        tokenBalances[token as keyof typeof tokenAddresses] +=
+          tokenAccountBalance.value.uiAmount ?? 0;
+      } catch {}
     }
   }
 

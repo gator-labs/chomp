@@ -4,8 +4,8 @@ import { usePathname } from "next/navigation";
 import { SwitchNavigation } from "../SwitchNavigation/SwitchNavigation";
 
 const navigationItems = [
-  { label: "My Profile", href: "/profile" },
-  { label: "History/Rewards", href: "/" },
+  { label: "My Profile", href: "/application/profile" },
+  { label: "History/Rewards", href: "/application" },
 ];
 
 export function HomeSwitchNavigation() {
