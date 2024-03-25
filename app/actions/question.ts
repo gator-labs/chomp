@@ -1,21 +1,12 @@
 "use server";
 
-import { QuestionType } from "@prisma/client";
-import { z } from "zod";
 import prisma from "../services/prisma";
 import { revalidatePath } from "next/cache";
+import { questionSchema } from "../schemas/question";
+import { redirect } from "next/navigation";
 
-const schema = z.object({
-  question: z
-    .string({
-      invalid_type_error: "Invalid question",
-      required_error: "Question is required",
-    })
-    .min(5),
-  type: z.nativeEnum(QuestionType),
-});
-
-export type CreateQuestionState = {
+export type QuestionFormState = {
+  id?: number;
   errors?: {
     question?: string[];
     type?: string[];
@@ -23,22 +14,50 @@ export type CreateQuestionState = {
 };
 
 export async function createQuestion(
-  prevState: CreateQuestionState,
+  state: QuestionFormState,
   formData: FormData
 ) {
-  const validatedFields = schema.safeParse({
+  const validatedFields = questionSchema.safeParse({
     question: formData.get("question"),
     type: formData.get("type"),
   });
 
   if (!validatedFields.success) {
     return {
+      ...state,
       errors: validatedFields.error.flatten().fieldErrors,
     };
   }
 
   await prisma.question.create({ data: validatedFields.data });
-  revalidatePath("/questions");
 
-  return {};
+  revalidatePath("/admin/questions");
+  redirect("/admin/questions");
+}
+
+export async function editQuestion(
+  state: QuestionFormState,
+  formData: FormData
+) {
+  const validatedFields = questionSchema.safeParse({
+    question: formData.get("question"),
+    type: formData.get("type"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      ...state,
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  await prisma.question.update({
+    where: {
+      id: state.id,
+    },
+    data: validatedFields.data,
+  });
+
+  revalidatePath("/admin/questions");
+  redirect("/admin/questions");
 }

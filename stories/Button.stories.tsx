@@ -82,6 +82,6 @@ export const Warning: Story = {
 export const Disabled: Story = {
   args: {
     variant: "primary",
-    isDisabled: true,
+    disabled: true,
   },
 };

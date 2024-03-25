@@ -5,3 +5,13 @@ export async function getQuestions() {
 
   return questions;
 }
+
+export async function getQuestion(id: number) {
+  const question = await prisma.question.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return question;
+}

@@ -1,3 +1,6 @@
+import { createQuestion } from "@/app/actions/question";
+import QuestionForm from "@/app/components/QuestionForm/QuestionForm";
+
 export default async function Page() {
-  return <div>new question page</div>;
+  return <QuestionForm action={createQuestion} />;
 }

@@ -1,13 +1,11 @@
-import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import { ReactNode } from "react";
 
 type ButtonProps = {
   variant?: "primary" | "secondary" | "warning" | "white" | "black";
   size?: "big" | "normal" | "small";
-  isDisabled?: boolean;
+  disabled?: boolean;
   children: ReactNode;
-  dynamic?: boolean;
   isFullWidth?: boolean;
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
@@ -15,9 +13,8 @@ type ButtonProps = {
 export function Button({
   variant = "secondary",
   size = "normal",
-  isDisabled = false,
+  disabled = false,
   children,
-  dynamic,
   isFullWidth = true,
   className,
   ...props
@@ -26,9 +23,9 @@ export function Button({
     `bg-${variant} text-btn-text-${variant} rounded-lg inline-flex justify-center`,
     {
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
-      "!bg-disabled": isDisabled,
-      "!text-btn-text-disabled": isDisabled,
-      "cursor-default": isDisabled,
+      "!bg-disabled": disabled,
+      "!text-btn-text-disabled": disabled,
+      "cursor-default": disabled,
       "py-2 px-4": size === "small",
       "py-4 px-8": size === "normal",
       "py-4 px-16": size === "big",
@@ -41,14 +38,6 @@ export function Button({
     },
     className
   );
-
-  if (dynamic) {
-    return (
-      <DynamicConnectButton buttonClassName={classNameResult}>
-        {children}
-      </DynamicConnectButton>
-    );
-  }
 
   return (
     <button {...props} className={classNameResult}>
