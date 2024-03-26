@@ -143,7 +143,7 @@ export default function QuestionForm({
         <TextInput
           variant="secondary"
           {...register("revealTokenAmount", {
-            setValueAs: (v) => (v === "" ? null : parseInt(v)),
+            setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         />
         <div>{errors.revealTokenAmount?.message}</div>
@@ -155,7 +155,7 @@ export default function QuestionForm({
           variant="secondary"
           type="datetime-local"
           {...register("revealAtDate", {
-            setValueAs: (v) => (v === "" ? null : new Date(v)),
+            setValueAs: (v) => (!v ? null : new Date(v)),
           })}
         />
         <div>{errors.revealAtDate?.message}</div>
@@ -166,7 +166,7 @@ export default function QuestionForm({
         <TextInput
           variant="secondary"
           {...register("revealAtAnswerCount", {
-            setValueAs: (v) => (v === "" ? null : parseInt(v)),
+            setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         />
         <div>{errors.revealAtAnswerCount?.message}</div>
