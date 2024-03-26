@@ -1,16 +1,29 @@
 import { editQuestion } from "@/app/actions/question";
 import QuestionForm from "@/app/components/QuestionForm/QuestionForm";
-import { getQuestion } from "@/app/queries/question";
+import { getQuestionSchema } from "@/app/queries/question";
+import { getTags } from "@/app/queries/tag";
 import { notFound } from "next/navigation";
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const question = await getQuestion(+params.id);
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function Page({ params: { id } }: PageProps) {
+  const question = await getQuestionSchema(+id);
+  const tags = await getTags();
 
   if (!question) {
     return notFound();
   }
 
   return (
-    <QuestionForm action={editQuestion} question={question} id={question.id} />
+    <QuestionForm
+      action={editQuestion}
+      question={question}
+      id={+id}
+      tags={tags}
+    />
   );
 }
