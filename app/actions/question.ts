@@ -5,59 +5,35 @@ import { revalidatePath } from "next/cache";
 import { questionSchema } from "../schemas/question";
 import { redirect } from "next/navigation";
 import { getIsUserAdmin } from "../queries/user";
+import { z } from "zod";
 
-export type QuestionFormState = {
-  id?: number;
-  errors?: {
-    question?: string[];
-    type?: string[];
-    revealToken?: string[];
-    revealTokenAmount?: string[];
-    revealAtDate?: string[];
-    revealAtAnswerCount?: string[];
-    tags?: string[];
-  };
-};
-
-export async function createQuestion(
-  state: QuestionFormState,
-  formData: FormData
-) {
+export async function createQuestion(data: z.infer<typeof questionSchema>) {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
     redirect("/application");
   }
 
-  const validatedFields = questionSchema.safeParse({
-    question: formData.get("question"),
-    type: formData.get("type"),
-    revealToken: formData.get("revealToken"),
-    revealTokenAmount: Number(formData.get("revealTokenAmount")),
-    revealAtDate: formData.get("revealAtDate")
-      ? new Date(formData.get("revealAtDate")?.toString() || "")
-      : null,
-    revealAtAnswerCount: formData.get("revealAtAnswerCount")
-      ? Number(formData.get("revealAtAnswerCount"))
-      : null,
-    tags: formData.getAll("tag[]").map(Number),
-  });
+  const validatedFields = questionSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return {
-      ...state,
-      errors: validatedFields.error.flatten().fieldErrors,
-    };
+    return false;
   }
 
-  const questionData = { ...validatedFields.data, tags: undefined };
+  const questionData = {
+    ...validatedFields.data,
+    tagIds: undefined,
+    questionOptions: undefined,
+    id: undefined,
+  };
 
   await prisma.question.create({
     data: {
       ...questionData,
+      // TODO: questionOptions
       questionTags: {
         createMany: {
-          data: validatedFields.data.tags.map((tagId) => ({ tagId })),
+          data: validatedFields.data.tagIds.map((tagId) => ({ tagId })),
         },
       },
     },
@@ -67,63 +43,55 @@ export async function createQuestion(
   redirect("/admin/questions");
 }
 
-export async function editQuestion(
-  state: QuestionFormState,
-  formData: FormData
-) {
+export async function editQuestion(data: z.infer<typeof questionSchema>) {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
     redirect("/application");
   }
 
-  const validatedFields = questionSchema.safeParse({
-    question: formData.get("question"),
-    type: formData.get("type"),
-    revealToken: formData.get("revealToken"),
-    revealTokenAmount: Number(formData.get("revealTokenAmount")),
-    revealAtDate: formData.get("revealAtDate")
-      ? new Date(formData.get("revealAtDate")?.toString() || "")
-      : null,
-    revealAtAnswerCount: formData.get("revealAtAnswerCount")
-      ? Number(formData.get("revealAtAnswerCount"))
-      : null,
-    tags: formData.getAll("tag[]").map(Number),
-  });
+  const validatedFields = questionSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return {
-      ...state,
-      errors: validatedFields.error.flatten().fieldErrors,
-    };
+    return false;
   }
 
-  const existingTags = (
+  if (!data.id) {
+    return false;
+  }
+
+  const existingTagIds = (
     await prisma.questionTag.findMany({
       where: {
-        questionId: state.id,
+        questionId: data.id,
       },
     })
   ).map((qt) => qt.tagId);
 
-  const questionData = { ...validatedFields.data, tags: undefined };
+  const questionData = {
+    ...validatedFields.data,
+    tagIds: undefined,
+    questionOptions: undefined,
+    id: undefined,
+  };
 
   await prisma.question.update({
     where: {
-      id: state.id,
+      id: data.id,
     },
     data: {
       ...questionData,
+      // TODO: questionOptions
       questionTags: {
         createMany: {
-          data: validatedFields.data.tags
-            .filter((tagId) => !existingTags.includes(tagId))
+          data: validatedFields.data.tagIds
+            .filter((tagId) => !existingTagIds.includes(tagId))
             .map((tagId) => ({ tagId })),
         },
         deleteMany: {
           tagId: {
-            in: existingTags.filter(
-              (tagId) => !validatedFields.data.tags.includes(tagId)
+            in: existingTagIds.filter(
+              (tagId) => !validatedFields.data.tagIds.includes(tagId)
             ),
           },
         },

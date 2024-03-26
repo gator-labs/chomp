@@ -24,6 +24,7 @@ export async function getQuestionSchema(
       id,
     },
     include: {
+      questionOptions: true,
       questionTags: {
         include: {
           tag: true,
@@ -36,8 +37,11 @@ export async function getQuestionSchema(
     return null;
   }
 
-  return {
+  const questionData = {
     ...question,
-    tags: question?.questionTags.map((qt) => qt.tagId) || [],
+    questionTags: undefined,
+    tagIds: question?.questionTags.map((qt) => qt.tagId) || [],
   };
+
+  return questionData;
 }

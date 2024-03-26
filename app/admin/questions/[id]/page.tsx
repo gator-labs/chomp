@@ -18,12 +18,5 @@ export default async function Page({ params: { id } }: PageProps) {
     return notFound();
   }
 
-  return (
-    <QuestionForm
-      action={editQuestion}
-      question={question}
-      id={+id}
-      tags={tags}
-    />
-  );
+  return <QuestionForm action={editQuestion} question={question} tags={tags} />;
 }

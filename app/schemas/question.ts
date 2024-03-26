@@ -2,6 +2,7 @@ import { QuestionType, Token } from "@prisma/client";
 import { z } from "zod";
 
 export const questionSchema = z.object({
+  id: z.number().optional(),
   question: z
     .string({
       invalid_type_error: "Invalid question",
@@ -13,5 +14,12 @@ export const questionSchema = z.object({
   revealTokenAmount: z.number().min(0),
   revealAtDate: z.date().nullable(),
   revealAtAnswerCount: z.number().min(0).nullable(),
-  tags: z.number().array(),
+  tagIds: z.number().array(),
+  questionOptions: z
+    .object({
+      id: z.number(),
+      option: z.string(),
+      isTrue: z.boolean().optional(),
+    })
+    .array(),
 });
