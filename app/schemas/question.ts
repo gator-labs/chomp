@@ -14,11 +14,11 @@ export const questionSchema = z.object({
   revealTokenAmount: z.number().min(0),
   revealAtDate: z.date().nullable(),
   revealAtAnswerCount: z.number().min(0).nullable(),
-  tagIds: z.number().array(),
+  tagIds: z.number().array().default([]),
   questionOptions: z
     .object({
-      id: z.number(),
-      option: z.string(),
+      id: z.number().optional(),
+      option: z.string().min(1),
       isTrue: z.boolean().optional(),
     })
     .array(),

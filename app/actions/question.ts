@@ -30,7 +30,11 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
   await prisma.question.create({
     data: {
       ...questionData,
-      // TODO: questionOptions
+      questionOptions: {
+        createMany: {
+          data: validatedFields.data.questionOptions,
+        },
+      },
       questionTags: {
         createMany: {
           data: validatedFields.data.tagIds.map((tagId) => ({ tagId })),
@@ -81,7 +85,12 @@ export async function editQuestion(data: z.infer<typeof questionSchema>) {
     },
     data: {
       ...questionData,
-      // TODO: questionOptions
+      questionOptions: {
+        deleteMany: {},
+        createMany: {
+          data: data.questionOptions,
+        },
+      },
       questionTags: {
         createMany: {
           data: validatedFields.data.tagIds

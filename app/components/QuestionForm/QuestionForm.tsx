@@ -6,7 +6,7 @@ import { TextInput } from "../TextInput/TextInput";
 import { z } from "zod";
 import { questionSchema } from "@/app/schemas/question";
 import { Tag } from "../Tag/Tag";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -14,6 +14,28 @@ type QuestionFormProps = {
   question?: z.infer<typeof questionSchema>;
   tags: TagType[];
   action: (data: z.infer<typeof questionSchema>) => void;
+};
+
+const getDefaultOptions = (type: QuestionType) => {
+  switch (type) {
+    case QuestionType.YesNo:
+      return [
+        { option: "Yes", isTrue: false },
+        { option: "No", isTrue: false },
+      ];
+    case QuestionType.TrueFalse:
+      return [
+        { option: "True", isTrue: false },
+        { option: "False", isTrue: false },
+      ];
+    default:
+      return [
+        { option: "", isTrue: false },
+        { option: "", isTrue: false },
+        { option: "", isTrue: false },
+        { option: "", isTrue: false },
+      ];
+  }
 };
 
 export default function QuestionForm({
@@ -25,6 +47,8 @@ export default function QuestionForm({
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm({
     resolver: zodResolver(questionSchema),
     defaultValues: question,
@@ -32,11 +56,13 @@ export default function QuestionForm({
 
   const [selectedTagIds, setSelectedTagIds] = useState(question?.tagIds ?? []);
 
+  const questionType = watch("type");
+
   return (
     <form
-      onSubmit={handleSubmit((data) =>
-        action({ ...data, tagIds: selectedTagIds, id: question?.id })
-      )}
+      onSubmit={handleSubmit((data) => {
+        action({ ...data, tagIds: selectedTagIds, id: question?.id });
+      })}
     >
       <h1 className="text-3xl mb-3">
         {question ? `Edit question #${question.id}` : "Create question"}
@@ -50,7 +76,14 @@ export default function QuestionForm({
 
       <div className="mb-3">
         <label className="block mb-1">Type</label>
-        <select className="text-black" {...register("type")}>
+        <select
+          className="text-black"
+          {...register("type", {
+            onChange: (e) => {
+              setValue("questionOptions", getDefaultOptions(e.target.value));
+            },
+          })}
+        >
           {Object.values(QuestionType).map((type) => (
             <option value={type} key={type}>
               {type}
@@ -58,6 +91,39 @@ export default function QuestionForm({
           ))}
         </select>
         <div>{errors.type?.message}</div>
+      </div>
+
+      <div className="mb-3 flex flex-col gap-2">
+        <label className="block">Options</label>
+        {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
+          .fill(null)
+          .map((_, index) => (
+            <div key={`${questionType}-${index}`}>
+              <div className="flex gap-4">
+                <div className="w-1/4">
+                  <TextInput
+                    variant="secondary"
+                    {...register(`questionOptions.${index}.option`)}
+                    disabled={
+                      questionType === QuestionType.YesNo ||
+                      questionType === QuestionType.TrueFalse
+                    }
+                  />
+                </div>
+                <div className="w-24 flex justify-center items-center gap-2">
+                  <div>is true?</div>
+                  <input
+                    type="checkbox"
+                    {...register(`questionOptions.${index}.isTrue`)}
+                  />
+                </div>
+              </div>
+              <div>
+                {errors.questionOptions &&
+                  errors.questionOptions[index]?.option?.message}
+              </div>
+            </div>
+          ))}
       </div>
 
       <div className="mb-3">
@@ -76,7 +142,9 @@ export default function QuestionForm({
         <label className="block mb-1">Reveal token amount</label>
         <TextInput
           variant="secondary"
-          {...register("revealTokenAmount", { valueAsNumber: true })}
+          {...register("revealTokenAmount", {
+            setValueAs: (v) => (v === "" ? null : parseInt(v)),
+          })}
         />
         <div>{errors.revealTokenAmount?.message}</div>
       </div>
@@ -86,7 +154,9 @@ export default function QuestionForm({
         <TextInput
           variant="secondary"
           type="datetime-local"
-          {...register("revealAtDate", { valueAsDate: true })}
+          {...register("revealAtDate", {
+            setValueAs: (v) => (v === "" ? null : new Date(v)),
+          })}
         />
         <div>{errors.revealAtDate?.message}</div>
       </div>
@@ -95,7 +165,9 @@ export default function QuestionForm({
         <label className="block mb-1">Reveal at answer count (optional)</label>
         <TextInput
           variant="secondary"
-          {...register("revealAtAnswerCount", { valueAsNumber: true })}
+          {...register("revealAtAnswerCount", {
+            setValueAs: (v) => (v === "" ? null : parseInt(v)),
+          })}
         />
         <div>{errors.revealAtAnswerCount?.message}</div>
       </div>
