@@ -1,18 +1,12 @@
-"use client";
+import { redirect, useRouter } from "next/navigation";
+import { getJwtPayload } from "@/app/actions/jwt";
 
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { redirect, usePathname } from "next/navigation";
-import { useEffect } from "react";
+export const AuthRedirect = async () => {
+  const jwt = await getJwtPayload();
 
-export const AuthRedirect = () => {
-  const pathname = usePathname();
-  const { user } = useDynamicContext();
+  if (!jwt) {
+    redirect("/login");
+  }
 
-  useEffect(() => {
-    if (!user && pathname !== "/login") {
-      redirect("/login");
-    }
-  }, [user, pathname]);
-
-  return <></>;
+  return null;
 };

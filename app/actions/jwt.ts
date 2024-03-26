@@ -3,6 +3,7 @@
 import { VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@/lib/auth";
 import { cookies } from "next/headers";
 import prisma from "../services/prisma";
+import { redirect } from "next/navigation";
 
 export const getJwtPayload = async () => {
   const token = cookies().get("token");
@@ -112,8 +113,12 @@ export const setJwt = async (token: string) => {
     secure: true,
     httpOnly: true,
   });
+
+  redirect("/application");
 };
 
 export const clearJwt = () => {
   cookies().set("token", "", { expires: new Date(0) });
+
+  redirect("/login");
 };
