@@ -41,7 +41,9 @@ export function QuestionList({ questions }: QuestionListProps) {
             </td>
             <td>
               <Link href={`/admin/questions/${q.id}`}>
-                <Button variant="primary">Edit</Button>
+                <Button variant="primary" isFullWidth={false}>
+                  Edit
+                </Button>
               </Link>
             </td>
           </tr>

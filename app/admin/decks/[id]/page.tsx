@@ -1,3 +1,9 @@
-export default async function Page({ params }: { params: { id: string } }) {
-  return <div>{params.id} deck page</div>;
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function Page({ params: { id } }: PageProps) {
+  return <div>{id} deck page</div>;
 }

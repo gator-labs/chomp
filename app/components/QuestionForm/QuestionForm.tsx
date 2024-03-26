@@ -1,18 +1,18 @@
 "use client";
 
 import { SubmitButton } from "../SubmitButton/SubmitButton";
-import { QuestionType, Tag, Token } from "@prisma/client";
+import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { TextInput } from "../TextInput/TextInput";
 import { z } from "zod";
 import { questionSchema } from "@/app/schemas/question";
-import { Tag as TagComponent } from "../Tag/Tag";
+import { Tag } from "../Tag/Tag";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 type QuestionFormProps = {
   question?: z.infer<typeof questionSchema>;
-  tags: Tag[];
+  tags: TagType[];
   action: (data: z.infer<typeof questionSchema>) => void;
 };
 
@@ -104,7 +104,7 @@ export default function QuestionForm({
         <label className="block mb-1">Tags (optional)</label>
         <div className="flex gap-2">
           {tags.map((tag) => (
-            <TagComponent
+            <Tag
               tag={tag.tag}
               onSelected={() =>
                 setSelectedTagIds((prev) =>
