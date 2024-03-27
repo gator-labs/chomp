@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import { Avatar } from "../Avatar/Avatar";
 import { ProgressBar } from "../ProgressBar/ProgressBar";
-import { useCallback } from "react";
+import { useSteppingChange } from "@/app/hooks/useSteppingChange";
 
 type TrueFalseScaleProps = {
   ratioTrue: number;
@@ -10,8 +10,6 @@ type TrueFalseScaleProps = {
   progressBarClassName?: string;
   handleRatioChange?: (percentage: number) => void;
 };
-
-const STEP_SIZE = 5;
 
 export function TrueFalseScale({
   ratioTrue,
@@ -25,34 +23,10 @@ export function TrueFalseScale({
       ? "calc(100% - 16px)"
       : `${valueSelected}%`
     : undefined;
-
-  const handlePercentageChange = useCallback(
-    (percentage: number) => {
-      const stepUp = ratioTrue + STEP_SIZE;
-      const stepDown = ratioTrue - STEP_SIZE;
-      const percentageTrue = 100 - percentage;
-      let newRatio = ratioTrue;
-
-      if (percentageTrue >= stepUp) {
-        newRatio = stepUp;
-      }
-
-      if (percentageTrue <= stepDown) {
-        newRatio = stepDown;
-      }
-
-      if (percentageTrue < 2) {
-        newRatio = 0;
-      }
-
-      if (percentageTrue > 100) {
-        newRatio = 100;
-      }
-
-      handleRatioChange && handleRatioChange(newRatio);
-    },
-    [ratioTrue, handleRatioChange]
-  );
+  const { handlePercentageChange } = useSteppingChange({
+    percentage: ratioTrue,
+    onPercentageChange: handleRatioChange,
+  });
 
   return (
     <div className="relative">
@@ -61,7 +35,7 @@ export function TrueFalseScale({
         progressColor="#8872A5"
         bgColor="#CFC5F7"
         className={classNames("h-[21px]", progressBarClassName)}
-        onChange={handlePercentageChange}
+        onChange={(percentage) => handlePercentageChange(100 - percentage)}
       />
       {valueSelected !== undefined && avatarSrc && (
         <Avatar

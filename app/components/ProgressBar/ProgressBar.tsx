@@ -1,4 +1,5 @@
 "use client";
+import { useDragPositionPercentage } from "@/app/hooks/useDragPositionPercentage";
 import classNames from "classnames";
 import { useCallback, useRef, useState } from "react";
 
@@ -17,28 +18,10 @@ export function ProgressBar({
   className,
   onChange,
 }: ProgressBarProps) {
-  const [isDragging, setIsDragging] = useState(false);
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const percentageCapped = percentage > 100 ? 100 : percentage;
-  const handleChangePosition = useCallback(
-    (
-      event:
-        | React.MouseEvent<HTMLDivElement>
-        | React.TouchEvent<HTMLDivElement>,
-      isDrag = true
-    ) => {
-      if (!isDragging && isDrag) return;
-      const rect = wrapperRef.current?.getBoundingClientRect();
-      const width = rect?.width ?? 0;
-      const left = rect?.left ?? 0;
-      const clientX =
-        (event as React.MouseEvent)?.clientX ??
-        (event as React.TouchEvent).touches[0].clientX;
-      const percentage = (clientX - left) / width;
-      onChange && onChange(Math.round(percentage * 100));
-    },
-    [isDragging, onChange]
-  );
+  const { handleChangePosition, endDrag, startDrag, isDragging } =
+    useDragPositionPercentage({ elementRef: wrapperRef, onChange });
 
   return (
     <div
@@ -55,11 +38,11 @@ export function ProgressBar({
         className={classNames("h-full w-10 cursor-grab absolute z-10", {
           "cursor-grabbing": isDragging,
         })}
-        onMouseDown={() => setIsDragging(true)}
-        onMouseUp={() => setIsDragging(false)}
-        onTouchStart={() => setIsDragging(true)}
-        onTouchEnd={() => setIsDragging(false)}
-        onMouseLeave={() => setIsDragging(false)}
+        onMouseDown={startDrag}
+        onMouseUp={endDrag}
+        onTouchStart={startDrag}
+        onTouchEnd={endDrag}
+        onMouseLeave={endDrag}
         onMouseMove={handleChangePosition}
         onTouchMove={handleChangePosition}
         style={{ left: `calc(${percentage}% - 20px)` }}

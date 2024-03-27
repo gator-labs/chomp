@@ -29,7 +29,7 @@ export async function saveDeck(request: DeckRequest[]) {
       }) as QuestionAnswer
   );
 
-  const response = await prisma.questionAnswer.createMany({
+  await prisma.questionAnswer.createMany({
     data: questionAnswers,
   });
 }

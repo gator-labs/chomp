@@ -24,6 +24,9 @@ const meta = {
   component: Deck,
   parameters: {
     layout: "centered",
+    nextjs: {
+      appDirectory: true,
+    },
   },
   tags: ["autodocs"],
   args: {
@@ -36,6 +39,13 @@ const meta = {
       },
       {
         ...questionBase,
+        type: QuestionType.MultiChoice,
+        questionOptions: [
+          { id: 1, option: "Answer" },
+          { id: 2, option: "Answer" },
+          { id: 3, option: "Answer" },
+          { id: 4, option: "Answer" },
+        ],
         id: 2,
         question:
           "The best way to secure your assets is to use a software wallet.",

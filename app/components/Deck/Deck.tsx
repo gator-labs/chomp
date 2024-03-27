@@ -8,6 +8,9 @@ import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { Button } from "../Button/Button";
 import { DeckRequest, saveDeck } from "../../actions/deck";
 import { useRouter } from "next/navigation";
+import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
+import { useRandom } from "@/app/hooks/useRandom";
+import { getAlphaIdentifier } from "@/app/utils/question";
 
 type Option = {
   id: number;
@@ -47,6 +50,12 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
     DeckStep.AnswerQuestion
   );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
+  const [optionPercentage, setOptionPercentage] = useState(50);
+  const { random, generateRandom } = useRandom({
+    min: 0,
+    max: questions.length - 1,
+  });
 
   const handleNextIndex = useCallback(() => {
     if (currentQuestionIndex + 1 < questions.length) {
@@ -55,6 +64,9 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
     setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(DeckStep.AnswerQuestion);
     setRerednerAction(false);
+    setOptionPercentage(50);
+    setCurrentOptionSelected(undefined);
+    generateRandom();
     setTimeout(() => {
       setRerednerAction(true);
     });
@@ -63,6 +75,8 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
     setCurrentQuestionIndex,
     setCurrentQuestionStep,
     setRerednerAction,
+    generateRandom,
+    setCurrentOptionSelected,
   ]);
 
   const question = useMemo(
@@ -80,6 +94,28 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
           { questionId: question.id, questionOptionId: number ?? 0 },
         ]);
         setCurrentQuestionStep(DeckStep.PickPercentage);
+
+        return;
+      }
+
+      if (
+        currentQuestionStep === DeckStep.AnswerQuestion &&
+        question.type === "MultiChoice"
+      ) {
+        if (!currentOptionSelected) {
+          return;
+        }
+
+        setDeckResponse((prev) => [
+          ...prev,
+          {
+            questionId: question.id,
+            questionOptionId: currentOptionSelected,
+          },
+        ]);
+        setCurrentQuestionStep(DeckStep.PickPercentage);
+
+        return;
       }
 
       if (
@@ -96,9 +132,25 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
 
           return newResposnes;
         });
-
-        handleNextIndex();
       }
+
+      if (
+        currentQuestionStep === DeckStep.PickPercentage &&
+        question.type === "MultiChoice"
+      ) {
+        setDeckResponse((prev) => {
+          const newResposnes = [...prev];
+          const response = newResposnes.pop();
+          if (response) {
+            response.percentageGiven = optionPercentage;
+            newResposnes.push(response);
+          }
+
+          return newResposnes;
+        });
+      }
+
+      handleNextIndex();
     },
     [
       setDeckResponse,
@@ -106,6 +158,8 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
       currentQuestionStep,
       question,
       handleNextIndex,
+      currentOptionSelected,
+      optionPercentage,
     ]
   );
 
@@ -167,7 +221,18 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
           style={{
             transform: `translateY(${questionOffset}px)`,
           }}
-        ></QuestionCard>
+        >
+          <QuestionCardContent
+            optionSelectedId={currentOptionSelected}
+            onOptionSelected={setCurrentOptionSelected}
+            type={question.type}
+            step={currentQuestionStep}
+            questionOptions={question.questionOptions}
+            randomOptionId={question.questionOptions[random]?.id}
+            percentage={optionPercentage}
+            onPercentageChanged={setOptionPercentage}
+          />
+        </QuestionCard>
       </div>
       <div className="pt-2">
         {rerenderAction && (
@@ -176,6 +241,7 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
             type={question.type}
             step={currentQuestionStep}
             questionOptions={question.questionOptions}
+            randomQuestionMarker={getAlphaIdentifier(random)}
           />
         )}
       </div>
