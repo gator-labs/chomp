@@ -7,7 +7,6 @@ const questionDeckToRunInclude = {
     include: {
       question: {
         include: {
-          questionTags: { include: { tag: true } },
           questionOptions: true,
         },
       },

@@ -1,56 +1,51 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { QuestionAction } from "../app/components/QuestionAction/QuestionAction";
+import { QuestionCardContent } from "../app/components/QuestionCardContent/QuestionCardContent";
 import { DeckStep } from "../app/components/Deck/Deck";
 
 import { QuestionType } from "@prisma/client";
 import { fn } from "@storybook/test";
 
+const questionOptions = [
+  { id: 1, option: "Answer" },
+  { id: 2, option: "Answer" },
+  { id: 3, option: "Answer" },
+  { id: 4, option: "Answer" },
+];
+
 const meta = {
-  title: "Cards/Question Action",
-  component: QuestionAction,
+  title: "Cards/Question Card Content",
+  component: QuestionCardContent,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
   args: {
-    onButtonClick: fn(),
+    questionOptions: questionOptions,
+    onPercentageChanged: fn(),
+    onOptionSelected: fn(),
   },
   decorators: (Story) => (
     <div className="bg-black w-96 p-5">
       <Story />
     </div>
   ),
-} satisfies Meta<typeof QuestionAction>;
+} satisfies Meta<typeof QuestionCardContent>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const TrueFalse: Story = {
-  args: {
-    type: QuestionType.TrueFalse,
-    questionOptions: [
-      { id: 1, option: "False" },
-      { id: 2, option: "True" },
-    ],
-    step: DeckStep.AnswerQuestion,
-  },
-};
-
-export const MultipleChoice: Story = {
+export const MultipleChoiceAnswer: Story = {
   args: {
     type: QuestionType.MultiChoice,
     step: DeckStep.AnswerQuestion,
   },
 };
 
-export const TrueFalsePercentage: Story = {
+export const MultipleChoiceAnswerSelected: Story = {
   args: {
-    type: QuestionType.TrueFalse,
-    questionOptions: [
-      { id: 1, option: "False" },
-      { id: 2, option: "True" },
-    ],
-    step: DeckStep.PickPercentage,
+    type: QuestionType.MultiChoice,
+    step: DeckStep.AnswerQuestion,
+    optionSelectedId: 1,
   },
 };
 
@@ -58,6 +53,7 @@ export const MultipleChoicePercentage: Story = {
   args: {
     type: QuestionType.MultiChoice,
     step: DeckStep.PickPercentage,
-    randomQuestionMarker: "A",
+    randomOptionId: 1,
+    percentage: 50,
   },
 };

@@ -9,9 +9,9 @@ const questionBase = {
   questionOptions: [
     {
       id: 1,
-      option: "True",
+      option: "False",
     },
-    { id: 2, option: "False" },
+    { id: 2, option: "True" },
   ],
   questionTags: [
     { id: 1, tag: "Defi" },
@@ -24,6 +24,9 @@ const meta = {
   component: Deck,
   parameters: {
     layout: "centered",
+    nextjs: {
+      appDirectory: true,
+    },
   },
   tags: ["autodocs"],
   args: {
@@ -36,6 +39,13 @@ const meta = {
       },
       {
         ...questionBase,
+        type: QuestionType.MultiChoice,
+        questionOptions: [
+          { id: 1, option: "Answer" },
+          { id: 2, option: "Answer" },
+          { id: 3, option: "Answer" },
+          { id: 4, option: "Answer" },
+        ],
         id: 2,
         question:
           "The best way to secure your assets is to use a software wallet.",
@@ -47,7 +57,13 @@ const meta = {
           "The best way to secure your assets is to use a wooden wallet.",
       },
     ],
+    browseHomeUrl: "/application",
   },
+  decorators: (Story) => (
+    <div className="bg-black p-10">
+      <Story />
+    </div>
+  ),
 } satisfies Meta<typeof Deck>;
 
 export default meta;

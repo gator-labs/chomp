@@ -2,7 +2,7 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 
 type ButtonProps = {
-  variant?: "primary" | "secondary" | "warning" | "white" | "black";
+  variant?: "primary" | "secondary" | "warning" | "white" | "black" | "pink";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
   children: ReactNode;
