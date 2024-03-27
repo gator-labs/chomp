@@ -39,16 +39,16 @@ model Question {
   revealAtAnswerCount Int?
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
-  questionAnswers     QuestionAnswer[]
   questionDecks       QuestionDeck[]
 }
 
 model QuestionOption {
-  id         Int      @id @default(autoincrement())
-  option     String
-  isTrue     Boolean  @default(false)
-  questionId Int
-  question   Question @relation(fields: [questionId], references: [id])
+  id             Int              @id @default(autoincrement())
+  option         String
+  isTrue         Boolean          @default(false)
+  questionId     Int
+  question       Question         @relation(fields: [questionId], references: [id])
+  QuestionAnswer QuestionAnswer[]
 }
 
 model Tag {
@@ -81,11 +81,11 @@ model QuestionDeck {
 }
 
 model QuestionAnswer {
-  id               Int      @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   questionOptionId Int
-  questionOption   Question @relation(fields: [questionOptionId], references: [id])
+  questionOption   QuestionOption @relation(fields: [questionOptionId], references: [id])
   userId           String
-  user             User     @relation(fields: [userId], references: [id])
+  user             User           @relation(fields: [userId], references: [id])
   percentage       Int
   selected         Boolean
 }

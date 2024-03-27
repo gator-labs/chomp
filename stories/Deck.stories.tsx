@@ -9,9 +9,9 @@ const questionBase = {
   questionOptions: [
     {
       id: 1,
-      option: "True",
+      option: "False",
     },
-    { id: 2, option: "False" },
+    { id: 2, option: "True" },
   ],
   questionTags: [
     { id: 1, tag: "Defi" },
@@ -47,7 +47,13 @@ const meta = {
           "The best way to secure your assets is to use a wooden wallet.",
       },
     ],
+    browseHomeUrl: "/application",
   },
+  decorators: (Story) => (
+    <div className="bg-black p-10">
+      <Story />
+    </div>
+  ),
 } satisfies Meta<typeof Deck>;
 
 export default meta;

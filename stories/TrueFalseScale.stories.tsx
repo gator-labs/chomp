@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { TrueFalseScale } from "../app/components/TrueFalseScale/TrueFalseScale";
 import AvatarSample from "./assets/avatar_sample.png";
+import { fn } from "@storybook/test";
 
 const meta = {
   title: "True False Scale",
@@ -12,6 +13,7 @@ const meta = {
   args: {
     ratioTrue: 80,
     avatarSrc: AvatarSample.src,
+    handleRatioChange: fn(),
   },
   argTypes: {
     ratioTrue: { type: "number" },
