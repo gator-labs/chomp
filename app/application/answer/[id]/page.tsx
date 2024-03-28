@@ -8,14 +8,14 @@ type PageProps = {
 export default async function Page({ params: { id } }: PageProps) {
   const deck = await getDeckDetailsById(+id);
 
-  const questions = deck?.questionDecks.map(
-    (qd) =>
+  const questions = deck?.deckQuestions.map(
+    (dq) =>
       ({
-        id: qd.questionId,
-        durationMiliseconds: Number(qd.question.durationMiliseconds),
-        question: qd.question.question,
-        type: qd.question.type,
-        questionOptions: qd.question.questionOptions.map((qo) => ({
+        id: dq.questionId,
+        durationMiliseconds: Number(dq.question.durationMiliseconds),
+        question: dq.question.question,
+        type: dq.question.type,
+        questionOptions: dq.question.questionOptions.map((qo) => ({
           id: qo.id,
           option: qo.option,
         })),
