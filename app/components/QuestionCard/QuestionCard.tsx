@@ -13,7 +13,7 @@ import dayjs from "dayjs";
 
 type QuestionCardProps = {
   question: string;
-  dueAt: Date;
+  dueAt?: Date;
   onDurationRanOut?: () => void;
   step: number;
   numberOfSteps: number;
@@ -37,9 +37,11 @@ export function QuestionCard({
   isBlurred,
 }: QuestionCardProps) {
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
-    getDueAtString(dueAt)
+    dueAt ? getDueAtString(dueAt) : ""
   );
   const handleDueAtFormatted = useCallback(() => {
+    if (!dueAt) return;
+
     setDueAtFormatted(getDueAtString(dueAt));
     if (dayjs(dueAt).diff(new Date(), "seconds") <= 0) {
       onDurationRanOut && onDurationRanOut();
@@ -73,10 +75,14 @@ export function QuestionCard({
         )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CountdownIcon fill="#999" />
-            <span className="text-white font-sora text-sm !leading-[14px] font-light">
-              {dueAtFormatted}
-            </span>
+            {!!dueAt && (
+              <>
+                <CountdownIcon fill="#999" />
+                <span className="text-white font-sora text-sm !leading-[14px] font-light">
+                  {dueAtFormatted}
+                </span>
+              </>
+            )}
           </div>
           <div className="flex gap-x-[10px]">
             {Array.from(Array(numberOfSteps).keys()).map((_, index) => (

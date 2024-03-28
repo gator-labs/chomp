@@ -5,7 +5,40 @@ import { getIsUserAdmin } from "../queries/user";
 import { deckSchema } from "../schemas/deck";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getJwtPayload } from "./jwt";
+import { QuestionAnswer } from "@prisma/client";
 import prisma from "../services/prisma";
+
+export type SaveDeckRequest = {
+  questionId: number;
+  questionOptionId: number;
+  percentageGiven?: number;
+  percentageGivenForAnswerId?: number;
+};
+
+export async function saveDeck(request: SaveDeckRequest[]) {
+  const payload = await getJwtPayload();
+  const questionIds = request.map((dr) => dr.questionId);
+  const questionOptions = await prisma.questionOption.findMany({
+    where: { questionId: { in: questionIds } },
+  });
+
+  const questionAnswers = questionOptions.map(
+    (qo) =>
+      ({
+        percentage:
+          request.find((r) => r.questionOptionId === qo.id)?.percentageGiven ??
+          0,
+        selected: request.some((r) => r.questionOptionId === qo.id),
+        questionOptionId: qo.id,
+        userId: payload?.sub ?? "",
+      }) as QuestionAnswer
+  );
+
+  await prisma.questionAnswer.createMany({
+    data: questionAnswers,
+  });
+}
 
 export async function createDeck(data: z.infer<typeof deckSchema>) {
   const isAdmin = await getIsUserAdmin();

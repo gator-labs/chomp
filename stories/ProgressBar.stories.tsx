@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { ProgressBar } from "../app/components/ProgressBar/ProgressBar";
+import { fn } from "@storybook/test";
 
 const meta = {
   title: "Progress/Bar",
@@ -10,6 +11,7 @@ const meta = {
   tags: ["autodocs"],
   argTypes: {
     percentage: { type: "number" },
+    onChange: fn(),
   },
   decorators: (Story) => (
     <div className="w-52">

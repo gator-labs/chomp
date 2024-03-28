@@ -11,7 +11,7 @@ export default function Layout({ children }: PageLayoutProps) {
   return (
     <div className="flex flex-col h-full">
       <Navbar avatarSrc={AvatarPlaceholder.src} avatarLink="" walletLink="" />
-      <main className="flex-grow">{children}</main>
+      <main className="flex-grow overflow-y-auto mb-2">{children}</main>
       <TabNavigation />
     </div>
   );
