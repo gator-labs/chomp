@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { AdminTabNavigation } from "../components/AdminTabNavigation/AdminTabNavigation";
+import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -12,6 +13,7 @@ export default function Layout({ children }: PageLayoutProps) {
         {children}
       </main>
       <AdminTabNavigation />
+      <AuthRedirect />
     </div>
   );
 }

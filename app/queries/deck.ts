@@ -3,7 +3,7 @@ import prisma from "../services/prisma";
 import dayjs from "dayjs";
 
 const questionDeckToRunInclude = {
-  questionDecks: {
+  deckQuestions: {
     include: {
       question: {
         include: {
@@ -33,4 +33,27 @@ export async function getDeckDetailsById(deckId: number) {
   });
 
   return deck;
+}
+
+export async function getDecks() {
+  const decks = await prisma.deck.findMany({
+    include: {
+      deckQuestions: {
+        take: 1,
+        include: {
+          question: {
+            include: {
+              questionTags: {
+                include: {
+                  tag: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return decks;
 }

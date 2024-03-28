@@ -1,8 +1,8 @@
 import classNames from "classnames";
 
 type TagProps = {
-  onSelected: () => void;
-  isSelected: boolean;
+  onSelected?: () => void;
+  isSelected?: boolean;
   tag: string;
 };
 
@@ -19,6 +19,7 @@ export function Tag({ onSelected, tag, isSelected }: TagProps) {
         }
       )}
       onClick={onSelected}
+      type="button"
     >
       {tag}
     </button>

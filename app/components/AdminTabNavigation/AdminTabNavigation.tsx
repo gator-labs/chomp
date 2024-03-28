@@ -1,10 +1,9 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import { Navigation } from "../Navigation/Navigation";
 import { HomeIcon } from "../Icons/HomeIcon";
 import { BackIcon } from "../Icons/BackIcon";
 import { CommentIcon } from "../Icons/CommentIcon";
+import { FilterIcon } from "../Icons/FilterIcon";
+import { SortByIcon } from "../Icons/SortByIcon";
 
 const navigationItems = [
   { label: "App", icon: <BackIcon />, href: "/application" },
@@ -17,14 +16,18 @@ const navigationItems = [
   },
   {
     label: "Decks",
-    icon: <CommentIcon />,
+    icon: <SortByIcon />,
     href: "/admin/decks",
     isActiveRegex: "/admin/decks.*",
+  },
+  {
+    label: "Tags",
+    icon: <FilterIcon />,
+    href: "/admin/tags",
+    isActiveRegex: "/admin/tags.*",
   },
 ];
 
 export function AdminTabNavigation() {
-  const pathname = usePathname();
-
   return <Navigation items={navigationItems} />;
 }

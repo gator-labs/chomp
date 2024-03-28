@@ -1,20 +1,20 @@
 import { Button } from "@/app/components/Button/Button";
-import { DeckList } from "@/app/components/DeckList/DeckList";
-import { getDecks } from "@/app/queries/deck";
+import { TagList } from "@/app/components/TagList/TagList";
+import { getTags } from "@/app/queries/tag";
 import Link from "next/link";
 
 export default async function Page() {
-  const decks = await getDecks();
+  const tags = await getTags();
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-end gap-2">
-        <Link href="/admin/decks/new">
+        <Link href="/admin/tags/new">
           <Button variant="primary">New</Button>
         </Link>
       </div>
 
-      <DeckList decks={decks} />
+      <TagList tags={tags} />
     </div>
   );
 }

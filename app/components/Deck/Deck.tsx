@@ -6,7 +6,7 @@ import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import dayjs from "dayjs";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { Button } from "../Button/Button";
-import { DeckRequest, saveDeck } from "../../actions/deck";
+import { SaveDeckRequest, saveDeck } from "../../actions/deck";
 import { useRouter } from "next/navigation";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 import { useRandom } from "@/app/hooks/useRandom";
@@ -45,7 +45,7 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [rerenderAction, setRerednerAction] = useState(true);
   const router = useRouter();
-  const [deckResponse, setDeckResponse] = useState<DeckRequest[]>([]);
+  const [deckResponse, setDeckResponse] = useState<SaveDeckRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<DeckStep>(
     DeckStep.AnswerQuestion
   );

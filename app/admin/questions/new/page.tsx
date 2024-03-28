@@ -1,6 +1,9 @@
 import { createQuestion } from "@/app/actions/question";
 import QuestionForm from "@/app/components/QuestionForm/QuestionForm";
+import { getTags } from "@/app/queries/tag";
 
 export default async function Page() {
-  return <QuestionForm action={createQuestion} />;
+  const tags = await getTags();
+
+  return <QuestionForm action={createQuestion} tags={tags} />;
 }

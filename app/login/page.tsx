@@ -4,18 +4,17 @@ import {
   DynamicConnectButton,
   useDynamicContext,
 } from "@dynamic-labs/sdk-react-core";
-import { redirect } from "next/navigation";
 import { useEffect } from "react";
-import { Button } from "../components/Button/Button";
+import { setJwt } from "../actions/jwt";
 
 export default function Page() {
-  const { user } = useDynamicContext();
+  const { authToken } = useDynamicContext();
 
   useEffect(() => {
-    if (user) {
-      redirect("/application");
+    if (authToken) {
+      setJwt(authToken);
     }
-  }, [user]);
+  }, [authToken]);
 
   return (
     <main className="flex flex-col justify-center items-center gap-3 h-full">

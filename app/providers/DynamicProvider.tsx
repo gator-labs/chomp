@@ -2,7 +2,7 @@
 
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { SolanaWalletConnectors } from "@dynamic-labs/solana";
-import { clearJwt, setJwt } from "../actions/jwt";
+import { clearJwt } from "../actions/jwt";
 
 export default function DynamicProvider({
   children,
@@ -16,9 +16,6 @@ export default function DynamicProvider({
         environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID || "",
         walletConnectors: [SolanaWalletConnectors],
         eventsCallbacks: {
-          onAuthSuccess: ({ authToken }) => {
-            setJwt(authToken);
-          },
           onLogout: () => {
             clearJwt();
           },
