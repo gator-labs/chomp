@@ -40,7 +40,7 @@ model Question {
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
   questionAnswers     QuestionAnswer[]
-  questionDecks       QuestionDeck[]
+  deckQuestions       DeckQuestion[]
 }
 
 model QuestionOption {
@@ -69,10 +69,10 @@ model Deck {
   id            Int            @id @default(autoincrement())
   deck          String
   date          DateTime?
-  questionDecks QuestionDeck[]
+  deckQuestions DeckQuestion[]
 }
 
-model QuestionDeck {
+model DeckQuestion {
   id         Int      @id @default(autoincrement())
   deckId     Int
   deck       Deck     @relation(fields: [deckId], references: [id])

@@ -6,7 +6,7 @@ import { TextInput } from "../TextInput/TextInput";
 import { z } from "zod";
 import { questionSchema } from "@/app/schemas/question";
 import { Tag } from "../Tag/Tag";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -16,7 +16,7 @@ type QuestionFormProps = {
   action: (data: z.infer<typeof questionSchema>) => void;
 };
 
-const getDefaultOptions = (type: QuestionType) => {
+export const getDefaultOptions = (type: QuestionType) => {
   switch (type) {
     case QuestionType.YesNo:
       return [
@@ -51,7 +51,10 @@ export default function QuestionForm({
     setValue,
   } = useForm({
     resolver: zodResolver(questionSchema),
-    defaultValues: question,
+    defaultValues: question || {
+      type: QuestionType.MultiChoice,
+      questionOptions: getDefaultOptions(QuestionType.MultiChoice),
+    },
   });
 
   const [selectedTagIds, setSelectedTagIds] = useState(question?.tagIds ?? []);

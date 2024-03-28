@@ -47,6 +47,7 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
   redirect("/admin/questions");
 }
 
+// TODO: no edits after users started answering
 export async function editQuestion(data: z.infer<typeof questionSchema>) {
   const isAdmin = await getIsUserAdmin();
 
