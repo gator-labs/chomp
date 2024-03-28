@@ -45,3 +45,6 @@ export const getRevealedAtString = (revealed: Date) => {
 
   return "Revealing in " + timeString;
 };
+
+export const getDailyDeckFormamttedString = (date: Date) =>
+  dayjs(date).format("MMMM DD YYYY").toString();

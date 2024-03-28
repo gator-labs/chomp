@@ -1,4 +1,4 @@
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getJwtPayload } from "@/app/actions/jwt";
 
 export const AuthRedirect = async () => {

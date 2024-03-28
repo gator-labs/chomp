@@ -14,6 +14,7 @@ model User {
   wallets         Wallet[]
   emails          Email[]
   questionAnswers QuestionAnswer[]
+  userDeck        UserDeck[]
 }
 
 model Wallet {
@@ -71,6 +72,15 @@ model Deck {
   deck          String
   date          DateTime?
   deckQuestions DeckQuestion[]
+  userDeck      UserDeck[]
+}
+
+model UserDeck {
+  id     Int    @id @default(autoincrement())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  deckId Int
+  deck   Deck   @relation(fields: [deckId], references: [id])
 }
 
 model DeckQuestion {
