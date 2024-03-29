@@ -5,7 +5,7 @@ import { SwitchNavigation } from "../SwitchNavigation/SwitchNavigation";
 
 const navigationItems = [
   { label: "My Profile", href: "/application/profile" },
-  { label: "History/Rewards", href: "/application" },
+  { label: "History/Rewards", href: "/application/history" },
 ];
 
 export function HomeSwitchNavigation() {
