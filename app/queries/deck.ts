@@ -41,7 +41,11 @@ export async function getDailyDeck() {
 
   const questions = mapQuestionFromDeck(dailyDeck);
 
-  return questions;
+  return {
+    questions,
+    id: dailyDeck.id,
+    date: dailyDeck.date,
+  };
 }
 
 export async function getDeckQuestionsById(deckId: number) {
