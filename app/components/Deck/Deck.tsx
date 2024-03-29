@@ -28,6 +28,7 @@ export type Question = {
 type DeckProps = {
   questions: Question[];
   browseHomeUrl: string;
+  deckId: number;
 };
 
 export enum DeckStep {
@@ -41,7 +42,7 @@ const getDueAt = (questions: Question[], index: number): Date => {
     .toDate();
 };
 
-export function Deck({ questions, browseHomeUrl }: DeckProps) {
+export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [rerenderAction, setRerednerAction] = useState(true);
   const router = useRouter();
@@ -87,7 +88,7 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
     (number: number | undefined) => {
       if (
         currentQuestionStep === DeckStep.AnswerQuestion &&
-        question.type === "TrueFalse"
+        (question.type === "TrueFalse" || question.type === "YesNo")
       ) {
         setDeckResponse((prev) => [
           ...prev,
@@ -120,7 +121,7 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
 
       if (
         currentQuestionStep === DeckStep.PickPercentage &&
-        question.type === "TrueFalse"
+        (question.type === "TrueFalse" || question.type === "YesNo")
       ) {
         setDeckResponse((prev) => {
           const newResposnes = [...prev];
@@ -170,10 +171,9 @@ export function Deck({ questions, browseHomeUrl }: DeckProps) {
 
   useEffect(() => {
     if (hasReachedEnd) {
-      saveDeck(deckResponse);
+      saveDeck(deckResponse, deckId);
     }
   }, [hasReachedEnd, deckResponse]);
-
   if (questions.length === 0 || hasReachedEnd) {
     return (
       <div className="flex flex-col justify-between h-full">

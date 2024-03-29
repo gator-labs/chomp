@@ -27,7 +27,10 @@ export function QuestionAction({
 }: QuestionActionProps) {
   const [scale, setScale] = useState(50);
 
-  if (type === "TrueFalse" && step === DeckStep.AnswerQuestion) {
+  if (
+    (type === "TrueFalse" || type === "YesNo") &&
+    step === DeckStep.AnswerQuestion
+  ) {
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">
@@ -49,7 +52,10 @@ export function QuestionAction({
     );
   }
 
-  if (type === "TrueFalse" && step === DeckStep.PickPercentage) {
+  if (
+    (type === "TrueFalse" || type === "YesNo") &&
+    step === DeckStep.PickPercentage
+  ) {
     return (
       <div className="text-white font-semibold">
         <div className="text-center  text-md mb-4">

@@ -16,7 +16,7 @@ export type SaveDeckRequest = {
   percentageGivenForAnswerId?: number;
 };
 
-export async function saveDeck(request: SaveDeckRequest[]) {
+export async function saveDeck(request: SaveDeckRequest[], deckId: number) {
   const payload = await getJwtPayload();
   const questionIds = request.map((dr) => dr.questionId);
   const questionOptions = await prisma.questionOption.findMany({
@@ -35,8 +35,16 @@ export async function saveDeck(request: SaveDeckRequest[]) {
       }) as QuestionAnswer
   );
 
-  await prisma.questionAnswer.createMany({
-    data: questionAnswers,
+  prisma.$transaction(async (tx) => {
+    await tx.userDeck.create({
+      data: {
+        deckId: deckId,
+        userId: payload?.sub ?? "",
+      },
+    });
+    await tx.questionAnswer.createMany({
+      data: questionAnswers,
+    });
   });
 }
 

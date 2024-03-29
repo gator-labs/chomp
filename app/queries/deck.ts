@@ -1,6 +1,8 @@
 import { Prisma } from ".prisma/client";
 import prisma from "../services/prisma";
 import dayjs from "dayjs";
+import { getJwtPayload } from "../actions/jwt";
+import { redirect } from "next/navigation";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -17,9 +19,16 @@ const questionDeckToRunInclude = {
 export async function getDailyDeck() {
   const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const payload = await getJwtPayload();
+  if (!payload) {
+    return redirect("/");
+  }
 
   const dailyDeck = await prisma.deck.findFirst({
-    where: { date: { not: null, gte: currentDayStart, lte: currentDayEnd } },
+    where: {
+      date: { not: null, gte: currentDayStart, lte: currentDayEnd },
+      userDeck: { none: { userId: payload?.sub ?? "" } },
+    },
     include: questionDeckToRunInclude,
   });
 

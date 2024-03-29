@@ -30,6 +30,7 @@ const meta = {
   },
   tags: ["autodocs"],
   args: {
+    deckId: 1,
     questions: [
       {
         ...questionBase,
