@@ -6,18 +6,22 @@ import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import dayjs from "dayjs";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { Button } from "../Button/Button";
-import { SaveDeckRequest, saveDeck } from "../../actions/deck";
 import { useRouter } from "next/navigation";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 import { useRandom } from "@/app/hooks/useRandom";
 import { getAlphaIdentifier } from "@/app/utils/question";
+import {
+  NUMBER_OF_STEPS_PER_QUESTION,
+  QuestionStep,
+} from "../Question/Question";
+import { saveDeck, SaveQuestionRequest } from "@/app/actions/answer";
 
 type Option = {
   id: number;
   option: string;
 };
 
-export type Question = {
+type Question = {
   id: number;
   durationMiliseconds: number;
   question: string;
@@ -31,11 +35,6 @@ type DeckProps = {
   deckId: number;
 };
 
-export enum DeckStep {
-  AnswerQuestion = 1,
-  PickPercentage = 2,
-}
-
 const getDueAt = (questions: Question[], index: number): Date => {
   return dayjs(new Date())
     .add(questions[index].durationMiliseconds, "milliseconds")
@@ -46,16 +45,19 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [rerenderAction, setRerednerAction] = useState(true);
   const router = useRouter();
-  const [deckResponse, setDeckResponse] = useState<SaveDeckRequest[]>([]);
-  const [currentQuestionStep, setCurrentQuestionStep] = useState<DeckStep>(
-    DeckStep.AnswerQuestion
+  const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
+  const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
+    QuestionStep.AnswerQuestion
   );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
   const { random, generateRandom } = useRandom({
     min: 0,
-    max: questions.length - 1,
+    max:
+      questions[currentQuestionIndex].questionOptions.length > 0
+        ? questions[currentQuestionIndex].questionOptions.length - 1
+        : 0,
   });
 
   const handleNextIndex = useCallback(() => {
@@ -63,7 +65,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
       setDueAt(getDueAt(questions, currentQuestionIndex + 1));
     }
     setCurrentQuestionIndex((index) => index + 1);
-    setCurrentQuestionStep(DeckStep.AnswerQuestion);
+    setCurrentQuestionStep(QuestionStep.AnswerQuestion);
     setRerednerAction(false);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
@@ -84,23 +86,29 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     () => questions[currentQuestionIndex],
     [questions, currentQuestionIndex]
   );
+
+  const handleNoAnswer = useCallback(() => {
+    setDeckResponse((prev) => [...prev, { questionId: question.id }]);
+    handleNextIndex();
+  }, [question, handleNextIndex, setDeckResponse]);
+
   const onQuesitonActionClick = useCallback(
     (number: number | undefined) => {
       if (
-        currentQuestionStep === DeckStep.AnswerQuestion &&
+        currentQuestionStep === QuestionStep.AnswerQuestion &&
         (question.type === "TrueFalse" || question.type === "YesNo")
       ) {
         setDeckResponse((prev) => [
           ...prev,
-          { questionId: question.id, questionOptionId: number ?? 0 },
+          { questionId: question.id, questionOptionId: number },
         ]);
-        setCurrentQuestionStep(DeckStep.PickPercentage);
+        setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
       }
 
       if (
-        currentQuestionStep === DeckStep.AnswerQuestion &&
+        currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "MultiChoice"
       ) {
         if (!currentOptionSelected) {
@@ -114,13 +122,13 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
             questionOptionId: currentOptionSelected,
           },
         ]);
-        setCurrentQuestionStep(DeckStep.PickPercentage);
+        setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
       }
 
       if (
-        currentQuestionStep === DeckStep.PickPercentage &&
+        currentQuestionStep === QuestionStep.PickPercentage &&
         (question.type === "TrueFalse" || question.type === "YesNo")
       ) {
         setDeckResponse((prev) => {
@@ -136,7 +144,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
       }
 
       if (
-        currentQuestionStep === DeckStep.PickPercentage &&
+        currentQuestionStep === QuestionStep.PickPercentage &&
         question.type === "MultiChoice"
       ) {
         setDeckResponse((prev) => {
@@ -144,6 +152,8 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
           const response = newResposnes.pop();
           if (response) {
             response.percentageGiven = optionPercentage;
+            response.percentageGivenForAnswerId =
+              question.questionOptions[random]?.id;
             newResposnes.push(response);
           }
 
@@ -200,7 +210,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         ).map((index) => (
           <QuestionCard
             key={index}
-            numberOfSteps={2}
+            numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
             question={questions[index].question}
             step={1}
             className="absolute drop-shadow-question-card border-opacity-40"
@@ -213,10 +223,10 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         ))}
         <QuestionCard
           dueAt={dueAt}
-          numberOfSteps={2}
+          numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
           question={question.question}
           step={currentQuestionStep}
-          onDurationRanOut={handleNextIndex}
+          onDurationRanOut={handleNoAnswer}
           className="z-50 relative drop-shadow-question-card border-opacity-40"
           style={{
             transform: `translateY(${questionOffset}px)`,

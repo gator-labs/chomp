@@ -1,9 +1,9 @@
 "use client";
 import { QuestionType } from "@prisma/client";
 import { Button } from "../Button/Button";
-import { DeckStep } from "../Deck/Deck";
 import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
 import { useState } from "react";
+import { QuestionStep } from "../Question/Question";
 
 type QuestionOption = {
   id: number;
@@ -15,7 +15,7 @@ type QuestionActionProps = {
   questionOptions?: QuestionOption[];
   onButtonClick: (answer?: number) => void;
   randomQuestionMarker?: string;
-  step: DeckStep;
+  step: QuestionStep;
 };
 
 export function QuestionAction({
@@ -29,7 +29,7 @@ export function QuestionAction({
 
   if (
     (type === "TrueFalse" || type === "YesNo") &&
-    step === DeckStep.AnswerQuestion
+    step === QuestionStep.AnswerQuestion
   ) {
     return (
       <div className="text-center text-white font-semibold">
@@ -54,7 +54,7 @@ export function QuestionAction({
 
   if (
     (type === "TrueFalse" || type === "YesNo") &&
-    step === DeckStep.PickPercentage
+    step === QuestionStep.PickPercentage
   ) {
     return (
       <div className="text-white font-semibold">
@@ -82,7 +82,7 @@ export function QuestionAction({
     );
   }
 
-  if (type === "MultiChoice" && step === DeckStep.AnswerQuestion) {
+  if (type === "MultiChoice" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">Choose your answer</div>
@@ -95,7 +95,7 @@ export function QuestionAction({
     );
   }
 
-  if (type === "MultiChoice" && step === DeckStep.PickPercentage) {
+  if (type === "MultiChoice" && step === QuestionStep.PickPercentage) {
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">
