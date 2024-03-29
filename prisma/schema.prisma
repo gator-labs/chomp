@@ -40,7 +40,6 @@ model Question {
   revealAtAnswerCount Int?
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
-  questionAnswers     QuestionAnswer[]
   deckQuestions       DeckQuestion[]
 }
 
@@ -68,11 +67,13 @@ model QuestionTag {
 }
 
 model Deck {
-  id            Int            @id @default(autoincrement())
-  deck          String
-  date          DateTime?
-  deckQuestions DeckQuestion[]
-  userDeck      UserDeck[]
+  id                  Int            @id @default(autoincrement())
+  deck                String
+  date                DateTime?
+  revealAtDate        DateTime?
+  revealAtAnswerCount Int?
+  deckQuestions       DeckQuestion[]
+  userDeck            UserDeck[]
 }
 
 model UserDeck {
@@ -97,10 +98,8 @@ model QuestionAnswer {
   questionOption   QuestionOption @relation(fields: [questionOptionId], references: [id])
   userId           String
   user             User           @relation(fields: [userId], references: [id])
-  percentage       Int
+  percentage       Int?
   selected         Boolean
-  Question         Question?      @relation(fields: [questionId], references: [id])
-  questionId       Int?
 }
 
 enum QuestionType {

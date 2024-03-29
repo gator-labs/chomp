@@ -1,10 +1,9 @@
 "use client";
 import { QuestionType } from "@prisma/client";
-import { DeckStep } from "../Deck/Deck";
 import { RadioInput } from "../RadioInput/RadioInput";
 import { AnswerResult } from "../AnswerResult/AnswerResult";
-import { useEffect, useState } from "react";
 import { useSteppingChange } from "@/app/hooks/useSteppingChange";
+import { QuestionStep } from "../Question/Question";
 
 type QuestionOption = {
   id: number;
@@ -16,7 +15,7 @@ type QuestionCardContentProps = {
   questionOptions?: QuestionOption[];
   optionSelectedId?: number;
   onOptionSelected: (answer?: number) => void;
-  step: DeckStep;
+  step: QuestionStep;
   randomOptionId?: number;
   percentage?: number;
   onPercentageChanged?: (percentage: number) => void;
@@ -41,7 +40,7 @@ export function QuestionCardContent({
     return <></>;
   }
 
-  if (type === "MultiChoice" && step === DeckStep.AnswerQuestion) {
+  if (type === "MultiChoice" && step === QuestionStep.AnswerQuestion) {
     return (
       <div>
         <RadioInput
@@ -59,7 +58,7 @@ export function QuestionCardContent({
     );
   }
 
-  if (type === "MultiChoice" && step === DeckStep.PickPercentage) {
+  if (type === "MultiChoice" && step === QuestionStep.PickPercentage) {
     return (
       <div>
         {questionOptions?.map((qo) => (
