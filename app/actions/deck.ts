@@ -110,6 +110,8 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         },
       });
 
+      // TODO: optimize so only modified questions get updated
+
       const newDeckQuestions = validatedFields.data.questions.filter(
         (q) => !q.id
       );
@@ -147,18 +149,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !!q.id
       );
 
-      const questionsToDelete = await tx.deckQuestion.findMany({
-        where: {
-          deckId: deck.id,
-          questionId: {
-            notIn: existingDeckQuestions.map((q) => q.id) as number[],
-          },
-        },
-      });
-
-      // TODO: add cascade to question and then implement this
-      questionsToDelete.length && console.log({ questionsToDelete });
-
       for (const question of existingDeckQuestions) {
         await tx.question.update({
           where: {
@@ -194,6 +184,18 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           },
         });
       }
+
+      const questionsToDelete = await tx.deckQuestion.findMany({
+        where: {
+          deckId: deck.id,
+          questionId: {
+            notIn: existingDeckQuestions.map((q) => q.id) as number[],
+          },
+        },
+      });
+
+      // TODO: add cascade to question and then implement this
+      questionsToDelete.length && console.log({ questionsToDelete });
     },
     { timeout: 10000 }
   );
