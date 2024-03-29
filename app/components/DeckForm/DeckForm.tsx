@@ -6,7 +6,7 @@ import { TextInput } from "../TextInput/TextInput";
 import { z } from "zod";
 import { Tag } from "../Tag/Tag";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { deckSchema } from "@/app/schemas/deck";
 import { Button } from "../Button/Button";
@@ -25,6 +25,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
     formState: { errors },
     watch,
     setValue,
+    control,
   } = useForm({
     resolver: zodResolver(deckSchema),
     defaultValues: deck || {
@@ -36,27 +37,12 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       ],
     },
   });
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "questions",
+  });
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
-
-  const [questionCounter, setQuestionCounter] = useState(
-    deck?.questions.length ?? 1
-  );
-  const [questionIndexes, setQuestionIndexes] = useState(
-    deck?.questions.map((_, i) => i) ?? [0]
-  );
-
-  const addQuestion = () => {
-    setQuestionIndexes((prev) => [...prev, questionCounter]);
-    // set type to previous type
-    setQuestionCounter((prev) => prev + 1);
-  };
-
-  const removeQuestion = (index: number) => {
-    setQuestionIndexes((prev) =>
-      prev.filter((prevIndex) => prevIndex !== index)
-    );
-  };
 
   return (
     <form
@@ -75,9 +61,16 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       </div>
 
       <div className="mb-3">
-        {questionIndexes.map((questionIndex) => (
-          <div key={`question-${questionIndex}`}>
+        {fields.map((field, questionIndex) => (
+          <fieldset
+            name={`questions.${questionIndex}`}
+            key={`questions.${questionIndex}`}
+          >
             <h2 className="text-xl mb-2">Question #{questionIndex + 1}</h2>
+
+            <div>
+              {errors.questions && errors.questions[questionIndex]?.message}
+            </div>
 
             <div className="mb-3">
               <label className="block mb-1">Question statement</label>
@@ -158,10 +151,36 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                   </div>
                 ))}
             </div>
-          </div>
+
+            {questionIndex !== 0 && (
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => {
+                  remove(questionIndex);
+                }}
+                className="mb-3"
+              >
+                Remove
+              </Button>
+            )}
+          </fieldset>
         ))}
-        {questionIndexes.length < 20 && (
-          <Button variant="primary" type="button" onClick={addQuestion}>
+
+        {fields.length < 20 && (
+          <Button
+            variant="primary"
+            type="button"
+            onClick={() => {
+              append({
+                type: fields[fields.length - 1].type,
+                question: "",
+                questionOptions: getDefaultOptions(
+                  fields[fields.length - 1].type
+                ),
+              });
+            }}
+          >
             New question
           </Button>
         )}
@@ -184,7 +203,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
         <TextInput
           variant="secondary"
           {...register("revealTokenAmount", {
-            setValueAs: (v) => (!v ? null : parseInt(v)),
+            setValueAs: (v) => (!v ? 0 : parseInt(v)),
           })}
         />
         <div>{errors.revealTokenAmount?.message}</div>

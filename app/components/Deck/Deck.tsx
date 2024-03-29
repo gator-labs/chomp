@@ -16,12 +16,12 @@ import {
 } from "../Question/Question";
 import { saveDeck, SaveQuestionRequest } from "@/app/actions/answer";
 
-type Option = {
+export type Option = {
   id: number;
   option: string;
 };
 
-type Question = {
+export type Question = {
   id: number;
   durationMiliseconds: number;
   question: string;
