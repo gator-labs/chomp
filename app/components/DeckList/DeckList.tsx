@@ -39,9 +39,8 @@ export function DeckList({ decks }: DeckListProps) {
             <td>{d.deckQuestions[0].question.revealToken}</td>
             <td>{d.deckQuestions[0].question.revealTokenAmount}</td>
             <td>
-              {d.deckQuestions[0].question.revealAtDate?.toString() || ""}{" "}
-              {d.deckQuestions[0].question.revealAtAnswerCount &&
-                `(${d.deckQuestions[0].question.revealAtAnswerCount} answers)`}
+              {d.revealAtDate?.toString() || ""}{" "}
+              {d.revealAtAnswerCount && `(${d.revealAtAnswerCount} answers)`}
             </td>
             <td>
               <div className="flex gap-2">

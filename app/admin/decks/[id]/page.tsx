@@ -1,4 +1,4 @@
-import { createDeck } from "@/app/actions/deck";
+import { editDeck } from "@/app/actions/deck";
 import DeckForm from "@/app/components/DeckForm/DeckForm";
 import { getDeckSchema } from "@/app/queries/deck";
 import { getTags } from "@/app/queries/tag";
@@ -18,5 +18,5 @@ export default async function Page({ params: { id } }: PageProps) {
     return notFound();
   }
 
-  return <DeckForm action={createDeck} deck={deck} tags={tags} />;
+  return <DeckForm action={editDeck} deck={deck} tags={tags} />;
 }

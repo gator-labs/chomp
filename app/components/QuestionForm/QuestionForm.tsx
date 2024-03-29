@@ -146,7 +146,7 @@ export default function QuestionForm({
         <TextInput
           variant="secondary"
           {...register("revealTokenAmount", {
-            setValueAs: (v) => (!v ? null : parseInt(v)),
+            setValueAs: (v) => (!v ? 0 : parseInt(v)),
           })}
         />
         <div>{errors.revealTokenAmount?.message}</div>
