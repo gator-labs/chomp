@@ -197,7 +197,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
       // TODO: add cascade to question and then implement this
       questionsToDelete.length && console.log({ questionsToDelete });
     },
-    { timeout: 10000 }
+    { timeout: 20000 }
   );
 
   revalidatePath("/admin/decks");

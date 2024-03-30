@@ -6,7 +6,12 @@ import { getIsUserAdmin } from "@/app/queries/user";
 import { SettingsIcon } from "../Icons/SettingsIcon";
 
 const navigationItems = [
-  { label: "Answer", icon: <ChallengeIcon />, href: "/application/answer" },
+  {
+    label: "Answer",
+    icon: <ChallengeIcon />,
+    href: "/application/answer",
+    isActiveRegex: "/application/answer.*",
+  },
   { label: "Home", icon: <HomeIcon />, href: "/application" },
   { label: "Ask", icon: <ComposeIcon />, href: "/application/ask" },
 ];
