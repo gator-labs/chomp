@@ -2,6 +2,7 @@ import { z } from "zod";
 import prisma from "../services/prisma";
 import { questionSchema } from "../schemas/question";
 import { Question, QuestionOption } from "@prisma/client";
+import { getJwtPayload } from "../actions/jwt";
 
 export async function getQuestionForAnswerById(questionId: number) {
   const question = await prisma.question.findFirst({
@@ -72,4 +73,41 @@ export async function getQuestionSchema(
   };
 
   return questionData;
+}
+
+export async function getUnansweredDailyQuestions() {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const dailyDeckQuestions = await prisma.deckQuestion.findMany({
+    where: {
+      deck: {
+        date: {
+          not: null,
+        },
+      },
+      question: {
+        questionOptions: {
+          none: {
+            questionAnswer: {
+              some: {
+                userId: payload.sub,
+              },
+            },
+          },
+        },
+        revealAtDate: {
+          lte: new Date(),
+        },
+      },
+    },
+    include: {
+      question: true,
+    },
+  });
+
+  return dailyDeckQuestions.map((dq) => dq.question);
 }

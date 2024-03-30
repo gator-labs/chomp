@@ -49,7 +49,7 @@ model QuestionOption {
   isTrue         Boolean          @default(false)
   questionId     Int
   question       Question         @relation(fields: [questionId], references: [id])
-  QuestionAnswer QuestionAnswer[]
+  questionAnswer QuestionAnswer[]
 }
 
 model Tag {

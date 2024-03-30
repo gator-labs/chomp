@@ -8,12 +8,13 @@ import classNames from "classnames";
 type StatusUnion = "chomped" | "new";
 type QuestionAccordionProps = {
   question: string;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
   status?: StatusUnion;
   reveleadAt: Date;
   children?: ReactNode;
   actionChild?: ReactNode;
+  onClick?: () => void;
 };
 
 const parseStatus = (status: StatusUnion) => {
@@ -29,15 +30,24 @@ const parseStatus = (status: StatusUnion) => {
 
 export function QuestionAccordion({
   question,
-  isCollapsed,
+  isCollapsed = true,
   onToggleCollapse,
   reveleadAt,
   actionChild,
   children,
   status,
+  onClick,
 }: QuestionAccordionProps) {
   return (
-    <div className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2">
+    <div
+      className={classNames(
+        "bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2",
+        {
+          "cursor-pointer": !!onClick,
+        }
+      )}
+      onClick={onClick}
+    >
       <div className="w-72 flex flex-col gap-y-2">
         <div className="text-white text-base font-sora font-semibold">
           {question}

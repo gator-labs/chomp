@@ -1,10 +1,15 @@
+import { HomeFeed } from "../components/HomeFeed/HomeFeed";
+import { HomeFilters } from "../components/HomeFilters/HomeFilters";
 import { LogoutButton } from "../components/LogoutButton/LogoutButton";
+import { getUnansweredDailyQuestions } from "../queries/question";
 
-export default function Page() {
+export default async function Page() {
+  const unansweredDailyQuestions = await getUnansweredDailyQuestions();
+
   return (
     <>
-      home page
-      <br />
+      <HomeFilters />
+      <HomeFeed unansweredQuestions={unansweredDailyQuestions} />
       <LogoutButton />
     </>
   );

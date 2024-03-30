@@ -55,6 +55,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   const { random, generateRandom } = useRandom({
     min: 0,
     max:
+      questions[currentQuestionIndex] &&
       questions[currentQuestionIndex].questionOptions.length > 0
         ? questions[currentQuestionIndex].questionOptions.length - 1
         : 0,
