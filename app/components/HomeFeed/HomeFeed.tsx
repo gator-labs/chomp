@@ -1,26 +1,28 @@
-"use client";
-
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
-import { Question } from "@prisma/client";
+import { Deck, Question } from "@prisma/client";
 
-type HomeFeedProps = {
-  unansweredQuestions: Question[];
+export type HomeFeedProps = {
+  unansweredDailyQuestions: Question[];
+  unansweredUnrevealedQuestions: Question[];
+  unansweredUnrevealedDecks: Deck[];
+  answeredUnrevealedQuestions: Question[];
+  answeredUnrevealedDecks: Deck[];
+  answeredRevealedQuestions: Question[];
+  answeredRevealedDecks: Deck[];
 };
 
-export function HomeFeed({ unansweredQuestions }: HomeFeedProps) {
-  const router = useRouter();
-
+export function HomeFeed({ unansweredDailyQuestions }: HomeFeedProps) {
   return (
     <div className="flex flex-col gap-4 px-4 py-6">
-      {unansweredQuestions.map((q) => (
-        <QuestionAccordion
-          question={q.question}
-          reveleadAt={q.revealAtDate || new Date()}
-          status="new"
-          onClick={() => router.push(`/application/answer/question/${q.id}`)}
-          key={q.id}
-        />
+      {unansweredDailyQuestions.map((q) => (
+        <Link key={q.id} href={`/application/answer/question/${q.id}`}>
+          <QuestionAccordion
+            question={q.question}
+            reveleadAt={q.revealAtDate || new Date()}
+            status="new"
+          />
+        </Link>
       ))}
     </div>
   );

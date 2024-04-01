@@ -1,7 +1,7 @@
 import { z } from "zod";
 import prisma from "../services/prisma";
 import { questionSchema } from "../schemas/question";
-import { Question, QuestionOption } from "@prisma/client";
+import { Prisma, Question, QuestionOption } from "@prisma/client";
 import { getJwtPayload } from "../actions/jwt";
 
 export async function getQuestionForAnswerById(questionId: number) {
@@ -75,6 +75,38 @@ export async function getQuestionSchema(
   return questionData;
 }
 
+export async function getHomeFeed() {
+  const promiseArray = [
+    getUnansweredDailyQuestions(),
+    getHomeFeedQuestions({ areAnswered: false, areRevealed: false }),
+    getHomeFeedDecks({ areAnswered: false, areRevealed: false }),
+    getHomeFeedQuestions({ areAnswered: true, areRevealed: false }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: false }),
+    getHomeFeedQuestions({ areAnswered: true, areRevealed: true }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: true }),
+  ];
+
+  const [
+    unansweredDailyQuestions,
+    unansweredUnrevealedQuestions,
+    unansweredUnrevealedDecks,
+    answeredUnrevealedQuestions,
+    answeredUnrevealedDecks,
+    answeredRevealedQuestions,
+    answeredRevealedDecks,
+  ] = await Promise.all(promiseArray);
+
+  return {
+    unansweredDailyQuestions,
+    unansweredUnrevealedQuestions,
+    unansweredUnrevealedDecks,
+    answeredUnrevealedQuestions,
+    answeredUnrevealedDecks,
+    answeredRevealedQuestions,
+    answeredRevealedDecks,
+  };
+}
+
 export async function getUnansweredDailyQuestions() {
   const payload = await getJwtPayload();
 
@@ -110,4 +142,146 @@ export async function getUnansweredDailyQuestions() {
   });
 
   return dailyDeckQuestions.map((dq) => dq.question);
+}
+
+export async function getHomeFeedQuestions({
+  areAnswered,
+  areRevealed,
+}: {
+  areAnswered: boolean;
+  areRevealed: boolean;
+}) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
+    ? {
+        revealAtDate: {
+          lte: new Date(),
+        },
+      }
+    : {
+        revealAtDate: {
+          gt: new Date(),
+        },
+      };
+
+  const areAnsweredFilter: Prisma.QuestionWhereInput = areAnswered
+    ? {
+        questionOptions: {
+          some: {
+            questionAnswer: {
+              some: {
+                userId: payload.sub,
+              },
+            },
+          },
+        },
+      }
+    : {
+        questionOptions: {
+          none: {
+            questionAnswer: {
+              some: {
+                userId: payload.sub,
+              },
+            },
+          },
+        },
+      };
+
+  const questions = await prisma.question.findMany({
+    where: {
+      deckQuestions: {
+        none: {
+          deck: {
+            date: {
+              not: null,
+            },
+          },
+        },
+      },
+      ...areAnsweredFilter,
+      ...revealedAtFilter,
+    },
+  });
+
+  return questions;
+}
+
+export async function getHomeFeedDecks({
+  areAnswered,
+  areRevealed,
+}: {
+  areAnswered: boolean;
+  areRevealed: boolean;
+}) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const revealedAtFilter: Prisma.DeckWhereInput = areRevealed
+    ? {
+        revealAtDate: {
+          lte: new Date(),
+        },
+      }
+    : {
+        revealAtDate: {
+          gt: new Date(),
+        },
+      };
+
+  const areAnsweredFilter: Prisma.DeckWhereInput = areAnswered
+    ? {
+        deckQuestions: {
+          some: {
+            question: {
+              questionOptions: {
+                some: {
+                  questionAnswer: {
+                    some: {
+                      userId: payload.sub,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+    : {
+        deckQuestions: {
+          some: {
+            question: {
+              questionOptions: {
+                none: {
+                  questionAnswer: {
+                    some: {
+                      userId: payload.sub,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+  const decks = await prisma.deck.findMany({
+    where: {
+      date: {
+        equals: null,
+      },
+      ...areAnsweredFilter,
+      ...revealedAtFilter,
+    },
+  });
+
+  return decks;
 }
