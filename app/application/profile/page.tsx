@@ -5,7 +5,7 @@ import { Profile } from "@/app/components/Profile/Profile";
 import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
 import TagRankCard from "@/app/components/TagRankCard/TagRankCard";
 import GeneralRankCard from "@/app/components/GeneralRankCard/GeneralRankCard";
-import PointBalaceCard from "@/app/components/PointBalaceCard/PointBalaceCard";
+import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
 
 export default function Page() {
   return (
@@ -19,7 +19,7 @@ export default function Page() {
         onSettingsClick={() => {}}
       />
 
-      <PointBalaceCard amount={102310} />
+      <PointBalanceCard amount={102310} />
 
       <p>General Accuracy</p>
       <GeneralRankCard rank={150} percentage={72} />
