@@ -1,3 +1,5 @@
+"use client";
+
 import dayjs from "dayjs";
 import { Avatar } from "../Avatar/Avatar";
 
@@ -17,7 +19,7 @@ export function Profile({
   onSettingsClick,
 }: ProfileProps) {
   return (
-    <div className="flex items-center p-6 rounded-2xl bg-[#333] gap-4">
+    <div className="flex justify-between items-center p-6 rounded-2xl bg-[#333] gap-4">
       <Avatar size="large" src={avatarSrc} />
       <div className="flex flex-col font-sora text-white gap-y-[3px]">
         <span className="text-base font-bold">{handle}</span>
