@@ -131,9 +131,7 @@ export async function getUnansweredDailyQuestions() {
             },
           },
         },
-        revealAtDate: {
-          lte: new Date(),
-        },
+        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
       },
     },
     include: {

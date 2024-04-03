@@ -164,7 +164,10 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             questionOptions: {
               deleteMany: {},
               createMany: {
-                data: question.questionOptions,
+                data: question.questionOptions.map((option) => ({
+                  ...option,
+                  id: undefined,
+                })),
               },
             },
             questionTags: {
