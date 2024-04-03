@@ -1,7 +1,10 @@
 import { Suspense } from "react";
-import { HomeFeed, HomeFeedProps } from "../components/HomeFeed/HomeFeed";
+import dynamic from "next/dynamic";
+const HomeFeed = dynamic(() => import("../components/HomeFeed/HomeFeed"), {
+  ssr: false,
+});
+import { HomeFeedProps } from "../components/HomeFeed/HomeFeed";
 import { HomeFilters } from "../components/HomeFilters/HomeFilters";
-import { LogoutButton } from "../components/LogoutButton/LogoutButton";
 import { getHomeFeed } from "../queries/question";
 import { CountdownIcon } from "../components/Icons/CountdownIcon";
 
@@ -20,7 +23,6 @@ export default async function Page() {
       >
         <HomeFeed {...(response as HomeFeedProps)} />
       </Suspense>
-      <LogoutButton />
     </>
   );
 }

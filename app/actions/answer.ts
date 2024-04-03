@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 import { QuestionAnswer, QuestionType } from "@prisma/client";
@@ -68,6 +69,8 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       data: questionAnswers,
     });
   });
+
+  revalidatePath("/application");
 }
 
 export async function saveQuestion(request: SaveQuestionRequest) {
@@ -117,4 +120,6 @@ export async function saveQuestion(request: SaveQuestionRequest) {
   await prisma.questionAnswer.createMany({
     data: questionAnswers,
   });
+
+  revalidatePath("/application");
 }

@@ -1,6 +1,9 @@
-import Link from "next/link";
-import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
+"use client";
 import { Deck, Question } from "@prisma/client";
+import { useMemo } from "react";
+import { Virtuoso } from "react-virtuoso";
+import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { HomeFeedRow } from "./HomeFeedRow";
 
 export type HomeFeedProps = {
   unansweredDailyQuestions: Question[];
@@ -12,18 +15,79 @@ export type HomeFeedProps = {
   answeredRevealedDecks: Deck[];
 };
 
-export function HomeFeed({ unansweredDailyQuestions }: HomeFeedProps) {
+export enum ElementType {
+  Question,
+  Deck,
+}
+
+const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 210;
+
+function HomeFeed({
+  unansweredDailyQuestions,
+  unansweredUnrevealedQuestions,
+  unansweredUnrevealedDecks,
+  answeredUnrevealedQuestions,
+  answeredUnrevealedDecks,
+  answeredRevealedQuestions,
+  answeredRevealedDecks,
+}: HomeFeedProps) {
+  const { height } = useWindowSize();
+  const list = useMemo<Array<any>>(
+    () => [
+      ...unansweredDailyQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+        isAnswered: false,
+      })),
+      ...unansweredUnrevealedQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+      })),
+      ...unansweredUnrevealedDecks.map((d) => ({
+        ...d,
+        elementType: ElementType.Deck,
+        isAnswered: false,
+      })),
+      ...answeredUnrevealedQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+        isAnswered: true,
+      })),
+      ...answeredUnrevealedDecks.map((d) => ({
+        ...d,
+        elementType: ElementType.Deck,
+        isAnswered: true,
+      })),
+      ...answeredRevealedQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+        isAnswered: true,
+      })),
+      ...answeredRevealedDecks.map((d) => ({
+        ...d,
+        elementType: ElementType.Deck,
+        isAnswered: true,
+      })),
+    ],
+    []
+  );
+
   return (
-    <div className="flex flex-col gap-4 px-4 py-6">
-      {unansweredDailyQuestions.map((q) => (
-        <Link key={q.id} href={`/application/answer/question/${q.id}`}>
-          <QuestionAccordion
-            question={q.question}
-            reveleadAt={q.revealAtDate || new Date()}
-            status="new"
+    <Virtuoso
+      style={{ height: height - SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN }}
+      data={list}
+      className="mx-4 mt-4"
+      itemContent={(_, element) => (
+        <div className="pb-4">
+          <HomeFeedRow
+            element={element}
+            type={element.elementType}
+            isAnswered={element.isAnswered}
           />
-        </Link>
-      ))}
-    </div>
+        </div>
+      )}
+    />
   );
 }
+
+export default HomeFeed;

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { AnswerResult } from "../app/components/AnswerResult/AnswerResult";
+import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
   title: "Answer Result",
@@ -23,5 +24,14 @@ export const Default: Story = {
   args: {
     percentage: 80,
     answerText: "Answer",
+  },
+};
+
+export const ValueSelected: Story = {
+  args: {
+    percentage: 40,
+    answerText: "Answer",
+    avatarSrc: AvatarSample.src,
+    valueSelected: 80,
   },
 };

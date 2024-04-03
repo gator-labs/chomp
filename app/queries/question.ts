@@ -164,9 +164,16 @@ export async function getHomeFeedQuestions({
         },
       }
     : {
-        revealAtDate: {
-          gt: new Date(),
-        },
+        OR: [
+          {
+            revealAtDate: {
+              gt: new Date(),
+            },
+          },
+          {
+            revealAtDate: { equals: null },
+          },
+        ],
       };
 
   const areAnsweredFilter: Prisma.QuestionWhereInput = areAnswered
@@ -193,20 +200,23 @@ export async function getHomeFeedQuestions({
         },
       };
 
-  const questions = await prisma.question.findMany({
-    where: {
-      deckQuestions: {
-        none: {
-          deck: {
-            date: {
-              not: null,
-            },
+  const questionInclude: Prisma.QuestionInclude = areAnswered
+    ? {
+        questionOptions: {
+          include: {
+            questionAnswer: { where: { userId: { equals: payload.sub } } },
           },
         },
-      },
+      }
+    : {};
+
+  const questions = await prisma.question.findMany({
+    where: {
+      deckQuestions: { none: {} },
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },
+    include: questionInclude,
   });
 
   return questions;
@@ -232,9 +242,16 @@ export async function getHomeFeedDecks({
         },
       }
     : {
-        revealAtDate: {
-          gt: new Date(),
-        },
+        OR: [
+          {
+            revealAtDate: {
+              gt: new Date(),
+            },
+          },
+          {
+            revealAtDate: { equals: null },
+          },
+        ],
       };
 
   const areAnsweredFilter: Prisma.DeckWhereInput = areAnswered
