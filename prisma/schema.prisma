@@ -11,6 +11,7 @@ datasource db {
 model User {
   id              String           @id
   isAdmin         Boolean          @default(false)
+  createdAt       DateTime         @default(now())
   wallets         Wallet[]
   emails          Email[]
   questionAnswers QuestionAnswer[]
