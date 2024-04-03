@@ -15,7 +15,7 @@ model User {
   emails          Email[]
   questionAnswers QuestionAnswer[]
   userDeck        UserDeck[]
-  questionReveals QuestionReveal[]
+  reveals         Reveal[]
 }
 
 model Wallet {
@@ -42,7 +42,7 @@ model Question {
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
   deckQuestions       DeckQuestion[]
-  QuestionReveal      QuestionReveal[]
+  reveals             Reveal[]
 }
 
 model QuestionOption {
@@ -69,14 +69,14 @@ model QuestionTag {
 }
 
 model Deck {
-  id                  Int              @id @default(autoincrement())
+  id                  Int            @id @default(autoincrement())
   deck                String
   date                DateTime?
   revealAtDate        DateTime?
   revealAtAnswerCount Int?
   deckQuestions       DeckQuestion[]
   userDeck            UserDeck[]
-  QuestionReveal      QuestionReveal[]
+  reveals             Reveal[]
 }
 
 model UserDeck {
@@ -105,7 +105,7 @@ model QuestionAnswer {
   selected         Boolean
 }
 
-model QuestionReveal {
+model Reveal {
   id         Int       @id @default(autoincrement())
   userId     String
   user       User      @relation(fields: [userId], references: [id])
