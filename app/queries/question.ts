@@ -1,7 +1,12 @@
 import { z } from "zod";
 import prisma from "../services/prisma";
 import { questionSchema } from "../schemas/question";
-import { Prisma, Question, QuestionOption } from "@prisma/client";
+import {
+  Prisma,
+  Question,
+  QuestionAnswer,
+  QuestionOption,
+} from "@prisma/client";
 import { getJwtPayload } from "../actions/jwt";
 
 export async function getQuestionForAnswerById(questionId: number) {
@@ -157,21 +162,22 @@ export async function getHomeFeedQuestions({
 
   const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
     ? {
-        revealAtDate: {
-          lte: new Date(),
+        reveals: {
+          some: {
+            userId: {
+              equals: payload.sub,
+            },
+          },
         },
       }
     : {
-        OR: [
-          {
-            revealAtDate: {
-              gt: new Date(),
+        reveals: {
+          none: {
+            userId: {
+              equals: payload.sub,
             },
           },
-          {
-            revealAtDate: { equals: null },
-          },
-        ],
+        },
       };
 
   const areAnsweredFilter: Prisma.QuestionWhereInput = areAnswered
@@ -217,6 +223,50 @@ export async function getHomeFeedQuestions({
     include: questionInclude,
   });
 
+  const questionOptionIds = questions.flatMap((q) =>
+    q.questionOptions?.map((qo) => qo.id)
+  );
+  const questionOptionPercentages: {
+    questionOptionId: number;
+    percentageResult: number | null;
+  }[] =
+    questionOptionIds.length === 0
+      ? []
+      : await prisma.$queryRaw`
+          select 
+            qa."questionOptionId",
+            floor(
+              (
+                select 
+                  count(*)
+                from public."QuestionAnswer" subQa
+                where subQa."questionOptionId" = qa."questionOptionId" 
+              ) 
+            /
+              NULLIF(
+                (
+                  select 
+                    count(*)
+                  from public."QuestionAnswer" subQa
+                  where subQa.selected = true and subQa."questionOptionId" = qa."questionOptionId"
+                )
+              , 0)
+            ) * 100 as "percentageResult"
+          from public."QuestionAnswer" qa
+          where qa."questionOptionId" in (${Prisma.join(questionOptionIds)})
+        `;
+
+  questions.forEach((q) => {
+    q.questionOptions?.forEach((qo: any) => {
+      qo.questionAnswer?.forEach((qa: any) => {
+        qa.percentageResult =
+          questionOptionPercentages.find(
+            (qop) => qop.questionOptionId === qa.questionOptionId
+          )?.percentageResult ?? 0;
+      });
+    });
+  });
+
   return questions;
 }
 
@@ -235,21 +285,22 @@ export async function getHomeFeedDecks({
 
   const revealedAtFilter: Prisma.DeckWhereInput = areRevealed
     ? {
-        revealAtDate: {
-          lte: new Date(),
+        reveals: {
+          some: {
+            userId: {
+              equals: payload.sub,
+            },
+          },
         },
       }
     : {
-        OR: [
-          {
-            revealAtDate: {
-              gt: new Date(),
+        reveals: {
+          none: {
+            userId: {
+              equals: payload.sub,
             },
           },
-          {
-            revealAtDate: { equals: null },
-          },
-        ],
+        },
       };
 
   const areAnsweredFilter: Prisma.DeckWhereInput = areAnswered
