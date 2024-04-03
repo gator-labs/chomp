@@ -69,13 +69,14 @@ model QuestionTag {
 }
 
 model Deck {
-  id                  Int            @id @default(autoincrement())
+  id                  Int              @id @default(autoincrement())
   deck                String
   date                DateTime?
   revealAtDate        DateTime?
   revealAtAnswerCount Int?
   deckQuestions       DeckQuestion[]
   userDeck            UserDeck[]
+  QuestionReveal      QuestionReveal[]
 }
 
 model UserDeck {
@@ -105,11 +106,13 @@ model QuestionAnswer {
 }
 
 model QuestionReveal {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  questionId Int
-  question   Question @relation(fields: [questionId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+  questionId Int?
+  question   Question? @relation(fields: [questionId], references: [id])
+  deckId     Int?
+  deck       Deck?     @relation(fields: [deckId], references: [id])
 }
 
 enum QuestionType {
