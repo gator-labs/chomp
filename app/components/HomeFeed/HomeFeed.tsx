@@ -38,39 +38,49 @@ function HomeFeed({
         ...q,
         elementType: ElementType.Question,
         isAnswered: false,
+        isRevealed: false,
       })),
       ...unansweredUnrevealedQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
+        isAnswered: false,
+        isRevealed: false,
       })),
       ...unansweredUnrevealedDecks.map((d) => ({
         ...d,
         elementType: ElementType.Deck,
         isAnswered: false,
+        isRevealed: false,
       })),
       ...answeredUnrevealedQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
         isAnswered: true,
+        isRevealed: false,
       })),
       ...answeredUnrevealedDecks.map((d) => ({
         ...d,
         elementType: ElementType.Deck,
         isAnswered: true,
+        isRevealed: false,
       })),
       ...answeredRevealedQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
         isAnswered: true,
+        isRevealed: true,
       })),
       ...answeredRevealedDecks.map((d) => ({
         ...d,
         elementType: ElementType.Deck,
         isAnswered: true,
+        isRevealed: true,
       })),
     ],
     []
   );
+
+  console.log({ list });
 
   return (
     <Virtuoso
@@ -83,6 +93,7 @@ function HomeFeed({
             element={element}
             type={element.elementType}
             isAnswered={element.isAnswered}
+            isRevealed={element.isRevealed}
           />
         </div>
       )}

@@ -8,11 +8,15 @@ import { MultipleChoiceAnsweredContent } from "../MultipleChoiceAnsweredContent/
 import { useState } from "react";
 import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
 import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
+import { Button } from "../Button/Button";
+import { revealDeck, revealQuestion } from "@/app/actions/reveal";
+import dayjs from "dayjs";
 
 type HomeFeedRowProps = {
   element: Deck | Question;
   type: ElementType;
   isAnswered: boolean;
+  isRevealed: boolean;
 };
 
 const AnsweredQuestionContentFactory = (element: Question) => {
@@ -33,10 +37,26 @@ const AnsweredQuestionContentFactory = (element: Question) => {
   }
 };
 
-export function HomeFeedRow({ element, type, isAnswered }: HomeFeedRowProps) {
+export function HomeFeedRow({
+  element,
+  type,
+  isAnswered,
+  isRevealed,
+}: HomeFeedRowProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
   if (type === ElementType.Question && isAnswered) {
     const question = element as any;
+    const actionSubmit =
+      !isRevealed && dayjs(element.revealAtDate).isBefore(new Date()) ? (
+        <Button
+          variant="white"
+          onClick={async () => {
+            await revealQuestion(element.id);
+          }}
+        >
+          Submit
+        </Button>
+      ) : null;
 
     return (
       <QuestionAccordion
@@ -44,6 +64,7 @@ export function HomeFeedRow({ element, type, isAnswered }: HomeFeedRowProps) {
         onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
         question={question.question}
         revealedAt={question.revealAtDate}
+        actionChild={actionSubmit}
         status="chomped"
       >
         {AnsweredQuestionContentFactory(question)}
@@ -65,6 +86,7 @@ export function HomeFeedRow({ element, type, isAnswered }: HomeFeedRowProps) {
   }
 
   const deck = element as Deck;
+
   return (
     <Link href={`/application/answer/deck/${deck.id}`}>
       <QuestionDeck

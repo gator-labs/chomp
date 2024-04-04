@@ -221,6 +221,7 @@ export async function getHomeFeedQuestions({
       ...revealedAtFilter,
     },
     include: questionInclude,
+    orderBy: { revealAtDate: { sort: "desc" } },
   });
 
   const questionOptionIds = questions.flatMap((q) =>
@@ -347,6 +348,7 @@ export async function getHomeFeedDecks({
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },
+    orderBy: { revealAtDate: { sort: "desc" } },
   });
 
   return decks;

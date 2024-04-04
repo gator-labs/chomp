@@ -77,7 +77,7 @@ export function AnswerResult({
           <span className="text-black text-sm font-sora">{answerText}</span>
         </div>
       </div>
-      <div className="text-white text-sm min-w-6">{percentage}%</div>
+      <div className="text-white text-sm w-6">{percentage}%</div>
     </div>
   );
 }
