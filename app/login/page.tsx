@@ -6,15 +6,17 @@ import {
 } from "@dynamic-labs/sdk-react-core";
 import { useEffect } from "react";
 import { setJwt } from "../actions/jwt";
+import { useSearchParams } from "next/navigation";
 
 export default function Page() {
   const { authToken } = useDynamicContext();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (authToken) {
-      setJwt(authToken);
+      setJwt(authToken, searchParams.get("next"));
     }
-  }, [authToken]);
+  }, [authToken, searchParams]);
 
   return (
     <main className="flex flex-col justify-center items-center gap-3 h-full">
