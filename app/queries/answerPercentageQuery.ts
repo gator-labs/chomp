@@ -11,19 +11,17 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
       : await prisma.$queryRaw`
               select 
                 qo."id",
-                floor(
+                round(
                   1.0 *
                   (
-                    select 
-                      count(*)
+                    select count(*)
                     from public."QuestionAnswer" subQa
                     where subQa.selected = true and subQa."questionOptionId" = qo."id" 
                   ) 
                   /
                   NULLIF(
                     (
-                      select 
-                        count(*)
+                      select count(*)
                       from public."QuestionAnswer" subQa
                       where subQa."questionOptionId" = qo."id"
                     )

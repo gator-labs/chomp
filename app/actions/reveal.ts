@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 
@@ -27,6 +28,8 @@ export async function revealDecks(deckIds: number[]) {
     })),
   });
 
+  revalidatePath("/application");
+
   // fetch decks with computed answers
   return [];
 }
@@ -44,6 +47,8 @@ export async function revealQuestions(questionIds: number[]) {
       userId: payload.sub,
     })),
   });
+
+  revalidatePath("/application");
 
   // fetch questions with computed answers
   return [];
