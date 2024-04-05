@@ -5,8 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import dayjs from "dayjs";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
-import { Button } from "../Button/Button";
-import { useRouter } from "next/navigation";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 import { useRandom } from "@/app/hooks/useRandom";
 import { getAlphaIdentifier } from "@/app/utils/question";
@@ -26,6 +24,7 @@ export type Question = {
   durationMiliseconds: number;
   question: string;
   type: QuestionType;
+  imageUrl?: string;
   questionOptions: Option[];
 };
 
@@ -44,7 +43,6 @@ const getDueAt = (questions: Question[], index: number): Date => {
 export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [rerenderAction, setRerednerAction] = useState(true);
-  const router = useRouter();
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion
@@ -185,20 +183,9 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
       saveDeck(deckResponse, deckId);
     }
   }, [hasReachedEnd, deckResponse]);
+
   if (questions.length === 0 || hasReachedEnd) {
-    return (
-      <div className="flex flex-col justify-between h-full">
-        <NoQuestionsCard />
-        <Button
-          variant="pink"
-          size="big"
-          className="mt-2"
-          onClick={() => browseHomeUrl && router.push(browseHomeUrl)}
-        >
-          Browse home
-        </Button>
-      </div>
-    );
+    return <NoQuestionsCard browseHomeUrl={browseHomeUrl} />;
   }
 
   const questionOffset = 70 * (questions.length - currentQuestionIndex - 1);
@@ -226,6 +213,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
           dueAt={dueAt}
           numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
           question={question.question}
+          viewImageSrc={question.imageUrl}
           step={currentQuestionStep}
           onDurationRanOut={handleNoAnswer}
           className="z-50 relative drop-shadow-question-card border-opacity-40"

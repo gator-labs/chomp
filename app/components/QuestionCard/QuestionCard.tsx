@@ -1,7 +1,6 @@
 "use client";
 import { CSSProperties, ReactNode, useCallback, useState } from "react";
 import { ImageIcon } from "../Icons/ImageIcon";
-import Link from "next/link";
 import { CountdownIcon } from "../Icons/CountdownIcon";
 import classNames from "classnames";
 import { useInterval } from "../../hooks/useInterval";
@@ -10,6 +9,8 @@ import {
   getDueAtString,
 } from "../../utils/dateUtils";
 import dayjs from "dayjs";
+import { Modal } from "../Modal/Modal";
+import Image from "next/image";
 
 type QuestionCardProps = {
   question: string;
@@ -36,6 +37,7 @@ export function QuestionCard({
   style,
   isBlurred,
 }: QuestionCardProps) {
+  const [isViewImageOpen, setIsViewImageOpen] = useState(false);
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
     dueAt ? getDueAtString(dueAt) : ""
   );
@@ -65,12 +67,19 @@ export function QuestionCard({
         {viewImageSrc && (
           <div className="flex items-center gap-[6px] mb-1">
             <ImageIcon />
-            <Link
-              href={viewImageSrc}
+            <button
+              onClick={() => setIsViewImageOpen(true)}
               className="underline text-white font-sora font-light text-sm"
             >
               View Image
-            </Link>
+            </button>
+            <Modal
+              isOpen={isViewImageOpen}
+              onClose={() => setIsViewImageOpen(false)}
+              title=""
+            >
+              <img src={viewImageSrc} />
+            </Modal>
           </div>
         )}
         <div className="flex items-center justify-between">

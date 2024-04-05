@@ -9,6 +9,8 @@ import { Button } from "../Button/Button";
 import { revealQuestion } from "@/app/actions/reveal";
 import dayjs from "dayjs";
 import { AnsweredQuestionContentFactory } from "@/app/utils/answeredQuestionFactory";
+import { Modal } from "../Modal/Modal";
+import { useRouter } from "next/navigation";
 
 type HomeFeedRowProps = {
   element: Deck | Question;
@@ -24,18 +26,82 @@ export function HomeFeedRow({
   isRevealed,
 }: HomeFeedRowProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
+  const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
+  const router = useRouter();
+
   if (type === ElementType.Question && isAnswered) {
-    const question = element as any;
+    const question = element as Question;
     const actionSubmit =
       !isRevealed && dayjs(element.revealAtDate).isBefore(new Date()) ? (
-        <Button
-          variant="white"
-          onClick={async () => {
-            await revealQuestion(element.id);
-          }}
-        >
-          Submit
-        </Button>
+        <>
+          <Button
+            variant="white"
+            isPill
+            onClick={() => setIsRevealModalOpen(true)}
+          >
+            Reveal Results
+          </Button>
+
+          <Modal
+            title="Reveal"
+            isOpen={isRevealModalOpen}
+            onClose={() => setIsRevealModalOpen(false)}
+          >
+            <div className="flex flex-col gap-3">
+              <p>
+                Revealing this question will cost you 5K, but you could earn up
+                to 10K. Would you like to reveal?
+              </p>
+              <Button
+                variant="white"
+                isPill
+                onClick={async () => {
+                  await revealQuestion(element.id);
+                  router.refresh();
+                  setIsRevealModalOpen(false);
+                  setIsClaimModalOpen(true);
+                }}
+              >
+                Let&apos;s do it
+              </Button>
+              <Button
+                variant="black"
+                isPill
+                onClick={() => setIsRevealModalOpen(false)}
+              >
+                Maybe Later
+              </Button>
+            </div>
+          </Modal>
+
+          <Modal
+            title="Claim"
+            isOpen={isClaimModelOpen}
+            onClose={() => setIsClaimModalOpen(false)}
+          >
+            <div className="flex flex-col gap-3">
+              <p>
+                Great job chomping! Claim your reward before it expires (in 30
+                days)
+              </p>
+              <Button
+                variant="white"
+                isPill
+                onClick={() => setIsClaimModalOpen(false)}
+              >
+                Let&apos;s do it
+              </Button>
+              <Button
+                variant="black"
+                isPill
+                onClick={() => setIsClaimModalOpen(false)}
+              >
+                I don&apos;t want money
+              </Button>
+            </div>
+          </Modal>
+        </>
       ) : null;
 
     return (
@@ -47,7 +113,9 @@ export function HomeFeedRow({
         actionChild={actionSubmit}
         status="chomped"
       >
-        {AnsweredQuestionContentFactory(question)}
+        {!!isRevealed &&
+          dayjs(element.revealAtDate).isBefore(new Date()) &&
+          AnsweredQuestionContentFactory(question)}
       </QuestionAccordion>
     );
   }

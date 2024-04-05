@@ -9,6 +9,7 @@ type ReactPortalProps = {
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
   wrapperElement.setAttribute("id", wrapperId);
+  wrapperElement.setAttribute("class", "fixed z-50");
   document.body.appendChild(wrapperElement);
   return wrapperElement;
 }

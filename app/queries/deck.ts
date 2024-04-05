@@ -78,6 +78,7 @@ const mapQuestionFromDeck = (
     durationMiliseconds: Number(dq.question.durationMiliseconds),
     question: dq.question.question,
     type: dq.question.type,
+    imageUrl: dq.question.imageUrl ?? undefined,
     questionOptions: dq.question.questionOptions.map((qo) => ({
       id: qo.id,
       option: qo.option,
@@ -203,7 +204,7 @@ export async function getDeckDetails(id: number) {
       qo.questionAnswer?.forEach((qa: any) => {
         qa.percentageResult =
           questionOptionPercentages.find(
-            (qop) => qop.questionOptionId === qa.questionOptionId
+            (qop) => qop.id === qa.questionOptionId
           )?.percentageResult ?? 0;
       });
     });

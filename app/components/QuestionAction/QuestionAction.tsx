@@ -75,7 +75,7 @@ export function QuestionAction({
             size="big"
             className="!w-[15%]"
           >
-            Submit
+            Chomp
           </Button>
         </div>
       </div>
@@ -88,7 +88,7 @@ export function QuestionAction({
         <div className="text-md mb-4">Choose your answer</div>
         <div>
           <Button onClick={() => onButtonClick()} variant="pink" size="big">
-            Submit
+            Chomp
           </Button>
         </div>
       </div>
@@ -103,7 +103,7 @@ export function QuestionAction({
         </div>
         <div>
           <Button onClick={() => onButtonClick()} variant="pink" size="big">
-            Submit
+            Chomp
           </Button>
         </div>
       </div>

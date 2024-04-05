@@ -36,6 +36,7 @@ const mapToViewModelQuestion = (
     option: qo.option,
   })),
   type: question.type,
+  imageUrl: question.imageUrl ?? undefined,
 });
 
 export async function getQuestions() {
@@ -218,7 +219,7 @@ export async function getHomeFeedQuestions({
 
   const questions = await prisma.question.findMany({
     where: {
-      deckQuestions: { none: {} },
+      deckQuestions: { none: { deck: { date: null } } },
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },
@@ -237,7 +238,7 @@ export async function getHomeFeedQuestions({
       qo.questionAnswer?.forEach((qa: any) => {
         qa.percentageResult =
           questionOptionPercentages.find(
-            (qop) => qop.questionOptionId === qa.questionOptionId
+            (qop) => qop.id === qa.questionOptionId
           )?.percentageResult ?? 0;
       });
     });

@@ -3,33 +3,32 @@ import prisma from "../services/prisma";
 
 export async function answerPercentageQuery(questionOptionIds: number[]) {
   const questionOptionPercentages: {
-    questionOptionId: number;
+    id: number;
     percentageResult: number | null;
   }[] =
     questionOptionIds.length === 0
       ? []
       : await prisma.$queryRaw`
               select 
-                qa."questionOptionId",
-                floor(
+                qo."id",
+                round(
+                  1.0 *
                   (
-                    select 
-                      count(*)
+                    select count(*)
                     from public."QuestionAnswer" subQa
-                    where subQa."questionOptionId" = qa."questionOptionId" 
+                    where subQa.selected = true and subQa."questionOptionId" = qo."id" 
                   ) 
-                /
+                  /
                   NULLIF(
                     (
-                      select 
-                        count(*)
+                      select count(*)
                       from public."QuestionAnswer" subQa
-                      where subQa.selected = true and subQa."questionOptionId" = qa."questionOptionId"
+                      where subQa."questionOptionId" = qo."id"
                     )
                   , 0)
-                ) * 100 as "percentageResult"
-              from public."QuestionAnswer" qa
-              where qa."questionOptionId" in (${Prisma.join(questionOptionIds)})
+                  * 100) as "percentageResult"
+              from public."QuestionOption" qo
+              where qo."id" in (${Prisma.join(questionOptionIds)})
             `;
 
   return questionOptionPercentages;
