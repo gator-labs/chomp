@@ -21,43 +21,43 @@ export async function GET(request: Request) {
 
   if (!user) return;
 
-  // await prisma.questionAnswer.deleteMany({
-  //   where: {
-  //     userId: user.id,
-  //   },
-  // });
+  await prisma.questionAnswer.deleteMany({
+    where: {
+      userId: user.id,
+    },
+  });
 
-  // await prisma.userDeck.deleteMany({
-  //   where: {
-  //     userId: user.id,
-  //   },
-  // });
+  await prisma.userDeck.deleteMany({
+    where: {
+      userId: user.id,
+    },
+  });
 
-  // await prisma.questionAnswer.deleteMany({
-  //   where: {
-  //     questionOptionId: {
-  //       in: [45, 46],
-  //     },
-  //     userId: user.id,
-  //   },
-  // });
+  await prisma.questionAnswer.deleteMany({
+    where: {
+      questionOptionId: {
+        in: [45, 46],
+      },
+      userId: user.id,
+    },
+  });
 
-  // await prisma.questionAnswer.createMany({
-  //   data: [
-  //     {
-  //       userId: user.id,
-  //       questionOptionId: 45,
-  //       selected: true,
-  //       percentage: 80,
-  //     },
-  //     {
-  //       userId: user.id,
-  //       questionOptionId: 46,
-  //       selected: false,
-  //       percentage: 20,
-  //     },
-  //   ],
-  // });
+  await prisma.questionAnswer.createMany({
+    data: [
+      {
+        userId: user.id,
+        questionOptionId: 45,
+        selected: true,
+        percentage: 80,
+      },
+      {
+        userId: user.id,
+        questionOptionId: 46,
+        selected: false,
+        percentage: 20,
+      },
+    ],
+  });
 
   await prisma.reveal.deleteMany({
     where: {
