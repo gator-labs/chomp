@@ -80,8 +80,6 @@ function HomeFeed({
     []
   );
 
-  console.log({ list });
-
   return (
     <Virtuoso
       style={{ height: height - SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN }}
