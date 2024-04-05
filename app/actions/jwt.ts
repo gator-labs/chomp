@@ -15,7 +15,7 @@ export const getJwtPayload = async () => {
   return await decodeJwtPayload(token.value);
 };
 
-export const setJwt = async (token: string) => {
+export const setJwt = async (token: string, nextPath?: string | null) => {
   if (!token) {
     clearJwt();
     return;
@@ -114,7 +114,7 @@ export const setJwt = async (token: string) => {
     httpOnly: true,
   });
 
-  redirect("/application");
+  redirect(nextPath ?? "/application");
 };
 
 export const clearJwt = () => {

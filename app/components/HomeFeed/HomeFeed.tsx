@@ -1,27 +1,102 @@
 "use client";
+import { Deck, Question } from "@prisma/client";
+import { useMemo } from "react";
+import { Virtuoso } from "react-virtuoso";
+import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { HomeFeedRow } from "./HomeFeedRow";
 
-import { useRouter } from "next/navigation";
-import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
-import { Question } from "@prisma/client";
-
-type HomeFeedProps = {
-  unansweredQuestions: Question[];
+export type HomeFeedProps = {
+  unansweredDailyQuestions: Question[];
+  unansweredUnrevealedQuestions: Question[];
+  unansweredUnrevealedDecks: Deck[];
+  answeredUnrevealedQuestions: Question[];
+  answeredUnrevealedDecks: Deck[];
+  answeredRevealedQuestions: Question[];
+  answeredRevealedDecks: Deck[];
 };
 
-export function HomeFeed({ unansweredQuestions }: HomeFeedProps) {
-  const router = useRouter();
+export enum ElementType {
+  Question,
+  Deck,
+}
+
+const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 210;
+
+function HomeFeed({
+  unansweredDailyQuestions,
+  unansweredUnrevealedQuestions,
+  unansweredUnrevealedDecks,
+  answeredUnrevealedQuestions,
+  answeredUnrevealedDecks,
+  answeredRevealedQuestions,
+  answeredRevealedDecks,
+}: HomeFeedProps) {
+  const { height } = useWindowSize();
+  const list = useMemo<Array<any>>(
+    () => [
+      ...unansweredDailyQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+        isAnswered: false,
+        isRevealed: false,
+      })),
+      ...unansweredUnrevealedQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+        isAnswered: false,
+        isRevealed: false,
+      })),
+      ...unansweredUnrevealedDecks.map((d) => ({
+        ...d,
+        elementType: ElementType.Deck,
+        isAnswered: false,
+        isRevealed: false,
+      })),
+      ...answeredUnrevealedQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+        isAnswered: true,
+        isRevealed: false,
+      })),
+      ...answeredUnrevealedDecks.map((d) => ({
+        ...d,
+        elementType: ElementType.Deck,
+        isAnswered: true,
+        isRevealed: false,
+      })),
+      ...answeredRevealedQuestions.map((q) => ({
+        ...q,
+        elementType: ElementType.Question,
+        isAnswered: true,
+        isRevealed: true,
+      })),
+      ...answeredRevealedDecks.map((d) => ({
+        ...d,
+        elementType: ElementType.Deck,
+        isAnswered: true,
+        isRevealed: true,
+      })),
+    ],
+    []
+  );
 
   return (
-    <div className="flex flex-col gap-4 px-4 py-6">
-      {unansweredQuestions.map((q) => (
-        <QuestionAccordion
-          question={q.question}
-          reveleadAt={q.revealAtDate || new Date()}
-          status="new"
-          onClick={() => router.push(`/application/answer/question/${q.id}`)}
-          key={q.id}
-        />
-      ))}
-    </div>
+    <Virtuoso
+      style={{ height: height - SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN }}
+      data={list}
+      className="mx-4 mt-4"
+      itemContent={(_, element) => (
+        <div className="pb-4">
+          <HomeFeedRow
+            element={element}
+            type={element.elementType}
+            isAnswered={element.isAnswered}
+            isRevealed={element.isRevealed}
+          />
+        </div>
+      )}
+    />
   );
 }
+
+export default HomeFeed;

@@ -11,7 +11,7 @@ type QuestionAccordionProps = {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   status?: StatusUnion;
-  reveleadAt: Date;
+  revealedAt?: Date | null;
   children?: ReactNode;
   actionChild?: ReactNode;
   onClick?: () => void;
@@ -32,7 +32,7 @@ export function QuestionAccordion({
   question,
   isCollapsed = true,
   onToggleCollapse,
-  reveleadAt,
+  revealedAt,
   actionChild,
   children,
   status,
@@ -56,10 +56,14 @@ export function QuestionAccordion({
         {actionChild}
         <div className="flex justify-between itmes-center">
           <div className="flex items-center gap-2.5">
-            <ClockIcon />
-            <span className="text-sm text-white">
-              {getRevealedAtString(reveleadAt)}
-            </span>
+            {revealedAt && (
+              <>
+                <ClockIcon />
+                <span className="text-sm text-white">
+                  {getRevealedAtString(revealedAt)}
+                </span>
+              </>
+            )}
           </div>
           <div
             className={classNames("text-sm leading-6", {
@@ -72,10 +76,12 @@ export function QuestionAccordion({
         </div>
       </div>
       <div>
-        <button onClick={onToggleCollapse}>
-          {isCollapsed && <HalfArrowDownIcon />}
-          {!isCollapsed && <HalfArrowUpIcon />}
-        </button>
+        {children && (
+          <button onClick={onToggleCollapse}>
+            {isCollapsed && <HalfArrowDownIcon />}
+            {!isCollapsed && <HalfArrowUpIcon />}
+          </button>
+        )}
       </div>
     </div>
   );

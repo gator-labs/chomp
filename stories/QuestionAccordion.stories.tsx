@@ -24,7 +24,7 @@ export const Default: Story = {
   args: {
     question: "The best way to secure your assets is to use a hardware wallet.",
     isCollapsed: true,
-    reveleadAt: dayjs().add(-2, "day").toDate(),
+    revealedAt: dayjs().add(-2, "day").toDate(),
   },
 };
 
@@ -32,7 +32,7 @@ export const Open: Story = {
   args: {
     question: "The best way to secure your assets is to use a hardware wallet.",
     isCollapsed: false,
-    reveleadAt: dayjs().add(-2, "day").toDate(),
+    revealedAt: dayjs().add(-2, "day").toDate(),
     children: <TrueFalseScale ratioTrue={20} />,
     actionChild: (
       <Button variant="white" className="!rounded-full">
@@ -46,7 +46,7 @@ export const Reveal: Story = {
   args: {
     question: "The best way to secure your assets is to use a hardware wallet.",
     isCollapsed: true,
-    reveleadAt: dayjs().add(-2, "day").toDate(),
+    revealedAt: dayjs().add(-2, "day").toDate(),
     actionChild: (
       <Button variant="white" className="!rounded-full">
         Reveal Results
@@ -59,7 +59,7 @@ export const Chomped: Story = {
   args: {
     question: "The best way to secure your assets is to use a hardware wallet.",
     isCollapsed: true,
-    reveleadAt: dayjs().add(-2, "day").toDate(),
+    revealedAt: dayjs().add(-2, "day").toDate(),
     status: "chomped",
   },
 };
@@ -68,7 +68,7 @@ export const New: Story = {
   args: {
     question: "The best way to secure your assets is to use a hardware wallet.",
     isCollapsed: true,
-    reveleadAt: dayjs().add(-2, "day").toDate(),
+    revealedAt: dayjs().add(-2, "day").toDate(),
     status: "new",
   },
 };

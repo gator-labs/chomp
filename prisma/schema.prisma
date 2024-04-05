@@ -16,6 +16,7 @@ model User {
   emails          Email[]
   questionAnswers QuestionAnswer[]
   userDeck        UserDeck[]
+  reveals         Reveal[]
 }
 
 model Wallet {
@@ -42,6 +43,7 @@ model Question {
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
   deckQuestions       DeckQuestion[]
+  reveals             Reveal[]
 }
 
 model QuestionOption {
@@ -75,6 +77,7 @@ model Deck {
   revealAtAnswerCount Int?
   deckQuestions       DeckQuestion[]
   userDeck            UserDeck[]
+  reveals             Reveal[]
 }
 
 model UserDeck {
@@ -101,6 +104,16 @@ model QuestionAnswer {
   user             User           @relation(fields: [userId], references: [id])
   percentage       Int?
   selected         Boolean
+}
+
+model Reveal {
+  id         Int       @id @default(autoincrement())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id])
+  questionId Int?
+  question   Question? @relation(fields: [questionId], references: [id])
+  deckId     Int?
+  deck       Deck?     @relation(fields: [deckId], references: [id])
 }
 
 enum QuestionType {

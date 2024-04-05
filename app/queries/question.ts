@@ -1,8 +1,15 @@
 import { z } from "zod";
 import prisma from "../services/prisma";
 import { questionSchema } from "../schemas/question";
-import { Question, QuestionOption } from "@prisma/client";
+import {
+  Prisma,
+  Question,
+  QuestionAnswer,
+  QuestionOption,
+} from "@prisma/client";
 import { getJwtPayload } from "../actions/jwt";
+import { getHomeFeedDecks } from "./deck";
+import { answerPercentageQuery } from "./answerPercentageQuery";
 
 export async function getQuestionForAnswerById(questionId: number) {
   const question = await prisma.question.findFirst({
@@ -75,6 +82,38 @@ export async function getQuestionSchema(
   return questionData;
 }
 
+export async function getHomeFeed() {
+  const promiseArray = [
+    getUnansweredDailyQuestions(),
+    getHomeFeedQuestions({ areAnswered: false, areRevealed: false }),
+    getHomeFeedDecks({ areAnswered: false, areRevealed: false }),
+    getHomeFeedQuestions({ areAnswered: true, areRevealed: false }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: false }),
+    getHomeFeedQuestions({ areAnswered: true, areRevealed: true }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: true }),
+  ];
+
+  const [
+    unansweredDailyQuestions,
+    unansweredUnrevealedQuestions,
+    unansweredUnrevealedDecks,
+    answeredUnrevealedQuestions,
+    answeredUnrevealedDecks,
+    answeredRevealedQuestions,
+    answeredRevealedDecks,
+  ] = await Promise.all(promiseArray);
+
+  return {
+    unansweredDailyQuestions,
+    unansweredUnrevealedQuestions,
+    unansweredUnrevealedDecks,
+    answeredUnrevealedQuestions,
+    answeredUnrevealedDecks,
+    answeredRevealedQuestions,
+    answeredRevealedDecks,
+  };
+}
+
 export async function getUnansweredDailyQuestions() {
   const payload = await getJwtPayload();
 
@@ -99,9 +138,7 @@ export async function getUnansweredDailyQuestions() {
             },
           },
         },
-        revealAtDate: {
-          lte: new Date(),
-        },
+        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
       },
     },
     include: {
@@ -110,4 +147,101 @@ export async function getUnansweredDailyQuestions() {
   });
 
   return dailyDeckQuestions.map((dq) => dq.question);
+}
+
+export async function getHomeFeedQuestions({
+  areAnswered,
+  areRevealed,
+}: {
+  areAnswered: boolean;
+  areRevealed: boolean;
+}) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
+    ? {
+        reveals: {
+          some: {
+            userId: {
+              equals: payload.sub,
+            },
+          },
+        },
+      }
+    : {
+        reveals: {
+          none: {
+            userId: {
+              equals: payload.sub,
+            },
+          },
+        },
+      };
+
+  const areAnsweredFilter: Prisma.QuestionWhereInput = areAnswered
+    ? {
+        questionOptions: {
+          some: {
+            questionAnswer: {
+              some: {
+                userId: payload.sub,
+              },
+            },
+          },
+        },
+      }
+    : {
+        questionOptions: {
+          none: {
+            questionAnswer: {
+              some: {
+                userId: payload.sub,
+              },
+            },
+          },
+        },
+      };
+
+  const questionInclude: Prisma.QuestionInclude = areAnswered
+    ? {
+        questionOptions: {
+          include: {
+            questionAnswer: { where: { userId: { equals: payload.sub } } },
+          },
+        },
+      }
+    : {};
+
+  const questions = await prisma.question.findMany({
+    where: {
+      deckQuestions: { none: {} },
+      ...areAnsweredFilter,
+      ...revealedAtFilter,
+    },
+    include: questionInclude,
+    orderBy: { revealAtDate: { sort: "desc" } },
+  });
+
+  const questionOptionIds = questions.flatMap((q) =>
+    q.questionOptions?.map((qo) => qo.id)
+  );
+  const questionOptionPercentages =
+    await answerPercentageQuery(questionOptionIds);
+
+  questions.forEach((q) => {
+    q.questionOptions?.forEach((qo: any) => {
+      qo.questionAnswer?.forEach((qa: any) => {
+        qa.percentageResult =
+          questionOptionPercentages.find(
+            (qop) => qop.questionOptionId === qa.questionOptionId
+          )?.percentageResult ?? 0;
+      });
+    });
+  });
+
+  return questions;
 }

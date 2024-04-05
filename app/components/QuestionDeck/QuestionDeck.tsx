@@ -6,7 +6,7 @@ import { ClockIcon } from "../Icons/ClockIcon";
 type StatusUnion = "chomped" | "new" | "continue";
 type QuestionDeckProps = {
   text: string;
-  revealedAt: Date;
+  revealedAt?: Date | null;
   status?: StatusUnion;
 };
 
@@ -35,10 +35,14 @@ export function QuestionDeck({ text, revealedAt, status }: QuestionDeckProps) {
         </div>
         <div className="flex items-center justify-between -ml-1">
           <div className="flex items-center gap-2.5">
-            <ClockIcon />
-            <span className="text-white text-sm">
-              {getRevealedAtString(revealedAt)}
-            </span>
+            {revealedAt && (
+              <>
+                <ClockIcon />
+                <span className="text-white text-sm">
+                  {getRevealedAtString(revealedAt)}
+                </span>
+              </>
+            )}
           </div>
           <div
             className={classNames("text-sm leading-6", {
