@@ -1,6 +1,6 @@
 "use client";
 
-import { redirect, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { saveQuestion } from "../../../actions/answer";
 import { useRouter } from "next/navigation";

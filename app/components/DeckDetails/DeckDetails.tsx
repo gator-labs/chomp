@@ -6,10 +6,9 @@ import { DeckDetailsRow } from "./DeckDetailsRow";
 
 export type DeckQuestionIncludes = Question & {
   questionOptions: {
-    questionAnswer: QuestionAnswer &
-      {
-        percentageResult: number | null;
-      }[];
+    questionAnswer: (QuestionAnswer & {
+      percentageResult?: number | null;
+    })[];
   }[];
   reveals: Reveal[];
 };
