@@ -40,6 +40,7 @@ model Question {
   revealTokenAmount   Int              @default(0)
   revealAtDate        DateTime?
   revealAtAnswerCount Int?
+  imageUrl            String?
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
   deckQuestions       DeckQuestion[]
@@ -75,6 +76,7 @@ model Deck {
   date                DateTime?
   revealAtDate        DateTime?
   revealAtAnswerCount Int?
+  imageUrl            String?
   deckQuestions       DeckQuestion[]
   userDeck            UserDeck[]
   reveals             Reveal[]

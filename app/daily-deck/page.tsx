@@ -2,7 +2,6 @@ import { Deck, Question } from "@/app/components/Deck/Deck";
 import { getDailyDeck } from "@/app/queries/deck";
 import { DailyDeckTitle } from "../components/DailyDeckTitle/DailyDeckTitle";
 import { NoQuestionsCard } from "../components/NoQuestionsCard/NoQuestionsCard";
-import { Button } from "../components/Button/Button";
 
 export default async function Page() {
   const dailyDeck = await getDailyDeck();

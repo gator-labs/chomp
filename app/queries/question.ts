@@ -36,6 +36,7 @@ const mapToViewModelQuestion = (
     option: qo.option,
   })),
   type: question.type,
+  imageUrl: question.imageUrl ?? undefined,
 });
 
 export async function getQuestions() {

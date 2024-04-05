@@ -1,10 +1,7 @@
 "use client";
 import Link from "next/link";
 import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
-import { MultipleChoiceAnsweredContent } from "../MultipleChoiceAnsweredContent/MultipleChoiceAnsweredContent";
 import { useState } from "react";
-import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
-import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
 import { Button } from "../Button/Button";
 import { revealQuestion } from "@/app/actions/reveal";
 import dayjs from "dayjs";

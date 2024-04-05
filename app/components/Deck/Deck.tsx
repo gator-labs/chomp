@@ -24,6 +24,7 @@ export type Question = {
   durationMiliseconds: number;
   question: string;
   type: QuestionType;
+  imageUrl?: string;
   questionOptions: Option[];
 };
 
@@ -212,6 +213,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
           dueAt={dueAt}
           numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
           question={question.question}
+          viewImageSrc={question.imageUrl}
           step={currentQuestionStep}
           onDurationRanOut={handleNoAnswer}
           className="z-50 relative drop-shadow-question-card border-opacity-40"
@@ -242,7 +244,6 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
           />
         )}
       </div>
-      <pre>{JSON.stringify({ tf: questions.length === 0, hasReachedEnd })}</pre>
     </div>
   );
 }
