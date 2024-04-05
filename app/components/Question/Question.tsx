@@ -60,7 +60,8 @@ export function Question({ question, returnUrl }: QuestionProps) {
 
   useEffect(() => {
     if (!currentQuestionStep) {
-      router.push(returnUrl);
+      router.replace(returnUrl);
+      router.refresh();
     }
   }, [currentQuestionStep]);
 
