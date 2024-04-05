@@ -1,10 +1,41 @@
-<h1 align="center">chomp</h1>
+# chomp
+TODO: Overall purpose blurb - KZ
 
-<https://gator-chomp.vercel.app/>
-Things to put in here:
-1. Overall purpose blurb - KZ
-2. Architecture diagram how things work together (database diagram, higher level systems, how our database interacts with the treasury wallet + user wallet) - Marvin
-3. Deployment addresses - wallet addresses
-4. Roadmap/next steps: Turning it into a native app on SAGA, etc 
+## Deployment details
+- [gator-chomp.vercel.app](https://gator-chomp.vercel.app/)
+- Funds address: 
 
-Note to self: Isaac's python code needs to show up somewhere 
+## Getting started
+
+Prerequisites:
+- Install Docker
+- Create a [Dynamic](https://www.dynamic.xyz/) account
+- Solana RPC like Helius
+
+```sh
+# install dependencies
+$ yarn
+
+# setup environment variables
+$ cp .env.example .env
+
+# start DB
+$ docker compose -f db-compose.yml
+
+# run migrations
+$ yarn prisma:migrate
+
+# start the app
+$ yarn dev
+```
+
+## Architecture 
+diagram how things work together (database diagram, higher level systems, how our database interacts with the treasury wallet + user wallet) - Marvin
+
+## Roadmap/next steps: 
+Turning it into a native app on SAGA, etc 
+
+## TODO
+
+- [ ] Finish README
+- [ ] Import Isaac's python code
