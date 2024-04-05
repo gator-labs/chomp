@@ -10,13 +10,13 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
       ? []
       : await prisma.$queryRaw`
               select 
-                qa."questionOptionId",
+                qo.id,
                 floor(
                   (
                     select 
                       count(*)
                     from public."QuestionAnswer" subQa
-                    where subQa."questionOptionId" = qa."questionOptionId" 
+                    where subQa."questionOptionId" = qo.id 
                   ) 
                 /
                   NULLIF(
@@ -24,12 +24,12 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                       select 
                         count(*)
                       from public."QuestionAnswer" subQa
-                      where subQa.selected = true and subQa."questionOptionId" = qa."questionOptionId"
+                      where subQa.selected = true and subQa."questionOptionId" = qo.id
                     )
                   , 0)
                 ) * 100 as "percentageResult"
-              from public."QuestionAnswer" qa
-              where qa."questionOptionId" in (${Prisma.join(questionOptionIds)})
+              from public."QuestionOption" qo
+              where qo.id in (${Prisma.join(questionOptionIds)})
             `;
 
   return questionOptionPercentages;

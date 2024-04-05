@@ -7,6 +7,7 @@ type ButtonProps = {
   disabled?: boolean;
   children: ReactNode;
   isFullWidth?: boolean;
+  isPill?: boolean;
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
@@ -16,6 +17,7 @@ export function Button({
   disabled = false,
   children,
   isFullWidth = true,
+  isPill = false,
   className,
   ...props
 }: ButtonProps) {
@@ -35,6 +37,7 @@ export function Button({
       "text-sm": size === "normal" || size === "small",
       "text-base": size === "big",
       "w-full": isFullWidth,
+      "!rounded-full": isPill,
     },
     className
   );

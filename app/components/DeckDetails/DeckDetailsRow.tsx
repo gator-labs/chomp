@@ -23,11 +23,12 @@ export function DeckDetailsRow({ element }: DeckDetailsRowProps) {
       !isRevealed && dayjs(element.revealAtDate).isBefore(new Date()) ? (
         <Button
           variant="white"
+          isPill
           onClick={async () => {
             await revealQuestion(element.id);
           }}
         >
-          Submit
+          Reveal Results
         </Button>
       ) : null;
 

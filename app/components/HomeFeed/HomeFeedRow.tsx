@@ -25,16 +25,17 @@ export function HomeFeedRow({
 }: HomeFeedRowProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
   if (type === ElementType.Question && isAnswered) {
-    const question = element as any;
+    const question = element as Question;
     const actionSubmit =
       !isRevealed && dayjs(element.revealAtDate).isBefore(new Date()) ? (
         <Button
           variant="white"
+          isPill
           onClick={async () => {
             await revealQuestion(element.id);
           }}
         >
-          Submit
+          Reveal Results
         </Button>
       ) : null;
 
@@ -47,7 +48,8 @@ export function HomeFeedRow({
         actionChild={actionSubmit}
         status="chomped"
       >
-        {AnsweredQuestionContentFactory(question)}
+        {dayjs(element.revealAtDate).isBefore(new Date()) &&
+          AnsweredQuestionContentFactory(question)}
       </QuestionAccordion>
     );
   }
