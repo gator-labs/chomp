@@ -17,10 +17,10 @@ Prerequisites:
 $ yarn
 
 # setup environment variables
-$ cp .env.example .env
+$ cp .env.example .env.local
 
 # start DB
-$ docker compose -f db-compose.yml
+$ yarn compose:db:up
 
 # run migrations
 $ yarn prisma:migrate

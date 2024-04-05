@@ -218,7 +218,7 @@ export async function getHomeFeedQuestions({
 
   const questions = await prisma.question.findMany({
     where: {
-      deckQuestions: { none: {} },
+      deckQuestions: { none: { deck: { date: null } } },
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },

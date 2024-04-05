@@ -1,6 +1,8 @@
 import { Deck, Question } from "@/app/components/Deck/Deck";
 import { getDailyDeck } from "@/app/queries/deck";
 import { DailyDeckTitle } from "../components/DailyDeckTitle/DailyDeckTitle";
+import { NoQuestionsCard } from "../components/NoQuestionsCard/NoQuestionsCard";
+import { Button } from "../components/Button/Button";
 
 export default async function Page() {
   const dailyDeck = await getDailyDeck();
@@ -11,12 +13,14 @@ export default async function Page() {
         <DailyDeckTitle date={dailyDeck?.date ?? new Date()} />
       </div>
       <div className="px-4">
-        {dailyDeck?.questions && (
+        {dailyDeck?.questions ? (
           <Deck
             questions={dailyDeck.questions}
             deckId={dailyDeck.id}
-            browseHomeUrl="/application/answer"
+            browseHomeUrl="/application"
           />
+        ) : (
+          <NoQuestionsCard browseHomeUrl="/application" />
         )}
       </div>
     </div>
