@@ -8,6 +8,8 @@ import {
   QuestionOption,
 } from "@prisma/client";
 import { getJwtPayload } from "../actions/jwt";
+import { getHomeFeedDecks } from "./deck";
+import { answerPercentageQuery } from "./answerPercentageQuery";
 
 export async function getQuestionForAnswerById(questionId: number) {
   const question = await prisma.question.findFirst({
@@ -227,35 +229,8 @@ export async function getHomeFeedQuestions({
   const questionOptionIds = questions.flatMap((q) =>
     q.questionOptions?.map((qo) => qo.id)
   );
-  const questionOptionPercentages: {
-    questionOptionId: number;
-    percentageResult: number | null;
-  }[] =
-    questionOptionIds.length === 0
-      ? []
-      : await prisma.$queryRaw`
-          select 
-            qa."questionOptionId",
-            floor(
-              (
-                select 
-                  count(*)
-                from public."QuestionAnswer" subQa
-                where subQa."questionOptionId" = qa."questionOptionId" 
-              ) 
-            /
-              NULLIF(
-                (
-                  select 
-                    count(*)
-                  from public."QuestionAnswer" subQa
-                  where subQa.selected = true and subQa."questionOptionId" = qa."questionOptionId"
-                )
-              , 0)
-            ) * 100 as "percentageResult"
-          from public."QuestionAnswer" qa
-          where qa."questionOptionId" in (${Prisma.join(questionOptionIds)})
-        `;
+  const questionOptionPercentages =
+    await answerPercentageQuery(questionOptionIds);
 
   questions.forEach((q) => {
     q.questionOptions?.forEach((qo: any) => {
@@ -269,87 +244,4 @@ export async function getHomeFeedQuestions({
   });
 
   return questions;
-}
-
-export async function getHomeFeedDecks({
-  areAnswered,
-  areRevealed,
-}: {
-  areAnswered: boolean;
-  areRevealed: boolean;
-}) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return [];
-  }
-
-  const revealedAtFilter: Prisma.DeckWhereInput = areRevealed
-    ? {
-        reveals: {
-          some: {
-            userId: {
-              equals: payload.sub,
-            },
-          },
-        },
-      }
-    : {
-        reveals: {
-          none: {
-            userId: {
-              equals: payload.sub,
-            },
-          },
-        },
-      };
-
-  const areAnsweredFilter: Prisma.DeckWhereInput = areAnswered
-    ? {
-        deckQuestions: {
-          some: {
-            question: {
-              questionOptions: {
-                some: {
-                  questionAnswer: {
-                    some: {
-                      userId: payload.sub,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      }
-    : {
-        deckQuestions: {
-          some: {
-            question: {
-              questionOptions: {
-                none: {
-                  questionAnswer: {
-                    some: {
-                      userId: payload.sub,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      };
-
-  const decks = await prisma.deck.findMany({
-    where: {
-      date: {
-        equals: null,
-      },
-      ...areAnsweredFilter,
-      ...revealedAtFilter,
-    },
-    orderBy: { revealAtDate: { sort: "desc" } },
-  });
-
-  return decks;
 }
