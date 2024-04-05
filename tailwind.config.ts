@@ -49,6 +49,7 @@ module.exports = {
   },
   plugins: [],
   safelist: [
+    "z-50",
     ...Object.keys(colors).map((color) => `text-${color}`),
     ...Object.keys(colors).map((color) => `bg-${color}`),
   ],

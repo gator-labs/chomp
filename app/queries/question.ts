@@ -238,7 +238,7 @@ export async function getHomeFeedQuestions({
       qo.questionAnswer?.forEach((qa: any) => {
         qa.percentageResult =
           questionOptionPercentages.find(
-            (qop) => qop.questionOptionId === qa.questionOptionId
+            (qop) => qop.id === qa.questionOptionId
           )?.percentageResult ?? 0;
       });
     });

@@ -37,7 +37,12 @@ export function NoQuestionsCard({ browseHomeUrl }: NoQuestionsCardProps) {
         variant="pink"
         size="big"
         className="mt-2"
-        onClick={() => browseHomeUrl && router.push(browseHomeUrl)}
+        onClick={() => {
+          if (browseHomeUrl) {
+            router.replace(browseHomeUrl);
+            router.refresh();
+          }
+        }}
       >
         Browse home
       </Button>
