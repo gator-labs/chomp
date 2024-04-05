@@ -49,6 +49,34 @@ export async function getDailyDeck() {
   };
 }
 
+/**
+ * Get the daily deck for Farcaster Frame.
+ * There is no logged in user in this context.
+ */
+export async function getDailyDeckForFrame() {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
+  const dailyDeck = await prisma.deck.findFirst({
+    where: {
+      date: { not: null, gte: currentDayStart, lte: currentDayEnd }
+    },
+    include: questionDeckToRunInclude,
+  });
+
+  if (!dailyDeck) {
+    return {questions: []};
+  }
+
+  const questions = mapQuestionFromDeck(dailyDeck);
+
+  return {
+    questions,
+    id: dailyDeck.id,
+    date: dailyDeck.date,
+  };
+}
+
 export async function getDeckQuestionsById(deckId: number) {
   const deck = await prisma.deck.findFirst({
     where: { id: { equals: deckId } },

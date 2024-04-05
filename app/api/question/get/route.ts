@@ -1,3 +1,5 @@
+import { getDailyDeckForFrame } from '@/app/queries/deck'
+import { getRandomElement } from '@/app/utils/randomUtils'
 import { headers } from 'next/headers'
 
 export async function GET() {
@@ -10,6 +12,12 @@ export async function GET() {
           })
     }
 
-   
-    return Response.json({ question: 'This is a sample question from the API'})
+    const deck = await getDailyDeckForFrame()
+    const { questions } = deck
+    if (questions.length === 0) new Response(`No questions found to load`, {
+      status: 400,
+    }) 
+
+    const question = getRandomElement(questions)
+    return Response.json({ question })
   }
