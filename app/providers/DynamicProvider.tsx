@@ -20,7 +20,7 @@ export default function DynamicProvider({
             clearJwt();
           },
         },
-        deepLinkPreference: "universal",
+        mobileExperience: "redirect",
       }}
     >
       {children}
