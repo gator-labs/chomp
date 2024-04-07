@@ -20,6 +20,7 @@ export default function DynamicProvider({
             clearJwt();
           },
         },
+        deepLinkPreference: "universal",
       }}
     >
       {children}
