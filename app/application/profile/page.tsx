@@ -6,6 +6,7 @@ import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
 import TagRankCard from "@/app/components/TagRankCard/TagRankCard";
 import GeneralRankCard from "@/app/components/GeneralRankCard/GeneralRankCard";
 import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
+import { LogoutButton } from "@/app/components/LogoutButton/LogoutButton";
 
 export default function Page() {
   return (
@@ -28,6 +29,8 @@ export default function Page() {
       <TagRankCard tag="DeFi" percentage={92} />
       <TagRankCard tag="GameFi" percentage={78} />
       <TagRankCard tag="DePin" percentage={52} />
+
+      <LogoutButton />
     </div>
   );
 }
