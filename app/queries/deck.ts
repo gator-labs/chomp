@@ -58,9 +58,9 @@ export async function getDailyDeckForFrame() {
   // const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
 
   const dailyDeck = await prisma.deck.findFirst({
-    // where: {
-    //   date: { not: null, gte: currentDayStart, lte: currentDayEnd }
-    // },
+    where: {
+      date: { not: null } //, gte: currentDayStart, lte: currentDayEnd }
+    },
     orderBy: {
       date: 'desc'
     },
