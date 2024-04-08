@@ -11,6 +11,12 @@ import dayjs from "dayjs";
 import { AnsweredQuestionContentFactory } from "@/app/utils/answeredQuestionFactory";
 import { Modal } from "../Modal/Modal";
 import { useRouter } from "next/navigation";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { ISolana } from '@dynamic-labs/solana';
+import { Connection } from "@solana/web3.js";
+import { genBonkBurnTx } from "@/app/utils/solana";
+
+const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 type HomeFeedRowProps = {
   element: Deck | Question;
@@ -28,7 +34,77 @@ export function HomeFeedRow({
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
+  const [burnState, setBurnState] = useState<"burning" | "burned" | "error" | "idle">("idle");
+
   const router = useRouter();
+  const { primaryWallet } = useDynamicContext();
+
+  const burnAndReveal = async () => {
+      setBurnState("burning")
+      const blockhash = await CONNECTION.getLatestBlockhash()
+
+      const signer = await primaryWallet!.connector.getSigner<ISolana>();
+      const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash)
+      const { signature } = await signer.signAndSendTransaction(tx)
+
+      console.log("Waiting for confirmation")
+      await CONNECTION.confirmTransaction({
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight,
+        signature,
+      })
+      setBurnState("burned")
+      console.log("Confirmed!")
+
+      await revealQuestion(element.id);
+      router.refresh();
+      setIsRevealModalOpen(false);
+      setIsClaimModalOpen(true);
+  }
+
+  let revealButtons = null
+  switch (burnState) {
+    case "idle":
+      revealButtons = (
+        <>
+          <Button
+            variant="white"
+            isPill
+            onClick={burnAndReveal}
+          >
+            Let&apos;s do it
+          </Button>
+          <Button
+            variant="black"
+            isPill
+            onClick={() => setIsRevealModalOpen(false)}
+          >
+            Maybe Later
+          </Button>
+        </>
+      )
+    break
+    case "burning":
+      revealButtons = (
+        <Button
+          variant="white"
+          isPill
+        >
+          Burning BONK...
+        </Button>
+      )
+      break;
+    case "burned":
+      revealButtons = (
+        <Button
+          variant="white"
+          isPill
+        >
+          Burned BONK!
+        </Button>
+      )
+      break;
+  }
 
   if (type === ElementType.Question && isAnswered) {
     const question = element as Question;
@@ -53,25 +129,7 @@ export function HomeFeedRow({
                 Revealing this question will cost you 5K, but you could earn up
                 to 10K. Would you like to reveal?
               </p>
-              <Button
-                variant="white"
-                isPill
-                onClick={async () => {
-                  await revealQuestion(element.id);
-                  router.refresh();
-                  setIsRevealModalOpen(false);
-                  setIsClaimModalOpen(true);
-                }}
-              >
-                Let&apos;s do it
-              </Button>
-              <Button
-                variant="black"
-                isPill
-                onClick={() => setIsRevealModalOpen(false)}
-              >
-                Maybe Later
-              </Button>
+             {revealButtons}
             </div>
           </Modal>
 
