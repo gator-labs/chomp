@@ -54,12 +54,15 @@ export async function getDailyDeck() {
  * There is no logged in user in this context.
  */
 export async function getDailyDeckForFrame() {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  // const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  // const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
 
   const dailyDeck = await prisma.deck.findFirst({
     where: {
-      date: { not: null, gte: currentDayStart, lte: currentDayEnd }
+      date: { not: null } //, gte: currentDayStart, lte: currentDayEnd }
+    },
+    orderBy: {
+      date: 'desc'
     },
     include: questionDeckToRunInclude,
   });
