@@ -31,5 +31,8 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
               where qo."id" in (${Prisma.join(questionOptionIds)})
             `;
 
-  return questionOptionPercentages;
+  return questionOptionPercentages.map((qo) => ({
+    id: qo.id,
+    percentageResult: Number(qo.percentageResult),
+  }));
 }
