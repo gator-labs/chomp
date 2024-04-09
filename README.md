@@ -77,6 +77,7 @@ def get_SP_answer_binary(first_order_percent_A, first_order_percent_B, second_or
     
     return answer
 ```
+We are in the process of adapting another set of mechanisms that "[Wisdom of the Crowd](https://arxiv.org/pdf/2102.02666.pdf)" for multiple-choice questions. 
 
 ## Roadmap/next steps: 
 We will be doing a closed alpha in Dubai next week with FOMO Mag + MonkeDAO, and then an open beta through Drip in mid-May. Q2+Q3 are all about experimentation and validation, where we will aim to understand our users better, hone in on a few use cases, improve product features, and gather enough data to improve on our mechanism and tokenomics design. 
