@@ -1,5 +1,5 @@
 import { Transaction, PublicKey } from "@solana/web3.js";
-import { createBurnCheckedInstruction, getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { createBurnCheckedInstruction, getAssociatedTokenAddress } from "@solana/spl-token";
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!
 const AMOUNT_TO_SEND = 1 // 1 => 0.00001 BONK
@@ -7,15 +7,15 @@ const DECIMALS = 5
 
 export const genBonkBurnTx = async (ownerAddress: string, blockhash: string) => {
     const burnFromPublic = new PublicKey(ownerAddress);
+                  
     const bonkPublic = new PublicKey(BONK_PUBLIC_ADDRESS);
-    
-    const ata = getAssociatedTokenAddressSync(
-        bonkPublic, // mint
-        burnFromPublic, // owner
-        true
-      );
+    let ata = await getAssociatedTokenAddress(
+      bonkPublic, // mint
+      burnFromPublic // owner
+    );
 
-      console.log("ATA", ata.toBase58())
+    console.log("ATA", ata.toBase58())
+
 
     const tx = new Transaction();
     tx.add(
