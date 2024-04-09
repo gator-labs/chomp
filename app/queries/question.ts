@@ -1,12 +1,7 @@
 import { z } from "zod";
 import prisma from "../services/prisma";
 import { questionSchema } from "../schemas/question";
-import {
-  Prisma,
-  Question,
-  QuestionAnswer,
-  QuestionOption,
-} from "@prisma/client";
+import { Prisma, Question, QuestionOption } from "@prisma/client";
 import { getJwtPayload } from "../actions/jwt";
 import { getHomeFeedDecks } from "./deck";
 import { answerPercentageQuery } from "./answerPercentageQuery";
@@ -83,15 +78,15 @@ export async function getQuestionSchema(
   return questionData;
 }
 
-export async function getHomeFeed() {
+export async function getHomeFeed(query: string = "") {
   const promiseArray = [
-    getUnansweredDailyQuestions(),
-    getHomeFeedQuestions({ areAnswered: false, areRevealed: false }),
-    getHomeFeedDecks({ areAnswered: false, areRevealed: false }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: false }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: false }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: true }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: true }),
+    getUnansweredDailyQuestions(query),
+    getHomeFeedQuestions({ areAnswered: false, areRevealed: false, query }),
+    getHomeFeedDecks({ areAnswered: false, areRevealed: false, query }),
+    getHomeFeedQuestions({ areAnswered: true, areRevealed: false, query }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: false, query }),
+    getHomeFeedQuestions({ areAnswered: true, areRevealed: true, query }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: true, query }),
   ];
 
   const [
@@ -115,7 +110,7 @@ export async function getHomeFeed() {
   };
 }
 
-export async function getUnansweredDailyQuestions() {
+export async function getUnansweredDailyQuestions(query: string) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -130,6 +125,7 @@ export async function getUnansweredDailyQuestions() {
         },
       },
       question: {
+        question: { contains: query },
         questionOptions: {
           none: {
             questionAnswer: {
@@ -153,9 +149,11 @@ export async function getUnansweredDailyQuestions() {
 export async function getHomeFeedQuestions({
   areAnswered,
   areRevealed,
+  query,
 }: {
   areAnswered: boolean;
   areRevealed: boolean;
+  query: string;
 }) {
   const payload = await getJwtPayload();
 
@@ -219,6 +217,7 @@ export async function getHomeFeedQuestions({
 
   const questions = await prisma.question.findMany({
     where: {
+      question: { contains: query },
       deckQuestions: { none: { deck: { date: null } } },
       ...areAnsweredFilter,
       ...revealedAtFilter,

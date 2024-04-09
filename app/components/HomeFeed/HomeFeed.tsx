@@ -22,7 +22,7 @@ export enum ElementType {
 
 const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 210;
 
-function HomeFeed({
+export function HomeFeed({
   unansweredDailyQuestions,
   unansweredUnrevealedQuestions,
   unansweredUnrevealedDecks,
@@ -77,7 +77,15 @@ function HomeFeed({
         isRevealed: true,
       })),
     ],
-    []
+    [
+      unansweredDailyQuestions,
+      unansweredUnrevealedQuestions,
+      unansweredUnrevealedDecks,
+      answeredUnrevealedQuestions,
+      answeredUnrevealedDecks,
+      answeredRevealedQuestions,
+      answeredRevealedDecks,
+    ]
   );
 
   return (
@@ -98,5 +106,3 @@ function HomeFeed({
     />
   );
 }
-
-export default HomeFeed;

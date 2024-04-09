@@ -68,7 +68,7 @@ export async function getDailyDeckForFrame() {
   });
 
   if (!dailyDeck) {
-    return {questions: []};
+    return { questions: [] };
   }
 
   const questions = mapQuestionFromDeck(dailyDeck);
@@ -247,9 +247,11 @@ export async function getDeckDetails(id: number) {
 export async function getHomeFeedDecks({
   areAnswered,
   areRevealed,
+  query,
 }: {
   areAnswered: boolean;
   areRevealed: boolean;
+  query: string;
 }) {
   const payload = await getJwtPayload();
 
@@ -315,6 +317,7 @@ export async function getHomeFeedDecks({
 
   const decks = await prisma.deck.findMany({
     where: {
+      deck: { contains: query },
       date: {
         equals: null,
       },
