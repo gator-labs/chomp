@@ -5,7 +5,7 @@ export async function GET(request: Request) {
   const payload = await getJwtPayload();
 
   if (!payload) {
-    return null;
+    return Response.json({ message: "invalid jwt" }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
