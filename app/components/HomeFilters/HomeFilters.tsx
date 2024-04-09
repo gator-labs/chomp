@@ -43,11 +43,9 @@ export function HomeFilters({
         onSelected={onValueSelected}
         placeholder="Search Questions"
         suggestions={[
-          query ? { suggestion: query, isSearched: false } : undefined,
+          ...(query ? [{ suggestion: query, isSearched: false }] : []),
           ...homeFilters,
-        ]
-          .filter((suggestion) => !!suggestion)
-          .filter((suggestion) => suggestion.suggestion !== initialQuery)}
+        ].filter((suggestion) => suggestion.suggestion !== initialQuery)}
       />
       <InfoIcon width={30} height={30} />
       <FilterIcon width={30} height={30} />
