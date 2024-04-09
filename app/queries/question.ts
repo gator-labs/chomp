@@ -110,7 +110,7 @@ export async function getHomeFeed(query: string = "") {
   };
 }
 
-export async function getUnansweredDailyQuestions(query: string) {
+export async function getUnansweredDailyQuestions(query = "") {
   const payload = await getJwtPayload();
 
   if (!payload) {

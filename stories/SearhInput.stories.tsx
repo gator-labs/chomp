@@ -9,7 +9,7 @@ const meta = {
     layout: "centered",
   },
   tags: ["autodocs"],
-  args: { onChange: fn(), value: "Search Questions" },
+  args: { onChange: fn(), onSelected: fn(), value: "Search Questions" },
   decorators: (Story) => (
     <div className="w-[334px]">
       <Story />
