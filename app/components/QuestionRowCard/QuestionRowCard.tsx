@@ -5,7 +5,6 @@ import { genBonkBurnTx } from "@/app/utils/solana";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { Connection } from "@solana/web3.js";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../Button/Button";
 import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
@@ -33,8 +32,6 @@ export function QuestionRowCard({
   const [burnState, setBurnState] = useState<
     "burning" | "burned" | "error" | "idle"
   >("idle");
-
-  const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
   const burnAndReveal = async () => {
