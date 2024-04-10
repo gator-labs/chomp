@@ -1,36 +1,45 @@
 "use client";
-
 import { useState } from "react";
 import { SearchInput } from "../SearchInput/SearchInput";
 import { InfoIcon } from "../Icons/InfoIcon";
 import { FilterIcon } from "../Icons/FilterIcon";
-import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import { usePathname, useRouter } from "next/navigation";
+import { useLocalStorage } from "@/app/hooks/useLocalStorage";
+import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 
-type HomeFiltersProps = {
+type SearchFiltersProps = {
   initialQuery: string;
   onQueryChange: (query: string) => void;
+  backdropHeightReducedBy?: number;
 };
 
-export function HomeFilters({
+export function SearchFilters({
   initialQuery = "",
   onQueryChange,
-}: HomeFiltersProps) {
+  backdropHeightReducedBy = 185,
+}: SearchFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [homeFilters, setValue] = useLocalStorage(
+  const [searchFilters, setValue] = useLocalStorage(
     "home-filters",
     [] as { suggestion: string; isSearched: boolean }[]
   );
   const [query, setQuery] = useState(initialQuery);
 
-  const onValueSelected = (value: string) => {
-    if (!homeFilters.some((hf) => hf.suggestion === value)) {
-      setValue([{ suggestion: value, isSearched: true }, ...homeFilters]);
+  const setQueryWrapper = (value: string) => {
+    setQuery(value);
+
+    if (value === "") {
+      onValueSelected(value);
     }
-    const searchParams = new URLSearchParams({ query: value });
-    const query = searchParams ? `?${searchParams}` : "";
-    router.push(`${pathname}${query}`);
+  };
+
+  const onValueSelected = (value: string) => {
+    if (!searchFilters.some((hf) => hf.suggestion === value) && value !== "") {
+      setValue([{ suggestion: value, isSearched: true }, ...searchFilters]);
+    }
+    const newParams = getAppendedNewSearchParams({ query: value });
+    router.push(`${pathname}${newParams}`);
     setQuery(value);
     onQueryChange(value);
   };
@@ -39,12 +48,13 @@ export function HomeFilters({
     <div className="flex w-full px-4 gap-4 items-center">
       <SearchInput
         value={query}
-        onChange={(value) => setQuery(value)}
+        onChange={setQueryWrapper}
         onSelected={onValueSelected}
         placeholder="Search Questions"
+        backdropHeightReducedBy={backdropHeightReducedBy}
         suggestions={[
           ...(query ? [{ suggestion: query, isSearched: false }] : []),
-          ...homeFilters,
+          ...searchFilters,
         ].filter((suggestion) => suggestion.suggestion !== initialQuery)}
       />
       <InfoIcon width={30} height={30} />

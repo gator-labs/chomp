@@ -7,6 +7,7 @@ import { getJwtPayload } from "../actions/jwt";
 import { redirect } from "next/navigation";
 import { Deck, DeckQuestion, Question, QuestionOption } from "@prisma/client";
 import { answerPercentageQuery } from "./answerPercentageQuery";
+import { HistorySortOptions } from "../api/history/route";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -59,10 +60,10 @@ export async function getDailyDeckForFrame() {
 
   const dailyDeck = await prisma.deck.findFirst({
     where: {
-      date: { not: null } //, gte: currentDayStart, lte: currentDayEnd }
+      date: { not: null }, //, gte: currentDayStart, lte: currentDayEnd }
     },
     orderBy: {
-      date: 'desc'
+      date: "desc",
     },
     include: questionDeckToRunInclude,
   });
@@ -248,15 +249,33 @@ export async function getHomeFeedDecks({
   areAnswered,
   areRevealed,
   query,
+  sort = HistorySortOptions.Revealed,
 }: {
   areAnswered: boolean;
   areRevealed: boolean;
   query: string;
+  sort?: HistorySortOptions;
 }) {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return [];
+  }
+
+  let sortInput: Prisma.DeckOrderByWithRelationInput = {
+    revealAtDate: { sort: "desc" },
+  };
+
+  if (sort === HistorySortOptions.Claimable) {
+    sortInput = {
+      reveals: { _count: "desc" },
+    };
+  }
+
+  if (sort === HistorySortOptions.Revealed) {
+    sortInput = {
+      revealAtDate: { sort: "desc" },
+    };
   }
 
   const revealedAtFilter: Prisma.DeckWhereInput = areRevealed
@@ -315,7 +334,7 @@ export async function getHomeFeedDecks({
         },
       };
 
-  const decks = await prisma.deck.findMany({
+  let decks = await prisma.deck.findMany({
     where: {
       deck: { contains: query },
       date: {
@@ -324,8 +343,77 @@ export async function getHomeFeedDecks({
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },
-    orderBy: { revealAtDate: { sort: "desc" } },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswer: {
+                    where: { userId: { equals: payload.sub } },
+                  },
+                },
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
+            },
+          },
+        },
+      },
+      reveals: { where: { userId: { equals: payload.sub } } },
+    },
+    orderBy: { ...sortInput },
   });
+
+  if (sort === HistorySortOptions.Date) {
+    decks.sort((a, b) => {
+      if (!areAnswered) {
+        return 0;
+      }
+
+      const aAnswerDate = a.deckQuestions
+        .flatMap((dq) => dq.question.questionOptions)
+        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .sort((left: Date, right: Date) => {
+          if (dayjs(left).isAfter(right)) {
+            return 1;
+          }
+
+          if (dayjs(right).isAfter(left)) {
+            return -1;
+          }
+
+          return 0;
+        })[0];
+
+      const bAnswerDate = b.deckQuestions
+        .flatMap((dq) => dq.question.questionOptions)
+        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .sort((left: Date, right: Date) => {
+          if (dayjs(left).isAfter(right)) {
+            return 1;
+          }
+
+          if (dayjs(right).isAfter(left)) {
+            return -1;
+          }
+
+          return 0;
+        })[0];
+
+      if (dayjs(aAnswerDate).isAfter(bAnswerDate)) {
+        return -1;
+      }
+
+      if (dayjs(bAnswerDate).isAfter(aAnswerDate)) {
+        return 1;
+      }
+
+      return 0;
+    });
+  }
 
   return decks;
 }

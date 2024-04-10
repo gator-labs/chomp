@@ -5,6 +5,8 @@ import { Prisma, Question, QuestionOption } from "@prisma/client";
 import { getJwtPayload } from "../actions/jwt";
 import { getHomeFeedDecks } from "./deck";
 import { answerPercentageQuery } from "./answerPercentageQuery";
+import { HistorySortOptions } from "../api/history/route";
+import dayjs from "dayjs";
 
 export async function getQuestionForAnswerById(questionId: number) {
   const question = await prisma.question.findFirst({
@@ -110,6 +112,37 @@ export async function getHomeFeed(query: string = "") {
   };
 }
 
+export async function getHistory(
+  query: string = "",
+  sort: HistorySortOptions = HistorySortOptions.Revealed
+) {
+  const promiseArray = [
+    getHomeFeedQuestions({
+      areAnswered: true,
+      areRevealed: false,
+      query,
+      sort,
+    }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: false, query, sort }),
+    getHomeFeedQuestions({ areAnswered: true, areRevealed: true, query, sort }),
+    getHomeFeedDecks({ areAnswered: true, areRevealed: true, query, sort }),
+  ];
+
+  const [
+    answeredUnrevealedQuestions,
+    answeredUnrevealedDecks,
+    answeredRevealedQuestions,
+    answeredRevealedDecks,
+  ] = await Promise.all(promiseArray);
+
+  return {
+    answeredUnrevealedQuestions,
+    answeredUnrevealedDecks,
+    answeredRevealedQuestions,
+    answeredRevealedDecks,
+  };
+}
+
 export async function getUnansweredDailyQuestions(query = "") {
   const payload = await getJwtPayload();
 
@@ -150,15 +183,33 @@ export async function getHomeFeedQuestions({
   areAnswered,
   areRevealed,
   query,
+  sort = HistorySortOptions.Revealed,
 }: {
   areAnswered: boolean;
   areRevealed: boolean;
   query: string;
+  sort?: HistorySortOptions;
 }) {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return [];
+  }
+
+  let sortInput: Prisma.QuestionOrderByWithRelationInput = {
+    revealAtDate: { sort: "desc" },
+  };
+
+  if (sort === HistorySortOptions.Claimable) {
+    sortInput = {
+      reveals: { _count: "desc" },
+    };
+  }
+
+  if (sort === HistorySortOptions.Revealed) {
+    sortInput = {
+      revealAtDate: { sort: "desc" },
+    };
   }
 
   const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
@@ -209,13 +260,17 @@ export async function getHomeFeedQuestions({
     ? {
         questionOptions: {
           include: {
-            questionAnswer: { where: { userId: { equals: payload.sub } } },
+            questionAnswer: {
+              where: { userId: { equals: payload.sub } },
+              orderBy: { createdAt: "desc" },
+            },
           },
         },
+        reveals: { where: { userId: { equals: payload.sub } } },
       }
     : {};
 
-  const questions = await prisma.question.findMany({
+  let questions = await prisma.question.findMany({
     where: {
       question: { contains: query },
       deckQuestions: { none: { deck: { date: null } } },
@@ -223,7 +278,7 @@ export async function getHomeFeedQuestions({
       ...revealedAtFilter,
     },
     include: questionInclude,
-    orderBy: { revealAtDate: { sort: "desc" } },
+    orderBy: { ...sortInput },
   });
 
   const questionOptionIds = questions.flatMap((q) =>
@@ -242,6 +297,52 @@ export async function getHomeFeedQuestions({
       });
     });
   });
+
+  if (sort === HistorySortOptions.Date) {
+    questions.sort((a, b) => {
+      if (!areAnswered) {
+        return 0;
+      }
+
+      const aAnswerDate = a.questionOptions
+        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .sort((left: Date, right: Date) => {
+          if (dayjs(left).isAfter(right)) {
+            return 1;
+          }
+
+          if (dayjs(right).isAfter(left)) {
+            return -1;
+          }
+
+          return 0;
+        })[0];
+
+      const bAnswerDate = b.questionOptions
+        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .sort((left: Date, right: Date) => {
+          if (dayjs(left).isAfter(right)) {
+            return 1;
+          }
+
+          if (dayjs(right).isAfter(left)) {
+            return -1;
+          }
+
+          return 0;
+        })[0];
+
+      if (dayjs(aAnswerDate).isAfter(bAnswerDate)) {
+        return -1;
+      }
+
+      if (dayjs(bAnswerDate).isAfter(aAnswerDate)) {
+        return 1;
+      }
+
+      return 0;
+    });
+  }
 
   return questions;
 }

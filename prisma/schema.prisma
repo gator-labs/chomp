@@ -12,6 +12,7 @@ model User {
   id              String           @id
   isAdmin         Boolean          @default(false)
   createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
   wallets         Wallet[]
   emails          Email[]
   questionAnswers QuestionAnswer[]
@@ -20,15 +21,19 @@ model User {
 }
 
 model Wallet {
-  address String @id
-  userId  String
-  user    User   @relation(fields: [userId], references: [id])
+  address   String   @id
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Email {
-  address String @id
-  userId  String
-  user    User   @relation(fields: [userId], references: [id])
+  address   String   @id
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Question {
@@ -41,6 +46,8 @@ model Question {
   revealAtDate        DateTime?
   revealAtAnswerCount Int?
   imageUrl            String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @default(now()) @updatedAt
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
   deckQuestions       DeckQuestion[]
@@ -51,6 +58,8 @@ model QuestionOption {
   id             Int              @id @default(autoincrement())
   option         String
   isTrue         Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
   questionId     Int
   question       Question         @relation(fields: [questionId], references: [id])
   questionAnswer QuestionAnswer[]
@@ -59,11 +68,15 @@ model QuestionOption {
 model Tag {
   id           Int           @id @default(autoincrement())
   tag          String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
   questionTags QuestionTag[]
 }
 
 model QuestionTag {
   id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
   tagId      Int
   tag        Tag      @relation(fields: [tagId], references: [id])
   questionId Int
@@ -77,21 +90,27 @@ model Deck {
   revealAtDate        DateTime?
   revealAtAnswerCount Int?
   imageUrl            String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @default(now()) @updatedAt
   deckQuestions       DeckQuestion[]
   userDeck            UserDeck[]
   reveals             Reveal[]
 }
 
 model UserDeck {
-  id     Int    @id @default(autoincrement())
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-  deckId Int
-  deck   Deck   @relation(fields: [deckId], references: [id])
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  deckId    Int
+  deck      Deck     @relation(fields: [deckId], references: [id])
 }
 
 model DeckQuestion {
   id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
   deckId     Int
   deck       Deck     @relation(fields: [deckId], references: [id])
   questionId Int
@@ -106,6 +125,8 @@ model QuestionAnswer {
   user             User           @relation(fields: [userId], references: [id])
   percentage       Int?
   selected         Boolean
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @default(now()) @updatedAt
 }
 
 model Reveal {
@@ -116,6 +137,8 @@ model Reveal {
   question   Question? @relation(fields: [questionId], references: [id])
   deckId     Int?
   deck       Deck?     @relation(fields: [deckId], references: [id])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
 }
 
 enum QuestionType {

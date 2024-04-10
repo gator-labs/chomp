@@ -11,12 +11,14 @@ type SearchInputProps = {
     suggestion: string;
     isSearched: boolean;
   }[];
+  backdropHeightReducedBy?: number;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">;
 
 export function SearchInput({
   onChange,
   onSelected,
   suggestions,
+  backdropHeightReducedBy = 185,
   ...props
 }: SearchInputProps) {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -45,8 +47,9 @@ export function SearchInput({
         />
       </div>
       <div
+        style={{ height: `calc(100vh - ${backdropHeightReducedBy}px)` }}
         className={classNames(
-          "absolute w-[99vw] h-[calc(100vh-185px)] top-12 bottom-0 -left-3.5 bg-[#0D0D0DCC] z-30 overflow-y-scroll",
+          "absolute w-[99vw] top-12 bottom-0 -left-3.5 bg-[#0D0D0DCC] z-30 overflow-y-scroll",
           {
             hidden: !showDropdown,
           }

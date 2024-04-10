@@ -2,11 +2,11 @@
 import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
 import { Virtuoso } from "react-virtuoso";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { DeckDetailsRow } from "./DeckDetailsRow";
 import { getQuestionState } from "@/app/utils/question";
 import { Button } from "../Button/Button";
 import { revealDeck } from "@/app/actions/reveal";
 import { useRouter } from "next/navigation";
+import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
 export type DeckQuestionIncludes = Question & {
   questionOptions: {
@@ -71,7 +71,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
         className="mx-4 mt-4"
         itemContent={(_, element) => (
           <div className="pb-4">
-            <DeckDetailsRow element={element} />
+            <QuestionRowCard question={element} />
           </div>
         )}
       />

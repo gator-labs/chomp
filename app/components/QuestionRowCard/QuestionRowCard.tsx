@@ -1,77 +1,67 @@
 "use client";
-import { Deck, Question } from "@prisma/client";
-import { ElementType } from "./HomeFeed";
 import Link from "next/link";
-import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
-import { QuestionDeck } from "../QuestionDeck/QuestionDeck";
+import { revealQuestion } from "@/app/actions/reveal";
+import { genBonkBurnTx } from "@/app/utils/solana";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { ISolana } from "@dynamic-labs/solana";
+import { Connection } from "@solana/web3.js";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../Button/Button";
-import { revealQuestion } from "@/app/actions/reveal";
+import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
 import dayjs from "dayjs";
 import { AnsweredQuestionContentFactory } from "@/app/utils/answeredQuestionFactory";
 import { Modal } from "../Modal/Modal";
-import { useRouter } from "next/navigation";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from '@dynamic-labs/solana';
-import { Connection } from "@solana/web3.js";
-import { genBonkBurnTx } from "@/app/utils/solana";
+import { getQuestionState } from "@/app/utils/question";
+import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
+
+type QuestionRowCardProps = {
+  question: DeckQuestionIncludes;
+};
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
-type HomeFeedRowProps = {
-  element: Deck | Question;
-  type: ElementType;
-  isAnswered: boolean;
-  isRevealed: boolean;
-};
-
-export function HomeFeedRow({
-  element,
-  type,
-  isAnswered,
-  isRevealed,
-}: HomeFeedRowProps) {
+export function QuestionRowCard({ question }: QuestionRowCardProps) {
+  const { isAnswered, isRevealed } = getQuestionState(question);
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
-  const [burnState, setBurnState] = useState<"burning" | "burned" | "error" | "idle">("idle");
+  const [burnState, setBurnState] = useState<
+    "burning" | "burned" | "error" | "idle"
+  >("idle");
 
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
   const burnAndReveal = async () => {
-      setBurnState("burning")
-      const blockhash = await CONNECTION.getLatestBlockhash()
+    setBurnState("burning");
+    const blockhash = await CONNECTION.getLatestBlockhash();
 
-      const signer = await primaryWallet!.connector.getSigner<ISolana>();
-      const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash)
-      const { signature } = await signer.signAndSendTransaction(tx)
+    const signer = await primaryWallet!.connector.getSigner<ISolana>();
+    const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash);
+    const { signature } = await signer.signAndSendTransaction(tx);
 
-      console.log("Waiting for confirmation")
-      await CONNECTION.confirmTransaction({
-        blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight,
-        signature,
-      })
-      setBurnState("burned")
-      console.log("Confirmed!")
+    console.log("Waiting for confirmation");
+    await CONNECTION.confirmTransaction({
+      blockhash: blockhash.blockhash,
+      lastValidBlockHeight: blockhash.lastValidBlockHeight,
+      signature,
+    });
+    setBurnState("burned");
+    console.log("Confirmed!");
 
-      await revealQuestion(element.id);
-      router.refresh();
-      setIsRevealModalOpen(false);
-      setIsClaimModalOpen(true);
-  }
+    await revealQuestion(question.id);
+    router.refresh();
+    setIsRevealModalOpen(false);
+    setIsClaimModalOpen(true);
+  };
 
-  let revealButtons = null
+  let revealButtons = null;
   switch (burnState) {
     case "idle":
       revealButtons = (
         <>
-          <Button
-            variant="white"
-            isPill
-            onClick={burnAndReveal}
-          >
+          <Button variant="white" isPill onClick={burnAndReveal}>
             Let&apos;s do it
           </Button>
           <Button
@@ -82,34 +72,27 @@ export function HomeFeedRow({
             Maybe Later
           </Button>
         </>
-      )
-    break
+      );
+      break;
     case "burning":
       revealButtons = (
-        <Button
-          variant="white"
-          isPill
-        >
+        <Button variant="white" isPill disabled>
           Burning BONK...
         </Button>
-      )
+      );
       break;
     case "burned":
       revealButtons = (
-        <Button
-          variant="white"
-          isPill
-        >
+        <Button variant="white" isPill disabled>
           Burned BONK!
         </Button>
-      )
+      );
       break;
   }
 
-  if (type === ElementType.Question && isAnswered) {
-    const question = element as Question;
+  if (isAnswered) {
     const actionSubmit =
-      !isRevealed && dayjs(element.revealAtDate).isBefore(new Date()) ? (
+      !isRevealed && dayjs(question.revealAtDate).isBefore(new Date()) ? (
         <>
           <Button
             variant="white"
@@ -129,7 +112,7 @@ export function HomeFeedRow({
                 Revealing this question will cost you 5K, but you could earn up
                 to 10K. Would you like to reveal?
               </p>
-             {revealButtons}
+              {revealButtons}
             </div>
           </Modal>
 
@@ -172,43 +155,17 @@ export function HomeFeedRow({
         status="chomped"
       >
         {!!isRevealed &&
-          dayjs(element.revealAtDate).isBefore(new Date()) &&
+          dayjs(question.revealAtDate).isBefore(new Date()) &&
           AnsweredQuestionContentFactory(question)}
       </QuestionAccordion>
     );
   }
 
-  if (type === ElementType.Question) {
-    const question = element as Question;
-    return (
-      <Link href={`/application/answer/question/${question.id}`}>
-        <QuestionAccordion
-          question={question.question}
-          revealedAt={question.revealAtDate}
-          status="new"
-        />
-      </Link>
-    );
-  }
-
-  const deck = element as Deck;
-  if (isAnswered) {
-    return (
-      <Link href={`/application/deck/${deck.id}`}>
-        <QuestionDeck
-          text={deck.deck}
-          revealedAt={deck.revealAtDate}
-          status="chomped"
-        />
-      </Link>
-    );
-  }
-
   return (
-    <Link href={`/application/answer/deck/${deck.id}`}>
-      <QuestionDeck
-        text={deck.deck}
-        revealedAt={deck.revealAtDate}
+    <Link href={`/application/answer/question/${question.id}`}>
+      <QuestionAccordion
+        question={question.question}
+        revealedAt={question.revealAtDate}
         status="new"
       />
     </Link>

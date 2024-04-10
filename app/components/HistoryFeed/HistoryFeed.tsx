@@ -5,42 +5,24 @@ import { Virtuoso } from "react-virtuoso";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { ElementType, FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
 
-export type HomeFeedProps = {
-  unansweredDailyQuestions: Question[];
-  unansweredUnrevealedQuestions: Question[];
-  unansweredUnrevealedDecks: Deck[];
+export type HistoryFeedProps = {
   answeredUnrevealedQuestions: Question[];
   answeredUnrevealedDecks: Deck[];
   answeredRevealedQuestions: Question[];
   answeredRevealedDecks: Deck[];
 };
 
-const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 210;
+const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 458;
 
-export function HomeFeed({
-  unansweredDailyQuestions,
-  unansweredUnrevealedQuestions,
-  unansweredUnrevealedDecks,
+function HistoryFeed({
   answeredUnrevealedQuestions,
   answeredUnrevealedDecks,
   answeredRevealedQuestions,
   answeredRevealedDecks,
-}: HomeFeedProps) {
+}: HistoryFeedProps) {
   const { height } = useWindowSize();
   const list = useMemo<Array<any>>(
     () => [
-      ...unansweredDailyQuestions.map((q) => ({
-        ...q,
-        elementType: ElementType.Question,
-      })),
-      ...unansweredUnrevealedQuestions.map((q) => ({
-        ...q,
-        elementType: ElementType.Question,
-      })),
-      ...unansweredUnrevealedDecks.map((d) => ({
-        ...d,
-        elementType: ElementType.Deck,
-      })),
       ...answeredUnrevealedQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
@@ -59,9 +41,6 @@ export function HomeFeed({
       })),
     ],
     [
-      unansweredDailyQuestions,
-      unansweredUnrevealedQuestions,
-      unansweredUnrevealedDecks,
       answeredUnrevealedQuestions,
       answeredUnrevealedDecks,
       answeredRevealedQuestions,
@@ -82,3 +61,5 @@ export function HomeFeed({
     />
   );
 }
+
+export default HistoryFeed;
