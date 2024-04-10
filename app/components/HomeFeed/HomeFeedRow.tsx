@@ -15,6 +15,8 @@ import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from '@dynamic-labs/solana';
 import { Connection } from "@solana/web3.js";
 import { genBonkBurnTx } from "@/app/utils/solana";
+import Image from "next/image";
+import classNames from "classnames";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
@@ -40,21 +42,18 @@ export function HomeFeedRow({
   const { primaryWallet } = useDynamicContext();
 
   const burnAndReveal = async () => {
-      setBurnState("burning")
       const blockhash = await CONNECTION.getLatestBlockhash()
 
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
       const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash)
       const { signature } = await signer.signAndSendTransaction(tx)
 
-      console.log("Waiting for confirmation")
       await CONNECTION.confirmTransaction({
         blockhash: blockhash.blockhash,
         lastValidBlockHeight: blockhash.lastValidBlockHeight,
         signature,
       })
       setBurnState("burned")
-      console.log("Confirmed!")
 
       await revealQuestion(element.id);
       router.refresh();
@@ -72,7 +71,12 @@ export function HomeFeedRow({
             isPill
             onClick={burnAndReveal}
           >
-            Let&apos;s do it
+            <Image       
+              src={'/images/bonk.png'}
+              alt="Avatar"
+              width={32}
+              height={32}
+            />&nbsp;&nbsp;Burn to Reveal
           </Button>
           <Button
             variant="black"

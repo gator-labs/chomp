@@ -91,7 +91,7 @@ On the technical front:
 
 ## Testing
 
-SPL token interaction is thoroughly tested for transfer and burn correctness. [Bankrun](https://github.com/kevinheavey/solana-bankrun/tree/main) is used for testing on-chain transactions.
+SPL token interaction is thoroughly tested for transfer and burn correctness. [Bankrun](https://github.com/kevinheavey/solana-bankrun/tree/main) is used for testing on-chain transactions. See `__tests__` for code.
 
 ```sh
 # Setup test environment
@@ -100,3 +100,25 @@ cp .env.example .env.test
 # Run tests
 yarn test
 ```
+
+## Using the app
+
+1. Browse open questions
+
+![Chomp Overview](./docs/walk1.png)
+
+2. Select a question and submit first order answer
+
+![Chomp Overview](./docs/walk2.png)
+
+3. Select a question and submit second order answer
+
+![Chomp Overview](./docs/walk3.png)
+
+4. Reveal to start Bonk burn
+
+![Chomp Overview](./docs/walk4.png)
+
+5. Burn bonk to reveal
+
+![Chomp Overview](./docs/walk5.png)
