@@ -11,9 +11,12 @@ type PageProps = {
   searchParams: { query: string };
 };
 
+let lastQuery: string | undefined = "";
+
 export default function Page({ searchParams }: PageProps) {
   const [response, setResponse] = useState<any>();
   const getData = async (query: string | undefined) => {
+    lastQuery = query;
     const searchParams = new URLSearchParams();
     if (query) {
       searchParams.set("query", query);
@@ -28,6 +31,10 @@ export default function Page({ searchParams }: PageProps) {
   useIsomorphicLayoutEffect(() => {
     getData(searchParams.query);
   }, []);
+
+  const onRefreshCards = () => {
+    getData(lastQuery);
+  };
 
   return (
     <>
@@ -49,7 +56,12 @@ export default function Page({ searchParams }: PageProps) {
           </div>
         }
       >
-        {response && <HomeFeed {...(response as HomeFeedProps)} />}
+        {response && (
+          <HomeFeed
+            {...(response as HomeFeedProps)}
+            onRefreshCards={onRefreshCards}
+          />
+        )}
       </Suspense>
     </>
   );

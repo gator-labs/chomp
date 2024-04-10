@@ -74,6 +74,10 @@ export default function Page({ searchParams }: PageProps) {
     getData(lastQuery, nextSort);
   };
 
+  const onRefreshCards = () => {
+    getData(lastQuery, sort);
+  };
+
   return (
     <>
       <HomeSwitchNavigation />
@@ -130,7 +134,9 @@ export default function Page({ searchParams }: PageProps) {
           </div>
         }
       >
-        {response && <HistoryFeed list={response} />}
+        {response && (
+          <HistoryFeed list={response} onRefreshCards={onRefreshCards} />
+        )}
       </Suspense>
     </>
   );
