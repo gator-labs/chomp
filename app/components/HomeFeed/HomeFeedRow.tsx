@@ -12,7 +12,7 @@ import { AnsweredQuestionContentFactory } from "@/app/utils/answeredQuestionFact
 import { Modal } from "../Modal/Modal";
 import { useRouter } from "next/navigation";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from '@dynamic-labs/solana';
+import { ISolana } from "@dynamic-labs/solana";
 import { Connection } from "@solana/web3.js";
 import { genBonkBurnTx } from "@/app/utils/solana";
 
@@ -34,44 +34,42 @@ export function HomeFeedRow({
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
-  const [burnState, setBurnState] = useState<"burning" | "burned" | "error" | "idle">("idle");
+  const [burnState, setBurnState] = useState<
+    "burning" | "burned" | "error" | "idle"
+  >("idle");
 
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
   const burnAndReveal = async () => {
-      setBurnState("burning")
-      const blockhash = await CONNECTION.getLatestBlockhash()
+    setBurnState("burning");
+    const blockhash = await CONNECTION.getLatestBlockhash();
 
-      const signer = await primaryWallet!.connector.getSigner<ISolana>();
-      const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash)
-      const { signature } = await signer.signAndSendTransaction(tx)
+    const signer = await primaryWallet!.connector.getSigner<ISolana>();
+    const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash);
+    const { signature } = await signer.signAndSendTransaction(tx);
 
-      console.log("Waiting for confirmation")
-      await CONNECTION.confirmTransaction({
-        blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight,
-        signature,
-      })
-      setBurnState("burned")
-      console.log("Confirmed!")
+    console.log("Waiting for confirmation");
+    await CONNECTION.confirmTransaction({
+      blockhash: blockhash.blockhash,
+      lastValidBlockHeight: blockhash.lastValidBlockHeight,
+      signature,
+    });
+    setBurnState("burned");
+    console.log("Confirmed!");
 
-      await revealQuestion(element.id);
-      router.refresh();
-      setIsRevealModalOpen(false);
-      setIsClaimModalOpen(true);
-  }
+    await revealQuestion(element.id);
+    router.refresh();
+    setIsRevealModalOpen(false);
+    setIsClaimModalOpen(true);
+  };
 
-  let revealButtons = null
+  let revealButtons = null;
   switch (burnState) {
     case "idle":
       revealButtons = (
         <>
-          <Button
-            variant="white"
-            isPill
-            onClick={burnAndReveal}
-          >
+          <Button variant="white" isPill onClick={burnAndReveal}>
             Let&apos;s do it
           </Button>
           <Button
@@ -82,27 +80,21 @@ export function HomeFeedRow({
             Maybe Later
           </Button>
         </>
-      )
-    break
+      );
+      break;
     case "burning":
       revealButtons = (
-        <Button
-          variant="white"
-          isPill
-        >
+        <Button variant="white" isPill>
           Burning BONK...
         </Button>
-      )
+      );
       break;
     case "burned":
       revealButtons = (
-        <Button
-          variant="white"
-          isPill
-        >
+        <Button variant="white" isPill>
           Burned BONK!
         </Button>
-      )
+      );
       break;
   }
 
@@ -126,10 +118,10 @@ export function HomeFeedRow({
           >
             <div className="flex flex-col gap-3">
               <p>
-                Revealing this question will cost you 5K, but you could earn up
-                to 10K. Would you like to reveal?
+                Revealing this question will cost you 5K BONK, and earn you 42
+                poiints! Would you like to reveal?
               </p>
-             {revealButtons}
+              {revealButtons}
             </div>
           </Modal>
 
@@ -197,6 +189,7 @@ export function HomeFeedRow({
       <Link href={`/application/deck/${deck.id}`}>
         <QuestionDeck
           text={deck.deck}
+          imageUrl={deck.imageUrl}
           revealedAt={deck.revealAtDate}
           status="chomped"
         />
@@ -204,10 +197,13 @@ export function HomeFeedRow({
     );
   }
 
+  console.log(deck);
+
   return (
     <Link href={`/application/answer/deck/${deck.id}`}>
       <QuestionDeck
         text={deck.deck}
+        imageUrl={deck.imageUrl}
         revealedAt={deck.revealAtDate}
         status="new"
       />

@@ -1,7 +1,13 @@
 import { z } from "zod";
 import prisma from "../services/prisma";
 import { questionSchema } from "../schemas/question";
-import { Prisma, Question, QuestionOption } from "@prisma/client";
+import {
+  Prisma,
+  Question,
+  QuestionOption,
+  QuestionTag,
+  Tag,
+} from "@prisma/client";
 import { getJwtPayload } from "../actions/jwt";
 import { getHomeFeedDecks } from "./deck";
 import { answerPercentageQuery } from "./answerPercentageQuery";
@@ -11,6 +17,11 @@ export async function getQuestionForAnswerById(questionId: number) {
     where: { id: { equals: questionId } },
     include: {
       questionOptions: true,
+      questionTags: {
+        include: {
+          tag: true,
+        },
+      },
     },
   });
   if (!question) {
@@ -21,7 +32,10 @@ export async function getQuestionForAnswerById(questionId: number) {
 }
 
 const mapToViewModelQuestion = (
-  question: Question & { questionOptions: QuestionOption[] }
+  question: Question & {
+    questionOptions: QuestionOption[];
+    questionTags: (QuestionTag & { tag: Tag })[];
+  }
 ) => ({
   id: question.id,
   durationMiliseconds: Number(question.durationMiliseconds) ?? 0,
@@ -30,6 +44,7 @@ const mapToViewModelQuestion = (
     id: qo.id,
     option: qo.option,
   })),
+  questionTags: question.questionTags,
   type: question.type,
   imageUrl: question.imageUrl ?? undefined,
 });

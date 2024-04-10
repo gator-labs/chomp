@@ -17,7 +17,9 @@ export default function Layout({ children }: PageLayoutProps) {
         avatarLink="/application/profile"
         walletLink=""
       />
-      <main className="flex-grow overflow-y-auto mb-2">{children}</main>
+      <main className="flex-grow overflow-y-auto mb-2 w-full max-w-lg mx-auto">
+        {children}
+      </main>
       <TabNavigation />
       <AuthRedirect />
       <DailyDeckRedirect />
