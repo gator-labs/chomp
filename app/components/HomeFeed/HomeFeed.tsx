@@ -3,7 +3,8 @@ import { Deck, Question } from "@prisma/client";
 import { useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { ElementType, FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
+import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
+import { ElementType } from "@/app/queries/question";
 
 export type HomeFeedProps = {
   unansweredDailyQuestions: Question[];
