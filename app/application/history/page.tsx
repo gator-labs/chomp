@@ -29,7 +29,7 @@ export default function Page({ searchParams }: PageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [sort, setSort] = useState(HistorySortOptions.Date);
-  const [response, setResponse] = useState<any>();
+  const [response, setResponse] = useState<[]>();
   const [rewards, setRewards] = useState<{
     totalRevealedRewards: number;
     potentionalRewards: number;
@@ -130,7 +130,7 @@ export default function Page({ searchParams }: PageProps) {
           </div>
         }
       >
-        {response && <HistoryFeed {...response} />}
+        {response && <HistoryFeed list={response} />}
       </Suspense>
     </>
   );

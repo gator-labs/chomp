@@ -13,13 +13,17 @@ import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 
 type PageProps = {
   params: { id: string };
+  searchParams: { returnUrl?: string };
 };
 
-export default async function Page({ params: { id } }: PageProps) {
+export default async function Page({
+  params: { id },
+  searchParams: { returnUrl },
+}: PageProps) {
   const deck = await getDeckDetails(+id);
 
   if (!deck) {
-    return redirect("/application");
+    return redirect(returnUrl ?? "/application");
   }
 
   return (
@@ -30,7 +34,7 @@ export default async function Page({ params: { id } }: PageProps) {
         walletLink=""
       >
         <Suspense>
-          <Link href="/application">
+          <Link href={returnUrl ?? "/application"}>
             <div className="flex items-center text-xs">
               <HalfArrowLeftIcon />
               <div className="text-aqua">Chomped</div>

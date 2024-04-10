@@ -11,14 +11,17 @@ type DeckRowCardProps = {
     }[];
     reveals: Reveal[];
   };
+  deckReturnUrl?: string;
 };
 
-export function DeckRowCard({ deck }: DeckRowCardProps) {
+export function DeckRowCard({ deck, deckReturnUrl }: DeckRowCardProps) {
   const { isAnswered } = getDeckState(deck);
 
   if (isAnswered) {
     return (
-      <Link href={`/application/deck/${deck.id}`}>
+      <Link
+        href={`/application/deck/${deck.id}${deckReturnUrl ? "?returnUrl=" + deckReturnUrl : ""}`}
+      >
         <QuestionDeck
           text={deck.deck}
           revealedAt={deck.revealAtDate}

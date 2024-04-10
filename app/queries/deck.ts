@@ -383,47 +383,38 @@ export async function getHomeFeedDecks({
     orderBy: { ...sortInput },
   });
 
+  if (areAnswered) {
+    decks = decks.map((d: any) => {
+      const answerDate = d.deckQuestions
+        .flatMap((dq: any) => dq.question.questionOptions)
+        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .sort((left: Date, right: Date) => {
+          if (dayjs(left).isAfter(right)) {
+            return 1;
+          }
+
+          if (dayjs(right).isAfter(left)) {
+            return -1;
+          }
+
+          return 0;
+        })[0];
+
+      return { ...d, answerDate };
+    });
+  }
+
   if (sort === HistorySortOptions.Date) {
-    decks.sort((a, b) => {
+    decks.sort((a: any, b: any) => {
       if (!areAnswered) {
         return 0;
       }
 
-      const aAnswerDate = a.deckQuestions
-        .flatMap((dq) => dq.question.questionOptions)
-        .map((qo: any) => qo.questionAnswer[0].createdAt)
-        .sort((left: Date, right: Date) => {
-          if (dayjs(left).isAfter(right)) {
-            return 1;
-          }
-
-          if (dayjs(right).isAfter(left)) {
-            return -1;
-          }
-
-          return 0;
-        })[0];
-
-      const bAnswerDate = b.deckQuestions
-        .flatMap((dq) => dq.question.questionOptions)
-        .map((qo: any) => qo.questionAnswer[0].createdAt)
-        .sort((left: Date, right: Date) => {
-          if (dayjs(left).isAfter(right)) {
-            return 1;
-          }
-
-          if (dayjs(right).isAfter(left)) {
-            return -1;
-          }
-
-          return 0;
-        })[0];
-
-      if (dayjs(aAnswerDate).isAfter(bAnswerDate)) {
+      if (dayjs(a.answerDate).isAfter(b.answerDate)) {
         return -1;
       }
 
-      if (dayjs(bAnswerDate).isAfter(aAnswerDate)) {
+      if (dayjs(b.answerDate).isAfter(a.answerDate)) {
         return 1;
       }
 
