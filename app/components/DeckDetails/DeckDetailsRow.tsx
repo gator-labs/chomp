@@ -7,6 +7,8 @@ import { revealQuestion } from "@/app/actions/reveal";
 import dayjs from "dayjs";
 import { DeckQuestionIncludes } from "./DeckDetails";
 import { AnsweredQuestionContentFactory } from "@/app/utils/answeredQuestionFactory";
+import { getQuestionState } from "@/app/utils/question";
+import { useRouter } from "next/navigation";
 
 type DeckDetailsRowProps = {
   element: DeckQuestionIncludes;
@@ -14,10 +16,8 @@ type DeckDetailsRowProps = {
 
 export function DeckDetailsRow({ element }: DeckDetailsRowProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const isAnswered = element.questionOptions.some(
-    (qo) => qo.questionAnswer.length !== 0
-  );
-  const isRevealed = element.reveals.length !== 0;
+  const { isAnswered, isRevealed } = getQuestionState(element);
+  const router = useRouter();
   if (isAnswered) {
     const actionSubmit =
       !isRevealed && dayjs(element.revealAtDate).isBefore(new Date()) ? (
@@ -26,6 +26,7 @@ export function DeckDetailsRow({ element }: DeckDetailsRowProps) {
           isPill
           onClick={async () => {
             await revealQuestion(element.id);
+            router.refresh();
           }}
         >
           Reveal Results

@@ -77,6 +77,7 @@ def get_SP_answer_binary(first_order_percent_A, first_order_percent_B, second_or
     
     return answer
 ```
+We are in the process of adapting another set of "[Wisdom of the Crowd](https://arxiv.org/pdf/2102.02666.pdf)" mechanisms for multiple-choice questions. 
 
 ## Roadmap/next steps: 
 We will be doing a closed alpha in Dubai next week with FOMO Mag + MonkeDAO, and then an open beta through Drip in mid-May. Q2+Q3 are all about experimentation and validation, where we will aim to understand our users better, hone in on a few use cases, improve product features, and gather enough data to improve on our mechanism and tokenomics design. 
@@ -90,7 +91,7 @@ On the technical front:
 
 ## Testing
 
-SPL token interaction is thoroughly tested for transfer and burn correctness. [Bankrun](https://github.com/kevinheavey/solana-bankrun/tree/main) is used for testing on-chain transactions.
+SPL token interaction is thoroughly tested for transfer and burn correctness. [Bankrun](https://github.com/kevinheavey/solana-bankrun/tree/main) is used for testing on-chain transactions. See `__tests__` for code.
 
 ```sh
 # Setup test environment
@@ -99,3 +100,25 @@ cp .env.example .env.test
 # Run tests
 yarn test
 ```
+
+## Using the app
+
+1. Browse open questions
+
+![Chomp Overview](./docs/walk1.png)
+
+2. Select a question and submit first order answer
+
+![Chomp Overview](./docs/walk2.png)
+
+3. Select a question and submit second order answer
+
+![Chomp Overview](./docs/walk3.png)
+
+4. Reveal to start Bonk burn
+
+![Chomp Overview](./docs/walk4.png)
+
+5. Burn bonk to reveal
+
+![Chomp Overview](./docs/walk5.png)
