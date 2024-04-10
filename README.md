@@ -100,3 +100,25 @@ cp .env.example .env.test
 # Run tests
 yarn test
 ```
+
+## Using the app
+
+1. Browse open questions
+
+![Chomp Overview](./docs/walk1.png)
+
+2. Select a question and submit first order answer
+
+![Chomp Overview](./docs/walk2.png)
+
+3. Select a question and submit second order answer
+
+![Chomp Overview](./docs/walk3.png)
+
+4. Reveal to start Bonk burn
+
+![Chomp Overview](./docs/walk4.png)
+
+5. Burn bonk to reveal
+
+![Chomp Overview](./docs/walk5.png)
