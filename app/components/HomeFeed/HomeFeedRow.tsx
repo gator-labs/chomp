@@ -205,8 +205,6 @@ export function HomeFeedRow({
     );
   }
 
-  console.log(deck);
-
   return (
     <Link href={`/application/answer/deck/${deck.id}`}>
       <QuestionDeck
