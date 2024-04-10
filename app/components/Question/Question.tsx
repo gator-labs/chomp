@@ -1,7 +1,7 @@
 "use client";
 import { saveQuestion, SaveQuestionRequest } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
-import { QuestionType } from "@prisma/client";
+import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -9,6 +9,7 @@ import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { getAlphaIdentifier } from "@/app/utils/question";
+import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
 
 export enum QuestionStep {
   AnswerQuestion = 1,
@@ -29,6 +30,7 @@ type Question = {
   type: QuestionType;
   imageUrl?: string;
   questionOptions: Option[];
+  questionTags: (QuestionTag & { tag: Tag })[];
 };
 
 type QuestionProps = {
@@ -136,8 +138,10 @@ export function Question({ question, returnUrl }: QuestionProps) {
   );
 
   return (
-    <div>
+    <div className="flex flex-col justify-between h-full">
       <div>
+        <AnswerHeader questionTags={question.questionTags} />
+
         <QuestionCard
           dueAt={getDueAt(question.durationMiliseconds)}
           numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
@@ -159,6 +163,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           />
         </QuestionCard>
       </div>
+
       <div className="pt-2">
         <QuestionAction
           onButtonClick={onQuesitonActionClick}

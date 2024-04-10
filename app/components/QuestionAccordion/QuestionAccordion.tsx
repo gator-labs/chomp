@@ -48,7 +48,7 @@ export function QuestionAccordion({
       )}
       onClick={onClick}
     >
-      <div className="w-72 flex flex-col gap-y-2">
+      <div className="flex flex-col gap-y-2 w-full">
         <div className="text-white text-base font-sora font-semibold">
           {question}
         </div>

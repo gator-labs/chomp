@@ -2,10 +2,12 @@ import classNames from "classnames";
 import { getRevealedAtString } from "../../utils/dateUtils";
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ClockIcon } from "../Icons/ClockIcon";
+import Image from "next/image";
 
 type StatusUnion = "chomped" | "new" | "continue";
 type QuestionDeckProps = {
   text: string;
+  imageUrl?: string | null;
   revealedAt?: Date | null;
   status?: StatusUnion;
 };
@@ -23,13 +25,23 @@ const getStatusText = (status: StatusUnion) => {
   }
 };
 
-export function QuestionDeck({ text, revealedAt, status }: QuestionDeckProps) {
+export function QuestionDeck({
+  text,
+  imageUrl,
+  revealedAt,
+  status,
+}: QuestionDeckProps) {
   return (
     <div className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4">
-      <div>
-        <DeckGraphic />
+      <div className="w-[90px] h-[90px] flex-shrink-0">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageUrl} className="w-full h-full object-contain" alt="" />
+        ) : (
+          <DeckGraphic className="w-full h-full" />
+        )}
       </div>
-      <div className="flex flex-col justify-between w-[218px]">
+      <div className="flex flex-col justify-between w-full">
         <div className="text-white font-sora font-semibold text-base">
           {text}
         </div>

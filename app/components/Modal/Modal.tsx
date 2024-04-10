@@ -17,7 +17,7 @@ export function Modal({ title, isOpen, children, onClose }: ModalProps) {
   return (
     <ReactPortal>
       <div className="fixed top-0 h-full w-full flex justify-center items-center">
-        <div className="bg-[#333] w-72 p-4 rounded-md border-[1px] border-[#666]">
+        <div className="bg-[#333] m-4 w-full max-w-md p-4 rounded-md border-[1px] border-[#666]">
           <div className="flex justify-between items-center mb-4">
             <div className="text-base font-bold font-sora text-white">
               {title}

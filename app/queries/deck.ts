@@ -5,7 +5,14 @@ import prisma from "../services/prisma";
 import dayjs from "dayjs";
 import { getJwtPayload } from "../actions/jwt";
 import { redirect } from "next/navigation";
-import { Deck, DeckQuestion, Question, QuestionOption } from "@prisma/client";
+import {
+  Deck,
+  DeckQuestion,
+  Question,
+  QuestionOption,
+  QuestionTag,
+  Tag,
+} from "@prisma/client";
 import { answerPercentageQuery } from "./answerPercentageQuery";
 import { HistorySortOptions } from "../api/history/route";
 
@@ -15,6 +22,11 @@ const questionDeckToRunInclude = {
       question: {
         include: {
           questionOptions: true,
+          questionTags: {
+            include: {
+              tag: true,
+            },
+          },
         },
       },
     },
@@ -22,8 +34,8 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  // const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  // const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
   if (!payload) {
     return redirect("/login");
@@ -31,7 +43,7 @@ export async function getDailyDeck() {
 
   const dailyDeck = await prisma.deck.findFirst({
     where: {
-      date: { not: null, gte: currentDayStart, lte: currentDayEnd },
+      date: { not: null /* gte: currentDayStart, lte: currentDayEnd */ },
       userDeck: { none: { userId: payload?.sub ?? "" } },
     },
     include: questionDeckToRunInclude,
@@ -100,7 +112,10 @@ const mapQuestionFromDeck = (
   deck: Deck & {
     deckQuestions: Array<
       DeckQuestion & {
-        question: Question & { questionOptions: QuestionOption[] };
+        question: Question & {
+          questionOptions: QuestionOption[];
+          questionTags: (QuestionTag & { tag: Tag })[];
+        };
       }
     >;
   }
@@ -115,6 +130,7 @@ const mapQuestionFromDeck = (
       id: qo.id,
       option: qo.option,
     })),
+    questionTags: dq.question.questionTags,
   }));
 
   return questions;

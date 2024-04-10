@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-const STEP_SIZE = 5;
+const STEP_SIZE = 1;
 
 type UseSettpingChangeProps = {
   percentage: number;
