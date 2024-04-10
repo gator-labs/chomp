@@ -14,7 +14,6 @@ const meta = {
     handle: "Curious.mind88",
     joinDate: new Date(2023, 3, 23),
     avatarSrc: AvatarSample.src,
-    onSettingsClick: fn(),
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof Profile>;
