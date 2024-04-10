@@ -25,6 +25,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
     const deck = await tx.deck.create({
       data: {
         deck: validatedFields.data.deck,
+        imageUrl: validatedFields.data.imageUrl,
         revealAtDate: validatedFields.data.revealAtDate,
         revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
       },
@@ -105,6 +106,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         },
         data: {
           deck: validatedFields.data.deck,
+          imageUrl: validatedFields.data.imageUrl,
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
         },

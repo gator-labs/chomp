@@ -7,11 +7,11 @@ export default async function Page() {
   const dailyDeck = await getDailyDeck();
 
   return (
-    <div className="h-full p-2">
+    <div className="flex flex-col h-full p-2">
       <div className="px-4 py-5">
         <DailyDeckTitle date={dailyDeck?.date ?? new Date()} />
       </div>
-      <div className="px-4">
+      <div className="px-4 h-full">
         {dailyDeck?.questions ? (
           <Deck
             questions={dailyDeck.questions}

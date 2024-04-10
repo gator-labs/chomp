@@ -4,6 +4,7 @@ import { z } from "zod";
 export const deckSchema = z.object({
   id: z.number().optional(),
   deck: z.string().min(5),
+  imageUrl: z.string().nullable(),
   tagIds: z.number().array().default([]),
   revealToken: z.nativeEnum(Token),
   revealTokenAmount: z.number().min(0),

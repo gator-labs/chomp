@@ -12,7 +12,7 @@ import { AnsweredQuestionContentFactory } from "@/app/utils/answeredQuestionFact
 import { Modal } from "../Modal/Modal";
 import { useRouter } from "next/navigation";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from '@dynamic-labs/solana';
+import { ISolana } from "@dynamic-labs/solana";
 import { Connection } from "@solana/web3.js";
 import { genBonkBurnTx } from "@/app/utils/solana";
 import Image from "next/image";
@@ -36,7 +36,9 @@ export function HomeFeedRow({
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
-  const [burnState, setBurnState] = useState<"burning" | "burned" | "error" | "idle">("idle");
+  const [burnState, setBurnState] = useState<
+    "burning" | "burned" | "error" | "idle"
+  >("idle");
 
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
@@ -86,27 +88,21 @@ export function HomeFeedRow({
             Maybe Later
           </Button>
         </>
-      )
-    break
+      );
+      break;
     case "burning":
       revealButtons = (
-        <Button
-          variant="white"
-          isPill
-        >
+        <Button variant="white" isPill>
           Burning BONK...
         </Button>
-      )
+      );
       break;
     case "burned":
       revealButtons = (
-        <Button
-          variant="white"
-          isPill
-        >
+        <Button variant="white" isPill>
           Burned BONK!
         </Button>
-      )
+      );
       break;
   }
 
@@ -130,10 +126,10 @@ export function HomeFeedRow({
           >
             <div className="flex flex-col gap-3">
               <p>
-                Revealing this question will cost you 5K, but you could earn up
-                to 10K. Would you like to reveal?
+                Revealing this question will cost you 5K BONK, and earn you 42
+                poiints! Would you like to reveal?
               </p>
-             {revealButtons}
+              {revealButtons}
             </div>
           </Modal>
 
@@ -201,6 +197,7 @@ export function HomeFeedRow({
       <Link href={`/application/deck/${deck.id}`}>
         <QuestionDeck
           text={deck.deck}
+          imageUrl={deck.imageUrl}
           revealedAt={deck.revealAtDate}
           status="chomped"
         />
@@ -212,6 +209,7 @@ export function HomeFeedRow({
     <Link href={`/application/answer/deck/${deck.id}`}>
       <QuestionDeck
         text={deck.deck}
+        imageUrl={deck.imageUrl}
         revealedAt={deck.revealAtDate}
         status="new"
       />

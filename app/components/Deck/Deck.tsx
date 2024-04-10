@@ -1,5 +1,5 @@
 "use client";
-import { QuestionType } from "@prisma/client";
+import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
@@ -13,6 +13,7 @@ import {
   QuestionStep,
 } from "../Question/Question";
 import { saveDeck, SaveQuestionRequest } from "@/app/actions/answer";
+import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
 
 export type Option = {
   id: number;
@@ -26,6 +27,7 @@ export type Question = {
   type: QuestionType;
   imageUrl?: string;
   questionOptions: Option[];
+  questionTags: (QuestionTag & { tag: Tag })[];
 };
 
 type DeckProps = {
@@ -192,47 +194,56 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <div className="relative" style={{ marginBottom: questionOffset + "px" }}>
-        {Array.from(
-          Array(questions.length - (currentQuestionIndex + 1)).keys()
-        ).map((index) => (
-          <QuestionCard
-            key={index}
-            numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
-            question={questions[index].question}
-            step={1}
-            className="absolute drop-shadow-question-card border-opacity-40"
-            style={{
-              zIndex: 10 + questions.length + index,
-              top: 70 * index + "px",
-            }}
-            isBlurred
-          />
-        ))}
-        <QuestionCard
-          dueAt={dueAt}
-          numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
-          question={question.question}
-          viewImageSrc={question.imageUrl}
-          step={currentQuestionStep}
-          onDurationRanOut={handleNoAnswer}
-          className="z-50 relative drop-shadow-question-card border-opacity-40"
-          style={{
-            transform: `translateY(${questionOffset}px)`,
-          }}
+      <div>
+        <AnswerHeader questionTags={question.questionTags} />
+
+        <div
+          className="relative"
+          style={{ marginBottom: questionOffset + "px" }}
         >
-          <QuestionCardContent
-            optionSelectedId={currentOptionSelected}
-            onOptionSelected={setCurrentOptionSelected}
-            type={question.type}
+          {Array.from(
+            Array(questions.length - (currentQuestionIndex + 1)).keys()
+          ).map((index) => (
+            <QuestionCard
+              key={index}
+              numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
+              question={questions[index].question}
+              step={1}
+              className="absolute drop-shadow-question-card border-opacity-40"
+              style={{
+                zIndex: 10 + questions.length + index,
+                top: 70 * index + "px",
+              }}
+              isBlurred
+            />
+          ))}
+
+          <QuestionCard
+            dueAt={dueAt}
+            numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
+            question={question.question}
+            viewImageSrc={question.imageUrl}
             step={currentQuestionStep}
-            questionOptions={question.questionOptions}
-            randomOptionId={question.questionOptions[random]?.id}
-            percentage={optionPercentage}
-            onPercentageChanged={setOptionPercentage}
-          />
-        </QuestionCard>
+            onDurationRanOut={handleNoAnswer}
+            className="z-50 relative drop-shadow-question-card border-opacity-40"
+            style={{
+              transform: `translateY(${questionOffset}px)`,
+            }}
+          >
+            <QuestionCardContent
+              optionSelectedId={currentOptionSelected}
+              onOptionSelected={setCurrentOptionSelected}
+              type={question.type}
+              step={currentQuestionStep}
+              questionOptions={question.questionOptions}
+              randomOptionId={question.questionOptions[random]?.id}
+              percentage={optionPercentage}
+              onPercentageChanged={setOptionPercentage}
+            />
+          </QuestionCard>
+        </div>
       </div>
+
       <div className="pt-2">
         {rerenderAction && (
           <QuestionAction

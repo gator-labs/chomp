@@ -61,6 +61,12 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       </div>
 
       <div className="mb-3">
+        <label className="block mb-1">Image URL (optional)</label>
+        <TextInput variant="secondary" {...register("imageUrl")} />
+        <div>{errors.imageUrl?.message}</div>
+      </div>
+
+      <div className="mb-3">
         {fields.map((field, questionIndex) => (
           <fieldset
             name={`questions.${questionIndex}`}

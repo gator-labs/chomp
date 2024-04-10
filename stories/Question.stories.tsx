@@ -49,6 +49,7 @@ export const TrueFale: Story = {
       ],
       question:
         "The best way to secure your assets is to use a hardware wallet.",
+      questionTags: [],
     },
   },
 };
@@ -66,6 +67,7 @@ export const MultipleChoice: Story = {
       ],
       question:
         "The best way to secure your assets is to use a software wallet.",
+      questionTags: [],
     },
   },
 };
