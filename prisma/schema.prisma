@@ -9,14 +9,15 @@ datasource db {
 }
 
 model User {
-  id              String           @id
-  isAdmin         Boolean          @default(false)
-  createdAt       DateTime         @default(now())
-  wallets         Wallet[]
-  emails          Email[]
-  questionAnswers QuestionAnswer[]
-  userDeck        UserDeck[]
-  reveals         Reveal[]
+  id                   String                 @id
+  isAdmin              Boolean                @default(false)
+  createdAt            DateTime               @default(now())
+  wallets              Wallet[]
+  emails               Email[]
+  questionAnswers      QuestionAnswer[]
+  userDeck             UserDeck[]
+  reveals              Reveal[]
+  FungibleAssetBalance FungibleAssetBalance[]
 }
 
 model Wallet {
@@ -118,6 +119,15 @@ model Reveal {
   deck       Deck?     @relation(fields: [deckId], references: [id])
 }
 
+model FungibleAssetBalance {
+  asset  FungibleAsset
+  amount Decimal
+  userId String
+  user   User          @relation(fields: [userId], references: [id])
+
+  @@id([asset, userId])
+}
+
 enum QuestionType {
   TrueFalse
   YesNo
@@ -126,4 +136,8 @@ enum QuestionType {
 
 enum Token {
   Bonk
+}
+
+enum FungibleAsset {
+  Point
 }

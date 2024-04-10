@@ -8,7 +8,6 @@ type ProfileProps = {
   fullName: string;
   joinDate: Date;
   avatarSrc: string;
-  onSettingsClick: () => void;
 };
 
 export function Profile({
@@ -16,7 +15,6 @@ export function Profile({
   handle,
   fullName,
   joinDate,
-  onSettingsClick,
 }: ProfileProps) {
   return (
     <div className="flex justify-between items-center p-6 rounded-2xl bg-[#333] gap-4">
@@ -31,7 +29,7 @@ export function Profile({
       <div className="h-[80px] w-[1px] bg-white"></div>
       <div>
         <button
-          onClick={onSettingsClick}
+          onClick={() => {}}
           className="outline-none text-white font-sora text-sm"
         >
           Settings
