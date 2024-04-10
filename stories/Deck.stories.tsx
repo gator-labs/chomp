@@ -37,6 +37,7 @@ const meta = {
         id: 1,
         question:
           "The best way to secure your assets is to use a hardware wallet.",
+        questionTags: [],
       },
       {
         ...questionBase,
@@ -50,12 +51,14 @@ const meta = {
         id: 2,
         question:
           "The best way to secure your assets is to use a software wallet.",
+        questionTags: [],
       },
       {
         ...questionBase,
         id: 3,
         question:
           "The best way to secure your assets is to use a wooden wallet.",
+        questionTags: [],
       },
     ],
     browseHomeUrl: "/application",
