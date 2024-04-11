@@ -11,7 +11,7 @@ import { useRef } from "react";
 
 export type DeckQuestionIncludes = Question & {
   questionOptions: {
-    questionAnswer: (QuestionAnswer & {
+    questionAnswers: (QuestionAnswer & {
       percentageResult?: number | null;
     })[];
   }[];

@@ -5,7 +5,7 @@ type BooleanAnsweredContentProps = {
     id: number;
     isTrue: boolean;
     option: string;
-    questionAnswer: {
+    questionAnswers: {
       percentage: number | null;
       selected: boolean;
       percentageResult?: number | null;
@@ -22,10 +22,10 @@ export function BooleanAnsweredContent({
 }: BooleanAnsweredContentProps) {
   const ratioTrue = questionOptions.find(
     (qo) => qo.option === "True" || qo.option === "Yes"
-  )?.questionAnswer[0]?.percentage;
+  )?.questionAnswers[0]?.percentage;
   const ratioSelectedTrue = questionOptions.find(
     (qo) => qo.option === "True" || qo.option === "Yes"
-  )?.questionAnswer[0]?.percentageResult;
+  )?.questionAnswers[0]?.percentageResult;
 
   return (
     <div className="w-full">

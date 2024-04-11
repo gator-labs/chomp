@@ -56,14 +56,14 @@ model Question {
 }
 
 model QuestionOption {
-  id             Int              @id @default(autoincrement())
-  option         String
-  isTrue         Boolean          @default(false)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @default(now()) @updatedAt
-  questionId     Int
-  question       Question         @relation(fields: [questionId], references: [id])
-  questionAnswer QuestionAnswer[]
+  id              Int              @id @default(autoincrement())
+  option          String
+  isTrue          Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  questionId      Int
+  question        Question         @relation(fields: [questionId], references: [id])
+  questionAnswers QuestionAnswer[]
 }
 
 model Tag {

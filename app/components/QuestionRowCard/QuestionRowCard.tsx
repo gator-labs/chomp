@@ -53,7 +53,6 @@ export function QuestionRowCard({
     onRefreshCards(question.id);
     setOpen(question.id);
     setIsRevealModalOpen(false);
-    setIsClaimModalOpen(true);
   };
 
   let revealButtons = null;

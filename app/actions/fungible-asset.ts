@@ -1,5 +1,10 @@
-import { FungibleAsset } from "@prisma/client";
-import prisma from "../services/prisma";
+import {
+  FungibleAsset,
+  FungibleAssetBalance,
+  Prisma,
+  PrismaClient,
+} from "@prisma/client";
+import prisma, { PrismaTransactionClient } from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 import { createTypedObjectFromEntries } from "../utils/object";
 
@@ -25,4 +30,32 @@ export const getMyFungibleAssetBalances = async (): Promise<
       return [fungibleAsset, balance ? balance.amount.toNumber() : 0];
     })
   );
+};
+
+export const incrementFungibleAssetBalance = async (
+  asset: FungibleAsset,
+  amount: number,
+  injectedPrisma: PrismaTransactionClient = prisma
+): Promise<FungibleAssetBalance> => {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub ?? "";
+
+  return await injectedPrisma.fungibleAssetBalance.upsert({
+    where: {
+      asset_userId: {
+        asset,
+        userId,
+      },
+    },
+    update: {
+      amount: {
+        increment: amount,
+      },
+    },
+    create: {
+      userId,
+      asset,
+      amount,
+    },
+  });
 };
