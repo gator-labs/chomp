@@ -51,7 +51,6 @@ export function QuestionRowCard({
     await revealQuestion(question.id);
     onRefreshCards();
     setIsRevealModalOpen(false);
-    setIsClaimModalOpen(true);
   };
 
   let revealButtons = null;
