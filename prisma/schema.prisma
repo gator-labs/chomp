@@ -13,6 +13,10 @@ model User {
   isAdmin              Boolean                @default(false)
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @default(now()) @updatedAt
+  firstName            String?
+  lastName             String?
+  username             String?
+  profileSrc           String?
   wallets              Wallet[]
   emails               Email[]
   questionAnswers      QuestionAnswer[]
