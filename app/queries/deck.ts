@@ -14,6 +14,7 @@ import {
   Tag,
 } from "@prisma/client";
 import { answerPercentageQuery } from "./answerPercentageQuery";
+import { HistorySortOptions } from "../api/history/route";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -264,15 +265,33 @@ export async function getHomeFeedDecks({
   areAnswered,
   areRevealed,
   query,
+  sort = HistorySortOptions.Revealed,
 }: {
   areAnswered: boolean;
   areRevealed: boolean;
   query: string;
+  sort?: HistorySortOptions;
 }) {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return [];
+  }
+
+  let sortInput: Prisma.DeckOrderByWithRelationInput = {
+    revealAtDate: { sort: "desc" },
+  };
+
+  if (sort === HistorySortOptions.Claimable) {
+    sortInput = {
+      reveals: { _count: "desc" },
+    };
+  }
+
+  if (sort === HistorySortOptions.Revealed) {
+    sortInput = {
+      revealAtDate: { sort: "desc" },
+    };
   }
 
   const revealedAtFilter: Prisma.DeckWhereInput = areRevealed
@@ -331,7 +350,7 @@ export async function getHomeFeedDecks({
         },
       };
 
-  const decks = await prisma.deck.findMany({
+  let decks = await prisma.deck.findMany({
     where: {
       deck: { contains: query },
       date: {
@@ -340,8 +359,68 @@ export async function getHomeFeedDecks({
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },
-    orderBy: { revealAtDate: { sort: "desc" } },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswer: {
+                    where: { userId: { equals: payload.sub } },
+                  },
+                },
+                orderBy: {
+                  createdAt: "desc",
+                },
+              },
+            },
+          },
+        },
+      },
+      reveals: { where: { userId: { equals: payload.sub } } },
+    },
+    orderBy: { ...sortInput },
   });
+
+  if (areAnswered) {
+    decks = decks.map((d: any) => {
+      const answerDate = d.deckQuestions
+        .flatMap((dq: any) => dq.question.questionOptions)
+        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .sort((left: Date, right: Date) => {
+          if (dayjs(left).isAfter(right)) {
+            return 1;
+          }
+
+          if (dayjs(right).isAfter(left)) {
+            return -1;
+          }
+
+          return 0;
+        })[0];
+
+      return { ...d, answerDate };
+    });
+  }
+
+  if (sort === HistorySortOptions.Date) {
+    decks.sort((a: any, b: any) => {
+      if (!areAnswered) {
+        return 0;
+      }
+
+      if (dayjs(a.answerDate).isAfter(b.answerDate)) {
+        return -1;
+      }
+
+      if (dayjs(b.answerDate).isAfter(a.answerDate)) {
+        return 1;
+      }
+
+      return 0;
+    });
+  }
 
   return decks;
 }

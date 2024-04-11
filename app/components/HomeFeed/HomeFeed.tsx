@@ -3,7 +3,8 @@ import { Deck, Question } from "@prisma/client";
 import { useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { HomeFeedRow } from "./HomeFeedRow";
+import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
+import { ElementType } from "@/app/queries/question";
 
 export type HomeFeedProps = {
   unansweredDailyQuestions: Question[];
@@ -13,12 +14,8 @@ export type HomeFeedProps = {
   answeredUnrevealedDecks: Deck[];
   answeredRevealedQuestions: Question[];
   answeredRevealedDecks: Deck[];
+  onRefreshCards: () => void;
 };
-
-export enum ElementType {
-  Question,
-  Deck,
-}
 
 const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 210;
 
@@ -30,6 +27,7 @@ export function HomeFeed({
   answeredUnrevealedDecks,
   answeredRevealedQuestions,
   answeredRevealedDecks,
+  onRefreshCards,
 }: HomeFeedProps) {
   const { height } = useWindowSize();
   const list = useMemo<Array<any>>(
@@ -37,44 +35,30 @@ export function HomeFeed({
       ...unansweredDailyQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
-        isAnswered: false,
-        isRevealed: false,
       })),
       ...unansweredUnrevealedQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
-        isAnswered: false,
-        isRevealed: false,
       })),
       ...unansweredUnrevealedDecks.map((d) => ({
         ...d,
         elementType: ElementType.Deck,
-        isAnswered: false,
-        isRevealed: false,
       })),
       ...answeredUnrevealedQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
-        isAnswered: true,
-        isRevealed: false,
       })),
       ...answeredUnrevealedDecks.map((d) => ({
         ...d,
         elementType: ElementType.Deck,
-        isAnswered: true,
-        isRevealed: false,
       })),
       ...answeredRevealedQuestions.map((q) => ({
         ...q,
         elementType: ElementType.Question,
-        isAnswered: true,
-        isRevealed: true,
       })),
       ...answeredRevealedDecks.map((d) => ({
         ...d,
         elementType: ElementType.Deck,
-        isAnswered: true,
-        isRevealed: true,
       })),
     ],
     [
@@ -95,11 +79,10 @@ export function HomeFeed({
       className="mx-4 mt-4"
       itemContent={(_, element) => (
         <div className="pb-4">
-          <HomeFeedRow
+          <FeedRowCard
             element={element}
             type={element.elementType}
-            isAnswered={element.isAnswered}
-            isRevealed={element.isRevealed}
+            onRefreshCards={onRefreshCards}
           />
         </div>
       )}
