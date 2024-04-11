@@ -80,7 +80,9 @@ export default function Page({ searchParams }: PageProps) {
 
   return (
     <>
-      <HomeSwitchNavigation />
+      <div className="px-4">
+        <HomeSwitchNavigation />
+      </div>
       <div className="mt-5">
         <SearchFilters
           initialQuery={searchParams.query}
