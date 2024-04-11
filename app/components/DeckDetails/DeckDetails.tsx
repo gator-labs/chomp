@@ -71,7 +71,12 @@ function DeckDetails({ deck }: DeckDetailsProps) {
         className="mx-4 mt-4"
         itemContent={(_, element) => (
           <div className="pb-4">
-            <QuestionRowCard question={element} />
+            <QuestionRowCard
+              question={element}
+              onRefreshCards={() => {
+                router.refresh();
+              }}
+            />
           </div>
         )}
       />

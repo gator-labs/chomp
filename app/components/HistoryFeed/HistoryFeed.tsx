@@ -7,11 +7,12 @@ import { ElementType } from "@/app/queries/question";
 
 export type HistoryFeedProps = {
   list: Array<(Question | Deck) & { elementType: ElementType }>;
+  onRefreshCards: () => void;
 };
 
 const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 458;
 
-function HistoryFeed({ list }: HistoryFeedProps) {
+function HistoryFeed({ list, onRefreshCards }: HistoryFeedProps) {
   const { height } = useWindowSize();
 
   return (
@@ -25,6 +26,7 @@ function HistoryFeed({ list }: HistoryFeedProps) {
             element={element}
             type={element.elementType}
             deckReturnUrl={window.location.toString()}
+            onRefreshCards={onRefreshCards}
           />
         </div>
       )}

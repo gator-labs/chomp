@@ -9,15 +9,22 @@ type FeedRowCardProps = {
   element: Deck | Question;
   type: ElementType;
   deckReturnUrl?: string;
+  onRefreshCards: () => void;
 };
 
 export function FeedRowCard({
   element,
   type,
   deckReturnUrl,
+  onRefreshCards,
 }: FeedRowCardProps) {
   if (type === ElementType.Question) {
-    return <QuestionRowCard question={element as DeckQuestionIncludes} />;
+    return (
+      <QuestionRowCard
+        question={element as DeckQuestionIncludes}
+        onRefreshCards={onRefreshCards}
+      />
+    );
   }
 
   return (

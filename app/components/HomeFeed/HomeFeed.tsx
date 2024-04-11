@@ -14,6 +14,7 @@ export type HomeFeedProps = {
   answeredUnrevealedDecks: Deck[];
   answeredRevealedQuestions: Question[];
   answeredRevealedDecks: Deck[];
+  onRefreshCards: () => void;
 };
 
 const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 210;
@@ -26,6 +27,7 @@ export function HomeFeed({
   answeredUnrevealedDecks,
   answeredRevealedQuestions,
   answeredRevealedDecks,
+  onRefreshCards,
 }: HomeFeedProps) {
   const { height } = useWindowSize();
   const list = useMemo<Array<any>>(
@@ -77,7 +79,11 @@ export function HomeFeed({
       className="mx-4 mt-4"
       itemContent={(_, element) => (
         <div className="pb-4">
-          <FeedRowCard element={element} type={element.elementType} />
+          <FeedRowCard
+            element={element}
+            type={element.elementType}
+            onRefreshCards={onRefreshCards}
+          />
         </div>
       )}
     />
