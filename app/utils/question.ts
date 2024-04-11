@@ -14,7 +14,7 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   isRevealable: boolean;
 } {
   const isAnswered = question.questionOptions?.some(
-    (qo) => qo.questionAnswer.length !== 0
+    (qo) => qo.questionAnswers.length !== 0
   );
   const isRevealed = question.reveals?.length !== 0;
   const isRevealable =
@@ -37,11 +37,35 @@ export function getDeckState(
   isRevealable: boolean;
 } {
   const isAnswered = deck.deckQuestions?.some((dq) =>
-    dq.question?.questionOptions?.some((qo) => qo.questionAnswer.length !== 0)
+    dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0)
   );
   const isRevealed = deck.reveals?.length !== 0;
   const isRevealable =
     deck.revealAtDate !== null && dayjs(deck.revealAtDate).isBefore(new Date());
 
   return { isAnswered, isRevealed, isRevealable };
+}
+
+type BinaryQuestionAnswer = {
+  calculatedPercentage: number;
+  selectedPercentage: number;
+  selected: boolean;
+};
+
+export function isBinaryQuestionCorrectAnswer(
+  a: BinaryQuestionAnswer,
+  b: BinaryQuestionAnswer
+) {
+  const aPercentage = a.calculatedPercentage - a.selectedPercentage;
+  const bPercentage = b.calculatedPercentage - b.selectedPercentage;
+
+  if (aPercentage > bPercentage) {
+    return a.selected;
+  }
+
+  if (bPercentage > aPercentage) {
+    return b.selected;
+  }
+
+  return true;
 }
