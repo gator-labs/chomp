@@ -1,8 +1,11 @@
 "use server";
+
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
-import { QuestionAnswer, QuestionType } from "@prisma/client";
+import { FungibleAsset, QuestionAnswer, QuestionType } from "@prisma/client";
+import { incrementFungibleAssetBalance } from "./fungible-asset";
+import { pointsPerAction } from "../constants/points";
 
 export type SaveQuestionRequest = {
   questionId: number;
@@ -57,7 +60,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     } as QuestionAnswer;
   });
 
-  prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx) => {
     await tx.userDeck.create({
       data: {
         deckId: deckId,
@@ -68,6 +71,13 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     await tx.questionAnswer.createMany({
       data: questionAnswers,
     });
+
+    await incrementFungibleAssetBalance(
+      FungibleAsset.Point,
+      questionIds.length * pointsPerAction["answer-question"] +
+        pointsPerAction["answer-deck"],
+      tx
+    );
   });
 
   revalidatePath("/application");
@@ -117,8 +127,16 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     } as QuestionAnswer;
   });
 
-  await prisma.questionAnswer.createMany({
-    data: questionAnswers,
+  await prisma.$transaction(async (tx) => {
+    await tx.questionAnswer.createMany({
+      data: questionAnswers,
+    });
+
+    await incrementFungibleAssetBalance(
+      FungibleAsset.Point,
+      pointsPerAction["answer-question"],
+      tx
+    );
   });
 
   revalidatePath("/application");

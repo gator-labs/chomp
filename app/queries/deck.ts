@@ -223,7 +223,7 @@ export async function getDeckDetails(id: number) {
             include: {
               questionOptions: {
                 include: {
-                  questionAnswer: true,
+                  questionAnswers: true,
                 },
               },
               reveals: {
@@ -249,7 +249,7 @@ export async function getDeckDetails(id: number) {
 
   questions.forEach((q) => {
     q.questionOptions?.forEach((qo: any) => {
-      qo.questionAnswer?.forEach((qa: any) => {
+      qo.questionAnswers?.forEach((qa: any) => {
         qa.percentageResult =
           questionOptionPercentages.find(
             (qop) => qop.id === qa.questionOptionId
@@ -321,7 +321,7 @@ export async function getHomeFeedDecks({
             question: {
               questionOptions: {
                 some: {
-                  questionAnswer: {
+                  questionAnswers: {
                     some: {
                       userId: payload.sub,
                     },
@@ -338,7 +338,7 @@ export async function getHomeFeedDecks({
             question: {
               questionOptions: {
                 none: {
-                  questionAnswer: {
+                  questionAnswers: {
                     some: {
                       userId: payload.sub,
                     },
@@ -366,7 +366,7 @@ export async function getHomeFeedDecks({
             include: {
               questionOptions: {
                 include: {
-                  questionAnswer: {
+                  questionAnswers: {
                     where: { userId: { equals: payload.sub } },
                   },
                 },
@@ -384,10 +384,10 @@ export async function getHomeFeedDecks({
   });
 
   if (areAnswered) {
-    decks = decks.map((d: any) => {
+    decks = decks.map((d) => {
       const answerDate = d.deckQuestions
-        .flatMap((dq: any) => dq.question.questionOptions)
-        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .flatMap((dq) => dq.question.questionOptions)
+        .map((qo) => qo.questionAnswers[0].createdAt)
         .sort((left: Date, right: Date) => {
           if (dayjs(left).isAfter(right)) {
             return 1;

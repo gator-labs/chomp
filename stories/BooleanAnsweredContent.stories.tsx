@@ -29,7 +29,7 @@ export const TrueFalse: Story = {
         id: 1,
         option: "True",
         isTrue: false,
-        questionAnswer: [
+        questionAnswers: [
           {
             percentage: 40,
             selected: false,
@@ -41,7 +41,7 @@ export const TrueFalse: Story = {
         id: 2,
         option: "False",
         isTrue: false,
-        questionAnswer: [
+        questionAnswers: [
           {
             percentage: null,
             selected: true,
@@ -60,7 +60,7 @@ export const YesNo: Story = {
         id: 1,
         option: "Yes",
         isTrue: false,
-        questionAnswer: [
+        questionAnswers: [
           {
             percentage: 40,
             selected: false,
@@ -72,7 +72,7 @@ export const YesNo: Story = {
         id: 2,
         option: "No",
         isTrue: false,
-        questionAnswer: [
+        questionAnswers: [
           {
             percentage: null,
             selected: true,

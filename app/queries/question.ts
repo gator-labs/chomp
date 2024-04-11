@@ -237,7 +237,7 @@ export async function getUnansweredDailyQuestions(query = "") {
         question: { contains: query, mode: "insensitive" },
         questionOptions: {
           none: {
-            questionAnswer: {
+            questionAnswers: {
               some: {
                 userId: payload.sub,
               },
@@ -312,7 +312,7 @@ export async function getHomeFeedQuestions({
     ? {
         questionOptions: {
           some: {
-            questionAnswer: {
+            questionAnswers: {
               some: {
                 userId: payload.sub,
               },
@@ -323,7 +323,7 @@ export async function getHomeFeedQuestions({
     : {
         questionOptions: {
           none: {
-            questionAnswer: {
+            questionAnswers: {
               some: {
                 userId: payload.sub,
               },
@@ -336,7 +336,7 @@ export async function getHomeFeedQuestions({
     ? {
         questionOptions: {
           include: {
-            questionAnswer: {
+            questionAnswers: {
               where: { userId: { equals: payload.sub } },
               orderBy: { createdAt: "desc" },
             },
@@ -365,7 +365,7 @@ export async function getHomeFeedQuestions({
 
   questions.forEach((q) => {
     q.questionOptions?.forEach((qo: any) => {
-      qo.questionAnswer?.forEach((qa: any) => {
+      qo.questionAnswers?.forEach((qa: any) => {
         qa.percentageResult =
           questionOptionPercentages.find(
             (qop) => qop.id === qa.questionOptionId
@@ -377,7 +377,7 @@ export async function getHomeFeedQuestions({
   if (areAnswered) {
     questions = questions.map((q) => {
       const answerDate = q.questionOptions
-        .map((qo: any) => qo.questionAnswer[0].createdAt)
+        .map((qo: any) => qo.questionAnswers[0].createdAt)
         .sort((left: Date, right: Date) => {
           if (dayjs(left).isAfter(right)) {
             return 1;

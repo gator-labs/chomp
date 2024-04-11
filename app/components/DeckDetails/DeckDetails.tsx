@@ -10,7 +10,7 @@ import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
 export type DeckQuestionIncludes = Question & {
   questionOptions: {
-    questionAnswer: (QuestionAnswer & {
+    questionAnswers: (QuestionAnswer & {
       percentageResult?: number | null;
     })[];
   }[];

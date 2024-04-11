@@ -1,14 +1,18 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../services/prisma";
 
+type QuestionOptionPercentage = {
+  id: number;
+  percentageResult: number | null;
+};
+
 export async function answerPercentageQuery(questionOptionIds: number[]) {
-  const questionOptionPercentages: {
-    id: number;
-    percentageResult: number | null;
-  }[] =
-    questionOptionIds.length === 0
-      ? []
-      : await prisma.$queryRaw`
+  if (!questionOptionIds.length) {
+    return [];
+  }
+
+  const questionOptionPercentages: QuestionOptionPercentage[] =
+    await prisma.$queryRaw`
               select 
                 qo."id",
                 round(

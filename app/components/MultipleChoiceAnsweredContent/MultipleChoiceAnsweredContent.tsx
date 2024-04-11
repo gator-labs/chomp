@@ -5,7 +5,7 @@ type MultipleChoiceAnsweredContentProps = {
     id: number;
     isTrue: boolean;
     option: string;
-    questionAnswer: {
+    questionAnswers: {
       percentage: number | null;
       selected: boolean;
       percentageResult?: number | null;
@@ -23,12 +23,12 @@ export function MultipleChoiceAnsweredContent({
       {questionOptions.map((qo) => (
         <div key={qo.id} className="mb-2">
           <AnswerResult
-            percentage={qo.questionAnswer[0].percentageResult ?? 0}
-            valueSelected={qo.questionAnswer[0].percentage}
+            percentage={qo.questionAnswers[0].percentageResult ?? 0}
+            valueSelected={qo.questionAnswers[0].percentage}
             avatarSrc={avatarSrc}
             answerText={qo.option}
             progressBarClassName={
-              qo.questionAnswer[0].selected ? "!bg-aqua" : undefined
+              qo.questionAnswers[0].selected ? "!bg-aqua" : undefined
             }
           />
         </div>
