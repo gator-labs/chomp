@@ -234,7 +234,7 @@ export async function getUnansweredDailyQuestions(query = "") {
         },
       },
       question: {
-        question: { contains: query },
+        question: { contains: query, mode: "insensitive" },
         questionOptions: {
           none: {
             questionAnswer: {
@@ -348,7 +348,7 @@ export async function getHomeFeedQuestions({
 
   let questions = await prisma.question.findMany({
     where: {
-      question: { contains: query },
+      question: { contains: query, mode: "insensitive" },
       deckQuestions: { none: { deck: { date: null } } },
       ...areAnsweredFilter,
       ...revealedAtFilter,
