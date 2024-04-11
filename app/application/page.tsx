@@ -15,7 +15,8 @@ let lastQuery: string | undefined = "";
 
 export default function Page({ searchParams }: PageProps) {
   const [response, setResponse] = useState<any>();
-  const getData = async (query: string | undefined) => {
+  const [scrollToId, setScrollToId] = useState(0);
+  const getData = async (query: string | undefined, scrollId?: number) => {
     lastQuery = query;
     const searchParams = new URLSearchParams();
     if (query) {
@@ -27,13 +28,17 @@ export default function Page({ searchParams }: PageProps) {
     );
     const json = await data.json();
     setResponse(json.homeFeed);
+
+    if (scrollId) {
+      setScrollToId(scrollId);
+    }
   };
   useIsomorphicLayoutEffect(() => {
     getData(searchParams.query);
   }, []);
 
-  const onRefreshCards = () => {
-    getData(lastQuery);
+  const onRefreshCards = (revealedId: number) => {
+    getData(lastQuery, revealedId);
   };
 
   return (
@@ -60,6 +65,7 @@ export default function Page({ searchParams }: PageProps) {
           <HomeFeed
             {...(response as HomeFeedProps)}
             onRefreshCards={onRefreshCards}
+            elementToScrollToId={scrollToId}
           />
         )}
       </Suspense>

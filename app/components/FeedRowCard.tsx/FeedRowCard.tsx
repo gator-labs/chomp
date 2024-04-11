@@ -9,7 +9,7 @@ type FeedRowCardProps = {
   element: Deck | Question;
   type: ElementType;
   deckReturnUrl?: string;
-  onRefreshCards: () => void;
+  onRefreshCards: (revealedId: number) => void;
 };
 
 export function FeedRowCard({

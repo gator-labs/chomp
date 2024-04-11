@@ -1,7 +1,7 @@
 "use client";
 import { Deck, Question } from "@prisma/client";
-import { useMemo } from "react";
-import { Virtuoso } from "react-virtuoso";
+import { useEffect, useMemo, useRef } from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
 import { ElementType } from "@/app/queries/question";
@@ -14,7 +14,8 @@ export type HomeFeedProps = {
   answeredUnrevealedDecks: Deck[];
   answeredRevealedQuestions: Question[];
   answeredRevealedDecks: Deck[];
-  onRefreshCards: () => void;
+  onRefreshCards: (revealedId: number) => void;
+  elementToScrollToId: number;
 };
 
 const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 210;
@@ -28,8 +29,10 @@ export function HomeFeed({
   answeredRevealedQuestions,
   answeredRevealedDecks,
   onRefreshCards,
+  elementToScrollToId,
 }: HomeFeedProps) {
   const { height } = useWindowSize();
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
   const list = useMemo<Array<any>>(
     () => [
       ...unansweredDailyQuestions.map((q) => ({
@@ -72,8 +75,19 @@ export function HomeFeed({
     ]
   );
 
+  useEffect(() => {
+    const elementToScroll = list.find((e) => e.id === elementToScrollToId);
+
+    if (elementToScroll) {
+      virtuosoRef.current?.scrollToIndex({
+        index: list.indexOf(elementToScroll),
+      });
+    }
+  }, [elementToScrollToId]);
+
   return (
     <Virtuoso
+      ref={virtuosoRef}
       style={{ height: height - SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN }}
       data={list}
       className="mx-4 mt-4"

@@ -29,6 +29,7 @@ export default function Page({ searchParams }: PageProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [sort, setSort] = useState(HistorySortOptions.Date);
+  const [scrollToId, setScrollToId] = useState(0);
   const [response, setResponse] = useState<[]>();
   const [rewards, setRewards] = useState<{
     totalRevealedRewards: number;
@@ -37,7 +38,8 @@ export default function Page({ searchParams }: PageProps) {
 
   const getData = async (
     query: string | undefined,
-    sort: HistorySortOptions
+    sort: HistorySortOptions,
+    srollId?: number
   ) => {
     lastQuery = query;
     const searchParams = new URLSearchParams();
@@ -57,6 +59,10 @@ export default function Page({ searchParams }: PageProps) {
       totalRevealedRewards: json.totalRevealedRewards,
       potentionalRewards: json.potentionalRewards,
     });
+
+    if (srollId) {
+      setScrollToId(srollId);
+    }
   };
 
   useIsomorphicLayoutEffect(() => {
@@ -74,8 +80,8 @@ export default function Page({ searchParams }: PageProps) {
     getData(lastQuery, nextSort);
   };
 
-  const onRefreshCards = () => {
-    getData(lastQuery, sort);
+  const onRefreshCards = (revealedId: number) => {
+    getData(lastQuery, sort, revealedId);
   };
 
   return (
@@ -137,7 +143,11 @@ export default function Page({ searchParams }: PageProps) {
         }
       >
         {response && (
-          <HistoryFeed list={response} onRefreshCards={onRefreshCards} />
+          <HistoryFeed
+            list={response}
+            onRefreshCards={onRefreshCards}
+            elementToScrollToId={scrollToId}
+          />
         )}
       </Suspense>
     </>
