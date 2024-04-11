@@ -2,6 +2,7 @@
 
 import dayjs from "dayjs";
 import { Avatar } from "../Avatar/Avatar";
+import { useRouter } from "next/navigation";
 
 type ProfileProps = {
   handle: string;
@@ -16,6 +17,8 @@ export function Profile({
   fullName,
   joinDate,
 }: ProfileProps) {
+  const router = useRouter();
+
   return (
     <div className="flex justify-between items-center p-6 rounded-2xl bg-[#333] gap-4">
       <Avatar size="large" src={avatarSrc} />
@@ -29,7 +32,9 @@ export function Profile({
       <div className="h-[80px] w-[1px] bg-white"></div>
       <div>
         <button
-          onClick={() => {}}
+          onClick={() => {
+            router.push("/application/profile/settings");
+          }}
           className="outline-none text-white font-sora text-sm"
         >
           Settings
