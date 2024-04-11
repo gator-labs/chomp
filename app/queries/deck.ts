@@ -378,7 +378,10 @@ export async function getHomeFeedDecks({
           },
         },
       },
-      reveals: { where: { userId: { equals: payload.sub } } },
+      reveals: {
+        where: { userId: { equals: payload.sub } },
+        orderBy: { createdAt: "desc" },
+      },
     },
     orderBy: { ...sortInput },
   });

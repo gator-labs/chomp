@@ -204,12 +204,27 @@ export async function getHistory(
 
   if (sort === HistorySortOptions.Claimable) {
     response.sort((a, b) => {
+      if (a.reveals.length > 0 && b.reveals.length > 0) {
+        const aNewestClaimTime = a.reveals[0].createdAt;
+        const bNewestClaimTime = b.reveals[0].createdAt;
+
+        if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
+          return -1;
+        }
+
+        if (dayjs(bNewestClaimTime).isAfter(aNewestClaimTime)) {
+          return 1;
+        }
+
+        return 0;
+      }
+
       if (a.reveals.length > 0) {
-        return 1;
+        return -1;
       }
 
       if (b.reveals.length > 0) {
-        return -1;
+        return 1;
       }
 
       return 0;
@@ -342,9 +357,19 @@ export async function getHomeFeedQuestions({
             },
           },
         },
-        reveals: { where: { userId: { equals: payload.sub } } },
+        reveals: {
+          where: {
+            userId: { equals: payload.sub },
+          },
+          orderBy: { createdAt: "desc" },
+        },
       }
-    : { reveals: { where: { userId: { equals: payload.sub } } } };
+    : {
+        reveals: {
+          where: { userId: { equals: payload.sub } },
+          orderBy: { createdAt: "desc" },
+        },
+      };
 
   let questions = await prisma.question.findMany({
     where: {
