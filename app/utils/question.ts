@@ -1,4 +1,4 @@
-import { Deck, Reveal } from "@prisma/client";
+import { Deck, Question, Reveal } from "@prisma/client";
 import { DeckQuestionIncludes } from "../components/DeckDetails/DeckDetails";
 import dayjs from "dayjs";
 
@@ -68,4 +68,42 @@ export function isBinaryQuestionCorrectAnswer(
   }
 
   return true;
+}
+
+export function mapQuestionToBinaryQuestionAnswer(
+  question: DeckQuestionIncludes
+): BinaryQuestionAnswer[] | null {
+  const answers = question.questionOptions.flatMap((qo) => qo.questionAnswers);
+
+  if (answers.length === 2) {
+    if (answers[0].percentage === null || answers[1].percentage === null) {
+      return null;
+    }
+
+    const aCalculatedPercentage = answers[0].percentageResult;
+    const bCalculatedPercentage = answers[1].percentageResult;
+    if (
+      aCalculatedPercentage === undefined ||
+      aCalculatedPercentage === null ||
+      bCalculatedPercentage === undefined ||
+      bCalculatedPercentage === null
+    ) {
+      return null;
+    }
+
+    return [
+      {
+        calculatedPercentage: aCalculatedPercentage,
+        selectedPercentage: answers[0].percentage,
+        selected: answers[0].selected,
+      },
+      {
+        calculatedPercentage: bCalculatedPercentage,
+        selectedPercentage: answers[1].percentage,
+        selected: answers[1].selected,
+      },
+    ];
+  }
+
+  return null;
 }
