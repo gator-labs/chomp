@@ -151,7 +151,7 @@ export function QuestionRowCard({
           <div className="flex flex-col gap-3">
             <p>
               Revealing this question will cost you 5K BONK, and earn you 42
-              poiints! Would you like to reveal?
+              points! Would you like to reveal?
             </p>
             {revealButtons}
           </div>

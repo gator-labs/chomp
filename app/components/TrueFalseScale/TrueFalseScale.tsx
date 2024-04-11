@@ -19,7 +19,7 @@ export function TrueFalseScale({
   avatarSrc,
   progressBarClassName,
   handleRatioChange,
-  labelTrue = "T",
+  labelTrue = "True",
   labelFalse = "False",
 }: TrueFalseScaleProps) {
   const avatarLeft = valueSelected
