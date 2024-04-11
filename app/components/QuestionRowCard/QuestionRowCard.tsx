@@ -13,10 +13,11 @@ import { Modal } from "../Modal/Modal";
 import { getQuestionState } from "@/app/utils/question";
 import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import Image from "next/image";
+import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 
 type QuestionRowCardProps = {
   question: DeckQuestionIncludes;
-  onRefreshCards: () => void;
+  onRefreshCards: (revealedId: number) => void;
 };
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
@@ -26,7 +27,7 @@ export function QuestionRowCard({
   onRefreshCards,
 }: QuestionRowCardProps) {
   const { isAnswered, isRevealed, isRevealable } = getQuestionState(question);
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const { getIsOpen, toggleCollapsed, setOpen } = useCollapsedContext();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
   const [burnState, setBurnState] = useState<
@@ -49,7 +50,8 @@ export function QuestionRowCard({
     setBurnState("burned");
 
     await revealQuestion(question.id);
-    onRefreshCards();
+    onRefreshCards(question.id);
+    setOpen(question.id);
     setIsRevealModalOpen(false);
   };
 
@@ -132,8 +134,8 @@ export function QuestionRowCard({
     return (
       <>
         <QuestionAccordion
-          isCollapsed={isCollapsed}
-          onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
+          isCollapsed={!getIsOpen(question.id)}
+          onToggleCollapse={() => toggleCollapsed(question.id)}
           question={question.question}
           revealedAt={question.revealAtDate}
           actionChild={actionSubmit}

@@ -1,12 +1,13 @@
 "use client";
 import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
-import { Virtuoso } from "react-virtuoso";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { getQuestionState } from "@/app/utils/question";
 import { Button } from "../Button/Button";
 import { revealDeck } from "@/app/actions/reveal";
 import { useRouter } from "next/navigation";
 import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
+import { useRef } from "react";
 
 export type DeckQuestionIncludes = Question & {
   questionOptions: {
@@ -32,6 +33,7 @@ const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 162;
 function DeckDetails({ deck }: DeckDetailsProps) {
   const router = useRouter();
   const { height } = useWindowSize();
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
 
   const hasReveal = deck.deckQuestions
     .map((dq) => getQuestionState(dq.question))
@@ -61,6 +63,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
         </div>
       )}
       <Virtuoso
+        ref={virtuosoRef}
         style={{
           height:
             height -
@@ -73,8 +76,17 @@ function DeckDetails({ deck }: DeckDetailsProps) {
           <div className="pb-4">
             <QuestionRowCard
               question={element}
-              onRefreshCards={() => {
+              onRefreshCards={(revealedId) => {
                 router.refresh();
+                const elementToScroll = deck.deckQuestions.find(
+                  (q) => q.question.id === revealedId
+                );
+
+                if (elementToScroll) {
+                  virtuosoRef.current?.scrollToIndex({
+                    index: deck.deckQuestions.indexOf(elementToScroll),
+                  });
+                }
               }}
             />
           </div>
