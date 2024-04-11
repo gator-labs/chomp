@@ -352,7 +352,7 @@ export async function getHomeFeedDecks({
 
   let decks = await prisma.deck.findMany({
     where: {
-      deck: { contains: query },
+      deck: { contains: query, mode: "insensitive" },
       date: {
         equals: null,
       },
