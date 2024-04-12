@@ -24,7 +24,7 @@ export async function getProfile() {
 
   const profile: ProfileData = {
     userId: payload.sub,
-    email: user?.emails[0].address ?? "",
+    email: user?.emails.length ? user?.emails[0].address : "",
     username: user?.username,
     firstName: user?.firstName,
     lastName: user?.lastName,

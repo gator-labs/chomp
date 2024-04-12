@@ -24,6 +24,7 @@ export function DeckRowCard({ deck, deckReturnUrl }: DeckRowCardProps) {
       >
         <QuestionDeck
           text={deck.deck}
+          imageUrl={deck.imageUrl}
           revealedAt={deck.revealAtDate}
           status="chomped"
         />
@@ -35,6 +36,7 @@ export function DeckRowCard({ deck, deckReturnUrl }: DeckRowCardProps) {
     <Link href={`/application/answer/deck/${deck.id}`}>
       <QuestionDeck
         text={deck.deck}
+        imageUrl={deck.imageUrl}
         revealedAt={deck.revealAtDate}
         status="new"
       />
