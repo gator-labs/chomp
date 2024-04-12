@@ -31,8 +31,8 @@ export function QuestionRowCard({
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
   const [burnState, setBurnState] = useState<
-    "burning" | "burned" | "error" | "idle"
-  >("idle");
+    "burning" | "burned" | "error" | "idle" | "skipburn"
+  >("skipburn");
   const { primaryWallet } = useDynamicContext();
 
   const burnAndReveal = async () => {
@@ -49,6 +49,10 @@ export function QuestionRowCard({
     });
     setBurnState("burned");
 
+    await reveal();
+  };
+
+  const reveal = async () => {
     await revealQuestion(question.id);
     onRefreshCards(question.id);
     setOpen(question.id);
@@ -57,6 +61,23 @@ export function QuestionRowCard({
 
   let revealButtons = null;
   switch (burnState) {
+    case "skipburn":
+      revealButtons = (
+        <>
+          <Button variant="white" isPill onClick={reveal}>
+            Reveal
+          </Button>
+          <Button
+            variant="black"
+            isPill
+            onClick={() => setIsRevealModalOpen(false)}
+          >
+            Maybe Later
+          </Button>
+        </>
+      );
+      break;
+
     case "idle":
       revealButtons = (
         <>
