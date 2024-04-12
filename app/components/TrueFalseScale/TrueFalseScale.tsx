@@ -51,7 +51,7 @@ export function TrueFalseScale({
           style={{ left: avatarLeft }}
         />
       )}
-      <div className="flex justify-between text-white font-sora text-base font-semibold">
+      <div className="flex justify-between text-white font-sora text-base font-semibold mt-2">
         <span>
           {labelFalse}{" "}
           {ratioTrue === undefined || ratioTrue === null
