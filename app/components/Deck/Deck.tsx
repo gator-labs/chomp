@@ -196,7 +196,6 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     <div className="flex flex-col justify-between h-full">
       <div>
         <AnswerHeader questionTags={question.questionTags} />
-
         <div
           className="relative"
           style={{ marginBottom: questionOffset + "px" }}

@@ -90,6 +90,7 @@ const calculateRevealPoints = async (
               questionAnswers: {
                 where: {
                   userId,
+                  hasViewedButNotSubmitted: false,
                 },
               },
             },

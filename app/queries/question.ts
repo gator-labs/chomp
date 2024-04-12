@@ -2,6 +2,8 @@ import { z } from "zod";
 import prisma from "../services/prisma";
 import { questionSchema } from "../schemas/question";
 import {
+  Deck,
+  DeckQuestion,
   Prisma,
   Question,
   QuestionOption,
@@ -13,6 +15,7 @@ import { getHomeFeedDecks } from "./deck";
 import { answerPercentageQuery } from "./answerPercentageQuery";
 import { HistorySortOptions } from "../api/history/route";
 import dayjs from "dayjs";
+import { addPlaceholderAnswers } from "../actions/answer";
 
 export enum ElementType {
   Question = "Question",
@@ -20,9 +23,16 @@ export enum ElementType {
 }
 
 export async function getQuestionForAnswerById(questionId: number) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
   const question = await prisma.question.findFirst({
     where: { id: { equals: questionId } },
     include: {
+      deckQuestions: { include: { deck: true } },
       questionOptions: true,
       questionTags: {
         include: {
@@ -35,13 +45,16 @@ export async function getQuestionForAnswerById(questionId: number) {
     return null;
   }
 
-  return mapToViewModelQuestion(question);
+  const mappedQuestion = mapToViewModelQuestion(question);
+  await addPlaceholderAnswers(question.questionOptions, payload.sub);
+  return mappedQuestion;
 }
 
 const mapToViewModelQuestion = (
   question: Question & {
     questionOptions: QuestionOption[];
     questionTags: (QuestionTag & { tag: Tag })[];
+    deckQuestions: Array<DeckQuestion & { deck: Deck }>;
   }
 ) => ({
   id: question.id,
@@ -54,6 +67,11 @@ const mapToViewModelQuestion = (
   questionTags: question.questionTags,
   type: question.type,
   imageUrl: question.imageUrl ?? undefined,
+  revealAtDate: question.revealAtDate
+    ? question.revealAtDate
+    : question.deckQuestions.length > 0
+      ? question.deckQuestions[0].deck.revealAtDate
+      : null,
 });
 
 export async function getQuestions() {
@@ -247,6 +265,7 @@ export async function getUnansweredDailyQuestions(query = "") {
         date: {
           not: null,
         },
+        revealAtDate: { gte: new Date() },
       },
       question: {
         question: { contains: query, mode: "insensitive" },
@@ -327,11 +346,22 @@ export async function getHomeFeedQuestions({
     ? {
         questionOptions: {
           some: {
-            questionAnswers: {
-              some: {
-                userId: payload.sub,
+            AND: [
+              {
+                questionAnswers: {
+                  some: {
+                    userId: payload.sub,
+                  },
+                },
               },
-            },
+              {
+                questionAnswers: {
+                  none: {
+                    hasViewedButNotSubmitted: true,
+                  },
+                },
+              },
+            ],
           },
         },
       }
@@ -345,6 +375,7 @@ export async function getHomeFeedQuestions({
             },
           },
         },
+        revealAtDate: { gte: new Date() },
       };
 
   const questionInclude: Prisma.QuestionInclude = areAnswered
@@ -374,7 +405,7 @@ export async function getHomeFeedQuestions({
   let questions = await prisma.question.findMany({
     where: {
       question: { contains: query, mode: "insensitive" },
-      deckQuestions: { none: { deck: { date: null } } },
+      deckQuestions: { none: {} },
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },
@@ -438,4 +469,34 @@ export async function getHomeFeedQuestions({
   }
 
   return questions;
+}
+
+export async function hasAnsweredQuestion(
+  questionId: number,
+  userId: string | null = null,
+  ignorePlaceholder = false
+) {
+  if (!userId) {
+    const payload = await getJwtPayload();
+    if (!payload) {
+      return true;
+    }
+
+    userId = payload?.sub;
+  }
+
+  const questionAnswerWhereInput: Prisma.QuestionAnswerWhereInput =
+    ignorePlaceholder ? { hasViewedButNotSubmitted: false } : {};
+
+  const answeredCount = await prisma.questionAnswer.count({
+    where: {
+      userId: { equals: userId },
+      questionOption: {
+        questionId: { equals: questionId },
+      },
+      ...questionAnswerWhereInput,
+    },
+  });
+
+  return answeredCount > 0;
 }

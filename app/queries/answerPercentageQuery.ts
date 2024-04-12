@@ -20,14 +20,14 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                   (
                     select count(*)
                     from public."QuestionAnswer" subQa
-                    where subQa.selected = true and subQa."questionOptionId" = qo."id" 
+                    where subQa.selected = true and subQa."questionOptionId" = qo."id" and subQa."hasViewedButNotSubmitted" = false
                   ) 
                   /
                   NULLIF(
                     (
                       select count(*)
                       from public."QuestionAnswer" subQa
-                      where subQa."questionOptionId" = qo."id"
+                      where subQa."questionOptionId" = qo."id" and subQa."hasViewedButNotSubmitted" = false
                     )
                   , 0)
                   * 100) as "percentageResult"
