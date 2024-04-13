@@ -90,7 +90,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     } as QuestionAnswer;
   });
 
-  await await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx) => {
     await tx.userDeck.create({
       data: {
         deckId: deckId,
