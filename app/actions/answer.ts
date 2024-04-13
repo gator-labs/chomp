@@ -3,9 +3,17 @@
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
-import { FungibleAsset, QuestionAnswer, QuestionType } from "@prisma/client";
+import {
+  FungibleAsset,
+  QuestionAnswer,
+  QuestionOption,
+  QuestionType,
+} from "@prisma/client";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { pointsPerAction } from "../constants/points";
+import { hasAnsweredDeck } from "../queries/deck";
+import { hasAnsweredQuestion } from "../queries/question";
+import dayjs from "dayjs";
 
 export type SaveQuestionRequest = {
   questionId: number;
@@ -17,6 +25,28 @@ export type SaveQuestionRequest = {
 export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";
+  if (!userId) {
+    return;
+  }
+
+  const hasAnswered = await hasAnsweredDeck(deckId, userId, true);
+
+  if (!hasAnswered) {
+    return;
+  }
+
+  const revealAtDateObject = await prisma.deck.findFirst({
+    where: { id: { equals: deckId } },
+    select: { revealAtDate: true },
+  });
+
+  if (
+    !revealAtDateObject?.revealAtDate ||
+    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
+  ) {
+    return;
+  }
+
   const questionIds = request
     .filter((dr) => dr.percentageGiven !== undefined && !!dr.questionOptionId)
     .map((dr) => dr.questionId);
@@ -85,9 +115,32 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
 
 export async function saveQuestion(request: SaveQuestionRequest) {
   const payload = await getJwtPayload();
+
+  if (
+    request.percentageGiven === undefined ||
+    !request.questionOptionId ||
+    !payload
+  ) {
+    return;
+  }
+
   const userId = payload?.sub ?? "";
 
-  if (request.percentageGiven === undefined || !request.questionOptionId) {
+  const hasAnswered = await hasAnsweredQuestion(request.questionId, userId);
+
+  if (hasAnswered) {
+    return;
+  }
+
+  const revealAtDateObject = await prisma.question.findFirst({
+    where: { id: { equals: request.questionId } },
+    select: { revealAtDate: true },
+  });
+
+  if (
+    !revealAtDateObject?.revealAtDate ||
+    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
+  ) {
     return;
   }
 
@@ -139,5 +192,44 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     );
   });
 
+  revalidatePath("/application");
+}
+
+export async function removePlaceholderAnswerByQuestion(
+  questionId: number,
+  userId: string
+) {
+  await prisma.questionAnswer.deleteMany({
+    where: { questionOption: { questionId }, userId },
+  });
+}
+
+export async function removePlaceholderAnswerByDeck(
+  deckId: number,
+  userId: string
+) {
+  await prisma.questionAnswer.deleteMany({
+    where: {
+      questionOption: { question: { deckQuestions: { some: { deckId } } } },
+      userId,
+    },
+  });
+}
+
+export async function addPlaceholderAnswers(
+  questionOptions: QuestionOption[],
+  userId: string
+) {
+  const placeholderQuestionAnswers = questionOptions.map(
+    (qo) =>
+      ({
+        userId: userId,
+        hasViewedButNotSubmitted: true,
+        questionOptionId: qo.id,
+        selected: false,
+      }) as QuestionAnswer
+  );
+
+  await prisma.questionAnswer.createMany({ data: placeholderQuestionAnswers });
   revalidatePath("/application");
 }

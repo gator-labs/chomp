@@ -15,6 +15,7 @@ import {
 } from "@prisma/client";
 import { answerPercentageQuery } from "./answerPercentageQuery";
 import { HistorySortOptions } from "../api/history/route";
+import { addPlaceholderAnswers } from "../actions/answer";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -93,7 +94,12 @@ export async function getDailyDeckForFrame() {
   };
 }
 
-export async function getDeckQuestionsById(deckId: number) {
+export async function getDeckQuestionsForAnswerById(deckId: number) {
+  const payload = await getJwtPayload();
+  if (!payload) {
+    return null;
+  }
+
   const deck = await prisma.deck.findFirst({
     where: { id: { equals: deckId } },
     include: questionDeckToRunInclude,
@@ -104,7 +110,10 @@ export async function getDeckQuestionsById(deckId: number) {
   }
 
   const questions = mapQuestionFromDeck(deck);
-
+  await addPlaceholderAnswers(
+    deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
+    payload.sub
+  );
   return questions;
 }
 
@@ -131,6 +140,7 @@ const mapQuestionFromDeck = (
       option: qo.option,
     })),
     questionTags: dq.question.questionTags,
+    deckRevealAtDate: deck.revealAtDate,
   }));
 
   return questions;
@@ -321,11 +331,22 @@ export async function getHomeFeedDecks({
             question: {
               questionOptions: {
                 some: {
-                  questionAnswers: {
-                    some: {
-                      userId: payload.sub,
+                  AND: [
+                    {
+                      questionAnswers: {
+                        some: {
+                          userId: payload.sub,
+                        },
+                      },
                     },
-                  },
+                    {
+                      questionAnswers: {
+                        none: {
+                          hasViewedButNotSubmitted: true,
+                        },
+                      },
+                    },
+                  ],
                 },
               },
             },
@@ -348,6 +369,7 @@ export async function getHomeFeedDecks({
             },
           },
         },
+        revealAtDate: { gte: new Date() },
       };
 
   let decks = await prisma.deck.findMany({
@@ -426,4 +448,34 @@ export async function getHomeFeedDecks({
   }
 
   return decks;
+}
+
+export async function hasAnsweredDeck(
+  deckId: number,
+  userId: string | null = null,
+  ignorePlaceholder = false
+) {
+  if (!userId) {
+    const payload = await getJwtPayload();
+    if (!payload) {
+      return true;
+    }
+
+    userId = payload?.sub;
+  }
+
+  const questionAnswerWhereInput: Prisma.QuestionAnswerWhereInput =
+    ignorePlaceholder ? { hasViewedButNotSubmitted: false } : {};
+
+  const answeredCount = await prisma.questionAnswer.count({
+    where: {
+      userId: { equals: userId },
+      questionOption: {
+        question: { deckQuestions: { some: { deckId: { equals: deckId } } } },
+      },
+      ...questionAnswerWhereInput,
+    },
+  });
+
+  return answeredCount > 0;
 }

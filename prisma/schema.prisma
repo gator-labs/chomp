@@ -123,15 +123,16 @@ model DeckQuestion {
 }
 
 model QuestionAnswer {
-  id               Int            @id @default(autoincrement())
-  questionOptionId Int
-  questionOption   QuestionOption @relation(fields: [questionOptionId], references: [id])
-  userId           String
-  user             User           @relation(fields: [userId], references: [id])
-  percentage       Int?
-  selected         Boolean
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @default(now()) @updatedAt
+  id                       Int            @id @default(autoincrement())
+  questionOptionId         Int
+  questionOption           QuestionOption @relation(fields: [questionOptionId], references: [id])
+  userId                   String
+  user                     User           @relation(fields: [userId], references: [id])
+  percentage               Int?
+  hasViewedButNotSubmitted Boolean        @default(false)
+  selected                 Boolean
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @default(now()) @updatedAt
 }
 
 model Reveal {
