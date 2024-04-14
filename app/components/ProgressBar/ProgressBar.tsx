@@ -10,6 +10,8 @@ type ProgressBarProps = {
   bgColor?: string;
   className?: string;
   onChange?: (value: number) => void;
+  onTouchStart?: () => void;
+  onTouchEnd?: () => void;
 };
 
 export function ProgressBar({
@@ -18,6 +20,8 @@ export function ProgressBar({
   bgColor,
   className,
   onChange,
+  onTouchStart,
+  onTouchEnd,
 }: ProgressBarProps) {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const percentageCapped = percentage > 100 ? 100 : percentage;
@@ -28,7 +32,7 @@ export function ProgressBar({
     <div
       ref={wrapperRef}
       className={classNames(
-        'relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden',
+        'relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-50',
         className
       )}
       style={{ backgroundColor: bgColor }}
@@ -41,8 +45,14 @@ export function ProgressBar({
         })}
         onMouseDown={startDrag}
         onMouseUp={endDrag}
-        onTouchStart={startDrag}
-        onTouchEnd={endDrag}
+        onTouchStart={() => {
+          onTouchStart?.();
+          startDrag();
+        }}
+        onTouchEnd={() => {
+          onTouchEnd?.();
+          endDrag();
+        }}
         onMouseLeave={endDrag}
         onMouseMove={handleChangePosition}
         onTouchMove={handleChangePosition}
