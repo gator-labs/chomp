@@ -40,6 +40,19 @@ export function TrueFalseScale({
       {isVisibleBackdrop && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-50" />
       )}
+      {isVisibleBackdrop && (
+        <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-50 rounded-xl flex gap-5">
+          <p className="text-[#0d0d0d7d] font-normal">
+            F{' '}
+            <span className="text-[#0D0D0D] font-semibold">
+              {100 - (ratioTrue ?? 0)}%
+            </span>
+          </p>
+          <p className="text-[#0d0d0d7d] font-normal">
+            T <span className="text-[#0D0D0D] font-semibold">{ratioTrue}%</span>
+          </p>
+        </div>
+      )}
       <ProgressBar
         percentage={
           ratioTrue === undefined || ratioTrue === null ? 100 : 100 - ratioTrue
