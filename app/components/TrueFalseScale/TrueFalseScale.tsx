@@ -35,13 +35,15 @@ export function TrueFalseScale({
 
   const [isVisibleBackdrop, setIsVisibleBackdrop] = useState(false);
 
+  console.log({ ratioTrue, valueSelected, avatarLeft, avatarSrc });
+
   return (
     <div className="relative">
       {!!handleRatioChange && isVisibleBackdrop && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 z-50" />
+        <div className="fixed inset-0 bg-black bg-opacity-80 z-40" />
       )}
       {!!handleRatioChange && isVisibleBackdrop && (
-        <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-50 rounded-xl flex gap-5">
+        <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-40 rounded-xl flex gap-5">
           <p className="text-[#0d0d0d7d] font-normal">
             F{" "}
             <span className="text-[#0D0D0D] font-semibold">
@@ -69,11 +71,11 @@ export function TrueFalseScale({
         <Avatar
           src={avatarSrc}
           size="extrasmall"
-          className="absolute top-0.5"
+          className="absolute top-0.5 z-50"
           style={{ left: avatarLeft }}
         />
       )}
-      <div className="flex justify-between text-white font-sora text-base font-semibold mt-2 z-50 relative">
+      <div className="flex justify-between text-white font-sora text-base font-semibold mt-2 z-40 relative">
         <span>
           {labelFalse}{" "}
           {ratioTrue === undefined || ratioTrue === null

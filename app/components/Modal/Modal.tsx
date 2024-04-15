@@ -27,7 +27,7 @@ export function Modal({ title, isOpen, children, onClose }: ModalProps) {
       <div
         ref={ref}
         onClick={handleClickoutside}
-        className="fixed top-0 h-full w-full flex justify-center items-center bg-[#333333BB]"
+        className="fixed top-0 h-full w-full flex justify-center items-center bg-black bg-opacity-80"
       >
         <div className="bg-[#333] m-4 w-full max-w-md p-4 rounded-md border-[1px] border-[#666]">
           <div className="flex justify-between items-center mb-4">
