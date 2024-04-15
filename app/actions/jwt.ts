@@ -114,6 +114,12 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     httpOnly: true,
   });
 
+  if (payload.new_user) {
+    redirect(
+      nextPath ? `/tutorial?next=${encodeURIComponent(nextPath)}` : "/tutorial",
+    );
+  }
+
   redirect(nextPath ?? "/application");
 };
 
