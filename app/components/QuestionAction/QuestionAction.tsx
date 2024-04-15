@@ -67,6 +67,8 @@ export function QuestionAction({
               ratioTrue={scale}
               progressBarClassName="h-[36px] rounded-md"
               handleRatioChange={setScale}
+              labelTrue={type === "YesNo" ? "Yes" : undefined}
+              labelFalse={type === "YesNo" ? "No" : undefined}
             />
           </div>
           <Button
