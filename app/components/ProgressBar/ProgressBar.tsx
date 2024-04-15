@@ -1,11 +1,12 @@
 "use client";
 import { useDragPositionPercentage } from "@/app/hooks/useDragPositionPercentage";
+import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import classNames from "classnames";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Thumb from "../Thumb/Thumb";
 
 type ProgressBarProps = {
-  percentage: number;
+  percentage?: number;
   progressColor?: string;
   bgColor?: string;
   className?: string;
@@ -25,10 +26,18 @@ export function ProgressBar({
   onTouchStart,
   onTouchEnd,
 }: ProgressBarProps) {
+  const [percentageCapped, setPercentageCapped] = useState(
+    percentage && percentage > 100 ? 100 : percentage ?? 0,
+  );
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const percentageCapped = percentage > 100 ? 100 : percentage;
   const { handleChangePosition, endDrag, startDrag, isDragging } =
     useDragPositionPercentage({ elementRef: wrapperRef, onChange });
+
+  useIsomorphicLayoutEffect(() => {
+    if (percentage === undefined) {
+      setPercentageCapped(100);
+    }
+  }, [percentage]);
 
   return (
     <div
@@ -42,8 +51,9 @@ export function ProgressBar({
       draggable={false}
     >
       <div
-        className={classNames("h-full w-10 cursor-grab absolute z-10", {
-          "cursor-grabbing": isDragging,
+        className={classNames("h-full w-10 absolute z-10", {
+          "cursor-grab": onChange && !isDragging,
+          "cursor-grabbing": onChange && isDragging,
         })}
         onMouseDown={startDrag}
         onMouseUp={endDrag}
@@ -58,16 +68,19 @@ export function ProgressBar({
         onMouseLeave={endDrag}
         onMouseMove={handleChangePosition}
         onTouchMove={handleChangePosition}
-        style={{ left: `calc(${percentage}% - 20px)` }}
+        style={{ left: percentage ? `calc(${percentage}% - 20px)` : undefined }}
       >
         {showThumb && (
           <Thumb className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
         )}
       </div>
       <div
-        className="h-full bg-purple absolute top-0 l-0 w-full"
+        className={classNames("h-full bg-purple absolute top-0 l-0 w-full", {
+          "transition-width delay-[2s] duration-[4s] ease-in-out w-0":
+            percentage === undefined,
+        })}
         style={{
-          width: `${percentageCapped}%`,
+          width: percentageCapped ? `${percentageCapped}%` : undefined,
           backgroundColor: progressColor,
         }}
       ></div>
