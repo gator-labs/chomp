@@ -25,17 +25,17 @@ export const getMyFungibleAssetBalances = async (): Promise<
   return createTypedObjectFromEntries(
     fungibleAssets.map((fungibleAsset) => {
       const balance = balances.find(
-        (balance) => balance.asset === fungibleAsset
+        (balance) => balance.asset === fungibleAsset,
       );
       return [fungibleAsset, balance ? balance.amount.toNumber() : 0];
-    })
+    }),
   );
 };
 
 export const incrementFungibleAssetBalance = async (
   asset: FungibleAsset,
   amount: number,
-  injectedPrisma: PrismaTransactionClient = prisma
+  injectedPrisma: PrismaTransactionClient = prisma,
 ): Promise<FungibleAssetBalance> => {
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";

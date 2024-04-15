@@ -49,7 +49,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
   const userWalletAddresses = user.wallets.map((wallet) => wallet.address);
 
   const walletsToCreate = walletAddresses.filter(
-    (address) => !userWalletAddresses.includes(address)
+    (address) => !userWalletAddresses.includes(address),
   );
 
   if (walletsToCreate.length > 0) {
@@ -62,7 +62,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
   }
 
   const walletsToDelete = userWalletAddresses.filter(
-    (address) => !walletAddresses.includes(address)
+    (address) => !walletAddresses.includes(address),
   );
 
   if (walletsToDelete.length > 0) {
@@ -82,7 +82,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
   const userEmailAddresses = user.emails.map((email) => email.address);
 
   const emailsToCreate = emailAdresses.filter(
-    (address) => !userEmailAddresses.includes(address)
+    (address) => !userEmailAddresses.includes(address),
   );
 
   if (emailsToCreate.length > 0) {
@@ -95,7 +95,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
   }
 
   const emailsToDelete = userEmailAddresses.filter(
-    (address) => !emailAdresses.includes(address)
+    (address) => !emailAdresses.includes(address),
   );
 
   if (emailsToDelete.length > 0) {

@@ -24,7 +24,7 @@ export function RadioInput({
             <div
               className={classNames(
                 "w-6 h-6 rounded-full bg-[#999] flex items-center justify-center",
-                { "!bg-aqua": value === o.value }
+                { "!bg-aqua": value === o.value },
               )}
             >
               <div

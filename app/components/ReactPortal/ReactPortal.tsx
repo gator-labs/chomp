@@ -19,7 +19,7 @@ export function ReactPortal({
   wrapperId = "react-portal-wrapper",
 }: ReactPortalProps) {
   const [wrapperElement, setWrapperElement] = useState<HTMLElement | null>(
-    null
+    null,
   );
 
   useLayoutEffect(() => {

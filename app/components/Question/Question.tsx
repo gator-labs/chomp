@@ -45,7 +45,7 @@ const getDueAt = (durationMiliseconds: number): Date => {
 export function Question({ question, returnUrl }: QuestionProps) {
   const router = useRouter();
   const [answerState, setAnswerState] = useState<SaveQuestionRequest>(
-    {} as SaveQuestionRequest
+    {} as SaveQuestionRequest,
   );
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
@@ -72,7 +72,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
       setCurrentQuestionStep(undefined);
       saveQuestion(answer ?? answerState);
     },
-    [setCurrentQuestionStep, answerState]
+    [setCurrentQuestionStep, answerState],
   );
 
   const onQuesitonActionClick = useCallback(
@@ -134,7 +134,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
       setAnswerState,
       handleSaveQuestion,
       answerState,
-    ]
+    ],
   );
 
   return (

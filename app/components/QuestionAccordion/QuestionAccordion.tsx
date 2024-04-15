@@ -44,7 +44,7 @@ export function QuestionAccordion({
         "bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2",
         {
           "cursor-pointer": !!onClick,
-        }
+        },
       )}
       onClick={onClick}
     >

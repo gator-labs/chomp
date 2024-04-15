@@ -14,7 +14,7 @@ export function Toggle({ isOn, onToggle }: ToggleProps) {
         {
           "!bg-aqua": isOn,
           "!border-aqua": isOn,
-        }
+        },
       )}
     >
       <div

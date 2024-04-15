@@ -14,7 +14,7 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   isRevealable: boolean;
 } {
   const isAnswered = question.questionOptions?.some(
-    (qo) => qo.questionAnswers.length !== 0
+    (qo) => qo.questionAnswers.length !== 0,
   );
   const isRevealed = question.reveals?.length !== 0;
   const isRevealable =
@@ -30,14 +30,14 @@ export function getDeckState(
       question: DeckQuestionIncludes;
     }[];
     reveals: Reveal[];
-  }
+  },
 ): {
   isAnswered: boolean;
   isRevealed: boolean;
   isRevealable: boolean;
 } {
   const isAnswered = deck.deckQuestions?.some((dq) =>
-    dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0)
+    dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0),
   );
   const isRevealed = deck.reveals?.length !== 0;
   const isRevealable =
@@ -54,7 +54,7 @@ type BinaryQuestionAnswer = {
 
 export function isBinaryQuestionCorrectAnswer(
   a: BinaryQuestionAnswer,
-  b: BinaryQuestionAnswer
+  b: BinaryQuestionAnswer,
 ) {
   const aPercentage = a.calculatedPercentage - a.selectedPercentage;
   const bPercentage = b.calculatedPercentage - b.selectedPercentage;
@@ -71,7 +71,7 @@ export function isBinaryQuestionCorrectAnswer(
 }
 
 export function mapQuestionToBinaryQuestionAnswer(
-  question: DeckQuestionIncludes
+  question: DeckQuestionIncludes,
 ): BinaryQuestionAnswer[] | null {
   const answers = question.questionOptions.flatMap((qo) => qo.questionAnswers);
 

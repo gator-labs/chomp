@@ -16,11 +16,11 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           {
             "border-gray": variant === "secondary",
             "border-border-white": variant === "primary",
-          }
+          },
         )}
       />
     );
-  }
+  },
 );
 
 TextInput.displayName = "TextInput";

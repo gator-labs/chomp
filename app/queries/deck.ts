@@ -112,7 +112,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   const questions = mapQuestionFromDeck(deck);
   await addPlaceholderAnswers(
     deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
-    payload.sub
+    payload.sub,
   );
   return questions;
 }
@@ -127,7 +127,7 @@ const mapQuestionFromDeck = (
         };
       }
     >;
-  }
+  },
 ) => {
   const questions = deck?.deckQuestions.map((dq) => ({
     id: dq.questionId,
@@ -252,7 +252,7 @@ export async function getDeckDetails(id: number) {
 
   const questions = deck?.deckQuestions.flatMap((dq) => dq.question);
   const questionOptionIds = questions.flatMap((q) =>
-    q.questionOptions?.map((qo) => qo.id)
+    q.questionOptions?.map((qo) => qo.id),
   );
   const questionOptionPercentages =
     await answerPercentageQuery(questionOptionIds);
@@ -262,7 +262,7 @@ export async function getDeckDetails(id: number) {
       qo.questionAnswers?.forEach((qa: any) => {
         qa.percentageResult =
           questionOptionPercentages.find(
-            (qop) => qop.id === qa.questionOptionId
+            (qop) => qop.id === qa.questionOptionId,
           )?.percentageResult ?? 0;
       });
     });
@@ -454,7 +454,7 @@ export async function getHomeFeedDecks({
 export async function hasAnsweredDeck(
   deckId: number,
   userId: string | null = null,
-  ignorePlaceholder = false
+  ignorePlaceholder = false,
 ) {
   if (!userId) {
     const payload = await getJwtPayload();

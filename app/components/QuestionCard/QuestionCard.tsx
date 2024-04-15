@@ -39,7 +39,7 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
-    dueAt ? getDueAtString(dueAt) : ""
+    dueAt ? getDueAtString(dueAt) : "",
   );
   const handleDueAtFormatted = useCallback(() => {
     if (!dueAt) return;

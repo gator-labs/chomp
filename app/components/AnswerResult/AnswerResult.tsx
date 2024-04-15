@@ -58,7 +58,7 @@ export function AnswerResult({
         <div
           className={classNames(
             "h-full bg-purple absolute top-0 l-0 w-full",
-            progressBarClassName
+            progressBarClassName,
           )}
           style={{
             width: `${percentageCapped}%`,

@@ -3,7 +3,6 @@ import {
   isBinaryQuestionCorrectAnswer,
   mapQuestionToBinaryQuestionAnswer,
 } from "@/app/utils/question";
-import { Question } from "@prisma/client";
 import { useCallback, useMemo, useState } from "react";
 import { MultipleChoiceAnsweredContent } from "../MultipleChoiceAnsweredContent/MultipleChoiceAnsweredContent";
 import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
@@ -33,7 +32,7 @@ export const AnsweredQuestionContent = ({
       questionOptions: (element as any).questionOptions,
       avatarSrc: AvatarPlaceholder.src,
     }),
-    [element]
+    [element],
   );
 
   const handleBinary = useCallback(() => {
@@ -42,14 +41,14 @@ export const AnsweredQuestionContent = ({
       setIsFirstOrderQuestionCorrect(
         isBinaryQuestionCorrectAnswer(
           binaryQuestionResults[0],
-          binaryQuestionResults[1]
-        )
+          binaryQuestionResults[1],
+        ),
       );
 
       const selected = binaryQuestionResults.find((q) => q.selected);
       if (selected) {
         setIsSecondOrderQuestionCorrect(
-          selected.calculatedPercentage === selected.selectedPercentage
+          selected.calculatedPercentage === selected.selectedPercentage,
         );
       }
     } else {

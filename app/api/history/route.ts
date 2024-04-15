@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     ];
   const history = await getHistory(
     query ?? "",
-    sort ?? HistorySortOptions.Date
+    sort ?? HistorySortOptions.Date,
   );
 
   return Response.json({

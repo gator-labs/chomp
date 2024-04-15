@@ -2,7 +2,14 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 
 type ButtonProps = {
-  variant?: "primary" | "secondary" | "warning" | "white" | "black" | "pink";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "warning"
+    | "white"
+    | "black"
+    | "pink"
+    | "pink-border";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
   children: ReactNode;
@@ -22,9 +29,10 @@ export function Button({
   ...props
 }: ButtonProps) {
   const classNameResult = classNames(
-    `bg-${variant} text-btn-text-${variant} rounded-lg inline-flex justify-center`,
+    `bg-${variant} text-btn-text-${variant} rounded-lg inline-flex justify-center items-center`,
     {
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
+      "border-purple border-[1px]": variant === "pink-border",
       "!bg-disabled": disabled,
       "!text-btn-text-disabled": disabled,
       "cursor-default": disabled,
@@ -39,7 +47,7 @@ export function Button({
       "w-full": isFullWidth,
       "!rounded-full": isPill,
     },
-    className
+    className,
   );
 
   return (
