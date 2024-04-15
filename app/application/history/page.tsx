@@ -6,7 +6,7 @@ import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect
 import { Suspense, useState } from "react";
 const HistoryFeed = dynamic(
   () => import("@/app/components/HistoryFeed/HistoryFeed"),
-  { ssr: false }
+  { ssr: false },
 );
 import { CountdownIcon } from "@/app/components/Icons/CountdownIcon";
 import { Button } from "@/app/components/Button/Button";
@@ -39,7 +39,7 @@ export default function Page({ searchParams }: PageProps) {
   const getData = async (
     query: string | undefined,
     sort: HistorySortOptions,
-    srollId?: number
+    srollId?: number,
   ) => {
     lastQuery = query;
     const searchParams = new URLSearchParams();
@@ -51,7 +51,7 @@ export default function Page({ searchParams }: PageProps) {
     }
     const params = searchParams.toString() ? `?${searchParams}` : "";
     const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/history${params}`
+      `${process.env.NEXT_PUBLIC_API_URL}/history${params}`,
     );
     const json = await data.json();
     setResponse(json.history);
@@ -68,7 +68,7 @@ export default function Page({ searchParams }: PageProps) {
   useIsomorphicLayoutEffect(() => {
     getData(
       searchParams.query,
-      HistorySortOptions[searchParams.sort as keyof typeof HistorySortOptions]
+      HistorySortOptions[searchParams.sort as keyof typeof HistorySortOptions],
     );
   }, []);
 

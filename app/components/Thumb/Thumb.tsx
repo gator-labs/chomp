@@ -1,7 +1,7 @@
 interface Props {
   className?: string;
 }
-const Thumb = ({ className = '' }: Props) => {
+const Thumb = ({ className = "" }: Props) => {
   return (
     <svg
       width="19"

@@ -5,7 +5,7 @@ export default function Page() {
       <p>We are working hard to build out the Ask feature.</p>
       <p>But if you have a question you want to ask Chomp, don't wait!</p>
       <p>
-        Submit it{' '}
+        Submit it{" "}
         <a
           className="text-pink font-bold"
           href="https://forms.gle/F2YAxcVtaWb6ANh49"
@@ -13,7 +13,7 @@ export default function Page() {
           rel="noopener noreferrer"
         >
           here
-        </a>{' '}
+        </a>{" "}
         and we will add it to the queue and reward you once the feature is
         ready!
       </p>

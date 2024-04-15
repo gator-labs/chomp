@@ -24,7 +24,7 @@ export default function Page({ searchParams }: PageProps) {
     }
     const params = searchParams.toString() ? `?${searchParams}` : "";
     const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/home-feed${params}`
+      `${process.env.NEXT_PUBLIC_API_URL}/home-feed${params}`,
     );
     const json = await data.json();
     setResponse(json.homeFeed);

@@ -1,8 +1,8 @@
-import classNames from 'classnames';
-import { Avatar } from '../Avatar/Avatar';
-import { ProgressBar } from '../ProgressBar/ProgressBar';
-import { useSteppingChange } from '@/app/hooks/useSteppingChange';
-import { useState } from 'react';
+import classNames from "classnames";
+import { Avatar } from "../Avatar/Avatar";
+import { ProgressBar } from "../ProgressBar/ProgressBar";
+import { useSteppingChange } from "@/app/hooks/useSteppingChange";
+import { useState } from "react";
 
 type TrueFalseScaleProps = {
   ratioTrue?: number | null;
@@ -20,12 +20,12 @@ export function TrueFalseScale({
   avatarSrc,
   progressBarClassName,
   handleRatioChange,
-  labelTrue = 'True',
-  labelFalse = 'False',
+  labelTrue = "True",
+  labelFalse = "False",
 }: TrueFalseScaleProps) {
   const avatarLeft = valueSelected
     ? valueSelected > 90
-      ? 'calc(100% - 16px)'
+      ? "calc(100% - 16px)"
       : `${valueSelected}%`
     : undefined;
   const { handlePercentageChange } = useSteppingChange({
@@ -43,7 +43,7 @@ export function TrueFalseScale({
       {isVisibleBackdrop && (
         <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-50 rounded-xl flex gap-5">
           <p className="text-[#0d0d0d7d] font-normal">
-            F{' '}
+            F{" "}
             <span className="text-[#0D0D0D] font-semibold">
               {100 - (ratioTrue ?? 0)}%
             </span>
@@ -59,8 +59,8 @@ export function TrueFalseScale({
         }
         progressColor="#8872A5"
         bgColor="#CFC5F7"
-        className={classNames('h-[21px]', progressBarClassName)}
-        onChange={percentage => handlePercentageChange(100 - percentage)}
+        className={classNames("h-[21px]", progressBarClassName)}
+        onChange={(percentage) => handlePercentageChange(100 - percentage)}
         onTouchStart={() => setIsVisibleBackdrop(true)}
         onTouchEnd={() => setIsVisibleBackdrop(false)}
       />
@@ -74,14 +74,14 @@ export function TrueFalseScale({
       )}
       <div className="flex justify-between text-white font-sora text-base font-semibold mt-2 z-50 relative">
         <span>
-          {labelFalse}{' '}
+          {labelFalse}{" "}
           {ratioTrue === undefined || ratioTrue === null
-            ? '0'
+            ? "0"
             : 100 - ratioTrue}
           %
         </span>
         <span>
-          {labelTrue} {ratioTrue ?? '0'}%
+          {labelTrue} {ratioTrue ?? "0"}%
         </span>
       </div>
     </div>

@@ -23,7 +23,7 @@ export function SearchFilters({
   const pathname = usePathname();
   const [searchFilters, setValue] = useLocalStorage(
     "home-filters",
-    [] as { suggestion: string; isSearched: boolean }[]
+    [] as { suggestion: string; isSearched: boolean }[],
   );
   const [query, setQuery] = useState(initialQuery);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);

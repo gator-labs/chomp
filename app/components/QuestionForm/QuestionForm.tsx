@@ -185,7 +185,7 @@ export default function QuestionForm({
                 setSelectedTagIds((prev) =>
                   !prev.includes(tag.id)
                     ? [...prev, tag.id]
-                    : prev.filter((tagId) => tagId !== tag.id)
+                    : prev.filter((tagId) => tagId !== tag.id),
                 )
               }
               isSelected={selectedTagIds.includes(tag.id)}

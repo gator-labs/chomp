@@ -37,7 +37,7 @@ export async function revealDecks(deckIds: number[]) {
     await incrementFungibleAssetBalance(
       FungibleAsset.Point,
       await calculateRevealPoints(payload.sub, deckIds, !!"isDeck"),
-      tx
+      tx,
     );
   });
 
@@ -62,7 +62,7 @@ export async function revealQuestions(questionIds: number[]) {
     await incrementFungibleAssetBalance(
       FungibleAsset.Point,
       await calculateRevealPoints(payload.sub, questionIds),
-      tx
+      tx,
     );
   });
 
@@ -72,7 +72,7 @@ export async function revealQuestions(questionIds: number[]) {
 const calculateRevealPoints = async (
   userId: string,
   ids: number[],
-  isDeck?: boolean
+  isDeck?: boolean,
 ) => {
   const questions = await prisma.deckQuestion.findMany({
     where: isDeck
@@ -101,12 +101,12 @@ const calculateRevealPoints = async (
   });
 
   const questionOptionPercentages = await answerPercentageQuery(
-    questions.flatMap((q) => q.question.questionOptions).map((qo) => qo.id)
+    questions.flatMap((q) => q.question.questionOptions).map((qo) => qo.id),
   );
 
   const correctFirstOrderQuestions = questions.filter(({ question }) => {
     const answers = question.questionOptions.flatMap(
-      (qo) => qo.questionAnswers
+      (qo) => qo.questionAnswers,
     );
 
     if (answers.length === 2) {
@@ -115,11 +115,11 @@ const calculateRevealPoints = async (
       }
 
       const aCalculatedPercentage = questionOptionPercentages.find(
-        (questionOption) => questionOption.id === answers[0].questionOptionId
+        (questionOption) => questionOption.id === answers[0].questionOptionId,
       )?.percentageResult;
 
       const bCalculatedPercentage = questionOptionPercentages.find(
-        (questionOption) => questionOption.id === answers[1].questionOptionId
+        (questionOption) => questionOption.id === answers[1].questionOptionId,
       )?.percentageResult;
 
       if (
@@ -139,7 +139,7 @@ const calculateRevealPoints = async (
           calculatedPercentage: bCalculatedPercentage,
           selectedPercentage: answers[1].percentage,
           selected: answers[1].selected,
-        }
+        },
       );
     }
 
@@ -160,7 +160,7 @@ const calculateRevealPoints = async (
     return !!questionOptionPercentages.find(
       (questionOption) =>
         questionOption.id === selectedAnswers[0].questionOptionId &&
-        questionOption.percentageResult === selectedAnswers[0].percentage
+        questionOption.percentageResult === selectedAnswers[0].percentage,
     );
   });
 

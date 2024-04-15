@@ -12,7 +12,7 @@ const IS_SERVER = typeof window === "undefined";
 export function useLocalStorage<T>(
   key: string,
   initialValue: T | (() => T),
-  options: UseLocalStorageOptions<T> = {}
+  options: UseLocalStorageOptions<T> = {},
 ): [T, Dispatch<SetStateAction<T>>, () => void] {
   const { initializeWithValue = true } = options;
 
@@ -24,7 +24,7 @@ export function useLocalStorage<T>(
 
       return JSON.stringify(value);
     },
-    [options]
+    [options],
   );
 
   const deserializer = useCallback<(value: string) => T>(
@@ -50,7 +50,7 @@ export function useLocalStorage<T>(
 
       return parsed as T;
     },
-    [options, initialValue]
+    [options, initialValue],
   );
 
   const readValue = useCallback((): T => {
@@ -81,7 +81,7 @@ export function useLocalStorage<T>(
   const setValue: Dispatch<SetStateAction<T>> = useCallback((value) => {
     if (IS_SERVER) {
       console.warn(
-        `Tried setting localStorage key “${key}” even though environment is not a client`
+        `Tried setting localStorage key “${key}” even though environment is not a client`,
       );
     }
 
@@ -98,7 +98,7 @@ export function useLocalStorage<T>(
   const removeValue = useCallback(() => {
     if (IS_SERVER) {
       console.warn(
-        `Tried removing localStorage key “${key}” even though environment is not a client`
+        `Tried removing localStorage key “${key}” even though environment is not a client`,
       );
     }
 

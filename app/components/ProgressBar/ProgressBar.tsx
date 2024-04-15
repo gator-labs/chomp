@@ -1,8 +1,8 @@
-'use client';
-import { useDragPositionPercentage } from '@/app/hooks/useDragPositionPercentage';
-import classNames from 'classnames';
-import { useCallback, useRef, useState } from 'react';
-import Thumb from '../Thumb/Thumb';
+"use client";
+import { useDragPositionPercentage } from "@/app/hooks/useDragPositionPercentage";
+import classNames from "classnames";
+import { useCallback, useRef, useState } from "react";
+import Thumb from "../Thumb/Thumb";
 
 type ProgressBarProps = {
   percentage: number;
@@ -32,16 +32,16 @@ export function ProgressBar({
     <div
       ref={wrapperRef}
       className={classNames(
-        'relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-50',
-        className
+        "relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-50",
+        className,
       )}
       style={{ backgroundColor: bgColor }}
-      onClick={e => handleChangePosition(e, false)}
+      onClick={(e) => handleChangePosition(e, false)}
       draggable={false}
     >
       <div
-        className={classNames('h-full w-10 cursor-grab absolute z-10', {
-          'cursor-grabbing': isDragging,
+        className={classNames("h-full w-10 cursor-grab absolute z-10", {
+          "cursor-grabbing": isDragging,
         })}
         onMouseDown={startDrag}
         onMouseUp={endDrag}

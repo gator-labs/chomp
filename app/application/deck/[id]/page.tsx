@@ -2,7 +2,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 const DeckDetails = dynamic(
   () => import("@/app/components/DeckDetails/DeckDetails"),
-  { ssr: false }
+  { ssr: false },
 );
 import { getDeckDetails } from "@/app/queries/deck";
 import { redirect } from "next/navigation";

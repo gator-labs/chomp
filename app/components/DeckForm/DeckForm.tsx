@@ -98,7 +98,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                   onChange: (e) => {
                     setValue(
                       `questions.${questionIndex}.questionOptions`,
-                      getDefaultOptions(e.target.value)
+                      getDefaultOptions(e.target.value),
                     );
                   },
                 })}
@@ -117,7 +117,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                 watch(`questions.${questionIndex}.type`) ===
                   QuestionType.MultiChoice
                   ? 4
-                  : 2
+                  : 2,
               )
                 .fill(null)
                 .map((_, optionIndex) => (
@@ -127,7 +127,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                         <TextInput
                           variant="secondary"
                           {...register(
-                            `questions.${questionIndex}.questionOptions.${optionIndex}.option`
+                            `questions.${questionIndex}.questionOptions.${optionIndex}.option`,
                           )}
                           disabled={
                             watch(`questions.${questionIndex}.type`) ===
@@ -142,7 +142,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                         <input
                           type="checkbox"
                           {...register(
-                            `questions.${questionIndex}.questionOptions.${optionIndex}.isTrue`
+                            `questions.${questionIndex}.questionOptions.${optionIndex}.isTrue`,
                           )}
                         />
                       </div>
@@ -182,7 +182,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                 type: fields[fields.length - 1].type,
                 question: "",
                 questionOptions: getDefaultOptions(
-                  fields[fields.length - 1].type
+                  fields[fields.length - 1].type,
                 ),
               });
             }}
@@ -248,7 +248,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                 setSelectedTagIds((prev) =>
                   !prev.includes(tag.id)
                     ? [...prev, tag.id]
-                    : prev.filter((tagId) => tagId !== tag.id)
+                    : prev.filter((tagId) => tagId !== tag.id),
                 )
               }
               isSelected={selectedTagIds.includes(tag.id)}

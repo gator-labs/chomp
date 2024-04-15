@@ -21,10 +21,10 @@ export function BooleanAnsweredContent({
   isYesNo = false,
 }: BooleanAnsweredContentProps) {
   const ratioTrue = questionOptions.find(
-    (qo) => qo.option === "True" || qo.option === "Yes"
+    (qo) => qo.option === "True" || qo.option === "Yes",
   )?.questionAnswers[0]?.percentage;
   const ratioSelectedTrue = questionOptions.find(
-    (qo) => qo.option === "True" || qo.option === "Yes"
+    (qo) => qo.option === "True" || qo.option === "Yes",
   )?.questionAnswers[0]?.percentageResult;
 
   return (

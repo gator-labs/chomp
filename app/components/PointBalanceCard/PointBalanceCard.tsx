@@ -10,7 +10,7 @@ export default function PointBalanceCard({ amount }: PointBalanceCardProps) {
     <div
       className={classNames(
         "flex justify-between items-center rounded-full px-6 py-4 bg-[#333]",
-        c.card
+        c.card,
       )}
     >
       <span className="text-s leading-4">Chomp Points</span>

@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Button } from '../components/Button/Button';
-import Link from 'next/link';
-import { TUTORIAL_STEPS } from './constants';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { Button } from "../components/Button/Button";
+import Link from "next/link";
+import { TUTORIAL_STEPS } from "./constants";
+import { useRouter } from "next/navigation";
 
 const TutorialPage = () => {
   const [currentTutorialStep, setCurrentTutorialStep] = useState<number | null>(
-    null
+    null,
   );
   const router = useRouter();
 
@@ -19,14 +19,14 @@ const TutorialPage = () => {
     if (currentTutorialStep === firstTutorialStep)
       return setCurrentTutorialStep(null);
 
-    setCurrentTutorialStep(prevTutorialStep => prevTutorialStep! - 1);
+    setCurrentTutorialStep((prevTutorialStep) => prevTutorialStep! - 1);
   };
 
   const handleNextClick = () => {
     if (currentTutorialStep === lastTutorialStep)
-      return router.push('/application');
+      return router.push("/application");
 
-    setCurrentTutorialStep(prevTutorialStep => prevTutorialStep! + 1);
+    setCurrentTutorialStep((prevTutorialStep) => prevTutorialStep! + 1);
   };
 
   return (
@@ -52,7 +52,7 @@ const TutorialPage = () => {
               size="big"
               onClick={handleNextClick}
             >
-              {currentTutorialStep === lastTutorialStep ? 'Start' : 'Next'}
+              {currentTutorialStep === lastTutorialStep ? "Start" : "Next"}
             </Button>
           </div>
         </>
