@@ -101,7 +101,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   }
 
   const deck = await prisma.deck.findFirst({
-    where: { id: { equals: deckId } },
+    where: { id: { equals: deckId }, isActive: true },
     include: questionDeckToRunInclude,
   });
 
@@ -370,6 +370,7 @@ export async function getHomeFeedDecks({
           },
         },
         revealAtDate: { gte: new Date() },
+        isActive: true,
       };
 
   let decks = await prisma.deck.findMany({

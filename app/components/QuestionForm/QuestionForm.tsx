@@ -7,8 +7,9 @@ import { z } from "zod";
 import { questionSchema } from "@/app/schemas/question";
 import { Tag } from "../Tag/Tag";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import DatePicker from "react-datepicker";
 
 type QuestionFormProps = {
   question?: z.infer<typeof questionSchema>;
@@ -49,6 +50,7 @@ export default function QuestionForm({
     formState: { errors },
     watch,
     setValue,
+    control,
   } = useForm({
     resolver: zodResolver(questionSchema),
     defaultValues: question || {
@@ -154,12 +156,19 @@ export default function QuestionForm({
 
       <div className="mb-3">
         <label className="block mb-1">Reveal at date (optional)</label>
-        <TextInput
-          variant="secondary"
-          type="datetime-local"
-          {...register("revealAtDate", {
-            setValueAs: (v) => (!v ? null : new Date(v)),
-          })}
+        <Controller
+          name="revealAtDate"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              showIcon
+              selected={field.value}
+              onChange={field.onChange}
+              placeholderText="Reveal date"
+              showTimeInput
+              dateFormat="Pp"
+            />
+          )}
         />
         <div>{errors.revealAtDate?.message}</div>
       </div>

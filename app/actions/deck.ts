@@ -28,6 +28,8 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         imageUrl: validatedFields.data.imageUrl,
         revealAtDate: validatedFields.data.revealAtDate,
         revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+        date: validatedFields.data.date,
+        isActive: validatedFields.data.isActive,
       },
     });
 

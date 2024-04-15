@@ -6,11 +6,12 @@ import { TextInput } from "../TextInput/TextInput";
 import { z } from "zod";
 import { Tag } from "../Tag/Tag";
 import { useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { deckSchema } from "@/app/schemas/deck";
 import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
+import DatePicker from "react-datepicker";
 
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
@@ -64,6 +65,12 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
         <label className="block mb-1">Image URL (optional)</label>
         <TextInput variant="secondary" {...register("imageUrl")} />
         <div>{errors.imageUrl?.message}</div>
+      </div>
+
+      <div className="mb-3">
+        <label className="mr-3">Is active</label>
+        <input type="checkbox" className="mt-1" {...register("isActive")} />
+        <div>{errors.isActive?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -217,14 +224,40 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
 
       <div className="mb-3">
         <label className="block mb-1">Reveal at date (optional)</label>
-        <TextInput
-          variant="secondary"
-          type="datetime-local"
-          {...register("revealAtDate", {
-            setValueAs: (v) => (!v ? null : new Date(v)),
-          })}
+        <Controller
+          name="revealAtDate"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              showIcon
+              selected={field.value}
+              onChange={field.onChange}
+              placeholderText="Reveal date"
+              showTimeInput
+              dateFormat="Pp"
+            />
+          )}
         />
         <div>{errors.revealAtDate?.message}</div>
+      </div>
+
+      <div className="mb-3">
+        <label className="block mb-1">Daily deck date (optional)</label>
+        <Controller
+          name="date"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              showIcon
+              selected={field.value}
+              onChange={field.onChange}
+              placeholderText="Daily deck date"
+              showTimeInput
+              dateFormat="Pp"
+            />
+          )}
+        />
+        <div>{errors.date?.message}</div>
       </div>
 
       <div className="mb-3">

@@ -8,6 +8,7 @@ import {
 import Link from "next/link";
 import { Button } from "../Button/Button";
 import { Tag } from "../Tag/Tag";
+import dayjs from "dayjs";
 
 type DeckListProps = {
   decks: (Deck & {
@@ -39,7 +40,7 @@ export function DeckList({ decks }: DeckListProps) {
             <td>{d.deckQuestions[0].question.revealToken}</td>
             <td>{d.deckQuestions[0].question.revealTokenAmount}</td>
             <td>
-              {d.revealAtDate?.toString() || ""}{" "}
+              {d.revealAtDate ? dayjs(d.revealAtDate).format("MM.DD.YYYY HH:mm") : ""}{" "}
               {d.revealAtAnswerCount && `(${d.revealAtAnswerCount} answers)`}
             </td>
             <td>
