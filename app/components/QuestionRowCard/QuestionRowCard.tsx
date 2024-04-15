@@ -8,12 +8,12 @@ import { Connection } from "@solana/web3.js";
 import { useState } from "react";
 import { Button } from "../Button/Button";
 import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
-import { AnsweredQuestionContentFactory } from "@/app/utils/answeredQuestionFactory";
 import { Modal } from "../Modal/Modal";
 import { getQuestionState } from "@/app/utils/question";
 import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import Image from "next/image";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
+import { AnsweredQuestionContent } from "../AnsweredQuestionContent/AnsweredQuestionContent";
 
 type QuestionRowCardProps = {
   question: DeckQuestionIncludes;
@@ -162,7 +162,7 @@ export function QuestionRowCard({
           actionChild={actionSubmit}
           status="chomped"
         >
-          {isRevealed && AnsweredQuestionContentFactory(question)}
+          {isRevealed && <AnsweredQuestionContent element={question} />}
         </QuestionAccordion>
         <Modal
           title="Reveal"

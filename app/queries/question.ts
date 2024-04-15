@@ -76,6 +76,9 @@ const mapToViewModelQuestion = (
 
 export async function getQuestions() {
   const questions = await prisma.question.findMany({
+    where: {
+      deckQuestions: { none: {} },
+    },
     include: {
       questionTags: {
         include: {
@@ -129,6 +132,20 @@ export async function getHomeFeed(query: string = "") {
     getHomeFeedDecks({ areAnswered: true, areRevealed: true, query }),
   ];
 
+  const sortRevealedComparerFn = (a: any, b: any) => {
+    const aNewestClaimTime = a.reveals[0].createdAt;
+    const bNewestClaimTime = b.reveals[0].createdAt;
+
+    if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
+      return 1;
+    }
+
+    if (dayjs(bNewestClaimTime).isAfter(aNewestClaimTime)) {
+      return -1;
+    }
+
+    return 0;
+  };
   const [
     unansweredDailyQuestions,
     unansweredUnrevealedQuestions,
@@ -138,6 +155,9 @@ export async function getHomeFeed(query: string = "") {
     answeredRevealedQuestions,
     answeredRevealedDecks,
   ] = await Promise.all(promiseArray);
+
+  answeredRevealedQuestions.sort(sortRevealedComparerFn);
+  answeredRevealedDecks.sort(sortRevealedComparerFn);
 
   return {
     unansweredDailyQuestions,
@@ -375,7 +395,7 @@ export async function getHomeFeedQuestions({
             },
           },
         },
-        revealAtDate: { gte: new Date() },
+        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
       };
 
   const questionInclude: Prisma.QuestionInclude = areAnswered

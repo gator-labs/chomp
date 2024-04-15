@@ -369,7 +369,7 @@ export async function getHomeFeedDecks({
             },
           },
         },
-        revealAtDate: { gte: new Date() },
+        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
         isActive: true,
       };
 
