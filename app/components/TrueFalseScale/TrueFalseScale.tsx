@@ -37,10 +37,10 @@ export function TrueFalseScale({
 
   return (
     <div className="relative">
-      {isVisibleBackdrop && (
+      {!!handleRatioChange && isVisibleBackdrop && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-50" />
       )}
-      {isVisibleBackdrop && (
+      {!!handleRatioChange && isVisibleBackdrop && (
         <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-50 rounded-xl flex gap-5">
           <p className="text-[#0d0d0d7d] font-normal">
             F{" "}
@@ -60,6 +60,7 @@ export function TrueFalseScale({
         progressColor="#8872A5"
         bgColor="#CFC5F7"
         className={classNames("h-[21px]", progressBarClassName)}
+        showThumb={!!handleRatioChange}
         onChange={(percentage) => handlePercentageChange(100 - percentage)}
         onTouchStart={() => setIsVisibleBackdrop(true)}
         onTouchEnd={() => setIsVisibleBackdrop(false)}

@@ -9,6 +9,7 @@ type ProgressBarProps = {
   progressColor?: string;
   bgColor?: string;
   className?: string;
+  showThumb?: boolean;
   onChange?: (value: number) => void;
   onTouchStart?: () => void;
   onTouchEnd?: () => void;
@@ -19,6 +20,7 @@ export function ProgressBar({
   progressColor,
   bgColor,
   className,
+  showThumb,
   onChange,
   onTouchStart,
   onTouchEnd,
@@ -33,7 +35,7 @@ export function ProgressBar({
       ref={wrapperRef}
       className={classNames(
         "relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-50",
-        className,
+        className
       )}
       style={{ backgroundColor: bgColor }}
       onClick={(e) => handleChangePosition(e, false)}
@@ -58,7 +60,9 @@ export function ProgressBar({
         onTouchMove={handleChangePosition}
         style={{ left: `calc(${percentage}% - 20px)` }}
       >
-        <Thumb className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        {showThumb && (
+          <Thumb className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        )}
       </div>
       <div
         className="h-full bg-purple absolute top-0 l-0 w-full"
