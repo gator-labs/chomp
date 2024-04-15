@@ -15,6 +15,7 @@ export interface DynamicJwtPayload {
   sub: string;
   exp: number;
   verified_credentials: (VerifiedWallet | VerifiedEmail)[];
+  new_user: boolean;
 }
 
 export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
@@ -28,7 +29,7 @@ export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
   try {
     const response = await fetch(
       `https://app.dynamicauth.com/api/v0/environments/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/keys`,
-      options
+      options,
     );
     const responseJson = await response.json();
     const publicKey = responseJson.key.publicKey;
@@ -40,7 +41,7 @@ export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
 };
 
 export const decodeJwtPayload = async (
-  token: string
+  token: string,
 ): Promise<DynamicJwtPayload | null> => {
   try {
     if (!token) {

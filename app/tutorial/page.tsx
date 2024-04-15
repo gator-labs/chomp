@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../components/Button/Button";
 import { TUTORIAL_STEPS } from "./constants";
@@ -11,6 +11,7 @@ const TutorialPage = () => {
     null,
   );
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const lastTutorialStep = TUTORIAL_STEPS.length - 1;
   const firstTutorialStep = 0;
@@ -24,7 +25,7 @@ const TutorialPage = () => {
 
   const handleNextClick = () => {
     if (currentTutorialStep === lastTutorialStep)
-      return router.push("/application");
+      return router.push(searchParams.get("next") ?? "/application");
 
     setCurrentTutorialStep((prevTutorialStep) => prevTutorialStep! + 1);
   };
