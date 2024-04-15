@@ -1,10 +1,10 @@
-import type { Metadata, Viewport } from "next";
 import classNames from "classnames";
+import type { Metadata, Viewport } from "next";
 
 import DynamicProvider from "./providers/DynamicProvider";
 
-import "@/styles/globals.css";
 import { sora } from "@/lib/fonts";
+import "@/styles/globals.css";
 
 export const viewport: Viewport = {
   minimumScale: 1,

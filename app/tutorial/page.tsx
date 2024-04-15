@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button } from "../components/Button/Button";
 import Link from "next/link";
-import { TUTORIAL_STEPS } from "./constants";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "../components/Button/Button";
+import { TUTORIAL_STEPS } from "./constants";
 
 const TutorialPage = () => {
   const [currentTutorialStep, setCurrentTutorialStep] = useState<number | null>(

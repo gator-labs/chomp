@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { Navbar } from "../components/Navbar/Navbar";
 import AvatarPlaceholder from "../../public/images/avatar_placeholder.png";
+import { Navbar } from "../components/Navbar/Navbar";
 
 type PageLayoutProps = {
   children: ReactNode;

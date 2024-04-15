@@ -1,9 +1,9 @@
 "use client";
-import { QuestionType } from "@prisma/client";
-import { RadioInput } from "../RadioInput/RadioInput";
-import { AnswerResult } from "../AnswerResult/AnswerResult";
 import { useSteppingChange } from "@/app/hooks/useSteppingChange";
+import { QuestionType } from "@prisma/client";
+import { AnswerResult } from "../AnswerResult/AnswerResult";
 import { QuestionStep } from "../Question/Question";
+import { RadioInput } from "../RadioInput/RadioInput";
 
 type QuestionOption = {
   id: number;

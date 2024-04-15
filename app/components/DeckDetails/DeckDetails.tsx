@@ -1,13 +1,13 @@
 "use client";
-import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { revealDeck } from "@/app/actions/reveal";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { getQuestionState } from "@/app/utils/question";
-import { Button } from "../Button/Button";
-import { revealDeck } from "@/app/actions/reveal";
+import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 import { useRef } from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { Button } from "../Button/Button";
+import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
 export type DeckQuestionIncludes = Question & {
   questionOptions: {

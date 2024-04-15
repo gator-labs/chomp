@@ -1,8 +1,8 @@
-import { useRef } from "react";
-import { ViewsIcon } from "../Icons/ViewsIcon";
 import { useDragPositionPercentage } from "@/app/hooks/useDragPositionPercentage";
 import classNames from "classnames";
+import { useRef } from "react";
 import { Avatar } from "../Avatar/Avatar";
+import { ViewsIcon } from "../Icons/ViewsIcon";
 
 type AnswerResultProps = {
   percentage: number;

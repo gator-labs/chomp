@@ -1,7 +1,7 @@
 "use client";
 import { useDragPositionPercentage } from "@/app/hooks/useDragPositionPercentage";
 import classNames from "classnames";
-import { useCallback, useRef, useState } from "react";
+import { useRef } from "react";
 import Thumb from "../Thumb/Thumb";
 
 type ProgressBarProps = {
@@ -35,7 +35,7 @@ export function ProgressBar({
       ref={wrapperRef}
       className={classNames(
         "relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-50",
-        className
+        className,
       )}
       style={{ backgroundColor: bgColor }}
       onClick={(e) => handleChangePosition(e, false)}

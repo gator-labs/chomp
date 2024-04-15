@@ -1,9 +1,8 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { saveQuestion } from "../../../actions/answer";
-import { useRouter } from "next/navigation";
 
 export default function Page() {
   const router = useRouter();

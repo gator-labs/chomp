@@ -1,9 +1,9 @@
-import { ChallengeIcon } from "../Icons/ChallengeIcon";
-import { HomeIcon } from "../Icons/HomeIcon";
-import { ComposeIcon } from "../Icons/ComposeIcon";
-import { Navigation } from "../Navigation/Navigation";
 import { getIsUserAdmin } from "@/app/queries/user";
+import { ChallengeIcon } from "../Icons/ChallengeIcon";
+import { ComposeIcon } from "../Icons/ComposeIcon";
+import { HomeIcon } from "../Icons/HomeIcon";
 import { SettingsIcon } from "../Icons/SettingsIcon";
+import { Navigation } from "../Navigation/Navigation";
 
 const navigationItems = [
   {

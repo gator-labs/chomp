@@ -1,8 +1,8 @@
 import { Question, QuestionTag, Tag as TagType } from "@prisma/client";
+import dayjs from "dayjs";
 import Link from "next/link";
 import { Button } from "../Button/Button";
 import { Tag } from "../Tag/Tag";
-import dayjs from "dayjs";
 
 type QuestionListProps = {
   questions: (Question & {

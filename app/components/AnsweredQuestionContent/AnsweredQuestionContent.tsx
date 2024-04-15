@@ -1,23 +1,26 @@
 "use client";
-import { Question } from "@prisma/client";
-import { MultipleChoiceAnsweredContent } from "../components/MultipleChoiceAnsweredContent/MultipleChoiceAnsweredContent";
-import { BooleanAnsweredContent } from "../components/BooleanAnsweredContent/BooleanAnsweredContent";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import { Modal } from "../components/Modal/Modal";
-import { ImageIcon } from "../components/Icons/ImageIcon";
-import { useCallback, useMemo, useState } from "react";
 import {
   isBinaryQuestionCorrectAnswer,
   mapQuestionToBinaryQuestionAnswer,
-} from "./question";
-import { DeckQuestionIncludes } from "../components/DeckDetails/DeckDetails";
-import { AnswerResultIcon } from "../components/Icons/AnswerResultIcon";
-import { PercentageIcon } from "../components/Icons/PercentageIcon";
-import { InfoIcon } from "../components/Icons/InfoIcon";
+} from "@/app/utils/question";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import { useCallback, useMemo, useState } from "react";
+import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
+import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
+import { AnswerResultIcon } from "../Icons/AnswerResultIcon";
+import { ImageIcon } from "../Icons/ImageIcon";
+import { InfoIcon } from "../Icons/InfoIcon";
+import { PercentageIcon } from "../Icons/PercentageIcon";
+import { Modal } from "../Modal/Modal";
+import { MultipleChoiceAnsweredContent } from "../MultipleChoiceAnsweredContent/MultipleChoiceAnsweredContent";
 
-export const AnsweredQuestionContentFactory = (
-  element: DeckQuestionIncludes,
-) => {
+type AnsweredQuestionContentProps = {
+  element: DeckQuestionIncludes;
+};
+
+export const AnsweredQuestionContent = ({
+  element,
+}: AnsweredQuestionContentProps) => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isFirstOrderQuestionCorrect, setIsFirstOrderQuestionCorrect] =
     useState(false);
@@ -72,8 +75,6 @@ export const AnsweredQuestionContentFactory = (
         return <BooleanAnsweredContent {...baseProps} />;
       }
     }
-
-    return <></>;
   }, [handleBinary, baseProps, element.type]);
 
   return (

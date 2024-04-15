@@ -1,8 +1,8 @@
+import { useSteppingChange } from "@/app/hooks/useSteppingChange";
 import classNames from "classnames";
+import { useState } from "react";
 import { Avatar } from "../Avatar/Avatar";
 import { ProgressBar } from "../ProgressBar/ProgressBar";
-import { useSteppingChange } from "@/app/hooks/useSteppingChange";
-import { useState } from "react";
 
 type TrueFalseScaleProps = {
   ratioTrue?: number | null;

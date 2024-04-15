@@ -1,9 +1,9 @@
 "use client";
 import { QuestionType } from "@prisma/client";
-import { Button } from "../Button/Button";
-import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
 import { useState } from "react";
+import { Button } from "../Button/Button";
 import { QuestionStep } from "../Question/Question";
+import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
 
 type QuestionOption = {
   id: number;

@@ -1,8 +1,8 @@
+import { getDeckState } from "@/app/utils/question";
 import { Deck, Reveal } from "@prisma/client";
 import Link from "next/link";
-import { QuestionDeck } from "../QuestionDeck/QuestionDeck";
-import { getDeckState } from "@/app/utils/question";
 import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
+import { QuestionDeck } from "../QuestionDeck/QuestionDeck";
 
 type DeckRowCardProps = {
   deck: Deck & {

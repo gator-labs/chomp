@@ -1,9 +1,9 @@
 "use server";
 import { redirect } from "next/navigation";
-import { getJwtPayload } from "./jwt";
 import { z } from "zod";
 import { profileSchema } from "../schemas/profile";
 import prisma from "../services/prisma";
+import { getJwtPayload } from "./jwt";
 
 export async function updateProfile(data: z.infer<typeof profileSchema>) {
   const payload = await getJwtPayload();

@@ -1,10 +1,10 @@
 "use client";
+import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { ElementType } from "@/app/queries/question";
 import { Deck, Question } from "@prisma/client";
 import { useEffect, useMemo, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
-import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
-import { ElementType } from "@/app/queries/question";
 
 export type HomeFeedProps = {
   unansweredDailyQuestions: Question[];

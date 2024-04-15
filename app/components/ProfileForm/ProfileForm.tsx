@@ -1,13 +1,13 @@
 "use client";
-import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { TextInput } from "../TextInput/TextInput";
-import { Button } from "../Button/Button";
-import { z } from "zod";
 import { profileSchema } from "@/app/schemas/profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "../Button/Button";
 import { CountdownIcon } from "../Icons/CountdownIcon";
+import { TextInput } from "../TextInput/TextInput";
 
 type ProfileFormProps = {
   profile: z.infer<typeof profileSchema>;

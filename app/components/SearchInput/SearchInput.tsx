@@ -1,8 +1,8 @@
+import { useOuterClick } from "@/app/hooks/useOuterClick";
 import classNames from "classnames";
-import { SearchIcon } from "../Icons/SearchIcon";
 import { useRef, useState } from "react";
 import { HistoryIcon } from "../Icons/HistoryIcon";
-import { useOuterClick } from "@/app/hooks/useOuterClick";
+import { SearchIcon } from "../Icons/SearchIcon";
 
 type SearchInputProps = {
   onChange: (value: string) => void;

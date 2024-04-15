@@ -1,9 +1,9 @@
-import { ReactNode } from "react";
-import { HalfArrowDownIcon } from "../Icons/HalfArrowDownIcon";
-import { getRevealedAtString } from "../../utils/dateUtils";
-import { HalfArrowUpIcon } from "../Icons/HalfArrowUpIcon";
-import { ClockIcon } from "../Icons/ClockIcon";
 import classNames from "classnames";
+import { ReactNode } from "react";
+import { getRevealedAtString } from "../../utils/dateUtils";
+import { ClockIcon } from "../Icons/ClockIcon";
+import { HalfArrowDownIcon } from "../Icons/HalfArrowDownIcon";
+import { HalfArrowUpIcon } from "../Icons/HalfArrowUpIcon";
 
 type StatusUnion = "chomped" | "new";
 type QuestionAccordionProps = {
@@ -52,7 +52,7 @@ export function QuestionAccordion({
         <div className="text-white text-base font-sora font-semibold">
           {question}
         </div>
-        {!isCollapsed && children}
+        {!isCollapsed && <div className="mt-6 mb-4">{children}</div>}
         {actionChild}
         <div className="flex justify-between itmes-center">
           <div className="flex items-center gap-2.5">

@@ -1,19 +1,19 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import prisma from "../services/prisma";
-import { getJwtPayload } from "./jwt";
 import {
   FungibleAsset,
   QuestionAnswer,
   QuestionOption,
   QuestionType,
 } from "@prisma/client";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
+import dayjs from "dayjs";
+import { revalidatePath } from "next/cache";
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredDeck } from "../queries/deck";
 import { hasAnsweredQuestion } from "../queries/question";
-import dayjs from "dayjs";
+import prisma from "../services/prisma";
+import { incrementFungibleAssetBalance } from "./fungible-asset";
+import { getJwtPayload } from "./jwt";
 
 export type SaveQuestionRequest = {
   questionId: number;
@@ -31,7 +31,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
 
   const hasAnswered = await hasAnsweredDeck(deckId, userId, true);
 
-  if (!hasAnswered) {
+  if (hasAnswered) {
     return;
   }
 
@@ -41,7 +41,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
   });
 
   if (
-    !revealAtDateObject?.revealAtDate ||
+    revealAtDateObject?.revealAtDate &&
     dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
   ) {
     return;
@@ -90,6 +90,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     } as QuestionAnswer;
   });
 
+  await removePlaceholderAnswerByDeck(deckId, userId);
   await prisma.$transaction(async (tx) => {
     await tx.userDeck.create({
       data: {
@@ -126,7 +127,11 @@ export async function saveQuestion(request: SaveQuestionRequest) {
 
   const userId = payload?.sub ?? "";
 
-  const hasAnswered = await hasAnsweredQuestion(request.questionId, userId);
+  const hasAnswered = await hasAnsweredQuestion(
+    request.questionId,
+    userId,
+    true,
+  );
 
   if (hasAnswered) {
     return;
@@ -138,7 +143,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
   });
 
   if (
-    !revealAtDateObject?.revealAtDate ||
+    revealAtDateObject?.revealAtDate &&
     dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
   ) {
     return;
@@ -180,6 +185,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     } as QuestionAnswer;
   });
 
+  await removePlaceholderAnswerByQuestion(request.questionId, userId);
   await prisma.$transaction(async (tx) => {
     await tx.questionAnswer.createMany({
       data: questionAnswers,
@@ -200,7 +206,11 @@ export async function removePlaceholderAnswerByQuestion(
   userId: string,
 ) {
   await prisma.questionAnswer.deleteMany({
-    where: { questionOption: { questionId }, userId },
+    where: {
+      questionOption: { questionId },
+      userId,
+      hasViewedButNotSubmitted: true,
+    },
   });
 }
 
@@ -212,6 +222,7 @@ export async function removePlaceholderAnswerByDeck(
     where: {
       questionOption: { question: { deckQuestions: { some: { deckId } } } },
       userId,
+      hasViewedButNotSubmitted: true,
     },
   });
 }

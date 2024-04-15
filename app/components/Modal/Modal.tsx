@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { MouseEventHandler, ReactNode, useRef } from "react";
 import { CloseIcon } from "../Icons/CloseIcon";
 import { ReactPortal } from "../ReactPortal/ReactPortal";
 
@@ -10,13 +10,25 @@ type ModalProps = {
 };
 
 export function Modal({ title, isOpen, children, onClose }: ModalProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
   if (!isOpen) {
     return null;
   }
 
+  const handleClickoutside: MouseEventHandler<HTMLDivElement> = (event) => {
+    if (event.target === ref.current) {
+      onClose();
+    }
+  };
+
   return (
     <ReactPortal>
-      <div className="fixed top-0 h-full w-full flex justify-center items-center">
+      <div
+        ref={ref}
+        onClick={handleClickoutside}
+        className="fixed top-0 h-full w-full flex justify-center items-center bg-[#333333BB]"
+      >
         <div className="bg-[#333] m-4 w-full max-w-md p-4 rounded-md border-[1px] border-[#666]">
           <div className="flex justify-between items-center mb-4">
             <div className="text-base font-bold font-sora text-white">

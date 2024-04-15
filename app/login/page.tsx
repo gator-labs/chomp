@@ -4,9 +4,9 @@ import {
   DynamicConnectButton,
   useDynamicContext,
 } from "@dynamic-labs/sdk-react-core";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { setJwt } from "../actions/jwt";
-import { useSearchParams } from "next/navigation";
 
 export default function Page() {
   const { authToken } = useDynamicContext();

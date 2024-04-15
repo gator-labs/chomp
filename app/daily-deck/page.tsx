@@ -1,4 +1,4 @@
-import { Deck, Question } from "@/app/components/Deck/Deck";
+import { Deck } from "@/app/components/Deck/Deck";
 import { getDailyDeck } from "@/app/queries/deck";
 import { DailyDeckTitle } from "../components/DailyDeckTitle/DailyDeckTitle";
 import { NoQuestionsCard } from "../components/NoQuestionsCard/NoQuestionsCard";

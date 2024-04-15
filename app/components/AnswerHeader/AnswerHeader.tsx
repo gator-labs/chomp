@@ -1,11 +1,11 @@
 "use client";
 
 import { QuestionTag, Tag as TagType } from "@prisma/client";
-import { Tag } from "../Tag/Tag";
-import { InfoIcon } from "../Icons/InfoIcon";
 import { useState } from "react";
 import { FilterIcon } from "../Icons/FilterIcon";
+import { InfoIcon } from "../Icons/InfoIcon";
 import { Modal } from "../Modal/Modal";
+import { Tag } from "../Tag/Tag";
 
 export type AnswerHeaderProps = {
   questionTags: (QuestionTag & { tag: TagType })[];

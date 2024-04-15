@@ -2,7 +2,6 @@ import classNames from "classnames";
 import { getRevealedAtString } from "../../utils/dateUtils";
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ClockIcon } from "../Icons/ClockIcon";
-import Image from "next/image";
 
 type StatusUnion = "chomped" | "new" | "continue";
 type QuestionDeckProps = {

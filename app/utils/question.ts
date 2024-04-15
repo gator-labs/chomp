@@ -1,6 +1,6 @@
-import { Deck, Question, Reveal } from "@prisma/client";
-import { DeckQuestionIncludes } from "../components/DeckDetails/DeckDetails";
+import { Deck, Reveal } from "@prisma/client";
 import dayjs from "dayjs";
+import { DeckQuestionIncludes } from "../components/DeckDetails/DeckDetails";
 
 const CHAR_CODE_A_ASCII = 65;
 
