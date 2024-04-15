@@ -72,7 +72,7 @@ export function HomeFeed({
       answeredUnrevealedDecks,
       answeredRevealedQuestions,
       answeredRevealedDecks,
-    ]
+    ],
   );
 
   useEffect(() => {

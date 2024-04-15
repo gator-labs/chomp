@@ -24,7 +24,7 @@ export function useDragPositionPercentage({
       event:
         | React.MouseEvent<HTMLDivElement>
         | React.TouchEvent<HTMLDivElement>,
-      isDrag = true
+      isDrag = true,
     ) => {
       if (!isDragging && isDrag) return;
       const rect = elementRef.current?.getBoundingClientRect();
@@ -36,7 +36,7 @@ export function useDragPositionPercentage({
       const percentage = (clientX - left) / width;
       onChange && onChange(Math.round(percentage * 100));
     },
-    [isDragging, onChange]
+    [isDragging, onChange],
   );
 
   return { handleChangePosition, startDrag, endDrag, isDragging };

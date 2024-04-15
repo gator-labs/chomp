@@ -47,7 +47,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   const [rerenderAction, setRerednerAction] = useState(true);
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
-    QuestionStep.AnswerQuestion
+    QuestionStep.AnswerQuestion,
   );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
@@ -85,7 +85,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
 
   const question = useMemo(
     () => questions[currentQuestionIndex],
-    [questions, currentQuestionIndex]
+    [questions, currentQuestionIndex],
   );
 
   const handleNoAnswer = useCallback(() => {
@@ -172,12 +172,12 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
       handleNextIndex,
       currentOptionSelected,
       optionPercentage,
-    ]
+    ],
   );
 
   const hasReachedEnd = useMemo(
     () => currentQuestionIndex >= questions.length,
-    [currentQuestionIndex]
+    [currentQuestionIndex],
   );
 
   useEffect(() => {
@@ -201,7 +201,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
           style={{ marginBottom: questionOffset + "px" }}
         >
           {Array.from(
-            Array(questions.length - (currentQuestionIndex + 1)).keys()
+            Array(questions.length - (currentQuestionIndex + 1)).keys(),
           ).map((index) => (
             <QuestionCard
               key={index}

@@ -36,7 +36,7 @@ export function useSteppingChange({
 
       onPercentageChange && onPercentageChange(percentageStep);
     },
-    [percentage, onPercentageChange]
+    [percentage, onPercentageChange],
   );
 
   return { handlePercentageChange };

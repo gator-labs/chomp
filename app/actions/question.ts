@@ -104,7 +104,7 @@ export async function editQuestion(data: z.infer<typeof questionSchema>) {
         deleteMany: {
           tagId: {
             in: existingTagIds.filter(
-              (tagId) => !validatedFields.data.tagIds.includes(tagId)
+              (tagId) => !validatedFields.data.tagIds.includes(tagId),
             ),
           },
         },

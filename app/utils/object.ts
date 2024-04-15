@@ -10,7 +10,7 @@ type ObjectEntries<OBJ_T> = // From https://stackoverflow.com/a/60142095
   }[keyof OBJ_T][];
 
 export function getTypedObjectEntries<OBJ_T extends ObjectType>(
-  obj: OBJ_T
+  obj: OBJ_T,
 ): ObjectEntries<OBJ_T> {
   return Object.entries(obj) as ObjectEntries<OBJ_T>;
 }
@@ -24,7 +24,7 @@ type DeepWritable<OBJ_T> = {
 };
 type UnionToIntersection<UNION_T> = // From https://stackoverflow.com/a/50375286
   (UNION_T extends any ? (k: UNION_T) => void : never) extends (
-    k: infer I
+    k: infer I,
   ) => void
     ? I
     : never;
@@ -41,7 +41,7 @@ type EntriesToObject<ARR_T extends EntriesType> = MergeIntersectingObjects<
 >;
 
 export function createTypedObjectFromEntries<ARR_T extends EntriesType>(
-  arr: ARR_T
+  arr: ARR_T,
 ): EntriesToObject<ARR_T> {
   return Object.fromEntries(arr) as EntriesToObject<ARR_T>;
 }

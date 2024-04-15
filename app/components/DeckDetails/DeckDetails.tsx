@@ -79,7 +79,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
               onRefreshCards={(revealedId) => {
                 router.refresh();
                 const elementToScroll = deck.deckQuestions.find(
-                  (q) => q.question.id === revealedId
+                  (q) => q.question.id === revealedId,
                 );
 
                 if (elementToScroll) {

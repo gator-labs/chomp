@@ -16,7 +16,7 @@ export function Tag({ onSelected, tag, isSelected }: TagProps) {
           "bg-[#e6e6e6]": isSelected,
           "text-search-gray": !isSelected,
           "bg-black": !isSelected,
-        }
+        },
       )}
       onClick={onSelected}
       type="button"

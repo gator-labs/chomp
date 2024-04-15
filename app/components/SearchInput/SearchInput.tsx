@@ -52,7 +52,7 @@ export function SearchInput({
           "absolute w-[99vw] top-12 bottom-0 -left-3.5 bg-[#0D0D0DCC] z-30 overflow-y-scroll",
           {
             hidden: !showDropdown,
-          }
+          },
         )}
       >
         {suggestions && suggestions?.length > 0 && (

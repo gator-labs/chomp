@@ -55,7 +55,7 @@ const mapToViewModelQuestion = (
     questionOptions: QuestionOption[];
     questionTags: (QuestionTag & { tag: Tag })[];
     deckQuestions: Array<DeckQuestion & { deck: Deck }>;
-  }
+  },
 ) => ({
   id: question.id,
   durationMiliseconds: Number(question.durationMiliseconds) ?? 0,
@@ -89,7 +89,7 @@ export async function getQuestions() {
 }
 
 export async function getQuestionSchema(
-  id: number
+  id: number,
 ): Promise<z.infer<typeof questionSchema> | null> {
   const question = await prisma.question.findUnique({
     where: {
@@ -152,7 +152,7 @@ export async function getHomeFeed(query: string = "") {
 
 export async function getHistory(
   query: string = "",
-  sort: HistorySortOptions = HistorySortOptions.Revealed
+  sort: HistorySortOptions = HistorySortOptions.Revealed,
 ) {
   const promiseArray = [
     getHomeFeedQuestions({
@@ -414,7 +414,7 @@ export async function getHomeFeedQuestions({
   });
 
   const questionOptionIds = questions.flatMap((q) =>
-    q.questionOptions?.map((qo) => qo.id)
+    q.questionOptions?.map((qo) => qo.id),
   );
   const questionOptionPercentages =
     await answerPercentageQuery(questionOptionIds);
@@ -424,7 +424,7 @@ export async function getHomeFeedQuestions({
       qo.questionAnswers?.forEach((qa: any) => {
         qa.percentageResult =
           questionOptionPercentages.find(
-            (qop) => qop.id === qa.questionOptionId
+            (qop) => qop.id === qa.questionOptionId,
           )?.percentageResult ?? 0;
       });
     });
@@ -474,7 +474,7 @@ export async function getHomeFeedQuestions({
 export async function hasAnsweredQuestion(
   questionId: number,
   userId: string | null = null,
-  ignorePlaceholder = false
+  ignorePlaceholder = false,
 ) {
   if (!userId) {
     const payload = await getJwtPayload();

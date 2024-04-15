@@ -34,20 +34,20 @@ export function CollapsedContextProvider({
 
   const getIsOpen = useCallback(
     (questionId: number) => openQuestionIds.includes(questionId),
-    [openQuestionIds]
+    [openQuestionIds],
   );
 
   const setClosed = useCallback(
     (questionId: number) =>
       setOpenQuestionIds((prev) =>
-        [...prev].filter((qId) => qId !== questionId)
+        [...prev].filter((qId) => qId !== questionId),
       ),
-    [setOpenQuestionIds]
+    [setOpenQuestionIds],
   );
 
   const setOpen = useCallback(
     (questionId: number) => setOpenQuestionIds((prev) => [questionId, ...prev]),
-    [setOpenQuestionIds]
+    [setOpenQuestionIds],
   );
 
   const toggleCollapsed = useCallback(
@@ -59,7 +59,7 @@ export function CollapsedContextProvider({
 
         return [questionId, ...prev];
       }),
-    [setOpenQuestionIds]
+    [setOpenQuestionIds],
   );
 
   const value = useMemo(
@@ -69,7 +69,7 @@ export function CollapsedContextProvider({
       setOpen,
       toggleCollapsed,
     }),
-    [getIsOpen, setClosed, setOpen, toggleCollapsed]
+    [getIsOpen, setClosed, setOpen, toggleCollapsed],
   );
 
   return (

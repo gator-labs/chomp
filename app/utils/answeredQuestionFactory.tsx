@@ -16,7 +16,7 @@ import { PercentageIcon } from "../components/Icons/PercentageIcon";
 import { InfoIcon } from "../components/Icons/InfoIcon";
 
 export const AnsweredQuestionContentFactory = (
-  element: DeckQuestionIncludes
+  element: DeckQuestionIncludes,
 ) => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isFirstOrderQuestionCorrect, setIsFirstOrderQuestionCorrect] =
@@ -29,7 +29,7 @@ export const AnsweredQuestionContentFactory = (
       questionOptions: (element as any).questionOptions,
       avatarSrc: AvatarPlaceholder.src,
     }),
-    [element]
+    [element],
   );
 
   const handleBinary = useCallback(() => {
@@ -38,14 +38,14 @@ export const AnsweredQuestionContentFactory = (
       setIsFirstOrderQuestionCorrect(
         isBinaryQuestionCorrectAnswer(
           binaryQuestionResults[0],
-          binaryQuestionResults[1]
-        )
+          binaryQuestionResults[1],
+        ),
       );
 
       const selected = binaryQuestionResults.find((q) => q.selected);
       if (selected) {
         setIsSecondOrderQuestionCorrect(
-          selected.calculatedPercentage === selected.selectedPercentage
+          selected.calculatedPercentage === selected.selectedPercentage,
         );
       }
     } else {

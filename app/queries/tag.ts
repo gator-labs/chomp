@@ -9,7 +9,7 @@ export async function getTags() {
 }
 
 export async function getTagSchema(
-  id: number
+  id: number,
 ): Promise<z.infer<typeof tagSchema> | null> {
   const tag = await prisma.tag.findUnique({
     where: {

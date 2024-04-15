@@ -58,7 +58,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
 
   const questionAnswers = questionOptions.map((qo) => {
     const answerForQuestion = request.find(
-      (r) => r.questionId === qo.questionId
+      (r) => r.questionId === qo.questionId,
     );
     const isOptionSelected = qo.id === answerForQuestion?.questionOptionId;
 
@@ -106,7 +106,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       FungibleAsset.Point,
       questionIds.length * pointsPerAction["answer-question"] +
         pointsPerAction["answer-deck"],
-      tx
+      tx,
     );
   });
 
@@ -188,7 +188,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     await incrementFungibleAssetBalance(
       FungibleAsset.Point,
       pointsPerAction["answer-question"],
-      tx
+      tx,
     );
   });
 
@@ -197,7 +197,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
 
 export async function removePlaceholderAnswerByQuestion(
   questionId: number,
-  userId: string
+  userId: string,
 ) {
   await prisma.questionAnswer.deleteMany({
     where: { questionOption: { questionId }, userId },
@@ -206,7 +206,7 @@ export async function removePlaceholderAnswerByQuestion(
 
 export async function removePlaceholderAnswerByDeck(
   deckId: number,
-  userId: string
+  userId: string,
 ) {
   await prisma.questionAnswer.deleteMany({
     where: {
@@ -218,7 +218,7 @@ export async function removePlaceholderAnswerByDeck(
 
 export async function addPlaceholderAnswers(
   questionOptions: QuestionOption[],
-  userId: string
+  userId: string,
 ) {
   const placeholderQuestionAnswers = questionOptions.map(
     (qo) =>
@@ -227,7 +227,7 @@ export async function addPlaceholderAnswers(
         hasViewedButNotSubmitted: true,
         questionOptionId: qo.id,
         selected: false,
-      }) as QuestionAnswer
+      }) as QuestionAnswer,
   );
 
   await prisma.questionAnswer.createMany({ data: placeholderQuestionAnswers });

@@ -14,7 +14,7 @@ export default function Page() {
     const vals = searchParams.get("vals");
     const [questionId, questionOptionId, percentageGiven] = vals!.split("~");
     const percentageGivenForAnswerId = searchParams.get(
-      "percentageGivenForAnswerId"
+      "percentageGivenForAnswerId",
     );
 
     if (!questionId) {
