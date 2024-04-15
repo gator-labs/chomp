@@ -3,7 +3,7 @@ export default function Page() {
     <div className="flex flex-1 flex-col gap-2 px-4 py-8">
       <h1 className="text-[32px] mb-2 font-bold">Coming Soon 🦺</h1>
       <p>We are working hard to build out the Ask feature.</p>
-      <p>But if you have a question you want to ask Chomp, don't wait!</p>
+      <p>But if you have a question you want to ask Chomp, don&apos;t wait!</p>
       <p>
         Submit it{" "}
         <a
