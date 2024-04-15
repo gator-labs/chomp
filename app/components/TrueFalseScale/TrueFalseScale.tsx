@@ -35,8 +35,6 @@ export function TrueFalseScale({
 
   const [isVisibleBackdrop, setIsVisibleBackdrop] = useState(false);
 
-  console.log({ ratioTrue, valueSelected, avatarLeft, avatarSrc });
-
   return (
     <div className="relative">
       {!!handleRatioChange && isVisibleBackdrop && (
