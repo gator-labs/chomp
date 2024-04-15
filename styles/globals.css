@@ -20,3 +20,13 @@
     fill: #d6fcf4;
   }
 }
+
+.react-datepicker-wrapper {
+  @apply text-input-gray;
+}
+
+.react-datepicker__input-container {
+  input {
+    @apply rounded;
+  }
+}

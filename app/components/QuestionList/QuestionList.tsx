@@ -2,6 +2,7 @@ import { Question, QuestionTag, Tag as TagType } from "@prisma/client";
 import Link from "next/link";
 import { Button } from "../Button/Button";
 import { Tag } from "../Tag/Tag";
+import dayjs from "dayjs";
 
 type QuestionListProps = {
   questions: (Question & {
@@ -29,7 +30,9 @@ export function QuestionList({ questions }: QuestionListProps) {
             <td>{q.revealToken}</td>
             <td>{q.revealTokenAmount}</td>
             <td>
-              {q.revealAtDate?.toString() || ""}{" "}
+              {q.revealAtDate
+                ? dayjs(q.revealAtDate).format("MM.DD.YYYY HH:mm")
+                : ""}{" "}
               {q.revealAtAnswerCount && `(${q.revealAtAnswerCount} answers)`}
             </td>
             <td>
