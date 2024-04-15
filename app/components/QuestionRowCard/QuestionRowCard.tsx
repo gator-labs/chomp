@@ -1,6 +1,7 @@
 "use client";
 import { revealQuestion } from "@/app/actions/reveal";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
+import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { getQuestionState } from "@/app/utils/question";
 import { genBonkBurnTx } from "@/app/utils/solana";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
@@ -34,6 +35,7 @@ export function QuestionRowCard({
     "burning" | "burned" | "error" | "idle" | "skipburn"
   >("skipburn");
   const { primaryWallet } = useDynamicContext();
+  const { fire } = useConfetti();
 
   const burnAndReveal = async () => {
     const blockhash = await CONNECTION.getLatestBlockhash();
@@ -57,6 +59,7 @@ export function QuestionRowCard({
     onRefreshCards(question.id);
     setOpen(question.id);
     setIsRevealModalOpen(false);
+    fire();
   };
 
   let revealButtons = null;
