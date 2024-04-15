@@ -1,6 +1,6 @@
+import { getTokenBalances } from "@/lib/web3";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
-import { getTokenBalances } from "@/lib/web3";
 
 export const getUserTokenBalances = async () => {
   const payload = await getJwtPayload();

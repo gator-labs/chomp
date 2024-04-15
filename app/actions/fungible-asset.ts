@@ -1,12 +1,7 @@
-import {
-  FungibleAsset,
-  FungibleAssetBalance,
-  Prisma,
-  PrismaClient,
-} from "@prisma/client";
+import { FungibleAsset, FungibleAssetBalance } from "@prisma/client";
 import prisma, { PrismaTransactionClient } from "../services/prisma";
-import { getJwtPayload } from "./jwt";
 import { createTypedObjectFromEntries } from "../utils/object";
+import { getJwtPayload } from "./jwt";
 
 export const getMyFungibleAssetBalances = async (): Promise<
   Record<FungibleAsset, number>

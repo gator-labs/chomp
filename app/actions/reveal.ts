@@ -1,13 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import prisma from "../services/prisma";
-import { getJwtPayload } from "./jwt";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { FungibleAsset } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { pointsPerAction } from "../constants/points";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
+import prisma from "../services/prisma";
 import { isBinaryQuestionCorrectAnswer } from "../utils/question";
+import { incrementFungibleAssetBalance } from "./fungible-asset";
+import { getJwtPayload } from "./jwt";
 
 export async function revealDeck(deckId: number) {
   const decks = await revealDecks([deckId]);

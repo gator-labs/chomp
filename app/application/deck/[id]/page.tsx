@@ -1,15 +1,15 @@
-import Link from "next/link";
+import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
+import { Navbar } from "@/app/components/Navbar/Navbar";
+import { getDeckDetails } from "@/app/queries/deck";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
 const DeckDetails = dynamic(
   () => import("@/app/components/DeckDetails/DeckDetails"),
   { ssr: false },
 );
-import { getDeckDetails } from "@/app/queries/deck";
-import { redirect } from "next/navigation";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import { Navbar } from "@/app/components/Navbar/Navbar";
-import { Suspense } from "react";
-import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 
 type PageProps = {
   params: { id: string };

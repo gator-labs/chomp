@@ -1,8 +1,8 @@
 "use client";
 
 import dayjs from "dayjs";
-import { Avatar } from "../Avatar/Avatar";
 import { useRouter } from "next/navigation";
+import { Avatar } from "../Avatar/Avatar";
 
 type ProfileProps = {
   handle: string;

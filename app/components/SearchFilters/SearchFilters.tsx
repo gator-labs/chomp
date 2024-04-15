@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
-import { SearchInput } from "../SearchInput/SearchInput";
-import { InfoIcon } from "../Icons/InfoIcon";
-import { FilterIcon } from "../Icons/FilterIcon";
-import { usePathname, useRouter } from "next/navigation";
 import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { FilterIcon } from "../Icons/FilterIcon";
+import { InfoIcon } from "../Icons/InfoIcon";
 import { Modal } from "../Modal/Modal";
+import { SearchInput } from "../SearchInput/SearchInput";
 
 type SearchFiltersProps = {
   initialQuery: string;

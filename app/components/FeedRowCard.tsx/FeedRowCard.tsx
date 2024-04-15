@@ -1,9 +1,9 @@
 "use client";
+import { ElementType } from "@/app/queries/question";
 import { Deck, Question, Reveal } from "@prisma/client";
-import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import { DeckRowCard } from "../DeckRowCard/DeckRowCard";
-import { ElementType } from "@/app/queries/question";
+import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
 type FeedRowCardProps = {
   element: Deck | Question;

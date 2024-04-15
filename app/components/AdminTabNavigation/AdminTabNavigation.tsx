@@ -1,9 +1,9 @@
-import { Navigation } from "../Navigation/Navigation";
-import { HomeIcon } from "../Icons/HomeIcon";
 import { BackIcon } from "../Icons/BackIcon";
 import { CommentIcon } from "../Icons/CommentIcon";
 import { FilterIcon } from "../Icons/FilterIcon";
+import { HomeIcon } from "../Icons/HomeIcon";
 import { SortByIcon } from "../Icons/SortByIcon";
+import { Navigation } from "../Navigation/Navigation";
 
 const navigationItems = [
   { label: "App", icon: <BackIcon />, href: "/application" },

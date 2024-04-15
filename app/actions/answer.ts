@@ -1,19 +1,19 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import prisma from "../services/prisma";
-import { getJwtPayload } from "./jwt";
 import {
   FungibleAsset,
   QuestionAnswer,
   QuestionOption,
   QuestionType,
 } from "@prisma/client";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
+import dayjs from "dayjs";
+import { revalidatePath } from "next/cache";
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredDeck } from "../queries/deck";
 import { hasAnsweredQuestion } from "../queries/question";
-import dayjs from "dayjs";
+import prisma from "../services/prisma";
+import { incrementFungibleAssetBalance } from "./fungible-asset";
+import { getJwtPayload } from "./jwt";
 
 export type SaveQuestionRequest = {
   questionId: number;
@@ -130,7 +130,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
   const hasAnswered = await hasAnsweredQuestion(
     request.questionId,
     userId,
-    true
+    true,
   );
 
   if (hasAnswered) {

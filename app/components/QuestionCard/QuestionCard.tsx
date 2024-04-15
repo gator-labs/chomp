@@ -1,16 +1,15 @@
 "use client";
-import { CSSProperties, ReactNode, useCallback, useState } from "react";
-import { ImageIcon } from "../Icons/ImageIcon";
-import { CountdownIcon } from "../Icons/CountdownIcon";
 import classNames from "classnames";
+import dayjs from "dayjs";
+import { CSSProperties, ReactNode, useCallback, useState } from "react";
 import { useInterval } from "../../hooks/useInterval";
 import {
   ONE_SECOND_IN_MILISECONDS,
   getDueAtString,
 } from "../../utils/dateUtils";
-import dayjs from "dayjs";
+import { CountdownIcon } from "../Icons/CountdownIcon";
+import { ImageIcon } from "../Icons/ImageIcon";
 import { Modal } from "../Modal/Modal";
-import Image from "next/image";
 
 type QuestionCardProps = {
   question: string;

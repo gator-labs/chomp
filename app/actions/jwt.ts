@@ -2,8 +2,8 @@
 
 import { VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@/lib/auth";
 import { cookies } from "next/headers";
-import prisma from "../services/prisma";
 import { redirect } from "next/navigation";
+import prisma from "../services/prisma";
 
 export const getJwtPayload = async () => {
   const token = cookies().get("token");

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
+import "react-datepicker/dist/react-datepicker.css";
 import { AdminTabNavigation } from "../components/AdminTabNavigation/AdminTabNavigation";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
-import "react-datepicker/dist/react-datepicker.css";
 
 type PageLayoutProps = {
   children: ReactNode;

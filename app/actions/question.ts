@@ -1,11 +1,11 @@
 "use server";
 
-import prisma from "../services/prisma";
 import { revalidatePath } from "next/cache";
-import { questionSchema } from "../schemas/question";
 import { redirect } from "next/navigation";
-import { getIsUserAdmin } from "../queries/user";
 import { z } from "zod";
+import { getIsUserAdmin } from "../queries/user";
+import { questionSchema } from "../schemas/question";
+import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILISECONDS } from "../utils/dateUtils";
 
 export async function createQuestion(data: z.infer<typeof questionSchema>) {

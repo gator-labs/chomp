@@ -1,10 +1,10 @@
 "use client";
-import { Deck, Question } from "@prisma/client";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
 import { ElementType } from "@/app/queries/question";
+import { Deck, Question } from "@prisma/client";
 import { useEffect, useRef } from "react";
+import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
 
 export type HistoryFeedProps = {
   list: Array<(Question | Deck) & { elementType: ElementType }>;

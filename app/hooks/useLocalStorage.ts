@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type UseLocalStorageOptions<T> = {
   serializer?: (value: T) => string;

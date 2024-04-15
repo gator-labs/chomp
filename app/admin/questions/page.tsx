@@ -1,6 +1,6 @@
-import { getQuestions } from "@/app/queries/question";
-import { QuestionList } from "@/app/components/QuestionList/QuestionList";
 import { Button } from "@/app/components/Button/Button";
+import { QuestionList } from "@/app/components/QuestionList/QuestionList";
+import { getQuestions } from "@/app/queries/question";
 import Link from "next/link";
 
 export default async function Page() {

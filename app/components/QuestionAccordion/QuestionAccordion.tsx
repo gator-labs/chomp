@@ -1,9 +1,9 @@
-import { ReactNode } from "react";
-import { HalfArrowDownIcon } from "../Icons/HalfArrowDownIcon";
-import { getRevealedAtString } from "../../utils/dateUtils";
-import { HalfArrowUpIcon } from "../Icons/HalfArrowUpIcon";
-import { ClockIcon } from "../Icons/ClockIcon";
 import classNames from "classnames";
+import { ReactNode } from "react";
+import { getRevealedAtString } from "../../utils/dateUtils";
+import { ClockIcon } from "../Icons/ClockIcon";
+import { HalfArrowDownIcon } from "../Icons/HalfArrowDownIcon";
+import { HalfArrowUpIcon } from "../Icons/HalfArrowUpIcon";
 
 type StatusUnion = "chomped" | "new";
 type QuestionAccordionProps = {

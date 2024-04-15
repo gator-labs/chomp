@@ -1,6 +1,6 @@
+import classNames from "classnames";
 import Link from "next/link";
 import { Button } from "../Button/Button";
-import classNames from "classnames";
 
 type SwitchNavigationProps = {
   navigationItems: {

@@ -1,5 +1,4 @@
 import { ProgressBar } from "../ProgressBar/ProgressBar";
-import { Tag } from "../Tag/Tag";
 
 type GeneralRankCardProps = {
   rank: number;

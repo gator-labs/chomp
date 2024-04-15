@@ -3,16 +3,16 @@ import {
   isBinaryQuestionCorrectAnswer,
   mapQuestionToBinaryQuestionAnswer,
 } from "@/app/utils/question";
-import { useCallback, useMemo, useState } from "react";
-import { MultipleChoiceAnsweredContent } from "../MultipleChoiceAnsweredContent/MultipleChoiceAnsweredContent";
-import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
-import { Modal } from "../Modal/Modal";
-import { ImageIcon } from "../Icons/ImageIcon";
-import { AnswerResultIcon } from "../Icons/AnswerResultIcon";
-import { PercentageIcon } from "../Icons/PercentageIcon";
-import { InfoIcon } from "../Icons/InfoIcon";
-import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import { useCallback, useMemo, useState } from "react";
+import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
+import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
+import { AnswerResultIcon } from "../Icons/AnswerResultIcon";
+import { ImageIcon } from "../Icons/ImageIcon";
+import { InfoIcon } from "../Icons/InfoIcon";
+import { PercentageIcon } from "../Icons/PercentageIcon";
+import { Modal } from "../Modal/Modal";
+import { MultipleChoiceAnsweredContent } from "../MultipleChoiceAnsweredContent/MultipleChoiceAnsweredContent";
 
 type AnsweredQuestionContentProps = {
   element: DeckQuestionIncludes;

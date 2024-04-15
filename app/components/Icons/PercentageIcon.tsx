@@ -1,4 +1,3 @@
-import React from "react";
 import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from ".";
 
 export function PercentageIcon({

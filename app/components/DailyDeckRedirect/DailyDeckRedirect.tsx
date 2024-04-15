@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
 import { getDailyDeck } from "@/app/queries/deck";
+import { redirect } from "next/navigation";
 
 export const DailyDeckRedirect = async () => {
   const dailyDeck = await getDailyDeck();

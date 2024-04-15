@@ -1,11 +1,11 @@
 "use client";
 
+import { tagSchema } from "@/app/schemas/tag";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { TextInput } from "../TextInput/TextInput";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { tagSchema } from "@/app/schemas/tag";
 
 type TagFormProps = {
   tag?: z.infer<typeof tagSchema>;

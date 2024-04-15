@@ -1,9 +1,9 @@
-import { Transaction, PublicKey, Keypair } from "@solana/web3.js";
 import {
   createBurnCheckedInstruction,
-  getAssociatedTokenAddress,
   createTransferCheckedInstruction,
+  getAssociatedTokenAddress,
 } from "@solana/spl-token";
+import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import * as bs58 from "bs58";
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;

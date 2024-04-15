@@ -1,11 +1,11 @@
-import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
-import { Profile } from "@/app/components/Profile/Profile";
-import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
-import TagRankCard from "@/app/components/TagRankCard/TagRankCard";
-import GeneralRankCard from "@/app/components/GeneralRankCard/GeneralRankCard";
-import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
-import { LogoutButton } from "@/app/components/LogoutButton/LogoutButton";
 import { getMyFungibleAssetBalances } from "@/app/actions/fungible-asset";
+import GeneralRankCard from "@/app/components/GeneralRankCard/GeneralRankCard";
+import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
+import { LogoutButton } from "@/app/components/LogoutButton/LogoutButton";
+import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
+import { Profile } from "@/app/components/Profile/Profile";
+import TagRankCard from "@/app/components/TagRankCard/TagRankCard";
+import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
 
 export default async function Page() {
   const balances = await getMyFungibleAssetBalances();

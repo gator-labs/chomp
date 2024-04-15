@@ -1,7 +1,7 @@
+import Link from "next/link";
 import { ReactNode } from "react";
 import { Avatar } from "../Avatar/Avatar";
 import { WalletIcon } from "../Icons/WalletIcon";
-import Link from "next/link";
 
 type NavbarProps = {
   children?: ReactNode;

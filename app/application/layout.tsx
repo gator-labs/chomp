@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
-import { TabNavigation } from "../components/TabNavigation/TabNavigation";
-import { DailyDeckRedirect } from "../components/DailyDeckRedirect/DailyDeckRedirect";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
+import { DailyDeckRedirect } from "../components/DailyDeckRedirect/DailyDeckRedirect";
+import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 import { CollapsedContextProvider } from "../providers/CollapsedProvider";
 
 type PageLayoutProps = {
