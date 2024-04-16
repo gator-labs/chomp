@@ -2,8 +2,8 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 import { getRevealedAtString } from "../../utils/dateUtils";
 import { ClockIcon } from "../Icons/ClockIcon";
-import { HalfArrowDownIcon } from "../Icons/HalfArrowDownIcon";
-import { HalfArrowUpIcon } from "../Icons/HalfArrowUpIcon";
+import { CloseIcon } from "../Icons/CloseIcon";
+import { ExpandIcon } from "../Icons/ExpandIcon";
 
 type StatusUnion = "chomped" | "new";
 type QuestionAccordionProps = {
@@ -78,8 +78,13 @@ export function QuestionAccordion({
       <div>
         {children && (
           <button onClick={onToggleCollapse}>
-            {isCollapsed && <HalfArrowDownIcon />}
-            {!isCollapsed && <HalfArrowUpIcon />}
+            {isCollapsed ? (
+              <div className="w-6 h-6 flex justify-center items-center">
+                <ExpandIcon width={16} height={16} />
+              </div>
+            ) : (
+              <CloseIcon />
+            )}
           </button>
         )}
       </div>
