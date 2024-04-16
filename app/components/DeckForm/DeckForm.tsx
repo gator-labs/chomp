@@ -58,19 +58,19 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       <div className="mb-3">
         <label className="block mb-1">Deck title</label>
         <TextInput variant="secondary" {...register("deck")} />
-        <div>{errors.deck?.message}</div>
+        <div className="text-red">{errors.deck?.message}</div>
       </div>
 
       <div className="mb-3">
         <label className="block mb-1">Image URL (optional)</label>
         <TextInput variant="secondary" {...register("imageUrl")} />
-        <div>{errors.imageUrl?.message}</div>
+        <div className="text-red">{errors.imageUrl?.message}</div>
       </div>
 
       <div className="mb-3">
         <label className="mr-3">Is active</label>
         <input type="checkbox" className="mt-1" {...register("isActive")} />
-        <div>{errors.isActive?.message}</div>
+        <div className="text-red">{errors.isActive?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -81,7 +81,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
           >
             <h2 className="text-xl mb-2">Question #{questionIndex + 1}</h2>
 
-            <div>
+            <div className="text-red">
               {errors.questions && errors.questions[questionIndex]?.message}
             </div>
 
@@ -91,7 +91,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                 variant="secondary"
                 {...register(`questions.${questionIndex}.question`)}
               />
-              <div>
+              <div className="text-red">
                 {errors.questions &&
                   errors.questions[questionIndex]?.question?.message}
               </div>
@@ -154,7 +154,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                         />
                       </div>
                     </div>
-                    <div>
+                    <div className="text-red">
                       {errors.questions &&
                         errors.questions[questionIndex]?.questionOptions &&
                         errors.questions[questionIndex]?.questionOptions![
@@ -208,7 +208,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
             </option>
           ))}
         </select>
-        <div>{errors.revealToken?.message}</div>
+        <div className="text-red">{errors.revealToken?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -219,7 +219,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
             setValueAs: (v) => (!v ? 0 : parseInt(v)),
           })}
         />
-        <div>{errors.revealTokenAmount?.message}</div>
+        <div className="text-red">{errors.revealTokenAmount?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -238,7 +238,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
             />
           )}
         />
-        <div>{errors.revealAtDate?.message}</div>
+        <div className="text-red">{errors.revealAtDate?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -257,7 +257,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
             />
           )}
         />
-        <div>{errors.date?.message}</div>
+        <div className="text-red">{errors.date?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -268,7 +268,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
             setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         />
-        <div>{errors.revealAtAnswerCount?.message}</div>
+        <div className="text-red">{errors.revealAtAnswerCount?.message}</div>
       </div>
 
       <div className="mb-4">
