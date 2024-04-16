@@ -75,24 +75,24 @@ export function SearchFilters({
         <p className="mb-3">
           When you perform the following actions on Chomp, you will earn a
           correlating amount of points:
-          <ul className="list-disc">
-            <li className="list-item ml-5">
-              A question you ask gets vetted and accepted: 69 points
-            </li>
-            <li className="list-item ml-5">Answer a full stack: 20 points</li>
-            <li className="list-item ml-5">Answer a question: 10 points</li>
-            <li className="list-item ml-5">Reveal an answer: 42 points</li>
-            <li className="list-item ml-5">
-              Get 1st order question exactly right: 6.9 points
-            </li>
-            <li className="list-item ml-5">
-              Get 2nd order question exactly right: 15 points
-            </li>
-          </ul>
         </p>
+        <ul className="list-disc">
+          <li className="list-item ml-5">
+            A question you ask gets vetted and accepted: 69 points
+          </li>
+          <li className="list-item ml-5">Answer a full stack: 20 points</li>
+          <li className="list-item ml-5">Answer a question: 10 points</li>
+          <li className="list-item ml-5">Reveal an answer: 42 points</li>
+          <li className="list-item ml-5">
+            Get 1st order question exactly right: 6.9 points
+          </li>
+          <li className="list-item ml-5">
+            Get 2nd order question exactly right: 15 points
+          </li>
+        </ul>
         <p>
           We are also in the process of implementing additional points and/or
-          token rewards through multi-day streaks and sweepstakes
+          token rewards through multi-day streaks and sweepstakes.
         </p>
       </Modal>
     </div>
