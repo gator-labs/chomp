@@ -32,7 +32,7 @@ export type Question = {
 
 type DeckProps = {
   questions: Question[];
-  browseHomeUrl: string;
+  browseHomeUrl?: string;
   deckId: number;
 };
 

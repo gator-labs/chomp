@@ -110,8 +110,6 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       tx,
     );
   });
-
-  revalidatePath("/application");
 }
 
 export async function saveQuestion(request: SaveQuestionRequest) {
@@ -197,8 +195,6 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       tx,
     );
   });
-
-  revalidatePath("/application");
 }
 
 export async function removePlaceholderAnswerByQuestion(
