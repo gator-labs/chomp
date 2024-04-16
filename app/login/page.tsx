@@ -1,5 +1,6 @@
 "use client";
 
+import { DotLottiePlayer } from "@dotlottie/react-player";
 import {
   DynamicConnectButton,
   useDynamicContext,
@@ -7,9 +8,10 @@ import {
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { setJwt } from "../actions/jwt";
+import { ProgressBar } from "../components/ProgressBar/ProgressBar";
 
 export default function Page() {
-  const { authToken } = useDynamicContext();
+  const { authToken, isAuthenticated } = useDynamicContext();
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -17,6 +19,27 @@ export default function Page() {
       setJwt(authToken, searchParams.get("next"));
     }
   }, [authToken, searchParams]);
+
+  if (isAuthenticated) {
+    return (
+      <div className="fixed top-0 right-0 bottom-0 left-0 flex justify-center items-center">
+        <div>
+          <div className="rounded-full overflow-hidden flex justify-center items-center m-6">
+            <DotLottiePlayer
+              className="w-32 h-32"
+              loop
+              autoplay
+              src="/lottie/chomp.lottie"
+            />
+          </div>
+          <ProgressBar className="mt-4" />
+          <div className="text-center font-sora text-sm mt-4">
+            Loading your chomps...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="flex flex-col justify-center items-center gap-3 h-full">
