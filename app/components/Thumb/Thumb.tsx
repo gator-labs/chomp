@@ -14,7 +14,7 @@ const Thumb = ({ className = "" }: Props) => {
       <path
         d="M5.88086 7.23804L5.88086 14.4761M13.119 7.23804L13.119 14.4761"
         stroke="#999999"
-        stroke-width="1.80952"
+        strokeWidth="1.80952"
       />
     </svg>
   );

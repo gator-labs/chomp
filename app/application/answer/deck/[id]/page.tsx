@@ -27,10 +27,8 @@ export default async function Page({ params: { id } }: PageProps) {
   }
 
   return (
-    <div className="h-full p-2">
-      {questions && (
-        <Deck questions={questions} deckId={+id} browseHomeUrl="/application" />
-      )}
+    <div className="h-full px-4 py-2">
+      {questions && <Deck questions={questions} deckId={+id} />}
     </div>
   );
 }
