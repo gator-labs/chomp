@@ -40,8 +40,8 @@ export const TUTORIAL_STEPS = [
           With Chomp magic, this will allow you to see which answers have the
           most accuracy.
         </p>
-        <p>Easy enough? Let’s answer your first daily deck!</p>
-        <p>PS. You have a total of 2 minutes to answer each question!</p>
+        <p>Easy enough? Let&apos;s answer your first daily deck!</p>
+        <p>PS. You have a total of 1 minute to answer each question!</p>
       </>
     ),
   },
