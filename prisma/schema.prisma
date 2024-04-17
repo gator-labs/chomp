@@ -137,15 +137,16 @@ model QuestionAnswer {
 }
 
 model Reveal {
-  id         Int       @id @default(autoincrement())
-  userId     String
-  user       User      @relation(fields: [userId], references: [id])
-  questionId Int?
-  question   Question? @relation(fields: [questionId], references: [id])
-  deckId     Int?
-  deck       Deck?     @relation(fields: [deckId], references: [id])
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
+  id              Int       @id @default(autoincrement())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  questionId      Int?
+  question        Question? @relation(fields: [questionId], references: [id])
+  deckId          Int?
+  deck            Deck?     @relation(fields: [deckId], references: [id])
+  isRewardClaimed Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
 }
 
 model FungibleAssetBalance {
