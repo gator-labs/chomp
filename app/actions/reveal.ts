@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
+import { isQuestionRevealable } from "../utils/question";
 import { getJwtPayload } from "./jwt";
 
 export async function revealDeck(deckId: number) {
@@ -38,9 +39,50 @@ export async function revealQuestions(questionIds: number[]) {
     return null;
   }
 
+  const questions = await prisma.question.findMany({
+    where: {
+      id: { in: questionIds },
+    },
+    select: {
+      id: true,
+      revealAtDate: true,
+      revealAtAnswerCount: true,
+      reveals: {
+        where: {
+          userId: payload.sub,
+        },
+        select: {
+          id: true,
+        },
+      },
+      questionOptions: {
+        select: {
+          questionAnswers: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const revealableQuestions = questions.filter(
+    (question) =>
+      question.reveals.length === 0 &&
+      isQuestionRevealable({
+        revealAtDate: question.revealAtDate,
+        revealAtAnswerCount: question.revealAtAnswerCount,
+        answerCount: question.questionOptions.reduce(
+          (acc, cur) => acc + cur.questionAnswers.length,
+          0,
+        ),
+      }),
+  );
+
   await prisma.reveal.createMany({
-    data: questionIds.map((questionId) => ({
-      questionId,
+    data: revealableQuestions.map((question) => ({
+      questionId: question.id,
       userId: payload.sub,
     })),
   });
