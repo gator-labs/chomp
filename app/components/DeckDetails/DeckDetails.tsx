@@ -3,10 +3,12 @@ import { revealDeck } from "@/app/actions/reveal";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
-import { getQuestionState } from "@/app/utils/question";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { getDeckState, getQuestionState } from "@/app/utils/question";
+import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
-import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { Button } from "../Button/Button";
 import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
@@ -21,6 +23,7 @@ export type DeckQuestionIncludes = Question & {
 };
 
 type DeckProp = Deck & {
+  reveals: Reveal[];
   deckQuestions: {
     question: DeckQuestionIncludes;
   }[];
@@ -31,27 +34,39 @@ type DeckDetailsProps = {
   openIds?: string[];
 };
 
-const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 162;
+const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 175;
 
 function DeckDetails({ deck, openIds }: DeckDetailsProps) {
+  const pathname = usePathname();
   const router = useRouter();
   const { height } = useWindowSize();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const { setOpen } = useCollapsedContext();
+  const { openRevealModal, closeRevealModal } = useRevealedContext();
 
-  const deckQuestionStates = deck.deckQuestions.map((dq) =>
-    getQuestionState(dq.question),
-  );
-  const revealableQuestions = deckQuestionStates.filter(
-    (state) => state.isAnswered && !state.isRevealed,
-  );
-  const hasReveal = revealableQuestions.length > 0;
+  const deckState = getDeckState(deck);
+  const revealableQuestions = deck.deckQuestions
+    .map((dq) => getQuestionState(dq.question))
+    .filter((state) => state.isAnswered && !state.isRevealed);
+  const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
 
   useIsomorphicLayoutEffect(() => {
     if (openIds) {
       openIds.forEach((questionId) => setOpen(+questionId));
     }
   }, [openIds, setOpen]);
+
+  const revealAll = useCallback(async () => {
+    await revealDeck(deck.id);
+    const newParams = getAppendedNewSearchParams({
+      openIds: encodeURIComponent(
+        JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
+      ),
+    });
+    router.push(`${pathname}${newParams}`);
+    router.refresh();
+    closeRevealModal();
+  }, []);
 
   return (
     <div>
@@ -67,10 +82,7 @@ function DeckDetails({ deck, openIds }: DeckDetailsProps) {
           <Button
             variant="white"
             isPill
-            onClick={async () => {
-              await revealDeck(deck.id);
-              router.refresh();
-            }}
+            onClick={() => openRevealModal(revealAll)}
           >
             Reveal all
           </Button>

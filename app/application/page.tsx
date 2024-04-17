@@ -1,9 +1,14 @@
 "use client";
 import { Navbar } from "@/app/components/Navbar/Navbar";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { HomeFeed, HomeFeedProps } from "../components/HomeFeed/HomeFeed";
-import { SearchFilters } from "../components/SearchFilters/SearchFilters";
+const SearchFilters = dynamic(
+  () => import("../components/SearchFilters/SearchFilters"),
+  { ssr: false },
+);
+
 import { useIsomorphicLayoutEffect } from "../hooks/useIsomorphicLayoutEffect";
 
 type PageProps = {

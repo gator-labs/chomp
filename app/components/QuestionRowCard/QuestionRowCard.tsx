@@ -2,27 +2,19 @@
 import { claimQuestion } from "@/app/actions/claim";
 import { revealQuestion } from "@/app/actions/reveal";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
-import { useConfetti } from "@/app/providers/ConfettiProvider";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { getQuestionState } from "@/app/utils/question";
-import { genBonkBurnTx } from "@/app/utils/solana";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from "@dynamic-labs/solana";
-import { Connection } from "@solana/web3.js";
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback } from "react";
 import { AnsweredQuestionContent } from "../AnsweredQuestionContent/AnsweredQuestionContent";
 import { Button } from "../Button/Button";
 import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
-import { Modal } from "../Modal/Modal";
 import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
 
 type QuestionRowCardProps = {
   question: DeckQuestionIncludes;
   onRefreshCards: (revealedId: number) => void;
 };
-
-const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 export function QuestionRowCard({
   question,
@@ -31,107 +23,22 @@ export function QuestionRowCard({
   const { isAnswered, isRevealed, isRevealable, isClaimed } =
     getQuestionState(question);
   const { getIsOpen, toggleCollapsed, setOpen } = useCollapsedContext();
-  const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
-  const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
-  const [burnState, setBurnState] = useState<
-    "burning" | "burned" | "error" | "idle" | "skipburn"
-  >("skipburn");
-  const { primaryWallet } = useDynamicContext();
-  const { fire } = useConfetti();
+  const { openClaimModal, openRevealModal, closeClaimModal, closeRevealModal } =
+    useRevealedContext();
 
-  const burnAndReveal = async () => {
-    const blockhash = await CONNECTION.getLatestBlockhash();
-
-    const signer = await primaryWallet!.connector.getSigner<ISolana>();
-    const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash);
-    const { signature } = await signer.signAndSendTransaction(tx);
-
-    await CONNECTION.confirmTransaction({
-      blockhash: blockhash.blockhash,
-      lastValidBlockHeight: blockhash.lastValidBlockHeight,
-      signature,
-    });
-    setBurnState("burned");
-
-    await reveal();
-  };
-
-  const reveal = async () => {
+  const reveal = useCallback(async () => {
     await revealQuestion(question.id);
     onRefreshCards(question.id);
     setOpen(question.id);
-    setIsRevealModalOpen(false);
-    fire();
-  };
+    closeRevealModal();
+  }, [onRefreshCards, setOpen, closeRevealModal]);
 
-  const claim = async () => {
+  const claim = useCallback(async () => {
     await claimQuestion(question.id);
     onRefreshCards(question.id);
     setOpen(question.id);
-    setIsClaimModalOpen(false);
-  };
-
-  let revealButtons = null;
-  switch (burnState) {
-    case "skipburn":
-      revealButtons = (
-        <>
-          <Button variant="white" isPill onClick={reveal}>
-            Reveal
-          </Button>
-          <Button
-            variant="black"
-            isPill
-            onClick={() => setIsRevealModalOpen(false)}
-          >
-            Maybe Later
-          </Button>
-        </>
-      );
-      break;
-
-    case "idle":
-      revealButtons = (
-        <>
-          <Button
-            variant="white"
-            isPill
-            onClick={burnAndReveal}
-            className="flex items-center"
-          >
-            <Image
-              src={"/images/bonk.png"}
-              alt="Avatar"
-              width={32}
-              height={32}
-            />
-            &nbsp;&nbsp;Burn to Reveal
-          </Button>
-          <Button
-            variant="black"
-            isPill
-            onClick={() => setIsRevealModalOpen(false)}
-          >
-            Maybe Later
-          </Button>
-        </>
-      );
-      break;
-    case "burning":
-      revealButtons = (
-        <Button variant="white" isPill disabled>
-          Burning BONK...
-        </Button>
-      );
-      break;
-    case "burned":
-      revealButtons = (
-        <Button variant="white" isPill disabled>
-          Burned BONK!
-        </Button>
-      );
-      break;
-  }
+    closeClaimModal();
+  }, [onRefreshCards, setOpen, closeClaimModal]);
 
   if (isAnswered) {
     let actionSubmit = <></>;
@@ -142,7 +49,7 @@ export function QuestionRowCard({
           <Button
             variant="white"
             isPill
-            onClick={() => setIsRevealModalOpen(true)}
+            onClick={() => openRevealModal(reveal)}
           >
             Reveal Results
           </Button>
@@ -156,7 +63,7 @@ export function QuestionRowCard({
           <Button
             variant="white"
             isPill
-            onClick={() => setIsClaimModalOpen(true)}
+            onClick={() => openClaimModal(claim)}
             disabled={isClaimed}
           >
             {isClaimed ? "Claimed" : "Claim Reward"}
@@ -177,43 +84,6 @@ export function QuestionRowCard({
         >
           {isRevealed && <AnsweredQuestionContent element={question} />}
         </QuestionAccordion>
-        <Modal
-          title="Reveal"
-          isOpen={isRevealModalOpen}
-          onClose={() => setIsRevealModalOpen(false)}
-        >
-          <div className="flex flex-col gap-3">
-            <p>
-              Revealing this question will earn you 42 points!
-              <br />
-              Would you like to reveal?
-            </p>
-            {revealButtons}
-          </div>
-        </Modal>
-
-        <Modal
-          title="Claim"
-          isOpen={isClaimModelOpen}
-          onClose={() => setIsClaimModalOpen(false)}
-        >
-          <div className="flex flex-col gap-3">
-            <p>
-              Great job chomping! Claim your reward before it expires (in 30
-              days)
-            </p>
-            <Button variant="white" isPill onClick={claim}>
-              Let&apos;s do it
-            </Button>
-            <Button
-              variant="black"
-              isPill
-              onClick={() => setIsClaimModalOpen(false)}
-            >
-              I don&apos;t want money
-            </Button>
-          </div>
-        </Modal>
       </>
     );
   }

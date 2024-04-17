@@ -51,7 +51,7 @@ export function Button({
   );
 
   return (
-    <button {...props} className={classNameResult}>
+    <button {...props} disabled={disabled} className={classNameResult}>
       {children}
     </button>
   );

@@ -12,7 +12,7 @@ const DeckDetails = dynamic(
 
 type PageProps = {
   params: { id: string };
-  searchParams: { returnUrl?: string; openIds: string[] };
+  searchParams: { returnUrl?: string; openIds: string };
 };
 
 export default async function Page({
@@ -39,7 +39,10 @@ export default async function Page({
           </div>
         </Link>
       </Navbar>
-      <DeckDetails deck={deck} openIds={openIds} />
+      <DeckDetails
+        deck={deck}
+        openIds={openIds ? JSON.parse(decodeURIComponent(openIds)) : []}
+      />
     </div>
   );
 }

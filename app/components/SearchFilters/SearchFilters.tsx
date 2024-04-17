@@ -14,7 +14,7 @@ type SearchFiltersProps = {
   backdropHeightReducedBy?: number;
 };
 
-export function SearchFilters({
+function SearchFilters({
   initialQuery = "",
   onQueryChange,
   backdropHeightReducedBy = 185,
@@ -98,3 +98,5 @@ export function SearchFilters({
     </div>
   );
 }
+
+export default SearchFilters;

@@ -52,7 +52,9 @@ export function QuestionAccordion({
         <div className="text-white text-base font-sora font-semibold">
           {question}
         </div>
-        {!isCollapsed && <div className="mt-6 mb-4">{children}</div>}
+        {!isCollapsed && children && (
+          <div className="mt-6 mb-4">{children}</div>
+        )}
         {actionChild}
         <div className="flex justify-between itmes-center">
           <div className="flex items-center gap-2.5">

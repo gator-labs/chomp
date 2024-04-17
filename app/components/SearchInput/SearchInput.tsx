@@ -1,3 +1,4 @@
+"use client";
 import { useOuterClick } from "@/app/hooks/useOuterClick";
 import classNames from "classnames";
 import { useRef, useState } from "react";

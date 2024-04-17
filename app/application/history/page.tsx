@@ -2,12 +2,15 @@
 import { HistorySortOptions } from "@/app/api/history/route";
 import { Button } from "@/app/components/Button/Button";
 import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
-import { SearchFilters } from "@/app/components/SearchFilters/SearchFilters";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+const SearchFilters = dynamic(
+  () => import("@/app/components/SearchFilters/SearchFilters"),
+  { ssr: false },
+);
 const HistoryFeed = dynamic(
   () => import("@/app/components/HistoryFeed/HistoryFeed"),
   { ssr: false },
