@@ -1,4 +1,5 @@
 "use client";
+import { claimQuestion } from "@/app/actions/claim";
 import { revealQuestion } from "@/app/actions/reveal";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -27,7 +28,8 @@ export function QuestionRowCard({
   question,
   onRefreshCards,
 }: QuestionRowCardProps) {
-  const { isAnswered, isRevealed, isRevealable } = getQuestionState(question);
+  const { isAnswered, isRevealed, isRevealable, isClaimed } =
+    getQuestionState(question);
   const { getIsOpen, toggleCollapsed, setOpen } = useCollapsedContext();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
@@ -60,6 +62,13 @@ export function QuestionRowCard({
     setOpen(question.id);
     setIsRevealModalOpen(false);
     fire();
+  };
+
+  const claim = async () => {
+    await claimQuestion(question.id);
+    onRefreshCards(question.id);
+    setOpen(question.id);
+    setIsClaimModalOpen(false);
   };
 
   let revealButtons = null;
@@ -148,8 +157,9 @@ export function QuestionRowCard({
             variant="white"
             isPill
             onClick={() => setIsClaimModalOpen(true)}
+            disabled={isClaimed}
           >
-            Claim Reward
+            {isClaimed ? "Claimed" : "Claim Reward"}
           </Button>
         </>
       );
@@ -192,11 +202,7 @@ export function QuestionRowCard({
               Great job chomping! Claim your reward before it expires (in 30
               days)
             </p>
-            <Button
-              variant="white"
-              isPill
-              onClick={() => setIsClaimModalOpen(false)}
-            >
+            <Button variant="white" isPill onClick={claim}>
               Let&apos;s do it
             </Button>
             <Button

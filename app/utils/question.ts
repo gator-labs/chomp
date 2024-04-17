@@ -1,4 +1,4 @@
-import { Deck, Reveal } from "@prisma/client";
+import { Deck, Question, Reveal } from "@prisma/client";
 import dayjs from "dayjs";
 import { DeckQuestionIncludes } from "../components/DeckDetails/DeckDetails";
 
@@ -12,6 +12,7 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   isAnswered: boolean;
   isRevealed: boolean;
   isRevealable: boolean;
+  isClaimed: boolean;
 } {
   const isAnswered = question.questionOptions?.some(
     (qo) => qo.questionAnswers.length !== 0,
@@ -20,8 +21,12 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   const isRevealable =
     question.revealAtDate !== null &&
     dayjs(question.revealAtDate).isBefore(new Date());
+  const isClaimed =
+    question.reveals && question.reveals.length > 0
+      ? question.reveals[0].isRewardClaimed
+      : false;
 
-  return { isAnswered, isRevealed, isRevealable };
+  return { isAnswered, isRevealed, isRevealable, isClaimed };
 }
 
 export function getDeckState(
@@ -107,3 +112,26 @@ export function mapQuestionToBinaryQuestionAnswer(
 
   return null;
 }
+
+type RevealableQuestionData = {
+  revealAtDate: Date | null;
+  revealAtAnswerCount: number | null;
+  answerCount: number;
+};
+
+export const isQuestionRevealable = (question: RevealableQuestionData) => {
+  return (
+    (question.revealAtDate !== null
+      ? dayjs(question.revealAtDate).isBefore(new Date())
+      : true) &&
+    (question.revealAtAnswerCount !== null
+      ? question.revealAtAnswerCount >= question.answerCount
+      : true)
+  );
+};
+
+export const areQuestionsRevealable = (
+  questions: (Question & { reveals: Reveal[] })[],
+) => {
+  return questions.every((question) => {});
+};

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 export const DailyDeckRedirect = async () => {
   const dailyDeck = await getDailyDeck();
 
-  if (dailyDeck) {
+  if (dailyDeck && dailyDeck.questions.length > 0) {
     redirect("/daily-deck");
   }
 

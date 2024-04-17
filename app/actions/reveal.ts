@@ -1,15 +1,8 @@
 "use server";
 
-import { FungibleAsset } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { pointsPerAction } from "../constants/points";
-import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
-import {
-  getQuestionState,
-  isBinaryQuestionCorrectAnswer,
-} from "../utils/question";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
+import { getQuestionState, isQuestionRevealable } from "../utils/question";
 import { getJwtPayload } from "./jwt";
 
 export async function revealDeck(deckId: number) {
@@ -48,6 +41,47 @@ export async function revealQuestions(questionIds: number[]) {
     return null;
   }
 
+  const questions = await prisma.question.findMany({
+    where: {
+      id: { in: questionIds },
+    },
+    select: {
+      id: true,
+      revealAtDate: true,
+      revealAtAnswerCount: true,
+      reveals: {
+        where: {
+          userId: payload.sub,
+        },
+        select: {
+          id: true,
+        },
+      },
+      questionOptions: {
+        select: {
+          questionAnswers: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const revealableQuestions = questions.filter(
+    (question) =>
+      question.reveals.length === 0 &&
+      isQuestionRevealable({
+        revealAtDate: question.revealAtDate,
+        revealAtAnswerCount: question.revealAtAnswerCount,
+        answerCount: question.questionOptions.reduce(
+          (acc, cur) => acc + cur.questionAnswers.length,
+          0,
+        ),
+      }),
+  );
+
   const decksOfQuestions = await prisma.deck.findMany({
     where: {
       deckQuestions: { some: { questionId: { in: questionIds } } },
@@ -83,7 +117,9 @@ export async function revealQuestions(questionIds: number[]) {
 
     const newelyRevealed = questionStates
       .filter(
-        (qs) => questionIds.includes(qs.questionId) && !qs.state.isRevealed,
+        (qs) =>
+          revealableQuestions.some((rq) => rq.id === qs.questionId) &&
+          !qs.state.isRevealed,
       )
       .map((qs) => qs.questionId);
 
@@ -110,115 +146,7 @@ export async function revealQuestions(questionIds: number[]) {
         })),
       ],
     });
-
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      await calculateRevealPoints(payload.sub, questionIds),
-      tx,
-    );
   });
 
   revalidatePath("/application");
 }
-
-const calculateRevealPoints = async (
-  userId: string,
-  ids: number[],
-  isDeck?: boolean,
-) => {
-  const questions = await prisma.deckQuestion.findMany({
-    where: isDeck
-      ? {
-          deckId: { in: ids },
-        }
-      : {
-          questionId: { in: ids },
-        },
-    include: {
-      question: {
-        include: {
-          questionOptions: {
-            include: {
-              questionAnswers: {
-                where: {
-                  userId,
-                  hasViewedButNotSubmitted: false,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const questionOptionPercentages = await answerPercentageQuery(
-    questions.flatMap((q) => q.question.questionOptions).map((qo) => qo.id),
-  );
-
-  const correctFirstOrderQuestions = questions.filter(({ question }) => {
-    const answers = question.questionOptions.flatMap(
-      (qo) => qo.questionAnswers,
-    );
-
-    if (answers.length === 2) {
-      if (answers[0].percentage === null || answers[1].percentage === null) {
-        return false;
-      }
-
-      const aCalculatedPercentage = questionOptionPercentages.find(
-        (questionOption) => questionOption.id === answers[0].questionOptionId,
-      )?.percentageResult;
-
-      const bCalculatedPercentage = questionOptionPercentages.find(
-        (questionOption) => questionOption.id === answers[1].questionOptionId,
-      )?.percentageResult;
-
-      if (
-        aCalculatedPercentage === undefined ||
-        bCalculatedPercentage === undefined
-      ) {
-        return false;
-      }
-
-      return isBinaryQuestionCorrectAnswer(
-        {
-          calculatedPercentage: aCalculatedPercentage,
-          selectedPercentage: answers[0].percentage,
-          selected: answers[0].selected,
-        },
-        {
-          calculatedPercentage: bCalculatedPercentage,
-          selectedPercentage: answers[1].percentage,
-          selected: answers[1].selected,
-        },
-      );
-    }
-
-    // TODO: multi choice questions algo when ready
-
-    return false;
-  });
-
-  const correctSecondOrderQuestions = questions.filter(({ question }) => {
-    const selectedAnswers = question.questionOptions
-      .flatMap((qo) => qo.questionAnswers)
-      .filter((qa) => qa.selected);
-
-    if (!selectedAnswers.length) {
-      return false;
-    }
-
-    return !!questionOptionPercentages.find(
-      (questionOption) =>
-        questionOption.id === selectedAnswers[0].questionOptionId &&
-        questionOption.percentageResult === selectedAnswers[0].percentage,
-    );
-  });
-
-  return (
-    questions.length * pointsPerAction["reveal-answer"] +
-    correctFirstOrderQuestions.length * pointsPerAction["correct-first-order"] +
-    correctSecondOrderQuestions.length * pointsPerAction["correct-second-order"]
-  );
-};

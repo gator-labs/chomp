@@ -48,13 +48,13 @@ export async function GET(request: Request) {
         userId: user.id,
         questionOptionId: 45,
         selected: true,
-        percentage: 80,
+        percentage: 56,
       },
       {
         userId: user.id,
         questionOptionId: 46,
         selected: false,
-        percentage: 20,
+        percentage: 44,
       },
     ],
   });
