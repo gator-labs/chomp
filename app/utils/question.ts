@@ -12,6 +12,7 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   isAnswered: boolean;
   isRevealed: boolean;
   isRevealable: boolean;
+  isClaimed: boolean;
 } {
   const isAnswered = question.questionOptions?.some(
     (qo) => qo.questionAnswers.length !== 0,
@@ -20,8 +21,12 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   const isRevealable =
     question.revealAtDate !== null &&
     dayjs(question.revealAtDate).isBefore(new Date());
+  const isClaimed =
+    question.reveals && question.reveals.length > 0
+      ? question.reveals[0].isRewardClaimed
+      : false;
 
-  return { isAnswered, isRevealed, isRevealable };
+  return { isAnswered, isRevealed, isRevealable, isClaimed };
 }
 
 export function getDeckState(
