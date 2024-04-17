@@ -2,13 +2,12 @@
 import { HistorySortOptions } from "@/app/api/history/route";
 import { Button } from "@/app/components/Button/Button";
 import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
-import { CountdownIcon } from "@/app/components/Icons/CountdownIcon";
 import { SearchFilters } from "@/app/components/SearchFilters/SearchFilters";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 const HistoryFeed = dynamic(
   () => import("@/app/components/HistoryFeed/HistoryFeed"),
   { ssr: false },
@@ -135,21 +134,13 @@ export default function Page({ searchParams }: PageProps) {
         <span>Sort by: </span>
         <span className="font-bold">{sort}</span>
       </div>
-      <Suspense
-        fallback={
-          <div className="flex justify-center h-full items-center">
-            <CountdownIcon />
-          </div>
-        }
-      >
-        {response && (
-          <HistoryFeed
-            list={response}
-            onRefreshCards={onRefreshCards}
-            elementToScrollToId={scrollToId}
-          />
-        )}
-      </Suspense>
+      {response && (
+        <HistoryFeed
+          list={response}
+          onRefreshCards={onRefreshCards}
+          elementToScrollToId={scrollToId}
+        />
+      )}
     </>
   );
 }

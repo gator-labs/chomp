@@ -1,9 +1,8 @@
 "use client";
 import { Navbar } from "@/app/components/Navbar/Navbar";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { HomeFeed, HomeFeedProps } from "../components/HomeFeed/HomeFeed";
-import { CountdownIcon } from "../components/Icons/CountdownIcon";
 import { SearchFilters } from "../components/SearchFilters/SearchFilters";
 import { useIsomorphicLayoutEffect } from "../hooks/useIsomorphicLayoutEffect";
 
@@ -54,21 +53,13 @@ export default function Page({ searchParams }: PageProps) {
           getData(query);
         }}
       />
-      <Suspense
-        fallback={
-          <div className="flex justify-center h-full items-center">
-            <CountdownIcon />
-          </div>
-        }
-      >
-        {response && (
-          <HomeFeed
-            {...(response as HomeFeedProps)}
-            onRefreshCards={onRefreshCards}
-            elementToScrollToId={scrollToId}
-          />
-        )}
-      </Suspense>
+      {response && (
+        <HomeFeed
+          {...(response as HomeFeedProps)}
+          onRefreshCards={onRefreshCards}
+          elementToScrollToId={scrollToId}
+        />
+      )}
     </>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 import { revealDeck } from "@/app/actions/reveal";
+import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { getQuestionState } from "@/app/utils/question";
 import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
 import { useRouter } from "next/navigation";
@@ -26,18 +28,30 @@ type DeckProp = Deck & {
 
 type DeckDetailsProps = {
   deck: DeckProp;
+  openIds?: string[];
 };
 
 const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 162;
 
-function DeckDetails({ deck }: DeckDetailsProps) {
+function DeckDetails({ deck, openIds }: DeckDetailsProps) {
   const router = useRouter();
   const { height } = useWindowSize();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const { setOpen } = useCollapsedContext();
 
-  const hasReveal = deck.deckQuestions
-    .map((dq) => getQuestionState(dq.question))
-    .some((state) => state.isAnswered && !state.isRevealed);
+  const deckQuestionStates = deck.deckQuestions.map((dq) =>
+    getQuestionState(dq.question),
+  );
+  const revealableQuestions = deckQuestionStates.filter(
+    (state) => state.isAnswered && !state.isRevealed,
+  );
+  const hasReveal = revealableQuestions.length > 0;
+
+  useIsomorphicLayoutEffect(() => {
+    if (openIds) {
+      openIds.forEach((questionId) => setOpen(+questionId));
+    }
+  }, [openIds, setOpen]);
 
   return (
     <div>
