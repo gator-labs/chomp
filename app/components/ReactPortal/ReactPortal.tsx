@@ -9,7 +9,7 @@ type ReactPortalProps = {
 function createWrapperAndAppendToBody(wrapperId: string) {
   const wrapperElement = document.createElement("div");
   wrapperElement.setAttribute("id", wrapperId);
-  wrapperElement.setAttribute("class", "fixed z-50");
+  wrapperElement.setAttribute("class", "fixed z-[100]");
   document.body.appendChild(wrapperElement);
   return wrapperElement;
 }
@@ -33,8 +33,8 @@ export function ReactPortal({
     setWrapperElement(element);
 
     return () => {
-      if (isCreatedInComponent && element.parentNode) {
-        element.parentNode.removeChild(element);
+      if (isCreatedInComponent) {
+        element?.remove();
       }
     };
   }, [wrapperId]);
