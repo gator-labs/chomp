@@ -129,7 +129,8 @@ export default function Page({ searchParams }: PageProps) {
     const questionIds = questionStatuses
       .filter((qs) => qs?.state.isRevealable && !qs.state.isRevealed)
       .map((qs) => qs?.question.id)
-      .filter((id) => typeof id === "number");
+      .filter((id) => typeof id === "number")
+      .map((id) => id as number);
 
     await revealQuestions(questionIds);
     const newParams = getAppendedNewSearchParams({
