@@ -1,13 +1,14 @@
 "use client";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { ElementType } from "@/app/queries/question";
-import { Deck, Question } from "@prisma/client";
+import { Deck } from "@prisma/client";
 import { useEffect, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
 
 export type HistoryFeedProps = {
-  list: Array<(Question | Deck) & { elementType: ElementType }>;
+  list: Array<(DeckQuestionIncludes | Deck) & { elementType: ElementType }>;
   onRefreshCards: (revealedId: number) => void;
   elementToScrollToId: number;
 };
