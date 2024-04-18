@@ -1,12 +1,18 @@
 "use client";
+import { revealQuestions } from "@/app/actions/reveal";
 import { HistorySortOptions } from "@/app/api/history/route";
 import { Button } from "@/app/components/Button/Button";
+import { DeckQuestionIncludes } from "@/app/components/DeckDetails/DeckDetails";
 import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
+import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { getQuestionState } from "@/app/utils/question";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
+import { Deck } from "@prisma/client";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 const SearchFilters = dynamic(
   () => import("@/app/components/SearchFilters/SearchFilters"),
   { ssr: false },
@@ -17,13 +23,17 @@ const HistoryFeed = dynamic(
 );
 
 type PageProps = {
-  searchParams: { query: string; sort: string };
+  searchParams: { query: string; sort: string; openIds: string };
 };
 
 const sortStateMachine = {
   [HistorySortOptions.Date]: HistorySortOptions.Claimable,
   [HistorySortOptions.Claimable]: HistorySortOptions.Revealed,
   [HistorySortOptions.Revealed]: HistorySortOptions.Date,
+};
+
+type DeckTypeWithIncludes = Deck & {
+  deckQuestions: { question: DeckQuestionIncludes }[];
 };
 
 let lastQuery: string | undefined = "";
@@ -37,6 +47,28 @@ export default function Page({ searchParams }: PageProps) {
     totalRevealedRewards: number;
     potentionalRewards: number;
   }>({ potentionalRewards: 0, totalRevealedRewards: 0 });
+  const { setOpen } = useCollapsedContext();
+  const { openRevealModal, closeRevealModal } = useRevealedContext();
+  const questionStatuses = useMemo(() => {
+    if (!response) {
+      return [];
+    }
+
+    return response.flatMap((element) => {
+      const question = element as DeckQuestionIncludes;
+      if (question.question) {
+        return [{ question, state: getQuestionState(question) }];
+      }
+
+      const deck = element as DeckTypeWithIncludes;
+      if (deck.deck) {
+        return deck.deckQuestions.map((dq) => ({
+          question: dq.question,
+          state: getQuestionState(dq.question),
+        }));
+      }
+    });
+  }, [response]);
 
   const getData = async (
     query: string | undefined,
@@ -86,6 +118,28 @@ export default function Page({ searchParams }: PageProps) {
     getData(lastQuery, sort, revealedId);
   };
 
+  useEffect(() => {
+    if (searchParams.openIds) {
+      const openIds = JSON.parse(decodeURIComponent(searchParams.openIds));
+      openIds.forEach((questionId: string) => setOpen(+questionId));
+    }
+  }, [searchParams.openIds, setOpen]);
+
+  const revealAll = useCallback(async () => {
+    const questionIds = questionStatuses
+      .filter((qs) => qs?.state.isRevealable && !qs.state.isRevealed)
+      .map((qs) => qs?.question.id)
+      .filter((id) => typeof id === "number");
+
+    await revealQuestions(questionIds);
+    const newParams = getAppendedNewSearchParams({
+      openIds: encodeURIComponent(JSON.stringify(questionIds)),
+    });
+    router.push(`${pathname}${newParams}`);
+    onRefreshCards(questionIds[0]);
+    closeRevealModal();
+  }, [questionStatuses]);
+
   return (
     <>
       <div className="px-4">
@@ -125,7 +179,11 @@ export default function Page({ searchParams }: PageProps) {
           </div>
         </div>
         <div className="basis-36">
-          <Button variant="white" isPill>
+          <Button
+            variant="white"
+            isPill
+            onClick={() => openRevealModal(revealAll)}
+          >
             Reveal all
           </Button>
         </div>
