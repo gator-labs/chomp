@@ -5,25 +5,14 @@ import { isBinaryQuestionCorrectAnswer } from "./question";
 
 export const calculateRevealPoints = async (
   userId: string,
-  ids: number[],
-  isDeck?: boolean,
+  questionIds: number[],
 ) => {
   const questions = await prisma.question.findMany({
-    where: isDeck
-      ? {
-          deckQuestions: {
-            some: {
-              deckId: {
-                in: ids,
-              },
-            },
-          },
-        }
-      : {
-          id: {
-            in: ids,
-          },
-        },
+    where: {
+      id: {
+        in: questionIds,
+      },
+    },
     include: {
       questionOptions: {
         include: {
