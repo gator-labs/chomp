@@ -355,6 +355,7 @@ export async function getHomeFeedDecks({
                   questionAnswers: {
                     some: {
                       userId: payload.sub,
+                      hasViewedButNotSubmitted: false,
                     },
                   },
                 },
