@@ -425,22 +425,27 @@ export async function getHomeFeedQuestions({
   let questions = await prisma.question.findMany({
     where: {
       question: { contains: query, mode: "insensitive" },
-      OR: [
+      // this AND is hack because we already have OR in areAnsweredFilter
+      AND: [
         {
-          deckQuestions: {
-            none: {},
-          },
-        },
-        {
-          deckQuestions: {
-            some: {
-              deck: {
-                date: {
-                  not: null,
+          OR: [
+            {
+              deckQuestions: {
+                none: {},
+              },
+            },
+            {
+              deckQuestions: {
+                some: {
+                  deck: {
+                    date: {
+                      not: null,
+                    },
+                  },
                 },
               },
             },
-          },
+          ],
         },
       ],
       ...areAnsweredFilter,
