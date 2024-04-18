@@ -46,6 +46,7 @@ export async function getDailyDeck() {
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { not: null /* gte: currentDayStart, lte: currentDayEnd */ },
+      isActive: true,
       userDeck: { none: { userId: payload?.sub ?? "" } },
     },
     include: questionDeckToRunInclude,
