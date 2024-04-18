@@ -15,6 +15,8 @@ import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
 export type DeckQuestionIncludes = Question & {
   questionOptions: {
+    id: number;
+    isTrue: boolean;
     questionAnswers: (QuestionAnswer & {
       percentageResult?: number | null;
     })[];

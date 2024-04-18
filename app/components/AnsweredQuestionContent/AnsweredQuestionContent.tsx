@@ -1,8 +1,5 @@
 "use client";
-import {
-  isBinaryQuestionCorrectAnswer,
-  mapQuestionToBinaryQuestionAnswer,
-} from "@/app/utils/question";
+import { mapQuestionToBinaryQuestionAnswer } from "@/app/utils/question";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { useCallback, useMemo, useState } from "react";
 import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
@@ -22,8 +19,6 @@ export const AnsweredQuestionContent = ({
   element,
 }: AnsweredQuestionContentProps) => {
   const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const [isFirstOrderQuestionCorrect, setIsFirstOrderQuestionCorrect] =
-    useState(false);
   const [isSecondOrderQuestionCorrect, setIsSecondOrderQuestionCorrect] =
     useState(false);
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
@@ -35,16 +30,12 @@ export const AnsweredQuestionContent = ({
     [element],
   );
 
+  const isFirstOrderQuestionCorrect = element.questionOptions.some(
+    (qo) => qo.isTrue && qo.questionAnswers.some((qa) => qa.selected),
+  );
   const handleBinary = useCallback(() => {
     const binaryQuestionResults = mapQuestionToBinaryQuestionAnswer(element);
     if (binaryQuestionResults) {
-      setIsFirstOrderQuestionCorrect(
-        isBinaryQuestionCorrectAnswer(
-          binaryQuestionResults[0],
-          binaryQuestionResults[1],
-        ),
-      );
-
       const selected = binaryQuestionResults.find((q) => q.selected);
       if (selected) {
         setIsSecondOrderQuestionCorrect(
@@ -52,14 +43,9 @@ export const AnsweredQuestionContent = ({
         );
       }
     } else {
-      setIsFirstOrderQuestionCorrect(false);
       setIsSecondOrderQuestionCorrect(false);
     }
-  }, [
-    setIsFirstOrderQuestionCorrect,
-    setIsSecondOrderQuestionCorrect,
-    element,
-  ]);
+  }, [setIsSecondOrderQuestionCorrect, element]);
 
   const answer = useMemo(() => {
     switch (element.type) {
