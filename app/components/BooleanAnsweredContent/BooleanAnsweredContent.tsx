@@ -20,12 +20,13 @@ export function BooleanAnsweredContent({
   avatarSrc,
   isYesNo = false,
 }: BooleanAnsweredContentProps) {
-  const ratioTrue = questionOptions.find(
+  const trueOption = questionOptions.find(
     (qo) => qo.option === "True" || qo.option === "Yes",
-  )?.questionAnswers[0]?.percentage;
-  const ratioSelectedTrue = questionOptions.find(
-    (qo) => qo.option === "True" || qo.option === "Yes",
-  )?.questionAnswers[0]?.percentageResult;
+  );
+  const ratioTrue = trueOption?.questionAnswers[0]?.percentageResult;
+  const ratioSelectedTrue = trueOption?.questionAnswers[0]?.percentage;
+  const isTrueTrue = trueOption?.isTrue;
+  const isTrueSelected = trueOption?.questionAnswers[0]?.selected;
 
   return (
     <div className="w-full">
@@ -36,6 +37,12 @@ export function BooleanAnsweredContent({
           avatarSrc={avatarSrc}
           labelTrue={isYesNo ? "Yes" : undefined}
           labelFalse={isYesNo ? "No" : undefined}
+          progressColor={
+            isTrueTrue ? "#6DECAF" : isTrueSelected ? "#ED6A5A" : undefined
+          }
+          bgColor={
+            !isTrueTrue ? "#6DECAF" : !isTrueSelected ? "#ED6A5A" : undefined
+          }
         />
       </div>
     </div>

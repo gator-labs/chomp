@@ -58,11 +58,13 @@ export const calculateRevealPoints = async (
 
       return isBinaryQuestionCorrectAnswer(
         {
+          optionId: answers[0].questionOptionId,
           calculatedPercentage: aCalculatedPercentage,
           selectedPercentage: answers[0].percentage,
           selected: answers[0].selected,
         },
         {
+          optionId: answers[1].questionOptionId,
           calculatedPercentage: bCalculatedPercentage,
           selectedPercentage: answers[1].percentage,
           selected: answers[1].selected,

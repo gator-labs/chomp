@@ -47,7 +47,7 @@ export function ProgressBar({
     <div
       ref={wrapperRef}
       className={classNames(
-        "relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-50",
+        "relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-10",
         className,
       )}
       style={{ backgroundColor: bgColor }}

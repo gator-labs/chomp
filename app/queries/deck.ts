@@ -15,6 +15,7 @@ import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import { HistorySortOptions } from "../api/history/route";
 import prisma from "../services/prisma";
+import { getDeckState, handleQuestionMappingForFeed } from "../utils/question";
 import { answerPercentageQuery } from "./answerPercentageQuery";
 
 const questionDeckToRunInclude = {
@@ -261,16 +262,14 @@ export async function getDeckDetails(id: number) {
   const questionOptionPercentages =
     await answerPercentageQuery(questionOptionIds);
 
-  questions.forEach((q) => {
-    q.questionOptions?.forEach((qo: any) => {
-      qo.questionAnswers?.forEach((qa: any) => {
-        qa.percentageResult =
-          questionOptionPercentages.find(
-            (qop) => qop.id === qa.questionOptionId,
-          )?.percentageResult ?? 0;
-      });
-    });
-  });
+  const { isAnswered, isRevealable } = getDeckState(deck);
+  handleQuestionMappingForFeed(
+    questions as any,
+    questionOptionPercentages,
+    payload.sub,
+    isRevealable,
+    isAnswered,
+  );
 
   return deck;
 }
@@ -443,6 +442,15 @@ export async function getHomeFeedDecks({
     });
   }
 
+  if (!areRevealed) {
+    decks?.forEach((d) => {
+      d.deckQuestions?.forEach((dq) => {
+        dq.question?.questionOptions?.forEach((qo: { isTrue?: boolean }) => {
+          delete qo.isTrue;
+        });
+      });
+    });
+  }
   return decks;
 }
 

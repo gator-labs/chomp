@@ -52,6 +52,7 @@ export function getDeckState(
 }
 
 type BinaryQuestionAnswer = {
+  optionId: number;
   calculatedPercentage: number;
   selectedPercentage: number;
   selected: boolean;
@@ -61,18 +62,26 @@ export function isBinaryQuestionCorrectAnswer(
   a: BinaryQuestionAnswer,
   b: BinaryQuestionAnswer,
 ) {
+  const correctQuestion = getCorrectBinaryQuestion(a, b);
+  return correctQuestion?.selected ?? true;
+}
+
+export function getCorrectBinaryQuestion(
+  a: BinaryQuestionAnswer,
+  b: BinaryQuestionAnswer,
+) {
   const aPercentage = a.calculatedPercentage - a.selectedPercentage;
   const bPercentage = b.calculatedPercentage - b.selectedPercentage;
 
   if (aPercentage > bPercentage) {
-    return a.selected;
+    return a;
   }
 
   if (bPercentage > aPercentage) {
-    return b.selected;
+    return b;
   }
 
-  return true;
+  return null;
 }
 
 export function mapQuestionToBinaryQuestionAnswer(
@@ -98,11 +107,13 @@ export function mapQuestionToBinaryQuestionAnswer(
 
     return [
       {
+        optionId: answers[0].questionOptionId,
         calculatedPercentage: aCalculatedPercentage,
         selectedPercentage: answers[0].percentage,
         selected: answers[0].selected,
       },
       {
+        optionId: answers[1].questionOptionId,
         calculatedPercentage: bCalculatedPercentage,
         selectedPercentage: answers[1].percentage,
         selected: answers[1].selected,
@@ -134,4 +145,62 @@ export const areQuestionsRevealable = (
   questions: (Question & { reveals: Reveal[] })[],
 ) => {
   return questions.every((question) => {});
+};
+
+export const handleQuestionMappingForFeed = (
+  questions: DeckQuestionIncludes[],
+  questionOptionPercentages: {
+    id: number;
+    percentageResult: number;
+  }[],
+  userId: string,
+  areRevealed: boolean,
+  areAnswered: boolean,
+) => {
+  questions.forEach((q) => {
+    q.questionOptions?.forEach((qo: any) => {
+      qo.questionAnswers?.forEach((qa: any) => {
+        qa.percentageResult =
+          questionOptionPercentages.find(
+            (qop) => qop.id === qa.questionOptionId,
+          )?.percentageResult ?? 0;
+      });
+    });
+  });
+
+  if (!areRevealed) {
+    questions?.forEach((q) => {
+      q.questionOptions?.forEach((qo: { isTrue?: boolean }) => {
+        delete qo.isTrue;
+      });
+    });
+  }
+
+  if (areRevealed) {
+    questions?.forEach((q) => {
+      if (q.questionOptions.length === 2) {
+        const binaryArgs = mapQuestionToBinaryQuestionAnswer(q as any);
+        if (binaryArgs) {
+          const [a, b] = binaryArgs;
+          const correctQuestion = getCorrectBinaryQuestion(a, b);
+          q.questionOptions.forEach((qo) => {
+            if (qo.id === correctQuestion?.optionId) {
+              qo.isTrue = true;
+              return;
+            }
+
+            qo.isTrue = false;
+          });
+        }
+      }
+
+      q.questionOptions.forEach((qo: any) => {
+        if (qo.questionAnswers) {
+          qo.questionAnswers = qo.questionAnswers.filter(
+            (qa: any) => qa.userId === userId,
+          );
+        }
+      });
+    });
+  }
 };

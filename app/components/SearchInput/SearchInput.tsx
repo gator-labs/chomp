@@ -50,7 +50,7 @@ export function SearchInput({
       <div
         style={{ height: `calc(100vh - ${backdropHeightReducedBy}px)` }}
         className={classNames(
-          "absolute w-[99vw] top-12 bottom-0 -left-3.5 bg-[#0D0D0DCC] z-30 overflow-y-scroll",
+          "absolute w-[99vw] max-w-[480px] top-12 bottom-0 -left-3.5 bg-[#0D0D0DCC] z-[999999] overflow-y-auto",
           {
             hidden: !showDropdown,
           },

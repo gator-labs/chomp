@@ -27,7 +27,13 @@ export function MultipleChoiceAnsweredContent({
             valueSelected={qo.questionAnswers[0].percentage}
             avatarSrc={avatarSrc}
             answerText={qo.option}
-            progressBarClassName={qo.isTrue ? "!bg-aqua" : undefined}
+            progressBarClassName={
+              qo.isTrue
+                ? "!bg-aqua"
+                : qo.questionAnswers[0].selected
+                  ? "!bg-warning"
+                  : undefined
+            }
           />
         </div>
       ))}
