@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   createContext,
   useCallback,
@@ -7,7 +8,8 @@ import {
   useMemo,
   useState,
 } from "react";
-import Confetti, { Props as ConfettiOptions } from "react-confetti";
+import { Props as ConfettiOptions } from "react-confetti";
+const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
 interface ConfettiProps extends ConfettiOptions {
   duration?: number;

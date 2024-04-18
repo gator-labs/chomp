@@ -425,7 +425,24 @@ export async function getHomeFeedQuestions({
   let questions = await prisma.question.findMany({
     where: {
       question: { contains: query, mode: "insensitive" },
-      deckQuestions: { none: {} },
+      OR: [
+        {
+          deckQuestions: {
+            none: {},
+          },
+        },
+        {
+          deckQuestions: {
+            some: {
+              deck: {
+                date: {
+                  not: null,
+                },
+              },
+            },
+          },
+        },
+      ],
       ...areAnsweredFilter,
       ...revealedAtFilter,
     },
