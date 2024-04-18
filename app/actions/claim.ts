@@ -18,33 +18,15 @@ export async function claimQuestion(questionId: number) {
 }
 
 export async function claimDecks(deckIds: number[]) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  await prisma.$transaction(async (tx) => {
-    await tx.reveal.updateMany({
-      where: {
-        userId: payload.sub,
-        deckId: {
-          in: deckIds,
-        },
+  const questions = await prisma.deckQuestion.findMany({
+    where: {
+      deckId: {
+        in: deckIds,
       },
-      data: {
-        isRewardClaimed: true,
-      },
-    });
-
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      await calculateRevealPoints(payload.sub, deckIds, !!"isDeck"),
-      tx,
-    );
+    },
   });
 
-  revalidatePath("/application");
+  return await claimQuestions(questions.map((q) => q.questionId));
 }
 
 export async function claimQuestions(questionIds: number[]) {
@@ -54,12 +36,21 @@ export async function claimQuestions(questionIds: number[]) {
     return null;
   }
 
+  const reveals = await prisma.reveal.findMany({
+    where: {
+      userId: payload.sub,
+      questionId: {
+        in: questionIds,
+      },
+      isRewardClaimed: false,
+    },
+  });
+
   await prisma.$transaction(async (tx) => {
     await tx.reveal.updateMany({
       where: {
-        userId: payload.sub,
-        questionId: {
-          in: questionIds,
+        id: {
+          in: reveals.map((r) => r.id),
         },
       },
       data: {
@@ -67,9 +58,67 @@ export async function claimQuestions(questionIds: number[]) {
       },
     });
 
+    const decks = await tx.deck.findMany({
+      where: {
+        deckQuestions: {
+          every: {
+            question: {
+              reveals: {
+                some: {
+                  userId: payload.sub,
+                  isRewardClaimed: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      include: {
+        reveals: {
+          where: {
+            userId: payload.sub,
+          },
+        },
+      },
+    });
+
+    const deckRevealsToUpdate = decks
+      .filter((deck) => deck.reveals && deck.reveals.length > 0)
+      .map((deck) => deck.id);
+
+    if (deckRevealsToUpdate.length > 0) {
+      await tx.reveal.updateMany({
+        where: {
+          deckId: { in: deckRevealsToUpdate },
+        },
+        data: {
+          isRewardClaimed: true,
+        },
+      });
+    }
+
+    const deckRevealsToCreate = decks
+      .filter((deck) => !deck.reveals || deck.reveals.length === 0)
+      .map((deck) => deck.id);
+
+    if (deckRevealsToCreate.length > 0) {
+      await tx.reveal.createMany({
+        data: deckRevealsToCreate.map((deckId) => ({
+          deckId,
+          userId: payload.sub,
+          isRewardClaimed: true,
+        })),
+      });
+    }
+
     await incrementFungibleAssetBalance(
       FungibleAsset.Point,
-      await calculateRevealPoints(payload.sub, questionIds),
+      await calculateRevealPoints(
+        payload.sub,
+        reveals
+          .map((r) => r.questionId)
+          .filter((questionId) => questionId !== null) as number[],
+      ),
       tx,
     );
   });

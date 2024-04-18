@@ -133,8 +133,8 @@ export async function getHomeFeed(query: string = "") {
   ];
 
   const sortRevealedComparerFn = (a: any, b: any) => {
-    const aNewestClaimTime = a.reveals[0].createdAt;
-    const bNewestClaimTime = b.reveals[0].createdAt;
+    const aNewestClaimTime = a.reveals[0]?.createdAt;
+    const bNewestClaimTime = b.reveals[0]?.createdAt;
 
     if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
       return 1;
@@ -243,8 +243,8 @@ export async function getHistory(
   if (sort === HistorySortOptions.Claimable) {
     response.sort((a, b) => {
       if (a.reveals.length > 0 && b.reveals.length > 0) {
-        const aNewestClaimTime = a.reveals[0].createdAt;
-        const bNewestClaimTime = b.reveals[0].createdAt;
+        const aNewestClaimTime = a.reveals[0]?.createdAt;
+        const bNewestClaimTime = b.reveals[0]?.createdAt;
 
         if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
           return -1;

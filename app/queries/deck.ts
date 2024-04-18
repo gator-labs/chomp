@@ -331,26 +331,16 @@ export async function getHomeFeedDecks({
   const areAnsweredFilter: Prisma.DeckWhereInput = areAnswered
     ? {
         deckQuestions: {
-          some: {
+          every: {
             question: {
               questionOptions: {
                 some: {
-                  AND: [
-                    {
-                      questionAnswers: {
-                        some: {
-                          userId: payload.sub,
-                        },
-                      },
+                  questionAnswers: {
+                    some: {
+                      userId: payload.sub,
+                      hasViewedButNotSubmitted: false,
                     },
-                    {
-                      questionAnswers: {
-                        none: {
-                          hasViewedButNotSubmitted: true,
-                        },
-                      },
-                    },
-                  ],
+                  },
                 },
               },
             },
@@ -417,7 +407,8 @@ export async function getHomeFeedDecks({
     decks = decks.map((d) => {
       const answerDate = d.deckQuestions
         .flatMap((dq) => dq.question.questionOptions)
-        .map((qo) => qo.questionAnswers[0].createdAt)
+        .map((qo) => qo.questionAnswers[0]?.createdAt)
+        .filter((date) => !!date)
         .sort((left: Date, right: Date) => {
           if (dayjs(left).isAfter(right)) {
             return 1;
