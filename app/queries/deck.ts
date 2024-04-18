@@ -227,6 +227,9 @@ export async function getDeckDetails(id: number) {
       },
     },
     include: {
+      reveals: {
+        where: { userId: payload.sub },
+      },
       deckQuestions: {
         include: {
           question: {

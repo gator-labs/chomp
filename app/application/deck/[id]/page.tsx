@@ -5,7 +5,6 @@ import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
 const DeckDetails = dynamic(
   () => import("@/app/components/DeckDetails/DeckDetails"),
   { ssr: false },
@@ -13,12 +12,12 @@ const DeckDetails = dynamic(
 
 type PageProps = {
   params: { id: string };
-  searchParams: { returnUrl?: string };
+  searchParams: { returnUrl?: string; openIds: string };
 };
 
 export default async function Page({
   params: { id },
-  searchParams: { returnUrl },
+  searchParams: { returnUrl, openIds },
 }: PageProps) {
   const deck = await getDeckDetails(+id);
 
@@ -33,18 +32,17 @@ export default async function Page({
         avatarLink="/application/profile"
         walletLink=""
       >
-        <Suspense>
-          <Link href={returnUrl ?? "/application"}>
-            <div className="flex items-center text-xs">
-              <HalfArrowLeftIcon />
-              <div className="text-aqua">Chomped</div>
-            </div>
-          </Link>
-        </Suspense>
+        <Link href={returnUrl ?? "/application"}>
+          <div className="flex items-center text-xs">
+            <HalfArrowLeftIcon />
+            <div className="text-aqua">Chomped</div>
+          </div>
+        </Link>
       </Navbar>
-      <Suspense>
-        <DeckDetails deck={deck} />
-      </Suspense>
+      <DeckDetails
+        deck={deck}
+        openIds={openIds ? JSON.parse(decodeURIComponent(openIds)) : []}
+      />
     </div>
   );
 }

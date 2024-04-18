@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { isQuestionRevealable } from "../utils/question";
+import { getQuestionState, isQuestionRevealable } from "../utils/question";
 import { getJwtPayload } from "./jwt";
 
 export async function revealDeck(deckId: number) {
@@ -22,13 +22,15 @@ export async function revealDecks(deckIds: number[]) {
     return null;
   }
 
-  await prisma.reveal.createMany({
-    data: deckIds.map((deckId) => ({
-      deckId,
-      userId: payload.sub,
-    })),
+  const questionIds = await prisma.deckQuestion.findMany({
+    where: {
+      deckId: { in: deckIds },
+      question: { reveals: { none: { userId: payload.sub } } },
+    },
+    select: { questionId: true },
   });
 
+  await revealQuestions(questionIds.map((q) => q.questionId));
   revalidatePath("/application");
 }
 
@@ -80,11 +82,70 @@ export async function revealQuestions(questionIds: number[]) {
       }),
   );
 
-  await prisma.reveal.createMany({
-    data: revealableQuestions.map((question) => ({
-      questionId: question.id,
-      userId: payload.sub,
-    })),
+  const decksOfQuestions = await prisma.deck.findMany({
+    where: {
+      deckQuestions: { some: { questionId: { in: questionIds } } },
+      reveals: { none: { userId: payload.sub } },
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: { where: { userId: payload.sub } },
+                },
+              },
+              reveals: { where: { userId: payload.sub } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const decksToAddRevealFor = decksOfQuestions.filter((deck) => {
+    const questionStates = deck.deckQuestions.map((dq) => ({
+      questionId: dq.questionId,
+      state: getQuestionState(dq.question),
+    }));
+
+    const alreadyRevealed = questionStates
+      .filter((qs) => qs.state.isRevealed)
+      .map((qs) => qs.questionId);
+
+    const newelyRevealed = questionStates
+      .filter(
+        (qs) =>
+          revealableQuestions.some((rq) => rq.id === qs.questionId) &&
+          !qs.state.isRevealed,
+      )
+      .map((qs) => qs.questionId);
+
+    const revealedQuestions = [...alreadyRevealed, ...newelyRevealed];
+    const allQuestionIds = deck.deckQuestions.map((dq) => dq.questionId);
+
+    const remainigQuestions = allQuestionIds.filter(
+      (qId) => !revealedQuestions.includes(qId),
+    );
+
+    return remainigQuestions.length === 0;
+  });
+
+  await prisma.$transaction(async (tx) => {
+    await tx.reveal.createMany({
+      data: [
+        ...questionIds.map((questionId) => ({
+          questionId,
+          userId: payload.sub,
+        })),
+        ...decksToAddRevealFor.map((deck) => ({
+          deckId: deck.id,
+          userId: payload.sub,
+        })),
+      ],
+    });
   });
 
   revalidatePath("/application");

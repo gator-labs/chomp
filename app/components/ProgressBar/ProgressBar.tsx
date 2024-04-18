@@ -34,7 +34,13 @@ export function ProgressBar({
     useDragPositionPercentage({ elementRef: wrapperRef, onChange });
 
   useIsomorphicLayoutEffect(() => {
-    setPercentageCapped(percentage && percentage > 100 ? 100 : percentage ?? 0);
+    if (percentage === undefined) {
+      setPercentageCapped(100);
+    } else {
+      setPercentageCapped(
+        percentage && percentage > 100 ? 100 : percentage ?? 0,
+      );
+    }
   }, [percentage]);
 
   return (
@@ -78,7 +84,7 @@ export function ProgressBar({
             percentage === undefined,
         })}
         style={{
-          width: percentageCapped ? `${percentageCapped}%` : undefined,
+          width: percentageCapped ? `${percentageCapped}%` : 0,
           backgroundColor: progressColor,
         }}
       ></div>
