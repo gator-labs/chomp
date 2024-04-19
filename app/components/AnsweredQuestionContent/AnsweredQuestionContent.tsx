@@ -58,7 +58,7 @@ export const AnsweredQuestionContent = ({
       }
       case "YesNo": {
         handleBinary();
-        return <BooleanAnsweredContent {...baseProps} />;
+        return <BooleanAnsweredContent {...baseProps} isYesNo />;
       }
     }
   }, [handleBinary, baseProps, element.type]);
