@@ -4,7 +4,7 @@ import { useRandom } from "@/app/hooks/useRandom";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import {
@@ -43,6 +43,7 @@ const getDueAt = (questions: Question[], index: number): Date => {
 };
 
 export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
+  const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [rerenderAction, setRerednerAction] = useState(true);
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
@@ -74,6 +75,11 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     setTimeout(() => {
       setRerednerAction(true);
     });
+    setTimeout(() => {
+      if (questionsRef.current) {
+        questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;
+      }
+    }, 200);
   }, [
     currentQuestionIndex,
     setCurrentQuestionIndex,
@@ -81,6 +87,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     setRerednerAction,
     generateRandom,
     setCurrentOptionSelected,
+    questionsRef.current,
   ]);
 
   const question = useMemo(
@@ -186,6 +193,12 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     }
   }, [hasReachedEnd, deckResponse]);
 
+  useEffect(() => {
+    if (questionsRef.current) {
+      questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;
+    }
+  }, [questionsRef.current]);
+
   if (questions.length === 0 || hasReachedEnd) {
     return <NoQuestionsCard browseHomeUrl={browseHomeUrl} />;
   }
@@ -194,8 +207,11 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <div>
-        <AnswerHeader questionTags={question.questionTags} />
+      <AnswerHeader questionTags={question.questionTags} />
+      <div
+        ref={questionsRef}
+        className="overflow-y-auto max-h-[calc(100%-30px-100px)]"
+      >
         <div
           className="relative"
           style={{ marginBottom: questionOffset + "px" }}

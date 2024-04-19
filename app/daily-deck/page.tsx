@@ -11,7 +11,7 @@ export default async function Page() {
       <div className="px-4 py-5">
         <DailyDeckTitle date={dailyDeck?.date ?? new Date()} />
       </div>
-      <div className="px-4 h-full">
+      <div className="px-4 h-[calc(100%-57px)]">
         {dailyDeck?.questions ? (
           <Deck
             questions={dailyDeck.questions}
