@@ -76,7 +76,14 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
       case "skipburn":
         return (
           <>
-            <Button variant="white" isPill onClick={() => reveal?.reveal()}>
+            <Button
+              variant="white"
+              isPill
+              onClick={async () => {
+                await reveal?.reveal();
+                fire();
+              }}
+            >
               Reveal
             </Button>
             <Button
