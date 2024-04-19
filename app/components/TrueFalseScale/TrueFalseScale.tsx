@@ -42,10 +42,10 @@ export function TrueFalseScale({
   return (
     <div className="relative">
       {!!handleRatioChange && isVisibleBackdrop && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 z-30" />
+        <div className="fixed inset-0 bg-black bg-opacity-80 z-[9999]" />
       )}
       {!!handleRatioChange && isVisibleBackdrop && (
-        <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-30 rounded-xl flex gap-5">
+        <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-[9999] rounded-xl flex gap-5">
           <p className="text-[#0d0d0d7d] font-normal">
             T <span className="text-[#0D0D0D] font-semibold">{ratioTrue}%</span>
           </p>
