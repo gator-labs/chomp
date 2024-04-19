@@ -47,10 +47,11 @@ export function TrueFalseScale({
       {!!handleRatioChange && isVisibleBackdrop && (
         <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-[9999] rounded-xl flex gap-5">
           <p className="text-[#0d0d0d7d] font-normal">
-            T <span className="text-[#0D0D0D] font-semibold">{ratioTrue}%</span>
+            {labelTrue.substring(0, 1)}{" "}
+            <span className="text-[#0D0D0D] font-semibold">{ratioTrue}%</span>
           </p>
           <p className="text-[#0d0d0d7d] font-normal">
-            F{" "}
+            {labelFalse.substring(0, 1)}{" "}
             <span className="text-[#0D0D0D] font-semibold">
               {100 - (ratioTrue ?? 0)}%
             </span>
