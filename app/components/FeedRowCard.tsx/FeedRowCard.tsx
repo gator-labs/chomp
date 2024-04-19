@@ -1,7 +1,7 @@
 "use client";
 import { ElementType } from "@/app/queries/question";
 import { Deck, Question, Reveal } from "@prisma/client";
-import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
+import { DeckQuestionIncludes } from "@/app/utils/question";
 import { DeckRowCard } from "../DeckRowCard/DeckRowCard";
 import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 

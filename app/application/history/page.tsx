@@ -2,12 +2,11 @@
 import { revealQuestions } from "@/app/actions/reveal";
 import { HistorySortOptions } from "@/app/api/history/route";
 import { Button } from "@/app/components/Button/Button";
-import { DeckQuestionIncludes } from "@/app/components/DeckDetails/DeckDetails";
 import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { getQuestionState } from "@/app/utils/question";
+import { DeckQuestionIncludes, getQuestionState } from "@/app/utils/question";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { Deck } from "@prisma/client";
 import dynamic from "next/dynamic";
@@ -37,6 +36,7 @@ type DeckTypeWithIncludes = Deck & {
 };
 
 let lastQuery: string | undefined = "";
+
 export default function Page({ searchParams }: PageProps) {
   const router = useRouter();
   const pathname = usePathname();
