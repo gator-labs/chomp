@@ -14,12 +14,14 @@ export default async function Page() {
 
   return (
     <div className="flex justify-center items-center h-full">
-      No question available”? <br />
-      <br />
-      Let&#x2019;s say this “thank you for your interested in Chomp! Closed
-      alpha is now over, follow us{" "}
-      <Link href="https://twitter.com/chompdotgames">@chompdotganes</Link> on
-      Twitter for when the beta will be available for you to play!
+      <div>
+        “No question available”? <br />
+        <br />
+        Let&#x2019;s say this “thank you for your interested in Chomp! Closed
+        alpha is now over, follow us{" "}
+        <Link href="https://twitter.com/chompdotgames">@chompdotganes</Link> on
+        Twitter for when the beta will be available for you to play!
+      </div>
     </div>
   );
 }
