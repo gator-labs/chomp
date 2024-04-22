@@ -157,10 +157,7 @@ export const populateAnswerCount = (
   }
 
   questions.forEach((q) => {
-    q.answerCount = q.questionOptions?.reduce(
-      (acc, curr) => acc + curr.questionAnswers.length,
-      0,
-    );
+    q.answerCount = q.questionOptions[0].questionAnswers.length;
   });
 
   if ((element as Deck).deck) {
@@ -181,12 +178,11 @@ type RevealableEntityData = {
 
 export const isEntityRevealable = (entity: RevealableEntityData) => {
   return (
-    (entity.revealAtDate !== null
-      ? dayjs(entity.revealAtDate).isBefore(new Date())
-      : true) &&
-    (entity.revealAtAnswerCount !== null
-      ? entity.revealAtAnswerCount >= (entity.answerCount ?? 0)
-      : true)
+    ((entity.revealAtDate !== null || entity.revealAtAnswerCount !== null) &&
+      entity.revealAtDate !== null &&
+      dayjs(entity.revealAtDate).isBefore(new Date())) ||
+    (entity.revealAtAnswerCount !== null &&
+      entity.revealAtAnswerCount >= (entity.answerCount ?? 0))
   );
 };
 

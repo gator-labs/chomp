@@ -75,10 +75,7 @@ export async function revealQuestions(questionIds: number[]) {
       isEntityRevealable({
         revealAtDate: question.revealAtDate,
         revealAtAnswerCount: question.revealAtAnswerCount,
-        answerCount: question.questionOptions.reduce(
-          (acc, cur) => acc + cur.questionAnswers.length,
-          0,
-        ),
+        answerCount: question.questionOptions[0].questionAnswers.length,
       }),
   );
 

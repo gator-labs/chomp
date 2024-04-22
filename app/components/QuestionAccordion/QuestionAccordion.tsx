@@ -42,6 +42,10 @@ export function QuestionAccordion({
   answerCount,
   onClick,
 }: QuestionAccordionProps) {
+  const isRevealAtCount =
+    answerCount !== undefined &&
+    revealAtAnswerCount !== undefined &&
+    revealAtAnswerCount !== null;
   return (
     <div
       className={classNames(
@@ -64,18 +68,21 @@ export function QuestionAccordion({
           <div className="flex items-center gap-2.5">
             <>
               <ClockIcon />
-              {revealedAt && (
-                <span className="text-sm text-white">
-                  {getRevealedAtString(revealedAt)}{" "}
-                </span>
-              )}
-              {answerCount !== undefined &&
-                revealAtAnswerCount !== undefined &&
-                revealAtAnswerCount !== null && (
+              <div>
+                {revealedAt && (
                   <span className="text-sm text-white">
-                    {answerCount.toString()}\{revealAtAnswerCount.toString()}
+                    {getRevealedAtString(revealedAt)}{" "}
                   </span>
                 )}
+                {revealedAt && isRevealAtCount && (
+                  <span className="text-sm text-white">or </span>
+                )}
+                {isRevealAtCount && (
+                  <span className="text-sm text-white">
+                    {answerCount.toString()}/{revealAtAnswerCount.toString()}
+                  </span>
+                )}
+              </div>
             </>
           </div>
           <div
