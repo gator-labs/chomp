@@ -15,9 +15,7 @@ export default async function Page() {
   return (
     <div className="flex justify-center items-center h-full">
       <div>
-        “No question available”? <br />
-        <br />
-        Let&#x2019;s say this “thank you for your interested in Chomp! Closed
+        Thank you for your interested in Chomp! Closed
         alpha is now over, follow us{" "}
         <Link href="https://twitter.com/chompdotgames">@chompdotgames</Link> on
         Twitter for when the beta will be available for you to play!
