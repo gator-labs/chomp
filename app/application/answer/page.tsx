@@ -19,7 +19,7 @@ export default async function Page() {
         <br />
         Let&#x2019;s say this “thank you for your interested in Chomp! Closed
         alpha is now over, follow us{" "}
-        <Link href="https://twitter.com/chompdotgames">@chompdotganes</Link> on
+        <Link href="https://twitter.com/chompdotgames">@chompdotgames</Link> on
         Twitter for when the beta will be available for you to play!
       </div>
     </div>
