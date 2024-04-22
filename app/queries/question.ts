@@ -502,9 +502,7 @@ export async function getHomeFeedQuestions({
     });
   }
 
-  if (areAnswered) {
-    questions.forEach((q) => populateAnswerCount(q as any));
-  }
+  questions.forEach((q) => populateAnswerCount(q as any));
 
   handleQuestionMappingForFeed(
     questions as any,

@@ -3,12 +3,11 @@ import { claimQuestion } from "@/app/actions/claim";
 import { revealQuestion } from "@/app/actions/reveal";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { getQuestionState } from "@/app/utils/question";
+import { DeckQuestionIncludes, getQuestionState } from "@/app/utils/question";
 import Link from "next/link";
 import { useCallback } from "react";
 import { AnsweredQuestionContent } from "../AnsweredQuestionContent/AnsweredQuestionContent";
 import { Button } from "../Button/Button";
-import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import { QuestionAccordion } from "../QuestionAccordion/QuestionAccordion";
 
 type QuestionRowCardProps = {
@@ -80,6 +79,8 @@ export function QuestionRowCard({
           question={question.question}
           revealedAt={question.revealAtDate}
           actionChild={actionSubmit}
+          revealAtAnswerCount={question.revealAtAnswerCount}
+          answerCount={question.answerCount}
           status="chomped"
         >
           {isRevealed && <AnsweredQuestionContent element={question} />}
@@ -93,6 +94,8 @@ export function QuestionRowCard({
       <QuestionAccordion
         question={question.question}
         revealedAt={question.revealAtDate}
+        revealAtAnswerCount={question.revealAtAnswerCount}
+        answerCount={question.answerCount}
         status="new"
       />
     </Link>

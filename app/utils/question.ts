@@ -157,7 +157,7 @@ export const populateAnswerCount = (
   }
 
   questions.forEach((q) => {
-    q.answerCount = q.questionOptions.reduce(
+    q.answerCount = q.questionOptions?.reduce(
       (acc, curr) => acc + curr.questionAnswers.length,
       0,
     );
