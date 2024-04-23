@@ -32,8 +32,8 @@ export function BooleanAnsweredContent({
     <div className="w-full">
       <div className="mb-2">
         <TrueFalseScale
-          ratioTrue={ratioSelectedTrue}
-          valueSelected={ratioTrue}
+          ratioTrue={ratioTrue}
+          valueSelected={ratioSelectedTrue}
           avatarSrc={avatarSrc}
           labelTrue={isYesNo ? "Yes" : undefined}
           labelFalse={isYesNo ? "No" : undefined}
@@ -41,7 +41,7 @@ export function BooleanAnsweredContent({
             isTrueTrue ? "#6DECAF" : isTrueSelected ? "#ED6A5A" : undefined
           }
           bgColor={
-            !isTrueTrue ? "#6DECAF" : !isTrueSelected ? "#ED6A5A" : undefined
+            !isTrueTrue ? "#6DECAF" : !isTrueSelected ? "#2c1e1d" : undefined
           }
         />
       </div>
