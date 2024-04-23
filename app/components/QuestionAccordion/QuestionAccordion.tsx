@@ -14,6 +14,8 @@ type QuestionAccordionProps = {
   revealedAt?: Date | null;
   children?: ReactNode;
   actionChild?: ReactNode;
+  revealAtAnswerCount?: Number | null;
+  answerCount?: Number;
   onClick?: () => void;
 };
 
@@ -36,8 +38,14 @@ export function QuestionAccordion({
   actionChild,
   children,
   status,
+  revealAtAnswerCount,
+  answerCount,
   onClick,
 }: QuestionAccordionProps) {
+  const isRevealAtCount =
+    answerCount !== undefined &&
+    revealAtAnswerCount !== undefined &&
+    revealAtAnswerCount !== null;
   return (
     <div
       className={classNames(
@@ -58,14 +66,24 @@ export function QuestionAccordion({
         {actionChild}
         <div className="flex justify-between itmes-center">
           <div className="flex items-center gap-2.5">
-            {revealedAt && (
-              <>
-                <ClockIcon />
-                <span className="text-sm text-white">
-                  {getRevealedAtString(revealedAt)}
-                </span>
-              </>
-            )}
+            <>
+              <ClockIcon />
+              <div>
+                {revealedAt && (
+                  <span className="text-sm text-white">
+                    {getRevealedAtString(revealedAt)}{" "}
+                  </span>
+                )}
+                {revealedAt && isRevealAtCount && (
+                  <span className="text-sm text-white">or </span>
+                )}
+                {isRevealAtCount && (
+                  <span className="text-sm text-white">
+                    {answerCount.toString()}/{revealAtAnswerCount.toString()}
+                  </span>
+                )}
+              </div>
+            </>
           </div>
           <div
             className={classNames("text-sm leading-6", {

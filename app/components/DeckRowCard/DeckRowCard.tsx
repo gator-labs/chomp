@@ -1,11 +1,11 @@
-import { getDeckState } from "@/app/utils/question";
+import { DeckQuestionIncludes, getDeckState } from "@/app/utils/question";
 import { Deck, Reveal } from "@prisma/client";
 import Link from "next/link";
-import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import { QuestionDeck } from "../QuestionDeck/QuestionDeck";
 
 type DeckRowCardProps = {
   deck: Deck & {
+    answerCount?: number;
     deckQuestions: {
       question: DeckQuestionIncludes;
     }[];

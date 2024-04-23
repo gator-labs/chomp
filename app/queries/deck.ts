@@ -15,7 +15,11 @@ import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import { HistorySortOptions } from "../api/history/route";
 import prisma from "../services/prisma";
-import { getDeckState, handleQuestionMappingForFeed } from "../utils/question";
+import {
+  getDeckState,
+  handleQuestionMappingForFeed,
+  populateAnswerCount,
+} from "../utils/question";
 import { answerPercentageQuery } from "./answerPercentageQuery";
 
 const questionDeckToRunInclude = {
@@ -272,16 +276,16 @@ export async function getDeckDetails(id: number) {
   const questionOptionPercentages =
     await answerPercentageQuery(questionOptionIds);
 
-  const { isAnswered, isRevealable } = getDeckState(deck);
+  const populated = populateAnswerCount(deck);
+  const { isRevealable } = getDeckState(deck);
   handleQuestionMappingForFeed(
     questions as any,
     questionOptionPercentages,
     payload.sub,
     isRevealable,
-    isAnswered,
   );
 
-  return deck;
+  return { ...deck, answerCount: populated.answerCount ?? 0 };
 }
 
 export async function getHomeFeedDecks({
@@ -393,9 +397,7 @@ export async function getHomeFeedDecks({
             include: {
               questionOptions: {
                 include: {
-                  questionAnswers: {
-                    where: { userId: { equals: payload.sub } },
-                  },
+                  questionAnswers: true,
                 },
                 orderBy: {
                   createdAt: "desc",
@@ -453,6 +455,7 @@ export async function getHomeFeedDecks({
     });
   }
 
+  decks.forEach((d) => populateAnswerCount(d as any));
   if (!areRevealed) {
     decks?.forEach((d) => {
       d.deckQuestions?.forEach((dq) => {
@@ -462,6 +465,18 @@ export async function getHomeFeedDecks({
       });
     });
   }
+
+  decks.forEach((deck) =>
+    deck.deckQuestions.forEach((dq) =>
+      dq.question.questionOptions.forEach((qo: any) => {
+        if (qo.questionAnswers) {
+          qo.questionAnswers = qo.questionAnswers.filter(
+            (qa: any) => qa.userId === payload.sub,
+          );
+        }
+      }),
+    ),
+  );
   return decks;
 }
 

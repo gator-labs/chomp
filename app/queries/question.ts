@@ -14,7 +14,10 @@ import { getJwtPayload } from "../actions/jwt";
 import { HistorySortOptions } from "../api/history/route";
 import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
-import { handleQuestionMappingForFeed } from "../utils/question";
+import {
+  handleQuestionMappingForFeed,
+  populateAnswerCount,
+} from "../utils/question";
 import { answerPercentageQuery } from "./answerPercentageQuery";
 import { getHomeFeedDecks } from "./deck";
 
@@ -399,14 +402,11 @@ export async function getHomeFeedQuestions({
         OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
       };
 
-  const questionAnswereWhereFilter: Prisma.QuestionAnswerWhereInput =
-    areRevealed ? {} : { userId: { equals: payload.sub } };
   const questionInclude: Prisma.QuestionInclude = areAnswered
     ? {
         questionOptions: {
           include: {
             questionAnswers: {
-              where: questionAnswereWhereFilter,
               orderBy: { createdAt: "desc" },
             },
           },
@@ -502,12 +502,13 @@ export async function getHomeFeedQuestions({
     });
   }
 
+  questions.forEach((q) => populateAnswerCount(q as any));
+
   handleQuestionMappingForFeed(
     questions as any,
     questionOptionPercentages,
     payload.sub,
     areRevealed,
-    areAnswered,
   );
 
   return questions;

@@ -4,27 +4,21 @@ import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { getDeckState, getQuestionState } from "@/app/utils/question";
+import {
+  DeckQuestionIncludes,
+  getDeckState,
+  getQuestionState,
+} from "@/app/utils/question";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
-import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
+import { Deck, Reveal } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { Button } from "../Button/Button";
 import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
-export type DeckQuestionIncludes = Question & {
-  questionOptions: {
-    id: number;
-    isTrue: boolean;
-    questionAnswers: (QuestionAnswer & {
-      percentageResult?: number | null;
-    })[];
-  }[];
-  reveals: Reveal[];
-};
-
 type DeckProp = Deck & {
+  answerCount: number;
   reveals: Reveal[];
   deckQuestions: {
     question: DeckQuestionIncludes;

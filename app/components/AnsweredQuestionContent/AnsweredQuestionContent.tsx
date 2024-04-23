@@ -1,9 +1,11 @@
 "use client";
-import { mapQuestionToBinaryQuestionAnswer } from "@/app/utils/question";
+import {
+  DeckQuestionIncludes,
+  mapQuestionToBinaryQuestionAnswer,
+} from "@/app/utils/question";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { useCallback, useMemo, useState } from "react";
 import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
-import { DeckQuestionIncludes } from "../DeckDetails/DeckDetails";
 import { AnswerResultIcon } from "../Icons/AnswerResultIcon";
 import { ImageIcon } from "../Icons/ImageIcon";
 import { InfoIcon } from "../Icons/InfoIcon";

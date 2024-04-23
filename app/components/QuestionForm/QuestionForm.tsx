@@ -167,6 +167,7 @@ export default function QuestionForm({
               placeholderText="Reveal date"
               showTimeInput
               dateFormat="Pp"
+              isClearable
             />
           )}
         />

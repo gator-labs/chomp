@@ -1,6 +1,19 @@
-import { Deck, Question, Reveal } from "@prisma/client";
+import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
 import dayjs from "dayjs";
-import { DeckQuestionIncludes } from "../components/DeckDetails/DeckDetails";
+
+export type DeckQuestionIncludes = Question & {
+  answerCount?: number;
+  questionOptions: {
+    id: number;
+    isTrue: boolean;
+    questionAnswers: Array<
+      QuestionAnswer & {
+        percentageResult?: number | null;
+      }
+    >;
+  }[];
+  reveals: Reveal[];
+};
 
 const CHAR_CODE_A_ASCII = 65;
 
@@ -18,9 +31,7 @@ export function getQuestionState(question: DeckQuestionIncludes): {
     (qo) => qo.questionAnswers.length !== 0,
   );
   const isRevealed = question.reveals?.length !== 0;
-  const isRevealable =
-    question.revealAtDate !== null &&
-    dayjs(question.revealAtDate).isBefore(new Date());
+  const isRevealable = isEntityRevealable(question);
   const isClaimed =
     question.reveals && question.reveals.length > 0
       ? question.reveals[0].isRewardClaimed
@@ -31,6 +42,7 @@ export function getQuestionState(question: DeckQuestionIncludes): {
 
 export function getDeckState(
   deck: Deck & {
+    answerCount?: number;
     deckQuestions: {
       question: DeckQuestionIncludes;
     }[];
@@ -45,8 +57,7 @@ export function getDeckState(
     dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0),
   );
   const isRevealed = deck.reveals?.length !== 0;
-  const isRevealable =
-    deck.revealAtDate !== null && dayjs(deck.revealAtDate).isBefore(new Date());
+  const isRevealable = isEntityRevealable(deck);
 
   return { isAnswered, isRevealed, isRevealable };
 }
@@ -124,27 +135,55 @@ export function mapQuestionToBinaryQuestionAnswer(
   return null;
 }
 
-type RevealableQuestionData = {
+export const populateAnswerCount = (
+  element:
+    | DeckQuestionIncludes
+    | (Deck & {
+        answerCount?: number;
+        deckQuestions: {
+          question: DeckQuestionIncludes;
+        }[];
+      }),
+) => {
+  let questions: DeckQuestionIncludes[] = [];
+  if ((element as Deck).deck) {
+    questions = (
+      element as { deckQuestions: { question: DeckQuestionIncludes }[] }
+    ).deckQuestions.map((dq) => dq.question);
+  }
+
+  if ((element as DeckQuestionIncludes).question) {
+    questions = [element as DeckQuestionIncludes];
+  }
+
+  questions.forEach((q) => {
+    q.answerCount = q.questionOptions[0].questionAnswers.length;
+  });
+
+  if ((element as Deck).deck) {
+    element.answerCount = questions.reduce(
+      (acc, curr) => acc + (curr.answerCount ?? 0),
+      0,
+    );
+  }
+
+  return element;
+};
+
+type RevealableEntityData = {
   revealAtDate: Date | null;
   revealAtAnswerCount: number | null;
-  answerCount: number;
+  answerCount?: number;
 };
 
-export const isQuestionRevealable = (question: RevealableQuestionData) => {
+export const isEntityRevealable = (entity: RevealableEntityData) => {
   return (
-    (question.revealAtDate !== null
-      ? dayjs(question.revealAtDate).isBefore(new Date())
-      : true) &&
-    (question.revealAtAnswerCount !== null
-      ? question.revealAtAnswerCount >= question.answerCount
-      : true)
+    ((entity.revealAtDate !== null || entity.revealAtAnswerCount !== null) &&
+      entity.revealAtDate !== null &&
+      dayjs(entity.revealAtDate).isBefore(new Date())) ||
+    (entity.revealAtAnswerCount !== null &&
+      entity.revealAtAnswerCount >= (entity.answerCount ?? 0))
   );
-};
-
-export const areQuestionsRevealable = (
-  questions: (Question & { reveals: Reveal[] })[],
-) => {
-  return questions.every((question) => {});
 };
 
 export const handleQuestionMappingForFeed = (
@@ -155,7 +194,6 @@ export const handleQuestionMappingForFeed = (
   }[],
   userId: string,
   areRevealed: boolean,
-  areAnswered: boolean,
 ) => {
   questions.forEach((q) => {
     q.questionOptions?.forEach((qo: any) => {

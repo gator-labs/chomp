@@ -235,6 +235,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
               placeholderText="Reveal date"
               showTimeInput
               dateFormat="Pp"
+              isClearable
             />
           )}
         />

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { getQuestionState, isQuestionRevealable } from "../utils/question";
+import { getQuestionState, isEntityRevealable } from "../utils/question";
 import { getJwtPayload } from "./jwt";
 
 export async function revealDeck(deckId: number) {
@@ -72,13 +72,10 @@ export async function revealQuestions(questionIds: number[]) {
   const revealableQuestions = questions.filter(
     (question) =>
       question.reveals.length === 0 &&
-      isQuestionRevealable({
+      isEntityRevealable({
         revealAtDate: question.revealAtDate,
         revealAtAnswerCount: question.revealAtAnswerCount,
-        answerCount: question.questionOptions.reduce(
-          (acc, cur) => acc + cur.questionAnswers.length,
-          0,
-        ),
+        answerCount: question.questionOptions[0].questionAnswers.length,
       }),
   );
 
