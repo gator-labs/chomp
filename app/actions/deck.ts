@@ -18,7 +18,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
   const validatedFields = deckSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return false;
+    return { errorMessage: "Validaiton failed" };
   }
 
   await prisma.$transaction(async (tx) => {
@@ -77,11 +77,11 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   const validatedFields = deckSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return false;
+    return { errorMessage: "Validaiton failed" };
   }
 
   if (!data.id) {
-    return false;
+    return { errorMessage: "Id not specified" };
   }
 
   const existingQuestionId = (
@@ -113,8 +113,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
         },
       });
-
-      // TODO: optimize so only modified questions get updated
 
       const newDeckQuestions = validatedFields.data.questions.filter(
         (q) => !q.id,
@@ -165,15 +163,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealTokenAmount: validatedFields.data.revealTokenAmount,
             revealAtDate: validatedFields.data.revealAtDate,
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
-            questionOptions: {
-              deleteMany: {},
-              createMany: {
-                data: question.questionOptions.map((option) => ({
-                  ...option,
-                  id: undefined,
-                })),
-              },
-            },
             questionTags: {
               createMany: {
                 data: validatedFields.data.tagIds
@@ -190,9 +179,30 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             },
           },
         });
+
+        const questionOptionPromiseArray = question.questionOptions.map(
+          (qo) => {
+            return tx.questionOption.upsert({
+              create: {
+                isTrue: qo.isTrue,
+                option: qo.option,
+                questionId: question.id ?? 0,
+              },
+              update: {
+                isTrue: qo.isTrue,
+                option: qo.option,
+              },
+              where: {
+                id: qo.id,
+              },
+            });
+          },
+        );
+
+        await Promise.all(questionOptionPromiseArray);
       }
 
-      const questionsToDelete = await tx.deckQuestion.findMany({
+      await tx.deckQuestion.deleteMany({
         where: {
           deckId: deck.id,
           questionId: {
@@ -200,9 +210,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           },
         },
       });
-
-      // TODO: add cascade to question and then implement this
-      questionsToDelete.length && console.log({ questionsToDelete });
     },
     { timeout: 20000 },
   );

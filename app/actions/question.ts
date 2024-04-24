@@ -18,7 +18,7 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
   const validatedFields = questionSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return false;
+    return { errorMessage: "Validaiton failed" };
   }
 
   const questionData = {
@@ -49,26 +49,27 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
   redirect("/admin/questions");
 }
 
-// TODO: no edits after users started answering
 export async function editQuestion(data: z.infer<typeof questionSchema>) {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
     redirect("/application");
   }
-
   const validatedFields = questionSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return false;
+    return { errorMessage: "Validaiton failed" };
   }
 
   if (!data.id) {
-    return false;
+    return { errorMessage: "Id not specified" };
   }
 
   const existingTagIds = (
     await prisma.questionTag.findMany({
+      select: {
+        tagId: true,
+      },
       where: {
         questionId: data.id,
       },
@@ -83,35 +84,51 @@ export async function editQuestion(data: z.infer<typeof questionSchema>) {
     id: undefined,
   };
 
-  await prisma.question.update({
-    where: {
-      id: data.id,
-    },
-    data: {
-      ...questionData,
-      questionOptions: {
-        deleteMany: {},
-        createMany: {
-          data: data.questionOptions,
-        },
+  delete questionData.questionOptions;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.question.update({
+      where: {
+        id: data.id,
       },
-      questionTags: {
-        createMany: {
-          data: validatedFields.data.tagIds
-            .filter((tagId) => !existingTagIds.includes(tagId))
-            .map((tagId) => ({ tagId })),
-        },
-        deleteMany: {
-          tagId: {
-            in: existingTagIds.filter(
-              (tagId) => !validatedFields.data.tagIds.includes(tagId),
-            ),
+      data: {
+        ...questionData,
+        questionTags: {
+          createMany: {
+            data: validatedFields.data.tagIds
+              .filter((tagId) => !existingTagIds.includes(tagId))
+              .map((tagId) => ({ tagId })),
+          },
+          deleteMany: {
+            tagId: {
+              in: existingTagIds.filter(
+                (tagId) => !validatedFields.data.tagIds.includes(tagId),
+              ),
+            },
           },
         },
       },
-    },
-  });
+    });
 
+    const questionOptionUpsertPromiseArray = data.questionOptions.map((qo) => {
+      return tx.questionOption.upsert({
+        create: {
+          isTrue: qo.isTrue,
+          option: qo.option,
+          questionId: data.id ?? 0,
+        },
+        update: {
+          isTrue: qo.isTrue,
+          option: qo.option,
+        },
+        where: {
+          id: qo.id,
+        },
+      });
+    });
+
+    await Promise.all(questionOptionUpsertPromiseArray);
+  });
   revalidatePath("/admin/questions");
   redirect("/admin/questions");
 }

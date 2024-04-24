@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import "react-datepicker/dist/react-datepicker.css";
+import "react-toastify/dist/ReactToastify.min.css";
 import { AdminTabNavigation } from "../components/AdminTabNavigation/AdminTabNavigation";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 
