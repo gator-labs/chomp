@@ -7,6 +7,8 @@ import { getIsUserAdmin } from "../queries/user";
 import { deckSchema } from "../schemas/deck";
 import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILISECONDS } from "../utils/dateUtils";
+import { formatErrorsToString } from "../utils/zod";
+import { handleUpsertingQuestionOptionsConcurrently } from "./question";
 
 export async function createDeck(data: z.infer<typeof deckSchema>) {
   const isAdmin = await getIsUserAdmin();
@@ -77,11 +79,11 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   const validatedFields = deckSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return { errorMessage: "Validaiton failed" };
+    return { errorMessage: formatErrorsToString(validatedFields) };
   }
 
   if (!data.id) {
-    return { errorMessage: "Id not specified" };
+    return { errorMessage: "Deck id not specified" };
   }
 
   const existingQuestionId = (
@@ -180,26 +182,13 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           },
         });
 
-        const questionOptionPromiseArray = question.questionOptions.map(
-          (qo) => {
-            return tx.questionOption.upsert({
-              create: {
-                isTrue: qo.isTrue,
-                option: qo.option,
-                questionId: question.id ?? 0,
-              },
-              update: {
-                isTrue: qo.isTrue,
-                option: qo.option,
-              },
-              where: {
-                id: qo.id,
-              },
-            });
-          },
-        );
-
-        await Promise.all(questionOptionPromiseArray);
+        if (question.id) {
+          await handleUpsertingQuestionOptionsConcurrently(
+            tx,
+            question.id,
+            question.questionOptions,
+          );
+        }
       }
 
       await tx.deckQuestion.deleteMany({

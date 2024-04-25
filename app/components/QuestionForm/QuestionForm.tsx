@@ -66,20 +66,20 @@ export default function QuestionForm({
 
   const questionType = watch("type");
 
-  return (
-    <form
-      onSubmit={handleSubmit(async (data) => {
-        const result = await action({
-          ...data,
-          tagIds: selectedTagIds,
-          id: question?.id,
-        });
+  const onSubmit = handleSubmit(async (data) => {
+    const result = await action({
+      ...data,
+      tagIds: selectedTagIds,
+      id: question?.id,
+    });
 
-        if (result?.errorMessage) {
-          toast.error(result.errorMessage);
-        }
-      })}
-    >
+    if (result?.errorMessage) {
+      toast.error(result.errorMessage);
+    }
+  });
+
+  return (
+    <form onSubmit={onSubmit}>
       <h1 className="text-3xl mb-3">
         {question ? `Edit question #${question.id}` : "Create question"}
       </h1>

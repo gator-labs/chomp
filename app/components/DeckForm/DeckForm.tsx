@@ -48,19 +48,19 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
 
+  const onSubmit = handleSubmit(async (data) => {
+    const result = await action({
+      ...data,
+      tagIds: selectedTagIds,
+      id: deck?.id,
+    });
+    if (result?.errorMessage) {
+      toast.error(result.errorMessage);
+    }
+  });
+
   return (
-    <form
-      onSubmit={handleSubmit(async (data) => {
-        const result = await action({
-          ...data,
-          tagIds: selectedTagIds,
-          id: deck?.id,
-        });
-        if (result?.errorMessage) {
-          toast.error(result.errorMessage);
-        }
-      })}
-    >
+    <form onSubmit={onSubmit}>
       <h1 className="text-3xl mb-3">
         {deck ? `Edit deck #${deck.id}` : "Create deck"}
       </h1>
