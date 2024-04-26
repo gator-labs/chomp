@@ -146,21 +146,26 @@ export const populateAnswerCount = (
       }),
 ) => {
   let questions: DeckQuestionIncludes[] = [];
-  if ((element as Deck).deck) {
-    questions = (
-      element as { deckQuestions: { question: DeckQuestionIncludes }[] }
-    ).deckQuestions.map((dq) => dq.question);
+
+  if ("deck" in element) {
+    questions = element.deckQuestions.map((dq) => dq.question);
   }
 
-  if ((element as DeckQuestionIncludes).question) {
-    questions = [element as DeckQuestionIncludes];
+  if ("question" in element) {
+    questions = [element];
   }
 
   questions.forEach((q) => {
-    q.answerCount = q.questionOptions[0].questionAnswers.length;
+    // Check if questionOptions exist and has at least one entry
+    if (q.questionOptions && q.questionOptions.length > 0) {
+      q.answerCount = q.questionOptions[0].questionAnswers.length;
+    } else {
+      // Handle the case where there are no options or the options are not loaded
+      q.answerCount = 0;
+    }
   });
 
-  if ((element as Deck).deck) {
+  if ("deck" in element) {
     element.answerCount = questions.reduce(
       (acc, curr) => acc + (curr.answerCount ?? 0),
       0,
