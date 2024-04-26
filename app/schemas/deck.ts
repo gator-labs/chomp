@@ -7,7 +7,7 @@ export const deckSchema = z.object({
   imageUrl: z.string().nullable(),
   tagIds: z.number().array().default([]),
   revealToken: z.nativeEnum(Token),
-  date: z.date().nullable(),
+  date: z.date().nullable().optional(),
   revealTokenAmount: z.number().min(0),
   revealAtDate: z.date().nullable(),
   revealAtAnswerCount: z.number().min(0).nullable(),
@@ -26,7 +26,8 @@ export const deckSchema = z.object({
         .object({
           id: z.number().optional(),
           option: z.string().min(1),
-          isTrue: z.boolean().optional(),
+          isCorrect: z.boolean().optional(),
+          isLeft: z.boolean(),
         })
         .array(),
     })

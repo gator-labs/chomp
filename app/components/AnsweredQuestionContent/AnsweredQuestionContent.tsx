@@ -33,7 +33,7 @@ export const AnsweredQuestionContent = ({
   );
 
   const isFirstOrderQuestionCorrect = element.questionOptions.some(
-    (qo) => qo.isTrue && qo.questionAnswers.some((qa) => qa.selected),
+    (qo) => qo.isCorrect && qo.questionAnswers.some((qa) => qa.selected),
   );
   const handleBinary = useCallback(() => {
     const binaryQuestionResults = mapQuestionToBinaryQuestionAnswer(element);
@@ -54,13 +54,9 @@ export const AnsweredQuestionContent = ({
       case "MultiChoice": {
         return <MultipleChoiceAnsweredContent {...baseProps} />;
       }
-      case "TrueFalse": {
+      case "BinaryQuestion": {
         handleBinary();
         return <BooleanAnsweredContent {...baseProps} />;
-      }
-      case "YesNo": {
-        handleBinary();
-        return <BooleanAnsweredContent {...baseProps} isYesNo />;
       }
     }
   }, [handleBinary, baseProps, element.type]);

@@ -3,7 +3,7 @@ import { AnswerResult } from "../AnswerResult/AnswerResult";
 type MultipleChoiceAnsweredContentProps = {
   questionOptions: {
     id: number;
-    isTrue: boolean;
+    isCorrect: boolean;
     option: string;
     questionAnswers: {
       percentage: number | null;
@@ -28,7 +28,7 @@ export function MultipleChoiceAnsweredContent({
             avatarSrc={avatarSrc}
             answerText={qo.option}
             progressBarClassName={
-              qo.isTrue
+              qo.isCorrect
                 ? "!bg-aqua"
                 : qo.questionAnswers[0].selected
                   ? "!bg-warning"

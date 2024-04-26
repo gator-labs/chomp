@@ -130,18 +130,21 @@ export async function handleUpsertingQuestionOptionsConcurrently(
   questionOptions: {
     option: string;
     id?: number | undefined;
-    isTrue?: boolean | undefined;
+    isCorrect?: boolean | undefined;
+    isLeft?: boolean | undefined;
   }[],
 ) {
   const questionOptionUpsertPromiseArray = questionOptions.map((qo) => {
     return tx.questionOption.upsert({
       create: {
-        isTrue: qo.isTrue,
+        isCorrect: qo.isCorrect,
         option: qo.option,
+        isLeft: qo.isLeft,
         questionId: questionId,
       },
       update: {
-        isTrue: qo.isTrue,
+        isCorrect: qo.isCorrect,
+        isLeft: qo.isLeft,
         option: qo.option,
       },
       where: {

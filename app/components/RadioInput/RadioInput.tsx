@@ -18,6 +18,7 @@ export function RadioInput({
       {options.map((o, index) => (
         <div key={index} className="[&:not(:first-of-type)]:mt-2">
           <button
+            type="button"
             onClick={() => onOptionSelected(o.value)}
             className="flex items-center space-x-2"
           >

@@ -67,6 +67,7 @@ const mapToViewModelQuestion = (
   questionOptions: question.questionOptions.map((qo) => ({
     id: qo.id,
     option: qo.option,
+    isLeft: qo.isLeft,
   })),
   questionTags: question.questionTags,
   type: question.type,
