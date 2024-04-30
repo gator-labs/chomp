@@ -16,7 +16,8 @@
     "postinstall": "prisma generate",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test": "jest --watch --verbose true"
+    "test": "jest --watch",
+    "gh-test": "jest"
   },
   "dependencies": {
     "@dotlottie/react-player": "^1.6.19",
