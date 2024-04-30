@@ -25,6 +25,7 @@
     "@dynamic-labs/solana": "^1.4.2",
     "@hookform/resolvers": "^3.3.4",
     "@prisma/client": "^5.10.2",
+    "@radix-ui/react-slider": "^1.1.2",
     "@solana/spl-token": "^0.4.1",
     "@solana/web3.js": "^1.91.0",
     "bigint-buffer": "^1.1.5",
