@@ -61,8 +61,8 @@ export function QuestionAction({
         <div className="text-center  text-md mb-4">
           How do you think others will respond?
         </div>
-        <div className="flex gap-2 items-center">
-          <div className="!w-[85%]">
+        <div className="flex gap-3 items-center justify-between">
+          <div className="w-full h-full">
             <TrueFalseScale
               ratioTrue={scale}
               progressBarClassName="h-[36px] rounded-md"
@@ -74,8 +74,8 @@ export function QuestionAction({
           <Button
             onClick={() => onButtonClick(scale)}
             variant="pink"
-            size="big"
-            className="!w-[15%]"
+            size="normal"
+            className="w-max py-6 !rounded-2xl"
           >
             Chomp
           </Button>
