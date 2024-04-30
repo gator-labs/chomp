@@ -19,6 +19,7 @@ const colors = {
   "input-gray": "#929292",
   "search-gray": "#4D4D4D",
   purple: "#E3DCFF",
+  "dark-purple": "#8872A5",
   pink: "#CFC5F7",
   "btn-text-pink": "#0D0D0D",
   "btn-text-pink-border": "#E3DCFF",
