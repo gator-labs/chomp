@@ -6,6 +6,7 @@ import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { ToastContainer, toast } from "react-toastify";
 import { z } from "zod";
 import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
@@ -16,7 +17,9 @@ import { TextInput } from "../TextInput/TextInput";
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
-  action: (data: z.infer<typeof deckSchema>) => void;
+  action: (
+    data: z.infer<typeof deckSchema>,
+  ) => Promise<{ errorMessage?: string } | void>;
 };
 
 export default function DeckForm({ deck, tags, action }: DeckFormProps) {
@@ -45,12 +48,19 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
 
+  const onSubmit = handleSubmit(async (data) => {
+    const result = await action({
+      ...data,
+      tagIds: selectedTagIds,
+      id: deck?.id,
+    });
+    if (result?.errorMessage) {
+      toast.error(result.errorMessage);
+    }
+  });
+
   return (
-    <form
-      onSubmit={handleSubmit((data) => {
-        action({ ...data, tagIds: selectedTagIds, id: deck?.id });
-      })}
-    >
+    <form onSubmit={onSubmit}>
       <h1 className="text-3xl mb-3">
         {deck ? `Edit deck #${deck.id}` : "Create deck"}
       </h1>
@@ -293,6 +303,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       </div>
 
       <SubmitButton />
+      <ToastContainer position="bottom-center" />
     </form>
   );
 }

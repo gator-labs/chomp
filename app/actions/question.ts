@@ -7,6 +7,8 @@ import { getIsUserAdmin } from "../queries/user";
 import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILISECONDS } from "../utils/dateUtils";
+import { PrismaTransactionalClient } from "../utils/prisma";
+import { formatErrorsToString } from "../utils/zod";
 
 export async function createQuestion(data: z.infer<typeof questionSchema>) {
   const isAdmin = await getIsUserAdmin();
@@ -18,7 +20,7 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
   const validatedFields = questionSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return false;
+    return { errorMessage: formatErrorsToString(validatedFields) };
   }
 
   const questionData = {
@@ -49,26 +51,27 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
   redirect("/admin/questions");
 }
 
-// TODO: no edits after users started answering
 export async function editQuestion(data: z.infer<typeof questionSchema>) {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
     redirect("/application");
   }
-
   const validatedFields = questionSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return false;
+    return { errorMessage: formatErrorsToString(validatedFields) };
   }
 
   if (!data.id) {
-    return false;
+    return { errorMessage: "Question id not specified" };
   }
 
   const existingTagIds = (
     await prisma.questionTag.findMany({
+      select: {
+        tagId: true,
+      },
       where: {
         questionId: data.id,
       },
@@ -83,35 +86,69 @@ export async function editQuestion(data: z.infer<typeof questionSchema>) {
     id: undefined,
   };
 
-  await prisma.question.update({
-    where: {
-      id: data.id,
-    },
-    data: {
-      ...questionData,
-      questionOptions: {
-        deleteMany: {},
-        createMany: {
-          data: data.questionOptions,
-        },
+  delete questionData.questionOptions;
+
+  await prisma.$transaction(async (tx) => {
+    await tx.question.update({
+      where: {
+        id: data.id,
       },
-      questionTags: {
-        createMany: {
-          data: validatedFields.data.tagIds
-            .filter((tagId) => !existingTagIds.includes(tagId))
-            .map((tagId) => ({ tagId })),
-        },
-        deleteMany: {
-          tagId: {
-            in: existingTagIds.filter(
-              (tagId) => !validatedFields.data.tagIds.includes(tagId),
-            ),
+      data: {
+        ...questionData,
+        questionTags: {
+          createMany: {
+            data: validatedFields.data.tagIds
+              .filter((tagId) => !existingTagIds.includes(tagId))
+              .map((tagId) => ({ tagId })),
+          },
+          deleteMany: {
+            tagId: {
+              in: existingTagIds.filter(
+                (tagId) => !validatedFields.data.tagIds.includes(tagId),
+              ),
+            },
           },
         },
       },
-    },
-  });
+    });
 
+    if (data.id) {
+      await handleUpsertingQuestionOptionsConcurrently(
+        tx,
+        data.id,
+        data.questionOptions,
+      );
+    }
+  });
   revalidatePath("/admin/questions");
   redirect("/admin/questions");
+}
+
+export async function handleUpsertingQuestionOptionsConcurrently(
+  tx: PrismaTransactionalClient,
+  questionId: number,
+  questionOptions: {
+    option: string;
+    id?: number | undefined;
+    isTrue?: boolean | undefined;
+  }[],
+) {
+  const questionOptionUpsertPromiseArray = questionOptions.map((qo) => {
+    return tx.questionOption.upsert({
+      create: {
+        isTrue: qo.isTrue,
+        option: qo.option,
+        questionId: questionId,
+      },
+      update: {
+        isTrue: qo.isTrue,
+        option: qo.option,
+      },
+      where: {
+        id: qo.id,
+      },
+    });
+  });
+
+  await Promise.all(questionOptionUpsertPromiseArray);
 }

@@ -6,6 +6,7 @@ import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useForm } from "react-hook-form";
+import { ToastContainer, toast } from "react-toastify";
 import { z } from "zod";
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { Tag } from "../Tag/Tag";
@@ -14,7 +15,9 @@ import { TextInput } from "../TextInput/TextInput";
 type QuestionFormProps = {
   question?: z.infer<typeof questionSchema>;
   tags: TagType[];
-  action: (data: z.infer<typeof questionSchema>) => void;
+  action: (
+    data: z.infer<typeof questionSchema>,
+  ) => Promise<{ errorMessage: string } | void>;
 };
 
 export const getDefaultOptions = (type: QuestionType) => {
@@ -63,12 +66,20 @@ export default function QuestionForm({
 
   const questionType = watch("type");
 
+  const onSubmit = handleSubmit(async (data) => {
+    const result = await action({
+      ...data,
+      tagIds: selectedTagIds,
+      id: question?.id,
+    });
+
+    if (result?.errorMessage) {
+      toast.error(result.errorMessage);
+    }
+  });
+
   return (
-    <form
-      onSubmit={handleSubmit((data) => {
-        action({ ...data, tagIds: selectedTagIds, id: question?.id });
-      })}
-    >
+    <form onSubmit={onSubmit}>
       <h1 className="text-3xl mb-3">
         {question ? `Edit question #${question.id}` : "Create question"}
       </h1>
@@ -206,6 +217,7 @@ export default function QuestionForm({
       </div>
 
       <SubmitButton />
+      <ToastContainer position="bottom-center" />
     </form>
   );
 }
