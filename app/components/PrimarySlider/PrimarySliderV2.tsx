@@ -1,0 +1,62 @@
+"use client";
+import * as Slider from "@radix-ui/react-slider";
+
+interface PrimarySliderV2Props {
+  value: number;
+  setValue?: (value: number) => void;
+  backgroundColor?: string;
+  progressColor?: string;
+  hideThumb?: boolean;
+  className?: string;
+}
+
+const PrimarySliderV2 = ({
+  value,
+  setValue,
+  backgroundColor,
+  progressColor,
+  hideThumb = false,
+  className,
+}: PrimarySliderV2Props) => {
+  return (
+    <div
+      className={`bg-pink-gradient px-5 rounded-[8px]`}
+      style={{
+        backgroundColor: backgroundColor,
+      }}
+    >
+      <Slider.Root
+        className={`relative flex items-center select-none touch-none w-full min-h-[50px] ${className}`}
+        defaultValue={[50]}
+        max={100}
+        step={1}
+        onValueChange={(value) => setValue && setValue(Number(value))}
+        value={[value]}
+      >
+        <Slider.Track
+          className={`relative flex items-center justify-center w-full rounded-[8px] min-h-[50px] overflow-hidden bg-pink-gradient`}
+          style={{
+            backgroundColor: backgroundColor,
+          }}
+        >
+          <Slider.Range
+            className={`rounded-l-lg h-[2px] mx-auto w-full bg-[#FFFFFF] bg-opacity-50`}
+            style={{
+              backgroundColor: progressColor,
+            }}
+          />
+        </Slider.Track>
+        {!hideThumb && (
+          <Slider.Thumb
+            className="block w-[30px] h-[19px] bg-white rounded-2xl focus:outline-none px-[2px] cursor-pointer p-[2px] shadow-[0px_4px_4px_0px_#00000040]"
+            aria-label="Volume"
+          >
+            <div className="w-full h-full bg-dark-purple rounded-2xl" />
+          </Slider.Thumb>
+        )}
+      </Slider.Root>
+    </div>
+  );
+};
+
+export default PrimarySliderV2;

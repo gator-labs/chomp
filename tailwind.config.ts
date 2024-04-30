@@ -48,13 +48,16 @@ module.exports = {
       dropShadow: {
         "question-card": "0 -4px 4px #00000020",
       },
+      backgroundImage: {
+        "pink-gradient": "linear-gradient(90deg, #A3A3EC 0%, #CFC5F7 100%)",
+      },
+      colors: colors,
     },
-    colors: colors,
+    plugins: [],
+    safelist: [
+      "z-50",
+      ...Object.keys(colors).map((color) => `text-${color}`),
+      ...Object.keys(colors).map((color) => `bg-${color}`),
+    ],
   },
-  plugins: [],
-  safelist: [
-    "z-50",
-    ...Object.keys(colors).map((color) => `text-${color}`),
-    ...Object.keys(colors).map((color) => `bg-${color}`),
-  ],
 } satisfies Config;
