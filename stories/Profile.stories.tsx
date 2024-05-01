@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Profile } from "../app/components/Profile/Profile";
 import AvatarSample from "./assets/avatar_sample.png";
-import { fn } from "@storybook/test";
 
 const meta = {
   title: "Profile",
