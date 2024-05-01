@@ -45,8 +45,8 @@ export default function Page({ searchParams }: PageProps) {
   const [response, setResponse] = useState<[]>();
   const [rewards, setRewards] = useState<{
     totalRevealedRewards: number;
-    potentionalRewards: number;
-  }>({ potentionalRewards: 0, totalRevealedRewards: 0 });
+    potentialRewards: number;
+  }>({ potentialRewards: 0, totalRevealedRewards: 0 });
   const { setOpen } = useCollapsedContext();
   const { openRevealModal, closeRevealModal } = useRevealedContext();
   const questionStatuses = useMemo(() => {
@@ -73,7 +73,7 @@ export default function Page({ searchParams }: PageProps) {
   const getData = async (
     query: string | undefined,
     sort: HistorySortOptions,
-    srollId?: number,
+    scrollId?: number,
   ) => {
     lastQuery = query;
     const searchParams = new URLSearchParams();
@@ -91,11 +91,11 @@ export default function Page({ searchParams }: PageProps) {
     setResponse(json.history);
     setRewards({
       totalRevealedRewards: json.totalRevealedRewards,
-      potentionalRewards: json.potentionalRewards,
+      potentialRewards: json.potentialRewards,
     });
 
-    if (srollId) {
-      setScrollToId(srollId);
+    if (scrollId) {
+      setScrollToId(scrollId);
     }
   };
 
@@ -176,7 +176,7 @@ export default function Page({ searchParams }: PageProps) {
             Potentional Rewards
           </div>
           <div className="text-base text-white font-sora">
-            {new Intl.NumberFormat().format(rewards.potentionalRewards)} BONK
+            {new Intl.NumberFormat().format(rewards.potentialRewards)} BONK
           </div>
         </div>
         <div className="basis-36">
