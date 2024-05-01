@@ -50,7 +50,7 @@ export default function Page({ searchParams }: PageProps) {
       <Navbar
         avatarSrc={AvatarPlaceholder.src}
         avatarLink="/application/profile"
-        walletLink=""
+        walletLink="/application/transactions"
       />
       <SearchFilters
         initialQuery={searchParams.query}

@@ -30,7 +30,7 @@ export default async function Page({
       <Navbar
         avatarSrc={AvatarPlaceholder.src}
         avatarLink="/application/profile"
-        walletLink=""
+        walletLink="/application/transactions"
       >
         <Link href={returnUrl ?? "/application"}>
           <div className="flex items-center text-xs">
