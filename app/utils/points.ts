@@ -1,12 +1,18 @@
+import { TransactionLogType } from "@prisma/client";
 import { pointsPerAction } from "../constants/points";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
 import { isBinaryQuestionCorrectAnswer } from "./question";
 
+type RevealPointResult = {
+  amount: number;
+  type: TransactionLogType;
+};
+
 export const calculateRevealPoints = async (
   userId: string,
   questionIds: number[],
-) => {
+): Promise<RevealPointResult[]> => {
   const questions = await prisma.question.findMany({
     where: {
       id: {
@@ -93,9 +99,23 @@ export const calculateRevealPoints = async (
     );
   });
 
-  return (
-    questions.length * pointsPerAction["reveal-answer"] +
-    correctFirstOrderQuestions.length * pointsPerAction["correct-first-order"] +
-    correctSecondOrderQuestions.length * pointsPerAction["correct-second-order"]
-  );
+  return [
+    {
+      amount:
+        questions.length * pointsPerAction[TransactionLogType.RevealAnswer],
+      type: TransactionLogType.RevealAnswer,
+    },
+    {
+      amount:
+        correctFirstOrderQuestions.length *
+        pointsPerAction[TransactionLogType.CorrectFirstOrder],
+      type: TransactionLogType.CorrectFirstOrder,
+    },
+    {
+      amount:
+        correctSecondOrderQuestions.length *
+        pointsPerAction[TransactionLogType.CorrectSecondOrder],
+      type: TransactionLogType.CorrectSecondOrder,
+    },
+  ];
 };

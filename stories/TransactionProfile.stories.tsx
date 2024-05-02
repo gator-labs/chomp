@@ -9,7 +9,7 @@ const meta = {
     layout: "centered",
   },
   args: {
-    bonkAmount: 108184184,
+    pointAmount: 108184184,
     dollarAmount: 218.45,
     avatarSrc: AvatarSample.src,
   },

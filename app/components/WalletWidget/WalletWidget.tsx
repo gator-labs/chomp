@@ -29,7 +29,7 @@ export function WalletWidget({ address }: WalletWidgetProps) {
         <div className="flex gap-x-2">
           <Button
             isPill
-            className="!p-0 w-[38px] h-[38px] bg-[#A3A3EC] border-none"
+            className="!p-0 !w-[38px] !h-[38px] bg-[#A3A3EC] border-none"
             onClick={handleCopyToClipboard}
           >
             <CopyIcon />
@@ -37,7 +37,7 @@ export function WalletWidget({ address }: WalletWidgetProps) {
           <Button
             onClick={handleLogOut}
             isPill
-            className="!p-0 w-[38px] h-[38px] bg-[#A3A3EC] border-none"
+            className="!p-0 !w-[38px] !h-[38px] bg-[#A3A3EC] border-none"
           >
             <ExitIcon />
           </Button>

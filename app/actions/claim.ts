@@ -111,16 +111,23 @@ export async function claimQuestions(questionIds: number[]) {
       });
     }
 
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      await calculateRevealPoints(
-        payload.sub,
-        reveals
-          .map((r) => r.questionId)
-          .filter((questionId) => questionId !== null) as number[],
-      ),
-      tx,
+    const revealResult = await calculateRevealPoints(
+      payload.sub,
+      reveals
+        .map((r) => r.questionId)
+        .filter((questionId) => questionId !== null) as number[],
     );
+
+    const fungibleAssetRevealTasks = revealResult.map((rr) =>
+      incrementFungibleAssetBalance(
+        FungibleAsset.Point,
+        rr.amount,
+        rr.type,
+        tx,
+      ),
+    );
+
+    await Promise.all(fungibleAssetRevealTasks);
   });
 
   revalidatePath("/application");

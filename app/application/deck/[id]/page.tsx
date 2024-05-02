@@ -5,6 +5,7 @@ import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
 const DeckDetails = dynamic(
   () => import("@/app/components/DeckDetails/DeckDetails"),
   { ssr: false },
