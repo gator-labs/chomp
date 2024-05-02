@@ -15,6 +15,15 @@ export default async function Page({}: PageProps) {
   const balances = await getMyFungibleAssetBalances();
   const history = await getTransactionHistory();
   const payload = await getJwtPayload();
+  const verifiedCredentials = payload?.verified_credentials.find(
+    (vc) => vc.format === "blockchain",
+  ) ?? { address: "" };
+
+  let address = "";
+
+  if ("address" in verifiedCredentials) {
+    address = verifiedCredentials.address;
+  }
 
   return (
     <div className="w-full h-full bg-[#4D4D4D] p-4">
@@ -23,13 +32,7 @@ export default async function Page({}: PageProps) {
         pointAmount={balances.Point}
       />
       <div className="mt-4">
-        <WalletWidget
-          address={
-            payload?.verified_credentials.find(
-              (vc) => vc.format === "blockchain",
-            )?.address ?? ""
-          }
-        />
+        <WalletWidget address={address} />
       </div>
       <TransactionsTable
         className="my-4 h-[calc(100%-270px)]"
