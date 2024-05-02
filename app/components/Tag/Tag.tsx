@@ -4,9 +4,10 @@ type TagProps = {
   onSelected?: () => void;
   isSelected?: boolean;
   tag: string;
+  className?: string;
 };
 
-export function Tag({ onSelected, tag, isSelected }: TagProps) {
+export function Tag({ onSelected, tag, isSelected, className }: TagProps) {
   return (
     <button
       className={classNames(
@@ -17,6 +18,7 @@ export function Tag({ onSelected, tag, isSelected }: TagProps) {
           "text-search-gray": !isSelected,
           "bg-black": !isSelected,
         },
+        className,
       )}
       onClick={onSelected}
       type="button"

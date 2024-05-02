@@ -30,9 +30,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isDemo = process.env.ENVIRONMENT === "demo";
+
   return (
     <html lang="en" className={classNames(sora.variable, "h-full")}>
       <body className="font-sora bg-[#0D0D0D] text-white h-full">
+        {isDemo && (
+          <div className="fixed top-3 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-btn-text-primary rounded-full">
+            Demo mode
+          </div>
+        )}
         <DynamicProvider>{children}</DynamicProvider>
       </body>
     </html>
