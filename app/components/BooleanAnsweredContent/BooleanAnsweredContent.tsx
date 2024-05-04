@@ -32,8 +32,10 @@ export function BooleanAnsweredContent({
     <div className="w-full">
       <div className="mb-2">
         <TrueFalseScale
-          ratioTrue={ratioTrue}
+          ratioTrue={ratioTrue ?? 50}
           valueSelected={ratioSelectedTrue}
+          handleRatioChange={() => {}}
+          trackClassName="rounded-[90px]"
           avatarSrc={avatarSrc}
           labelTrue={isYesNo ? "Yes" : undefined}
           labelFalse={isYesNo ? "No" : undefined}
@@ -43,6 +45,7 @@ export function BooleanAnsweredContent({
           bgColor={
             !isTrueTrue ? "#6DECAF" : !isTrueSelected ? "#2c1e1d" : undefined
           }
+          hideThumb={true}
         />
       </div>
     </div>
