@@ -1,5 +1,8 @@
+// This slider component refers to new design of slider component shown in the figma design.
+
 "use client";
 import * as Slider from "@radix-ui/react-slider";
+import classNames from "classnames";
 
 interface PrimarySliderV2Props {
   value: number;
@@ -26,7 +29,10 @@ const PrimarySliderV2 = ({
       }}
     >
       <Slider.Root
-        className={`relative flex items-center select-none touch-none w-full min-h-[50px] ${className}`}
+        className={classNames(
+          "relative flex items-center select-none touch-none w-full min-h-[50px]",
+          className,
+        )}
         defaultValue={[50]}
         max={100}
         step={1}

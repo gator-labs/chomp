@@ -1,5 +1,8 @@
+// This slider component refers to old design of slider component shown in the figma design.
+
 "use client";
 import * as Slider from "@radix-ui/react-slider";
+import classNames from "classnames";
 
 interface PrimarySliderProps {
   value: number;
@@ -8,6 +11,7 @@ interface PrimarySliderProps {
   progressColor?: string;
   hideThumb?: boolean;
   className?: string;
+  trackClassName?: string;
 }
 
 const PrimarySlider = ({
@@ -17,10 +21,14 @@ const PrimarySlider = ({
   progressColor,
   hideThumb = false,
   className,
+  trackClassName,
 }: PrimarySliderProps) => {
   return (
     <Slider.Root
-      className={`relative flex items-center select-none touch-none w-full min-h-5 ${className}`}
+      className={classNames(
+        "relative flex items-center select-none touch-none w-full min-h-5",
+        className,
+      )}
       defaultValue={[50]}
       max={100}
       step={1}
@@ -28,10 +36,19 @@ const PrimarySlider = ({
       value={[value]}
     >
       <Slider.Track
-        className={`relative grow rounded-[10px] h-[36px] overflow-hidden ${backgroundColor ? backgroundColor : "bg-pink"}`}
+        className={classNames(
+          "relative grow rounded-[10px] h-[36px] overflow-hidden bg-pink",
+          trackClassName,
+        )}
+        style={{
+          backgroundColor: backgroundColor,
+        }}
       >
         <Slider.Range
-          className={`absolute rounded-l-lg h-[36px] ${progressColor ? progressColor : "bg-dark-purple"}`}
+          className={`absolute rounded-l-lg h-[36px] bg-dark-purple`}
+          style={{
+            backgroundColor: progressColor,
+          }}
         />
       </Slider.Track>
       {!hideThumb && (
