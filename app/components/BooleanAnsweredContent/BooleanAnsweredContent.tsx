@@ -1,4 +1,4 @@
-import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
+import { TrueFalseScaleAnswer } from "../TrueFalseScaleAnswer/TrueFalseScaleAnswer";
 
 type BooleanAnsweredContentProps = {
   questionOptions: {
@@ -31,11 +31,9 @@ export function BooleanAnsweredContent({
   return (
     <div className="w-full">
       <div className="mb-2">
-        <TrueFalseScale
-          ratioTrue={ratioTrue ?? 50}
+        <TrueFalseScaleAnswer
+          ratioTrue={ratioTrue}
           valueSelected={ratioSelectedTrue}
-          handleRatioChange={() => {}}
-          trackClassName="rounded-[90px]"
           avatarSrc={avatarSrc}
           labelTrue={isYesNo ? "Yes" : undefined}
           labelFalse={isYesNo ? "No" : undefined}
@@ -45,7 +43,6 @@ export function BooleanAnsweredContent({
           bgColor={
             !isTrueTrue ? "#6DECAF" : !isTrueSelected ? "#2c1e1d" : undefined
           }
-          hideThumb={true}
         />
       </div>
     </div>
