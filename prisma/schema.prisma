@@ -62,7 +62,8 @@ model Question {
 model QuestionOption {
   id              Int              @id @default(autoincrement())
   option          String
-  isTrue          Boolean          @default(false)
+  isCorrect       Boolean          @default(false)
+  isLeft          Boolean          @default(false)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @default(now()) @updatedAt
   questionId      Int
@@ -159,8 +160,7 @@ model FungibleAssetBalance {
 }
 
 enum QuestionType {
-  TrueFalse
-  YesNo
+  BinaryQuestion
   MultiChoice
 }
 

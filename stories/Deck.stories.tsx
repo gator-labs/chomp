@@ -1,17 +1,18 @@
+import { QuestionType } from "@prisma/client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Deck } from "../app/components/Deck/Deck";
 import { ONE_MINUTE_IN_MILISECONDS } from "../app/utils/dateUtils";
-import { QuestionType } from "@prisma/client";
 
 const questionBase = {
-  type: QuestionType.TrueFalse,
+  type: QuestionType.BinaryQuestion,
   durationMiliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
   questionOptions: [
     {
       id: 1,
       option: "False",
+      isLeft: false,
     },
-    { id: 2, option: "True" },
+    { id: 2, option: "True", isLeft: true },
   ],
   questionTags: [
     { id: 1, tag: "Defi" },
@@ -43,10 +44,10 @@ const meta = {
         ...questionBase,
         type: QuestionType.MultiChoice,
         questionOptions: [
-          { id: 1, option: "Answer" },
-          { id: 2, option: "Answer" },
-          { id: 3, option: "Answer" },
-          { id: 4, option: "Answer" },
+          { id: 1, option: "Answer", isLeft: false },
+          { id: 2, option: "Answer", isLeft: false },
+          { id: 3, option: "Answer", isLeft: false },
+          { id: 4, option: "Answer", isLeft: false },
         ],
         id: 2,
         question:

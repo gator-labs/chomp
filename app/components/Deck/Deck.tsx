@@ -18,6 +18,7 @@ import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent"
 export type Option = {
   id: number;
   option: string;
+  isLeft: boolean;
 };
 
 export type Question = {
@@ -45,7 +46,7 @@ const getDueAt = (questions: Question[], index: number): Date => {
 export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
-  const [rerenderAction, setRerednerAction] = useState(true);
+  const [rerenderAction, setRerenderAction] = useState(true);
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion,
@@ -68,12 +69,12 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     }
     setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
-    setRerednerAction(false);
+    setRerenderAction(false);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
     generateRandom();
     setTimeout(() => {
-      setRerednerAction(true);
+      setRerenderAction(true);
     });
     setTimeout(() => {
       if (questionsRef.current) {
@@ -84,7 +85,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     currentQuestionIndex,
     setCurrentQuestionIndex,
     setCurrentQuestionStep,
-    setRerednerAction,
+    setRerenderAction,
     generateRandom,
     setCurrentOptionSelected,
     questionsRef.current,
@@ -100,11 +101,11 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
 
-  const onQuesitonActionClick = useCallback(
+  const onQuestionActionClick = useCallback(
     (number: number | undefined) => {
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
+        question.type === "BinaryQuestion"
       ) {
         setDeckResponse((prev) => [
           ...prev,
@@ -137,17 +138,17 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
 
       if (
         currentQuestionStep === QuestionStep.PickPercentage &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
+        question.type === "BinaryQuestion"
       ) {
         setDeckResponse((prev) => {
-          const newResposnes = [...prev];
-          const response = newResposnes.pop();
+          const newResponses = [...prev];
+          const response = newResponses.pop();
           if (response) {
             response.percentageGiven = number ?? 0;
-            newResposnes.push(response);
+            newResponses.push(response);
           }
 
-          return newResposnes;
+          return newResponses;
         });
       }
 
@@ -156,16 +157,16 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         question.type === "MultiChoice"
       ) {
         setDeckResponse((prev) => {
-          const newResposnes = [...prev];
-          const response = newResposnes.pop();
+          const newResponses = [...prev];
+          const response = newResponses.pop();
           if (response) {
             response.percentageGiven = optionPercentage;
             response.percentageGivenForAnswerId =
               question.questionOptions[random]?.id;
-            newResposnes.push(response);
+            newResponses.push(response);
           }
 
-          return newResposnes;
+          return newResponses;
         });
       }
 
@@ -262,7 +263,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
       <div className="pt-2">
         {rerenderAction && (
           <QuestionAction
-            onButtonClick={onQuesitonActionClick}
+            onButtonClick={onQuestionActionClick}
             type={question.type}
             step={currentQuestionStep}
             questionOptions={question.questionOptions}

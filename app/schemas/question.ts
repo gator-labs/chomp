@@ -19,7 +19,8 @@ export const questionSchema = z.object({
     .object({
       id: z.number().optional(),
       option: z.string().min(1),
-      isTrue: z.boolean().optional(),
+      isCorrect: z.boolean().optional(),
+      isLeft: z.boolean(),
     })
     .array(),
 });

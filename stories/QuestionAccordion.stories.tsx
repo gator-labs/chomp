@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { QuestionAccordion } from "../app/components/QuestionAccordion/QuestionAccordion";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";
 import { Button } from "../app/components/Button/Button";
+import { QuestionAccordion } from "../app/components/QuestionAccordion/QuestionAccordion";
 import { TrueFalseScale } from "../app/components/TrueFalseScale/TrueFalseScale";
 
 const meta = {
@@ -33,7 +33,9 @@ export const Open: Story = {
     question: "The best way to secure your assets is to use a hardware wallet.",
     isCollapsed: false,
     revealedAt: dayjs().add(-2, "day").toDate(),
-    children: <TrueFalseScale ratioTrue={20} />,
+    children: (
+      <TrueFalseScale ratioLeft={20} labelLeft="True" labelRight="False" />
+    ),
     actionChild: (
       <Button variant="white" className="!rounded-full">
         Reveal Results

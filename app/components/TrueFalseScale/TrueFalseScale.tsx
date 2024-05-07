@@ -5,25 +5,25 @@ import { Avatar } from "../Avatar/Avatar";
 import { ProgressBar } from "../ProgressBar/ProgressBar";
 
 type TrueFalseScaleProps = {
-  ratioTrue?: number | null;
+  ratioLeft?: number | null;
   valueSelected?: number | null;
   avatarSrc?: string;
   progressBarClassName?: string;
   handleRatioChange?: (percentage: number) => void;
-  labelTrue?: string;
-  labelFalse?: string;
+  labelLeft: string;
+  labelRight: string;
   progressColor?: string;
   bgColor?: string;
 };
 
 export function TrueFalseScale({
-  ratioTrue,
+  ratioLeft,
   valueSelected,
   avatarSrc,
   progressBarClassName,
   handleRatioChange,
-  labelTrue = "True",
-  labelFalse = "False",
+  labelLeft,
+  labelRight,
   progressColor = "#8872A5",
   bgColor = "#CFC5F7",
 }: TrueFalseScaleProps) {
@@ -33,7 +33,7 @@ export function TrueFalseScale({
       : `${valueSelected}%`
     : undefined;
   const { handlePercentageChange } = useSteppingChange({
-    percentage: ratioTrue ?? 0,
+    percentage: ratioLeft ?? 0,
     onPercentageChange: handleRatioChange,
   });
 
@@ -47,20 +47,20 @@ export function TrueFalseScale({
       {!!handleRatioChange && isVisibleBackdrop && (
         <div className="absolute px-5 py-4 bg-pink right-0 -top-4 -translate-y-full z-[9999] rounded-xl flex gap-5">
           <p className="text-[#0d0d0d7d] font-normal">
-            {labelTrue.substring(0, 1)}{" "}
-            <span className="text-[#0D0D0D] font-semibold">{ratioTrue}%</span>
+            {labelLeft}{" "}
+            <span className="text-[#0D0D0D] font-semibold">{ratioLeft}%</span>
           </p>
           <p className="text-[#0d0d0d7d] font-normal">
-            {labelFalse.substring(0, 1)}{" "}
+            {labelRight}{" "}
             <span className="text-[#0D0D0D] font-semibold">
-              {100 - (ratioTrue ?? 0)}%
+              {100 - (ratioLeft ?? 0)}%
             </span>
           </p>
         </div>
       )}
       <ProgressBar
         percentage={
-          ratioTrue === undefined || ratioTrue === null ? 100 : ratioTrue
+          ratioLeft === undefined || ratioLeft === null ? 100 : ratioLeft
         }
         progressColor={progressColor}
         bgColor={bgColor}
@@ -80,13 +80,13 @@ export function TrueFalseScale({
       )}
       <div className="flex justify-between text-white font-sora text-base font-semibold mt-2 z-30 relative">
         <span>
-          {labelTrue} {ratioTrue ?? "0"}%
+          {labelLeft} {ratioLeft ?? "0"}%
         </span>
         <span>
-          {labelFalse}{" "}
-          {ratioTrue === undefined || ratioTrue === null
+          {labelRight}{" "}
+          {ratioLeft === undefined || ratioLeft === null
             ? "0"
-            : 100 - ratioTrue}
+            : 100 - ratioLeft}
           %
         </span>
       </div>

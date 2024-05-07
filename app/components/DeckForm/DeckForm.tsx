@@ -146,23 +146,29 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                           {...register(
                             `questions.${questionIndex}.questionOptions.${optionIndex}.option`,
                           )}
-                          disabled={
-                            watch(`questions.${questionIndex}.type`) ===
-                              QuestionType.YesNo ||
-                            watch(`questions.${questionIndex}.type`) ===
-                              QuestionType.TrueFalse
-                          }
                         />
                       </div>
-                      <div className="w-24 flex justify-center items-center gap-2">
-                        <div>is true?</div>
+                      <div className="w-28 flex justify-center items-center gap-2">
+                        <div>is correct?</div>
                         <input
                           type="checkbox"
                           {...register(
-                            `questions.${questionIndex}.questionOptions.${optionIndex}.isTrue`,
+                            `questions.${questionIndex}.questionOptions.${optionIndex}.isCorrect`,
                           )}
                         />
                       </div>
+                      {watch(`questions.${questionIndex}.type`) ===
+                        QuestionType.BinaryQuestion && (
+                        <div className="w-24 flex justify-center items-center gap-2">
+                          <div>is left?</div>
+                          <input
+                            type="checkbox"
+                            {...register(
+                              `questions.${questionIndex}.questionOptions.${optionIndex}.isLeft`,
+                            )}
+                          />
+                        </div>
+                      )}
                     </div>
                     <div className="text-red">
                       {errors.questions &&

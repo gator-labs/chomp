@@ -21,6 +21,7 @@ export const NUMBER_OF_STEPS_PER_QUESTION = 2;
 type Option = {
   id: number;
   option: string;
+  isLeft: boolean;
 };
 
 type Question = {
@@ -75,11 +76,11 @@ export function Question({ question, returnUrl }: QuestionProps) {
     [setCurrentQuestionStep, answerState],
   );
 
-  const onQuesitonActionClick = useCallback(
+  const onQuestionActionClick = useCallback(
     (number: number | undefined) => {
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
+        question.type === "BinaryQuestion"
       ) {
         setAnswerState({ questionId: question.id, questionOptionId: number });
         setCurrentQuestionStep(QuestionStep.PickPercentage);
@@ -106,7 +107,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
 
       if (
         currentQuestionStep === QuestionStep.PickPercentage &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
+        question.type === "BinaryQuestion"
       ) {
         handleSaveQuestion({
           ...answerState,
@@ -166,7 +167,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
 
       <div className="pt-2">
         <QuestionAction
-          onButtonClick={onQuesitonActionClick}
+          onButtonClick={onQuestionActionClick}
           type={question.type}
           step={currentQuestionStep || QuestionStep.PickPercentage}
           questionOptions={question.questionOptions}

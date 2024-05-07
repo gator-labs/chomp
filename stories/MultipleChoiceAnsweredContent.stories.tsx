@@ -13,7 +13,7 @@ const meta = {
       {
         id: 1,
         option: "Option 1",
-        isTrue: false,
+        isCorrect: false,
         questionAnswers: [
           {
             percentage: null,
@@ -25,7 +25,7 @@ const meta = {
       {
         id: 2,
         option: "Option 2",
-        isTrue: false,
+        isCorrect: false,
         questionAnswers: [
           {
             percentage: null,
@@ -37,7 +37,7 @@ const meta = {
       {
         id: 3,
         option: "Option 3",
-        isTrue: false,
+        isCorrect: false,
         questionAnswers: [
           {
             percentage: 30,
@@ -48,7 +48,7 @@ const meta = {
       },
       {
         id: 4,
-        isTrue: false,
+        isCorrect: false,
         option: "Option 4",
         questionAnswers: [
           {

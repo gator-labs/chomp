@@ -62,10 +62,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     );
     const isOptionSelected = qo.id === answerForQuestion?.questionOptionId;
 
-    if (
-      qo.question.type === QuestionType.TrueFalse ||
-      qo.question.type === QuestionType.YesNo
-    ) {
+    if (qo.question.type === QuestionType.BinaryQuestion) {
       const isYesOrTrueOption = qo.option === "Yes" || qo.option === "True";
       return {
         percentage: isYesOrTrueOption
@@ -155,10 +152,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
   const questionAnswers = questionOptions.map((qo) => {
     const isOptionSelected = qo.id === request?.questionOptionId;
 
-    if (
-      qo.question.type === QuestionType.TrueFalse ||
-      qo.question.type === QuestionType.YesNo
-    ) {
+    if (qo.question.type === QuestionType.BinaryQuestion) {
       const isYesOrTrueOption = qo.option === "Yes" || qo.option === "True";
       return {
         percentage: isYesOrTrueOption

@@ -5,7 +5,8 @@ export type DeckQuestionIncludes = Question & {
   answerCount?: number;
   questionOptions: {
     id: number;
-    isTrue: boolean;
+    isCorrect: boolean;
+    isLeft: boolean;
     questionAnswers: Array<
       QuestionAnswer & {
         percentageResult?: number | null;
@@ -157,7 +158,12 @@ export const populateAnswerCount = (
   }
 
   questions.forEach((q) => {
-    q.answerCount = q.questionOptions[0].questionAnswers.length;
+    if (q.questionOptions && q.questionOptions.length > 0) {
+      q.answerCount = q.questionOptions[0].questionAnswers.length;
+      return;
+    }
+
+    q.answerCount = 0;
   });
 
   if ((element as Deck).deck) {
@@ -208,8 +214,8 @@ export const handleQuestionMappingForFeed = (
 
   if (!areRevealed) {
     questions?.forEach((q) => {
-      q.questionOptions?.forEach((qo: { isTrue?: boolean }) => {
-        delete qo.isTrue;
+      q.questionOptions?.forEach((qo: { isCorrect?: boolean }) => {
+        delete qo.isCorrect;
       });
     });
   }
@@ -223,11 +229,11 @@ export const handleQuestionMappingForFeed = (
           const correctQuestion = getCorrectBinaryQuestion(a, b);
           q.questionOptions.forEach((qo) => {
             if (qo.id === correctQuestion?.optionId) {
-              qo.isTrue = true;
+              qo.isCorrect = true;
               return;
             }
 
-            qo.isTrue = false;
+            qo.isCorrect = false;
           });
         }
       }

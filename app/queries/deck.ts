@@ -154,6 +154,7 @@ const mapQuestionFromDeck = (
     questionOptions: dq.question.questionOptions.map((qo) => ({
       id: qo.id,
       option: qo.option,
+      isLeft: qo.isLeft,
     })),
     questionTags: dq.question.questionTags,
     deckRevealAtDate: deck.revealAtDate,
@@ -459,8 +460,8 @@ export async function getHomeFeedDecks({
   if (!areRevealed) {
     decks?.forEach((d) => {
       d.deckQuestions?.forEach((dq) => {
-        dq.question?.questionOptions?.forEach((qo: { isTrue?: boolean }) => {
-          delete qo.isTrue;
+        dq.question?.questionOptions?.forEach((qo: { isCorrect?: boolean }) => {
+          delete qo.isCorrect;
         });
       });
     });
