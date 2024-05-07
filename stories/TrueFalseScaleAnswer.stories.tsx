@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { TrueFalseScale } from "../app/components/TrueFalseScale/TrueFalseScale";
-import AvatarSample from "./assets/avatar_sample.png";
 import { fn } from "@storybook/test";
+import { TrueFalseScaleAnswer } from "../app/components/TrueFalseScaleAnswer/TrueFalseScaleAnswer";
+import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
-  title: "True False Scale",
-  component: TrueFalseScale,
+  title: "True False Scale Answer",
+  component: TrueFalseScaleAnswer,
   parameters: {
     layout: "centered",
   },
@@ -24,7 +24,7 @@ const meta = {
       <Story />
     </div>
   ),
-} satisfies Meta<typeof TrueFalseScale>;
+} satisfies Meta<typeof TrueFalseScaleAnswer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
