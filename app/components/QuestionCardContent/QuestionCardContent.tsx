@@ -36,7 +36,7 @@ export function QuestionCardContent({
     onPercentageChange: onPercentageChanged,
   });
 
-  if (type === "TrueFalse") {
+  if (type === "BinaryQuestion") {
     return <></>;
   }
 

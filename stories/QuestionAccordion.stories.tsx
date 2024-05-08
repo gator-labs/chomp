@@ -33,7 +33,9 @@ export const Open: Story = {
     question: "The best way to secure your assets is to use a hardware wallet.",
     isCollapsed: false,
     revealedAt: dayjs().add(-2, "day").toDate(),
-    children: <TrueFalseScale ratioTrue={50} handleRatioChange={() => {}} />,
+    children: (
+      <TrueFalseScale ratioLeft={20} labelLeft="True" labelRight="False" />
+    ),
     actionChild: (
       <Button variant="white" className="!rounded-full">
         Reveal Results

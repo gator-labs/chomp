@@ -11,12 +11,14 @@ const meta = {
   },
   tags: ["autodocs"],
   args: {
-    ratioTrue: 80,
+    ratioLeft: 80,
+    labelLeft: "True",
+    labelRight: "False",
     avatarSrc: AvatarSample.src,
     handleRatioChange: fn(),
   },
   argTypes: {
-    ratioTrue: { type: "number" },
+    ratioLeft: { type: "number" },
     valueSelected: { type: "number" },
   },
   decorators: (Story) => (

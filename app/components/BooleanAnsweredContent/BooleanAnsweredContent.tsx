@@ -3,7 +3,8 @@ import { TrueFalseScaleAnswer } from "../TrueFalseScaleAnswer/TrueFalseScaleAnsw
 type BooleanAnsweredContentProps = {
   questionOptions: {
     id: number;
-    isTrue: boolean;
+    isCorrect: boolean;
+    isLeft: boolean;
     option: string;
     questionAnswers: {
       percentage: number | null;
@@ -12,36 +13,34 @@ type BooleanAnsweredContentProps = {
     }[];
   }[];
   avatarSrc?: string;
-  isYesNo?: boolean;
 };
 
 export function BooleanAnsweredContent({
   questionOptions,
   avatarSrc,
-  isYesNo = false,
 }: BooleanAnsweredContentProps) {
-  const trueOption = questionOptions.find(
-    (qo) => qo.option === "True" || qo.option === "Yes",
-  );
-  const ratioTrue = trueOption?.questionAnswers[0]?.percentageResult;
-  const ratioSelectedTrue = trueOption?.questionAnswers[0]?.percentage;
-  const isTrueTrue = trueOption?.isTrue;
-  const isTrueSelected = trueOption?.questionAnswers[0]?.selected;
+  const leftOption = questionOptions.find((qo) => qo.isLeft);
+  const ratioLeft = leftOption?.questionAnswers[0]?.percentageResult;
+  const ratioSelectedTrue = leftOption?.questionAnswers[0]?.percentage;
+  const isTrueCorrect = leftOption?.isCorrect;
+  const isTrueSelected = leftOption?.questionAnswers[0]?.selected;
+  const labelLeft = leftOption?.option ?? "";
+  const labelRight = questionOptions.find((qo) => !qo.isLeft)?.option ?? "";
 
   return (
     <div className="w-full">
       <div className="mb-2">
         <TrueFalseScaleAnswer
-          ratioTrue={ratioTrue}
+          ratioTrue={ratioLeft}
           valueSelected={ratioSelectedTrue}
           avatarSrc={avatarSrc}
-          labelTrue={isYesNo ? "Yes" : undefined}
-          labelFalse={isYesNo ? "No" : undefined}
+          labelLeft={labelLeft}
+          labelRight={labelRight}
           progressColor={
-            isTrueTrue ? "#6DECAF" : isTrueSelected ? "#ED6A5A" : undefined
+            isTrueCorrect ? "#6DECAF" : isTrueSelected ? "#ED6A5A" : undefined
           }
           bgColor={
-            !isTrueTrue ? "#6DECAF" : !isTrueSelected ? "#2c1e1d" : undefined
+            !isTrueCorrect ? "#6DECAF" : !isTrueSelected ? "#2c1e1d" : undefined
           }
         />
       </div>

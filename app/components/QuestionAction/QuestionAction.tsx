@@ -8,6 +8,7 @@ import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
 type QuestionOption = {
   id: number;
   option: string;
+  isLeft: boolean;
 };
 
 type QuestionActionProps = {
@@ -27,10 +28,7 @@ export function QuestionAction({
 }: QuestionActionProps) {
   const [scale, setScale] = useState(50);
 
-  if (
-    (type === "TrueFalse" || type === "YesNo") &&
-    step === QuestionStep.AnswerQuestion
-  ) {
+  if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">
@@ -53,9 +51,12 @@ export function QuestionAction({
   }
 
   if (
-    (type === "TrueFalse" || type === "YesNo") &&
-    step === QuestionStep.PickPercentage
+    type === "BinaryQuestion" &&
+    step === QuestionStep.PickPercentage &&
+    questionOptions
   ) {
+    const optionLeft = questionOptions.find((qo) => qo.isLeft)?.option ?? "";
+    const optionRight = questionOptions.find((qo) => !qo.isLeft)?.option ?? "";
     return (
       <div className="text-white font-semibold">
         <div className="text-center  text-md mb-4">
@@ -64,10 +65,10 @@ export function QuestionAction({
         <div className="flex gap-3 items-center justify-between">
           <div className="w-full h-full">
             <TrueFalseScale
-              ratioTrue={scale}
+              ratioLeft={scale}
               handleRatioChange={setScale}
-              labelTrue={type === "YesNo" ? "Yes" : undefined}
-              labelFalse={type === "YesNo" ? "No" : undefined}
+              labelLeft={optionLeft}
+              labelRight={optionRight}
             />
           </div>
           <Button

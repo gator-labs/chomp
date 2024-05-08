@@ -1,7 +1,7 @@
 import PrimarySlider from "../PrimarySlider/PrimarySlider";
 
 type TrueFalseScaleProps = {
-  ratioTrue: number;
+  ratioLeft: number;
   handleRatioChange: (percentage: number) => void;
   sliderClassName?: string;
   trackClassName?: string;
@@ -13,7 +13,7 @@ type TrueFalseScaleProps = {
 };
 
 export function TrueFalseScale({
-  ratioTrue,
+  ratioLeft,
   handleRatioChange,
   sliderClassName,
   trackClassName,
@@ -26,7 +26,7 @@ export function TrueFalseScale({
   return (
     <div className="relative h-max flex flex-col gap-2">
       <PrimarySlider
-        value={ratioTrue}
+        value={ratioLeft}
         setValue={handleRatioChange}
         progressColor={progressColor}
         backgroundColor={bgColor}
@@ -37,13 +37,13 @@ export function TrueFalseScale({
 
       <div className="flex justify-between text-white font-sora text-base font-semibold z-30 relative">
         <span>
-          {labelTrue} {ratioTrue ?? "0"}%
+          {labelLeft} {ratioLeft ?? "0"}%
         </span>
         <span>
-          {labelFalse}{" "}
-          {ratioTrue === undefined || ratioTrue === null
+          {labelRight}{" "}
+          {ratioLeft === undefined || ratioLeft === null
             ? "0"
-            : 100 - ratioTrue}
+            : 100 - ratioLeft}
           %
         </span>
       </div>
