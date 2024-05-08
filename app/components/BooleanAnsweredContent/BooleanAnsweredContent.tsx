@@ -31,7 +31,7 @@ export function BooleanAnsweredContent({
     <div className="w-full">
       <div className="mb-2">
         <TrueFalseScaleAnswer
-          ratioTrue={ratioLeft}
+          ratioLeft={ratioLeft}
           valueSelected={ratioSelectedTrue}
           avatarSrc={avatarSrc}
           labelLeft={labelLeft}

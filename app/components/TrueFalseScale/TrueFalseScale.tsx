@@ -5,8 +5,8 @@ type TrueFalseScaleProps = {
   handleRatioChange: (percentage: number) => void;
   sliderClassName?: string;
   trackClassName?: string;
-  labelTrue?: string;
-  labelFalse?: string;
+  labelLeft?: string;
+  labelRight?: string;
   progressColor?: string;
   bgColor?: string;
   hideThumb?: boolean;
@@ -17,8 +17,8 @@ export function TrueFalseScale({
   handleRatioChange,
   sliderClassName,
   trackClassName,
-  labelTrue = "True",
-  labelFalse = "False",
+  labelLeft = "True",
+  labelRight = "False",
   progressColor,
   bgColor,
   hideThumb,
