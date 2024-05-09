@@ -13,7 +13,7 @@ export default function Layout({ children }: PageLayoutProps) {
       <Navbar
         avatarSrc={AvatarPlaceholder.src}
         avatarLink="/application/profile"
-        walletLink=""
+        walletLink="/application/transactions"
       />
       {children}
     </>

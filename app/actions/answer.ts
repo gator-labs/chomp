@@ -5,6 +5,7 @@ import {
   QuestionAnswer,
   QuestionOption,
   QuestionType,
+  TransactionLogType,
 } from "@prisma/client";
 import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
@@ -100,12 +101,22 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       data: questionAnswers,
     });
 
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      questionIds.length * pointsPerAction["answer-question"] +
-        pointsPerAction["answer-deck"],
-      tx,
-    );
+    const fungibleAssetRevealTasks = [
+      incrementFungibleAssetBalance(
+        FungibleAsset.Point,
+        questionIds.length * pointsPerAction[TransactionLogType.AnswerQuestion],
+        TransactionLogType.AnswerQuestion,
+        tx,
+      ),
+      incrementFungibleAssetBalance(
+        FungibleAsset.Point,
+        pointsPerAction[TransactionLogType.AnswerDeck],
+        TransactionLogType.AnswerDeck,
+        tx,
+      ),
+    ];
+
+    await Promise.all(fungibleAssetRevealTasks);
   });
 }
 
@@ -185,7 +196,8 @@ export async function saveQuestion(request: SaveQuestionRequest) {
 
     await incrementFungibleAssetBalance(
       FungibleAsset.Point,
-      pointsPerAction["answer-question"],
+      pointsPerAction[TransactionLogType.AnswerQuestion],
+      TransactionLogType.AnswerQuestion,
       tx,
     );
   });

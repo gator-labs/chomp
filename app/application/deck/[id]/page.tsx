@@ -5,6 +5,7 @@ import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
 const DeckDetails = dynamic(
   () => import("@/app/components/DeckDetails/DeckDetails"),
   { ssr: false },
@@ -30,7 +31,7 @@ export default async function Page({
       <Navbar
         avatarSrc={AvatarPlaceholder.src}
         avatarLink="/application/profile"
-        walletLink=""
+        walletLink="/application/transactions"
       >
         <Link href={returnUrl ?? "/application"}>
           <div className="flex items-center text-xs">

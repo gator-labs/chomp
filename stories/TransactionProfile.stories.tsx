@@ -1,21 +1,20 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Profile } from "../app/components/Profile/Profile";
+import { TransactionProfile } from "../app/components/TransactionProfile/TransactionProfile";
 import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
-  title: "Profile",
-  component: Profile,
+  title: "Transaction profile",
+  component: TransactionProfile,
   parameters: {
     layout: "centered",
   },
   args: {
-    fullName: "Alex Smith",
-    handle: "Curious.mind88",
-    joinDate: new Date(2023, 3, 23),
+    pointAmount: 108184184,
+    dollarAmount: 218.45,
     avatarSrc: AvatarSample.src,
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof Profile>;
+} satisfies Meta<typeof TransactionProfile>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
