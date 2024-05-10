@@ -122,3 +122,25 @@ yarn test
 5. Burn bonk to reveal
 
 ![Chomp Overview](./docs/walk5.png)
+
+## Demo environment
+
+Demo environment is used for testing flow of application in easy and repeatable
+way so users can see how app works before using production version. Only feature
+that differentiates demo from production environment is Reset data button in
+Profile section that allows user to reset all changes made to demo profile like
+answers to questions, question reveals and claims.
+
+Data in demo environment is composed of 3 questions in daily deck that user can
+answer when they open app and 3 answered questions that user is able to reveal
+from home or history page. Daily deck can be set up from admin dashboard in the
+same way as on production app and small change is made to the backend to disable
+that daily deck expiring on demo environment.
+
+For setting up answered questions, the process is a bit more difficult. We first
+need to add records in `Question` and `QuestionOption` tables that contain
+question and option data (note that reveal date has to be in past so users can
+reveal those question immediately). After that, pre made user's answer records
+need to be added to `QuestionAnswer` table. Note that all demo answer records
+can be set to dummy account, in this case I've set up user with id `app` in
+`User` table that owns all of the answers.
