@@ -144,3 +144,5 @@ reveal those question immediately). After that, pre made user's answer records
 need to be added to `QuestionAnswer` table. Note that all demo answer records
 can be set to dummy account, in this case I've set up user with id `app` in
 `User` table that owns all of the answers.
+
+Demo environment is accessible on [app-demo.chomp.games](https://app-demo.chomp.games/).
