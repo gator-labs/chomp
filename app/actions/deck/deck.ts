@@ -1,14 +1,16 @@
 "use server";
 
+import { DeckImportModel } from "@/app/schemas/deckImport";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { getIsUserAdmin } from "../queries/user";
-import { deckSchema } from "../schemas/deck";
-import prisma from "../services/prisma";
-import { ONE_MINUTE_IN_MILISECONDS } from "../utils/dateUtils";
-import { formatErrorsToString } from "../utils/zod";
-import { handleUpsertingQuestionOptionsConcurrently } from "./question";
+import { getIsUserAdmin } from "../../queries/user";
+import { deckSchema } from "../../schemas/deck";
+import prisma from "../../services/prisma";
+import { ONE_MINUTE_IN_MILISECONDS } from "../../utils/dateUtils";
+import { formatErrorsToString } from "../../utils/zod";
+import { handleUpsertingQuestionOptionsConcurrently } from "../question/question";
+import { deckInputFactory } from "./factories";
 
 export async function createDeck(data: z.infer<typeof deckSchema>) {
   const isAdmin = await getIsUserAdmin();
@@ -202,6 +204,41 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     },
     { timeout: 20000 },
   );
+
+  revalidatePath("/admin/decks");
+  redirect("/admin/decks");
+}
+
+export async function handleInsertDecks(decksToAdd: DeckImportModel[]) {
+  const isAdmin = await getIsUserAdmin();
+
+  if (!isAdmin) {
+    redirect("/application");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const deckAndQuestions = deckInputFactory(decksToAdd);
+    const deckQuestionPromises = deckAndQuestions.map(
+      async ({ deck, questions }) => {
+        const deckSaved = await tx.deck.create({ data: deck });
+        const questionsSaved = await Promise.all(
+          questions.map(
+            async (question) => await tx.question.create({ data: question }),
+          ),
+        );
+
+        const deckQuestionPromises = questionsSaved.map(async (q) => {
+          await tx.deckQuestion.create({
+            data: { deckId: deckSaved.id, questionId: q.id },
+          });
+        });
+
+        await Promise.all(deckQuestionPromises);
+      },
+    );
+
+    await Promise.all(deckQuestionPromises);
+  });
 
   revalidatePath("/admin/decks");
   redirect("/admin/decks");
