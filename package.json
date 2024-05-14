@@ -30,6 +30,7 @@
     "bigint-buffer": "^1.1.5",
     "bs58": "^5.0.0",
     "classnames": "^2.5.1",
+    "date-fns": "^3.6.0",
     "dayjs": "^1.11.10",
     "jsonwebtoken": "^9.0.2",
     "next": "14.1.3",

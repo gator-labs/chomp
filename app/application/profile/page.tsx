@@ -4,10 +4,12 @@ import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/Home
 import { LogoutButton } from "@/app/components/LogoutButton/LogoutButton";
 import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
 import { Profile } from "@/app/components/Profile/Profile";
+import { ResetAccountDataButton } from "@/app/components/ResetAccountDataButton/ResetAccountDataButton";
 import TagRankCard from "@/app/components/TagRankCard/TagRankCard";
 import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
 
 export default async function Page() {
+  const isDemo = process.env.ENVIRONMENT === "demo";
   const balances = await getMyFungibleAssetBalances();
 
   return (
@@ -30,6 +32,7 @@ export default async function Page() {
       <TagRankCard tag="GameFi" percentage={78} />
       <TagRankCard tag="DePin" percentage={52} />
 
+      {isDemo && <ResetAccountDataButton />}
       <LogoutButton />
     </div>
   );

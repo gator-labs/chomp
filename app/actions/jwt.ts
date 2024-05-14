@@ -4,6 +4,7 @@ import { VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "../services/prisma";
+import { resetAccountData } from "./demo";
 
 export const getJwtPayload = async () => {
   const token = cookies().get("token");
@@ -113,6 +114,11 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     secure: true,
     httpOnly: true,
   });
+
+  const isDemo = process.env.ENVIRONMENT === "demo";
+  if (isDemo) {
+    await resetAccountData();
+  }
 
   if (payload.new_user) {
     redirect(
