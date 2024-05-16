@@ -1,14 +1,26 @@
 "use server";
 
+import { Decimal } from "@prisma/client/runtime/library";
+import dayjs from "dayjs";
 import { redirect } from "next/navigation";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 
+const duration = require("dayjs/plugin/duration");
+dayjs.extend(duration);
+
 type UserStatistics = {
+  cardsChomped: string;
+  averageTimeToAnswer: string;
+  daysStreak: string;
+  totalPointsEarned: string;
+};
+
+type UserStatisticsQueryResult = {
   cardsChomped?: number;
-  averageTimeToAnswer?: string;
-  daysStreak?: string;
-  totalPointsEarned?: string;
+  averageTimeToAnswer?: Decimal;
+  daysStreak?: number;
+  totalPointsEarned?: Decimal;
 };
 
 export async function getUserStatistics(): Promise<UserStatistics> {
@@ -24,7 +36,8 @@ export async function getUserStatistics(): Promise<UserStatistics> {
 }
 
 async function queryUserStatistics(userId: string): Promise<UserStatistics> {
-  const questionOptionPercentages: UserStatistics[] = await prisma.$queryRaw`
+  const questionOptionPercentagesQueryResult: UserStatisticsQueryResult[] =
+    await prisma.$queryRaw`
   select 
     (
       (
@@ -49,30 +62,43 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
         where qa."userId" = u."id"
         limit 1
       )
-    ) as cardsChomped,
+    ) as "cardsChomped",
     (
       select avg(qa."timeToAnswer") from public."QuestionAnswer" qa 
       where qa."userId" = u."id" and qa."timeToAnswer" is not null
       limit 1
-    ) as averageTimeToAnswer,
+    ) as "averageTimeToAnswer",
     (
       select
-        date_part('day', s."lastDayOfStreak" - s."streakStartedAt")
+        date_part('day', s."lastDayOfStreak" - s."streakStartedAt") + 1
       from public."Streak" s
       where s."userId" = u."id"
       order by date_part('day', s."lastDayOfStreak" - s."streakStartedAt") desc
       limit 1
-    ) as daysStreak,
+    ) as "daysStreak",
     (
       select
         fab."amount"
       from public."FungibleAssetBalance" fab
       where fab."userId" = u."id" and fab."asset" = 'Point'
       limit 1
-    ) as totalPointsEarned
+    ) as "totalPointsEarned"
   from public."User" u
   where u."id" = ${userId}
   limit 1`;
 
-  return questionOptionPercentages[0];
+  const result = questionOptionPercentagesQueryResult[0];
+
+  return {
+    averageTimeToAnswer: result.averageTimeToAnswer
+      ? dayjs
+          .duration(result.averageTimeToAnswer.toNumber(), "milliseconds")
+          .format("m:ss")
+      : "-",
+    cardsChomped: result.cardsChomped ? result.cardsChomped.toString() : "0",
+    daysStreak: result.daysStreak ? result.daysStreak.toString() : "0",
+    totalPointsEarned: result.totalPointsEarned
+      ? result.totalPointsEarned.toString()
+      : "0",
+  };
 }

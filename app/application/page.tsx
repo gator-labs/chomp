@@ -16,10 +16,10 @@ export default async function Page({}: PageProps) {
         walletLink="/application/transactions"
       />
       <DashboardUserStats
-        averageTimeToAnswer={stats.averageTimeToAnswer ?? "-"}
-        cardsChomped={stats.cardsChomped?.toString() ?? "-"}
-        daysStreak={stats.daysStreak ?? "0"}
-        totalPointsEarned={stats.totalPointsEarned ?? "-"}
+        averageTimeToAnswer={stats.averageTimeToAnswer}
+        cardsChomped={stats.cardsChomped}
+        daysStreak={stats.daysStreak}
+        totalPointsEarned={stats.totalPointsEarned}
       />
     </>
   );

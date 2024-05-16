@@ -1,6 +1,7 @@
 "use client";
 import { SaveQuestionRequest, saveDeck } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
+import { useStopwatch } from "@/app/hooks/useStopwatch";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
@@ -62,6 +63,11 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         ? questions[currentQuestionIndex].questionOptions.length - 1
         : 0,
   });
+  const { start, reset, getTimePassedSinceStart } = useStopwatch();
+
+  useEffect(() => {
+    start();
+  }, [start]);
 
   const handleNextIndex = useCallback(() => {
     if (currentQuestionIndex + 1 < questions.length) {
@@ -73,6 +79,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
     generateRandom();
+    reset();
     setTimeout(() => {
       setRerenderAction(true);
     });
@@ -88,6 +95,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     setRerenderAction,
     generateRandom,
     setCurrentOptionSelected,
+    reset,
     questionsRef.current,
   ]);
 
@@ -145,6 +153,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
           const response = newResponses.pop();
           if (response) {
             response.percentageGiven = number ?? 0;
+            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
 
@@ -163,6 +172,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
             response.percentageGiven = optionPercentage;
             response.percentageGivenForAnswerId =
               question.questionOptions[random]?.id;
+            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
 
