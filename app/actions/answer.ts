@@ -15,6 +15,7 @@ import { hasAnsweredQuestion } from "../queries/question";
 import prisma from "../services/prisma";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
+import { updateStreak } from "./streak";
 
 export type SaveQuestionRequest = {
   questionId: number;
@@ -116,6 +117,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       ),
     ];
 
+    await updateStreak(userId);
     await Promise.all(fungibleAssetRevealTasks);
   });
 }
@@ -200,6 +202,8 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       TransactionLogType.AnswerQuestion,
       tx,
     );
+
+    await updateStreak(userId);
   });
 }
 
