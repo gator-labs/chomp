@@ -34,7 +34,12 @@ export const Open: Story = {
     isCollapsed: false,
     revealedAt: dayjs().add(-2, "day").toDate(),
     children: (
-      <TrueFalseScale ratioLeft={20} labelLeft="True" labelRight="False" />
+      <TrueFalseScale
+        ratioLeft={20}
+        labelLeft="True"
+        labelRight="False"
+        handleRatioChange={() => {}}
+      />
     ),
     actionChild: (
       <Button variant="white" className="!rounded-full">
