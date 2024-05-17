@@ -22,7 +22,7 @@ export const deckImportColumns = [
 ] as Array<keyof DeckImportModel>;
 
 export const columns: ColumnDef<DeckImportModel, DeckRowType>[] = [
-  { accessorKey: "deck", header: "Deck" },
+  { accessorKey: "deck", header: "Deck name" },
   { accessorKey: "dailyDate", header: "Daily date" },
   { accessorKey: "deckImageUrl", header: "Deck image Url" },
   { accessorKey: "question", header: "Question" },

@@ -31,8 +31,8 @@ export const deckInputFactory = (
           durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
           imageUrl: question.imageUrl,
           revealTokenAmount: question.revealTokenAmount,
-          revealAtAnswerCount: question.revealAtAnswerCount,
-          revealAtDate: question.revealAtDate,
+          revealAtAnswerCount: deckInfo.revealAtAnswerCount,
+          revealAtDate: deckInfo.revealAtDate,
           revealToken: "Bonk",
           questionOptions: {
             createMany: {
