@@ -23,6 +23,14 @@ type UserStatisticsQueryResult = {
   totalPointsEarned?: Decimal;
 };
 
+type RevealedQuestion = {
+  id: number;
+  question: string;
+  revealAtDate?: Date;
+  answerCount?: number;
+  revealAtAnswerCount?: number;
+};
+
 export async function getUserStatistics(): Promise<UserStatistics> {
   const payload = await getJwtPayload();
 
@@ -33,6 +41,90 @@ export async function getUserStatistics(): Promise<UserStatistics> {
   const stats = await queryUserStatistics(payload.sub);
 
   return stats;
+}
+
+export async function getQuestionsForRevealedSection(): Promise<RevealedQuestion[]> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const questions = await queryRevealedQuestions(payload.sub);
+
+  return questions;
+}
+
+async function queryRevealedQuestions(
+  userId: string,
+): Promise<RevealedQuestion[]> {
+  const revealQuestions: RevealedQuestion[] = await prisma.$queryRaw`
+  select
+  	q."id",
+  	q."question",
+  	q."revealAtDate",
+  	(
+  		select
+          	count(distinct qo."questionId")
+	    from public."QuestionOption" qo
+	    join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+	    where qo."questionId" = q."id"
+  	) as "answerCount",
+  	q."revealAtAnswerCount"
+  from public."Question" q 
+  where
+  	(
+	    (
+	      q."revealAtDate" is not null 
+	      and 
+	      q."revealAtDate" < now() 
+	    )
+	    or 
+	    (
+	      q."revealAtAnswerCount" is not null
+	      and
+	      q."revealAtAnswerCount" >=
+	        (
+	          select
+	          	count(distinct qo."questionId")
+	          from public."QuestionOption" qo
+	          join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+	          where qo."questionId" = q."id"
+	        )
+	    )
+    )
+    and
+    	(
+    		q."id" not in
+	    	(
+	    		select
+	    			r."questionId"
+	    		from public."Reveal" r
+	    		where r."userId" = ${userId}
+	    	)
+	    	and
+	    	q."id" not in
+	    	(
+	    		select
+	    			dq."questionId"
+	    		from public."DeckQuestion" dq
+	    		join public."Deck" d on d."id" = dq."deckId"
+	    		join public."Reveal" r on r."deckId" = d."id"
+	    		where r."userId" = ${userId} and dq."questionId" = q."id"
+	    	)
+	    )
+    and
+    	q."id" not in
+	    (
+	    	select 
+	    		qo."questionId"
+	    	from public."QuestionOption" qo
+          	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+          	where qa."userId" = ${userId} and qo."questionId" = q."id"
+	    )
+  `;
+
+  return revealQuestions;
 }
 
 async function queryUserStatistics(userId: string): Promise<UserStatistics> {

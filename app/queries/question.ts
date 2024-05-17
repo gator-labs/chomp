@@ -142,55 +142,6 @@ export async function getQuestionSchema(
   return questionData;
 }
 
-export async function getHomeFeed(query: string = "") {
-  const promiseArray = [
-    getUnansweredDailyQuestions(query),
-    getHomeFeedQuestions({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: true, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: true, query }),
-  ];
-
-  const sortRevealedComparerFn = (a: any, b: any) => {
-    const aNewestClaimTime = a.reveals[0]?.createdAt;
-    const bNewestClaimTime = b.reveals[0]?.createdAt;
-
-    if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
-      return 1;
-    }
-
-    if (dayjs(bNewestClaimTime).isAfter(aNewestClaimTime)) {
-      return -1;
-    }
-
-    return 0;
-  };
-  const [
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  ] = await Promise.all(promiseArray);
-
-  answeredRevealedQuestions.sort(sortRevealedComparerFn);
-  answeredRevealedDecks.sort(sortRevealedComparerFn);
-
-  return {
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  };
-}
-
 export async function getHistory(
   query: string = "",
   sort: HistorySortOptions = HistorySortOptions.Revealed,
@@ -291,43 +242,6 @@ export async function getHistory(
   }
 
   return response;
-}
-
-export async function getUnansweredDailyQuestions(query = "") {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return [];
-  }
-
-  const dailyDeckQuestions = await prisma.deckQuestion.findMany({
-    where: {
-      deck: {
-        date: {
-          not: null,
-        },
-        revealAtDate: { gte: new Date() },
-      },
-      question: {
-        question: { contains: query, mode: "insensitive" },
-        questionOptions: {
-          none: {
-            questionAnswers: {
-              some: {
-                userId: payload.sub,
-              },
-            },
-          },
-        },
-        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
-      },
-    },
-    include: {
-      question: true,
-    },
-  });
-
-  return dailyDeckQuestions.map((dq) => dq.question);
 }
 
 export async function getHomeFeedQuestions({
