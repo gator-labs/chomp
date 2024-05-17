@@ -12,7 +12,9 @@ import {
   useState,
 } from "react";
 import { Button } from "../components/Button/Button";
+import { CloseIcon } from "../components/Icons/CloseIcon";
 import { Modal } from "../components/Modal/Modal";
+import RevealSheet from "../components/RevealSheet/RevealSheet";
 import { genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
 
@@ -83,6 +85,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
                 await reveal?.reveal();
                 fire();
               }}
+              className="text-black"
             >
               Reveal
             </Button>
@@ -91,7 +94,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
               isPill
               onClick={() => setIsRevealModalOpen(false)}
             >
-              Maybe Later
+              Cancel
             </Button>
           </>
         );
@@ -178,20 +181,25 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
 
   return (
     <RevealedContext.Provider value={value}>
-      <Modal
-        title="Reveal"
-        isOpen={isRevealModalOpen}
-        onClose={() => setIsRevealModalOpen(false)}
-      >
-        <div className="flex flex-col gap-3">
-          <p>
-            Revealing this question will earn you 42 points!
-            <br />
-            Would you like to reveal?
-          </p>
-          {revealButtons}
+      <RevealSheet isOpen={isRevealModalOpen} setIsOpen={setIsRevealModalOpen}>
+        <div className="flex flex-col gap-5 px-5 pb-5">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-row w-full items-center justify-between">
+              <h3 className="font-bold">Reveal answer?</h3>
+              <Button
+                onClick={() => setIsRevealModalOpen(false)}
+                className="self-end border-none w-max !p-0"
+              >
+                <CloseIcon />
+              </Button>
+            </div>
+            <p>
+              This will cost you <span className="font-bold">10000 BONK.</span>
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">{revealButtons}</div>
         </div>
-      </Modal>
+      </RevealSheet>
 
       <Modal
         title="Claim"
