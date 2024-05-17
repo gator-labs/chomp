@@ -5,6 +5,7 @@ import DynamicProvider from "./providers/DynamicProvider";
 
 import { sora } from "@/lib/fonts";
 import "@/styles/globals.css";
+import "react-spring-bottom-sheet/dist/style.css";
 
 export const viewport: Viewport = {
   minimumScale: 1,
