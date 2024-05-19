@@ -1,8 +1,6 @@
-import { useDragPositionPercentage } from "@/app/hooks/useDragPositionPercentage";
-import classNames from "classnames";
-import { useRef } from "react";
 import { Avatar } from "../Avatar/Avatar";
 import { ViewsIcon } from "../Icons/ViewsIcon";
+import PrimarySlider from "../PrimarySlider/PrimarySlider";
 
 type AnswerResultProps = {
   percentage: number;
@@ -26,44 +24,24 @@ export function AnswerResult({
       ? "calc(100% - 16px)"
       : `${valueSelected}%`
     : undefined;
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const percentageCapped = percentage > 100 ? 100 : percentage;
-  const { handleChangePosition, endDrag, startDrag, isDragging } =
-    useDragPositionPercentage({
-      elementRef: wrapperRef,
-      onChange: handleRatioChange,
-    });
+
   return (
     <div className="flex items-center gap-1">
       <div
-        ref={wrapperRef}
-        onClick={(e) => handleChangePosition(e, false)}
         className={
           "relative rounded-[4px] h-6 bg-search-gray w-full overflow-hidden"
         }
       >
-        <div
-          className={classNames("h-full w-10 cursor-grab absolute z-10", {
-            "cursor-grabbing": isDragging,
-          })}
-          onMouseDown={startDrag}
-          onMouseUp={endDrag}
-          onTouchStart={startDrag}
-          onTouchEnd={endDrag}
-          onMouseLeave={endDrag}
-          onMouseMove={handleChangePosition}
-          onTouchMove={handleChangePosition}
-          style={{ left: `calc(${percentageCapped}% - 20px)` }}
-        ></div>
-        <div
-          className={classNames(
-            "h-full bg-purple absolute top-0 l-0 w-full",
-            progressBarClassName,
-          )}
-          style={{
-            width: `${percentageCapped}%`,
-          }}
-        ></div>
+        <PrimarySlider
+          value={percentage}
+          setValue={handleRatioChange}
+          hideThumb
+          className={`rounded-[4px] h-full w-full`}
+          backgroundColor="#4c4c4c"
+          progressColor="#cfc7f2"
+          trackClassName="!rounded-[4px] h-full w-full"
+          rangeClassName="!rounded-[4px] h-full"
+        />
         {valueSelected !== undefined && valueSelected !== null && avatarSrc && (
           <Avatar
             src={avatarSrc}
