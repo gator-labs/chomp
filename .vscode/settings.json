@@ -1,0 +1,49 @@
+{
+  "editor.codeActionsOnSave": [
+    "source.formatDocument",
+    "source.addMissingImports",
+    "source.fixAll.eslint"
+  ],
+  "editor.autoClosingBrackets": "never",
+  "editor.autoClosingQuotes": "never",
+  "editor.wordWrapColumn": 100,
+  "css.lint.unknownAtRules": "ignore",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "**/node_modules/next/router"
+  ],
+  "better-comments.highlightPlainText": true,
+  "better-comments.tags": [
+    {
+      "tag": "!",
+      "color": "#ec4899",
+      "strikethrough": false,
+      "backgroundColor": "transparent"
+    },
+    {
+      "tag": "?",
+      "color": "#0ea5e9",
+      "strikethrough": false,
+      "backgroundColor": "transparent"
+    },
+    {
+      "tag": "//",
+      "color": "#8b5cf6",
+      "strikethrough": false,
+      "backgroundColor": "transparent"
+    },
+    {
+      "tag": "todo",
+      "color": "#10b981",
+      "strikethrough": false,
+      "backgroundColor": "transparent"
+    },
+    {
+      "tag": "*",
+      "color": "#EC4899",
+      "strikethrough": false,
+      "backgroundColor": "transparent"
+    }
+  ]
+}
