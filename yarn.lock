@@ -4793,6 +4793,16 @@
   resolved "https://registry.yarnpkg.com/@turnkey/encoding/-/encoding-0.1.0.tgz#85461c3aa11c70882cc2b0853f5db40f576c3ac9"
   integrity sha512-aLmLrWtvV1k9UyGzuzMpBFdwleCH8VpzXIriusVMrFLiQp+4uHCS9cwrEG1glg3207ewWFDtvgj31qLoJS29pg==
 
+"@turnkey/http@2.10.0":
+  version "2.10.0"
+  resolved "https://registry.yarnpkg.com/@turnkey/http/-/http-2.10.0.tgz#9e8d0dc6279719e3efaf5ae1df7dc9fd5a111ecf"
+  integrity sha512-5I2VwOzxYGxmSy8UOZn8rsV23gmK8v93KqNZ/mjf4GrFQ69q8LCaAFmrH1Zo+/J7eq0/GQdxNqBHfJKLp5iihw==
+  dependencies:
+    "@turnkey/api-key-stamper" "0.4.0"
+    "@turnkey/encoding" "0.1.0"
+    "@turnkey/webauthn-stamper" "0.5.0"
+    cross-fetch "^3.1.5"
+
 "@turnkey/http@2.7.1":
   version "2.7.1"
   resolved "https://registry.yarnpkg.com/@turnkey/http/-/http-2.7.1.tgz#fec1ebb5b80379460c45f3b05d0af65843d0598b"
@@ -4813,10 +4823,46 @@
     "@turnkey/webauthn-stamper" "0.5.0"
     cross-fetch "^3.1.5"
 
+"@turnkey/iframe-stamper@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@turnkey/iframe-stamper/-/iframe-stamper-2.0.0.tgz#9cbd30457c8c5d6bec913b870755c5cda7e47c6a"
+  integrity sha512-14IPfloVCV3ngoxsy3KoEUbEtYYxPU5H6T4WcNzY8Z67A1NJZfipk6pTaN5h3efkUm208G2TvDd63sZOdbyuxQ==
+
 "@turnkey/iframe-stamper@^1.0.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@turnkey/iframe-stamper/-/iframe-stamper-1.1.0.tgz#cd4ef361cf0f0bd136f51cd93e4471dd14f79426"
   integrity sha512-NmslsagRZ2Z3RmeKm9tSG57K4r0OxQ60dlcvTOv1rxii75RaF8iHcAUisQDS2LqvAEd6GHjlHeY5zgGKYUV2OQ==
+
+"@turnkey/sdk-browser@0.2.1", "@turnkey/sdk-browser@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@turnkey/sdk-browser/-/sdk-browser-0.2.1.tgz#19005aebd928f1cbd1893e54fda608bc155f3d06"
+  integrity sha512-eF1/wwoaWVbvXpoLx3u95XIvraDYwuaBrud04iVdSXb24uMho+J5Qub4J5IfQZ2GObWnnXikO+uBVJwvIjK34Q==
+  dependencies:
+    "@turnkey/api-key-stamper" "0.4.0"
+    "@turnkey/http" "2.10.0"
+    "@turnkey/iframe-stamper" "2.0.0"
+    "@turnkey/webauthn-stamper" "0.5.0"
+    buffer "^6.0.3"
+    cross-fetch "^3.1.5"
+    elliptic "^6.5.5"
+
+"@turnkey/sdk-react@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@turnkey/sdk-react/-/sdk-react-0.2.1.tgz#a5d77e10684df29e677280798c165c56d9c5c151"
+  integrity sha512-f0NgCrLyzL5hrgw6KzWpG36Kqw7+L4nwB5lraElXXT7rZeania3p6oBDDGzyzWP26rI0aSkU1MtYQJ+ELDKoqw==
+  dependencies:
+    "@turnkey/sdk-browser" "0.2.1"
+
+"@turnkey/sdk-server@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@turnkey/sdk-server/-/sdk-server-0.2.0.tgz#e415f873b0725c1349c4b04a61837205e55ac3fa"
+  integrity sha512-TXJWDqR913jCfuP9U5l4Z+X3YsaSdmXgEXWd+YgNwl5aXepW6DSjjXF1K2wvy6k7nMj/cpuCEhYOJ+sBi/YQqg==
+  dependencies:
+    "@turnkey/api-key-stamper" "0.4.0"
+    "@turnkey/http" "2.10.0"
+    buffer "^6.0.3"
+    cross-fetch "^3.1.5"
+    elliptic "^6.5.5"
 
 "@turnkey/solana@^0.2.0":
   version "0.2.2"
