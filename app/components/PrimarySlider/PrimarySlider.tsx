@@ -12,6 +12,7 @@ interface PrimarySliderProps {
   hideThumb?: boolean;
   className?: string;
   trackClassName?: string;
+  rangeClassName?: string;
 }
 
 const PrimarySlider = ({
@@ -22,6 +23,7 @@ const PrimarySlider = ({
   hideThumb = false,
   className,
   trackClassName,
+  rangeClassName,
 }: PrimarySliderProps) => {
   return (
     <Slider.Root
@@ -45,7 +47,10 @@ const PrimarySlider = ({
         }}
       >
         <Slider.Range
-          className={`absolute rounded-l-lg h-[36px] bg-dark-purple`}
+          className={classNames(
+            "absolute rounded-l-lg h-[36px] bg-dark-purple",
+            rangeClassName,
+          )}
           style={{
             backgroundColor: progressColor,
           }}

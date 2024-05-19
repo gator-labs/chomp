@@ -11,6 +11,8 @@ interface PrimarySliderV2Props {
   progressColor?: string;
   hideThumb?: boolean;
   className?: string;
+  trackClassName?: string;
+  rangeClassName?: string;
 }
 
 const PrimarySliderV2 = ({
@@ -20,6 +22,8 @@ const PrimarySliderV2 = ({
   progressColor,
   hideThumb = false,
   className,
+  trackClassName,
+  rangeClassName,
 }: PrimarySliderV2Props) => {
   return (
     <div
@@ -40,13 +44,19 @@ const PrimarySliderV2 = ({
         value={[value]}
       >
         <Slider.Track
-          className={`relative flex items-center justify-center w-full rounded-[8px] min-h-[50px] overflow-hidden bg-pink-gradient`}
+          className={classNames(
+            "relative flex items-center justify-center w-full rounded-[8px] min-h-[50px] overflow-hidden bg-pink-gradient",
+            trackClassName,
+          )}
           style={{
             backgroundColor: backgroundColor,
           }}
         >
           <Slider.Range
-            className={`rounded-l-lg h-[2px] mx-auto w-full bg-[#FFFFFF] bg-opacity-50`}
+            className={classNames(
+              "rounded-l-lg h-[2px] mx-auto w-full bg-[#FFFFFF] bg-opacity-50",
+              rangeClassName,
+            )}
             style={{
               backgroundColor: progressColor,
             }}
