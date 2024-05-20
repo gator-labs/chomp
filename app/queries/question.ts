@@ -102,7 +102,11 @@ export async function getQuestion(id: number) {
       id,
     },
     include: {
-      questionOptions: true,
+      questionOptions: {
+        include: {
+          questionAnswers: true,
+        },
+      },
     },
   });
 

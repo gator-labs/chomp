@@ -1,8 +1,9 @@
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import Trophy from "@/app/components/Icons/Trophy";
 import { getQuestion } from "@/app/queries/question";
+import { isEntityRevealable } from "@/app/utils/question";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 interface Props {
   params: {
@@ -13,7 +14,15 @@ interface Props {
 const RevealAnswerPage = async ({ params }: Props) => {
   const question = await getQuestion(Number(params.questionId));
 
-  if (!question) return notFound();
+  if (!question) notFound();
+
+  const isQuestionRevealable = isEntityRevealable({
+    revealAtAnswerCount: question.revealAtAnswerCount,
+    revealAtDate: question.revealAtDate,
+    answerCount: question.questionOptions[0].questionAnswers.length,
+  });
+
+  if (!isQuestionRevealable) redirect("/application");
 
   return (
     <div className="px-4 py-2 flex flex-col gap-4">
