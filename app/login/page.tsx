@@ -1,52 +1,43 @@
 "use client";
 
-import { DotLottiePlayer } from "@dotlottie/react-player";
-import {
-  DynamicConnectButton,
-  useDynamicContext,
-} from "@dynamic-labs/sdk-react-core";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { setJwt } from "../actions/jwt";
-import { ProgressBar } from "../components/ProgressBar/ProgressBar";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { useEffect, useState } from "react";
+
+import { getJwtPayload, setJwt } from "../actions/jwt";
+import ExistingUserScreen from "./screens/ExistingUserScreen";
+import LoadingScreen from "./screens/LoadingScreen";
+import NewUserScreen from "./screens/NewUserScreen";
+import SlideshowScreen from "./screens/SlideshowScreen";
 
 export default function Page() {
   const { authToken, isAuthenticated } = useDynamicContext();
-  const searchParams = useSearchParams();
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    const checkIsNewUser = async () => {
+      const payload = await getJwtPayload();
+
+      setIsNewUser(payload?.new_user || false);
+      setIsLoading(false);
+    };
+
     if (authToken) {
-      setJwt(authToken, searchParams.get("next"));
+      setIsLoading(true);
+
+      setJwt(authToken);
+      checkIsNewUser();
+      return;
     }
-  }, [authToken, searchParams]);
 
-  if (isAuthenticated) {
-    return (
-      <div className="fixed top-0 right-0 bottom-0 left-0 flex justify-center items-center">
-        <div>
-          <div className="rounded-full overflow-hidden flex justify-center items-center m-6">
-            <DotLottiePlayer
-              className="w-32 h-32"
-              loop
-              autoplay
-              src="/lottie/chomp.lottie"
-            />
-          </div>
-          <ProgressBar className="mt-4" />
-          <div className="text-center font-sora text-sm mt-4">
-            Loading your chomps...
-          </div>
-        </div>
-      </div>
-    );
-  }
+    setIsLoading(false);
+  }, [authToken]);
 
-  return (
-    <main className="flex flex-col justify-center items-center gap-3 h-full">
-      <DynamicConnectButton buttonClassName="bg-primary text-btn-text-primary rounded-lg inline-flex justify-center py-4 px-16 rounded-2xl font-bold text-base">
-        Connect Wallet
-      </DynamicConnectButton>
-      <p className="text-[13px]">Connect your wallet to begin</p>
-    </main>
-  );
+  if (isLoading) return <LoadingScreen />;
+
+  if (isAuthenticated && !isNewUser) return <ExistingUserScreen />;
+
+  if (isAuthenticated && isNewUser) return <NewUserScreen />;
+
+  return <SlideshowScreen />;
 }
