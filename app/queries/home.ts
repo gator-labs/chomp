@@ -75,10 +75,8 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
   where
       (
         (
-          d."revealAtDate" is null 
-          or
-          d."revealAtDate" > now() 
-        )
+      		d."revealAtDate" > now() and d."revealAtDate" < now() + interval '3' day
+  		  )
         and 
         (
           d."revealAtAnswerCount" is null
