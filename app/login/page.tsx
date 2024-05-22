@@ -4,10 +4,10 @@ import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useEffect, useState } from "react";
 
 import { getJwtPayload, setJwt } from "../actions/jwt";
-import ExistingUserScreen from "./screens/ExistingUserScreen";
-import LoadingScreen from "./screens/LoadingScreen";
-import NewUserScreen from "./screens/NewUserScreen";
-import SlideshowScreen from "./screens/SlideshowScreen";
+import ExistingUserScreen from "../screens/LoginScreens/ExistingUserScreen";
+import LoadingScreen from "../screens/LoginScreens/LoadingScreen";
+import NewUserScreen from "../screens/LoginScreens/NewUserScreen";
+import SlideshowScreen from "../screens/LoginScreens/SlideshowScreen";
 
 export default function Page() {
   const { authToken, isAuthenticated } = useDynamicContext();

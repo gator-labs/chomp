@@ -119,6 +119,8 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
   if (isDemo) {
     await resetAccountData();
   }
+
+  if (!!nextPath) redirect(nextPath);
 };
 
 export const clearJwt = () => {
