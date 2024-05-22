@@ -10,20 +10,23 @@ type HomeFeedRevealedQuestionsSectionProps = {
   questions: RevealedQuestion[];
 };
 
+const QUESTIONS_IN_SECTION = 5;
 export function HomeFeedRevealedQuestionsSection({
   questions,
 }: HomeFeedRevealedQuestionsSectionProps) {
-  const questionSlides = questions.map((q) => (
-    <HomeFeedQuestionCard
-      key={q.id}
-      question={q.question}
-      answerCount={q.answerCount}
-      revealAtAnswerCount={q.revealAtAnswerCount}
-      revealAtDate={q.revealAtDate}
-      onClear={() => dismissQuestion(q.id)}
-      onView={() => {}}
-    />
-  ));
+  const questionSlides = questions
+    .filter((_, index) => index < QUESTIONS_IN_SECTION)
+    .map((q) => (
+      <HomeFeedQuestionCard
+        key={q.id}
+        question={q.question}
+        answerCount={q.answerCount}
+        revealAtAnswerCount={q.revealAtAnswerCount}
+        revealAtDate={q.revealAtDate}
+        onClear={() => dismissQuestion(q.id)}
+        onView={() => {}}
+      />
+    ));
 
   return (
     <HomeFeedCardCarousel
