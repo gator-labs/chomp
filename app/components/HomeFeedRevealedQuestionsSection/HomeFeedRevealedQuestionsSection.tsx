@@ -36,7 +36,7 @@ export function HomeFeedRevealedQuestionsSection({
           Check out others’ revealed questions
         </span>
       }
-      children={
+      slides={
         questions.length > 0 ? questionSlides : [<HomeFeedEmptyQuestionCard />]
       }
     />
