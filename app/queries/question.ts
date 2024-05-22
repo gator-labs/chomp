@@ -214,9 +214,9 @@ export async function getHistory(
 
   if (sort === HistorySortOptions.Claimable) {
     response.sort((a, b) => {
-      if (a.reveals.length > 0 && b.reveals.length > 0) {
-        const aNewestClaimTime = a.reveals[0]?.createdAt;
-        const bNewestClaimTime = b.reveals[0]?.createdAt;
+      if (a.chompResults.length > 0 && b.chompResults.length > 0) {
+        const aNewestClaimTime = a.chompResults[0]?.createdAt;
+        const bNewestClaimTime = b.chompResults[0]?.createdAt;
 
         if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
           return -1;
@@ -229,11 +229,11 @@ export async function getHistory(
         return 0;
       }
 
-      if (a.reveals.length > 0) {
+      if (a.chompResults.length > 0) {
         return -1;
       }
 
-      if (b.reveals.length > 0) {
+      if (b.chompResults.length > 0) {
         return 1;
       }
 
@@ -267,7 +267,7 @@ export async function getHomeFeedQuestions({
 
   if (sort === HistorySortOptions.Claimable) {
     sortInput = {
-      reveals: { _count: "desc" },
+      chompResults: { _count: "desc" },
     };
   }
 
@@ -279,7 +279,7 @@ export async function getHomeFeedQuestions({
 
   const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
     ? {
-        reveals: {
+        chompResults: {
           some: {
             userId: {
               equals: payload.sub,
@@ -288,7 +288,7 @@ export async function getHomeFeedQuestions({
         },
       }
     : {
-        reveals: {
+        chompResults: {
           none: {
             userId: {
               equals: payload.sub,
@@ -342,7 +342,7 @@ export async function getHomeFeedQuestions({
             },
           },
         },
-        reveals: {
+        chompResults: {
           where: {
             userId: { equals: payload.sub },
           },
@@ -350,7 +350,7 @@ export async function getHomeFeedQuestions({
         },
       }
     : {
-        reveals: {
+        chompResults: {
           where: { userId: { equals: payload.sub } },
           orderBy: { createdAt: "desc" },
         },
@@ -473,4 +473,41 @@ export async function hasAnsweredQuestion(
   });
 
   return answeredCount > 0;
+}
+
+export async function getUnansweredDailyQuestions(query = "") {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const dailyDeckQuestions = await prisma.deckQuestion.findMany({
+    where: {
+      deck: {
+        date: {
+          not: null,
+        },
+        revealAtDate: { gte: new Date() },
+      },
+      question: {
+        question: { contains: query, mode: "insensitive" },
+        questionOptions: {
+          none: {
+            questionAnswers: {
+              some: {
+                userId: payload.sub,
+              },
+            },
+          },
+        },
+        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
+      },
+    },
+    include: {
+      question: true,
+    },
+  });
+
+  return dailyDeckQuestions.map((dq) => dq.question);
 }
