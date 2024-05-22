@@ -58,8 +58,8 @@ export function QuestionAction({
     const optionLeft = questionOptions.find((qo) => qo.isLeft)?.option ?? "";
     const optionRight = questionOptions.find((qo) => !qo.isLeft)?.option ?? "";
     return (
-      <div className="text-white font-semibold">
-        <div className="text-center  text-md mb-4">
+      <div className="text-white font-semibold pb-7">
+        <div className="text-center text-md mb-4">
           How do you think others will respond?
         </div>
         <div className="flex gap-3 items-center justify-between">
@@ -73,9 +73,9 @@ export function QuestionAction({
           </div>
           <Button
             onClick={() => onButtonClick(scale)}
-            variant="pink"
+            variant="purple"
             size="normal"
-            className="w-max py-6 !rounded-2xl"
+            className="w-max py-6 !rounded-2xl self-stretch"
           >
             Chomp
           </Button>
