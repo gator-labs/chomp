@@ -1,12 +1,20 @@
 import { Navbar } from "@/app/components/Navbar/Navbar";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUserStats";
-import { getUserStatistics } from "../queries/home";
+import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringSection/HomeFeedDeckExpiringSection";
+import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealedQuestionsSection/HomeFeedRevealedQuestionsSection";
+import {
+  getDecksForExpiringSection,
+  getQuestionsForRevealedSection,
+  getUserStatistics,
+} from "../queries/home";
 
 type PageProps = {};
 
 export default async function Page({}: PageProps) {
   const stats = await getUserStatistics();
+  const questions = await getQuestionsForRevealedSection();
+  const decks = await getDecksForExpiringSection();
 
   return (
     <>
@@ -21,6 +29,8 @@ export default async function Page({}: PageProps) {
         daysStreak={stats.daysStreak}
         totalPointsEarned={stats.totalPointsEarned}
       />
+      <HomeFeedDeckExpiringSection decks={decks} />
+      <HomeFeedRevealedQuestionsSection questions={questions} />
     </>
   );
 }
