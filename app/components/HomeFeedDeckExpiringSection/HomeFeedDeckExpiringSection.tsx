@@ -38,7 +38,7 @@ export function HomeFeedDeckExpiringSection({
       title={
         <span className="text-base text-chomp-purple">Expiring soon!</span>
       }
-      children={deckSlides}
+      slides={deckSlides}
     />
   );
 }

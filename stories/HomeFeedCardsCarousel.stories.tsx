@@ -31,7 +31,7 @@ export const Default: Story = {
         Check out others' revealed questions
       </h2>
     ),
-    children: [
+    slides: [
       <HomeFeedQuestionCard
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
