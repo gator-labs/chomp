@@ -37,7 +37,9 @@ export function HomeFeedRevealedQuestionsSection({
         </span>
       }
       slides={
-        questions.length > 0 ? questionSlides : [<HomeFeedEmptyQuestionCard />]
+        questions.length > 0
+          ? questionSlides
+          : [<HomeFeedEmptyQuestionCard key={1} />]
       }
     />
   );
