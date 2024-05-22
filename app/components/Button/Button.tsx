@@ -9,7 +9,8 @@ type ButtonProps = {
     | "white"
     | "black"
     | "pink"
-    | "pink-border";
+    | "pink-border"
+    | "purple";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
   children: ReactNode;
