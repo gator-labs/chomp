@@ -1,7 +1,10 @@
 "use client";
+import { QuestionType } from "@prisma/client";
 import classNames from "classnames";
 import dayjs from "dayjs";
+import Image from "next/image";
 import { CSSProperties, ReactNode, useCallback, useState } from "react";
+import gatorHeadImage from "../../../public/images/gator-head.png";
 import { useInterval } from "../../hooks/useInterval";
 import {
   ONE_SECOND_IN_MILISECONDS,
@@ -13,6 +16,7 @@ import { Modal } from "../Modal/Modal";
 
 type QuestionCardProps = {
   question: string;
+  type: QuestionType;
   dueAt?: Date;
   onDurationRanOut?: () => void;
   step: number;
@@ -28,6 +32,7 @@ export function QuestionCard({
   question,
   children,
   viewImageSrc,
+  type,
   numberOfSteps,
   step,
   dueAt,
@@ -52,15 +57,30 @@ export function QuestionCard({
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILISECONDS);
 
   return (
-    <div className={classNames("questions-card", className)} style={style}>
-      <div
-        className={classNames("text-white font-sora font-semibold text-base", {
-          "blur-sm": isBlurred,
-          "opacity-30": isBlurred,
-        })}
+    <div
+      className={classNames("questions-card p-4 pt-6 rounded-lg", className)}
+      style={{
+        aspectRatio: 0.92,
+        ...style,
+      }}
+    >
+      <Image
+        src={gatorHeadImage}
+        alt="gator-head"
+        className="absolute bottom-0 left-0 w-full"
+      />
+      <p
+        className={classNames(
+          "text-white font-sora text-[24px] leading-[30px]",
+          {
+            "blur-sm": isBlurred,
+            "opacity-30": isBlurred,
+            "!text-base": type === QuestionType.MultiChoice,
+          },
+        )}
       >
         {question}
-      </div>
+      </p>
       <div>{children}</div>
       <div>
         {viewImageSrc && (
@@ -91,17 +111,6 @@ export function QuestionCard({
                 </span>
               </>
             )}
-          </div>
-          <div className="flex gap-x-[10px]">
-            {Array.from(Array(numberOfSteps).keys()).map((_, index) => (
-              <div
-                key={index}
-                className={classNames("rounded-full w-2 h-2", {
-                  "bg-[#CFC5F7]": index + 1 <= step,
-                  "bg-white": index + 1 > step,
-                })}
-              ></div>
-            ))}
           </div>
         </div>
       </div>
