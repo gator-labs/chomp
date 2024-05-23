@@ -47,6 +47,7 @@ export function Button({
       "text-base": size === "big",
       "w-full": isFullWidth,
       "!rounded-full": isPill,
+      "text-btn-text-primary": variant === "white",
     },
     className,
   );
