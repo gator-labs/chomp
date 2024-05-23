@@ -12,6 +12,7 @@
     "prisma": "dotenv -c -- prisma",
     "prisma:studio": "dotenv -c -- prisma studio",
     "prisma:migrate": "dotenv -c -- prisma migrate dev",
+    "prisma:migrate:create": "dotenv -c -- prisma migrate dev --create-only",
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate",
     "storybook": "storybook dev -p 6006",

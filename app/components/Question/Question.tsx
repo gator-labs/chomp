@@ -1,6 +1,7 @@
 "use client";
 import { saveQuestion, SaveQuestionRequest } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
+import { useStopwatch } from "@/app/hooks/useStopwatch";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
@@ -60,6 +61,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
   const [currentQuestionStep, setCurrentQuestionStep] = useState<
     QuestionStep | undefined
   >(QuestionStep.AnswerQuestion);
+  const { start, getTimePassedSinceStart } = useStopwatch();
 
   useEffect(() => {
     if (!currentQuestionStep) {
@@ -67,6 +69,10 @@ export function Question({ question, returnUrl }: QuestionProps) {
       router.refresh();
     }
   }, [currentQuestionStep]);
+
+  useEffect(() => {
+    start();
+  }, []);
 
   const handleSaveQuestion = useCallback(
     (answer: SaveQuestionRequest | undefined = undefined) => {
@@ -112,6 +118,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
         handleSaveQuestion({
           ...answerState,
           percentageGiven: number ?? 0,
+          timeToAnswerInMiliseconds: getTimePassedSinceStart(),
         });
       }
 
@@ -123,6 +130,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           ...answerState,
           percentageGiven: optionPercentage,
           percentageGivenForAnswerId: question.questionOptions[random]?.id,
+          timeToAnswerInMiliseconds: getTimePassedSinceStart(),
         });
       }
     },
