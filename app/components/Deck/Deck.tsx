@@ -224,6 +224,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
               key={index}
               numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
               question={questions[index].question}
+              type={questions[index].type}
               step={1}
               className="absolute drop-shadow-question-card border-opacity-40"
               style={{
@@ -238,10 +239,11 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
             dueAt={dueAt}
             numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
             question={question.question}
+            type={question.type}
             viewImageSrc={question.imageUrl}
             step={currentQuestionStep}
             onDurationRanOut={handleNoAnswer}
-            className="z-50 relative drop-shadow-question-card border-opacity-40"
+            className="z-50 relative"
             style={{
               transform: `translateY(${questionOffset}px)`,
             }}
@@ -260,7 +262,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         </div>
       </div>
 
-      <div className="pt-2">
+      <div className="pt-2 pb-[53px]">
         {rerenderAction && (
           <QuestionAction
             onButtonClick={onQuestionActionClick}

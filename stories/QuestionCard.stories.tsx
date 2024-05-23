@@ -1,8 +1,9 @@
+import { QuestionType } from "@prisma/client";
 import type { Meta, StoryObj } from "@storybook/react";
-import { QuestionCard } from "../app/components/QuestionCard/QuestionCard";
-import { RadioInput } from "../app/components/RadioInput/RadioInput";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";
+import { QuestionCard } from "../app/components/QuestionCard/QuestionCard";
+import { RadioInput } from "../app/components/RadioInput/RadioInput";
 
 const meta = {
   title: "Cards/Question Card",
@@ -11,6 +12,7 @@ const meta = {
     layout: "centered",
   },
   args: {
+    type: QuestionType.BinaryQuestion,
     question: "The best way to secure your assets is to use a hardware wallet.",
     numberOfSteps: 2,
     step: 1,
