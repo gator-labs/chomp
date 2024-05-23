@@ -1,7 +1,9 @@
+import { TransactionLogType } from "@prisma/client";
+
 export const pointsPerAction = {
-  "reveal-answer": 42,
-  "correct-first-order": 6.9,
-  "correct-second-order": 15,
-  "answer-deck": 20,
-  "answer-question": 10,
+  [TransactionLogType.RevealAnswer]: 42,
+  [TransactionLogType.CorrectFirstOrder]: 6.9,
+  [TransactionLogType.CorrectSecondOrder]: 15,
+  [TransactionLogType.AnswerDeck]: 20,
+  [TransactionLogType.AnswerQuestion]: 10,
 };

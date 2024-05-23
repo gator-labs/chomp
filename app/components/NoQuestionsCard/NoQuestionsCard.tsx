@@ -73,7 +73,7 @@ export function NoQuestionsCard({ browseHomeUrl }: NoQuestionsCardProps) {
             variant="pink"
             size="big"
             onClick={() => {
-              window.open("https://t.me/+3Ava3bLuNd85MGVl", "_blank");
+              window.open("https://t.me/+8ffiqdoGLAIyZmNl", "_blank");
             }}
           >
             <TelegramIcon width={21} height={21} fill="#000" />

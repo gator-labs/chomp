@@ -28,6 +28,6 @@ export async function GET(request: Request) {
   return Response.json({
     history,
     totalRevealedRewards: 500000,
-    potentionalRewards: 340000,
+    potentialRewards: 340000,
   });
 }

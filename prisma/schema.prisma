@@ -9,20 +9,22 @@ datasource db {
 }
 
 model User {
-  id                   String                 @id
-  isAdmin              Boolean                @default(false)
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @default(now()) @updatedAt
-  firstName            String?
-  lastName             String?
-  username             String?
-  profileSrc           String?
-  wallets              Wallet[]
-  emails               Email[]
-  questionAnswers      QuestionAnswer[]
-  userDeck             UserDeck[]
-  reveals              Reveal[]
-  fungibleAssetBalance FungibleAssetBalance[]
+  id                          String                        @id
+  isAdmin                     Boolean                       @default(false)
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @default(now()) @updatedAt
+  firstName                   String?
+  lastName                    String?
+  username                    String?
+  profileSrc                  String?
+  wallets                     Wallet[]
+  emails                      Email[]
+  questionAnswers             QuestionAnswer[]
+  userDeck                    UserDeck[]
+  reveals                     Reveal[]
+  fungibleAssetBalance        FungibleAssetBalance[]
+  fungibleAssetTransactionLog FungibleAssetTransactionLog[]
+  streak                      Streak[]
 }
 
 model Wallet {
@@ -133,6 +135,7 @@ model QuestionAnswer {
   percentage               Int?
   hasViewedButNotSubmitted Boolean        @default(false)
   selected                 Boolean
+  timeToAnswer             BigInt?
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @default(now()) @updatedAt
 }
@@ -150,6 +153,16 @@ model Reveal {
   updatedAt       DateTime  @default(now()) @updatedAt
 }
 
+model FungibleAssetTransactionLog {
+  id        Int                @id @default(autoincrement())
+  type      TransactionLogType
+  asset     FungibleAsset
+  createdAt DateTime           @default(now())
+  change    Decimal
+  userId    String
+  user      User               @relation(fields: [userId], references: [id])
+}
+
 model FungibleAssetBalance {
   asset  FungibleAsset
   amount Decimal
@@ -157,6 +170,14 @@ model FungibleAssetBalance {
   user   User          @relation(fields: [userId], references: [id])
 
   @@id([asset, userId])
+}
+
+model Streak {
+  id              Int      @id @default(autoincrement())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  streakStartedAt DateTime @default(now())
+  lastDayOfStreak DateTime @default(now()) @updatedAt
 }
 
 enum QuestionType {
@@ -170,4 +191,12 @@ enum Token {
 
 enum FungibleAsset {
   Point
+}
+
+enum TransactionLogType {
+  RevealAnswer
+  CorrectFirstOrder
+  CorrectSecondOrder
+  AnswerDeck
+  AnswerQuestion
 }

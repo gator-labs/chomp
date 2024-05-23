@@ -16,9 +16,23 @@ export const getDueAtString = (dueAt: Date) => {
   return dayjs.duration(miliseconds).format("m:ss");
 };
 
-export const getRevealedAtString = (revealed: Date) => {
-  const daysJsRevealed = dayjs(revealed);
-  let differenceInMiliseconds = daysJsRevealed.diff(new Date());
+export const getRevealedAtString = (date: Date) => {
+  const daysJsDate = dayjs(date);
+  let differenceInMiliseconds = daysJsDate.diff(new Date());
+  if (differenceInMiliseconds < 0) {
+    differenceInMiliseconds *= -1;
+  }
+  let timeString = getTimeString(date);
+  if (daysJsDate.isBefore(new Date())) {
+    return `Revealed ${timeString} ago`;
+  }
+
+  return "Revealing in " + timeString;
+};
+
+export const getTimeString = (date: Date) => {
+  const daysJsDate = dayjs(date);
+  let differenceInMiliseconds = daysJsDate.diff(new Date());
   if (differenceInMiliseconds < 0) {
     differenceInMiliseconds *= -1;
   }
@@ -39,12 +53,8 @@ export const getRevealedAtString = (revealed: Date) => {
     timeString = `${Math.floor(differenceInMiliseconds / ONE_DAY_IN_MILISECONDS)}d`;
   }
 
-  if (daysJsRevealed.isBefore(new Date())) {
-    return `Revealed ${timeString} ago`;
-  }
-
-  return "Revealing in " + timeString;
+  return timeString;
 };
 
-export const getDailyDeckFormamttedString = (date: Date) =>
+export const getDailyDeckFormattedString = (date: Date) =>
   dayjs(date).format("MMMM DD YYYY").toString();

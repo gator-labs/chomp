@@ -1,4 +1,8 @@
-import { FungibleAsset, FungibleAssetBalance } from "@prisma/client";
+import {
+  FungibleAsset,
+  FungibleAssetBalance,
+  TransactionLogType,
+} from "@prisma/client";
 import prisma, { PrismaTransactionClient } from "../services/prisma";
 import { createTypedObjectFromEntries } from "../utils/object";
 import { getJwtPayload } from "./jwt";
@@ -27,15 +31,32 @@ export const getMyFungibleAssetBalances = async (): Promise<
   );
 };
 
+export const getTransactionHistory = async () => {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub ?? "";
+
+  if (!userId) {
+    return [];
+  }
+
+  const transactionHistory = await prisma.fungibleAssetTransactionLog.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return transactionHistory;
+};
+
 export const incrementFungibleAssetBalance = async (
   asset: FungibleAsset,
   amount: number,
+  transactionLogType: TransactionLogType,
   injectedPrisma: PrismaTransactionClient = prisma,
 ): Promise<FungibleAssetBalance> => {
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";
 
-  return await injectedPrisma.fungibleAssetBalance.upsert({
+  const upsertTask = injectedPrisma.fungibleAssetBalance.upsert({
     where: {
       asset_userId: {
         asset,
@@ -53,4 +74,17 @@ export const incrementFungibleAssetBalance = async (
       amount,
     },
   });
+
+  const transactionLogTask = injectedPrisma.fungibleAssetTransactionLog.create({
+    data: {
+      asset: asset,
+      type: transactionLogType,
+      change: amount,
+      userId: userId,
+    },
+  });
+
+  const result = await Promise.all([upsertTask, transactionLogTask]);
+
+  return result[0];
 };

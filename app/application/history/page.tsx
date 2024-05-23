@@ -6,6 +6,7 @@ import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/Home
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { DeckQuestionIncludes, getQuestionState } from "@/app/utils/question";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { Deck } from "@prisma/client";
@@ -45,8 +46,8 @@ export default function Page({ searchParams }: PageProps) {
   const [response, setResponse] = useState<[]>();
   const [rewards, setRewards] = useState<{
     totalRevealedRewards: number;
-    potentionalRewards: number;
-  }>({ potentionalRewards: 0, totalRevealedRewards: 0 });
+    potentialRewards: number;
+  }>({ potentialRewards: 0, totalRevealedRewards: 0 });
   const { setOpen } = useCollapsedContext();
   const { openRevealModal, closeRevealModal } = useRevealedContext();
   const questionStatuses = useMemo(() => {
@@ -73,7 +74,7 @@ export default function Page({ searchParams }: PageProps) {
   const getData = async (
     query: string | undefined,
     sort: HistorySortOptions,
-    srollId?: number,
+    scrollId?: number,
   ) => {
     lastQuery = query;
     const searchParams = new URLSearchParams();
@@ -91,11 +92,11 @@ export default function Page({ searchParams }: PageProps) {
     setResponse(json.history);
     setRewards({
       totalRevealedRewards: json.totalRevealedRewards,
-      potentionalRewards: json.potentionalRewards,
+      potentialRewards: json.potentialRewards,
     });
 
-    if (srollId) {
-      setScrollToId(srollId);
+    if (scrollId) {
+      setScrollToId(scrollId);
     }
   };
 
@@ -161,7 +162,8 @@ export default function Page({ searchParams }: PageProps) {
             Total Revealed Rewards
           </div>
           <div className="text-base text-white font-sora">
-            {new Intl.NumberFormat().format(rewards.totalRevealedRewards)} BONK
+            {numberToCurrencyFormatter.format(rewards.totalRevealedRewards)}{" "}
+            BONK
           </div>
         </div>
         <div className="basis-36">
@@ -172,11 +174,9 @@ export default function Page({ searchParams }: PageProps) {
       </div>
       <div className="flex justify-between px-4 mb-4">
         <div className="flex flex-col justify-between">
-          <div className="text-sm text-white font-sora">
-            Potentional Rewards
-          </div>
+          <div className="text-sm text-white font-sora">Potential Rewards</div>
           <div className="text-base text-white font-sora">
-            {new Intl.NumberFormat().format(rewards.potentionalRewards)} BONK
+            {numberToCurrencyFormatter.format(rewards.potentialRewards)} BONK
           </div>
         </div>
         <div className="basis-36">
