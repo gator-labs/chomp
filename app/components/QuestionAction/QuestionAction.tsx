@@ -30,7 +30,6 @@ export function QuestionAction({
   const [scale, setScale] = useState(50);
 
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
-    console.log(questionOptions);
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">
@@ -43,7 +42,7 @@ export function QuestionAction({
               variant="purple"
               key={qo.id}
               size="big"
-              className="px-0 flex-1 items-center gap-1 capitalize"
+              className="!px-0 flex-1 items-center gap-1 capitalize"
             >
               {qo.option}
               {
