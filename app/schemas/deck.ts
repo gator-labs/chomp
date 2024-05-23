@@ -2,7 +2,7 @@ import { QuestionType, Token } from "@prisma/client";
 import { z } from "zod";
 
 export const deckSchema = z.object({
-  id: z.number().nullish(),
+  id: z.number().optional(),
   deck: z.string().min(5),
   imageUrl: z.string().nullish(),
   tagIds: z.number().array().default([]),
@@ -14,7 +14,7 @@ export const deckSchema = z.object({
   isActive: z.boolean(),
   questions: z
     .object({
-      id: z.number().nullish(),
+      id: z.number().optional(),
       question: z
         .string({
           invalid_type_error: "Invalid question",
@@ -24,9 +24,9 @@ export const deckSchema = z.object({
       type: z.nativeEnum(QuestionType),
       questionOptions: z
         .object({
-          id: z.number().nullish(),
+          id: z.number().optional(),
           option: z.string().min(1),
-          isCorrect: z.boolean().nullish(),
+          isCorrect: z.boolean().optional(),
           isLeft: z.boolean(),
         })
         .array(),

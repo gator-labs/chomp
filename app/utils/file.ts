@@ -11,7 +11,8 @@ export async function processCsv<T extends object>(
   rows.pop();
 
   const objects = rows.map((row) => {
-    const cells = row.split(",");
+    // Split by comma, except values which are in double quotation marks
+    const cells = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
     return columns.reduce(
       (acc, key, index) => {
         acc[key as string] = cells[index];

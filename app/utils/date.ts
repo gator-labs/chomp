@@ -4,7 +4,7 @@ dayjs.extend(utc);
 
 export function parseDateToDateDefaultUtc(
   dateTime?: Date,
-  hour = 10,
+  hour = 14,
   minute = 0,
 ): Date | null {
   return dateTime
