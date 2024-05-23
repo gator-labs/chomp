@@ -1,7 +1,7 @@
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { z } from "zod";
-const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
 export type QuestionImportModel = z.infer<typeof questionImportSchema>;
@@ -15,26 +15,26 @@ const questionImportSchemaBase = z.object({
     .min(5),
   revealAtDate: z
     .string()
-    .nullable()
+    .nullish()
     .transform((value, ctx) => {
       if (!value) {
         return undefined;
       }
 
-      const dayjsDate = dayjs(value, "DD/MM/YYYY HH:mm");
+      const dayjsDate = dayjs(value, "DD/MM/YYYY");
       if (dayjsDate.isValid()) {
         return dayjsDate.toDate();
       }
 
       ctx.addIssue({
         code: "invalid_date",
-        message: "Format of date should me DD/MM/YYYY HH:mm (day/month/year hour:minute)",
+        message: "Format of date should me DD/MM/YYYY HH:mm (day/month/year)",
       });
       return undefined;
     }),
   revealAtAnswerCount: z
     .string()
-    .nullable()
+    .nullish()
     .transform((value, ctx) => {
       if (!value) {
         return undefined;
@@ -55,7 +55,7 @@ const questionImportSchemaBase = z.object({
     }),
   revealTokenAmount: z
     .string()
-    .nullable()
+    .nullish()
     .transform((value, ctx) => {
       if (!value) {
         return undefined;
@@ -74,7 +74,7 @@ const questionImportSchemaBase = z.object({
 
       return valueNumber;
     }),
-  imageUrl: z.string().nullable(),
+  imageUrl: z.string().nullish(),
 });
 
 export const questionImportSchema = z.discriminatedUnion("type", [
@@ -85,7 +85,7 @@ export const questionImportSchema = z.discriminatedUnion("type", [
       binaryRightOption: z.string().min(1),
       optionTrue: z
         .string()
-        .nullable()
+        .nullish()
         .transform((value, ctx) => {
           if (!value) {
             return undefined;
@@ -124,7 +124,7 @@ export const questionImportSchema = z.discriminatedUnion("type", [
       multipleChoiceOptionFour: z.string().min(1),
       optionTrue: z
         .string()
-        .nullable()
+        .nullish()
         .transform((value, ctx) => {
           if (!value) {
             return undefined;

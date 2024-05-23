@@ -2,6 +2,8 @@ import { DeckImportModel } from "@/app/schemas/deckImport";
 import { onlyUnique } from "@/app/utils/array";
 import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
 import { Prisma } from "@prisma/client";
+
+import { parseDateToDateDefaultUtc } from "@/app/utils/date";
 import { questionOptionFactory } from "../question/factories";
 
 export const deckInputFactory = (
@@ -14,12 +16,13 @@ export const deckInputFactory = (
   const decksMapped = uniqueDecks.map((deck) => {
     const deckQuestions = decks.filter((d) => d.deck === deck);
     const deckInfo = deckQuestions[0];
+
     const deckMapped = {
       deck: deck,
       isActive: true,
       date: deckInfo.dailyDate,
       revealAtAnswerCount: deckInfo.revealAtAnswerCount,
-      revealAtDate: deckInfo.revealAtDate,
+      revealAtDate: parseDateToDateDefaultUtc(deckInfo.revealAtDate),
       imageUrl: deckInfo.deckImageUrl,
     } satisfies Prisma.DeckCreateInput;
 
@@ -32,7 +35,7 @@ export const deckInputFactory = (
           imageUrl: question.imageUrl,
           revealTokenAmount: question.revealTokenAmount,
           revealAtAnswerCount: deckInfo.revealAtAnswerCount,
-          revealAtDate: deckInfo.revealAtDate,
+          revealAtDate: parseDateToDateDefaultUtc(deckInfo.revealAtDate),
           revealToken: "Bonk",
           questionOptions: {
             createMany: {

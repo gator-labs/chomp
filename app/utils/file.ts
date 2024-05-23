@@ -6,7 +6,7 @@ export async function processCsv<T extends object>(
   zodSchema: z.ZodType,
 ): Promise<{ values: Array<T>; errors: Array<ZodError> }> {
   const contentOfFile = await file.text();
-  const rows = contentOfFile.split("\n");
+  const rows = contentOfFile.split(/\r?\n/);
   rows.splice(0, 1);
   rows.pop();
 

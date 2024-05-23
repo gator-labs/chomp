@@ -2,7 +2,7 @@ import { QuestionType, Token } from "@prisma/client";
 import { z } from "zod";
 
 export const questionSchema = z.object({
-  id: z.number().optional(),
+  id: z.number().nullish(),
   question: z
     .string({
       invalid_type_error: "Invalid question",
@@ -12,14 +12,14 @@ export const questionSchema = z.object({
   type: z.nativeEnum(QuestionType),
   revealToken: z.nativeEnum(Token),
   revealTokenAmount: z.number().min(0),
-  revealAtDate: z.date().nullable(),
-  revealAtAnswerCount: z.number().min(0).nullable(),
+  revealAtDate: z.date().nullish(),
+  revealAtAnswerCount: z.number().min(0).nullish(),
   tagIds: z.number().array().default([]),
   questionOptions: z
     .object({
-      id: z.number().optional(),
+      id: z.number().nullish(),
       option: z.string().min(1),
-      isCorrect: z.boolean().optional(),
+      isCorrect: z.boolean().nullish(),
       isLeft: z.boolean(),
     })
     .array(),

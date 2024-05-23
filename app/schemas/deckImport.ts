@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { z } from "zod";
 import { questionImportSchema } from "./questionImport";
-const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
 export type DeckImportModel = z.infer<typeof deckImportSchema>;
@@ -17,7 +17,7 @@ export const deckImportSchema = z.intersection(
       .min(5),
     dailyDate: z
       .string()
-      .nullable()
+      .nullish()
       .transform((value, ctx) => {
         if (!value) {
           return undefined;
@@ -34,6 +34,6 @@ export const deckImportSchema = z.intersection(
         });
         return undefined;
       }),
-    deckImageUrl: z.string().nullable(),
+    deckImageUrl: z.string().nullish(),
   }),
 );

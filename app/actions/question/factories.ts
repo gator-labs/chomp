@@ -1,4 +1,5 @@
 import { QuestionImportModel } from "@/app/schemas/questionImport";
+import { parseDateToDateDefaultUtc } from "@/app/utils/date";
 import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
 import { Prisma, QuestionOption } from "@prisma/client";
 
@@ -17,7 +18,7 @@ export const questionInputFactory = (
       imageUrl: question.imageUrl,
       revealTokenAmount: question.revealTokenAmount,
       revealAtAnswerCount: question.revealAtAnswerCount,
-      revealAtDate: question.revealAtDate,
+      revealAtDate: parseDateToDateDefaultUtc(question.revealAtDate),
       revealToken: "Bonk",
       questionOptions: {
         createMany: {
