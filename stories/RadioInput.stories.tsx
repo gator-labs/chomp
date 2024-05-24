@@ -12,10 +12,10 @@ const meta = {
   args: {
     onOptionSelected: fn(),
     options: [
-      { value: "1", label: "Answer" },
-      { value: "2", label: "Answer" },
-      { value: "3", label: "Answer" },
-      { value: "4", label: "Answer" },
+      { id: 0, value: "1", label: "Answer" },
+      { id: 1, value: "2", label: "Answer" },
+      { id: 2, value: "3", label: "Answer" },
+      { id: 3, value: "4", label: "Answer" },
     ],
     name: "Radio",
   },
