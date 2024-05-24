@@ -42,6 +42,7 @@
     "react-datepicker": "^6.6.0",
     "react-dom": "^18",
     "react-hook-form": "^7.51.1",
+    "react-spring-bottom-sheet": "^3.4.1",
     "react-toastify": "^10.0.5",
     "react-virtuoso": "^4.7.7",
     "solana-bankrun": "^0.3.0",
