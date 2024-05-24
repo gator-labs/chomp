@@ -7,7 +7,7 @@ const Thumb = ({ className = "" }: Props) => {
       width="19"
       height="22"
       viewBox="0 0 19 22"
-      fill="none"
+      fill={fill}
       className={className}
     >
       <rect width="19" height="21.7143" rx="5.42857" fill="white" />

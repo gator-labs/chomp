@@ -1,31 +1,63 @@
+"use client";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { useState } from "react";
 import { Avatar } from "../Avatar/Avatar";
-import { WalletIcon } from "../Icons/WalletIcon";
+import { ChompFlatIcon } from "../Icons/ChompFlatIcon";
+import { UnreadIcon } from "../Icons/UnreadIcon";
+import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
+import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
 
 type NavbarProps = {
-  children?: ReactNode;
   avatarSrc: string;
-  walletLink: string;
-  avatarLink: string;
+  onNotificationClick?: () => {};
+  address: string;
+  transactions: TransactionData[];
+  bonkBalance: number;
 };
 
 export function Navbar({
-  children,
   avatarSrc,
-  walletLink,
-  avatarLink,
+  transactions,
+  onNotificationClick,
+  address,
+  bonkBalance,
 }: NavbarProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const closeQuickProfile = () => {
+    setIsOpen(false);
+  };
+
+  const openQuickProfile = () => {
+    setIsOpen(true);
+  };
+
   return (
     <nav className="bg-btn-text-primary flex justify-between w-full px-4 py-3 items-center">
-      <div>{children}</div>
-      <div className="flex gap-2 items-center">
-        <Link href={walletLink}>
-          <WalletIcon />
+      <Link href="/application">
+        <ChompFlatIcon fill="#fff" />
+      </Link>
+      <div className="flex gap-6 items-center">
+        <Link
+          className="font-sora text-xs text-chomp-purple underline"
+          href="#"
+        >
+          Feedback
         </Link>
-        <Link href={avatarLink}>
+        <button onClick={onNotificationClick}>
+          <UnreadIcon />
+        </button>
+        <button onClick={openQuickProfile}>
           <Avatar src={avatarSrc} size="small" />
-        </Link>
+        </button>
+        <QuickViewProfile
+          isOpen={isOpen}
+          onClose={closeQuickProfile}
+          transactions={transactions}
+          avatarSrc={avatarSrc}
+          address={address}
+          bonkAmount={bonkBalance}
+        />
       </div>
     </nav>
   );

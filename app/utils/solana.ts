@@ -3,8 +3,10 @@ import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
-import { Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
 import * as bs58 from "bs58";
+
+export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;
 const AMOUNT_TO_SEND = 1; // 1 => 0.00001 BONK
@@ -76,4 +78,27 @@ export const genBonkTransferTx = async (
   tx.feePayer = gatorTreasury.publicKey;
 
   return tx;
+};
+
+export const getBonkBalance = async (address: string): Promise<number> => {
+  if (!address) {
+    return 0;
+  }
+
+  const walletPublickey = new PublicKey(address);
+  const bonkPublicKey = new PublicKey(BONK_PUBLIC_ADDRESS);
+  const balance = await CONNECTION.getParsedTokenAccountsByOwner(
+    walletPublickey,
+    {
+      mint: bonkPublicKey,
+    },
+  );
+
+  if (balance.value.length === 0) {
+    return 0;
+  }
+
+  return (
+    balance.value[0].account?.data?.parsed?.info?.tokenAmount?.uiAmount ?? 0
+  );
 };

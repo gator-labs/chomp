@@ -1,5 +1,3 @@
-import { Navbar } from "@/app/components/Navbar/Navbar";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUserStats";
 import { getUserStatistics } from "../queries/home";
 
@@ -10,11 +8,6 @@ export default async function Page({}: PageProps) {
 
   return (
     <>
-      <Navbar
-        avatarSrc={AvatarPlaceholder.src}
-        avatarLink="/application/profile"
-        walletLink="/application/transactions"
-      />
       <DashboardUserStats
         averageTimeToAnswer={stats.averageTimeToAnswer}
         cardsChomped={stats.cardsChomped}
