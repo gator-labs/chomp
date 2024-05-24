@@ -13,10 +13,10 @@ export default function Page() {
   const loginWithIframe = async (credentialBundle: string) => {
     console.log("loginWithIFrame");
     console.log(authIframeClient);
-    // await authIframeClient?.injectCredentialBundle(credentialBundle);
-    // console.log("Credentials injected");
-    // await authIframeClient?.login();
-    // console.log("loginWithIFrame finished");
+    await authIframeClient?.injectCredentialBundle(credentialBundle);
+    console.log("Credentials injected");
+    await authIframeClient?.login();
+    console.log("loginWithIFrame finished");
   };
 
   const initEmailAuth = async (subOrgId: string) => {
@@ -54,6 +54,7 @@ export default function Page() {
     ])) as any;
     console.log("Suborg created", subOrg);
     // await createWallet(userEmail);
+    // async void, just sends email
     const credentialBundle = (await initEmailAuth(
       subOrg.subOrganizationId,
     )) as any;
@@ -84,6 +85,8 @@ export default function Page() {
           Create Account
         </button>
       </form>
+
+      <div id="turnkey-default-iframe-container-id"></div>
     </main>
   );
 }
