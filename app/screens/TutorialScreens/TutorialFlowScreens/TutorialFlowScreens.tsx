@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import BinaryQuestionScreen from "../BinaryQuestionScreen/BinaryQuestionScreen";
+import MultipleChoiceScreen from "../MultipleChoiceScreen/MultipleChoiceScreen";
 
 const TutorialFlowScreens = () => {
   const [activeScreen, setActiveScreen] = useState<
@@ -12,10 +13,9 @@ const TutorialFlowScreens = () => {
     return <BinaryQuestionScreen setActiveScreen={setActiveScreen} />;
 
   if (activeScreen === "multiple-choice")
-    return <div>Multiple choice screen is in progress...</div>;
+    return <MultipleChoiceScreen setActiveScreen={setActiveScreen} />;
 
-  if (activeScreen === "reveal") return;
-  return <div>Reveal screen</div>;
+  if (activeScreen === "reveal") return <div>Reveal screen</div>;
 };
 
 export default TutorialFlowScreens;

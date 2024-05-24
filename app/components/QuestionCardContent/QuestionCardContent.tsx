@@ -19,6 +19,7 @@ type QuestionCardContentProps = {
   randomOptionId?: number;
   percentage?: number;
   onPercentageChanged?: (percentage: number) => void;
+  randomOptionPercentage?: number;
 };
 
 export function QuestionCardContent({
@@ -30,6 +31,7 @@ export function QuestionCardContent({
   randomOptionId,
   percentage,
   onPercentageChanged,
+  randomOptionPercentage,
 }: QuestionCardContentProps) {
   const { handlePercentageChange } = useSteppingChange({
     percentage: percentage ?? 0,
@@ -49,10 +51,13 @@ export function QuestionCardContent({
             questionOptions?.map((qo) => ({
               label: qo.option,
               value: qo.id.toString(),
+              id: qo.id,
             })) ?? []
           }
           onOptionSelected={(value) => onOptionSelected(+value)}
           value={optionSelectedId?.toString()}
+          randomOptionPercentage={randomOptionPercentage}
+          randomOptionId={randomOptionId}
         />
       </div>
     );

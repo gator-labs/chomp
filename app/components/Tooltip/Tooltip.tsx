@@ -40,14 +40,14 @@ const Tooltip = ({
           "max-w-[230px] w-fit bg-[#575CDF] text-center opacity-0 p-4 rounded-lg absolute z-50 h-fit",
           {
             "opacity-100": alwaysVisible || showTooltip,
-            "left-0 top-0 translate-y-[-100%]": position === "top-start",
-            "left-1/2 -translate-x-1/2 top-0 translate-y-[-100%] w-full":
+            "left-0 -top-1 translate-y-[-100%]": position === "top-start",
+            "left-1/2 -translate-x-1/2 -top-1 translate-y-[-100%] w-full":
               position === "top",
-            "right-0 top-0 translate-y-[-100%]": position === "top-end",
-            "left-0 bottom-0 translate-y-full": position === "bottom-start",
-            "left-1/2 -translate-x-1/2 bottom-0 translate-y-full w-full":
+            "right-0 -top-1 translate-y-[-100%]": position === "top-end",
+            "left-0 -bottom-1 translate-y-full": position === "bottom-start",
+            "left-1/2 -translate-x-1/2 -bottom-1 translate-y-full w-full":
               position === "bottom",
-            "right-0 bottom-0 translate-y-full": position === "bottom-end",
+            "right-0 -bottom-1 translate-y-full": position === "bottom-end",
           },
           className,
         )}
