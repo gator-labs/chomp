@@ -1,6 +1,6 @@
 export const numberToCurrencyFormatter = new Intl.NumberFormat();
 
-export const formatNumber = (
+/* export const formatNumber = (
   number: number,
   minDigits?: number,
   maxDigits?: number,
@@ -10,3 +10,4 @@ export const formatNumber = (
     maximumFractionDigits: maxDigits || 2,
   }).format(Number(number));
 };
+ */

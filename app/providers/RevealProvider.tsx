@@ -16,7 +16,7 @@ import { CloseIcon } from "../components/Icons/CloseIcon";
 import { Modal } from "../components/Modal/Modal";
 import RevealSheet from "../components/RevealSheet/RevealSheet";
 import { REVEAL_COST } from "../constants/costs";
-import { formatNumber } from "../utils/currency";
+import { numberToCurrencyFormatter } from "../utils/currency";
 import { genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
 
@@ -198,7 +198,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
             <p>
               This will cost you{" "}
               <span className="font-bold">
-                {formatNumber(REVEAL_COST)} BONK.
+                {numberToCurrencyFormatter.format(REVEAL_COST)} BONK.
               </span>
             </p>
           </div>
