@@ -9,7 +9,8 @@ type ButtonProps = {
     | "white"
     | "black"
     | "pink"
-    | "pink-border";
+    | "pink-border"
+    | "purple";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
   children: ReactNode;
@@ -59,6 +60,7 @@ export function Button({
       "text-base": size === "big",
       "w-full": isFullWidth,
       "!rounded-full": isPill,
+      "text-btn-text-primary": variant === "white",
     },
     className,
   );

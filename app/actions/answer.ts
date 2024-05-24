@@ -15,12 +15,14 @@ import { hasAnsweredQuestion } from "../queries/question";
 import prisma from "../services/prisma";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
+import { updateStreak } from "./streak";
 
 export type SaveQuestionRequest = {
   questionId: number;
   questionOptionId?: number;
   percentageGiven?: number;
   percentageGivenForAnswerId?: number;
+  timeToAnswerInMiliseconds?: number;
 };
 
 export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
@@ -64,13 +66,15 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     const isOptionSelected = qo.id === answerForQuestion?.questionOptionId;
 
     if (qo.question.type === QuestionType.BinaryQuestion) {
-      const isYesOrTrueOption = qo.option === "Yes" || qo.option === "True";
       return {
-        percentage: isYesOrTrueOption
+        percentage: qo.isLeft
           ? answerForQuestion?.percentageGiven
           : 100 - (answerForQuestion?.percentageGiven ?? 0),
         questionOptionId: qo.id,
         selected: isOptionSelected,
+        timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
+          ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
+          : null,
         userId,
       } as QuestionAnswer;
     }
@@ -84,6 +88,9 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       selected: isOptionSelected,
       percentage: percentageForQuestionOption,
       questionOptionId: qo.id,
+      timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
+        ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
+        : null,
       userId,
     } as QuestionAnswer;
   });
@@ -116,6 +123,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       ),
     ];
 
+    await updateStreak(userId);
     await Promise.all(fungibleAssetRevealTasks);
   });
 }
@@ -164,13 +172,15 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     const isOptionSelected = qo.id === request?.questionOptionId;
 
     if (qo.question.type === QuestionType.BinaryQuestion) {
-      const isYesOrTrueOption = qo.option === "Yes" || qo.option === "True";
       return {
-        percentage: isYesOrTrueOption
+        percentage: qo.isLeft
           ? request?.percentageGiven
           : 100 - (request?.percentageGiven ?? 0),
         questionOptionId: qo.id,
         selected: isOptionSelected,
+        timeToAnswer: request?.timeToAnswerInMiliseconds
+          ? BigInt(request?.timeToAnswerInMiliseconds)
+          : null,
         userId,
       } as QuestionAnswer;
     }
@@ -184,6 +194,9 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       selected: isOptionSelected,
       percentage: percentageForQuestionOption,
       questionOptionId: qo.id,
+      timeToAnswer: request?.timeToAnswerInMiliseconds
+        ? BigInt(request?.timeToAnswerInMiliseconds)
+        : null,
       userId,
     } as QuestionAnswer;
   });
@@ -200,6 +213,8 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       TransactionLogType.AnswerQuestion,
       tx,
     );
+
+    await updateStreak(userId);
   });
 }
 

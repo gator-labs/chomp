@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "../Button/Button";
 import { QuestionStep } from "../Question/Question";
 import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
+import { BINARY_QUESTION_ICON } from "./constants";
 
 type QuestionOption = {
   id: number;
@@ -29,6 +30,7 @@ export function QuestionAction({
   const [scale, setScale] = useState(50);
 
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
+    console.log(questionOptions);
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">
@@ -38,11 +40,17 @@ export function QuestionAction({
           {questionOptions?.map((qo) => (
             <Button
               onClick={() => onButtonClick(qo.id)}
-              variant="pink"
+              variant="purple"
               key={qo.id}
               size="big"
+              className="px-0 flex-1 items-center gap-1 capitalize"
             >
               {qo.option}
+              {
+                BINARY_QUESTION_ICON[
+                  qo.option.toUpperCase() as keyof typeof BINARY_QUESTION_ICON
+                ]
+              }
             </Button>
           ))}
         </div>
@@ -58,8 +66,8 @@ export function QuestionAction({
     const optionLeft = questionOptions.find((qo) => qo.isLeft)?.option ?? "";
     const optionRight = questionOptions.find((qo) => !qo.isLeft)?.option ?? "";
     return (
-      <div className="text-white font-semibold">
-        <div className="text-center  text-md mb-4">
+      <div className="text-white font-semibold pb-7">
+        <div className="text-center text-md mb-4 ">
           How do you think others will respond?
         </div>
         <div className="flex gap-3 items-center justify-between">
@@ -73,9 +81,9 @@ export function QuestionAction({
           </div>
           <Button
             onClick={() => onButtonClick(scale)}
-            variant="pink"
+            variant="purple"
             size="normal"
-            className="w-max py-6 !rounded-2xl"
+            className="w-max py-6 !rounded-2xl self-stretch"
           >
             Chomp
           </Button>

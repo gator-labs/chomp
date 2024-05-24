@@ -1,6 +1,7 @@
 "use client";
 import { SaveQuestionRequest, saveDeck } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
+import { useStopwatch } from "@/app/hooks/useStopwatch";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
@@ -62,6 +63,11 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         ? questions[currentQuestionIndex].questionOptions.length - 1
         : 0,
   });
+  const { start, reset, getTimePassedSinceStart } = useStopwatch();
+
+  useEffect(() => {
+    start();
+  }, [start]);
 
   const handleNextIndex = useCallback(() => {
     if (currentQuestionIndex + 1 < questions.length) {
@@ -73,6 +79,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
     generateRandom();
+    reset();
     setTimeout(() => {
       setRerenderAction(true);
     });
@@ -88,6 +95,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     setRerenderAction,
     generateRandom,
     setCurrentOptionSelected,
+    reset,
     questionsRef.current,
   ]);
 
@@ -145,6 +153,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
           const response = newResponses.pop();
           if (response) {
             response.percentageGiven = number ?? 0;
+            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
 
@@ -163,6 +172,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
             response.percentageGiven = optionPercentage;
             response.percentageGivenForAnswerId =
               question.questionOptions[random]?.id;
+            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
 
@@ -224,6 +234,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
               key={index}
               numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
               question={questions[index].question}
+              type={questions[index].type}
               step={1}
               className="absolute drop-shadow-question-card border-opacity-40"
               style={{
@@ -238,10 +249,11 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
             dueAt={dueAt}
             numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
             question={question.question}
+            type={question.type}
             viewImageSrc={question.imageUrl}
             step={currentQuestionStep}
             onDurationRanOut={handleNoAnswer}
-            className="z-50 relative drop-shadow-question-card border-opacity-40"
+            className="z-50 relative"
             style={{
               transform: `translateY(${questionOffset}px)`,
             }}
@@ -260,7 +272,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         </div>
       </div>
 
-      <div className="pt-2">
+      <div className="pt-2 pb-[53px]">
         {rerenderAction && (
           <QuestionAction
             onButtonClick={onQuestionActionClick}
