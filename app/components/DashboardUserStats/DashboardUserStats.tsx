@@ -18,7 +18,7 @@ export function DashboardUserStats({
   totalPointsEarned,
 }: DashboardUserStats) {
   return (
-    <div>
+    <div className="px-4">
       <div className="flex gap-2 mb-2">
         <StatsChip
           title="Cards Chomped"

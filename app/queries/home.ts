@@ -90,15 +90,15 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
   const result = questionOptionPercentagesQueryResult[0];
 
   return {
-    averageTimeToAnswer: result.averageTimeToAnswer
+    averageTimeToAnswer: result?.averageTimeToAnswer
       ? dayjs
-          .duration(result.averageTimeToAnswer.toNumber(), "milliseconds")
+          .duration(result?.averageTimeToAnswer.toNumber(), "milliseconds")
           .format("m:ss")
       : "-",
-    cardsChomped: result.cardsChomped ? result.cardsChomped.toString() : "0",
-    daysStreak: result.daysStreak ? result.daysStreak.toString() : "0",
-    totalPointsEarned: result.totalPointsEarned
-      ? result.totalPointsEarned.toString()
+    cardsChomped: result?.cardsChomped ? result?.cardsChomped.toString() : "0",
+    daysStreak: result?.daysStreak ? result?.daysStreak.toString() : "0",
+    totalPointsEarned: result?.totalPointsEarned
+      ? result?.totalPointsEarned.toString()
       : "0",
   };
 }

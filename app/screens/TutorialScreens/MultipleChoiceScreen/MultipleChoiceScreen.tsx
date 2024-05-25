@@ -31,6 +31,7 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
 
   const handleGoToNextTooltip = () => {
     if (tooltipIndex === STEPS.length - 1) return;
+
     setTooltipIndex((curr) => curr + 1);
   };
 
@@ -48,7 +49,7 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
 
   return (
     <>
-      <div className="flex flex-col justify-between h-full pointer-events-auto px-4 mt-16 overflow-y-hidden">
+      <div className="flex flex-col justify-between h-full pointer-events-auto px-4">
         <Tooltip
           infoText={STEPS[tooltipIndex].text}
           alwaysVisible={

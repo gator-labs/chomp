@@ -32,6 +32,14 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
 
   const handleGoToNextTooltip = () => {
     if (tooltipIndex === STEPS.length - 1) return;
+    if (tooltipIndex === 1) {
+      const tutoiralContainer = document.getElementById("tutorial-container")!;
+
+      tutoiralContainer.scroll({
+        top: tutoiralContainer!.scrollHeight,
+        behavior: "smooth",
+      });
+    }
     setTooltipIndex((curr) => curr + 1);
   };
 
@@ -43,7 +51,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
 
   return (
     <>
-      <div className="flex flex-col justify-between h-full pointer-events-auto px-4 mt-16 overflow-y-hidden">
+      <div className="flex flex-col justify-between h-full pointer-events-auto px-4">
         <Tooltip
           infoText={STEPS[tooltipIndex].text}
           alwaysVisible={
