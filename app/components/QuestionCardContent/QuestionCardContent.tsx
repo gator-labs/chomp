@@ -1,6 +1,6 @@
 "use client";
-import { useSteppingChange } from "@/app/hooks/useSteppingChange";
 import { QuestionType } from "@prisma/client";
+import { useState } from "react";
 import { AnswerResult } from "../AnswerResult/AnswerResult";
 import { QuestionStep } from "../Question/Question";
 import { RadioInput } from "../RadioInput/RadioInput";
@@ -31,10 +31,12 @@ export function QuestionCardContent({
   percentage,
   onPercentageChanged,
 }: QuestionCardContentProps) {
-  const { handlePercentageChange } = useSteppingChange({
-    percentage: percentage ?? 0,
-    onPercentageChange: onPercentageChanged,
-  });
+  const [handlePercentage, setHandlePercentage] = useState<number>(50);
+
+  const handlePercentageChange = (newPercentage: number) => {
+    setHandlePercentage(newPercentage);
+    onPercentageChanged && onPercentageChanged(newPercentage);
+  };
 
   if (type === "BinaryQuestion") {
     return <></>;
@@ -65,7 +67,7 @@ export function QuestionCardContent({
           <div key={qo.id} className="mb-2">
             <AnswerResult
               answerText={qo.option}
-              percentage={qo.id === randomOptionId ? percentage ?? 0 : 0}
+              percentage={qo.id === randomOptionId ? handlePercentage ?? 0 : 0}
               handleRatioChange={
                 qo.id === randomOptionId ? handlePercentageChange : undefined
               }
