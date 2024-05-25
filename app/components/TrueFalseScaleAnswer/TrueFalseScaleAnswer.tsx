@@ -40,7 +40,7 @@ export function TrueFalseScaleAnswer({
   const [isVisibleBackdrop, setIsVisibleBackdrop] = useState(false);
 
   return (
-    <div className="relative">
+    <div className="relative z-[1]">
       {!!handleRatioChange && isVisibleBackdrop && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-[9999]" />
       )}

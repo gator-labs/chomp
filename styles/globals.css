@@ -30,3 +30,15 @@
     @apply rounded;
   }
 }
+
+:root {
+  --rsbs-max-w: 30rem;
+}
+
+[data-rsbs-overlay],
+[data-rsbs-state] {
+  @apply !mx-auto !bg-btn-border-black;
+}
+[data-rsbs-state]::after {
+  @apply !mx-auto !bg-btn-border-black;
+}
