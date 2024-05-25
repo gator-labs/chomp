@@ -5,6 +5,7 @@ import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -12,7 +13,7 @@ import { STEPS } from "./constants";
 
 interface Props {
   setActiveScreen: Dispatch<
-    SetStateAction<"binary-question" | "multiple-choice" | "reveal">
+    SetStateAction<"binary-question" | "multiple-choice" | "reveal" | null>
   >;
 }
 
@@ -21,6 +22,7 @@ const getDueAt = (durationMiliseconds: number): Date => {
 };
 
 const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
+  const { user } = useDynamicContext();
   const [optionPercentage, setOptionPercentage] = useState(50);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [dueAt, setDueAt] = useState(getDueAt(ONE_MINUTE_IN_MILISECONDS));
@@ -46,6 +48,13 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
       setIsFlowFinished(true);
     }
   }, [tooltipIndex]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      `${user?.userId}-seen-tutorial-screens`,
+      JSON.stringify(["binary-question", "multiple-choice"]),
+    );
+  }, []);
 
   return (
     <>
