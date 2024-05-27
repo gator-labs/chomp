@@ -14,6 +14,7 @@ type QuickViewProfileProps = {
   onClose: () => void;
   transactions: TransactionData[];
   bonkAmount?: number;
+  solAmount?: number;
   dollarAmount?: number;
   avatarSrc: string;
   address: string;
@@ -25,6 +26,7 @@ export function QuickViewProfile({
   avatarSrc,
   bonkAmount,
   dollarAmount,
+  solAmount,
   address,
   transactions,
 }: QuickViewProfileProps) {
@@ -37,6 +39,7 @@ export function QuickViewProfile({
             avatarSrc={avatarSrc}
             bonkAmount={bonkAmount}
             dollarAmount={dollarAmount}
+            solAmount={solAmount}
             onClose={onClose}
             className="mb-4"
           />

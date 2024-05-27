@@ -13,6 +13,7 @@ type NavbarProps = {
   address: string;
   transactions: TransactionData[];
   bonkBalance: number;
+  solBalance: number;
 };
 
 export function Navbar({
@@ -21,6 +22,7 @@ export function Navbar({
   onNotificationClick,
   address,
   bonkBalance,
+  solBalance,
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -57,6 +59,7 @@ export function Navbar({
           avatarSrc={avatarSrc}
           address={address}
           bonkAmount={bonkBalance}
+          solAmount={solBalance}
         />
       </div>
     </nav>

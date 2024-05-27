@@ -9,6 +9,7 @@ type ProfileProps = {
   pointAmount?: number;
   bonkAmount?: number;
   dollarAmount?: number;
+  solAmount?: number;
   avatarSrc: string;
   onClose?: () => void;
   className?: string;
@@ -18,6 +19,7 @@ export function TransactionProfile({
   avatarSrc,
   bonkAmount,
   dollarAmount,
+  solAmount,
   pointAmount,
   onClose,
   className,
@@ -44,6 +46,7 @@ export function TransactionProfile({
           {dollarAmount && (
             <>~${numberToCurrencyFormatter.format(dollarAmount)}</>
           )}
+          {solAmount && <>{numberToCurrencyFormatter.format(solAmount)} SOL</>}
         </div>
       </div>
       {onClose && (

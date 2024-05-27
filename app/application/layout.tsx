@@ -9,7 +9,7 @@ import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 import { CollapsedContextProvider } from "../providers/CollapsedProvider";
 import ConfettiProvider from "../providers/ConfettiProvider";
 import { RevealContextProvider } from "../providers/RevealProvider";
-import { getBonkBalance } from "../utils/solana";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -29,6 +29,7 @@ export default async function Layout({ children }: PageLayoutProps) {
   }
 
   const bonkBalance = await getBonkBalance(address);
+  const solBalance = await getSolBalance(address);
 
   return (
     <CollapsedContextProvider>
@@ -39,6 +40,7 @@ export default async function Layout({ children }: PageLayoutProps) {
               <Navbar
                 avatarSrc={AvatarPlaceholder.src}
                 bonkBalance={bonkBalance}
+                solBalance={solBalance}
                 transactions={history.map((h) => ({
                   amount: h.change.toNumber(),
                   amountLabel: h.asset,

@@ -14,6 +14,7 @@ const meta = {
     avatarSrc: AvatarSample.src,
     address: "BqcQDyZLW1mL14MgfwMsLkifNScDUTmks55R8x1uAwox",
     bonkBalance: 9999,
+    solBalance: 10,
     transactions: [
       {
         amount: 100000,

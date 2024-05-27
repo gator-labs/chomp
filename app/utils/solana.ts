@@ -102,3 +102,14 @@ export const getBonkBalance = async (address: string): Promise<number> => {
     balance.value[0].account?.data?.parsed?.info?.tokenAmount?.uiAmount ?? 0
   );
 };
+
+export const getSolBalance = async (address: string): Promise<number> => {
+  if (!address) {
+    return 0;
+  }
+
+  const walletPublickey = new PublicKey(address);
+  const balance = await CONNECTION.getBalance(walletPublickey);
+
+  return balance;
+};
