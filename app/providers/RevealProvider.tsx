@@ -1,6 +1,8 @@
 "use client";
+import { dasUmi } from "@/lib/web3";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
+import { publicKey } from "@metaplex-foundation/umi";
 import { Connection } from "@solana/web3.js";
 import Image from "next/image";
 import {
@@ -11,11 +13,19 @@ import {
   useMemo,
   useState,
 } from "react";
+import {
+  createUsedGenisisNft,
+  getUsedGenisisNfts,
+} from "../actions/used-nft-genisis";
 import { Button } from "../components/Button/Button";
 import { CloseIcon } from "../components/Icons/CloseIcon";
 import { Modal } from "../components/Modal/Modal";
 import RevealSheet from "../components/RevealSheet/RevealSheet";
 import { REVEAL_COST } from "../constants/costs";
+import {
+  COLLECTION_KEY,
+  GENISIS_COLLECTION_VALUE,
+} from "../constants/genisis-nfts";
 import { numberToCurrencyFormatter } from "../utils/currency";
 import { genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
@@ -56,18 +66,43 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   }>();
 
   const burnAndReveal = useCallback(async () => {
-    const blockhash = await CONNECTION.getLatestBlockhash();
+    const usedGenisisNftIds = (await getUsedGenisisNfts()).map(
+      (usedGenisisNft) => usedGenisisNft.nftId,
+    );
 
-    const signer = await primaryWallet!.connector.getSigner<ISolana>();
-    const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash);
-    const { signature } = await signer.signAndSendTransaction(tx);
-
-    await CONNECTION.confirmTransaction({
-      blockhash: blockhash.blockhash,
-      lastValidBlockHeight: blockhash.lastValidBlockHeight,
-      signature,
+    const assets = await dasUmi.rpc.getAssetsByOwner({
+      owner: publicKey(primaryWallet!.address),
     });
-    setBurnState("burned");
+
+    const [genisisNft] = assets.items.filter(
+      (item) =>
+        item.grouping.find(
+          (group) =>
+            group.group_key === COLLECTION_KEY &&
+            group.group_value === GENISIS_COLLECTION_VALUE,
+        ) &&
+        !item.burnt &&
+        !usedGenisisNftIds.includes(item.id),
+    );
+
+    if (!genisisNft) {
+      const blockhash = await CONNECTION.getLatestBlockhash();
+      const signer = await primaryWallet!.connector.getSigner<ISolana>();
+      const tx = await genBonkBurnTx(
+        primaryWallet!.address,
+        blockhash.blockhash,
+      );
+      const { signature } = await signer.signAndSendTransaction(tx);
+
+      await CONNECTION.confirmTransaction({
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight,
+        signature,
+      });
+      setBurnState("burned");
+    } else {
+      await createUsedGenisisNft(genisisNft.id, primaryWallet!.address);
+    }
 
     if (reveal) {
       await reveal.reveal();

@@ -30,7 +30,6 @@ export function QuestionAction({
   const [scale, setScale] = useState(50);
 
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
-    console.log(questionOptions);
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">
