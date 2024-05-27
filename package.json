@@ -11,6 +11,7 @@
     "compose:db:down": "docker compose -f db-compose.yml down",
     "prisma": "dotenv -c -- prisma",
     "prisma:studio": "dotenv -c -- prisma studio",
+    "prisma:migrate:new": "dotenv -c -- prisma migrate dev --create-only",
     "prisma:migrate": "dotenv -c -- prisma migrate dev",
     "prisma:migrate:create": "dotenv -c -- prisma migrate dev --create-only",
     "prisma:migrate:prod": "prisma migrate deploy",
