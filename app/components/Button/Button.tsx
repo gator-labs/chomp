@@ -9,7 +9,8 @@ type ButtonProps = {
     | "white"
     | "black"
     | "pink"
-    | "pink-border";
+    | "pink-border"
+    | "purple";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
   children: ReactNode;
@@ -28,8 +29,22 @@ export function Button({
   className,
   ...props
 }: ButtonProps) {
+  const variantStyles = {
+    primary: "bg-primary text-btn-text-primary",
+    secondary: "bg-secondary text-btn-text-secondary",
+    warning: "bg-warning text-btn-text-warning",
+    white: "bg-white text-btn-text-white",
+    black: "bg-black text-btn-text-black",
+    pink: "bg-pink text-btn-text-pink",
+    "pink-border": "bg-pink-border text-btn-text-pink-border",
+    purple: "bg-purple text-btn-text-purple",
+  };
+
+  const variantClasses = variantStyles[variant] || variantStyles.primary;
+
   const classNameResult = classNames(
-    `bg-${variant} text-btn-text-${variant} rounded-lg inline-flex justify-center items-center`,
+    variantClasses,
+    `rounded-lg inline-flex justify-center items-center`,
     {
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
       "border-purple border-[1px]": variant === "pink-border",
@@ -46,6 +61,7 @@ export function Button({
       "text-base": size === "big",
       "w-full": isFullWidth,
       "!rounded-full": isPill,
+      "text-btn-text-primary": variant === "white",
     },
     className,
   );

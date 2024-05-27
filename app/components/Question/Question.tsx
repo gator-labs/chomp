@@ -155,6 +155,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           dueAt={getDueAt(question.durationMiliseconds)}
           numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
           question={question.question}
+          type={question.type}
           viewImageSrc={question.imageUrl}
           step={currentQuestionStep || QuestionStep.PickPercentage}
           onDurationRanOut={handleSaveQuestion}
@@ -173,7 +174,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
         </QuestionCard>
       </div>
 
-      <div className="pt-2">
+      <div className="pt-2 pb-[53px]">
         <QuestionAction
           onButtonClick={onQuestionActionClick}
           type={question.type}

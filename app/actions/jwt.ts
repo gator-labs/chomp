@@ -120,13 +120,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     await resetAccountData();
   }
 
-  if (payload.new_user) {
-    redirect(
-      nextPath ? `/tutorial?next=${encodeURIComponent(nextPath)}` : "/tutorial",
-    );
-  }
-
-  redirect(nextPath ?? "/application");
+  if (!!nextPath) redirect(nextPath);
 };
 
 export const clearJwt = () => {
