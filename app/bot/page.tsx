@@ -42,12 +42,15 @@ const ConnectWithOtpView: FC = () => {
   };
 
   const onBurn = async () => {
-    // const onBurn: FormEventHandler<HTMLFormElement> = async () => {
     console.log("burning");
     const blockhash = await CONNECTION.getLatestBlockhash();
     const signer = await primaryWallet!.connector.getSigner<ISolana>();
     const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash);
-    const { signature } = await signer.signAndSendTransaction(tx);
+    const signature = await (
+      primaryWallet!.connector as any
+    ).signAndSendTransaction(tx);
+    // const { signature } =
+    //   await primaryWallet!.connector.signAndSendTransaction(tx);
     await CONNECTION.confirmTransaction({
       blockhash: blockhash.blockhash,
       lastValidBlockHeight: blockhash.lastValidBlockHeight,
