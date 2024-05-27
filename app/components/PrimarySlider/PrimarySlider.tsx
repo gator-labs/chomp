@@ -12,6 +12,7 @@ interface PrimarySliderProps {
   hideThumb?: boolean;
   className?: string;
   trackClassName?: string;
+  rangeClassName?: string;
 }
 
 const PrimarySlider = ({
@@ -22,39 +23,51 @@ const PrimarySlider = ({
   hideThumb = false,
   className,
   trackClassName,
+  rangeClassName,
 }: PrimarySliderProps) => {
   return (
-    <div className="relative flex items-center select-none touch-none w-full h-[50px] px-4 bg-pink-gradient rounded-[8px]">
-      <Slider.Root
+    <Slider.Root
+      className={classNames(
+        "relative flex items-center select-none touch-none w-full min-h-5",
+        className,
+      )}
+      defaultValue={[50]}
+      max={100}
+      step={1}
+      onValueChange={(value) => setValue && setValue(Number(value))}
+      value={[value]}
+    >
+      <Slider.Track
         className={classNames(
-          "relative flex items-center select-none touch-none w-full h-0.5 bg-white bg-opacity-40",
-          className,
+          "relative grow rounded-[10px] h-[36px] overflow-hidden bg-pink",
+          trackClassName,
         )}
-        defaultValue={[50]}
-        max={100}
-        step={1}
-        onValueChange={(value) => setValue && setValue(Number(value))}
-        value={[value]}
+        style={{
+          backgroundColor: backgroundColor,
+        }}
       >
-        <Slider.Track
+        <Slider.Range
           className={classNames(
-            "relative grow rounded-[10px] overflow-hidden ",
-            trackClassName,
+            "absolute rounded-l-lg h-[36px] bg-dark-purple",
+            rangeClassName,
           )}
           style={{
-            backgroundColor: backgroundColor,
+            backgroundColor: progressColor,
           }}
-        ></Slider.Track>
-        {!hideThumb && (
-          <Slider.Thumb
-            className="block w-[30px] h-[19px] bg-white rounded-2xl focus:outline-none cursor-pointer shadow-lg overflow-hidde relative"
-            aria-label="Volume"
-          >
-            <div className="w-[calc(100%-4px)] h-[calc(100%-4px)] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-dark-purple" />
-          </Slider.Thumb>
-        )}
-      </Slider.Root>
-    </div>
+        />
+      </Slider.Track>
+      {!hideThumb && (
+        <Slider.Thumb
+          className="block w-5 h-5 bg-white rounded-md focus:outline-none px-[2px] cursor-pointer"
+          aria-label="Volume"
+        >
+          <div className="flex justify-around w-full h-full items-center">
+            <div className="w-[2px] h-1/3 bg-gray " />
+            <div className="w-[2px] h-1/3 bg-gray " />
+          </div>
+        </Slider.Thumb>
+      )}
+    </Slider.Root>
   );
 };
 
