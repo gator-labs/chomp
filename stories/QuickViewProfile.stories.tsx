@@ -1,20 +1,24 @@
+import { QuickViewProfile } from "@/app/components/QuickViewProfile/QuickViewProfile";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
 import dayjs from "dayjs";
-import { Navbar } from "../app/components/Navbar/Navbar";
+
 import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
-  title: "Navbar",
-  component: Navbar,
+  title: "QuickViewProfile",
+  component: QuickViewProfile,
   parameters: {
     layout: "centered",
   },
   args: {
-    avatarSrc: AvatarSample.src,
     address: "BqcQDyZLW1mL14MgfwMsLkifNScDUTmks55R8x1uAwox",
-    bonkBalance: 9999,
-    solBalance: 10,
+    bonkAmount: 108184184,
+    dollarAmount: 218.45,
+    onClose: fn(),
+    avatarSrc: AvatarSample.src,
+    isOpen: true,
     transactions: [
       {
         amount: 100000,
@@ -93,7 +97,7 @@ const meta = {
       </DynamicContextProvider>
     </div>
   ),
-} satisfies Meta<typeof Navbar>;
+} satisfies Meta<typeof QuickViewProfile>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

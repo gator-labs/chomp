@@ -1,3 +1,5 @@
+import { ChompFlatIcon } from "@/app/components/Icons/ChompFlatIcon";
+import ChompIcon from "@/app/components/Icons/ChompIcon";
 import { CopyIcon } from "@/app/components/Icons/CopyIcon";
 import { ExitIcon } from "@/app/components/Icons/ExitIcon";
 import type { Meta, StoryObj } from "@storybook/react";
@@ -345,5 +347,17 @@ export const Copy: Story = {
 export const Exit: Story = {
   args: {
     icon: <ExitIcon />,
+  },
+};
+
+export const Chomp: Story = {
+  args: {
+    icon: <ChompIcon />,
+  },
+};
+
+export const ChompFlat: Story = {
+  args: {
+    icon: <ChompFlatIcon />,
   },
 };

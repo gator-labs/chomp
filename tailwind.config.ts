@@ -26,6 +26,7 @@ const colors = {
   "btn-text-pink-border": "#E3DCFF",
   "bg-pink-border": "#0D0D0D",
   red: "rgb(239 68 68)",
+  "chomp-purple": "#A3A3EC",
 };
 
 module.exports = {

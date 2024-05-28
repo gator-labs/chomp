@@ -1,9 +1,5 @@
-import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
-import { Navbar } from "@/app/components/Navbar/Navbar";
 import { getDeckDetails } from "@/app/queries/deck";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const DeckDetails = dynamic(
@@ -28,18 +24,6 @@ export default async function Page({
 
   return (
     <div className="h-full p-2">
-      <Navbar
-        avatarSrc={AvatarPlaceholder.src}
-        avatarLink="/application/profile"
-        walletLink="/application/transactions"
-      >
-        <Link href={returnUrl ?? "/application"}>
-          <div className="flex items-center text-xs">
-            <HalfArrowLeftIcon />
-            <div className="text-aqua">Chomped</div>
-          </div>
-        </Link>
-      </Navbar>
       <DeckDetails
         deck={deck}
         openIds={openIds ? JSON.parse(decodeURIComponent(openIds)) : []}
