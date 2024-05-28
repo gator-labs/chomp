@@ -36,7 +36,7 @@ export function NoQuestionsCard({
               </>
             ) : (
               <>
-                You just chomped through that deck! You’ll be notified when this
+                You just chomped through that deck! You'll be notified when this
                 deck is ready to reveal. <br />
                 <br /> Meanwhile, go check out some more chomps in{" "}
                 <b>
