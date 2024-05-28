@@ -22,14 +22,19 @@ function reduceFieldErrorToString(
   if (!fieldErrors) {
     return "";
   }
+  const keyFormatted = key.split(/(?=[A-Z])/).reduce((acc, curr) => {
+    if (!acc) {
+      return curr.slice(0, 1).toUpperCase() + curr.slice(1);
+    }
 
-  return `${key.substring(0, 1).toUpperCase()}${key.substring(1).toLowerCase()}: ${fieldErrors
-    ?.reduce((acc, error) => {
-      if (acc === "") {
-        return error;
-      }
+    return acc + " " + curr.slice(0, 1).toLowerCase() + curr.slice(1);
+  }, "");
 
-      return acc + ", " + error;
-    }, "")
-    .toLowerCase()}`;
+  return `${keyFormatted}: ${fieldErrors?.reduce((acc, error) => {
+    if (acc === "") {
+      return error;
+    }
+
+    return acc + ", " + error;
+  }, "")}`;
 }

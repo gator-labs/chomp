@@ -1,4 +1,4 @@
-import { createQuestion } from "@/app/actions/question";
+import { createQuestion } from "@/app/actions/question/question";
 import QuestionForm from "@/app/components/QuestionForm/QuestionForm";
 import { getTags } from "@/app/queries/tag";
 
