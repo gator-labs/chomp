@@ -1,5 +1,5 @@
 import { DeckQuestionIncludes, getDeckState } from "@/app/utils/question";
-import { Deck, Reveal } from "@prisma/client";
+import { ChompResult, Deck } from "@prisma/client";
 import Link from "next/link";
 import { QuestionDeck } from "../QuestionDeck/QuestionDeck";
 
@@ -9,7 +9,7 @@ type DeckRowCardProps = {
     deckQuestions: {
       question: DeckQuestionIncludes;
     }[];
-    reveals: Reveal[];
+    chompResults: ChompResult[];
   };
   deckReturnUrl?: string;
 };

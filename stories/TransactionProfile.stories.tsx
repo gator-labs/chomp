@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { fn } from "@storybook/test";
 import { TransactionProfile } from "../app/components/TransactionProfile/TransactionProfile";
 import AvatarSample from "./assets/avatar_sample.png";
 
@@ -9,7 +10,6 @@ const meta = {
     layout: "centered",
   },
   args: {
-    pointAmount: 108184184,
     dollarAmount: 218.45,
     avatarSrc: AvatarSample.src,
   },
@@ -19,6 +19,21 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {},
+export const Points: Story = {
+  args: {
+    pointAmount: 108184184,
+  },
+};
+
+export const Bonk: Story = {
+  args: {
+    bonkAmount: 108184184,
+  },
+};
+
+export const WithClose: Story = {
+  args: {
+    bonkAmount: 108184184,
+    onClose: fn(),
+  },
 };

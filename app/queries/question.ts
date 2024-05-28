@@ -142,55 +142,6 @@ export async function getQuestionSchema(
   return questionData;
 }
 
-export async function getHomeFeed(query: string = "") {
-  const promiseArray = [
-    getUnansweredDailyQuestions(query),
-    getHomeFeedQuestions({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: true, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: true, query }),
-  ];
-
-  const sortRevealedComparerFn = (a: any, b: any) => {
-    const aNewestClaimTime = a.reveals[0]?.createdAt;
-    const bNewestClaimTime = b.reveals[0]?.createdAt;
-
-    if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
-      return 1;
-    }
-
-    if (dayjs(bNewestClaimTime).isAfter(aNewestClaimTime)) {
-      return -1;
-    }
-
-    return 0;
-  };
-  const [
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  ] = await Promise.all(promiseArray);
-
-  answeredRevealedQuestions.sort(sortRevealedComparerFn);
-  answeredRevealedDecks.sort(sortRevealedComparerFn);
-
-  return {
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  };
-}
-
 export async function getHistory(
   query: string = "",
   sort: HistorySortOptions = HistorySortOptions.Revealed,
@@ -263,9 +214,9 @@ export async function getHistory(
 
   if (sort === HistorySortOptions.Claimable) {
     response.sort((a, b) => {
-      if (a.reveals.length > 0 && b.reveals.length > 0) {
-        const aNewestClaimTime = a.reveals[0]?.createdAt;
-        const bNewestClaimTime = b.reveals[0]?.createdAt;
+      if (a.chompResults.length > 0 && b.chompResults.length > 0) {
+        const aNewestClaimTime = a.chompResults[0]?.createdAt;
+        const bNewestClaimTime = b.chompResults[0]?.createdAt;
 
         if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
           return -1;
@@ -278,11 +229,11 @@ export async function getHistory(
         return 0;
       }
 
-      if (a.reveals.length > 0) {
+      if (a.chompResults.length > 0) {
         return -1;
       }
 
-      if (b.reveals.length > 0) {
+      if (b.chompResults.length > 0) {
         return 1;
       }
 
@@ -305,6 +256,7 @@ export async function getUnansweredDailyQuestions(query = "") {
       deck: {
         date: {
           gte: dayjs(new Date()).add(-3, "days").toDate(),
+          lte: dayjs(new Date()).endOf("day").toDate(),
         },
         revealAtDate: { gte: new Date() },
       },
@@ -366,7 +318,7 @@ export async function getHomeFeedQuestions({
 
   if (sort === HistorySortOptions.Claimable) {
     sortInput = {
-      reveals: { _count: "desc" },
+      chompResults: { _count: "desc" },
     };
   }
 
@@ -378,7 +330,7 @@ export async function getHomeFeedQuestions({
 
   const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
     ? {
-        reveals: {
+        chompResults: {
           some: {
             userId: {
               equals: payload.sub,
@@ -387,7 +339,7 @@ export async function getHomeFeedQuestions({
         },
       }
     : {
-        reveals: {
+        chompResults: {
           none: {
             userId: {
               equals: payload.sub,
@@ -441,7 +393,7 @@ export async function getHomeFeedQuestions({
             },
           },
         },
-        reveals: {
+        chompResults: {
           where: {
             userId: { equals: payload.sub },
           },
@@ -449,7 +401,7 @@ export async function getHomeFeedQuestions({
         },
       }
     : {
-        reveals: {
+        chompResults: {
           where: { userId: { equals: payload.sub } },
           orderBy: { createdAt: "desc" },
         },

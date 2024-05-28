@@ -1,7 +1,6 @@
 "use client";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
-import { Connection } from "@solana/web3.js";
 import Image from "next/image";
 import {
   createContext,
@@ -17,7 +16,7 @@ import { Modal } from "../components/Modal/Modal";
 import RevealSheet from "../components/RevealSheet/RevealSheet";
 import { REVEAL_COST } from "../constants/costs";
 import { numberToCurrencyFormatter } from "../utils/currency";
-import { genBonkBurnTx } from "../utils/solana";
+import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
 
 interface RevealContextState {
@@ -33,8 +32,6 @@ const initialContextValue: RevealContextState = {
   closeRevealModal: () => {},
   closeClaimModal: () => {},
 };
-
-const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 export const RevealedContext =
   createContext<RevealContextState>(initialContextValue);

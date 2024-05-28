@@ -4,13 +4,13 @@ import { z } from "zod";
 export const deckSchema = z.object({
   id: z.number().optional(),
   deck: z.string().min(5),
-  imageUrl: z.string().nullable(),
+  imageUrl: z.string().nullish(),
   tagIds: z.number().array().default([]),
   revealToken: z.nativeEnum(Token),
-  date: z.date().nullable().optional(),
+  date: z.date().nullish(),
   revealTokenAmount: z.number().min(0),
-  revealAtDate: z.date().nullable(),
-  revealAtAnswerCount: z.number().min(0).nullable(),
+  revealAtDate: z.date().nullish(),
+  revealAtAnswerCount: z.number().min(0).nullish(),
   isActive: z.boolean(),
   questions: z
     .object({
