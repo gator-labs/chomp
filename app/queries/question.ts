@@ -244,6 +244,57 @@ export async function getHistory(
   return response;
 }
 
+export async function getUnansweredDailyQuestions(query = "") {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const dailyDeckQuestions = await prisma.deckQuestion.findMany({
+    where: {
+      deck: {
+        date: {
+          gte: dayjs(new Date()).add(-3, "days").toDate(),
+          lte: dayjs(new Date()).endOf("day").toDate(),
+        },
+        revealAtDate: { gte: new Date() },
+      },
+      question: {
+        question: { contains: query, mode: "insensitive" },
+        questionOptions: {
+          none: {
+            questionAnswers: {
+              some: {
+                userId: payload.sub,
+              },
+            },
+          },
+        },
+        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
+      },
+    },
+    include: {
+      question: true,
+    },
+    orderBy: {
+      deck: { date: "desc" },
+    },
+  });
+
+  return dailyDeckQuestions.map((dq) => dq.question);
+}
+
+export async function getFirstUnansweredQuestion() {
+  const questions = await getUnansweredDailyQuestions();
+
+  if (questions.length === 0) {
+    return null;
+  }
+
+  return questions[0];
+}
+
 export async function getHomeFeedQuestions({
   areAnswered,
   areRevealed,
@@ -473,41 +524,4 @@ export async function hasAnsweredQuestion(
   });
 
   return answeredCount > 0;
-}
-
-export async function getUnansweredDailyQuestions(query = "") {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return [];
-  }
-
-  const dailyDeckQuestions = await prisma.deckQuestion.findMany({
-    where: {
-      deck: {
-        date: {
-          not: null,
-        },
-        revealAtDate: { gte: new Date() },
-      },
-      question: {
-        question: { contains: query, mode: "insensitive" },
-        questionOptions: {
-          none: {
-            questionAnswers: {
-              some: {
-                userId: payload.sub,
-              },
-            },
-          },
-        },
-        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
-      },
-    },
-    include: {
-      question: true,
-    },
-  });
-
-  return dailyDeckQuestions.map((dq) => dq.question);
 }

@@ -27,8 +27,10 @@ const TutorialPage = () => {
         >
           <Navbar
             avatarSrc={AvatarPlaceholder.src}
-            avatarLink="/application/profile"
-            walletLink="/application/transactions"
+            address=""
+            bonkBalance={0}
+            solBalance={0}
+            transactions={[]}
           />
           <div className="px-6 py-5 mb-2">
             <p className="text-sm">{formattedDate}</p>

@@ -40,8 +40,8 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
-  // const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  // const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
   if (!payload) {
     return redirect("/login");
@@ -49,10 +49,9 @@ export async function getDailyDeck() {
 
   const dailyDeck = await prisma.deck.findFirst({
     where: {
-      date: { not: null /* gte: currentDayStart, lte: currentDayEnd */ },
+      date: { gte: currentDayStart, lte: currentDayEnd },
       isActive: true,
       userDeck: { none: { userId: payload?.sub ?? "" } },
-      // this should be just handled by currentDayStart and currentDayEnd
       deckQuestions: {
         every: {
           question: {
