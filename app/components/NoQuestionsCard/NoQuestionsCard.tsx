@@ -32,12 +32,12 @@ export function NoQuestionsCard({
             {isAnswerPage ? (
               <>
                 There just might be! <br /> <br /> Check out what decks are
-                still available for you to chomp through under "Home"!
+                still available for you to chomp through under &quot;Home&quot;!
               </>
             ) : (
               <>
-                You just chomped through that deck! You'll be notified when this
-                deck is ready to reveal. <br />
+                You just chomped through that deck! You&apos;ll be notified when
+                this deck is ready to reveal. <br />
                 <br /> Meanwhile, go check out some more chomps in{" "}
                 <b>
                   <u>answer</u>
