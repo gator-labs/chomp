@@ -55,18 +55,22 @@ export const Questions: Story = {
         value="1"
         options={[
           {
+            id: 0,
             label: "Answer",
             value: "1",
           },
           {
+            id: 1,
             label: "Answer",
             value: "2",
           },
           {
+            id: 2,
             label: "Answer",
             value: "3",
           },
           {
+            id: 3,
             label: "Answer",
             value: "4",
           },

@@ -71,7 +71,7 @@ export function QuestionCard({
       />
       <p
         className={classNames(
-          "text-white font-sora text-[24px] leading-[30px]",
+          "text-white font-sora text-[24px] leading-[30px] max-w-[330px]",
           {
             "blur-sm": isBlurred,
             "opacity-30": isBlurred,
