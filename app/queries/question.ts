@@ -304,7 +304,7 @@ export async function getUnansweredDailyQuestions(query = "") {
     where: {
       deck: {
         date: {
-          not: null,
+          gte: dayjs(new Date()).add(-3, "days").toDate(),
         },
         revealAtDate: { gte: new Date() },
       },
@@ -319,15 +319,28 @@ export async function getUnansweredDailyQuestions(query = "") {
             },
           },
         },
-        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
+        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
       },
     },
     include: {
       question: true,
     },
+    orderBy: {
+      deck: { date: "desc" },
+    },
   });
 
   return dailyDeckQuestions.map((dq) => dq.question);
+}
+
+export async function getFirstUnansweredQuestion() {
+  const questions = await getUnansweredDailyQuestions();
+
+  if (questions.length === 0) {
+    return null;
+  }
+
+  return questions[0];
 }
 
 export async function getHomeFeedQuestions({
