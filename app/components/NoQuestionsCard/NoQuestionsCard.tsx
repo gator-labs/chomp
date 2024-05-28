@@ -7,7 +7,7 @@ import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 
 type NoQuestionsCardProps = {
   browseHomeUrl?: string;
-  isAnswerPage: boolean;
+  isAnswerPage?: boolean;
 };
 
 export function NoQuestionsCard({
