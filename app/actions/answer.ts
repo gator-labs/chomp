@@ -126,6 +126,8 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     await updateStreak(userId);
     await Promise.all(fungibleAssetRevealTasks);
   });
+
+  revalidatePath("/application");
 }
 
 export async function saveQuestion(request: SaveQuestionRequest) {
@@ -216,6 +218,8 @@ export async function saveQuestion(request: SaveQuestionRequest) {
 
     await updateStreak(userId);
   });
+
+  revalidatePath("/application");
 }
 
 export async function removePlaceholderAnswerByQuestion(

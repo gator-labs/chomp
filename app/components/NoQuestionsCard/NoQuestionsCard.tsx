@@ -2,16 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "../Button/Button";
-import { ChompGraphic } from "../Graphics/ChompGraphic";
-import { TelegramIcon } from "../Icons/TelegramIcon";
-import { TwitterIcon } from "../Icons/TwitterIcon";
+import { TrophyGraphic } from "../Graphics/TrophyGraphic";
+import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 
 type NoQuestionsCardProps = {
   browseHomeUrl?: string;
+  isAnswerPage?: boolean;
 };
 
-export function NoQuestionsCard({ browseHomeUrl }: NoQuestionsCardProps) {
-  const isDailyDeck = !!browseHomeUrl;
+export function NoQuestionsCard({
+  browseHomeUrl,
+  isAnswerPage = false,
+}: NoQuestionsCardProps) {
+  const hasBrowseHome = !!browseHomeUrl;
 
   const router = useRouter();
 
@@ -19,66 +22,49 @@ export function NoQuestionsCard({ browseHomeUrl }: NoQuestionsCardProps) {
     <div className="flex flex-col justify-between h-full">
       <div className="questions-card text-white font-sora relative">
         <div>
-          <div className="text-xl font-semibold mb-2">Fantastic!</div>
-          <div className="text-sm max-w-72">
-            {isDailyDeck ? (
+          {isAnswerPage && (
+            <div className="text-2xl font-bold mb-2">Wait, is there more?</div>
+          )}
+          {!isAnswerPage && (
+            <div className="text-2xl font-bold mb-2">Nice!</div>
+          )}
+          <div className="text-sm max-w-72 relative z-10">
+            {isAnswerPage ? (
               <>
-                You chomped through your Daily Deck. Now you can browse other
-                questions on your homepage!
+                There just might be! <br /> <br /> Check out what decks are
+                still available for you to chomp through under &quot;Home&quot;!
               </>
             ) : (
               <>
-                Thanks for chomping through our closed Alpha!
-                <br />
-                <br />
-                Waddle over to our Telegram or Twitter to get notified when
-                Chomp is ready for you to play again :)
+                You just chomped through that deck! You&apos;ll be notified when
+                this deck is ready to reveal. <br />
+                <br /> Meanwhile, go check out some more chomps in{" "}
+                <b>
+                  <u>answer</u>
+                </b>{" "}
+                page or go back{" "}
+                <b>
+                  <u>home</u>
+                </b>{" "}
+                to check for more decks.
               </>
             )}
           </div>
         </div>
-        <div className="flex justify-between items-end">
-          <div className="text-sm max-w-44">
-            Free questions unlocks every 24 hours!
-          </div>
-          <div>
-            <ChompGraphic className="absolute bottom-0 right-0" />
-          </div>
-        </div>
+        <TrophyGraphic className="absolute bottom-2.5 right-4" />
       </div>
-      {isDailyDeck ? (
+      {hasBrowseHome && (
         <Button
           variant="pink"
           size="big"
-          className="mt-2"
+          className="mt-2 flex items-center"
           onClick={() => {
             router.replace(browseHomeUrl);
             router.refresh();
           }}
         >
-          Browse Home
+          <div className="mr-1">Home</div> <HalfArrowRightIcon fill="#000" />
         </Button>
-      ) : (
-        <div className="flex gap-4 mt-2">
-          <Button
-            variant="pink"
-            size="big"
-            onClick={() => {
-              window.open("https://twitter.com/chompdotgames", "_blank");
-            }}
-          >
-            <TwitterIcon width={18} height={18} fill="#000" />
-          </Button>
-          <Button
-            variant="pink"
-            size="big"
-            onClick={() => {
-              window.open("https://t.me/+8ffiqdoGLAIyZmNl", "_blank");
-            }}
-          >
-            <TelegramIcon width={21} height={21} fill="#000" />
-          </Button>
-        </div>
       )}
     </div>
   );
