@@ -14,9 +14,9 @@ import {
   useState,
 } from "react";
 import {
-  createUsedGenisisNft,
-  getUsedGenisisNfts,
-} from "../actions/used-nft-genisis";
+  createUsedGenesisNft,
+  getUsedGenesisNfts,
+} from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
 import { CloseIcon } from "../components/Icons/CloseIcon";
 import { Modal } from "../components/Modal/Modal";
@@ -24,8 +24,8 @@ import RevealSheet from "../components/RevealSheet/RevealSheet";
 import { REVEAL_COST } from "../constants/costs";
 import {
   COLLECTION_KEY,
-  GENISIS_COLLECTION_VALUE,
-} from "../constants/genisis-nfts";
+  GENESIS_COLLECTION_VALUE,
+} from "../constants/genesis-nfts";
 import { numberToCurrencyFormatter } from "../utils/currency";
 import { genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
@@ -66,26 +66,26 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   }>();
 
   const burnAndReveal = useCallback(async () => {
-    const usedGenisisNftIds = (await getUsedGenisisNfts()).map(
-      (usedGenisisNft) => usedGenisisNft.nftId,
+    const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
+      (usedGenesisNft) => usedGenesisNft.nftId,
     );
 
     const assets = await dasUmi.rpc.getAssetsByOwner({
       owner: publicKey(primaryWallet!.address),
     });
 
-    const [genisisNft] = assets.items.filter(
+    const [genesisNft] = assets.items.filter(
       (item) =>
         item.grouping.find(
           (group) =>
             group.group_key === COLLECTION_KEY &&
-            group.group_value === GENISIS_COLLECTION_VALUE,
+            group.group_value === GENESIS_COLLECTION_VALUE,
         ) &&
         !item.burnt &&
-        !usedGenisisNftIds.includes(item.id),
+        !usedGenesisNftIds.includes(item.id),
     );
 
-    if (!genisisNft) {
+    if (!genesisNft) {
       const blockhash = await CONNECTION.getLatestBlockhash();
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
       const tx = await genBonkBurnTx(
@@ -101,7 +101,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
       });
       setBurnState("burned");
     } else {
-      await createUsedGenisisNft(genisisNft.id, primaryWallet!.address);
+      await createUsedGenesisNft(genesisNft.id, primaryWallet!.address);
     }
 
     if (reveal) {
