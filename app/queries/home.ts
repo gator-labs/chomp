@@ -264,7 +264,7 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
   return {
     averageTimeToAnswer: result?.averageTimeToAnswer
       ? dayjs
-          .duration(result?.averageTimeToAnswer.toNumber(), "milliseconds")
+          .duration(result?.averageTimeToAnswer.toNumber(), "seconds")
           .format("m:ss")
       : "-",
     cardsChomped: result?.cardsChomped ? result?.cardsChomped.toString() : "0",
