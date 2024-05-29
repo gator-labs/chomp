@@ -4,6 +4,7 @@ import { VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "../services/prisma";
+import { getRandomAvatarPath } from "../utils/avatar";
 import { resetAccountData } from "./demo";
 
 export const getJwtPayload = async () => {
@@ -35,6 +36,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     },
     create: {
       id: payload.sub,
+      profileSrc: getRandomAvatarPath(),
     },
     update: {},
     include: {
