@@ -7,7 +7,7 @@ import { UnreadIcon } from "../Icons/UnreadIcon";
 import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
 import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
 
-type NavbarProps = {
+export type NavbarProps = {
   avatarSrc: string;
   onNotificationClick?: () => {};
   address: string;

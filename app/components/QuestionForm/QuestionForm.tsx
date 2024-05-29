@@ -6,7 +6,7 @@ import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useForm } from "react-hook-form";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { z } from "zod";
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { Tag } from "../Tag/Tag";
@@ -69,7 +69,7 @@ export default function QuestionForm({
     });
 
     if (result?.errorMessage) {
-      toast.error(result.errorMessage);
+      toast.info(result.errorMessage);
     }
   });
 
@@ -217,7 +217,6 @@ export default function QuestionForm({
       </div>
 
       <SubmitButton />
-      <ToastContainer position="bottom-center" />
     </form>
   );
 }

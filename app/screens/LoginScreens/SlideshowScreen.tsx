@@ -3,9 +3,9 @@
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
 import { WalletIcon } from "@/app/components/Icons/WalletIcon";
+import Stepper from "@/app/components/Stepper/Stepper";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
-import classNames from "classnames";
 import { useState } from "react";
 import { SLIDESHOW } from "./constants";
 
@@ -19,21 +19,8 @@ const SlideshowScreen = () => {
   return (
     <main className="h-dvh bg-[#1B1B1B]">
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 justify-between h-full">
-        <ul className="py-10 flex gap-2 w-full px-1 pb-0">
-          {SLIDESHOW.map((step, index) => (
-            <li
-              key={step.title}
-              className="h-2 flex-1 rounded-[40px] bg-[#666666] overflow-hidden"
-            >
-              <div
-                className={classNames(
-                  "bg-[#CFC5F7] w-0 h-full transition-all duration-300 ease-out",
-                  index <= activeSlide && "w-full",
-                )}
-              />
-            </li>
-          ))}
-        </ul>
+        <Stepper activeStep={activeSlide} numberOfSteps={SLIDESHOW.length} />
+
         <div className="relative w-full flex [&>*]:w-full">
           {SLIDESHOW[activeSlide].icon}
         </div>

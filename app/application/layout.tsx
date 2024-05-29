@@ -10,6 +10,7 @@ import ConfettiProvider from "../providers/ConfettiProvider";
 import MetadataProvider from "../providers/MetadataProvider";
 import { RevealContextProvider } from "../providers/RevealProvider";
 import { getProfileImage } from "../queries/profile";
+import { getIsUserAdmin } from "../queries/user";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 
 type PageLayoutProps = {
@@ -33,6 +34,8 @@ export default async function Layout({ children }: PageLayoutProps) {
   const bonkBalance = await getBonkBalance(address);
   const solBalance = await getSolBalance(address);
 
+  const isAdmin = await getIsUserAdmin();
+
   return (
     <CollapsedContextProvider>
       <ConfettiProvider>
@@ -55,7 +58,7 @@ export default async function Layout({ children }: PageLayoutProps) {
                 />
                 {children}
               </main>
-              <TabNavigation />
+              <TabNavigation isAdmin={isAdmin} />
               <AuthRedirect />
               <DailyDeckRedirect />
             </div>

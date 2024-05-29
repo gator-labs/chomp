@@ -20,7 +20,12 @@ export function NoQuestionsCard({
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <div className="questions-card text-white font-sora relative">
+      <div
+        className="questions-card text-white font-sora relative"
+        style={{
+          aspectRatio: 0.92,
+        }}
+      >
         <div>
           {isAnswerPage && (
             <div className="text-2xl font-bold mb-2">Wait, is there more?</div>
@@ -57,13 +62,13 @@ export function NoQuestionsCard({
         <Button
           variant="pink"
           size="big"
-          className="mt-2 flex items-center"
+          className="gap-1 my-[53px]"
           onClick={() => {
             router.replace(browseHomeUrl);
             router.refresh();
           }}
         >
-          <div className="mr-1">Home</div> <HalfArrowRightIcon fill="#000" />
+          Home <HalfArrowRightIcon fill="#0D0D0D" />
         </Button>
       )}
     </div>

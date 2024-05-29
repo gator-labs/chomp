@@ -6,7 +6,7 @@ import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { z } from "zod";
 import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
@@ -55,7 +55,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       id: deck?.id,
     });
     if (result?.errorMessage) {
-      toast.error(result.errorMessage);
+      toast.info(result.errorMessage);
     }
   });
 
@@ -309,7 +309,6 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       </div>
 
       <SubmitButton />
-      <ToastContainer position="bottom-center" />
     </form>
   );
 }
