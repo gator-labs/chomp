@@ -2,7 +2,7 @@ name: Database Migrations
 
 on:
   pull_request:
-    types: [opened, synchronize, closed]
+    types: [closed]
     branches:
       - main
       - prod
@@ -11,7 +11,7 @@ on:
 
 jobs:
   migrate_staging:
-    if: github.base_ref == 'main' && (github.event.action == 'opened' || github.event.action == 'synchronize')
+    if: github.base_ref == 'main' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_STAGING }}
 
   migrate_prod:
-    if: github.base_ref == 'prod' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.base_ref == 'prod' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
