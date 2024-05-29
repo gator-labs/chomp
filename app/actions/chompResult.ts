@@ -1,5 +1,6 @@
 "use server";
 
+import { ResultType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
 import { getQuestionState, isEntityRevealable } from "../utils/question";
@@ -25,7 +26,7 @@ export async function revealDecks(deckIds: number[]) {
   const questionIds = await prisma.deckQuestion.findMany({
     where: {
       deckId: { in: deckIds },
-      question: { reveals: { none: { userId: payload.sub } } },
+      question: { chompResults: { none: { userId: payload.sub } } },
     },
     select: { questionId: true },
   });
@@ -49,7 +50,7 @@ export async function revealQuestions(questionIds: number[]) {
       id: true,
       revealAtDate: true,
       revealAtAnswerCount: true,
-      reveals: {
+      chompResults: {
         where: {
           userId: payload.sub,
         },
@@ -71,7 +72,7 @@ export async function revealQuestions(questionIds: number[]) {
 
   const revealableQuestions = questions.filter(
     (question) =>
-      question.reveals.length === 0 &&
+      question.chompResults.length === 0 &&
       isEntityRevealable({
         revealAtDate: question.revealAtDate,
         revealAtAnswerCount: question.revealAtAnswerCount,
@@ -82,7 +83,7 @@ export async function revealQuestions(questionIds: number[]) {
   const decksOfQuestions = await prisma.deck.findMany({
     where: {
       deckQuestions: { some: { questionId: { in: questionIds } } },
-      reveals: { none: { userId: payload.sub } },
+      chompResults: { none: { userId: payload.sub } },
     },
     include: {
       deckQuestions: {
@@ -94,7 +95,7 @@ export async function revealQuestions(questionIds: number[]) {
                   questionAnswers: { where: { userId: payload.sub } },
                 },
               },
-              reveals: { where: { userId: payload.sub } },
+              chompResults: { where: { userId: payload.sub } },
             },
           },
         },
@@ -131,18 +132,51 @@ export async function revealQuestions(questionIds: number[]) {
   });
 
   await prisma.$transaction(async (tx) => {
-    await tx.reveal.createMany({
+    await tx.chompResult.createMany({
       data: [
         ...questionIds.map((questionId) => ({
           questionId,
           userId: payload.sub,
+          result: ResultType.Claimed,
         })),
         ...decksToAddRevealFor.map((deck) => ({
           deckId: deck.id,
           userId: payload.sub,
+          result: ResultType.Claimed,
         })),
       ],
     });
+  });
+
+  revalidatePath("/application");
+}
+
+export async function dismissQuestion(questionId: number) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const chompResult = await prisma.chompResult.findFirst({
+    where: {
+      userId: payload.sub,
+      questionId: questionId,
+    },
+  });
+
+  await prisma.chompResult.upsert({
+    create: {
+      result: ResultType.Dismissed,
+      userId: payload.sub,
+      questionId: questionId,
+    },
+    update: {
+      result: ResultType.Dismissed,
+    },
+    where: {
+      id: chompResult?.id ?? 0,
+    },
   });
 
   revalidatePath("/application");

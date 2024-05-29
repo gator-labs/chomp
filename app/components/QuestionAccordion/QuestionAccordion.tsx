@@ -64,7 +64,7 @@ export function QuestionAccordion({
           <div className="mt-6 mb-4">{children}</div>
         )}
         {actionChild}
-        <div className="flex justify-between itmes-center">
+        <div className="flex justify-between items-center">
           <div className="flex items-center gap-2.5">
             <>
               <ClockIcon />

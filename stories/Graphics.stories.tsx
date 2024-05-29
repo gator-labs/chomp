@@ -1,5 +1,7 @@
-import { ReactElement, cloneElement } from "react";
+import { DeckGraphic } from "@/app/components/Graphics/DeckGraphic";
+import { TrophyGraphic } from "@/app/components/Graphics/TrophyGraphic";
 import type { Meta, StoryObj } from "@storybook/react";
+import { ReactElement, cloneElement } from "react";
 import { ChompGraphic } from "../app/components/Graphics/ChompGraphic";
 
 const GraphicsWrapper = ({
@@ -37,5 +39,17 @@ type Story = StoryObj<typeof meta>;
 export const Chomp: Story = {
   args: {
     graphic: <ChompGraphic />,
+  },
+};
+
+export const Deck: Story = {
+  args: {
+    graphic: <DeckGraphic />,
+  },
+};
+
+export const Trophy: Story = {
+  args: {
+    graphic: <TrophyGraphic />,
   },
 };

@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { getIsUserAdmin } from "../queries/user";
-import { questionSchema } from "../schemas/question";
-import prisma from "../services/prisma";
-import { ONE_MINUTE_IN_MILISECONDS } from "../utils/dateUtils";
-import { PrismaTransactionalClient } from "../utils/prisma";
-import { formatErrorsToString } from "../utils/zod";
+import { getIsUserAdmin } from "../../queries/user";
+import { questionSchema } from "../../schemas/question";
+import { QuestionImportModel } from "../../schemas/questionImport";
+import prisma from "../../services/prisma";
+import { ONE_MINUTE_IN_MILISECONDS } from "../../utils/dateUtils";
+import { PrismaTransactionalClient } from "../../utils/prisma";
+import { formatErrorsToString } from "../../utils/zod";
+import { questionInputFactory } from "./factories";
 
 export async function createQuestion(data: z.infer<typeof questionSchema>) {
   const isAdmin = await getIsUserAdmin();
@@ -154,4 +156,25 @@ export async function handleUpsertingQuestionOptionsConcurrently(
   });
 
   await Promise.all(questionOptionUpsertPromiseArray);
+}
+
+export async function handleInsertQuestions(
+  questionsToAdd: QuestionImportModel[],
+) {
+  const isAdmin = await getIsUserAdmin();
+
+  if (!isAdmin) {
+    redirect("/application");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const questions = questionInputFactory(questionsToAdd);
+    const questionPromises = questions.map((question) =>
+      tx.question.create({ data: question }),
+    );
+    await Promise.all(questionPromises);
+  });
+
+  revalidatePath("/admin/questions");
+  redirect("/admin/questions");
 }

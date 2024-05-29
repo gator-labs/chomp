@@ -1,5 +1,5 @@
 "use client";
-import { revealQuestions } from "@/app/actions/reveal";
+import { revealQuestions } from "@/app/actions/chompResult";
 import { HistorySortOptions } from "@/app/api/history/route";
 import { Button } from "@/app/components/Button/Button";
 import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";

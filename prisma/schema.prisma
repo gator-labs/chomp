@@ -21,7 +21,7 @@ model User {
   emails                      Email[]
   questionAnswers             QuestionAnswer[]
   userDeck                    UserDeck[]
-  reveals                     Reveal[]
+  chompResults                ChompResult[]
   fungibleAssetBalance        FungibleAssetBalance[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   streak                      Streak[]
@@ -59,7 +59,7 @@ model Question {
   questionOptions     QuestionOption[]
   questionTags        QuestionTag[]
   deckQuestions       DeckQuestion[]
-  reveals             Reveal[]
+  chompResults        ChompResult[]
 }
 
 model QuestionOption {
@@ -104,7 +104,7 @@ model Deck {
   isActive            Boolean        @default(true)
   deckQuestions       DeckQuestion[]
   userDeck            UserDeck[]
-  reveals             Reveal[]
+  chompResults        ChompResult[]
 }
 
 model UserDeck {
@@ -141,17 +141,17 @@ model QuestionAnswer {
   updatedAt                DateTime       @default(now()) @updatedAt
 }
 
-model Reveal {
-  id              Int       @id @default(autoincrement())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id])
-  questionId      Int?
-  question        Question? @relation(fields: [questionId], references: [id])
-  deckId          Int?
-  deck            Deck?     @relation(fields: [deckId], references: [id])
-  isRewardClaimed Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
+model ChompResult {
+  id         Int        @id @default(autoincrement())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  questionId Int?
+  question   Question?  @relation(fields: [questionId], references: [id])
+  deckId     Int?
+  deck       Deck?      @relation(fields: [deckId], references: [id])
+  result     ResultType
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now()) @updatedAt
 }
 
 model FungibleAssetTransactionLog {
@@ -206,4 +206,10 @@ enum TransactionLogType {
   CorrectSecondOrder
   AnswerDeck
   AnswerQuestion
+}
+
+enum ResultType {
+  Revealed
+  Claimed
+  Dismissed
 }

@@ -1,6 +1,6 @@
 "use client";
 import { claimQuestion } from "@/app/actions/claim";
-import { revealQuestion } from "@/app/actions/reveal";
+import { revealQuestion } from "@/app/actions/chompResult";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { DeckQuestionIncludes, getQuestionState } from "@/app/utils/question";

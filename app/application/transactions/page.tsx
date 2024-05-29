@@ -7,7 +7,7 @@ import { TransactionProfile } from "@/app/components/TransactionProfile/Transact
 import { TransactionsBackButton } from "@/app/components/TransactionsBackButton/TransactionsBackButton";
 import { TransactionsTable } from "@/app/components/TransactionsTable/TransactionsTable";
 import { WalletWidget } from "@/app/components/WalletWidget/WalletWidget";
-import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
+import { getProfileImage } from "@/app/queries/profile";
 
 type PageProps = {};
 
@@ -15,6 +15,7 @@ export default async function Page({}: PageProps) {
   const balances = await getMyFungibleAssetBalances();
   const history = await getTransactionHistory();
   const payload = await getJwtPayload();
+  const profile = await getProfileImage();
   const verifiedCredentials = payload?.verified_credentials.find(
     (vc) => vc.format === "blockchain",
   ) ?? { address: "" };
@@ -27,10 +28,7 @@ export default async function Page({}: PageProps) {
 
   return (
     <div className="w-full h-full bg-[#4D4D4D] p-4">
-      <TransactionProfile
-        avatarSrc={AvatarPlaceholder.src}
-        pointAmount={balances.Point}
-      />
+      <TransactionProfile avatarSrc={profile} pointAmount={balances.Point} />
       <div className="mt-4">
         <WalletWidget address={address} />
       </div>

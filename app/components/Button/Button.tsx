@@ -10,7 +10,8 @@ type ButtonProps = {
     | "black"
     | "pink"
     | "pink-border"
-    | "purple";
+    | "purple"
+    | "grayish";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
   children: ReactNode;
@@ -38,6 +39,7 @@ export function Button({
     pink: "bg-pink text-btn-text-pink",
     "pink-border": "bg-pink-border text-btn-text-pink-border",
     purple: "bg-purple text-btn-text-purple",
+    grayish: "",
   };
 
   const variantClasses = variantStyles[variant] || variantStyles.primary;

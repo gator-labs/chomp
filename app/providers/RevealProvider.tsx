@@ -3,7 +3,6 @@ import { dasUmi } from "@/lib/web3";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { publicKey } from "@metaplex-foundation/umi";
-import { Connection } from "@solana/web3.js";
 import Image from "next/image";
 import {
   createContext,
@@ -27,7 +26,7 @@ import {
   GENESIS_COLLECTION_VALUE,
 } from "../constants/genesis-nfts";
 import { numberToCurrencyFormatter } from "../utils/currency";
-import { genBonkBurnTx } from "../utils/solana";
+import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
 
 interface RevealContextState {
@@ -43,8 +42,6 @@ const initialContextValue: RevealContextState = {
   closeRevealModal: () => {},
   closeClaimModal: () => {},
 };
-
-const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 export const RevealedContext =
   createContext<RevealContextState>(initialContextValue);

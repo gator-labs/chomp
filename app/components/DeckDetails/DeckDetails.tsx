@@ -1,5 +1,5 @@
 "use client";
-import { revealDeck } from "@/app/actions/reveal";
+import { revealDeck } from "@/app/actions/chompResult";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
@@ -10,7 +10,7 @@ import {
   getQuestionState,
 } from "@/app/utils/question";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
-import { Deck, Reveal } from "@prisma/client";
+import { ChompResult, Deck } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
@@ -19,7 +19,7 @@ import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
 type DeckProp = Deck & {
   answerCount: number;
-  reveals: Reveal[];
+  chompResults: ChompResult[];
   deckQuestions: {
     question: DeckQuestionIncludes;
   }[];

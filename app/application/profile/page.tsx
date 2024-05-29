@@ -6,17 +6,18 @@ import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard
 import { Profile } from "@/app/components/Profile/Profile";
 import { ResetAccountDataButton } from "@/app/components/ResetAccountDataButton/ResetAccountDataButton";
 import TagRankCard from "@/app/components/TagRankCard/TagRankCard";
-import AvatarPlaceholder from "../../../public/images/avatar_placeholder.png";
+import { getProfileImage } from "@/app/queries/profile";
 
 export default async function Page() {
   const isDemo = process.env.ENVIRONMENT === "demo";
   const balances = await getMyFungibleAssetBalances();
+  const profile = await getProfileImage();
 
   return (
     <div className="flex flex-col px-4 gap-4">
       <HomeSwitchNavigation />
       <Profile
-        avatarSrc={AvatarPlaceholder.src}
+        avatarSrc={profile}
         fullName="User Name"
         handle="@user"
         joinDate={new Date()}
