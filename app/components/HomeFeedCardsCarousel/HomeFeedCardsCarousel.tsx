@@ -22,7 +22,7 @@ export function HomeFeedCardCarousel({
     <div className={className}>
       <div className="mb-1.5">{title}</div>
       <Swiper slidesPerView={1.05} spaceBetween={8}>
-        {slides}
+        {content}
       </Swiper>
     </div>
   );
