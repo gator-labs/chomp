@@ -48,7 +48,7 @@ const RevealScreen = () => {
           >
             <div
               className={classNames(
-                "p-4 flex flex-col gap-2 relative bg-[#333333] border-[#666666] border-[0.5px] rounded-lg",
+                "p-4 flex flex-col gap-2 relative bg-[#333333] border-[#666666] border-[0.5px] rounded-lg w-full",
                 {
                   "z-10 pointer-events-auto": !isRevealModalOpen,
                   "-z-10": isRevealModalOpen,
