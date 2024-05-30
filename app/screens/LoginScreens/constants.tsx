@@ -41,7 +41,7 @@ export const SLIDESHOW = [
     description: [
       "Who are your loyal community members? Did they understand what you have shared?",
       "Engage your community over a game of Chomp to test their knowledge or identify gaps in understanding. ",
-      "Community gain rewards and fun, you gain better insights, it's a easy win-win.",
+      "Community gains rewards and fun, you gain better insights, it's a easy win-win.",
     ],
   },
   {
