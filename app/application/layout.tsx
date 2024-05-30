@@ -46,10 +46,9 @@ export default async function Layout({ children }: PageLayoutProps) {
                   solBalance={solBalance}
                   transactions={history.map((h) => ({
                     amount: h.change.toNumber(),
-                    amountLabel: h.asset,
+                    amountLabel: h.asset + "s",
                     transactionType: h.type,
                     date: h.createdAt,
-                    dollarAmount: 0,
                   }))}
                   address={address}
                 />
