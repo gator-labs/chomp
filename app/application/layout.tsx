@@ -10,7 +10,7 @@ import ConfettiProvider from "../providers/ConfettiProvider";
 import MetadataProvider from "../providers/MetadataProvider";
 import { RevealContextProvider } from "../providers/RevealProvider";
 import { getProfileImage } from "../queries/profile";
-import { getBonkBalance, getSolBalance } from "../utils/solana";
+import { getSolBalance } from "../utils/solana";
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -30,7 +30,7 @@ export default async function Layout({ children }: PageLayoutProps) {
     address = verifiedCredentials.address;
   }
 
-  const bonkBalance = await getBonkBalance(address);
+  /*   const bonkBalance = await getBonkBalance(address); */
   const solBalance = await getSolBalance(address);
 
   return (
@@ -39,10 +39,10 @@ export default async function Layout({ children }: PageLayoutProps) {
         <RevealContextProvider>
           <MetadataProvider profileSrc={profile}>
             <div className="flex flex-col h-full">
-              <main className="flex-grow overflow-y-auto mb-2 w-full max-w-lg mx-auto flex flex-col">
+              <main className="flex-grow overflow-y-auto mb-2 w-full max-w-lg mx-auto flex flex-col px-4">
                 <Navbar
                   avatarSrc={profile}
-                  bonkBalance={bonkBalance}
+                  bonkBalance={10000}
                   solBalance={solBalance}
                   transactions={history.map((h) => ({
                     amount: h.change.toNumber(),
