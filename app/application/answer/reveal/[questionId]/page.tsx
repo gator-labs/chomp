@@ -1,6 +1,7 @@
+import AnsweredQuestionShow from "@/app/components/AnsweredQuestionShow/AnsweredQuestionShow";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
-import { getQuestion } from "@/app/queries/question";
+import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { isEntityRevealable } from "@/app/utils/question";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -12,7 +13,7 @@ interface Props {
 }
 
 const RevealAnswerPage = async ({ params }: Props) => {
-  const question = await getQuestion(Number(params.questionId));
+  const question = await getQuestionWithUserAnswer(Number(params.questionId));
 
   if (!question) notFound();
 
@@ -30,6 +31,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
         <HalfArrowLeftIcon />
       </Link>
       <RewardShow rewardAmount={10000} />
+      <AnsweredQuestionShow question={question} />
     </div>
   );
 };
