@@ -3,13 +3,14 @@ import { useState } from "react";
 import { InfoIcon } from "../../Icons/InfoIcon";
 import Sheet from "../../Sheet/Sheet";
 
-const TopInfoBox = () => {
+const RewardInfoBox = () => {
   const [isInfoSheetOpen, setIsInfoSheetOpen] = useState(false);
   return (
     <div
       onClick={() => {
         setIsInfoSheetOpen(true);
       }}
+      className="cursor-pointer"
     >
       <InfoIcon height={24} width={24} fill="#fff" />
       <Sheet
@@ -63,4 +64,4 @@ const TopInfoBox = () => {
   );
 };
 
-export default TopInfoBox;
+export default RewardInfoBox;

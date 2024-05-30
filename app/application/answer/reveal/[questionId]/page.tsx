@@ -1,6 +1,5 @@
 import AnsweredQuestionShow from "@/app/components/AnsweredQuestionShow/AnsweredQuestionShow";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
-import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { isEntityRevealable } from "@/app/utils/question";
@@ -37,7 +36,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
             Viewing answer results
           </h4>
         </div>
-        <TopInfoBox />
       </div>
       <RewardShow rewardAmount={10000} />
       <AnsweredQuestionShow question={question} />

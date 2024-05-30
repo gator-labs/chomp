@@ -5,6 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
+import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 
 interface RewardShowProps {
   rewardAmount: number;
@@ -37,7 +38,7 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
                 {numberToCurrencyFormatter.format(rewardAmount)} BONK
               </p>
             </div>
-            <InfoIcon height={24} width={24} className="ml-1" />
+            <RewardInfoBox />
           </div>
         </div>
         <Trophy width={70} height={85} />
