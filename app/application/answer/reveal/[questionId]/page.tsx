@@ -1,5 +1,6 @@
 import AnsweredQuestionShow from "@/app/components/AnsweredQuestionShow/AnsweredQuestionShow";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
+import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { isEntityRevealable } from "@/app/utils/question";
@@ -27,9 +28,17 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   return (
     <div className="py-2 flex flex-col gap-4">
-      <Link href="/application">
-        <HalfArrowLeftIcon />
-      </Link>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 justify-start">
+          <Link href="/application">
+            <HalfArrowLeftIcon />
+          </Link>
+          <h4 className="text-[13px] font-normal leading-[13px] text-left">
+            Viewing answer results
+          </h4>
+        </div>
+        <TopInfoBox />
+      </div>
       <RewardShow rewardAmount={10000} />
       <AnsweredQuestionShow question={question} />
     </div>
