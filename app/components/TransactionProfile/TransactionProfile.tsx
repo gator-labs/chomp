@@ -38,7 +38,7 @@ export function TransactionProfile({
 
         {typeof bonkAmount === "number" && (
           <div className="whitespace-nowrap">
-            {numberToCurrencyFormatter.format(bonkAmount)} $BONK
+            {numberToCurrencyFormatter.format(bonkAmount)} BONK
           </div>
         )}
 
