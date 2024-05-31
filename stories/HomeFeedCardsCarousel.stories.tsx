@@ -1,5 +1,6 @@
 import { HomeFeedCardCarousel } from "@/app/components/HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedQuestionCard } from "@/app/components/HomeFeedQuestionCard/HomeFeedQuestionCard";
+import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";
@@ -35,20 +36,42 @@ export const Default: Story = {
       <HomeFeedQuestionCard
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
-        onClear={fn()}
-        onView={fn()}
+        onTopCornerAction={fn()}
+        topCornerActionIcon={<CloseIcon />}
+        statusLabel={
+          <button
+            onClick={() => {}}
+            className="text-xs leading-6 text-white font-bold cursor-pointer"
+          >
+            View
+          </button>
+        }
       />,
       <HomeFeedQuestionCard
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
-        onClear={fn()}
-        onView={fn()}
+        onTopCornerAction={fn()}
+        statusLabel={
+          <button
+            onClick={() => {}}
+            className="text-xs leading-6 text-white font-bold cursor-pointer"
+          >
+            View
+          </button>
+        }
       />,
       <HomeFeedQuestionCard
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
-        onClear={fn()}
-        onView={fn()}
+        topCornerActionIcon={<CloseIcon />}
+        statusLabel={
+          <button
+            onClick={() => {}}
+            className="text-xs leading-6 text-white font-bold cursor-pointer"
+          >
+            View
+          </button>
+        }
       />,
     ],
   },

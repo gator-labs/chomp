@@ -55,12 +55,9 @@ export function QuickViewProfile({
           </Link>
           <TransactionsTable
             transactions={transactions}
-            className="max-h-[calc(100vh-352px)] my-4"
+            className="max-h-[calc(100vh-296px)] my-4"
           />
         </div>
-        <Button variant="black" className="text-white" onClick={handleLogOut}>
-          Disconnect
-        </Button>
       </div>
     </Flyout>
   );

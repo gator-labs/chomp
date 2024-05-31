@@ -50,7 +50,7 @@ export function QuestionAction({
               variant="purple"
               key={qo.id}
               size="big"
-              className="!px-0 flex-1 items-center gap-1 capitalize"
+              className="!px-0 flex-1 items-center gap-1 capitalize !h-[50px]"
             >
               {qo.option}
               {

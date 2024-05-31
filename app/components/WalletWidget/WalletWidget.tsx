@@ -1,10 +1,9 @@
 "use client";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
-import { ONE_SECOND_IN_MILISECONDS } from "@/app/utils/dateUtils";
 import { formatAddress } from "@/app/utils/wallet";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import { Button } from "../Button/Button";
 import { CopyIcon } from "../Icons/CopyIcon";
@@ -50,11 +49,6 @@ export function WalletWidget({ address, className }: WalletWidgetProps) {
           </Button>
         </div>
       </div>
-      <ToastContainer
-        position="bottom-center"
-        stacked
-        autoClose={ONE_SECOND_IN_MILISECONDS}
-      />
     </>
   );
 }

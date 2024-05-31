@@ -17,6 +17,10 @@
   body {
     margin: 0;
   }
+
+  .home-feed-swiper-slide {
+    @apply !h-auto;
+  }
 }
 
 @layer components {

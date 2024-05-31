@@ -1,10 +1,8 @@
 "use server";
 
-import { FungibleAsset, ResultType } from "@prisma/client";
+import { ResultType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { calculateRevealPoints } from "../utils/points";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
@@ -42,7 +40,7 @@ export async function claimQuestions(questionIds: number[]) {
       questionId: {
         in: questionIds,
       },
-      result: ResultType.Claimed,
+      result: ResultType.Revealed,
     },
   });
 
@@ -54,7 +52,7 @@ export async function claimQuestions(questionIds: number[]) {
         },
       },
       data: {
-        result: ResultType.Revealed,
+        result: ResultType.Claimed,
       },
     });
 
@@ -92,7 +90,7 @@ export async function claimQuestions(questionIds: number[]) {
           deckId: { in: deckRevealsToUpdate },
         },
         data: {
-          result: ResultType.Revealed,
+          result: ResultType.Claimed,
         },
       });
     }
@@ -110,24 +108,6 @@ export async function claimQuestions(questionIds: number[]) {
         })),
       });
     }
-
-    const revealResult = await calculateRevealPoints(
-      payload.sub,
-      chompResults
-        .map((r) => r.questionId)
-        .filter((questionId) => questionId !== null) as number[],
-    );
-
-    const fungibleAssetRevealTasks = revealResult.map((rr) =>
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        rr.amount,
-        rr.type,
-        tx,
-      ),
-    );
-
-    await Promise.all(fungibleAssetRevealTasks);
   });
 
   revalidatePath("/application");

@@ -10,6 +10,7 @@ import ConfettiProvider from "../providers/ConfettiProvider";
 import MetadataProvider from "../providers/MetadataProvider";
 import { RevealContextProvider } from "../providers/RevealProvider";
 import { getProfileImage } from "../queries/profile";
+import { getIsUserAdmin } from "../queries/user";
 import { getSolBalance } from "../utils/solana";
 
 type PageLayoutProps = {
@@ -33,6 +34,8 @@ export default async function Layout({ children }: PageLayoutProps) {
   /*   const bonkBalance = await getBonkBalance(address); */
   const solBalance = await getSolBalance(address);
 
+  const isAdmin = await getIsUserAdmin();
+
   return (
     <CollapsedContextProvider>
       <ConfettiProvider>
@@ -46,16 +49,15 @@ export default async function Layout({ children }: PageLayoutProps) {
                   solBalance={solBalance}
                   transactions={history.map((h) => ({
                     amount: h.change.toNumber(),
-                    amountLabel: h.asset,
+                    amountLabel: h.asset + "s",
                     transactionType: h.type,
                     date: h.createdAt,
-                    dollarAmount: 0,
                   }))}
                   address={address}
                 />
                 {children}
               </main>
-              <TabNavigation />
+              <TabNavigation isAdmin={isAdmin} />
               <AuthRedirect />
               <DailyDeckRedirect />
             </div>
