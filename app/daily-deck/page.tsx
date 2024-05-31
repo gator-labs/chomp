@@ -17,9 +17,10 @@ export default async function Page() {
             questions={dailyDeck.questions}
             deckId={dailyDeck.id}
             browseHomeUrl="/application"
+            deckVariant="daily-deck"
           />
         ) : (
-          <NoQuestionsCard browseHomeUrl="/application" />
+          <NoQuestionsCard variant="daily-deck" browseHomeUrl="/application" />
         )}
       </div>
     </div>
