@@ -9,7 +9,9 @@ import { useInterval } from "../../hooks/useInterval";
 import {
   ONE_SECOND_IN_MILISECONDS,
   getDueAtString,
+  getRevealedAtString,
 } from "../../utils/dateUtils";
+import { ClockIcon } from "../Icons/ClockIcon";
 import { CountdownIcon } from "../Icons/CountdownIcon";
 import { ImageIcon } from "../Icons/ImageIcon";
 import { Modal } from "../Modal/Modal";
@@ -26,6 +28,8 @@ type QuestionCardProps = {
   children?: ReactNode;
   style?: CSSProperties;
   isBlurred?: boolean;
+  isForReveal?: boolean;
+  answer?: string;
 };
 
 export function QuestionCard({
@@ -40,6 +44,8 @@ export function QuestionCard({
   onDurationRanOut,
   style,
   isBlurred,
+  isForReveal,
+  answer,
 }: QuestionCardProps) {
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
@@ -62,6 +68,7 @@ export function QuestionCard({
       style={{
         aspectRatio: 0.92,
         ...style,
+        position: "relative",
       }}
     >
       <Image
@@ -101,14 +108,33 @@ export function QuestionCard({
             </Modal>
           </div>
         )}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex justify-start items-center gap-x-1 w-full">
             {!!dueAt && (
               <>
-                <CountdownIcon fill="#999" />
-                <span className="text-white font-sora text-sm !leading-[14px] font-light">
-                  {dueAtFormatted}
-                </span>
+                {isForReveal ? (
+                  <>
+                    <ClockIcon fill="#fff" height={30} width={30} />
+                    <div className="text-white text-[13px] font-light leading-[16.38px] flex items-center justify-between w-full">
+                      <span>{getRevealedAtString(dueAt)}</span>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <span>Your Answer</span>
+                        {type === "BinaryQuestion" && answer && (
+                          <span className="py-1 px-2 bg-white rounded-2xl text-black text-[10px] font-bold leading-[12.6px] text-left">
+                            {answer}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <CountdownIcon fill="#999" />
+                    <span className="text-white font-sora text-sm !leading-[14px] font-light">
+                      {dueAtFormatted}
+                    </span>
+                  </>
+                )}
               </>
             )}
           </div>

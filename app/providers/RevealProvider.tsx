@@ -17,10 +17,9 @@ import {
   getUsedGenesisNfts,
 } from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
-import { CloseIcon } from "../components/Icons/CloseIcon";
 import { InfoIcon } from "../components/Icons/InfoIcon";
 import { Modal } from "../components/Modal/Modal";
-import RevealSheet from "../components/RevealSheet/RevealSheet";
+import Sheet from "../components/Sheet/Sheet";
 import { REVEAL_COST } from "../constants/costs";
 import {
   COLLECTION_KEY,
@@ -232,18 +231,10 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
 
   return (
     <RevealedContext.Provider value={value}>
-      <RevealSheet isOpen={isRevealModalOpen} setIsOpen={setIsRevealModalOpen}>
+      <Sheet isOpen={isRevealModalOpen} setIsOpen={setIsRevealModalOpen}>
         <div className="flex flex-col gap-5 px-5 pb-5">
           <div className="flex flex-col gap-3">
-            <div className="flex flex-row w-full items-center justify-between">
-              <h3 className="font-bold">Reveal answer?</h3>
-              <Button
-                onClick={() => setIsRevealModalOpen(false)}
-                className="self-end border-none w-max !p-0"
-              >
-                <CloseIcon />
-              </Button>
-            </div>
+            <h3 className="font-bold">Reveal answer?</h3>
             <p>
               This will cost you{" "}
               <span className="font-bold">
@@ -253,7 +244,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
           </div>
           <div className="flex flex-col gap-3">{revealButtons}</div>
         </div>
-      </RevealSheet>
+      </Sheet>
 
       <Modal
         title="Claim"
