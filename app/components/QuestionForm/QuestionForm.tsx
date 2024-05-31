@@ -1,12 +1,12 @@
 "use client";
 
+import { useToast } from "@/app/providers/ToastProvider";
 import { questionSchema } from "@/app/schemas/question";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import { z } from "zod";
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { Tag } from "../Tag/Tag";
@@ -59,6 +59,8 @@ export default function QuestionForm({
 
   const [selectedTagIds, setSelectedTagIds] = useState(question?.tagIds ?? []);
 
+  const { errorToast } = useToast();
+
   const questionType = watch("type");
 
   const onSubmit = handleSubmit(async (data) => {
@@ -69,7 +71,7 @@ export default function QuestionForm({
     });
 
     if (result?.errorMessage) {
-      toast.info(result.errorMessage);
+      errorToast("An error occurred", result.errorMessage);
     }
   });
 

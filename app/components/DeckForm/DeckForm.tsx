@@ -1,12 +1,12 @@
 "use client";
 
+import { useToast } from "@/app/providers/ToastProvider";
 import { deckSchema } from "@/app/schemas/deck";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
 import { z } from "zod";
 import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
@@ -23,6 +23,8 @@ type DeckFormProps = {
 };
 
 export default function DeckForm({ deck, tags, action }: DeckFormProps) {
+  const { errorToast } = useToast();
+
   const {
     register,
     handleSubmit,
@@ -55,7 +57,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       id: deck?.id,
     });
     if (result?.errorMessage) {
-      toast.info(result.errorMessage);
+      errorToast("Failed to save deck", result.errorMessage);
     }
   });
 

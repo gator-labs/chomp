@@ -1,4 +1,5 @@
 "use client";
+import { useToast } from "@/app/providers/ToastProvider";
 import {
   QuestionImportModel,
   questionImportSchema,
@@ -7,7 +8,6 @@ import { processCsv } from "@/app/utils/file";
 import { formatErrorsToString } from "@/app/utils/zod";
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
 import { ZodError } from "zod";
 import { Button } from "../Button/Button";
 import { DataTable } from "../DataTable/DataTable";
@@ -22,6 +22,8 @@ export function ImportQuestions({ action }: ImportQuestionsProps) {
   const [values, setValues] = useState<QuestionImportModel[]>([]);
   const [errors, setErrors] = useState<ZodError[]>([]);
 
+  const { errorToast } = useToast();
+
   const handleCsvProcessAsync = async (file: File) => {
     const result = await processCsv<QuestionImportModel>(
       file,
@@ -35,14 +37,7 @@ export function ImportQuestions({ action }: ImportQuestionsProps) {
       const errorsStrings = result.errors.map((error) =>
         formatErrorsToString({ success: false, error }),
       );
-      toast.error(
-        <div>
-          {errorsStrings.map((error, index) => (
-            <div key={index}>{error}</div>
-          ))}
-        </div>,
-        { style: { width: 1280, left: -484 } },
-      );
+      errorToast("Errors found", errorsStrings.join("\n"));
     }
 
     if (fileInputRef?.current) {
@@ -102,7 +97,6 @@ export function ImportQuestions({ action }: ImportQuestionsProps) {
         </div>
       </div>
       <DataTable columns={columns} data={values}></DataTable>
-      <ToastContainer position="bottom-center" autoClose={false} />
     </div>
   );
 }
