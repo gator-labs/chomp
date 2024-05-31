@@ -1,10 +1,9 @@
 "use client";
+import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { formatAddress } from "@/app/utils/wallet";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.min.css";
 import { Button } from "../Button/Button";
 import { CopyIcon } from "../Icons/CopyIcon";
 import { ExitIcon } from "../Icons/ExitIcon";
@@ -16,9 +15,10 @@ type WalletWidgetProps = {
 
 export function WalletWidget({ address, className }: WalletWidgetProps) {
   const { handleLogOut } = useDynamicContext();
+  const { successToast } = useToast();
   const handleCopyToClipboard = async () => {
     await copyTextToClipboard(address);
-    toast.info(`Copied ${address} to clipboard`);
+    successToast("Copied to clipboard", `Copied ${address} to clipboard`);
   };
 
   return (

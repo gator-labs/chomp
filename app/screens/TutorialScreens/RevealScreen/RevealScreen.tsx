@@ -12,11 +12,11 @@ import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
+import { useToast } from "@/app/providers/ToastProvider";
 import { QuestionType } from "@prisma/client";
 import classNames from "classnames";
 import Link from "next/link";
 import { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
 
 const RevealScreen = () => {
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
@@ -27,6 +27,8 @@ const RevealScreen = () => {
     "congrats-step" | "claim-step" | "final-step"
   >("congrats-step");
   const { fire } = useConfetti();
+
+  const { successToast } = useToast();
 
   if (currentScreen === "reveal")
     return (
@@ -223,7 +225,7 @@ const RevealScreen = () => {
                   className="h-[50px] w-full"
                   onClick={() => {
                     fire();
-                    toast.success("Reward Claimed! (10,000 BONK)");
+                    successToast("Claimed!", "You have successfully claimed!");
 
                     setActiveClaimScreenStep("final-step");
                   }}
@@ -270,7 +272,6 @@ const RevealScreen = () => {
             </Link>
           </div>
         )}
-        <ToastContainer position="top-center" />
       </>
     );
   }
