@@ -1,28 +1,50 @@
-import { Deck } from "@/app/components/Deck/Deck";
 import { getDailyDeck } from "@/app/queries/deck";
-import { DailyDeckTitle } from "../components/DailyDeckTitle/DailyDeckTitle";
-import { NoQuestionsCard } from "../components/NoQuestionsCard/NoQuestionsCard";
+import { getTransactionHistory } from "../actions/fungible-asset";
+import { getJwtPayload } from "../actions/jwt";
+import { getProfileImage } from "../queries/profile";
+import { getIsUserAdmin } from "../queries/user";
+import DailyDeckScreen from "../screens/DailyDeckScreen/DailyDeckScreen";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 
 export default async function Page() {
   const dailyDeck = await getDailyDeck();
+  const isAdmin = await getIsUserAdmin();
+
+  const payload = await getJwtPayload();
+  const history = await getTransactionHistory();
+  const profile = await getProfileImage();
+  const verifiedCredentials = payload?.verified_credentials.find(
+    (vc) => vc.format === "blockchain",
+  ) ?? { address: "" };
+
+  let address = "";
+
+  if ("address" in verifiedCredentials) {
+    address = verifiedCredentials.address;
+  }
+
+  const bonkBalance = await getBonkBalance(address);
+  const solBalance = await getSolBalance(address);
 
   return (
-    <div className="flex flex-col h-full p-2">
-      <div className="px-4 py-5">
-        <DailyDeckTitle date={dailyDeck?.date ?? new Date()} />
-      </div>
-      <div className="px-4 h-[calc(100%-57px)]">
-        {dailyDeck?.questions ? (
-          <Deck
-            questions={dailyDeck.questions}
-            deckId={dailyDeck.id}
-            browseHomeUrl="/application"
-            deckVariant="daily-deck"
-          />
-        ) : (
-          <NoQuestionsCard variant="daily-deck" browseHomeUrl="/application" />
-        )}
-      </div>
-    </div>
+    <DailyDeckScreen
+      date={dailyDeck?.date}
+      id={dailyDeck?.id}
+      questions={dailyDeck?.questions}
+      isAdmin={isAdmin}
+      navBarData={{
+        avatarSrc: profile,
+        bonkBalance: bonkBalance,
+        solBalance: solBalance,
+        transactions: history.map((h) => ({
+          amount: h.change.toNumber(),
+          amountLabel: h.asset,
+          transactionType: h.type,
+          date: h.createdAt,
+          dollarAmount: 0,
+        })),
+        address: address,
+      }}
+    />
   );
 }

@@ -43,13 +43,13 @@ export function NoQuestionsCard({
         <Button
           variant="pink"
           size="big"
-          className="mt-2 flex items-center"
+          className="gap-1 my-[53px]"
           onClick={() => {
             router.replace(browseHomeUrl);
             router.refresh();
           }}
         >
-          <div className="mr-1">Home</div> <HalfArrowRightIcon fill="#000" />
+          Home <HalfArrowRightIcon fill="#0D0D0D" />
         </Button>
       )}
     </div>
