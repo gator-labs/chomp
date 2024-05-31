@@ -24,8 +24,10 @@ const SlideshowScreen = () => {
         <div className="relative w-full flex [&>*]:w-full">
           {SLIDESHOW[activeSlide].icon}
         </div>
-        <div className="flex flex-col gap-8 items-center text-[20px] leading-6">
-          <h3 className="text-center">{SLIDESHOW[activeSlide].title}</h3>
+        <div className="flex flex-col gap-8 items-center ">
+          <h3 className="text-center text-[20px] leading-6 font-bold">
+            {SLIDESHOW[activeSlide].title}
+          </h3>
 
           <div className="flex gap-[10px] items-center w-full justify-between">
             <div
@@ -42,8 +44,10 @@ const SlideshowScreen = () => {
               />
             </div>
             <div>
-              <p className="text-sm text-center">
-                {SLIDESHOW[activeSlide].description}
+              <p className="text-sm text-center flex flex-col gap-5">
+                {SLIDESHOW[activeSlide].description.map((text) => (
+                  <span key={text}>{text}</span>
+                ))}
               </p>
             </div>
             <div

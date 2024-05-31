@@ -26,7 +26,7 @@ export function HomeFeedDeckExpiringSection({
       revealAtDate={d.revealAtDate}
       status="new"
       onClick={() => {
-        router.push("application/deck/" + d.id);
+        router.push("application/answer/deck/" + d.id);
         router.refresh();
       }}
     />

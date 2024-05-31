@@ -45,6 +45,7 @@ type DeckProps = {
   browseHomeUrl?: string;
   deckId: number;
   setHasReachedEnd?: Dispatch<SetStateAction<boolean>>;
+  deckVariant: "daily-deck" | "regular-deck";
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -58,6 +59,7 @@ export function Deck({
   browseHomeUrl,
   deckId,
   setHasReachedEnd,
+  deckVariant,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
@@ -228,7 +230,8 @@ export function Deck({
   if (questions.length === 0 || hasReachedEnd) {
     return (
       <div className="flex flex-col justify-evenly h-full pb-4">
-        <NoQuestionsCard browseHomeUrl={browseHomeUrl} />
+        (
+        <NoQuestionsCard browseHomeUrl={browseHomeUrl} variant={deckVariant} />)
       </div>
     );
   }

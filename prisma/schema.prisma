@@ -28,11 +28,12 @@ model User {
 }
 
 model Wallet {
-  address   String   @id
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  user      User     @relation(fields: [userId], references: [id])
+  address         String           @id
+  userId          String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  user            User             @relation(fields: [userId], references: [id])
+  usedGenesisNfts UsedGenesisNft[]
 }
 
 model Email {
@@ -178,6 +179,12 @@ model Streak {
   user            User     @relation(fields: [userId], references: [id])
   streakStartedAt DateTime @default(now())
   lastDayOfStreak DateTime @default(now()) @updatedAt
+}
+
+model UsedGenesisNft {
+  nftId         String @unique
+  wallet        Wallet @relation(fields: [walletAddress], references: [address])
+  walletAddress String
 }
 
 enum QuestionType {

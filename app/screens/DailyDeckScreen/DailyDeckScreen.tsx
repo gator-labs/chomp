@@ -43,13 +43,17 @@ const DailyDeckScreen = ({
             <div className="px-4 flex-1">
               {!!questions?.length ? (
                 <Deck
+                  deckVariant="daily-deck"
                   questions={questions}
                   deckId={id!}
                   browseHomeUrl="/application"
                   setHasReachedEnd={setHasReachedEnd}
                 />
               ) : (
-                <NoQuestionsCard browseHomeUrl="/application" />
+                <NoQuestionsCard
+                  browseHomeUrl="/application"
+                  variant="daily-deck"
+                />
               )}
             </div>
           </div>

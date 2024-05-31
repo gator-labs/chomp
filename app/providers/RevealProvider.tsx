@@ -1,6 +1,8 @@
 "use client";
+import { dasUmi } from "@/lib/web3";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
+import { publicKey } from "@metaplex-foundation/umi";
 import Image from "next/image";
 import {
   createContext,
@@ -10,11 +12,20 @@ import {
   useMemo,
   useState,
 } from "react";
+import {
+  createUsedGenesisNft,
+  getUsedGenesisNfts,
+} from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
 import { CloseIcon } from "../components/Icons/CloseIcon";
+import { InfoIcon } from "../components/Icons/InfoIcon";
 import { Modal } from "../components/Modal/Modal";
 import RevealSheet from "../components/RevealSheet/RevealSheet";
 import { REVEAL_COST } from "../constants/costs";
+import {
+  COLLECTION_KEY,
+  GENESIS_COLLECTION_VALUE,
+} from "../constants/genesis-nfts";
 import { numberToCurrencyFormatter } from "../utils/currency";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
@@ -53,18 +64,43 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   }>();
 
   const burnAndReveal = useCallback(async () => {
-    const blockhash = await CONNECTION.getLatestBlockhash();
+    const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
+      (usedGenesisNft) => usedGenesisNft.nftId,
+    );
 
-    const signer = await primaryWallet!.connector.getSigner<ISolana>();
-    const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash);
-    const { signature } = await signer.signAndSendTransaction(tx);
-
-    await CONNECTION.confirmTransaction({
-      blockhash: blockhash.blockhash,
-      lastValidBlockHeight: blockhash.lastValidBlockHeight,
-      signature,
+    const assets = await dasUmi.rpc.getAssetsByOwner({
+      owner: publicKey(primaryWallet!.address),
     });
-    setBurnState("burned");
+
+    const [genesisNft] = assets.items.filter(
+      (item) =>
+        item.grouping.find(
+          (group) =>
+            group.group_key === COLLECTION_KEY &&
+            group.group_value === GENESIS_COLLECTION_VALUE,
+        ) &&
+        !item.burnt &&
+        !usedGenesisNftIds.includes(item.id),
+    );
+
+    if (!genesisNft) {
+      const blockhash = await CONNECTION.getLatestBlockhash();
+      const signer = await primaryWallet!.connector.getSigner<ISolana>();
+      const tx = await genBonkBurnTx(
+        primaryWallet!.address,
+        blockhash.blockhash,
+      );
+      const { signature } = await signer.signAndSendTransaction(tx);
+
+      await CONNECTION.confirmTransaction({
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight,
+        signature,
+      });
+      setBurnState("burned");
+    } else {
+      await createUsedGenesisNft(genesisNft.id, primaryWallet!.address);
+    }
 
     if (reveal) {
       await reveal.reveal();
@@ -95,6 +131,22 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
             >
               Cancel
             </Button>
+            <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
+              <div className="relative flex-shrink-0">
+                <InfoIcon width={16} height={16} />
+              </div>
+              <div className="flex flex-col gap-2 text-xs font-normal">
+                <p>
+                  You would need to burn $BONK to reveal the answer, regardless
+                  of whether you&apos;ve chomped on the question card earlier or
+                  not.{" "}
+                </p>
+                <p>
+                  But you&apos;re only eligible for a potential reward if you
+                  chomped on this question earlier.
+                </p>
+              </div>
+            </div>
           </>
         );
       case "idle":
@@ -193,7 +245,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
               </Button>
             </div>
             <p>
-              This will cost you <span className="font-bold">10000 BONK.</span>
               This will cost you{" "}
               <span className="font-bold">
                 {numberToCurrencyFormatter.format(REVEAL_COST)} BONK.
