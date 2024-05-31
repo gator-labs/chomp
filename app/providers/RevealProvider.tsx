@@ -193,7 +193,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
               </Button>
             </div>
             <p>
-              This will cost you <span className="font-bold">10000 BONK.</span>
               This will cost you{" "}
               <span className="font-bold">
                 {numberToCurrencyFormatter.format(REVEAL_COST)} BONK.
