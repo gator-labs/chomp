@@ -1,8 +1,10 @@
 "use client";
 
-import { dismissQuestion } from "@/app/actions/chompResult";
+import { dismissQuestion, revealQuestion } from "@/app/actions/chompResult";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { RevealedQuestion } from "@/app/queries/home";
+import { useRouter } from "next/navigation";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
 import { HomeFeedQuestionCard } from "../HomeFeedQuestionCard/HomeFeedQuestionCard";
@@ -15,6 +17,17 @@ const QUESTIONS_IN_SECTION = 5;
 export function HomeFeedRevealedQuestionsSection({
   questions,
 }: HomeFeedRevealedQuestionsSectionProps) {
+  const router = useRouter();
+  const { openRevealModal } = useRevealedContext();
+
+  const handleReveal = (questionId: number) => {
+    openRevealModal(async () => {
+      await revealQuestion(questionId);
+      router.push("application/answer/reveal/" + questionId);
+      router.refresh();
+    });
+  };
+
   const questionSlides = questions
     .filter((_, index) => index < QUESTIONS_IN_SECTION)
     .map((q) => (
@@ -28,7 +41,7 @@ export function HomeFeedRevealedQuestionsSection({
         topCornerActionIcon={<CloseIcon />}
         statusLabel={
           <button
-            onClick={() => {}}
+            onClick={() => handleReveal(q.id)}
             className="text-xs leading-6 text-white font-bold cursor-pointer"
           >
             View
@@ -36,6 +49,12 @@ export function HomeFeedRevealedQuestionsSection({
         }
       />
     ));
+
+  if (questionSlides.length < QUESTIONS_IN_SECTION) {
+    questionSlides.push(
+      <HomeFeedEmptyQuestionCard key={questionSlides.length} />,
+    );
+  }
 
   return (
     <HomeFeedCardCarousel
@@ -45,11 +64,7 @@ export function HomeFeedRevealedQuestionsSection({
           Check out others’ revealed questions
         </span>
       }
-      slides={
-        questions.length > 0
-          ? questionSlides
-          : [<HomeFeedEmptyQuestionCard key={1} />]
-      }
+      slides={questionSlides}
     />
   );
 }
