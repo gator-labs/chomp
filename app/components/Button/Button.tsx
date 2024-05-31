@@ -39,7 +39,7 @@ export function Button({
     pink: "bg-pink text-btn-text-pink",
     "pink-border": "bg-pink-border text-btn-text-pink-border",
     purple: "bg-purple text-btn-text-purple",
-    grayish: "bg-grayish text-white",
+    grayish: "bg-grayish",
   };
 
   const variantClasses = variantStyles[variant] || variantStyles.primary;
