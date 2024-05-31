@@ -1,6 +1,7 @@
 "use client";
 
 import { dismissQuestion } from "@/app/actions/chompResult";
+import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { RevealedQuestion } from "@/app/queries/home";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
@@ -23,8 +24,16 @@ export function HomeFeedRevealedQuestionsSection({
         answerCount={q.answerCount}
         revealAtAnswerCount={q.revealAtAnswerCount}
         revealAtDate={q.revealAtDate}
-        onClear={() => dismissQuestion(q.id)}
-        onView={() => {}}
+        onTopCornerAction={() => dismissQuestion(q.id)}
+        topCornerActionIcon={<CloseIcon />}
+        statusLabel={
+          <button
+            onClick={() => {}}
+            className="text-xs leading-6 text-white font-bold cursor-pointer"
+          >
+            View
+          </button>
+        }
       />
     ));
 

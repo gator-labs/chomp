@@ -38,7 +38,7 @@ export function HomeFeedDeckCard({
   return (
     <div
       onClick={onClick}
-      className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4 cursor-pointer"
+      className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
       <div className="w-[90px] h-[90px] flex-shrink-0">
         {imageUrl ? (

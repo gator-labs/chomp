@@ -15,7 +15,9 @@ export function HomeFeedCardCarousel({
   className,
 }: HomeFeedCardsCarouselProps) {
   const content = Children.map(slides, (item, index) => (
-    <SwiperSlide key={index}>{item}</SwiperSlide>
+    <SwiperSlide key={index} className="home-feed-swiper-slide">
+      {item}
+    </SwiperSlide>
   ));
 
   return (
