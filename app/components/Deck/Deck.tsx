@@ -36,6 +36,7 @@ type DeckProps = {
   questions: Question[];
   browseHomeUrl?: string;
   deckId: number;
+  deckVariant: "daily-deck" | "regular-deck";
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -44,7 +45,12 @@ const getDueAt = (questions: Question[], index: number): Date => {
     .toDate();
 };
 
-export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
+export function Deck({
+  questions,
+  browseHomeUrl,
+  deckId,
+  deckVariant,
+}: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [rerenderAction, setRerenderAction] = useState(true);
@@ -211,7 +217,9 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   }, [questionsRef.current]);
 
   if (questions.length === 0 || hasReachedEnd) {
-    return <NoQuestionsCard browseHomeUrl={browseHomeUrl} />;
+    return (
+      <NoQuestionsCard browseHomeUrl={browseHomeUrl} variant={deckVariant} />
+    );
   }
 
   const questionOffset = 70 * (questions.length - currentQuestionIndex - 1);
