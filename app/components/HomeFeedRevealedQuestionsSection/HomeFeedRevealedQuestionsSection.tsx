@@ -20,12 +20,12 @@ export function HomeFeedRevealedQuestionsSection({
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
 
-  const handleReveal = (questionId: number) => {
-    openRevealModal(async () => {
-      await revealQuestion(questionId);
-      router.push("application/answer/reveal/" + questionId);
+  const handleReveal = (q: RevealedQuestion) => {
+    openRevealModal(async (burnTx?: string, nftAddress?: string) => {
+      await revealQuestion(q.id, burnTx, nftAddress);
+      router.push("application/answer/reveal/" + q.id);
       router.refresh();
-    });
+    }, q.revealTokenAmount ?? 0);
   };
 
   const questionSlides = questions
@@ -41,7 +41,7 @@ export function HomeFeedRevealedQuestionsSection({
         topCornerActionIcon={<CloseIcon />}
         statusLabel={
           <button
-            onClick={() => handleReveal(q.id)}
+            onClick={() => handleReveal(q)}
             className="text-xs leading-6 text-white font-bold cursor-pointer"
           >
             View

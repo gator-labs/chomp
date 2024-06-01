@@ -22,12 +22,12 @@ export function HomeFeedReadyToRevealSection({
     return null;
   }
 
-  const handleReveal = (questionId: number) => {
-    openRevealModal(async () => {
-      await revealQuestion(questionId);
-      router.push("application/answer/reveal/" + questionId);
+  const handleReveal = (q: RevealedQuestion) => {
+    openRevealModal(async (burnTx?: string, nftAddress?: string) => {
+      await revealQuestion(q.id, burnTx, nftAddress);
+      router.push("application/answer/reveal/" + q.id);
       router.refresh();
-    });
+    }, q.revealTokenAmount ?? 0);
   };
 
   const questionSlides = questions.map((q) => (
@@ -41,7 +41,7 @@ export function HomeFeedReadyToRevealSection({
         <span className="text-xs leading-6 text-aqua underline">Chomped</span>
       }
       action={
-        <Button onClick={() => handleReveal(q.id)} variant="grayish">
+        <Button onClick={() => handleReveal(q)} variant="grayish">
           <div className="flex justify-center gap-1 items-center">
             <div>Reveal</div>
             <ViewsIcon />

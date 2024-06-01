@@ -15,7 +15,6 @@ import {
 } from "react";
 import { getUsedGenesisNfts } from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
-import { CloseIcon } from "../components/Icons/CloseIcon";
 import { InfoIcon } from "../components/Icons/InfoIcon";
 import { Modal } from "../components/Modal/Modal";
 import Sheet from "../components/Sheet/Sheet";
@@ -128,8 +127,9 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
         burnTx,
         genesisNft && !reveal?.multiple ? genesisNft : undefined,
       );
+      closeRevealModal();
+      fire();
     }
-    fire();
   }, [reveal]);
 
   const revealButtons = useMemo(() => {
@@ -271,12 +271,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
           <div className="flex flex-col gap-3">
             <div className="flex flex-row w-full items-center justify-between">
               <h3 className="font-bold">Reveal answer?</h3>
-              <Button
-                onClick={() => setIsRevealModalOpen(false)}
-                className="self-end border-none w-max !p-0"
-              >
-                <CloseIcon />
-              </Button>
             </div>
             {genesisNft && !reveal?.multiple ? (
               <p>Genesis NFT will be used for reveal</p>
