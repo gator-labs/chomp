@@ -40,6 +40,14 @@ export type DeckExpiringSoon = {
   imageUrl?: string;
 };
 
+export type QuestionsForReveal = {
+  id: number;
+  question: string;
+  revealAtDate?: Date;
+  answerCount?: number;
+  revealAtAnswerCount?: number;
+};
+
 export async function getDecksForExpiringSection(): Promise<
   DeckExpiringSoon[]
 > {
@@ -183,6 +191,92 @@ async function queryRevealedQuestions(
 	    )
     and
     	q."id" not in
+	    (
+	    	select 
+	    		qo."questionId"
+	    	from public."QuestionOption" qo
+          	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+          	where qa."userId" = ${userId} and qo."questionId" = q."id"
+	    )
+  `;
+
+  return revealQuestions;
+}
+
+export async function getQuestionsForReadyToRevealSection(): Promise<
+  QuestionsForReveal[]
+> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const questions = await queryQuestionsForReadyToReveal(payload.sub);
+
+  return questions;
+}
+
+async function queryQuestionsForReadyToReveal(
+  userId: string,
+): Promise<QuestionsForReveal[]> {
+  const revealQuestions: QuestionsForReveal[] = await prisma.$queryRaw`
+  select
+  	q."id",
+  	q."question",
+  	q."revealAtDate",
+  	(
+  		select
+          	count(distinct concat(qa."userId",qo."questionId"))
+	    from public."QuestionOption" qo
+	    join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+	    where qo."questionId" = q."id"
+  	) as "answerCount",
+  	q."revealAtAnswerCount"
+  from public."Question" q 
+  where
+  	(
+	    (
+	      q."revealAtDate" is not null 
+	      and 
+	      q."revealAtDate" < now() 
+	    )
+	    or 
+	    (
+	      q."revealAtAnswerCount" is not null
+	      and
+	      q."revealAtAnswerCount" >=
+	        (
+	          select
+	          	count(distinct concat(qa."userId",qo."questionId"))
+	          from public."QuestionOption" qo
+	          join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+	          where qo."questionId" = q."id"
+	        )
+	    )
+    )
+    and
+    	(
+    		q."id" not in
+	    	(
+	    		select
+	    			cr."questionId"
+	    		from public."ChompResult" cr
+	    		where cr."questionId" = q."id" and cr."userId" = ${userId}
+	    	)
+	    	and
+	    	q."id" not in
+	    	(
+	    		select
+	    			dq."questionId"
+	    		from public."DeckQuestion" dq
+	    		join public."Deck" d on d."id" = dq."deckId"
+	    		join public."ChompResult" cr on cr."deckId" = d."id"
+	    		where cr."userId" = ${userId} and dq."questionId" = q."id"
+	    	)
+	    )
+    and
+    	q."id" in
 	    (
 	    	select 
 	    		qo."questionId"

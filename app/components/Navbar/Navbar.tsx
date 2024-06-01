@@ -7,7 +7,7 @@ import { UnreadIcon } from "../Icons/UnreadIcon";
 import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
 import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
 
-type NavbarProps = {
+export type NavbarProps = {
   avatarSrc: string;
   onNotificationClick?: () => {};
   address: string;
@@ -35,7 +35,7 @@ export function Navbar({
   };
 
   return (
-    <nav className="bg-btn-text-primary flex justify-between w-full px-4 py-3 items-center">
+    <nav className="bg-btn-text-primary flex justify-between w-full py-3 items-center">
       <Link href="/application">
         <ChompFlatIcon fill="#fff" />
       </Link>

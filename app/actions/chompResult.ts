@@ -2,15 +2,17 @@
 
 import { dasUmi } from "@/lib/web3";
 import { publicKey } from "@metaplex-foundation/umi";
-import { ResultType } from "@prisma/client";
+import { FungibleAsset, ResultType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import {
   COLLECTION_KEY,
   GENESIS_COLLECTION_VALUE,
 } from "../constants/genesis-nfts";
 import prisma from "../services/prisma";
+import { calculateRevealPoints } from "../utils/points";
 import { getQuestionState, isEntityRevealable } from "../utils/question";
 import { CONNECTION } from "../utils/solana";
+import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 import { createUsedGenesisNft, getUsedGenesisNfts } from "./used-nft-genesis";
 
@@ -226,7 +228,7 @@ export async function revealQuestions(
       .filter((qs) => qs.state.isRevealed)
       .map((qs) => qs.questionId);
 
-    const newelyRevealed = questionStates
+    const newlyRevealed = questionStates
       .filter(
         (qs) =>
           revealableQuestions.some((rq) => rq.id === qs.questionId) &&
@@ -234,14 +236,14 @@ export async function revealQuestions(
       )
       .map((qs) => qs.questionId);
 
-    const revealedQuestions = [...alreadyRevealed, ...newelyRevealed];
+    const revealedQuestions = [...alreadyRevealed, ...newlyRevealed];
     const allQuestionIds = deck.deckQuestions.map((dq) => dq.questionId);
 
-    const remainigQuestions = allQuestionIds.filter(
+    const remainingQuestions = allQuestionIds.filter(
       (qId) => !revealedQuestions.includes(qId),
     );
 
-    return remainigQuestions.length === 0;
+    return remainingQuestions.length === 0;
   });
 
   await prisma.$transaction(async (tx) => {
@@ -250,17 +252,33 @@ export async function revealQuestions(
         ...questionIds.map((questionId) => ({
           questionId,
           userId: payload.sub,
-          result: ResultType.Claimed,
+          result: ResultType.Revealed,
           transactionSignature: burnTx,
         })),
         ...decksToAddRevealFor.map((deck) => ({
           deckId: deck.id,
           userId: payload.sub,
-          result: ResultType.Claimed,
+          result: ResultType.Revealed,
           transactionSignature: burnTx,
         })),
       ],
     });
+
+    const revealResult = await calculateRevealPoints(
+      payload.sub,
+      questionIds.filter((questionId) => questionId !== null) as number[],
+    );
+
+    const fungibleAssetRevealTasks = revealResult.map((rr) =>
+      incrementFungibleAssetBalance(
+        FungibleAsset.Point,
+        rr.amount,
+        rr.type,
+        tx,
+      ),
+    );
+
+    await Promise.all(fungibleAssetRevealTasks);
   });
 
   revalidatePath("/application");

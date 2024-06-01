@@ -3,7 +3,13 @@ import {
   createTransferCheckedInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
-import { Connection, Keypair, PublicKey, Transaction } from "@solana/web3.js";
+import {
+  Connection,
+  Keypair,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  Transaction,
+} from "@solana/web3.js";
 import * as bs58 from "bs58";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
@@ -112,5 +118,5 @@ export const getSolBalance = async (address: string): Promise<number> => {
   const walletPublickey = new PublicKey(address);
   const balance = await CONNECTION.getBalance(walletPublickey);
 
-  return balance;
+  return balance / LAMPORTS_PER_SOL;
 };

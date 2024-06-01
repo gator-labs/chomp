@@ -6,7 +6,7 @@ import { TransactionLogType } from "@prisma/client";
 export type TransactionData = {
   amount: number;
   amountLabel: string;
-  dollarAmount: number;
+  dollarAmount?: number;
   transactionType: TransactionLogType;
   date: Date;
 };
@@ -29,7 +29,11 @@ export function TransactionRow({
         <div>{addSpaceBetweenCapitalLetters(transactionType)}</div>
       </div>
       <div className="flex justify-between gap-x-2">
-        <div>~${numberToCurrencyFormatter.format(dollarAmount)}</div>
+        <div>
+          {dollarAmount && (
+            <>~${numberToCurrencyFormatter.format(dollarAmount)}</>
+          )}
+        </div>
         <div>{getTimeString(date)}</div>
       </div>
     </div>

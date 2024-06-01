@@ -16,8 +16,9 @@ import {
 import { getUsedGenesisNfts } from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
 import { CloseIcon } from "../components/Icons/CloseIcon";
+import { InfoIcon } from "../components/Icons/InfoIcon";
 import { Modal } from "../components/Modal/Modal";
-import RevealSheet from "../components/RevealSheet/RevealSheet";
+import Sheet from "../components/Sheet/Sheet";
 import {
   COLLECTION_KEY,
   GENESIS_COLLECTION_VALUE,
@@ -154,6 +155,22 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
             >
               Cancel
             </Button>
+            <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
+              <div className="relative flex-shrink-0">
+                <InfoIcon width={16} height={16} />
+              </div>
+              <div className="flex flex-col gap-2 text-xs font-normal">
+                <p>
+                  You would need to burn $BONK to reveal the answer, regardless
+                  of whether you&apos;ve chomped on the question card earlier or
+                  not.{" "}
+                </p>
+                <p>
+                  But you&apos;re only eligible for a potential reward if you
+                  chomped on this question earlier.
+                </p>
+              </div>
+            </div>
           </>
         );
       case "idle":
@@ -249,7 +266,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
 
   return (
     <RevealedContext.Provider value={value}>
-      <RevealSheet isOpen={isRevealModalOpen} setIsOpen={setIsRevealModalOpen}>
+      <Sheet isOpen={isRevealModalOpen} setIsOpen={setIsRevealModalOpen}>
         <div className="flex flex-col gap-5 px-5 pb-5">
           <div className="flex flex-col gap-3">
             <div className="flex flex-row w-full items-center justify-between">
@@ -274,7 +291,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
           </div>
           <div className="flex flex-col gap-3">{revealButtons}</div>
         </div>
-      </RevealSheet>
+      </Sheet>
 
       <Modal
         title="Claim"

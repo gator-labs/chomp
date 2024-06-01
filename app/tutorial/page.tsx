@@ -1,18 +1,20 @@
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
-import "react-toastify/dist/ReactToastify.min.css";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 import { Navbar } from "../components/Navbar/Navbar";
 import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 
 import ConfettiProvider from "../providers/ConfettiProvider";
+import { getIsUserAdmin } from "../queries/user";
 import TutorialFlowScreens from "../screens/TutorialScreens/TutorialFlowScreens/TutorialFlowScreens";
 
-const TutorialPage = () => {
+const TutorialPage = async () => {
   const currentDate = new Date();
 
   const formattedDate = format(currentDate, "MMMM do EEEE", { locale: enUS });
+
+  const isAdmin = await getIsUserAdmin();
 
   return (
     <ConfettiProvider>
@@ -39,7 +41,7 @@ const TutorialPage = () => {
           <TutorialFlowScreens />
         </main>
 
-        <TabNavigation />
+        <TabNavigation isAdmin={isAdmin} />
       </div>
     </ConfettiProvider>
   );

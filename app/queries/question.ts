@@ -15,6 +15,7 @@ import { HistorySortOptions } from "../api/history/route";
 import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
 import {
+  getQuestionState,
   handleQuestionMappingForFeed,
   populateAnswerCount,
 } from "../utils/question";
@@ -524,4 +525,74 @@ export async function hasAnsweredQuestion(
   });
 
   return answeredCount > 0;
+}
+
+export async function getQuestionWithUserAnswer(questionId: number) {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub ?? "";
+  if (!userId) {
+    return;
+  }
+  const question = await prisma.question.findFirst({
+    where: {
+      id: questionId,
+    },
+    include: {
+      questionOptions: {
+        include: {
+          questionAnswers: {
+            where: {
+              userId: userId,
+            },
+          },
+        },
+      },
+      chompResults: {
+        where: {
+          userId: userId,
+        },
+      },
+    },
+  });
+
+  if (!question) {
+    return null;
+  }
+
+  const questionOptionIds = question.questionOptions.map((qo) => qo.id);
+  const questionOptionPercentages =
+    await answerPercentageQuery(questionOptionIds);
+
+  const populated = populateAnswerCount(question);
+  const isRevealable = getQuestionState(question);
+
+  handleQuestionMappingForFeed(
+    [question] as any,
+    questionOptionPercentages,
+    userId,
+    isRevealable.isRevealed,
+  );
+
+  // Extract the user's answer from the question options and include the option details
+  const userAnswer = question.questionOptions
+    .flatMap((option) =>
+      option.questionAnswers.map((answer) => ({
+        ...answer,
+        questionOption: {
+          id: option.id,
+          option: option.option,
+          isLeft: option.isLeft,
+          createdAt: option.createdAt,
+          updatedAt: option.updatedAt,
+          questionId: option.questionId,
+        },
+      })),
+    )
+    .find((answer) => answer.userId === userId);
+
+  return {
+    ...question,
+    userAnswer: userAnswer || null,
+    answerCount: populated.answerCount ?? 0,
+  };
 }
