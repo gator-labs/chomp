@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "../Avatar/Avatar";
 import { ChompFlatIcon } from "../Icons/ChompFlatIcon";
-import { UnreadIcon } from "../Icons/UnreadIcon";
 import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
 import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
 
@@ -40,7 +39,7 @@ export function Navbar({
         <ChompFlatIcon fill="#fff" />
       </Link>
       <div className="flex gap-6 items-center">
-        <Link
+        {/* <Link
           className="font-sora text-xs text-chomp-purple underline"
           href="#"
         >
@@ -48,7 +47,7 @@ export function Navbar({
         </Link>
         <button onClick={onNotificationClick}>
           <UnreadIcon />
-        </button>
+        </button> */}
         <button onClick={openQuickProfile}>
           <Avatar src={avatarSrc} size="small" />
         </button>

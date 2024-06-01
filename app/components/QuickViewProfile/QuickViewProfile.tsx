@@ -1,6 +1,8 @@
 "use client";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "../Button/Button";
 import { Flyout } from "../Flyout/Flyout";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
@@ -31,6 +33,14 @@ export function QuickViewProfile({
   transactions,
 }: QuickViewProfileProps) {
   const { handleLogOut } = useDynamicContext();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (isOpen) {
+      onClose();
+    }
+  }, [pathname]);
+
   return (
     <Flyout isOpen={isOpen} onClose={onClose}>
       <div className="p-4 flex flex-col justify-between h-full">
