@@ -130,7 +130,7 @@ export function QuestionCard({
                     <div className="text-white text-[13px] font-light leading-[16.38px] flex items-center justify-between w-full">
                       <span>{getRevealedAtString(dueAt)}</span>
                       <div className="flex items-center justify-end gap-1.5">
-                        <span>Your Answer</span>
+                        {answer && <span>Your Answer</span>}
                         {type === "BinaryQuestion" && answer && (
                           <span className="py-1 px-2 bg-white rounded-2xl text-black text-[10px] font-bold leading-[12.6px] text-left">
                             {answer}

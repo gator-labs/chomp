@@ -11,6 +11,7 @@ type ButtonProps = {
     | "pink"
     | "pink-border"
     | "purple"
+    | "aqua"
     | "grayish";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
@@ -40,6 +41,7 @@ export function Button({
     "pink-border": "bg-pink-border text-btn-text-pink-border",
     purple: "bg-purple text-btn-text-purple",
     grayish: "bg-grayish",
+    aqua: "bg-aqua text-btn-text-primary",
   };
 
   const variantClasses = variantStyles[variant] || variantStyles.primary;
