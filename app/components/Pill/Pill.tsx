@@ -57,7 +57,7 @@ const Pill = ({
 
   return (
     <div className={classNameResult} onClick={onClick}>
-      <p className="text-center">{children}</p>
+      <div className="text-center">{children}</div>
     </div>
   );
 };
