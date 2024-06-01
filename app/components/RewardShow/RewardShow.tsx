@@ -1,7 +1,7 @@
 "use client";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
+import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { ToastContainer, toast } from "react-toastify";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
@@ -13,6 +13,8 @@ interface RewardShowProps {
 
 const RewardShow = ({ rewardAmount }: RewardShowProps) => {
   const { fire } = useConfetti();
+  const { infoToast } = useToast();
+
   return rewardAmount > 0 ? (
     <>
       <div className="flex bg-[#333333] p-4 rounded-lg justify-between">
@@ -29,7 +31,7 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
               className="px-4 py-2 bg-white flex items-center justify-center rounded-[56px] cursor-pointer"
               onClick={() => {
                 fire();
-                toast.info(
+                infoToast(
                   `Reward Claimed! (${numberToCurrencyFormatter.format(rewardAmount)} BONK)`,
                 );
               }}
@@ -43,7 +45,6 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
         </div>
         <Trophy width={70} height={85} />
       </div>
-      <ToastContainer position="top-center" />
     </>
   ) : (
     <div className="p-4 flex bg-[#333333] rounded-md justify-between">
