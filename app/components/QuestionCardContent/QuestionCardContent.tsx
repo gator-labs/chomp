@@ -8,7 +8,7 @@ import { RadioInput } from "../RadioInput/RadioInput";
 type QuestionOption = {
   id: number;
   option: string;
-  questionAnswers: QuestionAnswer[];
+  questionAnswers?: QuestionAnswer[];
 };
 
 type QuestionCardContentProps = {
@@ -59,7 +59,7 @@ export function QuestionCardContent({
               label: qo.option,
               value: qo.id.toString(),
               id: qo.id,
-              questionAnswers: qo.questionAnswers,
+              questionAnswers: qo.questionAnswers || [],
             })) ?? []
           }
           onOptionSelected={(value) => onOptionSelected(+value)}

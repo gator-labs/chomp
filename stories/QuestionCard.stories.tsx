@@ -58,21 +58,25 @@ export const Questions: Story = {
             id: 0,
             label: "Answer",
             value: "1",
+            questionAnswers: [],
           },
           {
             id: 1,
             label: "Answer",
             value: "2",
+            questionAnswers: [],
           },
           {
             id: 2,
             label: "Answer",
             value: "3",
+            questionAnswers: [],
           },
           {
             id: 3,
             label: "Answer",
             value: "4",
+            questionAnswers: [],
           },
         ]}
       />
