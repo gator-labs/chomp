@@ -19,7 +19,7 @@ const ClaimButton = ({
   className,
   rewardAmount,
 }: ClaimButtonProps) => {
-  if (status === "claimable") {
+  if (status === "claimable" && rewardAmount !== 0) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
@@ -46,7 +46,7 @@ const ClaimButton = ({
         </Button>
       </div>
     );
-  } else if (status === "claimed") {
+  } else if (status === "claimed" && rewardAmount !== 0) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
@@ -63,11 +63,11 @@ const ClaimButton = ({
         <Button
           disabled
           className={classNames(
-            "!bg-btn-text-disabled !text-[#666666] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
+            "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
             className,
           )}
         >
-          <span>Claimed</span>
+          <span className="text-[#666666]">Claimed</span>
           <DollarIcon height={24} width={24} fill="#666666" />
         </Button>
       </div>
@@ -87,13 +87,14 @@ const ClaimButton = ({
           <InfoIcon width={24} height={24} />
         </div>
         <Button
+          disabled
           className={classNames(
-            "grayscale-[100%] !bg-pink !text-btn-text-pink text-[13px] font-semibold leading-[16.38px] text-left",
+            "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
             className,
           )}
-          disabled
         >
-          Unclaimable
+          <span className="text-[#666666]">Unclaimable</span>
+          <DollarIcon height={24} width={24} fill="#666666" />
         </Button>
       </div>
     );
