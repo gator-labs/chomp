@@ -15,7 +15,7 @@ export function HomeFeedCardCarousel({
   className,
 }: HomeFeedCardsCarouselProps) {
   const content = Children.map(slides, (item, index) => (
-    <SwiperSlide key={index} className="home-feed-swiper-slide">
+    <SwiperSlide key={index} className="home-feed-swiper-slide !mr-0 !w-full">
       {item}
     </SwiperSlide>
   ));
@@ -23,7 +23,7 @@ export function HomeFeedCardCarousel({
   return (
     <div className={className}>
       <div className="mb-1.5">{title}</div>
-      <Swiper slidesPerView={1.05} spaceBetween={8}>
+      <Swiper slidesPerView={1.05} spaceBetween={8} className="w-full">
         {content}
       </Swiper>
     </div>
