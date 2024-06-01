@@ -57,3 +57,7 @@
 [data-rsbs-state]::after {
   @apply !mx-auto !bg-btn-border-black;
 }
+
+.reveal-page-content > * > * > * {
+  cursor: default;
+}
