@@ -9,18 +9,15 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
-import {
-  createUsedGenesisNft,
-  getUsedGenesisNfts,
-} from "../actions/used-nft-genesis";
+import { getUsedGenesisNfts } from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
 import { CloseIcon } from "../components/Icons/CloseIcon";
 import { Modal } from "../components/Modal/Modal";
 import RevealSheet from "../components/RevealSheet/RevealSheet";
-import { REVEAL_COST } from "../constants/costs";
 import {
   COLLECTION_KEY,
   GENESIS_COLLECTION_VALUE,
@@ -30,7 +27,11 @@ import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
 
 interface RevealContextState {
-  openRevealModal: (reveal: () => Promise<void>) => void;
+  openRevealModal: (
+    reveal: (burnTx?: string, nftAddress?: string) => Promise<void>,
+    amount: number,
+    multiple?: boolean,
+  ) => void;
   openClaimModal: (claim: () => Promise<void>) => void;
   closeRevealModal: () => void;
   closeClaimModal: () => void;
@@ -46,7 +47,7 @@ const initialContextValue: RevealContextState = {
 export const RevealedContext =
   createContext<RevealContextState>(initialContextValue);
 
-const INITIAL_BURN_STATE = "skipburn";
+const INITIAL_BURN_STATE = "idle";
 export function RevealContextProvider({ children }: { children: ReactNode }) {
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
@@ -56,39 +57,57 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   const { primaryWallet } = useDynamicContext();
   const { fire } = useConfetti();
   const [reveal, setReveal] = useState<{
-    reveal: () => Promise<void>;
+    amount: number;
+    multiple: boolean;
+    reveal: (burnTx?: string, nftAddress?: string) => Promise<void>;
+    genesisNft?: string;
   }>();
   const [claim, setClaim] = useState<{
     claim: () => Promise<void>;
   }>();
+  const [genesisNft, setGenesisNft] = useState<string | undefined>();
+
+  useEffect(() => {
+    async function effect() {
+      if (reveal?.multiple || !primaryWallet) return;
+
+      const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
+        (usedGenesisNft) => usedGenesisNft.nftId,
+      );
+
+      const assets = await dasUmi.rpc.getAssetsByOwner({
+        owner: publicKey(primaryWallet.address),
+      });
+
+      const [genesisNft] = assets.items.filter(
+        (item) =>
+          item.grouping.find(
+            (group) =>
+              group.group_key === COLLECTION_KEY &&
+              group.group_value === GENESIS_COLLECTION_VALUE,
+          ) &&
+          !item.burnt &&
+          !usedGenesisNftIds.includes(item.id),
+      );
+
+      if (genesisNft) {
+        setGenesisNft(genesisNft.id);
+      }
+    }
+    effect();
+  }, [reveal, primaryWallet]);
 
   const burnAndReveal = useCallback(async () => {
-    const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
-      (usedGenesisNft) => usedGenesisNft.nftId,
-    );
-
-    const assets = await dasUmi.rpc.getAssetsByOwner({
-      owner: publicKey(primaryWallet!.address),
-    });
-
-    const [genesisNft] = assets.items.filter(
-      (item) =>
-        item.grouping.find(
-          (group) =>
-            group.group_key === COLLECTION_KEY &&
-            group.group_value === GENESIS_COLLECTION_VALUE,
-        ) &&
-        !item.burnt &&
-        !usedGenesisNftIds.includes(item.id),
-    );
-
-    if (!genesisNft) {
+    let burnTx: string | undefined;
+    if (!genesisNft || reveal?.multiple) {
       const blockhash = await CONNECTION.getLatestBlockhash();
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
       const tx = await genBonkBurnTx(
         primaryWallet!.address,
         blockhash.blockhash,
+        reveal?.amount ?? 0,
       );
+      setBurnState("burning");
       const { signature } = await signer.signAndSendTransaction(tx);
 
       await CONNECTION.confirmTransaction({
@@ -96,13 +115,18 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
         lastValidBlockHeight: blockhash.lastValidBlockHeight,
         signature,
       });
-      setBurnState("burned");
-    } else {
-      await createUsedGenesisNft(genesisNft.id, primaryWallet!.address);
+
+      burnTx = signature;
     }
+    setBurnState("burned");
+
+    console.log(burnTx);
 
     if (reveal) {
-      await reveal.reveal();
+      await reveal.reveal(
+        burnTx,
+        genesisNft && !reveal?.multiple ? genesisNft : undefined,
+      );
     }
     fire();
   }, [reveal]);
@@ -141,13 +165,19 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
               onClick={burnAndReveal}
               className="flex items-center"
             >
-              <Image
-                src={"/images/bonk.png"}
-                alt="Avatar"
-                width={32}
-                height={32}
-              />
-              &nbsp;&nbsp;Burn to Reveal
+              {genesisNft && !reveal?.multiple ? (
+                "Reveal with genesis NFT"
+              ) : (
+                <>
+                  <Image
+                    src={"/images/bonk.png"}
+                    alt="Avatar"
+                    width={32}
+                    height={32}
+                  />
+                  &nbsp;&nbsp;Burn to Reveal
+                </>
+              )}
             </Button>
             <Button
               variant="black"
@@ -177,9 +207,13 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   }, [burnState, reveal]);
 
   const openRevealModal = useCallback(
-    (reveal: () => Promise<void>) => {
+    (
+      reveal: (burnTx?: string, nftAddress?: string) => Promise<void>,
+      amount: number,
+      multiple = false,
+    ) => {
       setBurnState(INITIAL_BURN_STATE);
-      setReveal({ reveal });
+      setReveal({ reveal, amount, multiple });
       setIsRevealModalOpen(true);
     },
     [setReveal, setIsRevealModalOpen, setBurnState],
@@ -227,13 +261,16 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
                 <CloseIcon />
               </Button>
             </div>
-            <p>
-              This will cost you <span className="font-bold">10000 BONK.</span>
-              This will cost you{" "}
-              <span className="font-bold">
-                {numberToCurrencyFormatter.format(REVEAL_COST)} BONK.
-              </span>
-            </p>
+            {genesisNft && !reveal?.multiple ? (
+              <p>Genesis NFT will be used for reveal</p>
+            ) : (
+              <p>
+                This will cost you{" "}
+                <span className="font-bold">
+                  {numberToCurrencyFormatter.format(reveal?.amount ?? 0)} BONK.
+                </span>
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-3">{revealButtons}</div>
         </div>

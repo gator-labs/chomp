@@ -25,15 +25,15 @@ model User {
   fungibleAssetBalance        FungibleAssetBalance[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   streak                      Streak[]
+  usedGenesisNfts             UsedGenesisNft[]
 }
 
 model Wallet {
-  address         String           @id
-  userId          String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  user            User             @relation(fields: [userId], references: [id])
-  usedGenesisNfts UsedGenesisNft[]
+  address   String   @id
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Email {
@@ -142,16 +142,17 @@ model QuestionAnswer {
 }
 
 model ChompResult {
-  id         Int        @id @default(autoincrement())
-  userId     String
-  user       User       @relation(fields: [userId], references: [id])
-  questionId Int?
-  question   Question?  @relation(fields: [questionId], references: [id])
-  deckId     Int?
-  deck       Deck?      @relation(fields: [deckId], references: [id])
-  result     ResultType
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @default(now()) @updatedAt
+  id                   Int        @id @default(autoincrement())
+  userId               String
+  user                 User       @relation(fields: [userId], references: [id])
+  questionId           Int?
+  question             Question?  @relation(fields: [questionId], references: [id])
+  deckId               Int?
+  deck                 Deck?      @relation(fields: [deckId], references: [id])
+  transactionSignature String?
+  result               ResultType
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @default(now()) @updatedAt
 }
 
 model FungibleAssetTransactionLog {
@@ -182,9 +183,9 @@ model Streak {
 }
 
 model UsedGenesisNft {
-  nftId         String @unique
-  wallet        Wallet @relation(fields: [walletAddress], references: [address])
-  walletAddress String
+  nftId  String @unique
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
 }
 
 enum QuestionType {

@@ -52,17 +52,20 @@ function DeckDetails({ deck, openIds }: DeckDetailsProps) {
     }
   }, [openIds, setOpen]);
 
-  const revealAll = useCallback(async () => {
-    await revealDeck(deck.id);
-    const newParams = getAppendedNewSearchParams({
-      openIds: encodeURIComponent(
-        JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
-      ),
-    });
-    router.push(`${pathname}${newParams}`);
-    router.refresh();
-    closeRevealModal();
-  }, []);
+  const revealAll = useCallback(
+    async (burnTx?: string, nftAddress?: string) => {
+      await revealDeck(deck.id, burnTx, nftAddress);
+      const newParams = getAppendedNewSearchParams({
+        openIds: encodeURIComponent(
+          JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
+        ),
+      });
+      router.push(`${pathname}${newParams}`);
+      router.refresh();
+      closeRevealModal();
+    },
+    [],
+  );
 
   return (
     <div>
@@ -78,7 +81,21 @@ function DeckDetails({ deck, openIds }: DeckDetailsProps) {
           <Button
             variant="white"
             isPill
-            onClick={() => openRevealModal(revealAll)}
+            onClick={() =>
+              openRevealModal(
+                revealAll,
+                deck.deckQuestions
+                  .filter((dq) => {
+                    const state = getQuestionState(dq.question);
+                    return state.isAnswered && !state.isRevealed;
+                  })
+                  .reduce(
+                    (acc, cur) => acc + cur.question.revealTokenAmount,
+                    0,
+                  ),
+                !!"multiple",
+              )
+            }
           >
             Reveal all
           </Button>
