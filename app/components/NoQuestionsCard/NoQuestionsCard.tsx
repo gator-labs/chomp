@@ -9,12 +9,10 @@ import { QUESTION_CARD_CONTENT } from "./constants";
 type NoQuestionsCardProps = {
   variant: "daily-deck" | "regular-deck" | "answer-page";
   browseHomeUrl?: string;
-  isAnswerPage?: boolean;
 };
 
 export function NoQuestionsCard({
   browseHomeUrl,
-  isAnswerPage = false,
   variant,
 }: NoQuestionsCardProps) {
   const hasBrowseHome = !!browseHomeUrl;
