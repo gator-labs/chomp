@@ -27,13 +27,15 @@ const TutorialPage = async () => {
           id="tutorial-container"
           className="flex-grow overflow-y-auto mb-2 w-full max-w-lg mx-auto flex flex-col"
         >
-          <Navbar
-            avatarSrc={AvatarPlaceholder.src}
-            address=""
-            bonkBalance={0}
-            solBalance={0}
-            transactions={[]}
-          />
+          <div className="px-6">
+            <Navbar
+              avatarSrc={AvatarPlaceholder.src}
+              address=""
+              bonkBalance={0}
+              solBalance={0}
+              transactions={[]}
+            />
+          </div>
           <div className="px-6 py-5 mb-2">
             <p className="text-sm">{formattedDate}</p>
           </div>

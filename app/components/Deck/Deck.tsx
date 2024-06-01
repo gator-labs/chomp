@@ -230,8 +230,7 @@ export function Deck({
   if (questions.length === 0 || hasReachedEnd) {
     return (
       <div className="flex flex-col justify-evenly h-full pb-4">
-        (
-        <NoQuestionsCard browseHomeUrl={browseHomeUrl} variant={deckVariant} />)
+        <NoQuestionsCard browseHomeUrl={browseHomeUrl} variant={deckVariant} />
       </div>
     );
   }
