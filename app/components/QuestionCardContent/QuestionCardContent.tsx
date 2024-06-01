@@ -20,6 +20,7 @@ type QuestionCardContentProps = {
   percentage?: number;
   onPercentageChanged?: (percentage: number) => void;
   randomOptionPercentage?: number;
+  className?: string;
 };
 
 export function QuestionCardContent({
@@ -32,6 +33,7 @@ export function QuestionCardContent({
   percentage,
   onPercentageChanged,
   randomOptionPercentage,
+  className,
 }: QuestionCardContentProps) {
   const [handlePercentage, setHandlePercentage] = useState<number>(50);
 
@@ -46,7 +48,7 @@ export function QuestionCardContent({
 
   if (type === "MultiChoice" && step === QuestionStep.AnswerQuestion) {
     return (
-      <div>
+      <div className={className}>
         <RadioInput
           name="Multiple choice"
           options={
@@ -67,7 +69,7 @@ export function QuestionCardContent({
 
   if (type === "MultiChoice" && step === QuestionStep.PickPercentage) {
     return (
-      <div>
+      <div className={className}>
         {questionOptions?.map((qo) => (
           <div key={qo.id} className="mb-2">
             <AnswerResult

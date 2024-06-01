@@ -69,12 +69,14 @@ export function QuestionCard({
         aspectRatio: 0.92,
         ...style,
         position: "relative",
+        zIndex: 0, // Ensure the card itself has a z-index
       }}
     >
       <Image
         src={gatorHeadImage}
         alt="gator-head"
         className="absolute bottom-0 left-0 w-full"
+        style={{ zIndex: 1 }} // Ensure the image has a proper z-index
       />
       <p
         className={classNames(
@@ -85,13 +87,17 @@ export function QuestionCard({
             "!text-base": type === QuestionType.MultiChoice,
           },
         )}
+        style={{ zIndex: 2 }} // Ensure the text has a proper z-index
       >
         {question}
       </p>
-      <div>{children}</div>
+      <div style={{ zIndex: 2 }}>{children}</div>
       <div>
         {viewImageSrc && (
-          <div className="flex items-center gap-[6px] mb-1">
+          <div
+            className="flex items-center gap-[6px] mb-1"
+            style={{ zIndex: 2 }}
+          >
             <ImageIcon />
             <button
               onClick={() => setIsViewImageOpen(true)}
@@ -108,8 +114,14 @@ export function QuestionCard({
             </Modal>
           </div>
         )}
-        <div className="flex items-center justify-between w-full">
-          <div className="flex justify-start items-center gap-x-1 w-full">
+        <div
+          className="flex items-center justify-between w-full"
+          style={{ zIndex: 2 }}
+        >
+          <div
+            className="flex justify-start items-center gap-x-1 w-full"
+            style={{ zIndex: 2 }}
+          >
             {!!dueAt && (
               <>
                 {isForReveal ? (

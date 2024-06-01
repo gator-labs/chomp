@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { InfoIcon } from "../../Icons/InfoIcon";
 import Sheet from "../../Sheet/Sheet";
@@ -33,7 +34,15 @@ const TopInfoBox = () => {
               </p>
               <p className="text-[13px] font-bold leading-[16.38px] text-left">
                 For more information about how Chomp&apos;s mechanism works,
-                please read on in Chomp&apos;s Docs
+                please read on in{" "}
+                <Link
+                  href="https://chomp.gitbook.io/chomp/"
+                  target="_blank"
+                  className="underline"
+                >
+                  Chomp&apos;s Docs
+                </Link>
+                .
               </p>
             </p>
           </div>

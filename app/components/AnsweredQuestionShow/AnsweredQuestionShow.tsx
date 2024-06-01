@@ -22,6 +22,7 @@ const AnsweredQuestionShow = ({ question }: any) => {
           optionSelectedId={question.userAnswer.questionOptionId}
           step={1}
           onOptionSelected={() => {}}
+          className="reveal-page-content"
         />
       )}
     </QuestionCard>
