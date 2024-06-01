@@ -27,9 +27,9 @@ const ClaimButton = ({
             Your claimable reward:
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
-            <p className="text-[10px] font-bold leading-[12.6px] text-left">
+            <span className="text-[10px] font-bold leading-[12.6px] text-left">
               {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
-            </p>
+            </span>
           </Pill>
           <InfoIcon width={24} height={24} />
         </div>
@@ -51,12 +51,12 @@ const ClaimButton = ({
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
-            Your claimable reward:
+            You have claimed:
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
-            <p className="text-[10px] font-bold leading-[12.6px] text-left">
+            <span className="text-[10px] font-bold leading-[12.6px] text-left">
               {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
-            </p>
+            </span>
           </Pill>
           <InfoIcon width={24} height={24} />
         </div>
@@ -80,9 +80,9 @@ const ClaimButton = ({
             Your claimable reward:
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
-            <p className="text-[10px] font-bold leading-[12.6px] text-left">
+            <span className="text-[10px] font-bold leading-[12.6px] text-left">
               {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
-            </p>
+            </span>
           </Pill>
           <InfoIcon width={24} height={24} />
         </div>
