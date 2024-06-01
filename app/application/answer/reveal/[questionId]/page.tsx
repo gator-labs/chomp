@@ -1,4 +1,5 @@
 import AnsweredQuestionShow from "@/app/components/AnsweredQuestionShow/AnsweredQuestionShow";
+import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
@@ -41,6 +42,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       </div>
       <RewardShow rewardAmount={10000} />
       <AnsweredQuestionShow question={question} />
+      <ClaimButton status="unclaimable" rewardAmount={1000} />
     </div>
   );
 };
