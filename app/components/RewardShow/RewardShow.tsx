@@ -6,6 +6,7 @@ import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
+import Pill from "../Pill/Pill";
 
 interface RewardShowProps {
   rewardAmount: number;
@@ -27,19 +28,20 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
             <p className="text-[13px] font-normal leading-[17.55px] text-left">
               Claim reward:
             </p>
-            <div
-              className="px-4 py-2 bg-white flex items-center justify-center rounded-[56px] cursor-pointer"
+            <Pill
               onClick={() => {
                 fire();
                 infoToast(
                   `Reward Claimed! (${numberToCurrencyFormatter.format(rewardAmount)} BONK)`,
                 );
               }}
+              variant="white"
+              className="cursor-pointer"
             >
-              <p className="text-[#0D0D0D] text-[10px] font-bold leading-[12.6px] text-center">
+              <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(rewardAmount)} BONK
               </p>
-            </div>
+            </Pill>
             <RewardInfoBox />
           </div>
         </div>
@@ -57,11 +59,11 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
             Claim reward:
           </p>
-          <div className="px-4 py-2 bg-white flex items-center justify-center rounded-[56px] cursor-pointer">
-            <p className="text-[#0D0D0D] text-[10px] font-bold leading-[12.6px] text-center">
+          <Pill variant="white" className="cursor-pointer">
+            <p className="text-[10px] font-bold leading-[12.6px] text-center ">
               0 BONK
             </p>
-          </div>
+          </Pill>
           <InfoIcon height={24} width={24} className="ml-1" />
         </div>
       </div>
