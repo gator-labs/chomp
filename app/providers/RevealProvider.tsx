@@ -27,7 +27,6 @@ import {
 } from "../constants/genesis-nfts";
 import { numberToCurrencyFormatter } from "../utils/currency";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
-import { useConfetti } from "./ConfettiProvider";
 
 interface RevealContextState {
   openRevealModal: (reveal: () => Promise<void>) => void;
@@ -54,7 +53,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
     "burning" | "burned" | "error" | "idle" | "skipburn"
   >(INITIAL_BURN_STATE);
   const { primaryWallet } = useDynamicContext();
-  const { fire } = useConfetti();
+
   const [reveal, setReveal] = useState<{
     reveal: () => Promise<void>;
   }>();
@@ -104,7 +103,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
     if (reveal) {
       await reveal.reveal();
     }
-    fire();
   }, [reveal]);
 
   const revealButtons = useMemo(() => {
@@ -116,8 +114,12 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
               variant="white"
               isPill
               onClick={async () => {
-                await reveal?.reveal();
-                fire();
+                try {
+                  await reveal?.reveal();
+                  setIsRevealModalOpen(false);
+                } catch (error) {
+                  console.error(error);
+                }
               }}
               className="text-black"
             >
