@@ -42,7 +42,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       </div>
       <RewardShow rewardAmount={10000} />
       <AnsweredQuestionShow question={question} />
-      <ClaimButton status="unclaimable" rewardAmount={1000} />
+      <ClaimButton status="claimable" rewardAmount={10000} />
     </div>
   );
 };
