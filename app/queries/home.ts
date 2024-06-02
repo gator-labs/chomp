@@ -312,28 +312,9 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
     await prisma.$queryRaw`
   select 
     (
-      (
-        select 
-          count(distinct q."id")
-        from public."Question" q
-        join public."QuestionOption" qo on qo."questionId" = q."id"
-        join public."QuestionAnswer" qa on (qa."questionOptionId" = qo."id" and qa."hasViewedButNotSubmitted" = false)
-        left join public."DeckQuestion" dq on dq."questionId" = q."id"
-        where dq is null and qa."userId" = u."id"
-        limit 1
-      )
-      +
-      (
-        select
-          count(distinct d."id") 
-        from public."Deck" d
-        join public."DeckQuestion" dq on dq."deckId" = d."id"
-        join public."Question" q on q."id" = dq."questionId"
-        join public."QuestionOption" qo on qo."questionId" = q."id"
-        join public."QuestionAnswer" qa on (qa."questionOptionId" = qo."id" and qa."hasViewedButNotSubmitted" = false)
-        where qa."userId" = u."id"
-        limit 1
-      )
+      select count(distinct qo."questionId") from "QuestionAnswer" qa
+      inner join "QuestionOption" qo ON qo.id = qa."questionOptionId" 
+      where qa.selected = true and qa."hasViewedButNotSubmitted" = false
     ) as "cardsChomped",
     (
       select avg(qa."timeToAnswer") from public."QuestionAnswer" qa 
