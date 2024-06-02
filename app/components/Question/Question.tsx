@@ -169,7 +169,6 @@ export function Question({ question, returnUrl }: QuestionProps) {
             questionOptions={question.questionOptions}
             randomOptionId={question.questionOptions[random]?.id}
             percentage={optionPercentage}
-            onPercentageChanged={setOptionPercentage}
           />
         </QuestionCard>
       </div>
@@ -181,6 +180,8 @@ export function Question({ question, returnUrl }: QuestionProps) {
           step={currentQuestionStep || QuestionStep.PickPercentage}
           questionOptions={question.questionOptions}
           randomQuestionMarker={getAlphaIdentifier(random)}
+          percentage={optionPercentage}
+          setPercentage={setOptionPercentage}
         />
       </div>
     </div>

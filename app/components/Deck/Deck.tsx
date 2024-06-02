@@ -262,7 +262,6 @@ export function Deck({
               questionOptions={question.questionOptions}
               randomOptionId={question.questionOptions[random]?.id}
               percentage={optionPercentage}
-              onPercentageChanged={setOptionPercentage}
             />
           </QuestionCard>
         </div>
@@ -275,6 +274,8 @@ export function Deck({
           step={currentQuestionStep}
           questionOptions={question.questionOptions}
           randomQuestionMarker={getAlphaIdentifier(random)}
+          percentage={optionPercentage}
+          setPercentage={setOptionPercentage}
         />
       )}
     </div>
