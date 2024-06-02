@@ -29,6 +29,7 @@ export type RevealedQuestion = {
   revealAtDate?: Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
+  revealTokenAmount?: number;
 };
 
 export type DeckExpiringSoon = {
@@ -46,6 +47,7 @@ export type QuestionsForReveal = {
   revealAtDate?: Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
+  revealTokenAmount?: number;
 };
 
 export async function getDecksForExpiringSection(): Promise<
@@ -148,7 +150,8 @@ async function queryRevealedQuestions(
 	    join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
 	    where qo."questionId" = q."id"
   	) as "answerCount",
-  	q."revealAtAnswerCount"
+  	q."revealAtAnswerCount",
+  	q."revealTokenAmount"
   from public."Question" q 
   where
   	(
@@ -234,7 +237,8 @@ async function queryQuestionsForReadyToReveal(
 	    join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
 	    where qo."questionId" = q."id"
   	) as "answerCount",
-  	q."revealAtAnswerCount"
+  	q."revealAtAnswerCount",
+  	q."revealTokenAmount"
   from public."Question" q 
   where
   	(

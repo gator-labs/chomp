@@ -1,24 +1,77 @@
 "use server";
 
+import { dasUmi } from "@/lib/web3";
+import { publicKey } from "@metaplex-foundation/umi";
 import { FungibleAsset, ResultType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import {
+  COLLECTION_KEY,
+  GENESIS_COLLECTION_VALUE,
+} from "../constants/genesis-nfts";
 import prisma from "../services/prisma";
 import { calculateRevealPoints } from "../utils/points";
 import { getQuestionState, isEntityRevealable } from "../utils/question";
+import { CONNECTION } from "../utils/solana";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
+import { createUsedGenesisNft, getUsedGenesisNfts } from "./used-nft-genesis";
 
-export async function revealDeck(deckId: number) {
-  const decks = await revealDecks([deckId]);
+const checkNft = async (nftAddress: string) => {
+  const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
+    (usedGenesisNft) => usedGenesisNft.nftId,
+  );
+
+  if (usedGenesisNftIds.includes(nftAddress)) {
+    return false;
+  }
+
+  const asset = await dasUmi.rpc.getAsset(publicKey(nftAddress));
+
+  const isEligible =
+    asset.grouping.find(
+      (group) =>
+        group.group_key === COLLECTION_KEY &&
+        group.group_value === GENESIS_COLLECTION_VALUE,
+    ) && !asset.burnt;
+
+  if (!isEligible) {
+    return false;
+  }
+
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  await createUsedGenesisNft(nftAddress, payload.sub);
+
+  return true;
+};
+
+export async function revealDeck(
+  deckId: number,
+  burnTx?: string,
+  nftAddress?: string,
+) {
+  const decks = await revealDecks([deckId], burnTx, nftAddress);
   return decks ? decks[0] : null;
 }
 
-export async function revealQuestion(questionId: number) {
-  const questions = await revealQuestions([questionId]);
+export async function revealQuestion(
+  questionId: number,
+  burnTx?: string,
+  nftAddress?: string,
+) {
+  const questions = await revealQuestions([questionId], burnTx, nftAddress);
   return questions ? questions[0] : null;
 }
 
-export async function revealDecks(deckIds: number[]) {
+export async function revealDecks(
+  deckIds: number[],
+  burnTx?: string,
+  nftAddress?: string,
+) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -33,11 +86,19 @@ export async function revealDecks(deckIds: number[]) {
     select: { questionId: true },
   });
 
-  await revealQuestions(questionIds.map((q) => q.questionId));
+  await revealQuestions(
+    questionIds.map((q) => q.questionId),
+    burnTx,
+    nftAddress,
+  );
   revalidatePath("/application");
 }
 
-export async function revealQuestions(questionIds: number[]) {
+export async function revealQuestions(
+  questionIds: number[],
+  burnTx?: string,
+  nftAddress?: string,
+) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -52,6 +113,7 @@ export async function revealQuestions(questionIds: number[]) {
       id: true,
       revealAtDate: true,
       revealAtAnswerCount: true,
+      revealTokenAmount: true,
       chompResults: {
         where: {
           userId: payload.sub,
@@ -81,6 +143,57 @@ export async function revealQuestions(questionIds: number[]) {
         answerCount: question.questionOptions[0].questionAnswers.length,
       }),
   );
+
+  const bonkToBurn = revealableQuestions
+    .slice(nftAddress && (await checkNft(nftAddress)) ? 1 : 0) // skip bonk burn for first question if nft is supplied
+    .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
+
+  const wallets = (
+    await prisma.wallet.findMany({
+      where: {
+        userId: payload.sub,
+      },
+    })
+  ).map((wallet) => wallet.address);
+
+  if (bonkToBurn > 0) {
+    if (!burnTx) {
+      return null;
+    }
+
+    const burnTransactionCount = await prisma.chompResult.count({
+      where: {
+        transactionSignature: burnTx,
+      },
+    });
+
+    if (burnTransactionCount > 0) {
+      return null;
+    }
+
+    const transaction = await CONNECTION.getParsedTransaction(burnTx, {
+      commitment: "confirmed",
+      maxSupportedTransactionVersion: 0,
+    });
+
+    if (!transaction || transaction.meta?.err) {
+      return null;
+    }
+
+    const burnInstruction = transaction.transaction.message.instructions.find(
+      (instruction) =>
+        "parsed" in instruction &&
+        +instruction.parsed.info.tokenAmount.amount >= bonkToBurn * 10 ** 5 &&
+        instruction.parsed.type === "burnChecked" &&
+        wallets.includes(instruction.parsed.info.authority) &&
+        instruction.parsed.info.mint ===
+          "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    );
+
+    if (!burnInstruction) {
+      return null;
+    }
+  }
 
   const decksOfQuestions = await prisma.deck.findMany({
     where: {
@@ -140,11 +253,13 @@ export async function revealQuestions(questionIds: number[]) {
           questionId,
           userId: payload.sub,
           result: ResultType.Revealed,
+          transactionSignature: burnTx,
         })),
         ...decksToAddRevealFor.map((deck) => ({
           deckId: deck.id,
           userId: payload.sub,
           result: ResultType.Revealed,
+          transactionSignature: burnTx,
         })),
       ],
     });

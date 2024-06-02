@@ -15,12 +15,13 @@ import * as bs58 from "bs58";
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;
-const AMOUNT_TO_SEND = 1; // 1 => 0.00001 BONK
+const AMOUNT_TO_SEND = 1;
 const DECIMALS = 5;
 
 export const genBonkBurnTx = async (
   ownerAddress: string,
   blockhash: string,
+  tokenAmount: number,
 ) => {
   const burnFromPublic = new PublicKey(ownerAddress);
 
@@ -36,7 +37,7 @@ export const genBonkBurnTx = async (
       ata,
       bonkPublic,
       burnFromPublic,
-      AMOUNT_TO_SEND,
+      tokenAmount * 10 ** DECIMALS,
       DECIMALS,
     ),
   );
