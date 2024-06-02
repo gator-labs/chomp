@@ -10,7 +10,6 @@ import {
   Tag,
 } from "@prisma/client";
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
 import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import { HistorySortOptions } from "../api/history/route";
@@ -43,15 +42,11 @@ export async function getDailyDeck() {
   const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
-  if (!payload) {
-    return redirect("/login");
-  }
 
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
       isActive: true,
-      userDeck: { none: { userId: payload?.sub ?? "" } },
       deckQuestions: {
         every: {
           question: {
@@ -61,6 +56,9 @@ export async function getDailyDeck() {
           },
         },
       },
+      ...(payload
+        ? { userDeck: { none: { userId: payload?.sub ?? "" } } }
+        : {}),
     },
     include: questionDeckToRunInclude,
   });
