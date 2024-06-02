@@ -87,7 +87,6 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
               type={QuestionType.MultiChoice}
               step={QuestionStep.AnswerQuestion}
               percentage={optionPercentage}
-              onPercentageChanged={setOptionPercentage}
               randomOptionPercentage={othersResponseScale}
               questionOptions={[
                 { id: 1, option: "Jupiter" },
@@ -123,7 +122,8 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
               type={QuestionType.MultiChoice}
               step={STEPS[tooltipIndex].questionActionStep}
               randomQuestionMarker="B"
-              setOthersResponseScale={setOthersResponseScale}
+              percentage={othersResponseScale}
+              setPercentage={setOthersResponseScale}
             />
           </div>
         </Tooltip>

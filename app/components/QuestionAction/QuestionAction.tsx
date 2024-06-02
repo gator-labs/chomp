@@ -1,6 +1,6 @@
 "use client";
 import { QuestionType } from "@prisma/client";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Button } from "../Button/Button";
 import { QuestionStep } from "../Question/Question";
 import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
@@ -18,7 +18,8 @@ type QuestionActionProps = {
   onButtonClick: (answer?: number) => void;
   randomQuestionMarker?: string;
   step: QuestionStep;
-  setOthersResponseScale?: Dispatch<SetStateAction<number>>;
+  percentage?: number;
+  setPercentage?: Dispatch<SetStateAction<number>>;
 };
 
 export function QuestionAction({
@@ -27,16 +28,9 @@ export function QuestionAction({
   onButtonClick,
   step,
   randomQuestionMarker,
-  setOthersResponseScale,
+  percentage = 50,
+  setPercentage,
 }: QuestionActionProps) {
-  const [scale, setScale] = useState(50);
-
-  useEffect(() => {
-    if (setOthersResponseScale) {
-      setOthersResponseScale(scale);
-    }
-  }, [scale, setOthersResponseScale]);
-
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
@@ -80,14 +74,16 @@ export function QuestionAction({
         <div className="flex gap-3 items-center justify-between">
           <div className="w-full h-full">
             <TrueFalseScale
-              ratioLeft={scale}
-              handleRatioChange={setScale}
+              ratioLeft={percentage}
+              handleRatioChange={(value) =>
+                setPercentage && setPercentage(value)
+              }
               labelLeft={optionLeft}
               labelRight={optionRight}
             />
           </div>
           <Button
-            onClick={() => onButtonClick(scale)}
+            onClick={() => onButtonClick(percentage)}
             variant="purple"
             size="normal"
             className="w-max py-6 !rounded-2xl self-stretch"
@@ -125,14 +121,16 @@ export function QuestionAction({
         <div className="flex gap-3 items-center justify-between">
           <div className="w-full h-full">
             <TrueFalseScale
-              ratioLeft={scale}
-              handleRatioChange={setScale}
+              ratioLeft={percentage}
+              handleRatioChange={(value) =>
+                setPercentage && setPercentage(value)
+              }
               labelLeft="No one"
               labelRight="Everyone"
             />
           </div>
           <Button
-            onClick={() => onButtonClick(scale)}
+            onClick={() => onButtonClick(percentage)}
             variant="purple"
             size="normal"
             className="w-max py-6 !rounded-2xl self-stretch"

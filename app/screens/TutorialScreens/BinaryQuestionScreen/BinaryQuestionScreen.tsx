@@ -89,7 +89,6 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
               type={QuestionType.BinaryQuestion}
               step={QuestionStep.PickPercentage}
               percentage={optionPercentage}
-              onPercentageChanged={setOptionPercentage}
             />
           </QuestionCard>
         </Tooltip>
@@ -120,6 +119,8 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
                 { id: 1, option: "yes", isLeft: true },
                 { id: 2, option: "no", isLeft: false },
               ]}
+              percentage={optionPercentage}
+              setPercentage={setOptionPercentage}
             />
           </div>
         </Tooltip>
