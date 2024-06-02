@@ -81,7 +81,11 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
 
       <div className="mb-3">
         <label className="mr-3">Is active</label>
-        <input type="checkbox" className="mt-1" {...register("isActive")} />
+        <input
+          type="checkbox"
+          className="mt-1"
+          {...register("isActive", { value: true })}
+        />
         <div className="text-red">{errors.isActive?.message}</div>
       </div>
 
