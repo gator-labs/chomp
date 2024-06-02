@@ -11,7 +11,7 @@ import MetadataProvider from "../providers/MetadataProvider";
 import { RevealContextProvider } from "../providers/RevealProvider";
 import { getProfileImage } from "../queries/profile";
 import { getIsUserAdmin } from "../queries/user";
-import { getSolBalance } from "../utils/solana";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 
 type PageLayoutProps = {
   children: ReactNode;
@@ -31,7 +31,7 @@ export default async function Layout({ children }: PageLayoutProps) {
     address = verifiedCredentials.address;
   }
 
-  /*   const bonkBalance = await getBonkBalance(address); */
+  const bonkBalance = await getBonkBalance(address);
   const solBalance = await getSolBalance(address);
 
   const isAdmin = await getIsUserAdmin();
@@ -45,7 +45,7 @@ export default async function Layout({ children }: PageLayoutProps) {
               <main className="flex-grow overflow-y-auto mb-2 w-full max-w-lg mx-auto flex flex-col px-4">
                 <Navbar
                   avatarSrc={profile}
-                  bonkBalance={10000}
+                  bonkBalance={bonkBalance}
                   solBalance={solBalance}
                   transactions={history.map((h) => ({
                     amount: h.change.toNumber(),

@@ -91,22 +91,26 @@ export const getBonkBalance = async (address: string): Promise<number> => {
     return 0;
   }
 
-  const walletPublickey = new PublicKey(address);
-  const bonkPublicKey = new PublicKey(BONK_PUBLIC_ADDRESS);
-  const balance = await CONNECTION.getParsedTokenAccountsByOwner(
-    walletPublickey,
-    {
-      mint: bonkPublicKey,
-    },
-  );
+  try {
+    const walletPublickey = new PublicKey(address);
+    const bonkPublicKey = new PublicKey(BONK_PUBLIC_ADDRESS);
+    const balance = await CONNECTION.getParsedTokenAccountsByOwner(
+      walletPublickey,
+      {
+        mint: bonkPublicKey,
+      },
+    );
 
-  if (balance.value.length === 0) {
+    if (balance.value.length === 0) {
+      return 0;
+    }
+
+    return (
+      balance.value[0].account?.data?.parsed?.info?.tokenAmount?.uiAmount ?? 0
+    );
+  } catch {
     return 0;
   }
-
-  return (
-    balance.value[0].account?.data?.parsed?.info?.tokenAmount?.uiAmount ?? 0
-  );
 };
 
 export const getSolBalance = async (address: string): Promise<number> => {
