@@ -74,7 +74,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
           <QuestionCard
             dueAt={dueAt}
             numberOfSteps={0}
-            question="The best way to secure your assets is to use a hardware wallet."
+            question="Was a SBF net positive for solana?"
             type={QuestionType.BinaryQuestion}
             viewImageSrc="/test"
             step={0}

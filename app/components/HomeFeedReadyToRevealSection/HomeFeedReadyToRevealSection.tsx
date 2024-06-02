@@ -6,6 +6,7 @@ import { RevealedQuestion } from "@/app/queries/home";
 import { useRouter } from "next/navigation";
 import { Button } from "../Button/Button";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
+import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
 import { HomeFeedQuestionCard } from "../HomeFeedQuestionCard/HomeFeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
 
@@ -18,9 +19,6 @@ export function HomeFeedReadyToRevealSection({
 }: HomeFeedReadyToRevealSectionProps) {
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
-  if (questions.length === 0) {
-    return null;
-  }
 
   const handleReveal = (q: RevealedQuestion) => {
     openRevealModal(async (burnTx?: string, nftAddress?: string) => {
@@ -30,26 +28,30 @@ export function HomeFeedReadyToRevealSection({
     }, q.revealTokenAmount ?? 0);
   };
 
-  const questionSlides = questions.map((q) => (
-    <HomeFeedQuestionCard
-      key={q.id}
-      question={q.question}
-      answerCount={q.answerCount}
-      revealAtAnswerCount={q.revealAtAnswerCount}
-      revealAtDate={q.revealAtDate}
-      statusLabel={
-        <span className="text-xs leading-6 text-aqua underline">Chomped</span>
-      }
-      action={
-        <Button onClick={() => handleReveal(q)} variant="grayish">
-          <div className="flex justify-center gap-1 items-center">
-            <div>Reveal</div>
-            <ViewsIcon />
-          </div>
-        </Button>
-      }
-    />
-  ));
+  const questionSlides = !!questions.length
+    ? questions.map((q) => (
+        <HomeFeedQuestionCard
+          key={q.id}
+          question={q.question}
+          answerCount={q.answerCount}
+          revealAtAnswerCount={q.revealAtAnswerCount}
+          revealAtDate={q.revealAtDate}
+          statusLabel={
+            <span className="text-xs leading-6 text-aqua underline">
+              Chomped
+            </span>
+          }
+          action={
+            <Button onClick={() => handleReveal(q)} variant="grayish">
+              <div className="flex justify-center gap-1 items-center">
+                <div>Reveal</div>
+                <ViewsIcon />
+              </div>
+            </Button>
+          }
+        />
+      ))
+    : [<HomeFeedEmptyQuestionCard key={0} />];
 
   return (
     <HomeFeedCardCarousel
