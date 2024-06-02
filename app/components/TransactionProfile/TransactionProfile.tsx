@@ -4,7 +4,6 @@ import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
 import { Avatar } from "../Avatar/Avatar";
 import { CloseIcon } from "../Icons/CloseIcon";
-import Link from "next/link";
 
 type ProfileProps = {
   pointAmount?: number;
@@ -29,9 +28,7 @@ export function TransactionProfile({
     <div
       className={classNames("flex p-6 rounded-2xl bg-black gap-4", className)}
     >
-      <Link href="/application/profile">
-        <Avatar size="large" src={avatarSrc} />
-      </Link>
+      <Avatar size="large" src={avatarSrc} />
       <div className="flex flex-col font-sora text-white text-base gap-y-3 self-center flex-grow">
         {typeof pointAmount === "number" && (
           <div className="whitespace-nowrap">
