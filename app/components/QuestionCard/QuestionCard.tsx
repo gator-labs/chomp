@@ -69,12 +69,14 @@ export function QuestionCard({
         aspectRatio: 0.92,
         ...style,
         position: "relative",
+        zIndex: 0, // Ensure the card itself has a z-index
       }}
     >
       <Image
         src={gatorHeadImage}
         alt="gator-head"
         className="absolute bottom-0 left-0 w-full"
+        style={{ zIndex: 1 }} // Ensure the image has a proper z-index
       />
       <p
         className={classNames(
@@ -85,13 +87,17 @@ export function QuestionCard({
             "!text-base": type === QuestionType.MultiChoice,
           },
         )}
+        style={{ zIndex: 2 }} // Ensure the text has a proper z-index
       >
         {question}
       </p>
-      <div>{children}</div>
+      <div style={{ zIndex: 2 }}>{children}</div>
       <div>
         {viewImageSrc && (
-          <div className="flex items-center gap-[6px] mb-1">
+          <div
+            className="flex items-center gap-[6px] mb-1"
+            style={{ zIndex: 2 }}
+          >
             <ImageIcon />
             <button
               onClick={() => setIsViewImageOpen(true)}
@@ -108,8 +114,14 @@ export function QuestionCard({
             </Modal>
           </div>
         )}
-        <div className="flex items-center justify-between w-full">
-          <div className="flex justify-start items-center gap-x-1 w-full">
+        <div
+          className="flex items-center justify-between w-full"
+          style={{ zIndex: 2 }}
+        >
+          <div
+            className="flex justify-start items-center gap-x-1 w-full"
+            style={{ zIndex: 2 }}
+          >
             {!!dueAt && (
               <>
                 {isForReveal ? (
@@ -118,7 +130,7 @@ export function QuestionCard({
                     <div className="text-white text-[13px] font-light leading-[16.38px] flex items-center justify-between w-full">
                       <span>{getRevealedAtString(dueAt)}</span>
                       <div className="flex items-center justify-end gap-1.5">
-                        <span>Your Answer</span>
+                        {answer && <span>Your Answer</span>}
                         {type === "BinaryQuestion" && answer && (
                           <span className="py-1 px-2 bg-white rounded-2xl text-black text-[10px] font-bold leading-[12.6px] text-left">
                             {answer}

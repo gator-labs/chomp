@@ -39,7 +39,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
         </div>
         <TopInfoBox />
       </div>
-      <RewardShow rewardAmount={10000} />
+      {!!question.userAnswer && <RewardShow rewardAmount={10000} />}
       <AnsweredQuestionShow question={question} />
     </div>
   );

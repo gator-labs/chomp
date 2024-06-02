@@ -76,7 +76,7 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
         from public."QuestionOption" qo
         join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
         join public."Question" q on qo."questionId" = q."id"
-          join public."DeckQuestion" dq on dq."questionId" = q."id"
+        join public."DeckQuestion" dq on dq."questionId" = q."id"
         where dq."deckId" = d."id"
       ) as "answerCount",
       d."revealAtAnswerCount",
@@ -114,6 +114,8 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
             join public."DeckQuestion" dq on dq."questionId" = q."id"
             where dq."deckId" = d."id" and qa."userId" = ${userId}
         )
+      and
+      d."isActive" = true
   `;
 
   return deckExpiringSoon;

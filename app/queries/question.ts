@@ -533,7 +533,7 @@ export async function getQuestionWithUserAnswer(questionId: number) {
   if (!userId) {
     return;
   }
-  const question = await prisma.question.findFirst({
+  const question = await prisma.question.findUnique({
     where: {
       id: questionId,
     },
@@ -558,6 +558,10 @@ export async function getQuestionWithUserAnswer(questionId: number) {
   if (!question) {
     return null;
   }
+
+  const correctAnswer = question.questionOptions.find(
+    (option) => option.isCorrect,
+  );
 
   const questionOptionIds = question.questionOptions.map((qo) => qo.id);
   const questionOptionPercentages =
@@ -594,5 +598,6 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     ...question,
     userAnswer: userAnswer || null,
     answerCount: populated.answerCount ?? 0,
+    correctAnswer,
   };
 }
