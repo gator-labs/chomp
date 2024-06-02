@@ -1,6 +1,6 @@
 "use client";
+import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestion } from "@/app/actions/claim";
-import { revealQuestion } from "@/app/actions/reveal";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { DeckQuestionIncludes, getQuestionState } from "@/app/utils/question";
@@ -25,12 +25,15 @@ export function QuestionRowCard({
   const { openClaimModal, openRevealModal, closeClaimModal, closeRevealModal } =
     useRevealedContext();
 
-  const reveal = useCallback(async () => {
-    await revealQuestion(question.id);
-    onRefreshCards(question.id);
-    setOpen(question.id);
-    closeRevealModal();
-  }, [onRefreshCards, setOpen, closeRevealModal]);
+  const reveal = useCallback(
+    async (burnTx?: string, nftAddress?: string) => {
+      await revealQuestion(question.id, burnTx, nftAddress);
+      onRefreshCards(question.id);
+      setOpen(question.id);
+      closeRevealModal();
+    },
+    [onRefreshCards, setOpen, closeRevealModal],
+  );
 
   const claim = useCallback(async () => {
     await claimQuestion(question.id);
@@ -48,7 +51,7 @@ export function QuestionRowCard({
           <Button
             variant="white"
             isPill
-            onClick={() => openRevealModal(reveal)}
+            onClick={() => openRevealModal(reveal, question.revealTokenAmount)}
           >
             Reveal Results
           </Button>

@@ -4,7 +4,8 @@ export function CloseIcon({
   fill = "#fff",
   width = ICON_DEFAULT_WIDTH_HEIGHT,
   height = ICON_DEFAULT_WIDTH_HEIGHT,
-}: IconProps) {
+  ...props
+}: IconProps & React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -12,6 +13,7 @@ export function CloseIcon({
       height={height}
       fill="none"
       viewBox="0 0 24 24"
+      {...props}
     >
       <g clipPath="url(#clip0_2585_3940)">
         <g clipPath="url(#clip1_2585_3940)">

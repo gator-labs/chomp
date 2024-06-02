@@ -1,28 +1,34 @@
 "use client";
+import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
-import { ONE_SECOND_IN_MILISECONDS } from "@/app/utils/dateUtils";
 import { formatAddress } from "@/app/utils/wallet";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.min.css";
+import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { CopyIcon } from "../Icons/CopyIcon";
 import { ExitIcon } from "../Icons/ExitIcon";
 
 type WalletWidgetProps = {
   address: string;
+  className?: string;
 };
 
-export function WalletWidget({ address }: WalletWidgetProps) {
+export function WalletWidget({ address, className }: WalletWidgetProps) {
   const { handleLogOut } = useDynamicContext();
+  const { successToast } = useToast();
   const handleCopyToClipboard = async () => {
     await copyTextToClipboard(address);
-    toast.info(`Copied ${address} to clipboard`);
+    successToast("Copied to clipboard", `Copied ${address} to clipboard`);
   };
 
   return (
     <>
-      <div className="flex items-center justify-between bg-pink px-4 py-2 rounded-lg gap-6">
+      <div
+        className={classNames(
+          "flex items-center justify-between bg-pink px-4 py-2 rounded-lg gap-6",
+          className,
+        )}
+      >
         <div className="font-sora text-[#171616] text-base">
           {formatAddress(address)}
         </div>
@@ -43,11 +49,6 @@ export function WalletWidget({ address }: WalletWidgetProps) {
           </Button>
         </div>
       </div>
-      <ToastContainer
-        position="bottom-center"
-        stacked
-        autoClose={ONE_SECOND_IN_MILISECONDS}
-      />
     </>
   );
 }

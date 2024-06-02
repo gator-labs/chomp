@@ -53,7 +53,7 @@ export async function resetAccountData() {
     },
   });
 
-  await prisma.reveal.deleteMany({
+  await prisma.chompResult.deleteMany({
     where: {
       userId,
     },

@@ -1,5 +1,5 @@
 "use client";
-import { revealDeck } from "@/app/actions/reveal";
+import { revealDeck } from "@/app/actions/chompResult";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
@@ -10,7 +10,7 @@ import {
   getQuestionState,
 } from "@/app/utils/question";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
-import { Deck, Reveal } from "@prisma/client";
+import { ChompResult, Deck } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
@@ -19,7 +19,7 @@ import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
 type DeckProp = Deck & {
   answerCount: number;
-  reveals: Reveal[];
+  chompResults: ChompResult[];
   deckQuestions: {
     question: DeckQuestionIncludes;
   }[];
@@ -52,17 +52,20 @@ function DeckDetails({ deck, openIds }: DeckDetailsProps) {
     }
   }, [openIds, setOpen]);
 
-  const revealAll = useCallback(async () => {
-    await revealDeck(deck.id);
-    const newParams = getAppendedNewSearchParams({
-      openIds: encodeURIComponent(
-        JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
-      ),
-    });
-    router.push(`${pathname}${newParams}`);
-    router.refresh();
-    closeRevealModal();
-  }, []);
+  const revealAll = useCallback(
+    async (burnTx?: string, nftAddress?: string) => {
+      await revealDeck(deck.id, burnTx, nftAddress);
+      const newParams = getAppendedNewSearchParams({
+        openIds: encodeURIComponent(
+          JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
+        ),
+      });
+      router.push(`${pathname}${newParams}`);
+      router.refresh();
+      closeRevealModal();
+    },
+    [],
+  );
 
   return (
     <div>
@@ -78,7 +81,21 @@ function DeckDetails({ deck, openIds }: DeckDetailsProps) {
           <Button
             variant="white"
             isPill
-            onClick={() => openRevealModal(revealAll)}
+            onClick={() =>
+              openRevealModal(
+                revealAll,
+                deck.deckQuestions
+                  .filter((dq) => {
+                    const state = getQuestionState(dq.question);
+                    return state.isAnswered && !state.isRevealed;
+                  })
+                  .reduce(
+                    (acc, cur) => acc + cur.question.revealTokenAmount,
+                    0,
+                  ),
+                !!"multiple",
+              )
+            }
           >
             Reveal all
           </Button>

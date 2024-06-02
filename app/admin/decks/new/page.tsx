@@ -1,4 +1,4 @@
-import { createDeck } from "@/app/actions/deck";
+import { createDeck } from "@/app/actions/deck/deck";
 import DeckForm from "@/app/components/DeckForm/DeckForm";
 import { getTags } from "@/app/queries/tag";
 

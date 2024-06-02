@@ -15,6 +15,7 @@ import { HistorySortOptions } from "../api/history/route";
 import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
 import {
+  getQuestionState,
   handleQuestionMappingForFeed,
   populateAnswerCount,
 } from "../utils/question";
@@ -142,55 +143,6 @@ export async function getQuestionSchema(
   return questionData;
 }
 
-export async function getHomeFeed(query: string = "") {
-  const promiseArray = [
-    getUnansweredDailyQuestions(query),
-    getHomeFeedQuestions({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: true, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: true, query }),
-  ];
-
-  const sortRevealedComparerFn = (a: any, b: any) => {
-    const aNewestClaimTime = a.reveals[0]?.createdAt;
-    const bNewestClaimTime = b.reveals[0]?.createdAt;
-
-    if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
-      return 1;
-    }
-
-    if (dayjs(bNewestClaimTime).isAfter(aNewestClaimTime)) {
-      return -1;
-    }
-
-    return 0;
-  };
-  const [
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  ] = await Promise.all(promiseArray);
-
-  answeredRevealedQuestions.sort(sortRevealedComparerFn);
-  answeredRevealedDecks.sort(sortRevealedComparerFn);
-
-  return {
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  };
-}
-
 export async function getHistory(
   query: string = "",
   sort: HistorySortOptions = HistorySortOptions.Revealed,
@@ -263,9 +215,9 @@ export async function getHistory(
 
   if (sort === HistorySortOptions.Claimable) {
     response.sort((a, b) => {
-      if (a.reveals.length > 0 && b.reveals.length > 0) {
-        const aNewestClaimTime = a.reveals[0]?.createdAt;
-        const bNewestClaimTime = b.reveals[0]?.createdAt;
+      if (a.chompResults.length > 0 && b.chompResults.length > 0) {
+        const aNewestClaimTime = a.chompResults[0]?.createdAt;
+        const bNewestClaimTime = b.chompResults[0]?.createdAt;
 
         if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
           return -1;
@@ -278,11 +230,11 @@ export async function getHistory(
         return 0;
       }
 
-      if (a.reveals.length > 0) {
+      if (a.chompResults.length > 0) {
         return -1;
       }
 
-      if (b.reveals.length > 0) {
+      if (b.chompResults.length > 0) {
         return 1;
       }
 
@@ -304,7 +256,8 @@ export async function getUnansweredDailyQuestions(query = "") {
     where: {
       deck: {
         date: {
-          not: null,
+          gte: dayjs(new Date()).add(-3, "days").toDate(),
+          lte: dayjs(new Date()).endOf("day").toDate(),
         },
         revealAtDate: { gte: new Date() },
       },
@@ -319,15 +272,28 @@ export async function getUnansweredDailyQuestions(query = "") {
             },
           },
         },
-        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
+        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
       },
     },
     include: {
       question: true,
     },
+    orderBy: {
+      deck: { date: "desc" },
+    },
   });
 
   return dailyDeckQuestions.map((dq) => dq.question);
+}
+
+export async function getFirstUnansweredQuestion() {
+  const questions = await getUnansweredDailyQuestions();
+
+  if (questions.length === 0) {
+    return null;
+  }
+
+  return questions[0];
 }
 
 export async function getHomeFeedQuestions({
@@ -353,7 +319,7 @@ export async function getHomeFeedQuestions({
 
   if (sort === HistorySortOptions.Claimable) {
     sortInput = {
-      reveals: { _count: "desc" },
+      chompResults: { _count: "desc" },
     };
   }
 
@@ -365,7 +331,7 @@ export async function getHomeFeedQuestions({
 
   const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
     ? {
-        reveals: {
+        chompResults: {
           some: {
             userId: {
               equals: payload.sub,
@@ -374,7 +340,7 @@ export async function getHomeFeedQuestions({
         },
       }
     : {
-        reveals: {
+        chompResults: {
           none: {
             userId: {
               equals: payload.sub,
@@ -428,7 +394,7 @@ export async function getHomeFeedQuestions({
             },
           },
         },
-        reveals: {
+        chompResults: {
           where: {
             userId: { equals: payload.sub },
           },
@@ -436,7 +402,7 @@ export async function getHomeFeedQuestions({
         },
       }
     : {
-        reveals: {
+        chompResults: {
           where: { userId: { equals: payload.sub } },
           orderBy: { createdAt: "desc" },
         },
@@ -559,4 +525,79 @@ export async function hasAnsweredQuestion(
   });
 
   return answeredCount > 0;
+}
+
+export async function getQuestionWithUserAnswer(questionId: number) {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub ?? "";
+  if (!userId) {
+    return;
+  }
+  const question = await prisma.question.findUnique({
+    where: {
+      id: questionId,
+    },
+    include: {
+      questionOptions: {
+        include: {
+          questionAnswers: {
+            where: {
+              userId: userId,
+            },
+          },
+        },
+      },
+      chompResults: {
+        where: {
+          userId: userId,
+        },
+      },
+    },
+  });
+
+  if (!question) {
+    return null;
+  }
+
+  const correctAnswer = question.questionOptions.find(
+    (option) => option.isCorrect,
+  );
+
+  const questionOptionIds = question.questionOptions.map((qo) => qo.id);
+  const questionOptionPercentages =
+    await answerPercentageQuery(questionOptionIds);
+
+  const populated = populateAnswerCount(question);
+  const isRevealable = getQuestionState(question);
+
+  handleQuestionMappingForFeed(
+    [question] as any,
+    questionOptionPercentages,
+    userId,
+    isRevealable.isRevealed,
+  );
+
+  // Extract the user's answer from the question options and include the option details
+  const userAnswer = question.questionOptions
+    .flatMap((option) =>
+      option.questionAnswers.map((answer) => ({
+        ...answer,
+        questionOption: {
+          id: option.id,
+          option: option.option,
+          isLeft: option.isLeft,
+          createdAt: option.createdAt,
+          updatedAt: option.updatedAt,
+          questionId: option.questionId,
+        },
+      })),
+    )
+    .find((answer) => answer.userId === userId);
+
+  return {
+    ...question,
+    userAnswer: userAnswer || null,
+    answerCount: populated.answerCount ?? 0,
+    correctAnswer,
+  };
 }

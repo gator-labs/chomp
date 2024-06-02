@@ -1,12 +1,13 @@
 import classNames from "classnames";
 import { Avatar } from "../Avatar/Avatar";
-import { ViewsIcon } from "../Icons/ViewsIcon";
 import PrimarySlider from "../PrimarySlider/PrimarySlider";
+import { OPTION_LABEL } from "./constants";
 
 type AnswerResultProps = {
   percentage: number;
   handleRatioChange?: (percentage: number) => void;
   answerText: string;
+  index: number;
   valueSelected?: number | null;
   avatarSrc?: string;
   progressBarClassName?: string;
@@ -21,6 +22,7 @@ export function AnswerResult({
   avatarSrc,
   progressBarClassName,
   progressColor,
+  index,
 }: AnswerResultProps) {
   const avatarLeft = valueSelected
     ? valueSelected > 90
@@ -29,10 +31,15 @@ export function AnswerResult({
     : undefined;
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-3 h-10">
+      <div className="h-full w-10 bg-[#4D4D4D] rounded-lg flex items-center justify-center flex-shrink-0">
+        <p className="text-sm font-bold text-white">
+          {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
+        </p>
+      </div>
       <div
         className={
-          "relative rounded-[4px] h-6 bg-search-gray w-full overflow-hidden"
+          "text-sm font-sora font-light text-white h-full border-[#666666] border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden"
         }
       >
         <PrimarySlider
@@ -56,12 +63,10 @@ export function AnswerResult({
             style={{ left: avatarLeft }}
           />
         )}
-        <div className="absolute left-4 top-0 flex items-center py-1 gap-2">
-          <ViewsIcon width={14} height={14} fill="#1B1B1B" />
-          <span className="text-black text-sm font-sora">{answerText}</span>
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center py-1 gap-2">
+          <span className="text-white text-sm font-sora">{answerText}</span>
         </div>
       </div>
-      <div className="text-white text-sm w-6">{percentage}%</div>
     </div>
   );
 }

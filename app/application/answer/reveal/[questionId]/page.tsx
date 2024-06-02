@@ -1,6 +1,9 @@
+import AnsweredQuestionShow from "@/app/components/AnsweredQuestionShow/AnsweredQuestionShow";
+import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
-import Trophy from "@/app/components/Icons/Trophy";
-import { getQuestion } from "@/app/queries/question";
+import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
+import RewardShow from "@/app/components/RewardShow/RewardShow";
+import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { isEntityRevealable } from "@/app/utils/question";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -12,7 +15,7 @@ interface Props {
 }
 
 const RevealAnswerPage = async ({ params }: Props) => {
-  const question = await getQuestion(Number(params.questionId));
+  const question = await getQuestionWithUserAnswer(Number(params.questionId));
 
   if (!question) notFound();
 
@@ -25,23 +28,21 @@ const RevealAnswerPage = async ({ params }: Props) => {
   if (!isQuestionRevealable) redirect("/application");
 
   return (
-    <div className="px-4 py-2 flex flex-col gap-4">
-      <Link href="/application">
-        <HalfArrowLeftIcon />
-      </Link>
-      <div className="p-4 flex bg-[#333333] rounded-md justify-between">
-        <div className="flex flex-col gap-4 max-w-[210px] w-full justify-between">
-          <p>Congrats, you won!</p>
-          <div className="h-[1px] w-full bg-[#666666]" />
-          <div className="flex items-center gap-1 justify-between">
-            <p className="text-sm">Claim reward:</p>
-            <div className="px-4 py-2 bg-white flex items-center justify-center rounded-3xl">
-              <p className="text-xs text-[#0D0D0D] font-bold">300,000 BONK</p>
-            </div>
-          </div>
+    <div className="py-2 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 justify-start">
+          <Link href="/application">
+            <HalfArrowLeftIcon />
+          </Link>
+          <h4 className="text-[13px] font-normal leading-[13px] text-left">
+            Viewing answer results
+          </h4>
         </div>
-        <Trophy width={70} height={85} />
+        <TopInfoBox />
       </div>
+      {!!question.userAnswer && <RewardShow rewardAmount={10000} />}
+      <AnsweredQuestionShow question={question} />
+      <ClaimButton status="claimable" rewardAmount={10000} />
     </div>
   );
 };

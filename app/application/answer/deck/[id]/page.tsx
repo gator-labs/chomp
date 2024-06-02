@@ -27,8 +27,10 @@ export default async function Page({ params: { id } }: PageProps) {
   }
 
   return (
-    <div className="max-h-[calc(100%-48px)] px-4 py-2">
-      {questions && <Deck questions={questions} deckId={+id} />}
+    <div className="max-h-[calc(100%-48px)] py-2">
+      {questions && (
+        <Deck questions={questions} deckId={+id} deckVariant="regular-deck" />
+      )}
     </div>
   );
 }

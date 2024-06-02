@@ -59,7 +59,7 @@ export async function GET(request: Request) {
     ],
   });
 
-  await prisma.reveal.deleteMany({
+  await prisma.chompResult.deleteMany({
     where: {
       userId: user.id,
     },

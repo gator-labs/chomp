@@ -1,7 +1,7 @@
 "use client";
 import { ElementType } from "@/app/queries/question";
-import { Deck, Question, Reveal } from "@prisma/client";
 import { DeckQuestionIncludes } from "@/app/utils/question";
+import { ChompResult, Deck, Question } from "@prisma/client";
 import { DeckRowCard } from "../DeckRowCard/DeckRowCard";
 import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
 
@@ -34,7 +34,7 @@ export function FeedRowCard({
           deckQuestions: {
             question: DeckQuestionIncludes;
           }[];
-          reveals: Reveal[];
+          chompResults: ChompResult[];
         }
       }
       deckReturnUrl={deckReturnUrl}

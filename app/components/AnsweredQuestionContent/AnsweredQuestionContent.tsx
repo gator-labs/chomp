@@ -1,9 +1,9 @@
 "use client";
+import { useMetadata } from "@/app/providers/MetadataProvider";
 import {
   DeckQuestionIncludes,
   mapQuestionToBinaryQuestionAnswer,
 } from "@/app/utils/question";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { useCallback, useMemo, useState } from "react";
 import { BooleanAnsweredContent } from "../BooleanAnsweredContent/BooleanAnsweredContent";
 import { AnswerResultIcon } from "../Icons/AnswerResultIcon";
@@ -20,6 +20,7 @@ type AnsweredQuestionContentProps = {
 export const AnsweredQuestionContent = ({
   element,
 }: AnsweredQuestionContentProps) => {
+  const { avatarSrc } = useMetadata();
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isSecondOrderQuestionCorrect, setIsSecondOrderQuestionCorrect] =
     useState(false);
@@ -27,7 +28,7 @@ export const AnsweredQuestionContent = ({
   const baseProps = useMemo(
     () => ({
       questionOptions: (element as any).questionOptions,
-      avatarSrc: AvatarPlaceholder.src,
+      avatarSrc: avatarSrc,
     }),
     [element],
   );

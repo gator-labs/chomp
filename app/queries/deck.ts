@@ -10,7 +10,6 @@ import {
   Tag,
 } from "@prisma/client";
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
 import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import { HistorySortOptions } from "../api/history/route";
@@ -40,19 +39,14 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
-  // const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  // const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
-  if (!payload) {
-    return redirect("/login");
-  }
 
   const dailyDeck = await prisma.deck.findFirst({
     where: {
-      date: { not: null /* gte: currentDayStart, lte: currentDayEnd */ },
+      date: { gte: currentDayStart, lte: currentDayEnd },
       isActive: true,
-      userDeck: { none: { userId: payload?.sub ?? "" } },
-      // this should be just handled by currentDayStart and currentDayEnd
       deckQuestions: {
         every: {
           question: {
@@ -62,6 +56,9 @@ export async function getDailyDeck() {
           },
         },
       },
+      ...(payload
+        ? { userDeck: { none: { userId: payload?.sub ?? "" } } }
+        : {}),
     },
     include: questionDeckToRunInclude,
   });
@@ -244,7 +241,7 @@ export async function getDeckDetails(id: number) {
       },
     },
     include: {
-      reveals: {
+      chompResults: {
         where: { userId: payload.sub },
       },
       deckQuestions: {
@@ -256,7 +253,7 @@ export async function getDeckDetails(id: number) {
                   questionAnswers: true,
                 },
               },
-              reveals: {
+              chompResults: {
                 where: { userId: payload.sub },
               },
             },
@@ -312,7 +309,7 @@ export async function getHomeFeedDecks({
 
   if (sort === HistorySortOptions.Claimable) {
     sortInput = {
-      reveals: { _count: "desc" },
+      chompResults: { _count: "desc" },
     };
   }
 
@@ -324,7 +321,7 @@ export async function getHomeFeedDecks({
 
   const revealedAtFilter: Prisma.DeckWhereInput = areRevealed
     ? {
-        reveals: {
+        chompResults: {
           some: {
             userId: {
               equals: payload.sub,
@@ -333,7 +330,7 @@ export async function getHomeFeedDecks({
         },
       }
     : {
-        reveals: {
+        chompResults: {
           none: {
             userId: {
               equals: payload.sub,
@@ -408,7 +405,7 @@ export async function getHomeFeedDecks({
           },
         },
       },
-      reveals: {
+      chompResults: {
         where: { userId: { equals: payload.sub } },
         orderBy: { createdAt: "desc" },
       },

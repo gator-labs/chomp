@@ -2,9 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @layer base {
   body {
     margin: 0;
+  }
+
+  .home-feed-swiper-slide {
+    @apply !h-auto;
   }
 }
 
@@ -41,4 +56,8 @@
 }
 [data-rsbs-state]::after {
   @apply !mx-auto !bg-btn-border-black;
+}
+
+.reveal-page-content > * > * > * {
+  cursor: default;
 }

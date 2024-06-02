@@ -7,7 +7,9 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  args: {},
+  args: {
+    browseHomeUrl: "/application",
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof NoQuestionsCard>;
 
@@ -16,6 +18,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    browseHomeUrl: "/application",
+    variant: "regular-deck",
+  },
+};
+
+export const IsAnswerPage: Story = {
+  args: {
+    variant: "answer-page",
   },
 };

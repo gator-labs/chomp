@@ -1,5 +1,5 @@
 "use client";
-import { revealQuestions } from "@/app/actions/reveal";
+import { revealQuestions } from "@/app/actions/chompResult";
 import { HistorySortOptions } from "@/app/api/history/route";
 import { Button } from "@/app/components/Button/Button";
 import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
@@ -126,21 +126,24 @@ export default function Page({ searchParams }: PageProps) {
     }
   }, [searchParams.openIds, setOpen]);
 
-  const revealAll = useCallback(async () => {
-    const questionIds = questionStatuses
-      .filter((qs) => qs?.state.isRevealable && !qs.state.isRevealed)
-      .map((qs) => qs?.question.id)
-      .filter((id) => typeof id === "number")
-      .map((id) => id as number);
+  const revealAll = useCallback(
+    async (burnTx?: string, nftAddress?: string) => {
+      const questionIds = questionStatuses
+        .filter((qs) => qs?.state.isRevealable && !qs.state.isRevealed)
+        .map((qs) => qs?.question.id)
+        .filter((id) => typeof id === "number")
+        .map((id) => id as number);
 
-    await revealQuestions(questionIds);
-    const newParams = getAppendedNewSearchParams({
-      openIds: encodeURIComponent(JSON.stringify(questionIds)),
-    });
-    router.push(`${pathname}${newParams}`);
-    onRefreshCards(questionIds[0]);
-    closeRevealModal();
-  }, [questionStatuses]);
+      await revealQuestions(questionIds, burnTx, nftAddress);
+      const newParams = getAppendedNewSearchParams({
+        openIds: encodeURIComponent(JSON.stringify(questionIds)),
+      });
+      router.push(`${pathname}${newParams}`);
+      onRefreshCards(questionIds[0]);
+      closeRevealModal();
+    },
+    [questionStatuses],
+  );
 
   return (
     <>
@@ -183,7 +186,20 @@ export default function Page({ searchParams }: PageProps) {
           <Button
             variant="white"
             isPill
-            onClick={() => openRevealModal(revealAll)}
+            onClick={() =>
+              openRevealModal(
+                revealAll,
+                questionStatuses
+                  .filter(
+                    (qs) => qs?.state.isRevealable && !qs.state.isRevealed,
+                  )
+                  .reduce(
+                    (acc, cur) => acc + (cur?.question.revealTokenAmount ?? 0),
+                    0,
+                  ),
+                !!"multiple",
+              )
+            }
           >
             Reveal all
           </Button>

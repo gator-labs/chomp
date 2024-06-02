@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const NewUserScreen = () => {
   return (
-    <main className="h-dvh bg-[#1B1B1B]">
+    <main className="h-dvh bg-[#1B1B1B] pt-16">
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 justify-between h-full">
         <div className="relative w-full flex [&>*]:w-full">
           <NewIcon />

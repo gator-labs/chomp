@@ -22,6 +22,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    index: 1,
     percentage: 80,
     answerText: "Answer",
   },
@@ -29,6 +30,7 @@ export const Default: Story = {
 
 export const ValueSelected: Story = {
   args: {
+    index: 1,
     percentage: 40,
     answerText: "Answer",
     avatarSrc: AvatarSample.src,

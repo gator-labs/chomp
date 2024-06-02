@@ -1,12 +1,12 @@
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { getTimeString } from "@/app/utils/dateUtils";
-import { addSpaceBetweenCapitalLetters } from "@/app/utils/string";
 import { TransactionLogType } from "@prisma/client";
+import { TRANSACTION_LABEL } from "./constants";
 
 export type TransactionData = {
   amount: number;
   amountLabel: string;
-  dollarAmount: number;
+  dollarAmount?: number;
   transactionType: TransactionLogType;
   date: Date;
 };
@@ -26,10 +26,16 @@ export function TransactionRow({
         <div>
           {numberToCurrencyFormatter.format(amount)} {amountLabel}
         </div>
-        <div>{addSpaceBetweenCapitalLetters(transactionType)}</div>
+        <div>
+          {TRANSACTION_LABEL[transactionType as keyof typeof TRANSACTION_LABEL]}
+        </div>
       </div>
       <div className="flex justify-between gap-x-2">
-        <div>~${numberToCurrencyFormatter.format(dollarAmount)}</div>
+        <div>
+          {dollarAmount && (
+            <>~${numberToCurrencyFormatter.format(dollarAmount)}</>
+          )}
+        </div>
         <div>{getTimeString(date)}</div>
       </div>
     </div>

@@ -14,7 +14,7 @@ export function TransactionsTable({
   className,
 }: TransactionsTableProps) {
   return (
-    <div className={classNames("overflow-y-auto", className)}>
+    <div className={classNames("overflow-y-auto no-scrollbar", className)}>
       {transactions.map((t, index) => (
         <div key={index}>
           <TransactionRow {...t} />

@@ -1,10 +1,8 @@
 "use server";
 
-import { FungibleAsset } from "@prisma/client";
+import { ResultType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { calculateRevealPoints } from "../utils/points";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
@@ -36,25 +34,25 @@ export async function claimQuestions(questionIds: number[]) {
     return null;
   }
 
-  const reveals = await prisma.reveal.findMany({
+  const chompResults = await prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
       questionId: {
         in: questionIds,
       },
-      isRewardClaimed: false,
+      result: ResultType.Revealed,
     },
   });
 
   await prisma.$transaction(async (tx) => {
-    await tx.reveal.updateMany({
+    await tx.chompResult.updateMany({
       where: {
         id: {
-          in: reveals.map((r) => r.id),
+          in: chompResults.map((r) => r.id),
         },
       },
       data: {
-        isRewardClaimed: true,
+        result: ResultType.Claimed,
       },
     });
 
@@ -63,10 +61,10 @@ export async function claimQuestions(questionIds: number[]) {
         deckQuestions: {
           every: {
             question: {
-              reveals: {
+              chompResults: {
                 some: {
                   userId: payload.sub,
-                  isRewardClaimed: true,
+                  result: ResultType.Revealed,
                 },
               },
             },
@@ -74,7 +72,7 @@ export async function claimQuestions(questionIds: number[]) {
         },
       },
       include: {
-        reveals: {
+        chompResults: {
           where: {
             userId: payload.sub,
           },
@@ -83,51 +81,33 @@ export async function claimQuestions(questionIds: number[]) {
     });
 
     const deckRevealsToUpdate = decks
-      .filter((deck) => deck.reveals && deck.reveals.length > 0)
+      .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
       .map((deck) => deck.id);
 
     if (deckRevealsToUpdate.length > 0) {
-      await tx.reveal.updateMany({
+      await tx.chompResult.updateMany({
         where: {
           deckId: { in: deckRevealsToUpdate },
         },
         data: {
-          isRewardClaimed: true,
+          result: ResultType.Claimed,
         },
       });
     }
 
     const deckRevealsToCreate = decks
-      .filter((deck) => !deck.reveals || deck.reveals.length === 0)
+      .filter((deck) => !deck.chompResults || deck.chompResults.length === 0)
       .map((deck) => deck.id);
 
     if (deckRevealsToCreate.length > 0) {
-      await tx.reveal.createMany({
+      await tx.chompResult.createMany({
         data: deckRevealsToCreate.map((deckId) => ({
           deckId,
           userId: payload.sub,
-          isRewardClaimed: true,
+          result: ResultType.Revealed,
         })),
       });
     }
-
-    const revealResult = await calculateRevealPoints(
-      payload.sub,
-      reveals
-        .map((r) => r.questionId)
-        .filter((questionId) => questionId !== null) as number[],
-    );
-
-    const fungibleAssetRevealTasks = revealResult.map((rr) =>
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        rr.amount,
-        rr.type,
-        tx,
-      ),
-    );
-
-    await Promise.all(fungibleAssetRevealTasks);
   });
 
   revalidatePath("/application");

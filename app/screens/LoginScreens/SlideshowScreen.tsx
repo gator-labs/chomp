@@ -3,9 +3,9 @@
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
 import { WalletIcon } from "@/app/components/Icons/WalletIcon";
+import Stepper from "@/app/components/Stepper/Stepper";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
-import classNames from "classnames";
 import { useState } from "react";
 import { SLIDESHOW } from "./constants";
 
@@ -19,26 +19,15 @@ const SlideshowScreen = () => {
   return (
     <main className="h-dvh bg-[#1B1B1B]">
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 justify-between h-full">
-        <ul className="py-10 flex gap-2 w-full px-1 pb-0">
-          {SLIDESHOW.map((step, index) => (
-            <li
-              key={step.title}
-              className="h-2 flex-1 rounded-[40px] bg-[#666666] overflow-hidden"
-            >
-              <div
-                className={classNames(
-                  "bg-[#CFC5F7] w-0 h-full transition-all duration-300 ease-out",
-                  index <= activeSlide && "w-full",
-                )}
-              />
-            </li>
-          ))}
-        </ul>
+        <Stepper activeStep={activeSlide} numberOfSteps={SLIDESHOW.length} />
+
         <div className="relative w-full flex [&>*]:w-full">
           {SLIDESHOW[activeSlide].icon}
         </div>
-        <div className="flex flex-col gap-8 items-center text-[20px] leading-6">
-          <h3 className="text-center">{SLIDESHOW[activeSlide].title}</h3>
+        <div className="flex flex-col gap-8 items-center ">
+          <h3 className="text-center text-[20px] leading-6 font-bold">
+            {SLIDESHOW[activeSlide].title}
+          </h3>
 
           <div className="flex gap-[10px] items-center w-full justify-between">
             <div
@@ -55,8 +44,10 @@ const SlideshowScreen = () => {
               />
             </div>
             <div>
-              <p className="text-sm text-center">
-                {SLIDESHOW[activeSlide].description}
+              <p className="text-sm text-center flex flex-col gap-5">
+                {SLIDESHOW[activeSlide].description.map((text) => (
+                  <span key={text}>{text}</span>
+                ))}
               </p>
             </div>
             <div

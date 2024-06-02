@@ -117,5 +117,5 @@ export const calculateRevealPoints = async (
         pointsPerAction[TransactionLogType.CorrectSecondOrder],
       type: TransactionLogType.CorrectSecondOrder,
     },
-  ];
+  ].filter((item) => item.amount > 0);
 };

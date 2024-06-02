@@ -1,4 +1,4 @@
-import PrimarySlider from "../PrimarySlider/PrimarySlider";
+import PrimarySliderV2 from "../PrimarySlider/PrimarySliderV2";
 
 type TrueFalseScaleProps = {
   ratioLeft: number;
@@ -25,7 +25,7 @@ export function TrueFalseScale({
 }: TrueFalseScaleProps) {
   return (
     <div className="relative h-max flex flex-col gap-4">
-      <PrimarySlider
+      <PrimarySliderV2
         value={ratioLeft}
         setValue={handleRatioChange}
         progressColor={progressColor}

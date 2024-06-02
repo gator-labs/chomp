@@ -1,86 +1,51 @@
-"use client";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import { format } from "date-fns";
+import { enUS } from "date-fns/locale";
+import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
+import { Navbar } from "../components/Navbar/Navbar";
+import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
-import { Button } from "../components/Button/Button";
-import { TUTORIAL_STEPS } from "./constants";
+import ConfettiProvider from "../providers/ConfettiProvider";
+import { getIsUserAdmin } from "../queries/user";
+import TutorialFlowScreens from "../screens/TutorialScreens/TutorialFlowScreens/TutorialFlowScreens";
 
-const TutorialPage = () => {
-  const [currentTutorialStep, setCurrentTutorialStep] = useState<number | null>(
-    null,
-  );
-  const router = useRouter();
-  const searchParams = useSearchParams();
+const TutorialPage = async () => {
+  const currentDate = new Date();
 
-  const lastTutorialStep = TUTORIAL_STEPS.length - 1;
-  const firstTutorialStep = 0;
+  const formattedDate = format(currentDate, "MMMM do EEEE", { locale: enUS });
 
-  const handlePrevClick = () => {
-    if (currentTutorialStep === firstTutorialStep)
-      return setCurrentTutorialStep(null);
-
-    setCurrentTutorialStep((prevTutorialStep) => prevTutorialStep! - 1);
-  };
-
-  const handleNextClick = () => {
-    if (currentTutorialStep === lastTutorialStep)
-      return router.push(searchParams.get("next") ?? "/application");
-
-    setCurrentTutorialStep((prevTutorialStep) => prevTutorialStep! + 1);
-  };
+  const isAdmin = await getIsUserAdmin();
 
   return (
-    <div className="max-w-7xl w-full px-4 mx-auto flex flex-col justify-center items-center h-full">
-      {currentTutorialStep !== null ? (
-        <>
-          <div className="mt-auto px-4 flex flex-col justify-start md:items-center gap-3 w-full">
-            {TUTORIAL_STEPS[currentTutorialStep].text}
+    <ConfettiProvider>
+      <div className="flex flex-col h-full relative">
+        <AuthRedirect />
+
+        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-85" />
+
+        <main
+          id="tutorial-container"
+          className="flex-grow overflow-y-auto mb-2 w-full max-w-lg mx-auto flex flex-col"
+        >
+          <div className="px-6">
+            <Navbar
+              avatarSrc={AvatarPlaceholder.src}
+              address=""
+              bonkBalance={0}
+              solBalance={0}
+              transactions={[]}
+            />
+          </div>
+          <div className="px-6 py-5 mb-2">
+            <p className="text-sm">{formattedDate}</p>
           </div>
 
-          <div className="flex w-full gap-8 mt-auto py-10 [&_*]:p-0">
-            <Button
-              variant="pink-border"
-              className="h-[64px] flex-1"
-              size="big"
-              onClick={handlePrevClick}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="pink"
-              className="h-[64px] flex-1"
-              size="big"
-              onClick={handleNextClick}
-            >
-              {currentTutorialStep === lastTutorialStep ? "Start" : "Next"}
-            </Button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="flex flex-col items-center justify-center mb-8 gap-3">
-            <p className="text-center text-sm">Welcome</p>
-            <p className="text-center text-sm">
-              Your daily deck is ready, would you like to view a quick tutorial
-              before you begin?
-            </p>
-          </div>
+          <TutorialFlowScreens />
+        </main>
 
-          <Button
-            variant="primary"
-            className="max-w-[296px] mb-2"
-            onClick={() => setCurrentTutorialStep(0)}
-          >
-            View Tutorial
-          </Button>
-
-          <Link href="/application" className="text-sm underline">
-            Skip tutorial
-          </Link>
-        </>
-      )}
-    </div>
+        <TabNavigation isAdmin={isAdmin} />
+      </div>
+    </ConfettiProvider>
   );
 };
 

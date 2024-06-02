@@ -2,83 +2,53 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "../Button/Button";
-import { ChompGraphic } from "../Graphics/ChompGraphic";
-import { TelegramIcon } from "../Icons/TelegramIcon";
-import { TwitterIcon } from "../Icons/TwitterIcon";
+import { TrophyGraphic } from "../Graphics/TrophyGraphic";
+import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
+import { QUESTION_CARD_CONTENT } from "./constants";
 
 type NoQuestionsCardProps = {
+  variant: "daily-deck" | "regular-deck" | "answer-page";
   browseHomeUrl?: string;
 };
 
-export function NoQuestionsCard({ browseHomeUrl }: NoQuestionsCardProps) {
-  const isDailyDeck = !!browseHomeUrl;
+export function NoQuestionsCard({
+  browseHomeUrl,
+  variant,
+}: NoQuestionsCardProps) {
+  const hasBrowseHome = !!browseHomeUrl;
 
   const router = useRouter();
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <div className="questions-card text-white font-sora relative">
+      <div
+        className="questions-card text-white font-sora relative"
+        style={{
+          aspectRatio: 0.92,
+        }}
+      >
         <div>
-          <div className="text-xl font-semibold mb-2">Fantastic!</div>
-          <div className="text-sm max-w-72">
-            {isDailyDeck ? (
-              <>
-                You chomped through your Daily Deck. Now you can browse other
-                questions on your homepage!
-              </>
-            ) : (
-              <>
-                Thanks for chomping through our closed Alpha!
-                <br />
-                <br />
-                Waddle over to our Telegram or Twitter to get notified when
-                Chomp is ready for you to play again :)
-              </>
-            )}
+          <div className="text-2xl font-bold mb-2">
+            {QUESTION_CARD_CONTENT[variant].title}
+          </div>
+          <div className="text-sm max-w-72 relative z-10">
+            {QUESTION_CARD_CONTENT[variant].body}
           </div>
         </div>
-        <div className="flex justify-between items-end">
-          <div className="text-sm max-w-44">
-            Free questions unlocks every 24 hours!
-          </div>
-          <div>
-            <ChompGraphic className="absolute bottom-0 right-0" />
-          </div>
-        </div>
+        <TrophyGraphic className="absolute bottom-2.5 right-4" />
       </div>
-      {isDailyDeck ? (
+      {hasBrowseHome && (
         <Button
           variant="pink"
           size="big"
-          className="mt-2"
+          className="gap-1 my-[53px]"
           onClick={() => {
             router.replace(browseHomeUrl);
             router.refresh();
           }}
         >
-          Browse Home
+          Home <HalfArrowRightIcon fill="#0D0D0D" />
         </Button>
-      ) : (
-        <div className="flex gap-4 mt-2">
-          <Button
-            variant="pink"
-            size="big"
-            onClick={() => {
-              window.open("https://twitter.com/chompdotgames", "_blank");
-            }}
-          >
-            <TwitterIcon width={18} height={18} fill="#000" />
-          </Button>
-          <Button
-            variant="pink"
-            size="big"
-            onClick={() => {
-              window.open("https://t.me/+8ffiqdoGLAIyZmNl", "_blank");
-            }}
-          >
-            <TelegramIcon width={21} height={21} fill="#000" />
-          </Button>
-        </div>
       )}
     </div>
   );

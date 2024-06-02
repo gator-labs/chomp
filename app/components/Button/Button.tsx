@@ -10,7 +10,9 @@ type ButtonProps = {
     | "black"
     | "pink"
     | "pink-border"
-    | "purple";
+    | "purple"
+    | "aqua"
+    | "grayish";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
   children: ReactNode;
@@ -38,6 +40,8 @@ export function Button({
     pink: "bg-pink text-btn-text-pink",
     "pink-border": "bg-pink-border text-btn-text-pink-border",
     purple: "bg-purple text-btn-text-purple",
+    grayish: "bg-grayish",
+    aqua: "bg-aqua text-btn-text-primary",
   };
 
   const variantClasses = variantStyles[variant] || variantStyles.primary;
@@ -48,8 +52,8 @@ export function Button({
     {
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
       "border-purple border-[1px]": variant === "pink-border",
-      "!bg-disabled": disabled,
-      "!text-btn-text-disabled": disabled,
+      "bg-disabled": disabled,
+      "text-btn-text-disabled": disabled,
       "cursor-default": disabled,
       "py-2 px-4": size === "small",
       "py-4 px-8": size === "normal",

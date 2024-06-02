@@ -5,8 +5,15 @@ import { useStopwatch } from "@/app/hooks/useStopwatch";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import {
   NUMBER_OF_STEPS_PER_QUESTION,
@@ -15,6 +22,7 @@ import {
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
+import Stepper from "../Stepper/Stepper";
 
 export type Option = {
   id: number;
@@ -36,6 +44,8 @@ type DeckProps = {
   questions: Question[];
   browseHomeUrl?: string;
   deckId: number;
+  setHasReachedEnd?: Dispatch<SetStateAction<boolean>>;
+  deckVariant: "daily-deck" | "regular-deck";
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -44,7 +54,13 @@ const getDueAt = (questions: Question[], index: number): Date => {
     .toDate();
 };
 
-export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
+export function Deck({
+  questions,
+  browseHomeUrl,
+  deckId,
+  setHasReachedEnd,
+  deckVariant,
+}: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [rerenderAction, setRerenderAction] = useState(true);
@@ -200,6 +216,7 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
 
   useEffect(() => {
     if (hasReachedEnd) {
+      setHasReachedEnd?.(true);
       saveDeck(deckResponse, deckId);
     }
   }, [hasReachedEnd, deckResponse]);
@@ -211,40 +228,23 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   }, [questionsRef.current]);
 
   if (questions.length === 0 || hasReachedEnd) {
-    return <NoQuestionsCard browseHomeUrl={browseHomeUrl} />;
+    return (
+      <div className="flex flex-col justify-evenly h-full pb-4">
+        <NoQuestionsCard browseHomeUrl={browseHomeUrl} variant={deckVariant} />
+      </div>
+    );
   }
 
-  const questionOffset = 70 * (questions.length - currentQuestionIndex - 1);
-
   return (
-    <div className="flex flex-col justify-between h-full">
-      <AnswerHeader questionTags={question.questionTags} />
-      <div
-        ref={questionsRef}
-        className="overflow-y-auto max-h-[calc(100%-30px-100px)]"
-      >
-        <div
-          className="relative"
-          style={{ marginBottom: questionOffset + "px" }}
-        >
-          {Array.from(
-            Array(questions.length - (currentQuestionIndex + 1)).keys(),
-          ).map((index) => (
-            <QuestionCard
-              key={index}
-              numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
-              question={questions[index].question}
-              type={questions[index].type}
-              step={1}
-              className="absolute drop-shadow-question-card border-opacity-40"
-              style={{
-                zIndex: 10 + questions.length + index,
-                top: 70 * index + "px",
-              }}
-              isBlurred
-            />
-          ))}
-
+    <div className="flex flex-col justify-evenly h-full pb-4">
+      <Stepper
+        numberOfSteps={questions.length}
+        activeStep={currentQuestionIndex}
+        color="green"
+        className="!p-0 mb-5"
+      />
+      <div ref={questionsRef} className="mb-4">
+        <div className="relative">
           <QuestionCard
             dueAt={dueAt}
             numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
@@ -253,10 +253,6 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
             viewImageSrc={question.imageUrl}
             step={currentQuestionStep}
             onDurationRanOut={handleNoAnswer}
-            className="z-50 relative"
-            style={{
-              transform: `translateY(${questionOffset}px)`,
-            }}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -266,23 +262,22 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
               questionOptions={question.questionOptions}
               randomOptionId={question.questionOptions[random]?.id}
               percentage={optionPercentage}
-              onPercentageChanged={setOptionPercentage}
             />
           </QuestionCard>
         </div>
       </div>
 
-      <div className="pt-2 pb-[53px]">
-        {rerenderAction && (
-          <QuestionAction
-            onButtonClick={onQuestionActionClick}
-            type={question.type}
-            step={currentQuestionStep}
-            questionOptions={question.questionOptions}
-            randomQuestionMarker={getAlphaIdentifier(random)}
-          />
-        )}
-      </div>
+      {rerenderAction && (
+        <QuestionAction
+          onButtonClick={onQuestionActionClick}
+          type={question.type}
+          step={currentQuestionStep}
+          questionOptions={question.questionOptions}
+          randomQuestionMarker={getAlphaIdentifier(random)}
+          percentage={optionPercentage}
+          setPercentage={setOptionPercentage}
+        />
+      )}
     </div>
   );
 }
