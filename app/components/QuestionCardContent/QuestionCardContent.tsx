@@ -67,9 +67,10 @@ export function QuestionCardContent({
   if (type === "MultiChoice" && step === QuestionStep.PickPercentage) {
     return (
       <div className={className}>
-        {questionOptions?.map((qo) => (
+        {questionOptions?.map((qo, index) => (
           <div key={qo.id} className="mb-2">
             <AnswerResult
+              index={index}
               answerText={qo.option}
               percentage={qo.id === randomOptionId ? percentage ?? 0 : 0}
               handleRatioChange={

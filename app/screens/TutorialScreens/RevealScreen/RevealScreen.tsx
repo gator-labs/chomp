@@ -188,7 +188,7 @@ const RevealScreen = () => {
               onOptionSelected={() => {}}
               type={QuestionType.MultiChoice}
               step={QuestionStep.AnswerQuestion}
-              optionSelectedId={3}
+              optionSelectedId={1}
               questionOptions={[
                 { id: 1, option: "Jupiter" },
                 { id: 2, option: "Raydium" },

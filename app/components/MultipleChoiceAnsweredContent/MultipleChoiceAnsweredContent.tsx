@@ -20,9 +20,10 @@ export function MultipleChoiceAnsweredContent({
 }: MultipleChoiceAnsweredContentProps) {
   return (
     <div className="w-full">
-      {questionOptions.map((qo) => (
+      {questionOptions.map((qo, index) => (
         <div key={qo.id} className="mb-2">
           <AnswerResult
+            index={index}
             percentage={qo.questionAnswers[0].percentageResult ?? 0}
             valueSelected={qo.questionAnswers[0].percentage}
             avatarSrc={avatarSrc}
