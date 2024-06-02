@@ -3,7 +3,7 @@ import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
-import { InfoIcon } from "../Icons/InfoIcon";
+import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 
 interface ClaimButtonProps {
@@ -31,7 +31,7 @@ const ClaimButton = ({
               {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
             </span>
           </Pill>
-          <InfoIcon width={24} height={24} />
+          <RewardInfoBox />
         </div>
         <Button
           className={classNames(
@@ -58,7 +58,7 @@ const ClaimButton = ({
               {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
             </span>
           </Pill>
-          <InfoIcon width={24} height={24} />
+          <RewardInfoBox />
         </div>
         <Button
           disabled
@@ -81,10 +81,10 @@ const ClaimButton = ({
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
-              {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
+              0 BONK
             </span>
           </Pill>
-          <InfoIcon width={24} height={24} />
+          <RewardInfoBox />
         </div>
         <Button
           disabled
