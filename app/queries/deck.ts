@@ -504,15 +504,5 @@ export async function hasAnsweredDeck(
     },
   });
 
-  const answers = await prisma.questionAnswer.findMany({
-    where: {
-      userId: { equals: userId },
-      questionOption: {
-        question: { deckQuestions: { some: { deckId: { equals: deckId } } } },
-      },
-      ...questionAnswerWhereInput,
-    },
-  });
-
   return answeredCount > 0;
 }
