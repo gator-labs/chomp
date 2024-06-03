@@ -32,14 +32,14 @@ const RevealScreen = () => {
 
   if (currentScreen === "reveal")
     return (
-      <>
+      <div className="px-6">
         <DashboardUserStats
           averageTimeToAnswer="0:05"
           cardsChomped="1"
           daysStreak="1"
           totalPointsEarned="100"
         />
-        <div className="px-4 pt-4 flex flex-col gap-2 overflow-hidden">
+        <div className="pt-4 flex flex-col gap-2 overflow-hidden">
           {/* MAKE A SEPARATE COMPONENT FOR REVEAL CARD */}
           <Tooltip
             infoText="Click reveal to see the result"
@@ -108,7 +108,7 @@ const RevealScreen = () => {
           </div>
         </div>
         {isRevealModalOpen && (
-          <div className="fixed bottom-[108px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] max-w-lg pointer-events-auto">
+          <div className="fixed bottom-[0px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
             <h3 className="text-base">Reveal answer?</h3>
             <p className="text-sm">
               You would need to burn <b>5,000 BONK.</b>{" "}
@@ -120,7 +120,7 @@ const RevealScreen = () => {
               (It will cost 0 this time for the tutorial 🤫)"
                 alwaysVisible
                 disabledHover
-                position="bottom"
+                position="top"
               >
                 <Button
                   variant="white"
@@ -136,7 +136,7 @@ const RevealScreen = () => {
             </div>
           </div>
         )}
-      </>
+      </div>
     );
 
   if (currentScreen === "claim") {
@@ -144,7 +144,7 @@ const RevealScreen = () => {
       <>
         <div className="px-4 w-full flex flex-col gap-4">
           <Tooltip
-            infoText="Nice! The correct 1st order answer is Jupiter. If you answered the 1st and 2nd order questions correctly, your reward is 10,000 BONK 🎊."
+            infoText="This is a TUTORIAL -  if this were a real question, and you answered Jupiter, you would have just won up to 10,000 BONK!  🎊"
             alwaysVisible={activeClaimScreenStep === "congrats-step"}
             disabledHover
             position="bottom"
@@ -181,7 +181,7 @@ const RevealScreen = () => {
             type={QuestionType.MultiChoice}
             viewImageSrc="/test"
             step={0}
-            className="relative max-w-[450px] mx-auto drop-shadow-question-card border-opacity-40 -z-10"
+            className="relative w-full mx-auto drop-shadow-question-card border-opacity-40 -z-10"
           >
             <QuestionCardContent
               onOptionSelected={() => {}}
@@ -238,28 +238,30 @@ const RevealScreen = () => {
         </div>
 
         {activeClaimScreenStep === "congrats-step" && (
-          <Button
-            onClick={() => {
-              const tutoiralContainer =
-                document.getElementById("tutorial-container")!;
+          <div className="fixed bottom-5 max-w-[30rem] left-1/2 -translate-x-1/2 gap-1 w-full max-md:px-6">
+            <Button
+              onClick={() => {
+                const tutoiralContainer =
+                  document.getElementById("tutorial-container")!;
 
-              tutoiralContainer.scroll({
-                top: tutoiralContainer!.scrollHeight,
-                behavior: "smooth",
-              });
+                tutoiralContainer.scroll({
+                  top: tutoiralContainer!.scrollHeight,
+                  behavior: "smooth",
+                });
 
-              setActiveClaimScreenStep("claim-step");
-            }}
-            className="fixed bottom-5 pointer-events-auto !w-[calc(100%-32px)] left-1/2 -translate-x-1/2 max-w-lg gap-1"
-            variant="purple"
-          >
-            Next
-            <HalfArrowRightIcon fill="#0D0D0D" />
-          </Button>
+                setActiveClaimScreenStep("claim-step");
+              }}
+              className="pointer-events-auto"
+              variant="purple"
+            >
+              Next
+              <HalfArrowRightIcon fill="#0D0D0D" />
+            </Button>
+          </div>
         )}
 
         {activeClaimScreenStep === "final-step" && (
-          <div className="fixed bottom-[108px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] max-w-lg pointer-events-auto">
+          <div className="fixed bottom-[0px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
             <h3 className="text-base">Well done! 🎉</h3>
             <p className="text-sm">
               Now you&apos;re ready to get chompin&apos; for real!
