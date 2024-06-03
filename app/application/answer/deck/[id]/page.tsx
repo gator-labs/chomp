@@ -13,6 +13,8 @@ type PageProps = {
 export default async function Page({ params: { id } }: PageProps) {
   const hasAnswered = await hasAnsweredDeck(+id);
 
+  console.log({ hasAnswered });
+
   if (hasAnswered) {
     console.log("in first redirect");
     return redirect("/application");
