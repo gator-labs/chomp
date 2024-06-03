@@ -18,7 +18,10 @@ export function WalletWidget({ address, className }: WalletWidgetProps) {
   const { successToast } = useToast();
   const handleCopyToClipboard = async () => {
     await copyTextToClipboard(address);
-    successToast("Copied to clipboard", `Copied ${address} to clipboard`);
+    successToast(
+      "Copied to clipboard",
+      `Copied ${formatAddress(address)} to clipboard`,
+    );
   };
 
   return (
