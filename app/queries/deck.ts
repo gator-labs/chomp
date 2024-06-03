@@ -126,7 +126,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   await addPlaceholderAnswers(
     deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
     payload.sub,
-    false,
   );
   return questions;
 }
