@@ -266,6 +266,6 @@ export async function addPlaceholderAnswers(
   await prisma.questionAnswer.createMany({ data: placeholderQuestionAnswers });
   if (revalidate) {
     console.log("in revalidate");
-    revalidatePath("/application");
+    // revalidatePath("/application");
   }
 }
