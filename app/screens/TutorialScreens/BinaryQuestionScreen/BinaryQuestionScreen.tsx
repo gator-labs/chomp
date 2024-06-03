@@ -74,7 +74,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
           <QuestionCard
             dueAt={dueAt}
             numberOfSteps={0}
-            question="Was a SBF net positive for solana?"
+            question="Was SBF a net positive for Solana?"
             type={QuestionType.BinaryQuestion}
             viewImageSrc="/test"
             step={0}
