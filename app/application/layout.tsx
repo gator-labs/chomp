@@ -25,7 +25,10 @@ export default async function Layout({ children }: PageLayoutProps) {
     (vc) => vc.format === "blockchain",
   ) ?? { address: "" };
 
-  console.log({ verifiedCredentials });
+  if (!(verifiedCredentials as any).address) {
+    console.log({ verifiedCredentials });
+    console.log(payload);
+  }
 
   let address = "";
 
