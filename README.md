@@ -87,7 +87,7 @@ We are in the process of adapting another set of "[Wisdom of the Crowd](https://
 
 ## Roadmap/next steps:
 
-We will be doing a closed alpha in Dubai next week with FOMO Mag + MonkeDAO, and then an open beta through Drip in mid-May. Q2+Q3 are all about experimentation and validation, where we will aim to understand our users better, hone in on a few use cases, improve product features, and gather enough data to improve on our mechanism and tokenomics design.
+We will be doing a closed alpha in Dubai next week with FOMO Mag + MonkeDAO, and then an open beta through DRiP in mid-May. Q2+Q3 are all about experimentation and validation, where we will aim to understand our users better, hone in on a few use cases, improve product features, and gather enough data to improve on our mechanism and tokenomics design.
 
 On the technical front:
 

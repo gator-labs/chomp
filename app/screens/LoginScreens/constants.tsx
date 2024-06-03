@@ -10,8 +10,8 @@ export const SLIDESHOW = [
     icon: <RainingChompIcon />,
     title: "Is it raining?",
     description: [
-      "Because Chompy is drenched in droplets! If you have landed in Chomp from Drip, welcome, wandle around and explore!",
-      "If you didn't, head over to Drip to participate in Chomp's beta launch campaign, and be in to win collectible and prizes!",
+      "Because Chompy is drenched in droplets! If you have landed in Chomp from DRiP, welcome, waddle around and explore!",
+      "If you didn't, head over to DRiP to participate in Chomp's beta launch campaign, and be in to win collectible and prizes!",
     ],
   },
   {
