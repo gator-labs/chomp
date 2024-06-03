@@ -61,3 +61,12 @@
 .reveal-page-content > * > * > * {
   cursor: default;
 }
+
+.bulleted-list {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.bulleted-list li {
+  margin-bottom: 5px;
+}
