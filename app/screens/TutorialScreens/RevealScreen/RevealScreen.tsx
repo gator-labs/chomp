@@ -111,7 +111,7 @@ const RevealScreen = () => {
           <div className="fixed bottom-[108px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] max-w-lg pointer-events-auto">
             <h3 className="text-base">Reveal answer?</h3>
             <p className="text-sm">
-              You would need to burn <b>5000 BONK.</b>{" "}
+              You would need to burn <b>5,000 BONK.</b>{" "}
             </p>
             <div className="flex flex-col gap-2">
               <Tooltip
@@ -144,7 +144,7 @@ const RevealScreen = () => {
       <>
         <div className="px-4 w-full flex flex-col gap-4">
           <Tooltip
-            infoText="Nice! The correct 1st order answer is Jupiter. If you answered the 1st and 2nd order questions correctly, your reward is 10,000 BONK (emoji) 🎊"
+            infoText="Nice! The correct 1st order answer is Jupiter. If you answered the 1st and 2nd order questions correctly, your reward is 10,000 BONK 🎊."
             alwaysVisible={activeClaimScreenStep === "congrats-step"}
             disabledHover
             position="bottom"
