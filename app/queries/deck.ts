@@ -506,7 +506,7 @@ export async function hasAnsweredDeck(
     },
   });
 
-  console.log({ answeredCount });
+  console.log({ answeredCount, deckId, userId });
 
   return answeredCount > 0;
 }
