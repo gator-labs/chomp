@@ -314,7 +314,7 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
     (
       select count(distinct qo."questionId") from "QuestionAnswer" qa
       inner join "QuestionOption" qo ON qo.id = qa."questionOptionId" 
-      where qa.selected = true and qa."hasViewedButNotSubmitted" = false
+      where qa.selected = true and qa."hasViewedButNotSubmitted" = false and qa."userId" = u."id"
     ) as "cardsChomped",
     (
       select avg(qa."timeToAnswer") from public."QuestionAnswer" qa 

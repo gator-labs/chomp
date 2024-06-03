@@ -65,11 +65,13 @@ export function QuestionAction({
     questionOptions
   ) {
     const optionLeft = questionOptions.find((qo) => qo.isLeft)?.option ?? "";
-    const optionRight = questionOptions.find((qo) => !qo.isLeft)?.option ?? "";
     return (
       <div className="text-white font-semibold pb-7">
         <div className="text-center text-md mb-4 ">
-          How do you think others will respond?
+          How many people do you think picked{" "}
+          <span className="px-2 py-1 bg-white rounded-2xl text-[10px] leading-[12px] text-[#0D0D0D]">
+            {optionLeft}
+          </span>
         </div>
         <div className="flex gap-3 items-center justify-between">
           <div className="w-full h-full">
@@ -78,8 +80,8 @@ export function QuestionAction({
               handleRatioChange={(value) =>
                 setPercentage && setPercentage(value)
               }
-              labelLeft={optionLeft}
-              labelRight={optionRight}
+              labelLeft="No one"
+              labelRight="Everyone"
             />
           </div>
           <Button
