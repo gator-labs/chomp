@@ -12,11 +12,17 @@ type PageProps = {
 export default async function Page({ params: { id } }: PageProps) {
   const hasAnswered = await hasAnsweredDeck(+id);
 
+  console.log({ hasAnswered });
   if (hasAnswered) {
     return redirect("/application");
   }
 
   const questions = await getDeckQuestionsForAnswerById(+id);
+
+  console.log({
+    condition:
+      !questions || dayjs(questions[0]?.deckRevealAtDate).isBefore(new Date()),
+  });
 
   if (
     !questions ||
