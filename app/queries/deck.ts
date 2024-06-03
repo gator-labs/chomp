@@ -10,7 +10,6 @@ import {
   Tag,
 } from "@prisma/client";
 import dayjs from "dayjs";
-import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import { HistorySortOptions } from "../api/history/route";
 import prisma from "../services/prisma";
@@ -123,10 +122,10 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   }
 
   const questions = mapQuestionFromDeck(deck);
-  await addPlaceholderAnswers(
-    deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
-    payload.sub,
-  );
+  // await addPlaceholderAnswers(
+  //   deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
+  //   payload.sub,
+  // );
   return questions;
 }
 
