@@ -1,4 +1,3 @@
-import { Deck } from "@/app/components/Deck/Deck";
 import {
   getDeckQuestionsForAnswerById,
   hasAnsweredDeck,
@@ -28,9 +27,10 @@ export default async function Page({ params: { id } }: PageProps) {
 
   return (
     <div className="max-h-[calc(100%-48px)] py-2">
-      {questions && (
+      TESTING
+      {/* {questions && (
         <Deck questions={questions} deckId={+id} deckVariant="regular-deck" />
-      )}
+      )} */}
     </div>
   );
 }
