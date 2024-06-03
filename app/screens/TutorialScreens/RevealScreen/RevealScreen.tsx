@@ -144,8 +144,7 @@ const RevealScreen = () => {
       <>
         <div className="px-4 w-full flex flex-col gap-4">
           <Tooltip
-            infoText="Nice! You answered both 1st and 2nd order questions correctly. 
-          your reward is therefore 10,000 BONK 🎊"
+            infoText="Nice! The correct 1st order answer is Jupiter. If you answered the 1st and 2nd order questions correctly, your reward is 10,000 BONK (emoji) 🎊"
             alwaysVisible={activeClaimScreenStep === "congrats-step"}
             disabledHover
             position="bottom"
