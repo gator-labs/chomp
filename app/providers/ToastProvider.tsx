@@ -58,6 +58,7 @@ const toastOptions: ToastOptions = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: "16px",
   },
   position: "top-center",
   duration: 5000,
