@@ -251,6 +251,7 @@ export async function removePlaceholderAnswerByDeck(
 export async function addPlaceholderAnswers(
   questionOptions: QuestionOption[],
   userId: string,
+  revalidate = true,
 ) {
   const placeholderQuestionAnswers = questionOptions.map(
     (qo) =>
@@ -263,5 +264,5 @@ export async function addPlaceholderAnswers(
   );
 
   await prisma.questionAnswer.createMany({ data: placeholderQuestionAnswers });
-  revalidatePath("/application");
+  revalidate && revalidatePath("/application");
 }
