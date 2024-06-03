@@ -10,15 +10,10 @@ type PageProps = {
   params: { id: string };
 };
 
-export const revalidate = 0;
-
 export default async function Page({ params: { id } }: PageProps) {
   const hasAnswered = await hasAnsweredDeck(+id);
 
-  console.log({ hasAnswered });
-
   if (hasAnswered) {
-    console.log("in first redirect");
     return redirect("/application");
   }
 
@@ -28,7 +23,6 @@ export default async function Page({ params: { id } }: PageProps) {
     !questions ||
     dayjs(questions[0]?.deckRevealAtDate).isBefore(new Date())
   ) {
-    console.log("in second redirect");
     return redirect("/application");
   }
 

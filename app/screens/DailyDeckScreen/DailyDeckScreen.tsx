@@ -27,7 +27,7 @@ const DailyDeckScreen = ({
 
   return (
     <>
-      <div className="flex flex-col h-full" onClick={() => console.log("div")}>
+      <div className="flex flex-col h-full">
         <main className="flex-grow overflow-y-auto mb-2 h-full w-full max-w-lg mx-auto">
           <div className="flex flex-col h-full">
             <Disabled

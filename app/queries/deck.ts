@@ -484,7 +484,6 @@ export async function hasAnsweredDeck(
 ) {
   if (!userId) {
     const payload = await getJwtPayload();
-    console.log({ payload });
     if (!payload) {
       return true;
     }
@@ -514,8 +513,6 @@ export async function hasAnsweredDeck(
       ...questionAnswerWhereInput,
     },
   });
-
-  console.log({ answeredCount, deckId, userId, answers });
 
   return answeredCount > 0;
 }

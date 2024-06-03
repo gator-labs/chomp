@@ -15,8 +15,6 @@ export function HomeFeedDeckExpiringSection({
 }: HomeFeedDeckExpiringSectionProps) {
   const router = useRouter();
 
-  console.log("test");
-
   const deckSlides = !!decks.length
     ? decks.map((d) => (
         <HomeFeedDeckCard

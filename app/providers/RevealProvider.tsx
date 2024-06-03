@@ -121,8 +121,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
     }
     setBurnState("burned");
 
-    console.log(burnTx);
-
     if (reveal) {
       await reveal.reveal(
         burnTx,
