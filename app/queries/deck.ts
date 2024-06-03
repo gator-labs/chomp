@@ -9,6 +9,7 @@ import {
   QuestionTag,
   Tag,
 } from "@prisma/client";
+import { addSeconds } from "date-fns";
 import dayjs from "dayjs";
 import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
@@ -497,10 +498,14 @@ export async function hasAnsweredDeck(
 
   const answeredCount = await prisma.questionAnswer.count({
     where: {
+      createdAt: {
+        gt: addSeconds(new Date(), 20),
+      },
       userId: { equals: userId },
       questionOption: {
         question: { deckQuestions: { some: { deckId: { equals: deckId } } } },
       },
+
       ...questionAnswerWhereInput,
     },
   });

@@ -19,6 +19,11 @@ export default async function Page({ params: { id } }: PageProps) {
 
   const questions = await getDeckQuestionsForAnswerById(+id);
 
+  console.log({
+    condition:
+      !questions || dayjs(questions[0]?.deckRevealAtDate).isBefore(new Date()),
+  });
+
   if (
     !questions ||
     dayjs(questions[0]?.deckRevealAtDate).isBefore(new Date())
