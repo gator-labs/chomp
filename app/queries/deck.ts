@@ -499,7 +499,7 @@ export async function hasAnsweredDeck(
   const answeredCount = await prisma.questionAnswer.count({
     where: {
       createdAt: {
-        gt: addSeconds(new Date(), 20),
+        lt: addSeconds(new Date(), -20),
       },
       userId: { equals: userId },
       questionOption: {
