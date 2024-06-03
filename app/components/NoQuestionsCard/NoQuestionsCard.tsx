@@ -20,7 +20,7 @@ export function NoQuestionsCard({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-between h-full">
+    <div className="flex flex-col justify-between h-full w-full">
       <div
         className="questions-card text-white font-sora relative"
         style={{
