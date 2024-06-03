@@ -44,7 +44,7 @@ const TotalPointsEarnedInfo = ({ children }: TotalPointsEarnedInfoProps) => {
                   <span className="text-purple font-bold">69</span> points
                 </li>
                 <li>
-                  Answer a full stack:&nbsp;
+                  Answer a full deck:&nbsp;
                   <span className="text-purple font-bold">20</span>&nbsp;points
                 </li>
                 <li>

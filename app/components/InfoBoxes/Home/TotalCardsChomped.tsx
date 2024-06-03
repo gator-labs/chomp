@@ -29,7 +29,7 @@ const TotalCardChompedInfo = ({ children }: TotalCardChompedInfoProps) => {
             </h3>
             <p className="text-left flex flex-col gap-4">
               <p className="text-[13px] font-light leading-[16.38px] text-left">
-                Just how hungry are you for better information game?
+                Just how hungry are you for a better information game?
               </p>
               <p className="text-[13px] font-light leading-[16.38px] text-left">
                 This stat measures how many{" "}
@@ -40,7 +40,7 @@ const TotalCardChompedInfo = ({ children }: TotalCardChompedInfoProps) => {
               <p className="text-[13px] font-light leading-[16.38px] text-left">
                 Remember, the more you chomp, the more you could earn,{" "}
                 <span className="font-semibold">and</span> the better
-                high-signal information there are out on the internet!
+                high-signal information there is out on the internet!
               </p>
             </p>
           </div>

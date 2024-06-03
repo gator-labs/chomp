@@ -33,9 +33,8 @@ const DailyDeckStreakInfo = ({ children }: DailyDeckStreakProps) => {
                 as one day toward your streak!
               </p>
               <p className="text-[13px] font-light leading-[16.38px] text-left">
-                You might be chomping just slightly slower than a wild gator,
-                but this shows you exactly how fast you can go while still
-                giving each question your best answer.
+                In addition to never missing a new deck, longer streaks could
+                also earn you more rewards down the line.
               </p>
               <p className="text-[13px] font-light leading-[16.38px] text-left">
                 We are still designing out future reward mechanisms, stay tuned!
