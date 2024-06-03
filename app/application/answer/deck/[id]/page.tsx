@@ -10,6 +10,8 @@ type PageProps = {
   params: { id: string };
 };
 
+export const revalidate = 0;
+
 export default async function Page({ params: { id } }: PageProps) {
   const hasAnswered = await hasAnsweredDeck(+id);
 
