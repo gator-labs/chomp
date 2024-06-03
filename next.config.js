@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: false, // Enable React strict mode for improved error handling
   swcMinify: true, // Enable SWC minification for improved performance
   compiler: {
-    removeConsole: process.env.NODE_ENV !== "development", // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === "production", // Remove console.log in production
   },
   experimental: {
     missingSuspenseWithCSRBailout: false,
