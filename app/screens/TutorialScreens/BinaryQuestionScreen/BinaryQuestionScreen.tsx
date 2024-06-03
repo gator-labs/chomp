@@ -60,7 +60,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
 
   return (
     <>
-      <div className="flex flex-col justify-between h-full pointer-events-auto px-4">
+      <div className="flex flex-col justify-between w-full h-full pointer-events-auto px-6">
         <Tooltip
           infoText={STEPS[tooltipIndex].text}
           alwaysVisible={
@@ -81,7 +81,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILISECONDS))
             }
-            className={`relative max-w-[450px] mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
+            className={`relative w-full mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -104,7 +104,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
           disabledHover
         >
           <div
-            className={`pt-2 pb-[53px] w-full relative ${
+            className={`py-2 w-full relative ${
               STEPS[tooltipIndex].isQuestionCardTooltip ||
               !STEPS[tooltipIndex].isTooltip
                 ? "-z-10"
@@ -126,17 +126,19 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
         </Tooltip>
       </div>
       {STEPS[tooltipIndex].isQuestionCardTooltip && (
-        <Button
-          onClick={handleGoToNextTooltip}
-          className="fixed bottom-5 pointer-events-auto !w-[calc(100%-32px)] left-1/2 -translate-x-1/2 max-w-lg gap-1"
-          variant="purple"
-        >
-          Next
-          <HalfArrowRightIcon fill="#0D0D0D" />
-        </Button>
+        <div className="fixed bottom-5 max-w-[30rem] left-1/2 -translate-x-1/2 gap-1 w-full max-md:px-6">
+          <Button
+            onClick={handleGoToNextTooltip}
+            className="pointer-events-auto"
+            variant="purple"
+          >
+            Next
+            <HalfArrowRightIcon fill="#0D0D0D" />
+          </Button>
+        </div>
       )}
       {isFlowFinished && (
-        <div className="fixed bottom-[108px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] max-w-lg pointer-events-auto">
+        <div className="fixed bottom-[0px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
           <h3 className="text-base">Well done! 🎉</h3>
           <p className="text-sm">
             Now let&apos;s try a <b>multiple choice</b> question
