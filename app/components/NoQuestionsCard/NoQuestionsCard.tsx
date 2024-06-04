@@ -27,11 +27,11 @@ export function NoQuestionsCard({
           aspectRatio: 0.92,
         }}
       >
-        <div>
+        <div className="text-center flex items-center justify-start flex-col h-full gap-10">
           <div className="text-2xl font-bold mb-2">
             {QUESTION_CARD_CONTENT[variant].title}
           </div>
-          <div className="text-sm max-w-72 relative z-10">
+          <div className="text-base relative z-10">
             {QUESTION_CARD_CONTENT[variant].body}
           </div>
         </div>
