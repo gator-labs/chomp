@@ -49,7 +49,10 @@ export function HomeFeedRevealedQuestionsSection({
 
   if (questionSlides.length < QUESTIONS_IN_SECTION) {
     questionSlides.push(
-      <HomeFeedEmptyQuestionCard key={questionSlides.length} />,
+      <HomeFeedEmptyQuestionCard
+        title="That’s all for now!"
+        description="Come back later to see new suggested questions here"
+      />,
     );
   }
 
