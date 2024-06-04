@@ -51,7 +51,13 @@ export function HomeFeedReadyToRevealSection({
           }
         />
       ))
-    : [<HomeFeedEmptyQuestionCard key={0} />];
+    : [
+        <HomeFeedEmptyQuestionCard
+          title="That’s all for now!"
+          description="Come back later to see new answers to reveal here"
+          key={0}
+        />,
+      ];
 
   return (
     <HomeFeedCardCarousel
