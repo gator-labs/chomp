@@ -1,7 +1,6 @@
 "use client";
 import { QuestionType } from "@prisma/client";
 import { Button } from "../Button/Button";
-import { DollarIcon } from "../Icons/DollarIcon";
 import LikeIcon from "../Icons/LikeIcon";
 import UnlikeIcon from "../Icons/UnlikeIcon";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
@@ -99,17 +98,6 @@ const AnsweredQuestionShow = ({ question }: any) => {
             </div>
           </div>
         )}
-      <div className="flex flex-col items-center gap-4">
-        <p className="text-sm text-[#666666]">
-          You did not participate in this Chomp
-        </p>
-        <Button
-          variant="grayish"
-          className="items-center gap-1 h-[50px] !bg-[#999999] !text-[#666666]"
-        >
-          Claim <DollarIcon fill="#666666" />
-        </Button>
-      </div>
     </div>
   );
 };
