@@ -48,7 +48,7 @@ export function AnswerResult({
           hideThumb
           className={`rounded-[4px] h-full w-full`}
           backgroundColor="#4c4c4c"
-          progressColor={progressColor ? progressColor : "#cfc7f2"}
+          progressColor={progressColor ? progressColor : "#A3A3EC"}
           trackClassName={classNames(
             "!rounded-[4px] h-full w-full",
             progressBarClassName,

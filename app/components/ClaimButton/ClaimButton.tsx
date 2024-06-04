@@ -11,6 +11,7 @@ interface ClaimButtonProps {
   onClick?: () => void;
   className?: string;
   rewardAmount?: number;
+  didAnswer?: boolean;
 }
 
 const ClaimButton = ({
@@ -18,8 +19,23 @@ const ClaimButton = ({
   onClick,
   className,
   rewardAmount,
+  didAnswer = true,
 }: ClaimButtonProps) => {
-  if (status === "claimable" && rewardAmount !== 0) {
+  if (!didAnswer) {
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-sm text-[#666666]">
+          You did not participate in this Chomp
+        </p>
+        <Button
+          variant="grayish"
+          className="items-center gap-1 h-[50px] !bg-[#999999] !text-[#666666] cursor-auto"
+        >
+          Claim <DollarIcon fill="#666666" />
+        </Button>
+      </div>
+    );
+  } else if (status === "claimable" && rewardAmount !== 0) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">

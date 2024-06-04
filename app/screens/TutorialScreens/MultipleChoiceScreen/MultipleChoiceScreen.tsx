@@ -131,7 +131,7 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
       </div>
       {isFlowFinished && (
         <div className="fixed bottom-[0px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
-          <h3 className="text-base">You did it again! 🎉</h3>
+          <h3 className="text-base">You just chomped! 🎉</h3>
           <p className="text-sm">
             Let’s check out the answers for the questions you just chomped.
           </p>

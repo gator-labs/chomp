@@ -81,7 +81,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILISECONDS))
             }
-            className={`relative w-full mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
+            className={`relative w-full mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "!-z-10"}`}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}

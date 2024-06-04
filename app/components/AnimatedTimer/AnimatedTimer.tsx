@@ -1,4 +1,3 @@
-// AnimatedTimer.tsx
 import anime from "animejs";
 import { useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
@@ -16,12 +15,12 @@ const AnimatedTimer = ({
     if (circleRef.current) {
       const totalLength = circleRef.current.getTotalLength();
       circleRef.current.style.strokeDasharray = totalLength.toString();
-      circleRef.current.style.strokeDashoffset = totalLength.toString();
+      circleRef.current.style.strokeDashoffset = "0";
 
       anime({
         targets: circleRef.current,
-        strokeDashoffset: [totalLength, 0],
-        duration: duration,
+        strokeDashoffset: [0, totalLength],
+        duration: duration + 1000,
         easing: "easeInOutCubic",
         complete: () => {
           toast.dismiss(id);
@@ -50,12 +49,14 @@ const AnimatedTimer = ({
           />
         </g>
       </g>
-      <path
+      <circle
         ref={circleRef}
-        d="M26 13C26 10.1206 25.0441 7.32272 23.2822 5.04532C21.5203 2.76792 19.0522 1.1399 16.2651 0.41671C13.478 -0.306476 10.5297 -0.0839001 7.88279 1.04951C5.23587 2.18293 3.04014 4.16304 1.64013 6.67914C0.240116 9.19524 -0.284942 12.1049 0.147338 14.9517C0.579619 17.7984 1.94477 20.4211 4.0286 22.4082C6.11242 24.3953 8.79698 25.6343 11.661 25.9309C14.5251 26.2274 17.4066 25.5647 19.8533 24.0468L18.9402 22.5749C16.8194 23.8906 14.3219 24.465 11.8395 24.2079C9.35701 23.9509 7.03015 22.8769 5.22398 21.1546C3.41782 19.4323 2.23456 17.1591 1.85988 14.6916C1.4852 12.2242 1.94029 9.7022 3.15376 7.52136C4.36723 5.34051 6.27039 3.62424 8.56462 2.64184C10.8589 1.65945 13.4143 1.46653 15.83 2.09336C18.2458 2.72018 20.385 4.13128 21.9121 6.10523C23.4393 8.07919 24.2678 10.5043 24.2678 13H26Z"
+        cx="13"
+        cy="13"
+        r="12"
         fill="none"
         stroke="#CFC5F7"
-        strokeWidth="2"
+        strokeWidth="3"
       />
       <defs>
         <clipPath id="clip0_4256_3955">
