@@ -39,7 +39,7 @@ export default async function Layout({ children }: PageLayoutProps) {
   return (
     <CollapsedContextProvider>
       <ConfettiProvider>
-        <RevealContextProvider>
+        <RevealContextProvider bonkBalance={bonkBalance}>
           <MetadataProvider profileSrc={profile}>
             <div className="flex flex-col h-full">
               <main className="flex-grow overflow-y-auto mb-2 w-full max-w-lg mx-auto flex flex-col px-4">
