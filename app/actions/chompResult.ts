@@ -9,10 +9,10 @@ import {
   GENESIS_COLLECTION_VALUE,
 } from "../constants/genesis-nfts";
 import prisma from "../services/prisma";
+import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { calculateRevealPoints } from "../utils/points";
 import { getQuestionState, isEntityRevealable } from "../utils/question";
 import { CONNECTION } from "../utils/solana";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 import { createUsedGenesisNft, getUsedGenesisNfts } from "./used-nft-genesis";
 
@@ -163,7 +163,7 @@ export async function revealQuestions(
 
     const burnTransactionCount = await prisma.chompResult.count({
       where: {
-        transactionSignature: burnTx,
+        burnTransactionSignature: burnTx,
       },
     });
 
@@ -246,40 +246,76 @@ export async function revealQuestions(
     return remainingQuestions.length === 0;
   });
 
-  await prisma.$transaction(async (tx) => {
-    await tx.chompResult.createMany({
+  const uncalculatedQuestionOptionCount = await prisma.questionOption.count({
+    where: {
+      OR: [
+        { calculatedIsCorrect: null },
+        { calculatedAveragePercentage: null },
+      ],
+      questionId: {
+        in: questionIds,
+      },
+    },
+  });
+
+  if (uncalculatedQuestionOptionCount > 0) {
+    await calculateCorrectAnswer(revealableQuestions.map((q) => q.id));
+  }
+
+  const revealPoints = await calculateRevealPoints(
+    payload.sub,
+    questionIds.filter((questionId) => questionId !== null) as number[],
+  );
+  const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
+
+  const tokenAmount = await calculateReward(payload.sub, questionIds);
+
+  await prisma.$transaction([
+    prisma.chompResult.createMany({
       data: [
         ...questionIds.map((questionId) => ({
           questionId,
           userId: payload.sub,
           result: ResultType.Revealed,
-          transactionSignature: burnTx,
+          burnTransactionSignature: burnTx,
+          rewardTokenAmount: tokenAmount,
         })),
         ...decksToAddRevealFor.map((deck) => ({
           deckId: deck.id,
           userId: payload.sub,
           result: ResultType.Revealed,
-          transactionSignature: burnTx,
+          burnTransactionSignature: burnTx,
+          rewardTokenAmount: tokenAmount,
         })),
       ],
-    });
-
-    const revealResult = await calculateRevealPoints(
-      payload.sub,
-      questionIds.filter((questionId) => questionId !== null) as number[],
-    );
-
-    const fungibleAssetRevealTasks = revealResult.map((rr) =>
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        rr.amount,
-        rr.type,
-        tx,
-      ),
-    );
-
-    await Promise.all(fungibleAssetRevealTasks);
-  });
+    }),
+    prisma.fungibleAssetBalance.upsert({
+      where: {
+        asset_userId: {
+          asset: FungibleAsset.Point,
+          userId: payload.sub,
+        },
+      },
+      update: {
+        amount: {
+          increment: pointsAmount,
+        },
+      },
+      create: {
+        userId: payload.sub,
+        asset: FungibleAsset.Point,
+        amount: pointsAmount,
+      },
+    }),
+    prisma.fungibleAssetTransactionLog.createMany({
+      data: revealPoints.map((revealPointsTx) => ({
+        asset: FungibleAsset.Point,
+        type: revealPointsTx.type,
+        change: revealPointsTx.amount,
+        userId: payload.sub,
+      })),
+    }),
+  ]);
 
   revalidatePath("/application");
 }

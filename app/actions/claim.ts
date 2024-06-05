@@ -1,8 +1,11 @@
 "use server";
 
 import { ResultType } from "@prisma/client";
+import { Keypair, PublicKey } from "@solana/web3.js";
+import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
+import { sendBonk } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
@@ -44,6 +47,34 @@ export async function claimQuestions(questionIds: number[]) {
     },
   });
 
+  const userWallet = await prisma.wallet.findFirst({
+    where: {
+      userId: payload.sub,
+    },
+  });
+
+  if (!userWallet) {
+    return;
+  }
+
+  const treasuryWallet = Keypair.fromSecretKey(
+    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
+  );
+
+  const tokenAmount = chompResults.reduce(
+    (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
+    0,
+  );
+
+  let sendTx: string | null = null;
+  if (tokenAmount > 0) {
+    sendTx = await sendBonk(
+      treasuryWallet,
+      new PublicKey(userWallet.address),
+      Math.round(tokenAmount * 10 ** 5),
+    );
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.chompResult.updateMany({
       where: {
@@ -53,6 +84,7 @@ export async function claimQuestions(questionIds: number[]) {
       },
       data: {
         result: ResultType.Claimed,
+        sendTransactionSignature: sendTx,
       },
     });
 
@@ -91,6 +123,7 @@ export async function claimQuestions(questionIds: number[]) {
         },
         data: {
           result: ResultType.Claimed,
+          sendTransactionSignature: sendTx,
         },
       });
     }
@@ -104,7 +137,8 @@ export async function claimQuestions(questionIds: number[]) {
         data: deckRevealsToCreate.map((deckId) => ({
           deckId,
           userId: payload.sub,
-          result: ResultType.Revealed,
+          result: ResultType.Claimed,
+          sendTransactionSignature: sendTx,
         })),
       });
     }

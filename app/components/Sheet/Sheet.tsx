@@ -32,7 +32,7 @@ const Sheet = ({
           e.stopPropagation();
           setIsOpen(false);
         }}
-        className="absolute top-5 right-[1rem] border-none w-max !p-0 z-50"
+        className="absolute top-10 right-6 border-none w-max !p-0 z-50"
       >
         <CloseIcon width={closIconWidth} height={closIconHeight} />
       </Button>

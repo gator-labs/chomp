@@ -63,15 +63,18 @@ model Question {
 }
 
 model QuestionOption {
-  id              Int              @id @default(autoincrement())
-  option          String
-  isCorrect       Boolean          @default(false)
-  isLeft          Boolean          @default(false)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  questionId      Int
-  question        Question         @relation(fields: [questionId], references: [id])
-  questionAnswers QuestionAnswer[]
+  id                                    Int              @id @default(autoincrement())
+  option                                String
+  isCorrect                             Boolean          @default(false)
+  calculatedIsCorrect                   Boolean?
+  calculatedAveragePercentage           Int? // avg `percentage` column
+  calculatedPercentageOfSelectedAnswers Int? // percentage of people that selected
+  isLeft                                Boolean          @default(false)
+  createdAt                             DateTime         @default(now())
+  updatedAt                             DateTime         @default(now()) @updatedAt
+  questionId                            Int
+  question                              Question         @relation(fields: [questionId], references: [id])
+  questionAnswers                       QuestionAnswer[]
 }
 
 model Tag {
@@ -142,17 +145,19 @@ model QuestionAnswer {
 }
 
 model ChompResult {
-  id                   Int        @id @default(autoincrement())
-  userId               String
-  user                 User       @relation(fields: [userId], references: [id])
-  questionId           Int?
-  question             Question?  @relation(fields: [questionId], references: [id])
-  deckId               Int?
-  deck                 Deck?      @relation(fields: [deckId], references: [id])
-  transactionSignature String?
-  result               ResultType
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @default(now()) @updatedAt
+  id                       Int        @id @default(autoincrement())
+  userId                   String
+  user                     User       @relation(fields: [userId], references: [id])
+  questionId               Int?
+  question                 Question?  @relation(fields: [questionId], references: [id])
+  deckId                   Int?
+  deck                     Deck?      @relation(fields: [deckId], references: [id])
+  burnTransactionSignature String?
+  sendTransactionSignature String?
+  rewardTokenAmount        Decimal?
+  result                   ResultType
+  createdAt                DateTime   @default(now())
+  updatedAt                DateTime   @default(now()) @updatedAt
 }
 
 model FungibleAssetTransactionLog {
