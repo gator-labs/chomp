@@ -30,7 +30,13 @@ export function HomeFeedDeckExpiringSection({
           }}
         />
       ))
-    : [<HomeFeedEmptyQuestionCard key={0} />];
+    : [
+        <HomeFeedEmptyQuestionCard
+          title="That’s all for now!"
+          description="Come back later to see new suggested questions here"
+          key={0}
+        />,
+      ];
 
   return (
     <HomeFeedCardCarousel

@@ -68,7 +68,7 @@ export function QuestionCardContent({
     return (
       <div className={className}>
         {questionOptions?.map((qo, index) => (
-          <div key={qo.id} className="mb-2">
+          <div key={qo.id} className="mb-4">
             <AnswerResult
               index={index}
               answerText={qo.option}

@@ -28,8 +28,8 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
   const [dueAt, setDueAt] = useState(getDueAt(ONE_MINUTE_IN_MILISECONDS));
   const [tooltipIndex, setTooltipIndex] = useState(0);
   const [isFlowFinished, setIsFlowFinished] = useState(false);
-
   const [othersResponseScale, setOthersResponseScale] = useState(50);
+  const [hasIncrementedTooltip, setHasIncrementedTooltip] = useState(false);
 
   const handleGoToNextTooltip = () => {
     if (tooltipIndex === STEPS.length - 1) return;
@@ -38,10 +38,11 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
   };
 
   useEffect(() => {
-    if (!!currentOptionSelected) {
+    if (!!currentOptionSelected && !hasIncrementedTooltip) {
       setTooltipIndex((curr) => curr + 1);
+      setHasIncrementedTooltip(true);
     }
-  }, [currentOptionSelected]);
+  }, [currentOptionSelected, hasIncrementedTooltip]);
 
   useEffect(() => {
     if (tooltipIndex === STEPS.length - 1) {
@@ -54,11 +55,11 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
       `${user?.userId}-seen-tutorial-screens`,
       JSON.stringify(["binary-question", "multiple-choice"]),
     );
-  }, []);
+  }, [user]);
 
   return (
     <>
-      <div className="flex flex-col justify-between h-full pointer-events-auto px-4">
+      <div className="flex flex-col justify-between h-full pointer-events-auto mx-4">
         <Tooltip
           infoText={STEPS[tooltipIndex].text}
           alwaysVisible={
@@ -77,7 +78,7 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILISECONDS))
             }
-            className={`relative max-w-[450px] mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
+            className={`relative max-w-[480px] mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -108,7 +109,7 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
           disabledHover
         >
           <div
-            className={`pt-2 pb-[53px] w-full relative ${
+            className={`py-2 w-full max-w-[30rem] relative ${
               STEPS[tooltipIndex].isQuestionCardTooltip ||
               !STEPS[tooltipIndex].isTooltip
                 ? "-z-10"
@@ -127,8 +128,8 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
         </Tooltip>
       </div>
       {isFlowFinished && (
-        <div className="fixed bottom-[108px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] max-w-lg pointer-events-auto">
-          <h3 className="text-base">You did it again! 🎉</h3>
+        <div className="fixed bottom-[0px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
+          <h3 className="text-base">You just chomped! 🎉</h3>
           <p className="text-sm">
             Let’s check out the answers for the questions you just chomped.
           </p>

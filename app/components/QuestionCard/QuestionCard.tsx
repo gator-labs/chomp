@@ -60,12 +60,14 @@ export function QuestionCard({
 
   return (
     <div
-      className={classNames("questions-card p-4 pt-6 rounded-lg", className)}
+      className={classNames(
+        "questions-card p-4 pt-6 rounded-lg z-0",
+        className,
+      )}
       style={{
         aspectRatio: 0.92,
         ...style,
         position: "relative",
-        zIndex: 0, // Ensure the card itself has a z-index
       }}
     >
       <Image
