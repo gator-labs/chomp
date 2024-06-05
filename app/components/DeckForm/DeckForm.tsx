@@ -239,6 +239,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
           variant="secondary"
           {...register("revealTokenAmount", {
             setValueAs: (v) => (!v ? 0 : parseInt(v)),
+            value: 5000,
           })}
         />
         <div className="text-red">{errors.revealTokenAmount?.message}</div>
