@@ -52,7 +52,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
   const [burnState, setBurnState] = useState<
-    "burning" | "burned" | "error" | "idle" | "skipburn"
+    "burning" | "error" | "idle" | "skipburn"
   >(INITIAL_BURN_STATE);
   const { primaryWallet } = useDynamicContext();
   const { fire } = useConfetti();
@@ -120,7 +120,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
 
         burnTx = signature;
       }
-      setBurnState("burned");
 
       if (reveal) {
         await reveal.reveal(
@@ -212,13 +211,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
         return (
           <Button variant="white" isPill disabled>
             Burning BONK...
-          </Button>
-        );
-
-      case "burned":
-        return (
-          <Button variant="white" isPill disabled>
-            Burned BONK!
           </Button>
         );
     }
