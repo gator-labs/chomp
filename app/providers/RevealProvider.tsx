@@ -4,7 +4,6 @@ import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { publicKey } from "@metaplex-foundation/umi";
 import classNames from "classnames";
-import Image from "next/image";
 import {
   createContext,
   ReactNode,
@@ -230,19 +229,9 @@ export function RevealContextProvider({
               onClick={() => burnAndReveal(!!"useGenesisNft")}
               className="flex items-center h-10"
             >
-              {genesisNft && !reveal?.multiple ? (
-                "Reveal with genesis NFT"
-              ) : (
-                <>
-                  <Image
-                    src={"/images/bonk.png"}
-                    alt="Avatar"
-                    width={32}
-                    height={32}
-                  />
-                  &nbsp;&nbsp;Burn to Reveal
-                </>
-              )}
+              {genesisNft && !reveal?.multiple
+                ? "Reveal with genesis NFT"
+                : "Reveal"}
             </Button>
             <Button
               variant="black"
@@ -250,8 +239,10 @@ export function RevealContextProvider({
               isPill
               onClick={() => burnAndReveal()}
             >
-              Reveal for {numberToCurrencyFormatter.format(reveal?.amount ?? 0)}{" "}
-              BONK
+              {genesisNft && !reveal?.multiple
+                ? `Reveal for ${numberToCurrencyFormatter.format(reveal?.amount ?? 0)}
+              BONK`
+                : "Cancel"}
             </Button>
             <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
