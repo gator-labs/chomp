@@ -1,6 +1,5 @@
 import {
   createBurnCheckedInstruction,
-  createTransferCheckedInstruction,
   createTransferInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
@@ -14,7 +13,6 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import * as bs58 from "bs58";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
@@ -48,45 +46,6 @@ export const genBonkBurnTx = async (
 
   tx.recentBlockhash = blockhash;
   tx.feePayer = burnFromPublic;
-
-  return tx;
-};
-
-export const genBonkTransferTx = async (
-  recipientAddress: string,
-  blockhash: string,
-) => {
-  const bonkPublic = new PublicKey(BONK_PUBLIC_ADDRESS);
-
-  const gatorTreasury = Keypair.fromSecretKey(
-    bs58.decode(process.env.NEXT_PUBLIC_GATOR_TREASURY_PRIVATE_KEY!),
-  );
-  const gatorBonkAta = await getAssociatedTokenAddress(
-    bonkPublic, // mint
-    gatorTreasury.publicKey, // owner
-  );
-
-  const recipientKey = new PublicKey(recipientAddress);
-
-  let recipientAta = await getAssociatedTokenAddress(
-    bonkPublic, // mint
-    recipientKey, // owner
-  );
-
-  const tx = new Transaction();
-  tx.add(
-    createTransferCheckedInstruction(
-      gatorBonkAta,
-      bonkPublic,
-      recipientAta,
-      gatorTreasury.publicKey,
-      AMOUNT_TO_SEND,
-      DECIMALS,
-    ),
-  );
-
-  tx.recentBlockhash = blockhash;
-  tx.feePayer = gatorTreasury.publicKey;
 
   return tx;
 };
