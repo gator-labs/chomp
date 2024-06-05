@@ -140,8 +140,6 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
       ),
     };
 
-    console.log("body", JSON.stringify(body));
-
     const { answer } = await getMechanismEngineResponse(
       "answer/multi-choice",
       body,
@@ -224,14 +222,10 @@ export const calculateReward = async (
         ?.questionAnswers.map((answer) => answer.percentage),
     };
 
-    console.log("body", body);
-
     const { rewards } = await getMechanismEngineResponse("rewards", body);
 
     rewardTotal += +rewards;
   }
-
-  console.log("rewardTotal", rewardTotal);
 
   return rewardTotal;
 };
