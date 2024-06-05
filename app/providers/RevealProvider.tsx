@@ -70,7 +70,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     async function effect() {
-      if (reveal?.multiple || !primaryWallet) return;
+      if (reveal?.multiple || !primaryWallet?.address) return;
 
       const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
         (usedGenesisNft) => usedGenesisNft.nftId,
@@ -96,7 +96,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
       }
     }
     effect();
-  }, [reveal, primaryWallet]);
+  }, [reveal, primaryWallet?.address]);
 
   const burnAndReveal = useCallback(async () => {
     let burnTx: string | undefined;
