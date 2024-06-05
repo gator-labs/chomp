@@ -26,6 +26,8 @@ export default async function Page() {
   const bonkBalance = await getBonkBalance(address);
   const solBalance = await getSolBalance(address);
 
+  console.log({ date: dailyDeck?.date });
+
   return (
     <DailyDeckScreen
       date={dailyDeck?.date}
