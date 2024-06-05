@@ -58,7 +58,7 @@ export async function claimQuestions(questionIds: number[]) {
   }
 
   const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.TREASURY_WALLET_PK || ""),
+    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
 
   const tokenAmount = chompResults.reduce(
