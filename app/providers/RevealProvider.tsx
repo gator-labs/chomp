@@ -52,7 +52,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
   const [burnState, setBurnState] = useState<
-    "burning" | "burned" | "error" | "idle" | "skipburn"
+    "burning" | "error" | "idle" | "skipburn"
   >(INITIAL_BURN_STATE);
   const { primaryWallet } = useDynamicContext();
   const { fire } = useConfetti();
@@ -98,38 +98,40 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
     effect();
   }, [reveal, primaryWallet]);
 
-  const burnAndReveal = useCallback(async () => {
-    let burnTx: string | undefined;
-    if (!genesisNft || reveal?.multiple) {
-      const blockhash = await CONNECTION.getLatestBlockhash();
-      const signer = await primaryWallet!.connector.getSigner<ISolana>();
-      const tx = await genBonkBurnTx(
-        primaryWallet!.address,
-        blockhash.blockhash,
-        reveal?.amount ?? 0,
-      );
-      setBurnState("burning");
-      const { signature } = await signer.signAndSendTransaction(tx);
+  const burnAndReveal = useCallback(
+    async (useGenesisNft = false) => {
+      let burnTx: string | undefined;
+      if ((!genesisNft || reveal?.multiple) && useGenesisNft) {
+        const blockhash = await CONNECTION.getLatestBlockhash();
+        const signer = await primaryWallet!.connector.getSigner<ISolana>();
+        const tx = await genBonkBurnTx(
+          primaryWallet!.address,
+          blockhash.blockhash,
+          reveal?.amount ?? 0,
+        );
+        setBurnState("burning");
+        const { signature } = await signer.signAndSendTransaction(tx);
 
-      await CONNECTION.confirmTransaction({
-        blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight,
-        signature,
-      });
+        await CONNECTION.confirmTransaction({
+          blockhash: blockhash.blockhash,
+          lastValidBlockHeight: blockhash.lastValidBlockHeight,
+          signature,
+        });
 
-      burnTx = signature;
-    }
-    setBurnState("burned");
+        burnTx = signature;
+      }
 
-    if (reveal) {
-      await reveal.reveal(
-        burnTx,
-        genesisNft && !reveal?.multiple ? genesisNft : undefined,
-      );
-      closeRevealModal();
-      fire();
-    }
-  }, [reveal]);
+      if (reveal) {
+        await reveal.reveal(
+          burnTx,
+          genesisNft && !reveal?.multiple ? genesisNft : undefined,
+        );
+        closeRevealModal();
+        fire();
+      }
+    },
+    [reveal],
+  );
 
   const revealButtons = useMemo(() => {
     switch (burnState) {
@@ -182,7 +184,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
             <Button
               variant="white"
               isPill
-              onClick={burnAndReveal}
+              onClick={() => burnAndReveal(!!"useGenesisNft")}
               className="flex items-center"
             >
               {genesisNft && !reveal?.multiple ? (
@@ -199,12 +201,9 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
                 </>
               )}
             </Button>
-            <Button
-              variant="black"
-              isPill
-              onClick={() => setIsRevealModalOpen(false)}
-            >
-              Maybe Later
+            <Button variant="black" isPill onClick={() => burnAndReveal()}>
+              Reveal for {numberToCurrencyFormatter.format(reveal?.amount ?? 0)}{" "}
+              BONK
             </Button>
           </>
         );
@@ -212,13 +211,6 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
         return (
           <Button variant="white" isPill disabled>
             Burning BONK...
-          </Button>
-        );
-
-      case "burned":
-        return (
-          <Button variant="white" isPill disabled>
-            Burned BONK!
           </Button>
         );
     }
