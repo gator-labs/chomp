@@ -12,6 +12,8 @@ type DailyDeckTitleProps = {
 export function DailyDeckTitle({ date }: DailyDeckTitleProps) {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
 
+  console.log({ date });
+
   const monthAndDay = getDailyDeckFormattedString(date)
     .split(" ")
     .slice(0, 2)
