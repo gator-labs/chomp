@@ -3,6 +3,7 @@ import { dasUmi } from "@/lib/web3";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { publicKey } from "@metaplex-foundation/umi";
+import classNames from "classnames";
 import Image from "next/image";
 import {
   createContext,
@@ -25,6 +26,7 @@ import {
 import { numberToCurrencyFormatter } from "../utils/currency";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 import { useConfetti } from "./ConfettiProvider";
+import { useToast } from "./ToastProvider";
 
 interface RevealContextState {
   openRevealModal: (
@@ -48,7 +50,14 @@ export const RevealedContext =
   createContext<RevealContextState>(initialContextValue);
 
 const INITIAL_BURN_STATE = "idle";
-export function RevealContextProvider({ children }: { children: ReactNode }) {
+export function RevealContextProvider({
+  children,
+  bonkBalance,
+}: {
+  children: ReactNode;
+  bonkBalance: number;
+}) {
+  const { promiseToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
   const [burnState, setBurnState] = useState<
@@ -67,6 +76,8 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
     claim: () => Promise<void>;
   }>();
   const [genesisNft, setGenesisNft] = useState<string | undefined>();
+
+  const insufficientFunds = !!reveal?.amount && reveal.amount > bonkBalance;
 
   useEffect(() => {
     async function effect() {
@@ -109,7 +120,14 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
         reveal?.amount ?? 0,
       );
       setBurnState("burning");
-      const { signature } = await signer.signAndSendTransaction(tx);
+      const { signature } = await promiseToast(
+        signer.signAndSendTransaction(tx),
+        {
+          loading: "Waiting for signature...",
+          success: "Bonk burn transaction signed!",
+          error: "You denied message signature.",
+        },
+      );
 
       await CONNECTION.confirmTransaction({
         blockhash: blockhash.blockhash,
@@ -132,6 +150,30 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
   }, [reveal]);
 
   const revealButtons = useMemo(() => {
+    if (insufficientFunds) {
+      return (
+        <>
+          <a
+            href="https://chomp.gitbook.io/chomp/how-to-chomp/first-time-using-solana"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="white" isPill className="text-black h-10">
+              Learn how
+            </Button>
+          </a>
+          <Button
+            variant="black"
+            className="h-10"
+            isPill
+            onClick={() => setIsRevealModalOpen(false)}
+          >
+            Cancel
+          </Button>
+        </>
+      );
+    }
+
     switch (burnState) {
       case "skipburn":
         return (
@@ -147,13 +189,14 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
                   console.error(error);
                 }
               }}
-              className="text-black"
+              className="text-black h-10"
             >
               Reveal
             </Button>
             <Button
               variant="black"
               isPill
+              className="h-10"
               onClick={() => setIsRevealModalOpen(false)}
             >
               Cancel
@@ -183,7 +226,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
               variant="white"
               isPill
               onClick={burnAndReveal}
-              className="flex items-center"
+              className="flex items-center h-10"
             >
               {genesisNft && !reveal?.multiple ? (
                 "Reveal with genesis NFT"
@@ -201,30 +244,47 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
             </Button>
             <Button
               variant="black"
+              className="h-10"
               isPill
               onClick={() => setIsRevealModalOpen(false)}
             >
               Maybe Later
             </Button>
+            <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
+              <div className="relative flex-shrink-0">
+                <InfoIcon width={16} height={16} />
+              </div>
+              <div className="flex flex-col gap-2 text-xs font-normal">
+                <p>
+                  You would need to burn $BONK to reveal the answer, regardless
+                  of whether you&apos;ve chomped on the question card earlier or
+                  not.{" "}
+                </p>
+                <p>
+                  But you&apos;re only eligible for a potential reward if you
+                  chomped on this question earlier.
+                </p>
+              </div>
+            </div>
           </>
         );
       case "burning":
         return (
-          <Button variant="white" isPill disabled>
+          <Button variant="white" className="h-10" isPill disabled>
             Burning BONK...
           </Button>
         );
 
       case "burned":
         return (
-          <Button variant="white" isPill disabled>
+          <Button variant="white" className="h-10" isPill disabled>
             Burned BONK!
           </Button>
         );
     }
 
     return null;
-  }, [burnState, reveal]);
+  }, [burnState, reveal, insufficientFunds]);
 
   const openRevealModal = useCallback(
     (
@@ -267,26 +327,51 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
     [openRevealModal, openClaimModal, closeRevealModal, closeClaimModal],
   );
 
+  const getDescriptionNode = () => {
+    if (insufficientFunds) {
+      return (
+        <p className="text-sm">
+          It looks like you have insufficient funds to go to the next step.
+          Please visit this link to learn how to fund your wallet.
+        </p>
+      );
+    } else if (genesisNft && !reveal?.multiple) {
+      return <p className="text-sm">Genesis NFT will be used for reveal</p>;
+    } else {
+      return (
+        <p className="text-sm">
+          This will cost you{" "}
+          <span className="font-bold">
+            {numberToCurrencyFormatter.format(reveal?.amount ?? 0)} BONK.
+          </span>
+        </p>
+      );
+    }
+  };
+
   return (
     <RevealedContext.Provider value={value}>
-      <Sheet isOpen={isRevealModalOpen} setIsOpen={setIsRevealModalOpen}>
-        <div className="flex flex-col gap-5 px-5 pb-5">
-          <div className="flex flex-col gap-3">
+      <Sheet
+        isOpen={isRevealModalOpen}
+        setIsOpen={setIsRevealModalOpen}
+        closIconHeight={16}
+        closIconWidth={16}
+      >
+        <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
+          <div className="flex flex-col gap-6">
             <div className="flex flex-row w-full items-center justify-between">
-              <h3 className="font-bold">Reveal answer?</h3>
+              <h3
+                className={classNames("font-bold", {
+                  "text-[#DD7944]": insufficientFunds,
+                  "text-[#A3A3EC]": !insufficientFunds,
+                })}
+              >
+                {insufficientFunds ? "Insufficient Funds" : "Reveal answer?"}
+              </h3>
             </div>
-            {genesisNft && !reveal?.multiple ? (
-              <p>Genesis NFT will be used for reveal</p>
-            ) : (
-              <p>
-                This will cost you{" "}
-                <span className="font-bold">
-                  {numberToCurrencyFormatter.format(reveal?.amount ?? 0)} BONK.
-                </span>
-              </p>
-            )}
+            {getDescriptionNode()}
           </div>
-          <div className="flex flex-col gap-3">{revealButtons}</div>
+          <div className="flex flex-col gap-2">{revealButtons}</div>
         </div>
       </Sheet>
 
