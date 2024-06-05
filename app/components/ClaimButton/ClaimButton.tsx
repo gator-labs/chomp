@@ -14,6 +14,7 @@ interface ClaimButtonProps {
   className?: string;
   rewardAmount?: number;
   didAnswer?: boolean;
+  questionIds: number[];
 }
 
 const ClaimButton = ({
@@ -21,13 +22,13 @@ const ClaimButton = ({
   className,
   rewardAmount,
   didAnswer = true,
+  questionIds,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { successToast } = useToast();
 
   const onClick = async () => {
-    // TODO
-    await claimQuestions([4]);
+    await claimQuestions(questionIds);
     fire();
     successToast("Claimed!", "You have successfully claimed!");
   };

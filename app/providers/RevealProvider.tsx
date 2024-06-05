@@ -129,11 +129,14 @@ export function RevealContextProvider({
           },
         );
 
-        await CONNECTION.confirmTransaction({
-          blockhash: blockhash.blockhash,
-          lastValidBlockHeight: blockhash.lastValidBlockHeight,
-          signature,
-        });
+        await CONNECTION.confirmTransaction(
+          {
+            blockhash: blockhash.blockhash,
+            lastValidBlockHeight: blockhash.lastValidBlockHeight,
+            signature,
+          },
+          "finalized",
+        );
 
         burnTx = signature;
       }
