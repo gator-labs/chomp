@@ -73,11 +73,9 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
         >
           <QuestionCard
             dueAt={dueAt}
-            numberOfSteps={0}
             question="Was a SBF net positive for solana?"
             type={QuestionType.BinaryQuestion}
             viewImageSrc="/test"
-            step={0}
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILISECONDS))
             }

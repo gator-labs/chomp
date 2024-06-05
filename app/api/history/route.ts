@@ -1,11 +1,5 @@
 import { getJwtPayload } from "@/app/actions/jwt";
-import { getHistory } from "@/app/queries/history";
-
-export enum HistorySortOptions {
-  Date = "Date",
-  Revealed = "Revealed",
-  Claimable = "Claimable",
-}
+import { getHistory, HistorySortOptions } from "@/app/queries/history";
 
 export async function GET(request: Request) {
   const payload = await getJwtPayload();

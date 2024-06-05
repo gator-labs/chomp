@@ -19,5 +19,9 @@ export function getAddressFromVerifiedCredentials(
     (vc) => vc.format === "blockchain",
   ) ?? { address: "" };
 
-  return verifiedCredentials.address;
+  if ("address" in verifiedCredentials) {
+    return verifiedCredentials.address;
+  }
+
+  return "";
 }

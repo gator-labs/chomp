@@ -1,9 +1,8 @@
 "use client";
 import { revealQuestions } from "@/app/actions/chompResult";
-import { HistorySortOptions } from "@/app/api/history/route";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { HistoryResult } from "@/app/queries/history";
+import { HistoryResult, HistorySortOptions } from "@/app/queries/history";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";

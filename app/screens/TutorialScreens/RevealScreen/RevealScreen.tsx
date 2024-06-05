@@ -176,11 +176,9 @@ const RevealScreen = () => {
             </div>
           </Tooltip>
           <QuestionCard
-            numberOfSteps={0}
             question="Which of the following is NOT a DEX?"
             type={QuestionType.MultiChoice}
             viewImageSrc="/test"
-            step={0}
             className="relative max-w-[450px] mx-auto drop-shadow-question-card border-opacity-40 -z-10"
           >
             <QuestionCardContent

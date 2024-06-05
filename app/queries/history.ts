@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getJwtPayload } from "../actions/jwt";
-import { HistorySortOptions } from "../api/history/route";
 import prisma from "../services/prisma";
 
 export type HistoryResult = {
@@ -13,6 +12,12 @@ export type HistoryResult = {
   isRevealed: boolean;
   type: "Question" | "Deck";
 };
+
+export enum HistorySortOptions {
+  Date = "Date",
+  Revealed = "Revealed",
+  Claimable = "Claimable",
+}
 
 export async function getHistory(
   sort: HistorySortOptions = HistorySortOptions.Date,
