@@ -111,7 +111,7 @@ export function RevealContextProvider({
   const burnAndReveal = useCallback(
     async (useGenesisNft = false) => {
       let burnTx: string | undefined;
-      if ((!genesisNft || reveal?.multiple) && useGenesisNft) {
+      if (!useGenesisNft || !genesisNft || reveal?.multiple) {
         const blockhash = await CONNECTION.getLatestBlockhash();
         const signer = await primaryWallet!.connector.getSigner<ISolana>();
         const tx = await genBonkBurnTx(
