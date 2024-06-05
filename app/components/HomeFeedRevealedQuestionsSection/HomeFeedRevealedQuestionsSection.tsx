@@ -1,6 +1,6 @@
 "use client";
 
-import { dismissQuestion } from "@/app/actions/chompResult";
+import { dismissQuestion, revealQuestion } from "@/app/actions/chompResult";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { RevealedQuestion } from "@/app/queries/home";
@@ -20,9 +20,12 @@ export function HomeFeedRevealedQuestionsSection({
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
 
-  const handleView = (questionId: number) => {
-    router.push("application/answer/reveal/" + questionId);
-    router.refresh();
+  const handleView = (q: RevealedQuestion) => {
+    openRevealModal(async (burnTx?: string, nftAddress?: string) => {
+      await revealQuestion(q.id, burnTx, nftAddress);
+      router.push("application/answer/reveal/" + q.id);
+      router.refresh();
+    }, q.revealTokenAmount ?? 0);
   };
 
   const questionSlides = questions
@@ -36,9 +39,10 @@ export function HomeFeedRevealedQuestionsSection({
         revealAtDate={q.revealAtDate}
         onTopCornerAction={() => dismissQuestion(q.id)}
         topCornerActionIcon={<CloseIcon />}
+        onClick={() => handleView(q)}
         statusLabel={
           <button
-            onClick={() => handleView(q.id)}
+            onClick={() => handleView(q)}
             className="text-xs leading-6 text-white font-bold cursor-pointer"
           >
             View

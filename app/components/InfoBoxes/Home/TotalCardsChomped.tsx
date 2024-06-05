@@ -13,9 +13,9 @@ const TotalCardChompedInfo = ({ children }: TotalCardChompedInfoProps) => {
       onClick={() => {
         setIsInfoSheetOpen(true);
       }}
-      className="cursor-pointer"
+      className="cursor-pointer h-full"
     >
-      <div className="col-span-1">{children}</div>
+      <div className="col-span-1 h-full">{children}</div>
       <Sheet
         isOpen={isInfoSheetOpen}
         setIsOpen={setIsInfoSheetOpen}

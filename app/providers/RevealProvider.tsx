@@ -61,7 +61,7 @@ export function RevealContextProvider({
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
   const [burnState, setBurnState] = useState<
-    "burning" | "burned" | "error" | "idle" | "skipburn"
+    "burning" | "error" | "idle" | "skipburn"
   >(INITIAL_BURN_STATE);
   const { primaryWallet } = useDynamicContext();
   const { fire } = useConfetti();
@@ -109,45 +109,47 @@ export function RevealContextProvider({
     effect();
   }, [reveal, primaryWallet?.address]);
 
-  const burnAndReveal = useCallback(async () => {
-    let burnTx: string | undefined;
-    if (!genesisNft || reveal?.multiple) {
-      const blockhash = await CONNECTION.getLatestBlockhash();
-      const signer = await primaryWallet!.connector.getSigner<ISolana>();
-      const tx = await genBonkBurnTx(
-        primaryWallet!.address,
-        blockhash.blockhash,
-        reveal?.amount ?? 0,
-      );
-      setBurnState("burning");
-      const { signature } = await promiseToast(
-        signer.signAndSendTransaction(tx),
-        {
-          loading: "Waiting for signature...",
-          success: "Bonk burn transaction signed!",
-          error: "You denied message signature.",
-        },
-      );
+  const burnAndReveal = useCallback(
+    async (useGenesisNft = false) => {
+      let burnTx: string | undefined;
+      if ((!genesisNft || reveal?.multiple) && useGenesisNft) {
+        const blockhash = await CONNECTION.getLatestBlockhash();
+        const signer = await primaryWallet!.connector.getSigner<ISolana>();
+        const tx = await genBonkBurnTx(
+          primaryWallet!.address,
+          blockhash.blockhash,
+          reveal?.amount ?? 0,
+        );
+        setBurnState("burning");
+        const { signature } = await promiseToast(
+          signer.signAndSendTransaction(tx),
+          {
+            loading: "Waiting for signature...",
+            success: "Bonk burn transaction signed!",
+            error: "You denied message signature.",
+          },
+        );
 
-      await CONNECTION.confirmTransaction({
-        blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight,
-        signature,
-      });
+        await CONNECTION.confirmTransaction({
+          blockhash: blockhash.blockhash,
+          lastValidBlockHeight: blockhash.lastValidBlockHeight,
+          signature,
+        });
 
-      burnTx = signature;
-    }
-    setBurnState("burned");
+        burnTx = signature;
+      }
 
-    if (reveal) {
-      await reveal.reveal(
-        burnTx,
-        genesisNft && !reveal?.multiple ? genesisNft : undefined,
-      );
-      closeRevealModal();
-      fire();
-    }
-  }, [reveal]);
+      if (reveal) {
+        await reveal.reveal(
+          burnTx,
+          genesisNft && !reveal?.multiple ? genesisNft : undefined,
+        );
+        closeRevealModal();
+        fire();
+      }
+    },
+    [reveal],
+  );
 
   const revealButtons = useMemo(() => {
     if (insufficientFunds) {
@@ -225,7 +227,7 @@ export function RevealContextProvider({
             <Button
               variant="white"
               isPill
-              onClick={burnAndReveal}
+              onClick={() => burnAndReveal(!!"useGenesisNft")}
               className="flex items-center h-10"
             >
               {genesisNft && !reveal?.multiple ? (
@@ -246,9 +248,10 @@ export function RevealContextProvider({
               variant="black"
               className="h-10"
               isPill
-              onClick={() => setIsRevealModalOpen(false)}
+              onClick={() => burnAndReveal()}
             >
-              Maybe Later
+              Reveal for {numberToCurrencyFormatter.format(reveal?.amount ?? 0)}{" "}
+              BONK
             </Button>
             <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
@@ -272,13 +275,6 @@ export function RevealContextProvider({
         return (
           <Button variant="white" className="h-10" isPill disabled>
             Burning BONK...
-          </Button>
-        );
-
-      case "burned":
-        return (
-          <Button variant="white" className="h-10" isPill disabled>
-            Burned BONK!
           </Button>
         );
     }
