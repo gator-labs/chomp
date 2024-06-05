@@ -71,11 +71,9 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
         >
           <QuestionCard
             dueAt={dueAt}
-            numberOfSteps={0}
             question="Which of the following is NOT a DEX?"
             type={QuestionType.MultiChoice}
             viewImageSrc="/test"
-            step={0}
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILISECONDS))
             }

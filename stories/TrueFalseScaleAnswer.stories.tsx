@@ -1,3 +1,4 @@
+import { ToastProvider } from "@/app/providers/ToastProvider";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import { TrueFalseScaleAnswer } from "../app/components/TrueFalseScaleAnswer/TrueFalseScaleAnswer";
@@ -23,7 +24,9 @@ const meta = {
   },
   decorators: (Story) => (
     <div className="w-52 bg-black p-4">
-      <Story />
+      <ToastProvider>
+        <Story />
+      </ToastProvider>
     </div>
   ),
 } satisfies Meta<typeof TrueFalseScaleAnswer>;

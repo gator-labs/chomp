@@ -1,40 +1,32 @@
 import { getMyFungibleAssetBalances } from "@/app/actions/fungible-asset";
-import GeneralRankCard from "@/app/components/GeneralRankCard/GeneralRankCard";
-import { HomeSwitchNavigation } from "@/app/components/HomeSwitchNavigation/HomeSwitchNavigation";
-import { LogoutButton } from "@/app/components/LogoutButton/LogoutButton";
+import { getJwtPayload } from "@/app/actions/jwt";
+import History from "@/app/components/History/History";
 import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
 import { Profile } from "@/app/components/Profile/Profile";
-import { ResetAccountDataButton } from "@/app/components/ResetAccountDataButton/ResetAccountDataButton";
-import TagRankCard from "@/app/components/TagRankCard/TagRankCard";
-import { getProfileImage } from "@/app/queries/profile";
+import { getProfile, getProfileImage } from "@/app/queries/profile";
+import { getAddressFromVerifiedCredentials } from "@/app/utils/wallet";
 
-export default async function Page() {
-  const isDemo = process.env.ENVIRONMENT === "demo";
+type PageProps = {
+  searchParams: { sort: string; openIds: string };
+};
+
+export default async function Page({ searchParams }: PageProps) {
+  const payload = await getJwtPayload();
   const balances = await getMyFungibleAssetBalances();
-  const profile = await getProfileImage();
+  const profileSrc = await getProfileImage();
+  const profile = await getProfile();
+  const address = getAddressFromVerifiedCredentials(payload);
 
   return (
     <div className="flex flex-col px-4 gap-4">
-      <HomeSwitchNavigation />
       <Profile
-        avatarSrc={profile}
-        fullName="User Name"
-        handle="@user"
-        joinDate={new Date()}
+        address={address}
+        avatarSrc={profileSrc}
+        joinDate={profile?.createdAt ?? new Date()}
       />
 
       <PointBalanceCard amount={balances.Point} />
-
-      <p>General Accuracy</p>
-      <GeneralRankCard rank={150} percentage={72} />
-
-      <p>Your top 3 categories</p>
-      <TagRankCard tag="DeFi" percentage={92} />
-      <TagRankCard tag="GameFi" percentage={78} />
-      <TagRankCard tag="DePin" percentage={52} />
-
-      {isDemo && <ResetAccountDataButton />}
-      <LogoutButton />
+      <History sort={searchParams.sort ?? "Date"} />
     </div>
   );
 }

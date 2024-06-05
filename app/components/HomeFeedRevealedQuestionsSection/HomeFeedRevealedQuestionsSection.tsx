@@ -5,9 +5,9 @@ import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { RevealedQuestion } from "@/app/queries/home";
 import { useRouter } from "next/navigation";
+import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
-import { HomeFeedQuestionCard } from "../HomeFeedQuestionCard/HomeFeedQuestionCard";
 
 type HomeFeedRevealedQuestionsSectionProps = {
   questions: RevealedQuestion[];
@@ -28,7 +28,7 @@ export function HomeFeedRevealedQuestionsSection({
   const questionSlides = questions
     .filter((_, index) => index < QUESTIONS_IN_SECTION)
     .map((q) => (
-      <HomeFeedQuestionCard
+      <FeedQuestionCard
         key={q.id}
         question={q.question}
         answerCount={q.answerCount}

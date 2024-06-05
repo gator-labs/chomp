@@ -1,17 +1,14 @@
+import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Profile } from "../app/components/Profile/Profile";
-import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
-  title: "Profile",
-  component: Profile,
+  title: "Point balance card",
+  component: PointBalanceCard,
   parameters: {
     layout: "centered",
   },
   args: {
-    address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-    joinDate: new Date(2023, 3, 23),
-    avatarSrc: AvatarSample.src,
+    amount: 102301849
   },
   tags: ["autodocs"],
   decorators: (Story) => (
@@ -19,7 +16,7 @@ const meta = {
       <Story />
     </div>
   ),
-} satisfies Meta<typeof Profile>;
+} satisfies Meta<typeof PointBalanceCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

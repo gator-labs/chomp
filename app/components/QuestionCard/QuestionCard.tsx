@@ -21,8 +21,6 @@ type QuestionCardProps = {
   type: QuestionType;
   dueAt?: Date;
   onDurationRanOut?: () => void;
-  step: number;
-  numberOfSteps: number;
   viewImageSrc?: string;
   className?: string;
   children?: ReactNode;
@@ -37,8 +35,6 @@ export function QuestionCard({
   children,
   viewImageSrc,
   type,
-  numberOfSteps,
-  step,
   dueAt,
   className,
   onDurationRanOut,

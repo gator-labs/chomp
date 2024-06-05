@@ -96,7 +96,7 @@ export function RevealContextProvider({ children }: { children: ReactNode }) {
       }
     }
     effect();
-  }, [reveal, primaryWallet]);
+  }, [reveal, primaryWallet?.address]);
 
   const burnAndReveal = useCallback(async () => {
     let burnTx: string | undefined;

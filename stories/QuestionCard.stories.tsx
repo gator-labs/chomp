@@ -14,8 +14,6 @@ const meta = {
   args: {
     type: QuestionType.BinaryQuestion,
     question: "The best way to secure your assets is to use a hardware wallet.",
-    numberOfSteps: 2,
-    step: 1,
     viewImageSrc: undefined,
     dueAt: dayjs().add(2, "minutes").toDate(),
     onDurationRanOut: fn(),

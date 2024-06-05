@@ -1,3 +1,4 @@
+import { ToastProvider } from "@/app/providers/ToastProvider";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import type { Meta, StoryObj } from "@storybook/react";
 import { WalletWidget } from "../app/components/WalletWidget/WalletWidget";
@@ -19,7 +20,9 @@ const meta = {
           environmentId: "PLACEHOLDER",
         }}
       >
-        <Story />
+        <ToastProvider>
+          <Story />
+        </ToastProvider>
       </DynamicContextProvider>
     </div>
   ),

@@ -1,5 +1,4 @@
-import classNames from "classnames";
-import c from "./PointBalanceCard.module.css";
+import { numberToCurrencyFormatter } from "@/app/utils/currency";
 
 type PointBalanceCardProps = {
   amount: number;
@@ -7,16 +6,14 @@ type PointBalanceCardProps = {
 
 export default function PointBalanceCard({ amount }: PointBalanceCardProps) {
   return (
-    <div
-      className={classNames(
-        "flex justify-between items-center rounded-full px-6 py-4 bg-[#333]",
-        c.card,
-      )}
-    >
-      <span className="text-s leading-4">Chomp Points</span>
+    <div className="flex justify-between items-center rounded-full px-6 py-4 bg-[#333] text-white">
+      <span className="text-sm leading-4">Chomp Points</span>
 
-      <span className="text-s leading-4">
-        <span className="font-bold">{amount}</span> Pts
+      <span className="text-sm leading-4">
+        <span className="font-bold">
+          {numberToCurrencyFormatter.format(amount)}
+        </span>{" "}
+        Pts
       </span>
     </div>
   );
