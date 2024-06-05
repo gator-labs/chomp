@@ -9,7 +9,7 @@ import {
   GENESIS_COLLECTION_VALUE,
 } from "../constants/genesis-nfts";
 import prisma from "../services/prisma";
-import { calculateCorrectAnswer } from "../utils/algo";
+import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { calculateRevealPoints } from "../utils/points";
 import { getQuestionState, isEntityRevealable } from "../utils/question";
 import { CONNECTION } from "../utils/solana";
@@ -163,7 +163,7 @@ export async function revealQuestions(
 
     const burnTransactionCount = await prisma.chompResult.count({
       where: {
-        transactionSignature: burnTx,
+        burnTransactionSignature: burnTx,
       },
     });
 
@@ -268,6 +268,8 @@ export async function revealQuestions(
   );
   const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
 
+  const tokenAmount = await calculateReward(payload.sub, questionIds);
+
   await prisma.$transaction([
     prisma.chompResult.createMany({
       data: [
@@ -275,13 +277,15 @@ export async function revealQuestions(
           questionId,
           userId: payload.sub,
           result: ResultType.Revealed,
-          transactionSignature: burnTx,
+          burnTransactionSignature: burnTx,
+          rewardTokenAmount: tokenAmount,
         })),
         ...decksToAddRevealFor.map((deck) => ({
           deckId: deck.id,
           userId: payload.sub,
           result: ResultType.Revealed,
-          transactionSignature: burnTx,
+          burnTransactionSignature: burnTx,
+          rewardTokenAmount: tokenAmount,
         })),
       ],
     }),

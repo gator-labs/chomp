@@ -166,3 +166,72 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
     ),
   ]);
 };
+
+export const calculateReward = async (
+  userId: string,
+  questionIds: number[],
+) => {
+  const questions = await prisma.question.findMany({
+    where: {
+      id: {
+        in: questionIds,
+      },
+    },
+    include: {
+      questionOptions: {
+        include: {
+          questionAnswers: {
+            where: {
+              percentage: {
+                not: null,
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  let rewardTotal = 0;
+
+  for (const question of questions) {
+    const optionsList = question.questionOptions.map((option) => option.id);
+    const inputList = ["a", "b", "c", "d", "e", "f", "g"];
+
+    const userAnswer = question.questionOptions
+      .flatMap((option) => option.questionAnswers)
+      .find((answer) => answer.userId === userId && answer.selected);
+
+    if (!userAnswer) {
+      return;
+    }
+
+    const body = {
+      first_order_choice:
+        inputList[optionsList.indexOf(userAnswer.questionOptionId)],
+      first_order_actual:
+        inputList[
+          question.questionOptions.findIndex(
+            (option) => option.calculatedIsCorrect,
+          )
+        ],
+      second_order_estimate: userAnswer.percentage,
+      second_order_mean: question.questionOptions.find(
+        (option) => option.calculatedIsCorrect,
+      )?.calculatedAveragePercentage,
+      second_order_estimates: question.questionOptions
+        .find((option) => option.id === userAnswer.questionOptionId)
+        ?.questionAnswers.map((answer) => answer.percentage),
+    };
+
+    console.log("body", body);
+
+    const { rewards } = await getMechanismEngineResponse("rewards", body);
+
+    rewardTotal += +rewards;
+  }
+
+  console.log("rewardTotal", rewardTotal);
+
+  return rewardTotal;
+};

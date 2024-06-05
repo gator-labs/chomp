@@ -549,7 +549,7 @@ export async function getQuestionWithUserAnswer(questionId: number) {
       },
       chompResults: {
         where: {
-          userId: userId,
+          userId,
         },
       },
     },
@@ -596,6 +596,10 @@ export async function getQuestionWithUserAnswer(questionId: number) {
 
   return {
     ...question,
+    chompResults: question.chompResults.map((chompResult) => ({
+      ...chompResult,
+      rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
+    })),
     userAnswer: userAnswer || null,
     answerCount: populated.answerCount ?? 0,
     correctAnswer,

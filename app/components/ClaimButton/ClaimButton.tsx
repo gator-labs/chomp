@@ -1,4 +1,7 @@
 "use client";
+import { claimQuestions } from "@/app/actions/claim";
+import { useConfetti } from "@/app/providers/ConfettiProvider";
+import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
@@ -8,7 +11,6 @@ import Pill from "../Pill/Pill";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
-  onClick?: () => void;
   className?: string;
   rewardAmount?: number;
   didAnswer?: boolean;
@@ -16,11 +18,20 @@ interface ClaimButtonProps {
 
 const ClaimButton = ({
   status,
-  onClick,
   className,
   rewardAmount,
   didAnswer = true,
 }: ClaimButtonProps) => {
+  const { fire } = useConfetti();
+  const { successToast } = useToast();
+
+  const onClick = async () => {
+    // TODO
+    await claimQuestions([4]);
+    fire();
+    successToast("Claimed!", "You have successfully claimed!");
+  };
+
   if (!didAnswer) {
     return (
       <div className="flex flex-col items-center gap-4">
