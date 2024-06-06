@@ -12,6 +12,7 @@ type AnswerResultProps = {
   avatarSrc?: string;
   progressBarClassName?: string;
   progressColor?: string;
+  selected?: boolean;
 };
 
 export function AnswerResult({
@@ -23,6 +24,7 @@ export function AnswerResult({
   progressBarClassName,
   progressColor,
   index,
+  selected,
 }: AnswerResultProps) {
   const avatarLeft = valueSelected
     ? valueSelected > 90
@@ -32,8 +34,17 @@ export function AnswerResult({
 
   return (
     <div className="flex items-center gap-3 h-10">
-      <div className="h-full w-10 bg-[#4D4D4D] rounded-lg flex items-center justify-center flex-shrink-0">
-        <p className="text-sm font-bold text-white">
+      <div
+        className={classNames(
+          "h-full w-10 bg-[#4D4D4D] rounded-lg flex items-center justify-center flex-shrink-0",
+          { "bg-purple": selected },
+        )}
+      >
+        <p
+          className={classNames("text-sm font-bold text-white", {
+            "!text-black": selected,
+          })}
+        >
           {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
         </p>
       </div>
