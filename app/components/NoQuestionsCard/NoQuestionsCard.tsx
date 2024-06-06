@@ -42,7 +42,7 @@ export function NoQuestionsCard({
         <Button
           variant="pink"
           size="big"
-          className="gap-1 my-[53px]"
+          className="gap-1"
           onClick={() => {
             router.replace(browseHomeUrl);
             router.refresh();
