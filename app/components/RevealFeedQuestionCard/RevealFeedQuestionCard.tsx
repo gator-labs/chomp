@@ -31,7 +31,7 @@ export function RevealFeedQuestionCard({
   const handleReveal = () => {
     openRevealModal(async (burnTx?: string, nftAddress?: string) => {
       await revealQuestion(id, burnTx, nftAddress);
-      router.push("application/answer/reveal/" + id);
+      router.push("/application/answer/reveal/" + id);
       router.refresh();
     }, revealTokenAmount ?? 0);
   };
