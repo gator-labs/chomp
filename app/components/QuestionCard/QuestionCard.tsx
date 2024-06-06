@@ -61,11 +61,10 @@ export function QuestionCard({
   return (
     <div
       className={classNames(
-        "questions-card p-4 pt-6 rounded-lg z-0",
+        "questions-card p-4 pt-6 rounded-lg z-0 flex-grow h-full",
         className,
       )}
       style={{
-        aspectRatio: 0.92,
         ...style,
         position: "relative",
       }}
