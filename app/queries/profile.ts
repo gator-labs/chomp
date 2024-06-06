@@ -5,6 +5,7 @@ import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 export type ProfileData = {
   userId: string;
   email: string;
+  createdAt?: Date;
   username?: string | null;
   firstName?: string | null;
   lastName?: string | null;
@@ -25,6 +26,7 @@ export async function getProfile() {
 
   const profile: ProfileData = {
     userId: payload.sub,
+    createdAt: user?.createdAt,
     email: user?.emails.length ? user?.emails[0].address : "",
     username: user?.username,
     firstName: user?.firstName,

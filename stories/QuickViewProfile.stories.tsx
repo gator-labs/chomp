@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";
 
+import { ToastProvider } from "@/app/providers/ToastProvider";
 import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
@@ -93,7 +94,9 @@ const meta = {
           environmentId: "PLACEHOLDER",
         }}
       >
-        <Story />
+        <ToastProvider>
+          <Story />
+        </ToastProvider>
       </DynamicContextProvider>
     </div>
   ),

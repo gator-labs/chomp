@@ -1,20 +1,15 @@
+import DeckDetails from "@/app/components/DeckDetails/DeckDetails";
 import { getDeckDetails } from "@/app/queries/deck";
-import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
-
-const DeckDetails = dynamic(
-  () => import("@/app/components/DeckDetails/DeckDetails"),
-  { ssr: false },
-);
 
 type PageProps = {
   params: { id: string };
-  searchParams: { returnUrl?: string; openIds: string };
+  searchParams: { returnUrl?: string };
 };
 
 export default async function Page({
   params: { id },
-  searchParams: { returnUrl, openIds },
+  searchParams: { returnUrl },
 }: PageProps) {
   const deck = await getDeckDetails(+id);
 
@@ -24,10 +19,7 @@ export default async function Page({
 
   return (
     <div className="h-full p-2">
-      <DeckDetails
-        deck={deck}
-        openIds={openIds ? JSON.parse(decodeURIComponent(openIds)) : []}
-      />
+      <DeckDetails deck={deck} />
     </div>
   );
 }

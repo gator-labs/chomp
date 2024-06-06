@@ -15,10 +15,7 @@ import {
   useState,
 } from "react";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
-import {
-  NUMBER_OF_STEPS_PER_QUESTION,
-  QuestionStep,
-} from "../Question/Question";
+import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
@@ -247,11 +244,9 @@ export function Deck({
         <div className="relative">
           <QuestionCard
             dueAt={dueAt}
-            numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
             question={question.question}
             type={question.type}
             viewImageSrc={question.imageUrl}
-            step={currentQuestionStep}
             onDurationRanOut={handleNoAnswer}
           >
             <QuestionCardContent

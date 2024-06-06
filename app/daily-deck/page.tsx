@@ -5,6 +5,7 @@ import { getProfileImage } from "../queries/profile";
 import { getIsUserAdmin } from "../queries/user";
 import DailyDeckScreen from "../screens/DailyDeckScreen/DailyDeckScreen";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
+import { getAddressFromVerifiedCredentials } from "../utils/wallet";
 
 export default async function Page() {
   const dailyDeck = await getDailyDeck();
@@ -13,15 +14,7 @@ export default async function Page() {
   const payload = await getJwtPayload();
   const history = await getTransactionHistory();
   const profile = await getProfileImage();
-  const verifiedCredentials = payload?.verified_credentials.find(
-    (vc) => vc.format === "blockchain",
-  ) ?? { address: "" };
-
-  let address = "";
-
-  if ("address" in verifiedCredentials) {
-    address = verifiedCredentials.address;
-  }
+  const address = getAddressFromVerifiedCredentials(payload);
 
   const bonkBalance = await getBonkBalance(address);
   const solBalance = await getSolBalance(address);
