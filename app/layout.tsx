@@ -4,6 +4,7 @@ import DynamicProvider from "./providers/DynamicProvider";
 
 import { sora } from "@/lib/fonts";
 import "@/styles/globals.css";
+import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
 import { ToastProvider } from "./providers/ToastProvider";
@@ -44,7 +45,10 @@ export default function RootLayout({
         )}
         <DynamicProvider>
           <ToastProvider>
-            <MobileChromeDetector>{children}</MobileChromeDetector>
+            <MobileChromeDetector>
+              {children}
+              <Analytics />
+            </MobileChromeDetector>
           </ToastProvider>
         </DynamicProvider>
       </body>
