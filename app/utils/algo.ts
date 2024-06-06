@@ -222,10 +222,31 @@ export const calculateReward = async (
         ?.questionAnswers.map((answer) => answer.percentage),
     };
 
+    console.log(
+      "user",
+      userId,
+      "requesting reward for question",
+      question.id,
+      "with body",
+      body,
+    );
+
     const { rewards } = await getMechanismEngineResponse("rewards", body);
+
+    console.log(
+      "user",
+      userId,
+      "got",
+      rewards,
+      "bonk for",
+      question.id,
+      "question",
+    );
 
     rewardTotal += +rewards;
   }
+
+  console.log("rewardsTotal", rewardTotal, "user", userId);
 
   return rewardTotal;
 };
