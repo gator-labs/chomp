@@ -56,7 +56,8 @@ const ClaimButton = ({
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
-              {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
+              {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
+              BONK
             </span>
           </Pill>
           <RewardInfoBox />
@@ -83,7 +84,8 @@ const ClaimButton = ({
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
-              {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
+              {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
+              BONK
             </span>
           </Pill>
           <RewardInfoBox />

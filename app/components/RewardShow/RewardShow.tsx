@@ -32,14 +32,15 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
               onClick={() => {
                 fire();
                 infoToast(
-                  `Reward Claimed! (${numberToCurrencyFormatter.format(rewardAmount)} BONK)`,
+                  `Reward Claimed! (${numberToCurrencyFormatter.format(Math.floor(rewardAmount))} BONK)`,
                 );
               }}
               variant="white"
               className="cursor-pointer"
             >
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
-                {numberToCurrencyFormatter.format(rewardAmount)} BONK
+                {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
+                BONK
               </p>
             </Pill>
             <RewardInfoBox />
