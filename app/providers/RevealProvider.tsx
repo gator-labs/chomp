@@ -109,9 +109,9 @@ export function RevealContextProvider({
   }, [reveal, primaryWallet?.address]);
 
   const burnAndReveal = useCallback(
-    async (useGenesisNft = false) => {
+    async (forceBurn = false) => {
       let burnTx: string | undefined;
-      if ((!genesisNft || reveal?.multiple) && useGenesisNft) {
+      if (!genesisNft || reveal?.multiple || forceBurn) {
         const blockhash = await CONNECTION.getLatestBlockhash();
         const signer = await primaryWallet!.connector.getSigner<ISolana>();
         const tx = await genBonkBurnTx(
@@ -144,7 +144,9 @@ export function RevealContextProvider({
       if (reveal) {
         await reveal.reveal(
           burnTx,
-          genesisNft && !reveal?.multiple ? genesisNft : undefined,
+          genesisNft && !reveal?.multiple && !forceBurn
+            ? genesisNft
+            : undefined,
         );
         closeRevealModal();
         fire();
@@ -229,23 +231,31 @@ export function RevealContextProvider({
             <Button
               variant="white"
               isPill
-              onClick={() => burnAndReveal(!!"useGenesisNft")}
+              onClick={() => burnAndReveal()}
               className="flex items-center h-10"
             >
               {genesisNft && !reveal?.multiple
                 ? "Reveal with genesis NFT"
                 : "Reveal"}
             </Button>
+            {genesisNft && !reveal?.multiple && (
+              <Button
+                variant="black"
+                className="h-10"
+                isPill
+                onClick={() => burnAndReveal(!!"forceBurn")}
+              >
+                Reveal for{" "}
+                {numberToCurrencyFormatter.format(reveal?.amount ?? 0)} BONK
+              </Button>
+            )}
             <Button
               variant="black"
               className="h-10"
               isPill
-              onClick={() => burnAndReveal()}
+              onClick={() => setIsRevealModalOpen(false)}
             >
-              {genesisNft && !reveal?.multiple
-                ? `Reveal for ${numberToCurrencyFormatter.format(reveal?.amount ?? 0)}
-              BONK`
-                : "Cancel"}
+              Cancel
             </Button>
             <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
