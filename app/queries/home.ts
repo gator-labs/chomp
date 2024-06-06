@@ -89,6 +89,10 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
   		  )
         and 
         (
+      		d."date" is null
+  		  )
+        and 
+        (
           d."revealAtAnswerCount" is null
           or
           d."revealAtAnswerCount" >
