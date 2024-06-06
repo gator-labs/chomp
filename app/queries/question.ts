@@ -238,6 +238,7 @@ export async function getQuestionWithUserAnswer(questionId: number) {
           questionAnswers: {
             where: {
               userId: userId,
+              selected: true,
             },
           },
         },
