@@ -4,6 +4,7 @@ import toast, { ToastOptions, Toaster } from "react-hot-toast";
 import AnimatedTimer from "../components/AnimatedTimer/AnimatedTimer";
 import { ErrorIcon } from "../components/Icons/ToastIcons/ErrorIcon";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
+import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
 import { SuccessIcon } from "../components/Icons/ToastIcons/SuccessIcon";
 
 type ToastContextType = {
@@ -32,7 +33,7 @@ type ToastContextType = {
       description?: string;
     },
     options?: ToastOptions,
-  ) => void;
+  ) => Promise<T>;
 };
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -243,7 +244,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     },
     options?: ToastOptions,
   ) => {
-    toast.promise(
+    return toast.promise(
       promise,
       {
         loading: (
@@ -376,7 +377,14 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
           </div>
         ),
       },
-      { ...toastOptions, ...options },
+      {
+        ...toastOptions,
+        ...options,
+        duration: undefined,
+        loading: { icon: <SpinnerIcon height={26} width={26} /> },
+        error: { icon: <ErrorIcon height={26} width={26} /> },
+        success: { icon: <SuccessIcon height={26} width={26} /> },
+      },
     );
   };
 

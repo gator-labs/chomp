@@ -1,8 +1,6 @@
-import { TransactionLogType } from "@prisma/client";
+import { QuestionType, TransactionLogType } from "@prisma/client";
 import { pointsPerAction } from "../constants/points";
-import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
-import { isBinaryQuestionCorrectAnswer } from "./question";
 
 type RevealPointResult = {
   amount: number;
@@ -13,107 +11,64 @@ export const calculateRevealPoints = async (
   userId: string,
   questionIds: number[],
 ): Promise<RevealPointResult[]> => {
-  const questions = await prisma.question.findMany({
+  const answers = await prisma.questionAnswer.findMany({
     where: {
-      id: {
-        in: questionIds,
+      questionOption: {
+        questionId: {
+          in: questionIds,
+        },
       },
+      userId,
+      hasViewedButNotSubmitted: false,
     },
     include: {
-      questionOptions: {
+      questionOption: {
         include: {
-          questionAnswers: {
-            where: {
-              userId,
-              hasViewedButNotSubmitted: false,
-            },
-          },
+          question: true,
         },
       },
     },
   });
 
-  const questionOptionPercentages = await answerPercentageQuery(
-    questions.flatMap((q) => q.questionOptions.map((qo) => qo.id)),
+  const correctFirstOrder = answers.filter(
+    (answer) => answer.selected && answer.questionOption.calculatedIsCorrect,
   );
 
-  const correctFirstOrderQuestions = questions.filter((question) => {
-    const answers = question.questionOptions.flatMap(
-      (qo) => qo.questionAnswers,
-    );
-
-    if (answers.length === 2) {
-      if (answers[0].percentage === null || answers[1].percentage === null) {
-        return false;
-      }
-
-      const aCalculatedPercentage = questionOptionPercentages.find(
-        (questionOption) => questionOption.id === answers[0].questionOptionId,
-      )?.percentageResult;
-
-      const bCalculatedPercentage = questionOptionPercentages.find(
-        (questionOption) => questionOption.id === answers[1].questionOptionId,
-      )?.percentageResult;
-
-      if (
-        aCalculatedPercentage === undefined ||
-        bCalculatedPercentage === undefined
-      ) {
-        return false;
-      }
-
-      return isBinaryQuestionCorrectAnswer(
-        {
-          optionId: answers[0].questionOptionId,
-          calculatedPercentage: aCalculatedPercentage,
-          selectedPercentage: answers[0].percentage,
-          selected: answers[0].selected,
-        },
-        {
-          optionId: answers[1].questionOptionId,
-          calculatedPercentage: bCalculatedPercentage,
-          selectedPercentage: answers[1].percentage,
-          selected: answers[1].selected,
-        },
+  const correctSecondOrder = answers.filter((answer) => {
+    if (answer.questionOption.question.type === QuestionType.BinaryQuestion) {
+      return (
+        answer.questionOption.isLeft &&
+        answer.percentage ===
+          answer.questionOption.calculatedPercentageOfSelectedAnswers
       );
     }
 
-    // TODO: multi choice questions algo when ready
-
-    return false;
-  });
-
-  const correctSecondOrderQuestions = questions.filter((question) => {
-    const selectedAnswers = question.questionOptions
-      .flatMap((qo) => qo.questionAnswers)
-      .filter((qa) => qa.selected);
-
-    if (!selectedAnswers.length) {
-      return false;
+    if (answer.questionOption.question.type === QuestionType.MultiChoice) {
+      return (
+        answer.percentage !== null &&
+        answer.percentage ===
+          answer.questionOption.calculatedPercentageOfSelectedAnswers
+      );
     }
 
-    return !!questionOptionPercentages.find(
-      (questionOption) =>
-        questionOption.id === selectedAnswers[0].questionOptionId &&
-        questionOption.percentageResult === selectedAnswers[0].percentage,
-    );
+    return false;
   });
 
   return [
     {
       amount:
-        questions.length * pointsPerAction[TransactionLogType.RevealAnswer],
+        questionIds.length * pointsPerAction[TransactionLogType.RevealAnswer],
       type: TransactionLogType.RevealAnswer,
     },
     {
       amount:
-        correctFirstOrderQuestions.length *
+        correctFirstOrder.length *
         pointsPerAction[TransactionLogType.CorrectFirstOrder],
       type: TransactionLogType.CorrectFirstOrder,
     },
     {
       amount:
-        correctSecondOrderQuestions.length *
+        correctSecondOrder.length *
         pointsPerAction[TransactionLogType.CorrectSecondOrder],
       type: TransactionLogType.CorrectSecondOrder,
     },

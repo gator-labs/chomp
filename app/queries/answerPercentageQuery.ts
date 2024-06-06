@@ -4,6 +4,7 @@ import prisma from "../services/prisma";
 type QuestionOptionPercentage = {
   id: number;
   percentageResult: number | null;
+  averagePercentAnswer: number | null;
 };
 
 export async function answerPercentageQuery(questionOptionIds: number[]) {
@@ -30,13 +31,19 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                       where subQa."questionOptionId" = qo."id" and subQa."hasViewedButNotSubmitted" = false
                     )
                   , 0)
-                  * 100) as "percentageResult"
+                  * 100) as "percentageResult",
+                (
+                  select round(avg(percentage))
+                  from public."QuestionAnswer"
+                  where "questionOptionId" = qo."id" and "hasViewedButNotSubmitted" = false
+                ) as "averagePercentAnswer"
               from public."QuestionOption" qo
               where qo."id" in (${Prisma.join(questionOptionIds)})
             `;
 
   return questionOptionPercentages.map((qo) => ({
     id: qo.id,
-    percentageResult: Number(qo.percentageResult),
+    percentageResult: Number(qo.percentageResult ?? 0),
+    averagePercentAnswer: Number(qo.averagePercentAnswer ?? 0),
   }));
 }
