@@ -43,17 +43,17 @@ const RevealAnswerPage = async ({ params }: Props) => {
       </div>
       {!!question.userAnswer && (
         <RewardShow
-          rewardAmount={question.chompResults[0].rewardTokenAmount ?? 0}
+          rewardAmount={question.chompResults[0]?.rewardTokenAmount ?? 0}
         />
       )}
       <AnsweredQuestionShow question={question} />
       <ClaimButton
         status={
-          question.chompResults[0].result === ResultType.Revealed
+          question.chompResults[0]?.result === ResultType.Revealed
             ? "claimable"
             : "claimed"
         }
-        rewardAmount={question.chompResults[0].rewardTokenAmount ?? 0}
+        rewardAmount={question.chompResults[0]?.rewardTokenAmount ?? 0}
         didAnswer={!!question.userAnswer}
         questionIds={[question.id]}
       />
