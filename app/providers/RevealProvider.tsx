@@ -240,7 +240,11 @@ export function RevealContextProvider({
               variant="black"
               className="h-10"
               isPill
-              onClick={() => burnAndReveal()}
+              onClick={() =>
+                genesisNft && !reveal?.multiple
+                  ? burnAndReveal()
+                  : setIsRevealModalOpen(false)
+              }
             >
               {genesisNft && !reveal?.multiple
                 ? `Reveal for ${numberToCurrencyFormatter.format(reveal?.amount ?? 0)}
