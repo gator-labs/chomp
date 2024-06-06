@@ -1,4 +1,3 @@
-import AnsweredQuestionShow from "@/app/components/AnsweredQuestionShow/AnsweredQuestionShow";
 import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
@@ -46,7 +45,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
           rewardAmount={question.chompResults[0]?.rewardTokenAmount ?? 0}
         />
       )}
-      <AnsweredQuestionShow question={question} />
       <ClaimButton
         status={
           question.chompResults[0]?.result === ResultType.Revealed

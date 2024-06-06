@@ -1,25 +1,29 @@
+import ProgressCloseButton from "@/app/components/ProgressCloseButton/ProgressCloseButton";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-import { SearchInput } from "../app/components/SearchInput/SearchInput";
 
 const meta = {
-  title: "Inputs/Search",
-  component: SearchInput,
+  title: "Progress close button",
+  component: ProgressCloseButton,
   parameters: {
     layout: "centered",
   },
+  args: {
+    onClick: fn(),
+  },
   tags: ["autodocs"],
-  args: { onChange: fn(), onSelected: fn(), value: "Search Questions" },
   decorators: (Story) => (
-    <div className="w-[334px]">
+    <div className="bg-black p-4">
       <Story />
     </div>
   ),
-} satisfies Meta<typeof SearchInput>;
+} satisfies Meta<typeof ProgressCloseButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    progressDuration: 1000,
+  },
 };

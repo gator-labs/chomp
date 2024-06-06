@@ -1,29 +1,26 @@
+import PrimarySliderV2 from "@/app/components/PrimarySlider/PrimarySliderV2";
 import type { Meta, StoryObj } from "@storybook/react";
-import { LevelProgress } from "../app/components/LevelProgress/LevelProgress";
 
 const meta = {
-  title: "Progress/Level",
-  component: LevelProgress,
+  title: "Primary slider v2",
+  component: PrimarySliderV2,
   parameters: {
     layout: "centered",
   },
+  args: {},
   tags: ["autodocs"],
-  argTypes: {
-    progress: { type: "number" },
-  },
   decorators: (Story) => (
-    <div className="w-52 bg-black p-4">
+    <div className="bg-black w-80 p-8">
       <Story />
     </div>
   ),
-} satisfies Meta<typeof LevelProgress>;
+} satisfies Meta<typeof PrimarySliderV2>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    level: "43",
-    progress: 50,
+    value: 10,
   },
 };

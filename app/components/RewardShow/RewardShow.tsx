@@ -16,8 +16,8 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
   const { fire } = useConfetti();
   const { infoToast } = useToast();
 
-  return rewardAmount > 0 ? (
-    <>
+  if (rewardAmount > 0) {
+    return (
       <div className="flex bg-[#333333] p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold leading-[27px] text-left">
@@ -48,8 +48,10 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
         </div>
         <Trophy width={70} height={85} />
       </div>
-    </>
-  ) : (
+    );
+  }
+
+  return (
     <div className="p-4 flex bg-[#333333] rounded-md justify-between">
       <div className="flex flex-col gap-4 w-max justify-between">
         <span className="text-xl font-bold leading-[27px] text-left">
