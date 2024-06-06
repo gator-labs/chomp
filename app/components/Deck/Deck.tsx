@@ -15,10 +15,7 @@ import {
   useState,
 } from "react";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
-import {
-  NUMBER_OF_STEPS_PER_QUESTION,
-  QuestionStep,
-} from "../Question/Question";
+import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
@@ -236,22 +233,20 @@ export function Deck({
   }
 
   return (
-    <div className="flex flex-col justify-evenly h-full pb-4">
+    <div className="flex flex-col justify-start h-full pb-4">
       <Stepper
         numberOfSteps={questions.length}
         activeStep={currentQuestionIndex}
         color="green"
         className="!p-0 mb-5"
       />
-      <div ref={questionsRef} className="mb-4">
-        <div className="relative">
+      <div ref={questionsRef} className="mb-4 h-full">
+        <div className="relative h-full">
           <QuestionCard
             dueAt={dueAt}
-            numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
             question={question.question}
             type={question.type}
             viewImageSrc={question.imageUrl}
-            step={currentQuestionStep}
             onDurationRanOut={handleNoAnswer}
           >
             <QuestionCardContent

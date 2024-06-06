@@ -1,18 +1,19 @@
 import { cloneElement, ReactElement } from "react";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
 
-type HomeFeedQuestionCardProps = {
+type FeedQuestionCardProps = {
   question: string;
   revealAtDate?: Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
   onTopCornerAction?: () => void;
   topCornerActionIcon?: ReactElement;
-  statusLabel: ReactElement;
+  statusLabel?: ReactElement;
   action?: ReactElement;
+  onClick?: () => void;
 };
 
-export function HomeFeedQuestionCard({
+export function FeedQuestionCard({
   question,
   answerCount,
   revealAtAnswerCount,
@@ -21,9 +22,13 @@ export function HomeFeedQuestionCard({
   topCornerActionIcon,
   statusLabel,
   action,
-}: HomeFeedQuestionCardProps) {
+  onClick,
+}: FeedQuestionCardProps) {
   return (
-    <div className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2 h-full">
+    <div
+      className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2 h-full"
+      onClick={onClick}
+    >
       <div className="flex flex-col gap-y-2 w-full justify-between">
         <div className="flex flex-col gap-y-2 w-full">
           <div className="flex gap-2 w-full justify-between">
@@ -38,7 +43,6 @@ export function HomeFeedQuestionCard({
           </div>
         </div>
         <div className="flex flex-col gap-y-2">
-          {action}
           <div className="flex justify-between items-center">
             <RevealCardInfo
               answerCount={answerCount}
@@ -47,6 +51,7 @@ export function HomeFeedQuestionCard({
             />
             {statusLabel}
           </div>
+          {action}
         </div>
       </div>
     </div>

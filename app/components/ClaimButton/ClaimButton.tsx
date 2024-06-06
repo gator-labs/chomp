@@ -1,4 +1,7 @@
 "use client";
+import { claimQuestions } from "@/app/actions/claim";
+import { useConfetti } from "@/app/providers/ConfettiProvider";
+import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
@@ -8,19 +11,28 @@ import Pill from "../Pill/Pill";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
-  onClick?: () => void;
   className?: string;
   rewardAmount?: number;
   didAnswer?: boolean;
+  questionIds: number[];
 }
 
 const ClaimButton = ({
   status,
-  onClick,
   className,
   rewardAmount,
   didAnswer = true,
+  questionIds,
 }: ClaimButtonProps) => {
+  const { fire } = useConfetti();
+  const { successToast } = useToast();
+
+  const onClick = async () => {
+    await claimQuestions(questionIds);
+    fire();
+    successToast("Claimed!", "You have successfully claimed!");
+  };
+
   if (!didAnswer) {
     return (
       <div className="flex flex-col items-center gap-4">
@@ -44,7 +56,8 @@ const ClaimButton = ({
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
-              {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
+              {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
+              BONK
             </span>
           </Pill>
           <RewardInfoBox />
@@ -71,7 +84,8 @@ const ClaimButton = ({
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
-              {numberToCurrencyFormatter.format(rewardAmount || 0)} BONK
+              {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
+              BONK
             </span>
           </Pill>
           <RewardInfoBox />

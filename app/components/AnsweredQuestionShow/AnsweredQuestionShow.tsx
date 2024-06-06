@@ -1,5 +1,7 @@
 "use client";
+import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { QuestionType } from "@prisma/client";
+import { useEffect } from "react";
 import { Button } from "../Button/Button";
 import LikeIcon from "../Icons/LikeIcon";
 import UnlikeIcon from "../Icons/UnlikeIcon";
@@ -7,13 +9,16 @@ import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 
 const AnsweredQuestionShow = ({ question }: any) => {
+  const { fire } = useConfetti();
+
+  useEffect(() => {
+    fire();
+  }, []);
   return (
     <div className="flex flex-col gap-4">
       <QuestionCard
         question={question.question}
         type={question.type}
-        step={1}
-        numberOfSteps={1}
         viewImageSrc={question.imageUrl}
         dueAt={question.revealAtDate}
         isForReveal={true}

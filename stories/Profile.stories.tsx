@@ -9,12 +9,16 @@ const meta = {
     layout: "centered",
   },
   args: {
-    fullName: "Alex Smith",
-    handle: "Curious.mind88",
+    address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
     joinDate: new Date(2023, 3, 23),
     avatarSrc: AvatarSample.src,
   },
   tags: ["autodocs"],
+  decorators: (Story) => (
+    <div className="w-96">
+      <Story />
+    </div>
+  ),
 } satisfies Meta<typeof Profile>;
 
 export default meta;

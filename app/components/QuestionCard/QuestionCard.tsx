@@ -21,8 +21,6 @@ type QuestionCardProps = {
   type: QuestionType;
   dueAt?: Date;
   onDurationRanOut?: () => void;
-  step: number;
-  numberOfSteps: number;
   viewImageSrc?: string;
   className?: string;
   children?: ReactNode;
@@ -37,8 +35,6 @@ export function QuestionCard({
   children,
   viewImageSrc,
   type,
-  numberOfSteps,
-  step,
   dueAt,
   className,
   onDurationRanOut,
@@ -65,11 +61,10 @@ export function QuestionCard({
   return (
     <div
       className={classNames(
-        "questions-card p-4 pt-6 rounded-lg z-0",
+        "questions-card p-4 pt-6 rounded-lg z-0 flex-grow h-full",
         className,
       )}
       style={{
-        aspectRatio: 0.92,
         ...style,
         position: "relative",
       }}

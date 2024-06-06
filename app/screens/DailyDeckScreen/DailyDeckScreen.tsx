@@ -29,7 +29,7 @@ const DailyDeckScreen = ({
     <>
       <div className="flex flex-col h-full">
         <main className="flex-grow overflow-y-auto mb-2 h-full w-full max-w-lg mx-auto">
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full px-4">
             <Disabled
               disabled={!hasReachedEnd}
               toastMessage="Please complete this Daily Deck first ✨"
@@ -37,10 +37,10 @@ const DailyDeckScreen = ({
               <Navbar {...navBarData} />
             </Disabled>
 
-            <div className="px-4 py-3">
+            <div className="py-3">
               <DailyDeckTitle date={date ?? new Date()} />
             </div>
-            <div className="px-4 flex-1">
+            <div className="flex-1">
               {!!questions?.length ? (
                 <Deck
                   deckVariant="daily-deck"

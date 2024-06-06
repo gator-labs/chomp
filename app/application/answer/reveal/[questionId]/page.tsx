@@ -5,6 +5,7 @@ import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { isEntityRevealable } from "@/app/utils/question";
+import { ResultType } from "@prisma/client";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -40,12 +41,21 @@ const RevealAnswerPage = async ({ params }: Props) => {
         </div>
         <TopInfoBox />
       </div>
-      {!!question.userAnswer && <RewardShow rewardAmount={10000} />}
+      {!!question.userAnswer && (
+        <RewardShow
+          rewardAmount={question.chompResults[0]?.rewardTokenAmount ?? 0}
+        />
+      )}
       <AnsweredQuestionShow question={question} />
       <ClaimButton
-        status="claimable"
-        rewardAmount={10000}
+        status={
+          question.chompResults[0]?.result === ResultType.Revealed
+            ? "claimable"
+            : "claimed"
+        }
+        rewardAmount={question.chompResults[0]?.rewardTokenAmount ?? 0}
         didAnswer={!!question.userAnswer}
+        questionIds={[question.id]}
       />
     </div>
   );

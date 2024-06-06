@@ -25,10 +25,11 @@ export function NoQuestionsCard({
         className="questions-card text-white font-sora relative"
         style={{
           aspectRatio: 0.92,
+          height: variant === "answer-page" ? "100%" : "auto",
         }}
       >
-        <div className="text-center flex items-center justify-start flex-col h-full gap-10">
-          <div className="text-2xl font-bold mb-2">
+        <div className="flex items-center justify-start text-left flex-col h-full gap-5">
+          <div className="text-2xl font-bold mb-2 w-full">
             {QUESTION_CARD_CONTENT[variant].title}
           </div>
           <div className="text-base relative z-10">
@@ -41,7 +42,7 @@ export function NoQuestionsCard({
         <Button
           variant="pink"
           size="big"
-          className="gap-1 my-[53px]"
+          className="gap-1"
           onClick={() => {
             router.replace(browseHomeUrl);
             router.refresh();

@@ -1,5 +1,5 @@
+import { FeedQuestionCard } from "@/app/components/FeedQuestionCard/FeedQuestionCard";
 import { HomeFeedCardCarousel } from "@/app/components/HomeFeedCardsCarousel/HomeFeedCardsCarousel";
-import { HomeFeedQuestionCard } from "@/app/components/HomeFeedQuestionCard/HomeFeedQuestionCard";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
@@ -33,7 +33,7 @@ export const Default: Story = {
       </h2>
     ),
     slides: [
-      <HomeFeedQuestionCard
+      <FeedQuestionCard
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
         onTopCornerAction={fn()}
@@ -47,7 +47,7 @@ export const Default: Story = {
           </button>
         }
       />,
-      <HomeFeedQuestionCard
+      <FeedQuestionCard
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
         onTopCornerAction={fn()}
@@ -60,7 +60,7 @@ export const Default: Story = {
           </button>
         }
       />,
-      <HomeFeedQuestionCard
+      <FeedQuestionCard
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
         topCornerActionIcon={<CloseIcon />}
