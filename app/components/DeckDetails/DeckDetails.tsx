@@ -1,8 +1,5 @@
 "use client";
 import { revealDeck } from "@/app/actions/chompResult";
-import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
-import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import {
   DeckQuestionIncludes,
@@ -12,10 +9,10 @@ import {
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { ChompResult, Deck } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useRef } from "react";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { useCallback } from "react";
 import { Button } from "../Button/Button";
-import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
+import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
+import Stepper from "../Stepper/Stepper";
 
 type DeckProp = Deck & {
   answerCount: number;
@@ -27,30 +24,23 @@ type DeckProp = Deck & {
 
 type DeckDetailsProps = {
   deck: DeckProp;
-  openIds?: string[];
 };
 
-const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 175;
-
-function DeckDetails({ deck, openIds }: DeckDetailsProps) {
+function DeckDetails({ deck }: DeckDetailsProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { height } = useWindowSize();
-  const virtuosoRef = useRef<VirtuosoHandle>(null);
-  const { setOpen } = useCollapsedContext();
+
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
   const deckState = getDeckState(deck);
-  const revealableQuestions = deck.deckQuestions
-    .map((dq) => getQuestionState(dq.question))
-    .filter((state) => state.isAnswered && !state.isRevealed);
-  const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
+  const questionStates = deck.deckQuestions.map((dq) =>
+    getQuestionState(dq.question),
+  );
 
-  useIsomorphicLayoutEffect(() => {
-    if (openIds) {
-      openIds.forEach((questionId) => setOpen(+questionId));
-    }
-  }, [openIds, setOpen]);
+  const revealableQuestions = questionStates.filter(
+    (state) => state.isAnswered && !state.isRevealed,
+  );
+  const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
 
   const revealAll = useCallback(
     async (burnTx?: string, nftAddress?: string) => {
@@ -67,70 +57,70 @@ function DeckDetails({ deck, openIds }: DeckDetailsProps) {
     [],
   );
 
+  const handleRevealAll = useCallback(
+    () =>
+      openRevealModal(
+        revealAll,
+        deck.deckQuestions
+          .filter((dq) => {
+            const state = getQuestionState(dq.question);
+            return state.isAnswered && !state.isRevealed;
+          })
+          .reduce((acc, cur) => acc + cur.question.revealTokenAmount, 0),
+        !!"multiple",
+      ),
+    [],
+  );
+
+  const hasChomped = !questionStates.some((qs) => !qs.isAnswered);
+
   return (
     <div>
-      <div className="text-sm color-[#F1F1F1] flex justify-between px-4">
+      <div className="text-sm color-[#F1F1F1] flex justify-between px-4 mb-4">
         <span>{deck.deck}</span>
-        <span>
-          {deck.deckQuestions.length} card
-          {deck.deckQuestions.length > 1 ? "s" : ""}
-        </span>
       </div>
-      {hasReveal && (
-        <div className="pt-4 px-4">
-          <Button
-            variant="white"
-            isPill
-            onClick={() =>
-              openRevealModal(
-                revealAll,
-                deck.deckQuestions
-                  .filter((dq) => {
-                    const state = getQuestionState(dq.question);
-                    return state.isAnswered && !state.isRevealed;
-                  })
-                  .reduce(
-                    (acc, cur) => acc + cur.question.revealTokenAmount,
-                    0,
-                  ),
-                !!"multiple",
-              )
-            }
-          >
-            Reveal all
-          </Button>
+      <Stepper
+        numberOfSteps={deck.deckQuestions.length}
+        activeStep={questionStates.filter((qs) => qs.isAnswered).length}
+        color="green"
+        className="px-4 !py-0 mb-4"
+      />
+      {(hasChomped || hasReveal) && (
+        <div className="flex justify-between items-center px-4 mb-4">
+          <div>
+            {hasChomped && (
+              <div className="bg-aqua rounded-full text-center px-4 py-2">
+                <div className="text-btn-text-primary text-xs font-bold">
+                  Chomped
+                </div>
+              </div>
+            )}
+          </div>
+          <div>
+            {hasReveal && (
+              <Button
+                size="small"
+                variant="white"
+                isPill
+                isFullWidth={false}
+                className="!text-xs"
+                onClick={handleRevealAll}
+              >
+                Reveal all
+              </Button>
+            )}
+          </div>
         </div>
       )}
-      <Virtuoso
-        ref={virtuosoRef}
-        style={{
-          height:
-            height -
-            SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN -
-            (hasReveal ? 80 : 0),
-        }}
-        data={deck.deckQuestions.map((dq) => dq.question)}
-        className="mx-4 mt-4"
-        itemContent={(_, element) => (
-          <div className="pb-4">
-            <QuestionRowCard
-              question={element}
-              onRefreshCards={(revealedId) => {
-                router.refresh();
-                const elementToScroll = deck.deckQuestions.find(
-                  (q) => q.question.id === revealedId,
-                );
-
-                if (elementToScroll) {
-                  virtuosoRef.current?.scrollToIndex({
-                    index: deck.deckQuestions.indexOf(elementToScroll),
-                  });
-                }
-              }}
-            />
-          </div>
-        )}
-      />
+      <div className="px-4">
+        {deck.deckQuestions
+          .map((dq) => dq.question)
+          .map((element) => (
+            <div key={element.id} className="pb-4">
+              <DeckDetailsFeedRowCard element={element} />
+            </div>
+          ))}
+      </div>
     </div>
   );
 }

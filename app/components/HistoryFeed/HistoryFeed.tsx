@@ -1,25 +1,18 @@
 "use client";
 import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { ElementType } from "@/app/queries/question";
-import { DeckQuestionIncludes } from "@/app/utils/question";
-import { Deck } from "@prisma/client";
+import { HistoryResult } from "@/app/queries/history";
 import { useEffect, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
-import { FeedRowCard } from "../FeedRowCard.tsx/FeedRowCard";
+import { HistoryFeedRowCard } from "../HistoryFeedRowCard/HistoryFeedRowCard";
 
 export type HistoryFeedProps = {
-  list: Array<(DeckQuestionIncludes | Deck) & { elementType: ElementType }>;
-  onRefreshCards: (revealedId: number) => void;
+  list: HistoryResult[];
   elementToScrollToId: number;
 };
 
-const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 458;
+const SIZE_OF_ELEMENTS_ON_PROFILE = 380;
 
-function HistoryFeed({
-  list,
-  onRefreshCards,
-  elementToScrollToId,
-}: HistoryFeedProps) {
+function HistoryFeed({ list, elementToScrollToId }: HistoryFeedProps) {
   const { height } = useWindowSize();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
 
@@ -35,17 +28,12 @@ function HistoryFeed({
 
   return (
     <Virtuoso
-      style={{ height: height - SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN }}
+      style={{ height: height - SIZE_OF_ELEMENTS_ON_PROFILE }}
       data={list}
-      className="mx-4 mt-4"
+      className="mx-4"
       itemContent={(_, element) => (
         <div className="pb-4">
-          <FeedRowCard
-            element={element}
-            type={element.elementType}
-            deckReturnUrl={window.location.toString()}
-            onRefreshCards={onRefreshCards}
-          />
+          <HistoryFeedRowCard element={element} />
         </div>
       )}
     />

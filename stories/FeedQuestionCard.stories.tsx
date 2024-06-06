@@ -1,16 +1,16 @@
-import { HomeFeedQuestionCard } from "@/app/components/HomeFeedQuestionCard/HomeFeedQuestionCard";
+import { FeedQuestionCard } from "@/app/components/FeedQuestionCard/FeedQuestionCard";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";
 
 const meta = {
-  title: "Cards/Home Feed Question card",
-  component: HomeFeedQuestionCard,
+  title: "Cards/Feed Question card",
+  component: FeedQuestionCard,
   parameters: {
     layout: "centered",
     controls: {
-      exclude: ["actionIcon"],
+      exclude: ["actionIcon", "topCornerActionIcon", "statusLabel"],
     },
   },
   args: {
@@ -30,7 +30,7 @@ const meta = {
     ),
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof HomeFeedQuestionCard>;
+} satisfies Meta<typeof FeedQuestionCard>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

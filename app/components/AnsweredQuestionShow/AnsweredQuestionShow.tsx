@@ -19,8 +19,6 @@ const AnsweredQuestionShow = ({ question }: any) => {
       <QuestionCard
         question={question.question}
         type={question.type}
-        step={1}
-        numberOfSteps={1}
         viewImageSrc={question.imageUrl}
         dueAt={question.revealAtDate}
         isForReveal={true}

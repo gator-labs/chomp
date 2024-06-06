@@ -1,5 +1,4 @@
 "use client";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -32,7 +31,6 @@ export function QuickViewProfile({
   address,
   transactions,
 }: QuickViewProfileProps) {
-  const { handleLogOut } = useDynamicContext();
   const pathname = usePathname();
 
   useEffect(() => {

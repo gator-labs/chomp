@@ -17,8 +17,6 @@ export enum QuestionStep {
   PickPercentage = 2,
 }
 
-export const NUMBER_OF_STEPS_PER_QUESTION = 2;
-
 type Option = {
   id: number;
   option: string;
@@ -153,11 +151,9 @@ export function Question({ question, returnUrl }: QuestionProps) {
 
         <QuestionCard
           dueAt={getDueAt(question.durationMiliseconds)}
-          numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
           question={question.question}
           type={question.type}
           viewImageSrc={question.imageUrl}
-          step={currentQuestionStep || QuestionStep.PickPercentage}
           onDurationRanOut={handleSaveQuestion}
           className="z-50 relative drop-shadow-question-card border-opacity-40"
         >

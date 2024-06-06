@@ -1,11 +1,5 @@
 import { getJwtPayload } from "@/app/actions/jwt";
-import { getHistory } from "@/app/queries/question";
-
-export enum HistorySortOptions {
-  Date = "Date",
-  Revealed = "Revealed",
-  Claimable = "Claimable",
-}
+import { getHistory, HistorySortOptions } from "@/app/queries/history";
 
 export async function GET(request: Request) {
   const payload = await getJwtPayload();
@@ -15,15 +9,11 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const query = searchParams.get("query")?.toString();
   const sort =
     HistorySortOptions[
       searchParams.get("sort")?.toString() as keyof typeof HistorySortOptions
     ];
-  const history = await getHistory(
-    query ?? "",
-    sort ?? HistorySortOptions.Date,
-  );
+  const history = await getHistory(sort ?? HistorySortOptions.Date);
 
   return Response.json({
     history,
