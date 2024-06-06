@@ -45,12 +45,10 @@ export default function RootLayout({
         )}
         <DynamicProvider>
           <ToastProvider>
-            <MobileChromeDetector>
-              {children}
-              <Analytics />
-            </MobileChromeDetector>
+            <MobileChromeDetector>{children}</MobileChromeDetector>
           </ToastProvider>
         </DynamicProvider>
+        <Analytics />
       </body>
     </html>
   );
