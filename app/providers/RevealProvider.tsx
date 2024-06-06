@@ -24,7 +24,6 @@ import {
 } from "../constants/genesis-nfts";
 import { numberToCurrencyFormatter } from "../utils/currency";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
-import { useConfetti } from "./ConfettiProvider";
 import { useToast } from "./ToastProvider";
 
 interface RevealContextState {
@@ -63,7 +62,6 @@ export function RevealContextProvider({
     "burning" | "error" | "idle" | "skipburn"
   >(INITIAL_BURN_STATE);
   const { primaryWallet } = useDynamicContext();
-  const { fire } = useConfetti();
 
   const [reveal, setReveal] = useState<{
     amount: number;
@@ -147,7 +145,6 @@ export function RevealContextProvider({
           genesisNft && !reveal?.multiple ? genesisNft : undefined,
         );
         closeRevealModal();
-        fire();
       }
     },
     [reveal],
