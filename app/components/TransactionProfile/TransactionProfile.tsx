@@ -2,9 +2,9 @@
 
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
+import Link from "next/link";
 import { Avatar } from "../Avatar/Avatar";
 import { CloseIcon } from "../Icons/CloseIcon";
-import Link from "next/link";
 
 type ProfileProps = {
   pointAmount?: number;
@@ -41,7 +41,7 @@ export function TransactionProfile({
 
         {typeof bonkAmount === "number" && (
           <div className="whitespace-nowrap">
-            {numberToCurrencyFormatter.format(bonkAmount)} BONK
+            {numberToCurrencyFormatter.format(Math.floor(bonkAmount))} BONK
           </div>
         )}
 

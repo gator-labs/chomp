@@ -24,7 +24,7 @@ const RewardInfoBox = () => {
             <h3 className="text-pink text-base font-bold leading-[20.16px] text-left">
               Your Rewards Explained
             </h3>
-            <p className="text-[13px] font-light leading-[16.38px] text-left flex flex-col gap-4">
+            <div className="text-[13px] font-light leading-[16.38px] text-left flex flex-col gap-4">
               <p>
                 You have just burned <span className="font-bold">5K $BONK</span>{" "}
                 to reveal the answer to a question.
@@ -56,7 +56,7 @@ const RewardInfoBox = () => {
                 total maximum reward of one question is{" "}
                 <span className="font-bold text-aqua">10k $BONK.</span>
               </p>
-            </p>
+            </div>
           </div>
         </div>
       </Sheet>
