@@ -24,7 +24,7 @@ export function ClaimFeedQuestionCard({
   const router = useRouter();
 
   const handleClaim = () => {
-    router.push("application/answer/reveal/" + id);
+    router.push("/application/answer/reveal/" + id);
     router.refresh();
   };
 

@@ -146,6 +146,9 @@ export function RevealContextProvider({
           burnTx,
           genesisNft && !reveal?.multiple ? genesisNft : undefined,
         );
+
+        if (genesisNft && !reveal?.multiple) setGenesisNft(undefined);
+
         closeRevealModal();
         fire();
       }

@@ -23,7 +23,7 @@ export function HomeFeedRevealedQuestionsSection({
   const handleView = (q: RevealedQuestion) => {
     openRevealModal(async (burnTx?: string, nftAddress?: string) => {
       await revealQuestion(q.id, burnTx, nftAddress);
-      router.push("application/answer/reveal/" + q.id);
+      router.push("/application/answer/reveal/" + q.id);
       router.refresh();
     }, q.revealTokenAmount ?? 0);
   };

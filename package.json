@@ -36,6 +36,7 @@
     "@solana/web3.js": "^1.91.8",
     "@tanstack/react-table": "^8.16.0",
     "animejs": "^3.2.2",
+    "async-mutex": "^0.5.0",
     "bigint-buffer": "^1.1.5",
     "bs58": "^5.0.0",
     "classnames": "^2.5.1",
