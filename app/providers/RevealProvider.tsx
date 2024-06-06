@@ -1,5 +1,6 @@
 "use client";
 import { dasUmi } from "@/lib/web3";
+import { DotLottiePlayer } from "@dotlottie/react-player";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { publicKey } from "@metaplex-foundation/umi";
@@ -118,14 +119,25 @@ export function RevealContextProvider({
           reveal?.amount ?? 0,
         );
         setBurnState("burning");
-        const { signature } = await promiseToast(
-          signer.signAndSendTransaction(tx),
-          {
-            loading: "Waiting for signature...",
-            success: "Bonk burn transaction signed!",
-            error: "You denied message signature.",
-          },
-        );
+
+        let signature;
+
+        try {
+          const { signature: sn } = await promiseToast(
+            signer.signAndSendTransaction(tx),
+            {
+              loading: "Waiting for signature...",
+              success: "Bonk burn transaction signed!",
+              error: "You denied message signature.",
+            },
+          );
+
+          signature = sn;
+        } catch (error) {
+          setBurnState(INITIAL_BURN_STATE);
+          setIsRevealModalOpen(false);
+          return;
+        }
 
         await CONNECTION.confirmTransaction(
           {
@@ -345,7 +357,23 @@ export function RevealContextProvider({
 
   return (
     <RevealedContext.Provider value={value}>
+      {burnState === "burning" && (
+        <div className="absolute top-0 left-0 w-screen h-screen z-[99]">
+          <div className="flex flex-col absolute top-1/3 left-1/2 -translate-x-1/2 gap-2">
+            <div className="rounded-full overflow-hidden flex justify-center items-center w-fit ">
+              <DotLottiePlayer
+                className="w-32 h-32"
+                loop
+                autoplay
+                src="/lottie/chomp.lottie"
+              />
+            </div>
+            <p>Burning bonk...</p>
+          </div>
+        </div>
+      )}
       <Sheet
+        disableClose={burnState === "burning"}
         isOpen={isRevealModalOpen}
         setIsOpen={setIsRevealModalOpen}
         closIconHeight={16}
