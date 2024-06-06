@@ -233,15 +233,15 @@ export function Deck({
   }
 
   return (
-    <div className="flex flex-col justify-evenly h-full pb-4">
+    <div className="flex flex-col justify-start h-full pb-4">
       <Stepper
         numberOfSteps={questions.length}
         activeStep={currentQuestionIndex}
         color="green"
         className="!p-0 mb-5"
       />
-      <div ref={questionsRef} className="mb-4">
-        <div className="relative">
+      <div ref={questionsRef} className="mb-4 h-full">
+        <div className="relative h-full">
           <QuestionCard
             dueAt={dueAt}
             question={question.question}
