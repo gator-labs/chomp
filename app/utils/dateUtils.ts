@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import { Question } from "../components/Deck/Deck";
 
 export const ONE_SECOND_IN_MILISECONDS = 1000;
 export const ONE_MINUTE_IN_MILISECONDS = ONE_SECOND_IN_MILISECONDS * 60;
@@ -58,3 +59,13 @@ export const getTimeString = (date: Date) => {
 
 export const getDailyDeckFormattedString = (date: Date) =>
   dayjs(date).format("MMMM DD YYYY").toString();
+
+export const getDueAt = (durationMiliseconds: number): Date => {
+  return dayjs(new Date()).add(durationMiliseconds, "milliseconds").toDate();
+};
+
+export const getQuestionsDueAt = (questions: Question[], index: number): Date => {
+  return dayjs(new Date())
+    .add(questions[index].durationMiliseconds, "milliseconds")
+    .toDate();
+};

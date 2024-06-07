@@ -7,16 +7,11 @@ import { QuestionAction } from "@/app/components/QuestionAction/QuestionAction";
 import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
-import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
+import { getDueAt, ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { QuestionType } from "@prisma/client";
-import dayjs from "dayjs";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { STEPS } from "./constants";
-
-const getDueAt = (durationMiliseconds: number): Date => {
-  return dayjs(new Date()).add(durationMiliseconds, "milliseconds").toDate();
-};
 
 interface Props {
   setActiveScreen: Dispatch<
@@ -35,10 +30,10 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
   const handleGoToNextTooltip = () => {
     if (tooltipIndex === STEPS.length - 1) return;
     if (tooltipIndex === 1) {
-      const tutoiralContainer = document.getElementById("tutorial-container")!;
+      const tutorialContainer = document.getElementById("tutorial-container")!;
 
-      tutoiralContainer.scroll({
-        top: tutoiralContainer!.scrollHeight,
+      tutorialContainer.scroll({
+        top: tutorialContainer!.scrollHeight,
         behavior: "smooth",
       });
     }

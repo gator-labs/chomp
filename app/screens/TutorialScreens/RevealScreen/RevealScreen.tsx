@@ -239,11 +239,11 @@ const RevealScreen = () => {
           <div className="fixed bottom-5 max-w-[30rem] left-1/2 -translate-x-1/2 gap-1 w-full max-md:px-6">
             <Button
               onClick={() => {
-                const tutoiralContainer =
+                const tutorialContainer =
                   document.getElementById("tutorial-container")!;
 
-                tutoiralContainer.scroll({
-                  top: tutoiralContainer!.scrollHeight,
+                tutorialContainer.scroll({
+                  top: tutorialContainer!.scrollHeight,
                   behavior: "smooth",
                 });
 

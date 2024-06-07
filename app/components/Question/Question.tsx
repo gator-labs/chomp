@@ -11,6 +11,7 @@ import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
+import { getDueAt } from "@/app/utils/dateUtils";
 
 export enum QuestionStep {
   AnswerQuestion = 1,
@@ -36,10 +37,6 @@ type Question = {
 type QuestionProps = {
   question: Question;
   returnUrl: string;
-};
-
-const getDueAt = (durationMiliseconds: number): Date => {
-  return dayjs(new Date()).add(durationMiliseconds, "milliseconds").toDate();
 };
 
 export function Question({ question, returnUrl }: QuestionProps) {

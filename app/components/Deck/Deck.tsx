@@ -20,6 +20,7 @@ import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 import Stepper from "../Stepper/Stepper";
+import { getQuestionsDueAt } from "@/app/utils/dateUtils";
 
 export type Option = {
   id: number;
@@ -45,12 +46,6 @@ type DeckProps = {
   deckVariant: "daily-deck" | "regular-deck";
 };
 
-const getDueAt = (questions: Question[], index: number): Date => {
-  return dayjs(new Date())
-    .add(questions[index].durationMiliseconds, "milliseconds")
-    .toDate();
-};
-
 export function Deck({
   questions,
   browseHomeUrl,
@@ -59,7 +54,7 @@ export function Deck({
   deckVariant,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
-  const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
+  const [dueAt, setDueAt] = useState<Date>(getQuestionsDueAt(questions, 0));
   const [rerenderAction, setRerenderAction] = useState(true);
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
@@ -84,7 +79,7 @@ export function Deck({
 
   const handleNextIndex = useCallback(() => {
     if (currentQuestionIndex + 1 < questions.length) {
-      setDueAt(getDueAt(questions, currentQuestionIndex + 1));
+      setDueAt(getQuestionsDueAt(questions, currentQuestionIndex + 1));
     }
     setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
