@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const QUESTION_CARD_CONTENT = {
   "daily-deck": {
     title: "Fantastic!",
@@ -18,11 +20,11 @@ export const QUESTION_CARD_CONTENT = {
         deck is ready to reveal. <br />
         <br /> Meanwhile, go check out some more chomps in{" "}
         <b>
-          <u>answer</u>
+          <Link href="/application/answer">home</Link>
         </b>{" "}
         page or go back{" "}
         <b>
-          <u>home</u>
+          <Link href="/application">home</Link>
         </b>{" "}
         to check for more decks.
       </>
@@ -33,7 +35,10 @@ export const QUESTION_CARD_CONTENT = {
     body: (
       <>
         There just might be! <br /> <br /> Check out what decks are still
-        available for you to chomp through under &quot;Home&quot;!
+        available for you to chomp through under{" "}
+        <b>
+          <Link href="/application">Home!</Link>
+        </b>
       </>
     ),
   },
