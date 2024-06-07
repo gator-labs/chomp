@@ -28,7 +28,7 @@ export default function PollResult({
         avatarSrc &&
         resultProgressComponent && (
           <>
-            (<div className="w-full h-[1px] bg-[#666666] my-2"></div>
+            <div className="w-full h-[1px] bg-[#666666] my-2"></div>
             <div className="flex gap-3.5">
               <div className="bg-[#A3A3EC] min-w-10 h-10 flex justify-center items-center text-sm font-sora font-bold rounded-lg">
                 <Avatar src={avatarSrc} size="small" />
@@ -51,7 +51,6 @@ export default function PollResult({
                 disablePercentageLabel: true,
               })}
             </div>
-            )
           </>
         )}
     </div>
