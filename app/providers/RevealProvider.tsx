@@ -160,6 +160,7 @@ export function RevealContextProvider({
         if (genesisNft && !reveal?.multiple) setGenesisNft(undefined);
 
         closeRevealModal();
+        setBurnState(INITIAL_BURN_STATE);
       }
     },
     [reveal],
@@ -358,7 +359,7 @@ export function RevealContextProvider({
   return (
     <RevealedContext.Provider value={value}>
       {burnState === "burning" && (
-        <div className="absolute top-0 left-0 w-screen h-screen z-[99]">
+        <div className="absolute top-0 left-0 w-screen h-screen z-[99] bg-black bg-opacity-90">
           <div className="flex flex-col absolute top-1/3 left-1/2 -translate-x-1/2 gap-2">
             <div className="rounded-full overflow-hidden flex justify-center items-center w-fit ">
               <DotLottiePlayer
