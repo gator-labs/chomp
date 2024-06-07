@@ -3,6 +3,7 @@ import BestAnswerMultipleChoice from "@/app/components/BestAnswerMultipleChoice/
 import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import LikeIcon from "@/app/components/Icons/LikeIcon";
+import { OpenLinkIcon } from "@/app/components/Icons/OpenLinkIcon";
 import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
 import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
 import PollResultBinary from "@/app/components/PollResultBinary/PollResultBinary";
@@ -11,6 +12,7 @@ import QuestionAnswerLabel from "@/app/components/QuestionAnswerLabel/QuestionAn
 import QuestionAnswerPreviewBinary from "@/app/components/QuestionAnswerPreviewBinary/QuestionAnswerPreviewBinary";
 import QuestionAnswerPreviewMultipleChoice from "@/app/components/QuestionAnswerPreviewMultipleChoice/QuestionAnswerPreviewMultipleChoice";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
+import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
 import { getProfileImage } from "@/app/queries/profile";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { getAlphaIdentifier, isEntityRevealable } from "@/app/utils/question";
@@ -29,6 +31,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
     Number(params.questionId),
   );
   const profile = await getProfileImage();
+
+  const sendTransactionSignature =
+    questionResponse?.chompResults[0]?.sendTransactionSignature;
 
   if (!questionResponse) notFound();
 
@@ -277,6 +282,17 @@ const RevealAnswerPage = async ({ params }: Props) => {
         didAnswer={!!answerSelected}
         questionIds={[questionResponse.id]}
       />
+      {sendTransactionSignature && (
+        <a
+          className="text-sm font-bold underline flex items-center justify-center gap-1 w-fit mx-auto"
+          href={`${SOLSCAN_BASE_TRANSACTION_LINK}/${sendTransactionSignature}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View transaction
+          <OpenLinkIcon />
+        </a>
+      )}
     </div>
   );
 };
