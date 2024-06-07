@@ -2,10 +2,10 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import { PercentageIcon } from "../Icons/PercentageIcon";
 import { QuestIcon } from "../Icons/QuestIcon";
 import { TrendingIcon } from "../Icons/TrendingIcon";
-import ChompSpeedInfo from "../InfoBoxes/Home/ChompSpeed";
-import DailyDeckStreakInfo from "../InfoBoxes/Home/DailyDeckStreak";
-import TotalCardChompedInfo from "../InfoBoxes/Home/TotalCardsChomped";
-import TotalPointsEarnedInfo from "../InfoBoxes/Home/TotalPointsEarned";
+import ChompSpeedInfo from "../InfoBoxes/Home/ChompSpeedInfo";
+import DailyDeckStreakInfo from "../InfoBoxes/Home/DailyDeckStreakInfo";
+import TotalCardChompedInfo from "../InfoBoxes/Home/TotalCardsChompedInfo";
+import TotalPointsEarnedInfo from "../InfoBoxes/Home/TotalPointsEarnedInfo";
 import { StatsChip } from "./StatsChip";
 
 type DashboardUserStats = {

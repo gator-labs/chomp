@@ -1,6 +1,7 @@
 import React from "react";
 import classNames from "classnames";
 import "../styles/globals.css";
+import "react-spring-bottom-sheet/dist/style.css";
 import type { Preview } from "@storybook/react";
 
 import { sora } from "../lib/fonts";

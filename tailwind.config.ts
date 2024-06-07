@@ -62,6 +62,9 @@ module.exports = {
       "z-50",
       ...Object.keys(colors).map((color) => `text-${color}`),
       ...Object.keys(colors).map((color) => `bg-${color}`),
+      "text-sm",
+      "font-light",
+      "text-white",
     ],
   },
 } satisfies Config;

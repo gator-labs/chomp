@@ -238,7 +238,6 @@ export async function getQuestionWithUserAnswer(questionId: number) {
           questionAnswers: {
             where: {
               userId: userId,
-              selected: true,
             },
           },
         },
@@ -255,10 +254,6 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     return null;
   }
 
-  const correctAnswer = question.questionOptions.find(
-    (option) => option.isCorrect,
-  );
-
   const questionOptionIds = question.questionOptions.map((qo) => qo.id);
   const questionOptionPercentages =
     await answerPercentageQuery(questionOptionIds);
@@ -272,9 +267,8 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     userId,
     isRevealable.isRevealed,
   );
-
   // Extract the user's answer from the question options and include the option details
-  const userAnswer = question.questionOptions
+  const userAnswers = question.questionOptions
     .flatMap((option) =>
       option.questionAnswers.map((answer) => ({
         ...answer,
@@ -288,7 +282,11 @@ export async function getQuestionWithUserAnswer(questionId: number) {
         },
       })),
     )
-    .find((answer) => answer.userId === userId);
+    .filter((answer) => answer.userId === userId);
+
+  const correctAnswer = question.questionOptions.find(
+    (option) => option.isCorrect,
+  );
 
   return {
     ...question,
@@ -296,8 +294,12 @@ export async function getQuestionWithUserAnswer(questionId: number) {
       ...chompResult,
       rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
     })),
-    userAnswer: userAnswer || null,
+    userAnswers: userAnswers || null,
     answerCount: populated.answerCount ?? 0,
     correctAnswer,
+    questionOptionPercentages: questionOptionPercentages.map((qop) => ({
+      ...qop,
+      ...question.questionOptions.find((qo) => qo.id === qop.id),
+    })),
   };
 }
