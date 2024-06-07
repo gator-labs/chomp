@@ -60,9 +60,11 @@ export default function QuestionAnswerPreview({
           revealAtAnswerCount={revealAtAnswerCount}
           revealAtDate={revealAtDate}
         />
-        <div className="text-sm text-white font-sora font-light flex justify-between items-center">
-          Your answer {tagElement}
-        </div>
+        {!!tagElement?.props.children && (
+          <div className="text-sm text-white font-sora font-light flex justify-between items-center">
+            Your answer {tagElement}
+          </div>
+        )}
       </div>
     </div>
   );
