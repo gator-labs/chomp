@@ -5,9 +5,10 @@ import MultipleChoiceResult from "../MultipleChoiceResult/MultipleChoiceResult";
 import PollResult from "../PollResult/PollResult";
 
 type PollResultBinaryProps = {
-  optionSelected: string;
-  percentageSelected: number;
-  avatarSrc: string;
+  optionSelected?: string;
+  percentageSelected?: number;
+  isCorrect?: boolean;
+  avatarSrc?: string;
   leftOption: { option: string; percentage: number };
   rightOption: { option: string; percentage: number };
 };

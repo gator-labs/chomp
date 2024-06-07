@@ -14,8 +14,16 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const Correct: Story = {
   args: {
     label: "Question 1",
+    isCorrect: true,
+  },
+};
+
+export const Incorrect: Story = {
+  args: {
+    label: "Question 1",
+    isCorrect: false,
   },
 };

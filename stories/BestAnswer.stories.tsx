@@ -22,5 +22,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     optionSelected: "Yes",
+    bestOption: "Yes",
+  },
+};
+
+export const NoAnswer: Story = {
+  args: {
+    bestOption: "Yes",
   },
 };

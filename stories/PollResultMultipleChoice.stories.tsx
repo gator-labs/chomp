@@ -26,6 +26,7 @@ export const MultiChoice: Story = {
     optionSelected: "A",
     percentageSelected: 8,
     avatarSrc: AvatarSample.src,
+    isCorrect: true,
     options: [
       { label: "A", option: "New York", percentage: 8 },
       { label: "B", option: "Berlin", percentage: 11 },

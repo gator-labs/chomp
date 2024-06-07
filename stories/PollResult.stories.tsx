@@ -25,11 +25,26 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const MultiChoice: Story = {
+export const MultiChoiceCorrect: Story = {
   args: {
     optionSelected: "A",
     percentageSelected: 8,
     resultProgressComponent: <MultipleChoiceResult />,
     avatarSrc: AvatarSample.src,
+    isCorrect: true,
   },
+};
+
+export const MultiChoiceIncorrect: Story = {
+  args: {
+    optionSelected: "A",
+    percentageSelected: 8,
+    resultProgressComponent: <MultipleChoiceResult />,
+    avatarSrc: AvatarSample.src,
+    isCorrect: false,
+  },
+};
+
+export const NoAnswer: Story = {
+  args: {},
 };

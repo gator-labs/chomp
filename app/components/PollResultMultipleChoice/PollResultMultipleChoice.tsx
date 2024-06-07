@@ -2,9 +2,10 @@ import MultipleChoiceResult from "../MultipleChoiceResult/MultipleChoiceResult";
 import PollResult from "../PollResult/PollResult";
 
 type PollResultMultipleChoiceProps = {
-  optionSelected: string;
-  percentageSelected: number;
-  avatarSrc: string;
+  optionSelected?: string;
+  percentageSelected?: number;
+  isCorrect?: boolean;
+  avatarSrc?: string;
   options: Array<{ option: string; label: string; percentage: number }>;
 };
 

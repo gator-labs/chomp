@@ -3,6 +3,7 @@ import { ChompFlatIcon } from "@/app/components/Icons/ChompFlatIcon";
 import ChompIcon from "@/app/components/Icons/ChompIcon";
 import { CopyIcon } from "@/app/components/Icons/CopyIcon";
 import { ExitIcon } from "@/app/components/Icons/ExitIcon";
+import IncorrectMarkIcon from "@/app/components/Icons/IncorrectMarkIcon";
 import LikeIcon from "@/app/components/Icons/LikeIcon";
 import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
 import type { Meta, StoryObj } from "@storybook/react";
@@ -368,6 +369,12 @@ export const ChompFlat: Story = {
 export const CheckMark: Story = {
   args: {
     icon: <CheckMarkIcon />,
+  },
+};
+
+export const IncorrectMark: Story = {
+  args: {
+    icon: <IncorrectMarkIcon />,
   },
 };
 

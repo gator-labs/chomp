@@ -41,59 +41,67 @@ const RevealAnswerPage = async ({ params }: Props) => {
   if (!isQuestionRevealable) redirect("/application");
 
   const isBinary = questionResponse.type === QuestionType.BinaryQuestion;
-  const optionSelected = questionResponse.userAnswers.find((ua) => ua.selected);
+  const answerSelected = questionResponse.userAnswers.find((ua) => ua.selected);
+  const secondOrderMultiChoiceAnswer = questionResponse.userAnswers.find(
+    (ua) => ua.percentage !== null,
+  );
+  const isFirstOrderCorrect =
+    questionResponse.correctAnswer?.id === answerSelected?.questionOptionId;
+  const isSecondOrderCorrect = isBinary
+    ? questionResponse.questionOptionPercentages.some(
+        (qop) =>
+          qop.id === answerSelected?.id &&
+          qop.percentageResult === answerSelected?.percentage,
+      )
+    : questionResponse.questionOptionPercentages.some(
+        (qop) =>
+          qop.id === secondOrderMultiChoiceAnswer?.questionOptionId &&
+          qop.percentageResult === secondOrderMultiChoiceAnswer.percentage,
+      );
 
-  return (
-    <div className="py-2 flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 justify-start">
-          <Link href="/application">
-            <HalfArrowLeftIcon />
-          </Link>
-          <h4 className="text-[13px] font-normal leading-[13px] text-left">
-            Viewing answer results
-          </h4>
+  let questionContent = <></>;
+
+  if (isBinary) {
+    questionContent = (
+      <QuestionAnswerPreviewBinary
+        question={questionResponse.question}
+        optionSelected={answerSelected?.questionOption.option ?? ""}
+        answerCount={questionResponse.answerCount}
+        revealAtAnswerCount={questionResponse.revealAtAnswerCount ?? undefined}
+        revealAtDate={questionResponse.revealAtDate ?? undefined}
+        viewImageSrc={questionResponse.imageUrl ?? undefined}
+      />
+    );
+  }
+
+  if (!isBinary) {
+    questionContent = (
+      <QuestionAnswerPreviewMultipleChoice
+        question={questionResponse.question}
+        optionSelectedId={answerSelected?.questionOption.id ?? 0}
+        answerCount={questionResponse.answerCount}
+        revealAtAnswerCount={questionResponse.revealAtAnswerCount ?? undefined}
+        revealAtDate={questionResponse.revealAtDate ?? undefined}
+        viewImageSrc={questionResponse.imageUrl ?? undefined}
+        options={questionResponse.questionOptions.map((qo) => ({
+          id: qo.id,
+          option: qo.option,
+        }))}
+      />
+    );
+  }
+
+  let answerContent = <></>;
+
+  if (!!answerSelected && isBinary) {
+    answerContent = (
+      <>
+        <div>
+          <QuestionAnswerLabel
+            label="Question 1"
+            isCorrect={isFirstOrderCorrect}
+          />
         </div>
-        <TopInfoBox />
-      </div>
-      {!!optionSelected && (
-        <RewardShow
-          rewardAmount={
-            questionResponse.chompResults[0]?.rewardTokenAmount ?? 0
-          }
-        />
-      )}
-      {isBinary ? (
-        <QuestionAnswerPreviewBinary
-          question={questionResponse.question}
-          optionSelected={optionSelected?.questionOption.option ?? ""}
-          answerCount={questionResponse.answerCount}
-          revealAtAnswerCount={
-            questionResponse.revealAtAnswerCount ?? undefined
-          }
-          revealAtDate={questionResponse.revealAtDate ?? undefined}
-          viewImageSrc={questionResponse.imageUrl ?? undefined}
-        />
-      ) : (
-        <QuestionAnswerPreviewMultipleChoice
-          question={questionResponse.question}
-          optionSelectedId={optionSelected?.questionOption.id ?? 0}
-          answerCount={questionResponse.answerCount}
-          revealAtAnswerCount={
-            questionResponse.revealAtAnswerCount ?? undefined
-          }
-          revealAtDate={questionResponse.revealAtDate ?? undefined}
-          viewImageSrc={questionResponse.imageUrl ?? undefined}
-          options={questionResponse.questionOptions.map((qo) => ({
-            id: qo.id,
-            option: qo.option,
-          }))}
-        />
-      )}
-      <div>
-        <QuestionAnswerLabel label="Question 1" />
-      </div>
-      {isBinary ? (
         <BestAnswerBinary
           icon={
             questionResponse.correctAnswer?.isLeft ? (
@@ -103,19 +111,14 @@ const RevealAnswerPage = async ({ params }: Props) => {
             )
           }
           bestOption={questionResponse.correctAnswer?.option ?? ""}
-          optionSelected={optionSelected?.questionOption?.option ?? ""}
+          optionSelected={answerSelected.questionOption?.option ?? ""}
         />
-      ) : (
-        <BestAnswerMultipleChoice
-          optionLabel={questionResponse.correctAnswer?.option ?? ""}
-          bestOption={questionResponse.correctAnswer?.option ?? ""}
-          optionSelected={optionSelected?.questionOption?.option ?? ""}
-        />
-      )}
-      <div>
-        <QuestionAnswerLabel label="Question 2" />
-      </div>
-      {isBinary ? (
+        <div>
+          <QuestionAnswerLabel
+            label="Question 2"
+            isCorrect={isSecondOrderCorrect}
+          />
+        </div>
         <PollResultBinary
           leftOption={{
             option:
@@ -137,11 +140,35 @@ const RevealAnswerPage = async ({ params }: Props) => {
                 (qop) => !qop.isLeft,
               )?.percentageResult ?? 0,
           }}
-          optionSelected={optionSelected?.questionOption.option ?? ""}
-          percentageSelected={optionSelected?.percentage ?? 0}
+          optionSelected={answerSelected.questionOption.option ?? ""}
+          percentageSelected={answerSelected.percentage ?? 0}
+          isCorrect={isSecondOrderCorrect}
           avatarSrc={profile}
         />
-      ) : (
+      </>
+    );
+  }
+
+  if (!!answerSelected && !isBinary) {
+    answerContent = (
+      <>
+        <div>
+          <QuestionAnswerLabel
+            label="Question 1"
+            isCorrect={isFirstOrderCorrect}
+          />
+        </div>
+        <BestAnswerMultipleChoice
+          optionLabel={questionResponse.correctAnswer?.option ?? ""}
+          bestOption={questionResponse.correctAnswer?.option ?? ""}
+          optionSelected={answerSelected.questionOption?.option ?? ""}
+        />
+        <div>
+          <QuestionAnswerLabel
+            label="Question 2"
+            isCorrect={isSecondOrderCorrect}
+          />
+        </div>
         <PollResultMultipleChoice
           options={questionResponse.questionOptionPercentages.map(
             (qop, index) => ({
@@ -150,11 +177,96 @@ const RevealAnswerPage = async ({ params }: Props) => {
               percentage: qop.percentageResult,
             }),
           )}
-          optionSelected={optionSelected?.questionOption.option ?? ""}
-          percentageSelected={optionSelected?.percentage ?? 0}
+          optionSelected={answerSelected.questionOption.option ?? ""}
+          percentageSelected={answerSelected.percentage ?? 0}
+          isCorrect={isSecondOrderCorrect}
           avatarSrc={profile}
         />
+      </>
+    );
+  }
+
+  if (!answerSelected && isBinary) {
+    answerContent = (
+      <>
+        <BestAnswerBinary
+          icon={
+            questionResponse.correctAnswer?.isLeft ? (
+              <LikeIcon />
+            ) : (
+              <UnlikeIcon />
+            )
+          }
+          bestOption={questionResponse.correctAnswer?.option ?? ""}
+        />
+        <PollResultBinary
+          leftOption={{
+            option:
+              questionResponse.questionOptionPercentages.find(
+                (qop) => qop.isLeft,
+              )?.option ?? "",
+            percentage:
+              questionResponse.questionOptionPercentages.find(
+                (qop) => qop.isLeft,
+              )?.percentageResult ?? 0,
+          }}
+          rightOption={{
+            option:
+              questionResponse.questionOptionPercentages.find(
+                (qop) => !qop.isLeft,
+              )?.option ?? "",
+            percentage:
+              questionResponse.questionOptionPercentages.find(
+                (qop) => !qop.isLeft,
+              )?.percentageResult ?? 0,
+          }}
+        />
+      </>
+    );
+  }
+
+  if (!answerSelected && !isBinary) {
+    answerContent = (
+      <>
+        <BestAnswerMultipleChoice
+          optionLabel={questionResponse.correctAnswer?.option ?? ""}
+          bestOption={questionResponse.correctAnswer?.option ?? ""}
+        />
+        <PollResultMultipleChoice
+          options={questionResponse.questionOptionPercentages.map(
+            (qop, index) => ({
+              option: qop.option ?? "",
+              label: getAlphaIdentifier(index),
+              percentage: qop.percentageResult,
+            }),
+          )}
+        />
+      </>
+    );
+  }
+
+  return (
+    <div className="py-2 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 justify-start">
+          <Link href="/application">
+            <HalfArrowLeftIcon />
+          </Link>
+          <h4 className="text-[13px] font-normal leading-[13px] text-left">
+            Viewing answer results
+          </h4>
+        </div>
+        <TopInfoBox />
+      </div>
+      {!!answerSelected && (
+        <RewardShow
+          rewardAmount={
+            questionResponse.chompResults[0]?.rewardTokenAmount ?? 0
+          }
+        />
       )}
+      {questionContent}
+      {answerContent}
       <ClaimButton
         status={
           questionResponse.chompResults[0]?.result === ResultType.Revealed
@@ -162,7 +274,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             : "claimed"
         }
         rewardAmount={questionResponse.chompResults[0]?.rewardTokenAmount ?? 0}
-        didAnswer={!!optionSelected}
+        didAnswer={!!answerSelected}
         questionIds={[questionResponse.id]}
       />
     </div>

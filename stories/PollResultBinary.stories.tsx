@@ -28,5 +28,6 @@ export const Binary: Story = {
     avatarSrc: AvatarSample.src,
     leftOption: { option: "Yes", percentage: 73 },
     rightOption: { option: "No", percentage: 27 },
+    isCorrect: true,
   },
 };
