@@ -10,6 +10,7 @@ interface SheetProps {
   setIsOpen: (open: boolean) => void;
   closIconWidth?: number;
   closIconHeight?: number;
+  disableClose?: boolean;
 }
 
 const Sheet = ({
@@ -18,19 +19,22 @@ const Sheet = ({
   setIsOpen,
   closIconHeight,
   closIconWidth,
+  disableClose = false,
 }: SheetProps) => {
   return (
     <BottomSheet
       open={isOpen}
       onDismiss={() => {
-        setIsOpen(false);
+        if (!disableClose) setIsOpen(false);
       }}
-      className="relative"
+      className="relative [&>*]:!z-[999] [&>div:first-child]:!z-[9]"
     >
       <Button
         onClick={(e) => {
-          e.stopPropagation();
-          setIsOpen(false);
+          if (!disableClose) {
+            e.stopPropagation();
+            setIsOpen(false);
+          }
         }}
         className="absolute top-5 right-6 border-none w-max !p-0 z-50"
       >
