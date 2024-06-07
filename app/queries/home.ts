@@ -293,6 +293,7 @@ async function queryQuestionsForReadyToReveal(
 	    	from public."QuestionOption" qo
           	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
           	where qa."userId" = ${userId} and qo."questionId" = q."id"
+            and qa."selected" = true
 	    )
   `;
 
