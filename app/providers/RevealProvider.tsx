@@ -171,7 +171,7 @@ export function RevealContextProvider({
       return (
         <>
           <a
-            href="https://chomp.gitbook.io/chomp/how-to-chomp/first-time-using-solana"
+            href="https://x.com/chompdotgames/status/1798664081102258304"
             target="_blank"
             rel="noopener noreferrer"
           >

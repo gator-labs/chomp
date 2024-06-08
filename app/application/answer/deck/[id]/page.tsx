@@ -27,7 +27,7 @@ export default async function Page({ params: { id } }: PageProps) {
   }
 
   return (
-    <div className="max-h-[calc(100%-48px)] py-2">
+    <div className="h-full py-2">
       {questions && (
         <Deck questions={questions} deckId={+id} deckVariant="regular-deck" />
       )}
