@@ -1,7 +1,7 @@
-import { updateProfile } from "@/app/actions/profile";
-import { ProfileForm } from "@/app/components/ProfileForm/ProfileForm";
-import { getProfile } from "@/app/queries/profile";
-import { profileSchema } from "@/app/schemas/profile";
+import { updateProfile } from "@chomp/app/actions/profile";
+import { ProfileForm } from "@chomp/app/components/ProfileForm/ProfileForm";
+import { getProfile } from "@chomp/app/queries/profile";
+import { profileSchema } from "@chomp/app/schemas/profile";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

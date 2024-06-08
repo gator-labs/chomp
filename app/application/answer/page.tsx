@@ -1,5 +1,5 @@
-import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
-import { getFirstUnansweredQuestion } from "@/app/queries/question";
+import { NoQuestionsCard } from "@chomp/app/components/NoQuestionsCard/NoQuestionsCard";
+import { getFirstUnansweredQuestion } from "@chomp/app/queries/question";
 import { redirect } from "next/navigation";
 
 export default async function Page() {

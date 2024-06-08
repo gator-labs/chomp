@@ -1,5 +1,5 @@
-import { Button } from "@/app/components/Button/Button";
-import { Flyout } from "@/app/components/Flyout/Flyout";
+import { Button } from "@chomp/app/components/Button/Button";
+import { Flyout } from "@chomp/app/components/Flyout/Flyout";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 

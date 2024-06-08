@@ -1,4 +1,4 @@
-import BinaryResult from "@/app/components/BinaryResult/BinaryResult";
+import BinaryResult from "@chomp/app/components/BinaryResult/BinaryResult";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

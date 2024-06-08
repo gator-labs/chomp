@@ -1,4 +1,4 @@
-import { QuestionStep } from "@/app/components/Question/Question";
+import { QuestionStep } from "@chomp/app/components/Question/Question";
 
 export const STEPS = [
   {

@@ -1,5 +1,5 @@
 "use client";
-import { dasUmi } from "@/lib/web3";
+import { dasUmi } from "@chomp/lib/web3";
 import { DotLottiePlayer } from "@dotlottie/react-player";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";

@@ -1,8 +1,8 @@
-import { Deck } from "@/app/components/Deck/Deck";
+import { Deck } from "@chomp/app/components/Deck/Deck";
 import {
   getDeckQuestionsForAnswerById,
   hasAnsweredDeck,
-} from "@/app/queries/deck";
+} from "@chomp/app/queries/deck";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
 

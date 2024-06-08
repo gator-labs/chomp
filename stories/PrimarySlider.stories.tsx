@@ -1,4 +1,4 @@
-import PrimarySlider from "@/app/components/PrimarySlider/PrimarySlider";
+import PrimarySlider from "@chomp/app/components/PrimarySlider/PrimarySlider";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

@@ -1,15 +1,15 @@
 "use client";
-import { revealQuestions } from "@/app/actions/chompResult";
-import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
-import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { HistoryResult, HistorySortOptions } from "@/app/queries/history";
-import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
+import { revealQuestions } from "@chomp/app/actions/chompResult";
+import { useIsomorphicLayoutEffect } from "@chomp/app/hooks/useIsomorphicLayoutEffect";
+import { useRevealedContext } from "@chomp/app/providers/RevealProvider";
+import { HistoryResult, HistorySortOptions } from "@chomp/app/queries/history";
+import { getAppendedNewSearchParams } from "@chomp/app/utils/searchParams";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 const HistoryFeed = dynamic(
-  () => import("@/app/components/HistoryFeed/HistoryFeed"),
+  () => import("@chomp/app/components/HistoryFeed/HistoryFeed"),
   { ssr: false },
 );
 

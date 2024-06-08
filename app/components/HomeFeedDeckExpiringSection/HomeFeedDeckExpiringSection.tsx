@@ -1,6 +1,6 @@
 "use client";
 
-import { DeckExpiringSoon } from "@/app/queries/home";
+import { DeckExpiringSoon } from "@chomp/app/queries/home";
 import { useRouter } from "next/navigation";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedDeckCard } from "../HomeFeedDeckCard/HomeFeedDeckCard";

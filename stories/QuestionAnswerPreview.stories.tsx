@@ -1,4 +1,4 @@
-import QuestionAnswerPreview from "@/app/components/QuestionAnswerPreview/QuestionAnswerPreview";
+import QuestionAnswerPreview from "@chomp/app/components/QuestionAnswerPreview/QuestionAnswerPreview";
 import type { Meta, StoryObj } from "@storybook/react";
 import dayjs from "dayjs";
 

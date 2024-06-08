@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Modal } from "../app/components/Modal/Modal";
-import { Button } from "@/app/components/Button/Button";
+import { Button } from "@chomp/app/components/Button/Button";
 import { fn } from "@storybook/test";
 
 const meta = {

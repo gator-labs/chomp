@@ -1,6 +1,6 @@
-import { Button } from "@/app/components/Button/Button";
-import { DeckList } from "@/app/components/DeckList/DeckList";
-import { getDecks } from "@/app/queries/deck";
+import { Button } from "@chomp/app/components/Button/Button";
+import { DeckList } from "@chomp/app/components/DeckList/DeckList";
+import { getDecks } from "@chomp/app/queries/deck";
 import Link from "next/link";
 
 export default async function Page() {

@@ -1,7 +1,7 @@
-import { editQuestion } from "@/app/actions/question/question";
-import QuestionForm from "@/app/components/QuestionForm/QuestionForm";
-import { getQuestionSchema } from "@/app/queries/question";
-import { getTags } from "@/app/queries/tag";
+import { editQuestion } from "@chomp/app/actions/question/question";
+import QuestionForm from "@chomp/app/components/QuestionForm/QuestionForm";
+import { getQuestionSchema } from "@chomp/app/queries/question";
+import { getTags } from "@chomp/app/queries/tag";
 import { notFound } from "next/navigation";
 
 type PageProps = {

@@ -1,4 +1,4 @@
-import { DynamicJwtPayload } from "@/lib/auth";
+import { DynamicJwtPayload } from "@chomp/lib/auth";
 
 export function formatAddress(address: string) {
   if (address.length <= 8) {

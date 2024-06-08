@@ -1,4 +1,4 @@
-import { getJwtPayload } from "@/app/actions/jwt";
+import { getJwtPayload } from "@chomp/app/actions/jwt";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

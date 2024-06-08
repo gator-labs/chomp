@@ -1,10 +1,10 @@
 "use client";
 
-import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
-import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
-import { WalletIcon } from "@/app/components/Icons/WalletIcon";
-import Stepper from "@/app/components/Stepper/Stepper";
-import { useWindowSize } from "@/app/hooks/useWindowSize";
+import { HalfArrowLeftIcon } from "@chomp/app/components/Icons/HalfArrowLeftIcon";
+import { HalfArrowRightIcon } from "@chomp/app/components/Icons/HalfArrowRightIcon";
+import { WalletIcon } from "@chomp/app/components/Icons/WalletIcon";
+import Stepper from "@chomp/app/components/Stepper/Stepper";
+import { useWindowSize } from "@chomp/app/hooks/useWindowSize";
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
 import { useState } from "react";
 import { SLIDESHOW } from "./constants";

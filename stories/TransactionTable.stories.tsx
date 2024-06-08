@@ -1,4 +1,4 @@
-import { TransactionsTable } from "@/app/components/TransactionsTable/TransactionsTable";
+import { TransactionsTable } from "@chomp/app/components/TransactionsTable/TransactionsTable";
 import type { Meta, StoryObj } from "@storybook/react";
 import dayjs from "dayjs";
 

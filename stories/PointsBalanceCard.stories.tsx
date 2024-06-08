@@ -1,4 +1,4 @@
-import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
+import PointBalanceCard from "@chomp/app/components/PointBalanceCard/PointBalanceCard";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

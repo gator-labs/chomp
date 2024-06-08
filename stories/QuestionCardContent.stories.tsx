@@ -3,7 +3,7 @@ import { QuestionCardContent } from "../app/components/QuestionCardContent/Quest
 
 import { QuestionType } from "@prisma/client";
 import { fn } from "@storybook/test";
-import { QuestionStep } from "@/app/components/Question/Question";
+import { QuestionStep } from "@chomp/app/components/Question/Question";
 
 const questionOptions = [
   { id: 1, option: "Answer" },

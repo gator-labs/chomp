@@ -1,5 +1,5 @@
 "use client";
-import { profileSchema } from "@/app/schemas/profile";
+import { profileSchema } from "@chomp/app/schemas/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useTransition } from "react";

@@ -1,6 +1,6 @@
 "use client";
 
-import { RevealedQuestion } from "@/app/queries/home";
+import { RevealedQuestion } from "@chomp/app/queries/home";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
 import { RevealFeedQuestionCard } from "../RevealFeedQuestionCard/RevealFeedQuestionCard";

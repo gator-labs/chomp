@@ -1,5 +1,5 @@
-import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
-import { ToastProvider } from "@/app/providers/ToastProvider";
+import ClaimButton from "@chomp/app/components/ClaimButton/ClaimButton";
+import { ToastProvider } from "@chomp/app/providers/ToastProvider";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

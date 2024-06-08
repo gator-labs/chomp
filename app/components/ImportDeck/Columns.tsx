@@ -1,4 +1,4 @@
-import { DeckImportModel } from "@/app/schemas/deckImport";
+import { DeckImportModel } from "@chomp/app/schemas/deckImport";
 import { ColumnDef } from "@tanstack/react-table";
 import { DeckRowType } from "../DeckList/DeckList";
 

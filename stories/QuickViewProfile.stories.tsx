@@ -1,10 +1,10 @@
-import { QuickViewProfile } from "@/app/components/QuickViewProfile/QuickViewProfile";
+import { QuickViewProfile } from "@chomp/app/components/QuickViewProfile/QuickViewProfile";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";
 
-import { ToastProvider } from "@/app/providers/ToastProvider";
+import { ToastProvider } from "@chomp/app/providers/ToastProvider";
 import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {

@@ -1,5 +1,5 @@
 "use client";
-import { HistoryResult } from "@/app/queries/history";
+import { HistoryResult } from "@chomp/app/queries/history";
 import Link from "next/link";
 import { ClaimFeedQuestionCard } from "../ClaimFeedQuestionCard/ClaimFeedQuestionCard";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";

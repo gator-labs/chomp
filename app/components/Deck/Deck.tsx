@@ -1,8 +1,8 @@
 "use client";
-import { SaveQuestionRequest, saveDeck } from "@/app/actions/answer";
-import { useRandom } from "@/app/hooks/useRandom";
-import { useStopwatch } from "@/app/hooks/useStopwatch";
-import { getAlphaIdentifier } from "@/app/utils/question";
+import { SaveQuestionRequest, saveDeck } from "@chomp/app/actions/answer";
+import { useRandom } from "@chomp/app/hooks/useRandom";
+import { useStopwatch } from "@chomp/app/hooks/useStopwatch";
+import { getAlphaIdentifier } from "@chomp/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import {
@@ -20,7 +20,7 @@ import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 import Stepper from "../Stepper/Stepper";
-import { getQuestionsDueAt } from "@/app/utils/dateUtils";
+import { getQuestionsDueAt } from "@chomp/app/utils/dateUtils";
 
 export type Option = {
   id: number;

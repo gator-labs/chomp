@@ -1,4 +1,4 @@
-import Sheet from "@/app/components/Sheet/Sheet";
+import Sheet from "@chomp/app/components/Sheet/Sheet";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 

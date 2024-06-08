@@ -1,4 +1,4 @@
-import { getProfile } from "@/app/queries/profile";
+import { getProfile } from "@chomp/app/queries/profile";
 
 export async function GET() {
   const profile = await getProfile();

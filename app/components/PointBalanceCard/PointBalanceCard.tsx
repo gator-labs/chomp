@@ -1,4 +1,4 @@
-import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { numberToCurrencyFormatter } from "@chomp/app/utils/currency";
 
 type PointBalanceCardProps = {
   amount: number;

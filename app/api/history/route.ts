@@ -1,5 +1,5 @@
-import { getJwtPayload } from "@/app/actions/jwt";
-import { getHistory, HistorySortOptions } from "@/app/queries/history";
+import { getJwtPayload } from "@chomp/app/actions/jwt";
+import { getHistory, HistorySortOptions } from "@chomp/app/queries/history";
 
 export async function GET(request: Request) {
   const payload = await getJwtPayload();

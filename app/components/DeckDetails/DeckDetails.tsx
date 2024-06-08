@@ -1,12 +1,12 @@
 "use client";
-import { revealDeck } from "@/app/actions/chompResult";
-import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { revealDeck } from "@chomp/app/actions/chompResult";
+import { useRevealedContext } from "@chomp/app/providers/RevealProvider";
 import {
   DeckQuestionIncludes,
   getDeckState,
   getQuestionState,
-} from "@/app/utils/question";
-import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
+} from "@chomp/app/utils/question";
+import { getAppendedNewSearchParams } from "@chomp/app/utils/searchParams";
 import { ChompResult, Deck } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";

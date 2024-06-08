@@ -1,4 +1,4 @@
-import QuestionAnswerPreviewMultipleChoice from "@/app/components/QuestionAnswerPreviewMultipleChoice/QuestionAnswerPreviewMultipleChoice";
+import QuestionAnswerPreviewMultipleChoice from "@chomp/app/components/QuestionAnswerPreviewMultipleChoice/QuestionAnswerPreviewMultipleChoice";
 import type { Meta, StoryObj } from "@storybook/react";
 import dayjs from "dayjs";
 

@@ -1,4 +1,4 @@
-import { QuestionImportModel } from "@/app/schemas/questionImport";
+import { QuestionImportModel } from "@chomp/app/schemas/questionImport";
 import { ColumnDef } from "@tanstack/react-table";
 import { DeckRowType } from "../DeckList/DeckList";
 

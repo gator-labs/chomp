@@ -1,4 +1,4 @@
-import Tooltip from "@/app/components/Tooltip/Tooltip";
+import Tooltip from "@chomp/app/components/Tooltip/Tooltip";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

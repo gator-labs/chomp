@@ -1,11 +1,11 @@
 "use client";
-import { useToast } from "@/app/providers/ToastProvider";
+import { useToast } from "@chomp/app/providers/ToastProvider";
 import {
   QuestionImportModel,
   questionImportSchema,
-} from "@/app/schemas/questionImport";
-import { processCsv } from "@/app/utils/file";
-import { formatErrorsToString } from "@/app/utils/zod";
+} from "@chomp/app/schemas/questionImport";
+import { processCsv } from "@chomp/app/utils/file";
+import { formatErrorsToString } from "@chomp/app/utils/zod";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { ZodError } from "zod";

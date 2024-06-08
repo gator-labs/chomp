@@ -1,6 +1,6 @@
-import { editTag } from "@/app/actions/tag";
-import TagForm from "@/app/components/TagForm/TagForm";
-import { getTagSchema } from "@/app/queries/tag";
+import { editTag } from "@chomp/app/actions/tag";
+import TagForm from "@chomp/app/components/TagForm/TagForm";
+import { getTagSchema } from "@chomp/app/queries/tag";
 import { notFound } from "next/navigation";
 
 type PageProps = {

@@ -1,4 +1,4 @@
-import { AnswerHeader } from "@/app/components/AnswerHeader/AnswerHeader";
+import { AnswerHeader } from "@chomp/app/components/AnswerHeader/AnswerHeader";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

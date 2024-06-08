@@ -1,6 +1,6 @@
 "use server";
 
-import { dasUmi } from "@/lib/web3";
+import { dasUmi } from "@chomp/lib/web3";
 import { publicKey } from "@metaplex-foundation/umi";
 import { FungibleAsset, ResultType } from "@prisma/client";
 import { revalidatePath } from "next/cache";

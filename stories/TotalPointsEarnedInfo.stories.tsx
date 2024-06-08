@@ -1,5 +1,5 @@
-import { InfoIcon } from "@/app/components/Icons/InfoIcon";
-import TotalPointsEarnedInfo from "@/app/components/InfoBoxes/Home/TotalPointsEarnedInfo";
+import { InfoIcon } from "@chomp/app/components/Icons/InfoIcon";
+import TotalPointsEarnedInfo from "@chomp/app/components/InfoBoxes/Home/TotalPointsEarnedInfo";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

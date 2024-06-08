@@ -1,4 +1,4 @@
-import { ClaimFeedQuestionCard } from "@/app/components/ClaimFeedQuestionCard/ClaimFeedQuestionCard";
+import { ClaimFeedQuestionCard } from "@chomp/app/components/ClaimFeedQuestionCard/ClaimFeedQuestionCard";
 import type { Meta, StoryObj } from "@storybook/react";
 import dayjs from "dayjs";
 

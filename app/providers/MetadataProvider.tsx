@@ -1,5 +1,5 @@
 "use client";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import AvatarPlaceholder from "@chomp/public/images/avatar_placeholder.png";
 import { createContext, useContext, useMemo } from "react";
 
 interface MetadataContextState {

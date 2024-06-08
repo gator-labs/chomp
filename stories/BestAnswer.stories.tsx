@@ -1,4 +1,4 @@
-import { BestAnswer } from "@/app/components/BestAnswer/BestAnswer";
+import { BestAnswer } from "@chomp/app/components/BestAnswer/BestAnswer";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useToast } from "@/app/providers/ToastProvider";
+import { useToast } from "@chomp/app/providers/ToastProvider";
 import { useEffect } from "react";
 
 const MobileChromeDetector = ({ children }: any) => {

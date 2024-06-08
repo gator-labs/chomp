@@ -1,4 +1,4 @@
-import { TabNavigation } from "@/app/components/TabNavigation/TabNavigation";
+import { TabNavigation } from "@chomp/app/components/TabNavigation/TabNavigation";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

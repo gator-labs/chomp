@@ -1,4 +1,4 @@
-import { DashboardUserStats } from "@/app/components/DashboardUserStats/DashboardUserStats";
+import { DashboardUserStats } from "@chomp/app/components/DashboardUserStats/DashboardUserStats";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

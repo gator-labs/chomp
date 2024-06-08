@@ -1,6 +1,6 @@
-import { Button } from "@/app/components/Button/Button";
-import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
-import NewIcon from "@/app/components/Icons/NewIcon";
+import { Button } from "@chomp/app/components/Button/Button";
+import { HalfArrowRightIcon } from "@chomp/app/components/Icons/HalfArrowRightIcon";
+import NewIcon from "@chomp/app/components/Icons/NewIcon";
 import Link from "next/link";
 
 const NewUserScreen = () => {

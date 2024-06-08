@@ -1,5 +1,5 @@
-import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { getTimeString } from "@/app/utils/dateUtils";
+import { numberToCurrencyFormatter } from "@chomp/app/utils/currency";
+import { getTimeString } from "@chomp/app/utils/dateUtils";
 import { TransactionLogType } from "@prisma/client";
 import { TRANSACTION_LABEL } from "./constants";
 

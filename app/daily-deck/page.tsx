@@ -1,4 +1,4 @@
-import { getDailyDeck } from "@/app/queries/deck";
+import { getDailyDeck } from "@chomp/app/queries/deck";
 import { getTransactionHistory } from "../actions/fungible-asset";
 import { getJwtPayload } from "../actions/jwt";
 import { getProfileImage } from "../queries/profile";

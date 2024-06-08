@@ -1,8 +1,8 @@
-import { Question } from "@/app/components/Question/Question";
+import { Question } from "@chomp/app/components/Question/Question";
 import {
   getQuestionForAnswerById,
   hasAnsweredQuestion,
-} from "@/app/queries/question";
+} from "@chomp/app/queries/question";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
 

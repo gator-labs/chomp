@@ -1,4 +1,4 @@
-import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
+import TopInfoBox from "@chomp/app/components/InfoBoxes/RevealPage/TopInfoBox";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

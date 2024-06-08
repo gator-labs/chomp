@@ -1,11 +1,11 @@
 "use client";
 
-import { revealQuestion } from "@/app/actions/chompResult";
+import { revealQuestion } from "@chomp/app/actions/chompResult";
 import { Button } from "../Button/Button";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
 
-import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { useRevealedContext } from "@chomp/app/providers/RevealProvider";
 import { useRouter } from "next/navigation";
 
 type RevealFeedQuestionCardProps = {

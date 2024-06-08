@@ -1,4 +1,4 @@
-import QuestionAnswerLabel from "@/app/components/QuestionAnswerLabel/QuestionAnswerLabel";
+import QuestionAnswerLabel from "@chomp/app/components/QuestionAnswerLabel/QuestionAnswerLabel";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

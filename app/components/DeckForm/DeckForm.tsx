@@ -1,7 +1,7 @@
 "use client";
 
-import { useToast } from "@/app/providers/ToastProvider";
-import { deckSchema } from "@/app/schemas/deck";
+import { useToast } from "@chomp/app/providers/ToastProvider";
+import { deckSchema } from "@chomp/app/schemas/deck";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";

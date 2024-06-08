@@ -1,4 +1,4 @@
-import { formatAddress } from "@/app/utils/wallet";
+import { formatAddress } from "@chomp/app/utils/wallet";
 import dayjs from "dayjs";
 import { Avatar } from "../Avatar/Avatar";
 

@@ -1,7 +1,7 @@
 "use client";
-import { useToast } from "@/app/providers/ToastProvider";
-import { copyTextToClipboard } from "@/app/utils/clipboard";
-import { formatAddress } from "@/app/utils/wallet";
+import { useToast } from "@chomp/app/providers/ToastProvider";
+import { copyTextToClipboard } from "@chomp/app/utils/clipboard";
+import { formatAddress } from "@chomp/app/utils/wallet";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import { Button } from "../Button/Button";

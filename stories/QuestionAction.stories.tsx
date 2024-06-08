@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { QuestionAction } from "../app/components/QuestionAction/QuestionAction";
 
-import { QuestionStep } from "@/app/components/Question/Question";
+import { QuestionStep } from "@chomp/app/components/Question/Question";
 import { QuestionType } from "@prisma/client";
 import { fn } from "@storybook/test";
 

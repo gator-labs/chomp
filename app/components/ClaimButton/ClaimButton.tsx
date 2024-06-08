@@ -1,8 +1,8 @@
 "use client";
-import { claimQuestions } from "@/app/actions/claim";
-import { useConfetti } from "@/app/providers/ConfettiProvider";
-import { useToast } from "@/app/providers/ToastProvider";
-import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { claimQuestions } from "@chomp/app/actions/claim";
+import { useConfetti } from "@chomp/app/providers/ConfettiProvider";
+import { useToast } from "@chomp/app/providers/ToastProvider";
+import { numberToCurrencyFormatter } from "@chomp/app/utils/currency";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";

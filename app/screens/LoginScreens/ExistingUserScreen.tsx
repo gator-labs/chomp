@@ -1,6 +1,6 @@
-import { Button } from "@/app/components/Button/Button";
-import ChompHeadIcon from "@/app/components/Icons/ChompHeadIcon";
-import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
+import { Button } from "@chomp/app/components/Button/Button";
+import ChompHeadIcon from "@chomp/app/components/Icons/ChompHeadIcon";
+import { HalfArrowRightIcon } from "@chomp/app/components/Icons/HalfArrowRightIcon";
 import Link from "next/link";
 
 interface Props {

@@ -1,5 +1,5 @@
-import { InfoIcon } from "@/app/components/Icons/InfoIcon";
-import ChompSpeedInfo from "@/app/components/InfoBoxes/Home/ChompSpeedInfo";
+import { InfoIcon } from "@chomp/app/components/Icons/InfoIcon";
+import ChompSpeedInfo from "@chomp/app/components/InfoBoxes/Home/ChompSpeedInfo";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

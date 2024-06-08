@@ -1,4 +1,4 @@
-import { ToastProvider } from "@/app/providers/ToastProvider";
+import { ToastProvider } from "@chomp/app/providers/ToastProvider";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import type { Meta, StoryObj } from "@storybook/react";
 import { WalletWidget } from "../app/components/WalletWidget/WalletWidget";

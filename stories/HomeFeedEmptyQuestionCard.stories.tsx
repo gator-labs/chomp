@@ -1,4 +1,4 @@
-import { HomeFeedEmptyQuestionCard } from "@/app/components/HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
+import { HomeFeedEmptyQuestionCard } from "@chomp/app/components/HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

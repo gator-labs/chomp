@@ -1,5 +1,5 @@
-import MultipleChoiceResult from "@/app/components/MultipleChoiceResult/MultipleChoiceResult";
-import PollResult from "@/app/components/PollResult/PollResult";
+import MultipleChoiceResult from "@chomp/app/components/MultipleChoiceResult/MultipleChoiceResult";
+import PollResult from "@chomp/app/components/PollResult/PollResult";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import AvatarSample from "./assets/avatar_sample.png";

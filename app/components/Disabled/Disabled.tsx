@@ -1,6 +1,6 @@
 "use client";
 
-import { useToast } from "@/app/providers/ToastProvider";
+import { useToast } from "@chomp/app/providers/ToastProvider";
 import classNames from "classnames";
 import { ReactNode } from "react";
 

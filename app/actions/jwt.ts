@@ -1,6 +1,6 @@
 "use server";
 
-import { VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@/lib/auth";
+import { VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@chomp/lib/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "../services/prisma";

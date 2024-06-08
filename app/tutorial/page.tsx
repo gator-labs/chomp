@@ -1,4 +1,4 @@
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import AvatarPlaceholder from "@chomp/public/images/avatar_placeholder.png";
 import { format } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";

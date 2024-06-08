@@ -2,8 +2,8 @@ import classNames from "classnames";
 import type { Metadata, Viewport } from "next";
 import DynamicProvider from "./providers/DynamicProvider";
 
-import { sora } from "@/lib/fonts";
-import "@/styles/globals.css";
+import { sora } from "@chomp/lib/fonts";
+import "@chomp/styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";

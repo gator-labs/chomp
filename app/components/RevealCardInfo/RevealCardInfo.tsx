@@ -1,4 +1,4 @@
-import { getRevealedAtString } from "@/app/utils/dateUtils";
+import { getRevealedAtString } from "@chomp/app/utils/dateUtils";
 import { ClockIcon } from "../Icons/ClockIcon";
 
 type RevealCardInfoProps = {

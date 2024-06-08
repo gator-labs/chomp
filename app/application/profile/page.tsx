@@ -1,10 +1,10 @@
-import { getMyFungibleAssetBalances } from "@/app/actions/fungible-asset";
-import { getJwtPayload } from "@/app/actions/jwt";
-import History from "@/app/components/History/History";
-import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
-import { Profile } from "@/app/components/Profile/Profile";
-import { getProfile, getProfileImage } from "@/app/queries/profile";
-import { getAddressFromVerifiedCredentials } from "@/app/utils/wallet";
+import { getMyFungibleAssetBalances } from "@chomp/app/actions/fungible-asset";
+import { getJwtPayload } from "@chomp/app/actions/jwt";
+import History from "@chomp/app/components/History/History";
+import PointBalanceCard from "@chomp/app/components/PointBalanceCard/PointBalanceCard";
+import { Profile } from "@chomp/app/components/Profile/Profile";
+import { getProfile, getProfileImage } from "@chomp/app/queries/profile";
+import { getAddressFromVerifiedCredentials } from "@chomp/app/utils/wallet";
 
 type PageProps = {
   searchParams: { sort: string; openIds: string };

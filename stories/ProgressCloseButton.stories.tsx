@@ -1,4 +1,4 @@
-import ProgressCloseButton from "@/app/components/ProgressCloseButton/ProgressCloseButton";
+import ProgressCloseButton from "@chomp/app/components/ProgressCloseButton/ProgressCloseButton";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 

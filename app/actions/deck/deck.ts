@@ -1,6 +1,6 @@
 "use server";
 
-import { DeckImportModel } from "@/app/schemas/deckImport";
+import { DeckImportModel } from "@chomp/app/schemas/deckImport";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";

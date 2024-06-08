@@ -1,4 +1,4 @@
-import BestAnswerMultipleChoice from "@/app/components/BestAnswerMultipleChoice/BestAnswerMultipleChoice";
+import BestAnswerMultipleChoice from "@chomp/app/components/BestAnswerMultipleChoice/BestAnswerMultipleChoice";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

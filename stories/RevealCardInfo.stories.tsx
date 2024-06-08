@@ -1,4 +1,4 @@
-import { RevealCardInfo } from "@/app/components/RevealCardInfo/RevealCardInfo";
+import { RevealCardInfo } from "@chomp/app/components/RevealCardInfo/RevealCardInfo";
 import type { Meta, StoryObj } from "@storybook/react";
 import dayjs from "dayjs";
 

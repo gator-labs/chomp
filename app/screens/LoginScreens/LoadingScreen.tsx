@@ -1,4 +1,4 @@
-import { ProgressBar } from "@/app/components/ProgressBar/ProgressBar";
+import { ProgressBar } from "@chomp/app/components/ProgressBar/ProgressBar";
 import { DotLottiePlayer } from "@dotlottie/react-player";
 
 const LoadingScreen = () => {

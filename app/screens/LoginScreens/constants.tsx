@@ -1,6 +1,6 @@
-import { BetaIcon } from "@/app/components/Icons/BetaIcon";
-import CarIcon from "@/app/components/Icons/CarIcon";
-import WelcomeIcon from "@/app/components/Icons/WelcomeIcon";
+import { BetaIcon } from "@chomp/app/components/Icons/BetaIcon";
+import CarIcon from "@chomp/app/components/Icons/CarIcon";
+import WelcomeIcon from "@chomp/app/components/Icons/WelcomeIcon";
 import ChompIcon from "../../components/Icons/ChompIcon";
 import CommunicationIcon from "../../components/Icons/CommunicationIcon";
 import RainingChompIcon from "../../components/Icons/RainingChompIcon";

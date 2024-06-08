@@ -1,5 +1,5 @@
-import { DeckGraphic } from "@/app/components/Graphics/DeckGraphic";
-import { TrophyGraphic } from "@/app/components/Graphics/TrophyGraphic";
+import { DeckGraphic } from "@chomp/app/components/Graphics/DeckGraphic";
+import { TrophyGraphic } from "@chomp/app/components/Graphics/TrophyGraphic";
 import type { Meta, StoryObj } from "@storybook/react";
 import { ReactElement, cloneElement } from "react";
 import { ChompGraphic } from "../app/components/Graphics/ChompGraphic";

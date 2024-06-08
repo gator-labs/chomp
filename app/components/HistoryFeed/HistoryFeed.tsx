@@ -1,6 +1,6 @@
 "use client";
-import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { HistoryResult } from "@/app/queries/history";
+import { useWindowSize } from "@chomp/app/hooks/useWindowSize";
+import { HistoryResult } from "@chomp/app/queries/history";
 import { useEffect, useRef } from "react";
 import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
 import { HistoryFeedRowCard } from "../HistoryFeedRowCard/HistoryFeedRowCard";

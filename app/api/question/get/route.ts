@@ -1,5 +1,5 @@
-import { getDailyDeckForFrame } from "@/app/queries/deck";
-import { getRandomElement } from "@/app/utils/randomUtils";
+import { getDailyDeckForFrame } from "@chomp/app/queries/deck";
+import { getRandomElement } from "@chomp/app/utils/randomUtils";
 import { headers } from "next/headers";
 
 export async function GET() {

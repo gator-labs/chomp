@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import PollResultBinary from "@/app/components/PollResultBinary/PollResultBinary";
+import PollResultBinary from "@chomp/app/components/PollResultBinary/PollResultBinary";
 import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {

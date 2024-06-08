@@ -1,6 +1,6 @@
-import BestAnswerBinary from "@/app/components/BestAnswerBinary/BestAnswerBinary";
-import LikeIcon from "@/app/components/Icons/LikeIcon";
-import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
+import BestAnswerBinary from "@chomp/app/components/BestAnswerBinary/BestAnswerBinary";
+import LikeIcon from "@chomp/app/components/Icons/LikeIcon";
+import UnlikeIcon from "@chomp/app/components/Icons/UnlikeIcon";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

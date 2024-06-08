@@ -1,5 +1,5 @@
-import DeckDetails from "@/app/components/DeckDetails/DeckDetails";
-import { getDeckDetails } from "@/app/queries/deck";
+import DeckDetails from "@chomp/app/components/DeckDetails/DeckDetails";
+import { getDeckDetails } from "@chomp/app/queries/deck";
 import { redirect } from "next/navigation";
 
 type PageProps = {

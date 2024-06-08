@@ -1,5 +1,5 @@
-import { InfoIcon } from "@/app/components/Icons/InfoIcon";
-import TotalCardChompedInfo from "@/app/components/InfoBoxes/Home/TotalCardsChompedInfo";
+import { InfoIcon } from "@chomp/app/components/Icons/InfoIcon";
+import TotalCardChompedInfo from "@chomp/app/components/InfoBoxes/Home/TotalCardsChompedInfo";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

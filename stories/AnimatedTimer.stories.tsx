@@ -1,4 +1,4 @@
-import AnimatedTimer from "@/app/components/AnimatedTimer/AnimatedTimer";
+import AnimatedTimer from "@chomp/app/components/AnimatedTimer/AnimatedTimer";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

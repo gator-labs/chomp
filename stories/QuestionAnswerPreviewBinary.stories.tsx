@@ -1,4 +1,4 @@
-import QuestionAnswerPreviewBinary from "@/app/components/QuestionAnswerPreviewBinary/QuestionAnswerPreviewBinary";
+import QuestionAnswerPreviewBinary from "@chomp/app/components/QuestionAnswerPreviewBinary/QuestionAnswerPreviewBinary";
 import type { Meta, StoryObj } from "@storybook/react";
 import dayjs from "dayjs";
 

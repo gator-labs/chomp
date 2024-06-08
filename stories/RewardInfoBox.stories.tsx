@@ -1,4 +1,4 @@
-import RewardInfoBox from "@/app/components/InfoBoxes/RevealPage/RewardInfoBox";
+import RewardInfoBox from "@chomp/app/components/InfoBoxes/RevealPage/RewardInfoBox";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

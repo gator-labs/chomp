@@ -1,6 +1,6 @@
 "use client";
 
-import { getJwtPayload, setJwt } from "@/app/actions/jwt";
+import { getJwtPayload, setJwt } from "@chomp/app/actions/jwt";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useEffect, useState } from "react";
 import ExistingUserScreen from "./ExistingUserScreen";

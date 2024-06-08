@@ -1,4 +1,4 @@
-import Stepper from "@/app/components/Stepper/Stepper";
+import Stepper from "@chomp/app/components/Stepper/Stepper";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

@@ -1,6 +1,6 @@
-import { getJwtPayload } from "@/app/actions/jwt";
-import prisma from "@/app/services/prisma";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import { getJwtPayload } from "@chomp/app/actions/jwt";
+import prisma from "@chomp/app/services/prisma";
+import AvatarPlaceholder from "@chomp/public/images/avatar_placeholder.png";
 
 export type ProfileData = {
   userId: string;

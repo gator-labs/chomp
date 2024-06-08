@@ -1,6 +1,6 @@
-import { QuestionImportModel } from "@/app/schemas/questionImport";
-import { parseDateToDateDefaultUtc } from "@/app/utils/date";
-import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
+import { QuestionImportModel } from "@chomp/app/schemas/questionImport";
+import { parseDateToDateDefaultUtc } from "@chomp/app/utils/date";
+import { ONE_MINUTE_IN_MILISECONDS } from "@chomp/app/utils/dateUtils";
 import { Prisma, QuestionOption } from "@prisma/client";
 
 const INDEX_OFFSET = 1;

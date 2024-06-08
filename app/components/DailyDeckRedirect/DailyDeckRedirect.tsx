@@ -1,4 +1,4 @@
-import { getDailyDeck } from "@/app/queries/deck";
+import { getDailyDeck } from "@chomp/app/queries/deck";
 import { redirect } from "next/navigation";
 
 export const DailyDeckRedirect = async () => {

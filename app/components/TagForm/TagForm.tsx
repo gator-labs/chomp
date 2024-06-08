@@ -1,6 +1,6 @@
 "use client";
 
-import { tagSchema } from "@/app/schemas/tag";
+import { tagSchema } from "@chomp/app/schemas/tag";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

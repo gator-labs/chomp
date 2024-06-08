@@ -1,6 +1,6 @@
-import RewardShow from "@/app/components/RewardShow/RewardShow";
-import ConfettiProvider from "@/app/providers/ConfettiProvider";
-import { ToastProvider } from "@/app/providers/ToastProvider";
+import RewardShow from "@chomp/app/components/RewardShow/RewardShow";
+import ConfettiProvider from "@chomp/app/providers/ConfettiProvider";
+import { ToastProvider } from "@chomp/app/providers/ToastProvider";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {

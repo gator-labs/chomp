@@ -1,11 +1,11 @@
 "use client";
 
-import { DailyDeckTitle } from "@/app/components/DailyDeckTitle/DailyDeckTitle";
-import { Deck, Question } from "@/app/components/Deck/Deck";
-import Disabled from "@/app/components/Disabled/Disabled";
-import { Navbar, NavbarProps } from "@/app/components/Navbar/Navbar";
-import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
-import { TabNavigation } from "@/app/components/TabNavigation/TabNavigation";
+import { DailyDeckTitle } from "@chomp/app/components/DailyDeckTitle/DailyDeckTitle";
+import { Deck, Question } from "@chomp/app/components/Deck/Deck";
+import Disabled from "@chomp/app/components/Disabled/Disabled";
+import { Navbar, NavbarProps } from "@chomp/app/components/Navbar/Navbar";
+import { NoQuestionsCard } from "@chomp/app/components/NoQuestionsCard/NoQuestionsCard";
+import { TabNavigation } from "@chomp/app/components/TabNavigation/TabNavigation";
 import { useState } from "react";
 
 interface Props {

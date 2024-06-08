@@ -1,4 +1,4 @@
-import { HomeFeedDeckCard } from "@/app/components/HomeFeedDeckCard/HomeFeedDeckCard";
+import { HomeFeedDeckCard } from "@chomp/app/components/HomeFeedDeckCard/HomeFeedDeckCard";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
 import dayjs from "dayjs";

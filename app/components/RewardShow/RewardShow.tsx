@@ -1,7 +1,7 @@
 "use client";
-import { useConfetti } from "@/app/providers/ConfettiProvider";
-import { useToast } from "@/app/providers/ToastProvider";
-import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { useConfetti } from "@chomp/app/providers/ConfettiProvider";
+import { useToast } from "@chomp/app/providers/ToastProvider";
+import { numberToCurrencyFormatter } from "@chomp/app/utils/currency";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";

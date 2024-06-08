@@ -1,6 +1,6 @@
-import { Button } from "@/app/components/Button/Button";
-import { TagList } from "@/app/components/TagList/TagList";
-import { getTags } from "@/app/queries/tag";
+import { Button } from "@chomp/app/components/Button/Button";
+import { TagList } from "@chomp/app/components/TagList/TagList";
+import { getTags } from "@chomp/app/queries/tag";
 import Link from "next/link";
 
 export default async function Page() {
