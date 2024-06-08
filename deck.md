@@ -6,7 +6,7 @@ WITH inserted_deck AS (
   RETURNING id
 ), inserted_questions AS (
   -- Insert Questions and return their IDs
-  INSERT INTO "Question" ("question", "type", "revealToken", "revealTokenAmount", "revealAtDate", "durationMiliseconds")
+  INSERT INTO "Question" ("question", "type", "revealToken", "revealTokenAmount", "revealAtDate", "durationMilliseconds")
   VALUES 
     ('Is the sky blue?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),
     ('Do fish fly?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),

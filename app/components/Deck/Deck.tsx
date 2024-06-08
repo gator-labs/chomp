@@ -30,7 +30,7 @@ export type Option = {
 
 export type Question = {
   id: number;
-  durationMiliseconds: number;
+  durationMilliseconds: number;
   question: string;
   type: QuestionType;
   imageUrl?: string;
@@ -161,7 +161,7 @@ export function Deck({
           const response = newResponses.pop();
           if (response) {
             response.percentageGiven = number ?? 0;
-            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
+            response.timeToAnswerInMilliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
 
@@ -180,7 +180,7 @@ export function Deck({
             response.percentageGiven = optionPercentage;
             response.percentageGivenForAnswerId =
               question.questionOptions[random]?.id;
-            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
+            response.timeToAnswerInMilliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
 

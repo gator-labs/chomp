@@ -5,7 +5,7 @@ import { ONE_MINUTE_IN_MILISECONDS } from "../app/utils/dateUtils";
 
 const questionBase = {
   type: QuestionType.BinaryQuestion,
-  durationMiliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
+  durationMilliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
   questionOptions: [
     {
       id: 1,

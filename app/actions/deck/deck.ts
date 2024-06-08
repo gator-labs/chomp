@@ -46,7 +46,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
           revealTokenAmount: validatedFields.data.revealTokenAmount,
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
-          durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+          durationMilliseconds: ONE_MINUTE_IN_MILISECONDS,
           deckQuestions: {
             create: {
               deckId: deck.id,
@@ -132,7 +132,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealTokenAmount: validatedFields.data.revealTokenAmount,
             revealAtDate: validatedFields.data.revealAtDate,
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
-            durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+            durationMilliseconds: ONE_MINUTE_IN_MILISECONDS,
             deckQuestions: {
               create: {
                 deckId: deck.id,

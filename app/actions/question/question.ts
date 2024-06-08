@@ -30,7 +30,7 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
     tagIds: undefined,
     questionOptions: undefined,
     id: undefined,
-    durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+    durationMilliseconds: ONE_MINUTE_IN_MILISECONDS,
   };
 
   await prisma.question.create({
@@ -83,7 +83,7 @@ export async function editQuestion(data: z.infer<typeof questionSchema>) {
   const questionData = {
     ...validatedFields.data,
     tagIds: undefined,
-    durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+    durationMilliseconds: ONE_MINUTE_IN_MILISECONDS,
     questionOptions: undefined,
     id: undefined,
   };

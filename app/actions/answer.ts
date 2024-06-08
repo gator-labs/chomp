@@ -22,7 +22,7 @@ export type SaveQuestionRequest = {
   questionOptionId?: number;
   percentageGiven?: number;
   percentageGivenForAnswerId?: number;
-  timeToAnswerInMiliseconds?: number;
+  timeToAnswerInMilliseconds?: number;
 };
 
 export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
@@ -72,8 +72,8 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
           : 100 - (answerForQuestion?.percentageGiven ?? 0),
         questionOptionId: qo.id,
         selected: isOptionSelected,
-        timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
-          ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
+        timeToAnswer: answerForQuestion?.timeToAnswerInMilliseconds
+          ? BigInt(answerForQuestion?.timeToAnswerInMilliseconds)
           : null,
         userId,
       } as QuestionAnswer;
@@ -88,8 +88,8 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       selected: isOptionSelected,
       percentage: percentageForQuestionOption,
       questionOptionId: qo.id,
-      timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
-        ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
+      timeToAnswer: answerForQuestion?.timeToAnswerInMilliseconds
+        ? BigInt(answerForQuestion?.timeToAnswerInMilliseconds)
         : null,
       userId,
     } as QuestionAnswer;
@@ -180,8 +180,8 @@ export async function saveQuestion(request: SaveQuestionRequest) {
           : 100 - (request?.percentageGiven ?? 0),
         questionOptionId: qo.id,
         selected: isOptionSelected,
-        timeToAnswer: request?.timeToAnswerInMiliseconds
-          ? BigInt(request?.timeToAnswerInMiliseconds)
+        timeToAnswer: request?.timeToAnswerInMilliseconds
+          ? BigInt(request?.timeToAnswerInMilliseconds)
           : null,
         userId,
       } as QuestionAnswer;
@@ -196,8 +196,8 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       selected: isOptionSelected,
       percentage: percentageForQuestionOption,
       questionOptionId: qo.id,
-      timeToAnswer: request?.timeToAnswerInMiliseconds
-        ? BigInt(request?.timeToAnswerInMiliseconds)
+      timeToAnswer: request?.timeToAnswerInMilliseconds
+        ? BigInt(request?.timeToAnswerInMilliseconds)
         : null,
       userId,
     } as QuestionAnswer;

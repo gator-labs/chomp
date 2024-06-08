@@ -47,7 +47,7 @@ model Email {
 model Question {
   id                  Int              @id @default(autoincrement())
   question            String
-  durationMiliseconds BigInt?
+  durationMilliseconds BigInt?
   type                QuestionType
   revealToken         Token            @default(Bonk)
   revealTokenAmount   Int              @default(0)

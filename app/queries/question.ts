@@ -61,7 +61,7 @@ const mapToViewModelQuestion = (
   },
 ) => ({
   id: question.id,
-  durationMiliseconds: Number(question.durationMiliseconds) ?? 0,
+  durationMilliseconds: Number(question.durationMilliseconds) ?? 0,
   question: question.question,
   questionOptions: question.questionOptions.map((qo) => ({
     id: qo.id,

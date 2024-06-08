@@ -144,7 +144,7 @@ const mapQuestionFromDeck = (
 ) => {
   const questions = deck?.deckQuestions.map((dq) => ({
     id: dq.questionId,
-    durationMiliseconds: Number(dq.question.durationMiliseconds),
+    durationMilliseconds: Number(dq.question.durationMilliseconds),
     question: dq.question.question,
     type: dq.question.type,
     imageUrl: dq.question.imageUrl ?? undefined,

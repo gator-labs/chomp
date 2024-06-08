@@ -26,7 +26,7 @@ type Option = {
 
 type Question = {
   id: number;
-  durationMiliseconds: number;
+  durationMilliseconds: number;
   question: string;
   type: QuestionType;
   imageUrl?: string;
@@ -113,7 +113,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
         handleSaveQuestion({
           ...answerState,
           percentageGiven: number ?? 0,
-          timeToAnswerInMiliseconds: getTimePassedSinceStart(),
+          timeToAnswerInMilliseconds: getTimePassedSinceStart(),
         });
       }
 
@@ -125,7 +125,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           ...answerState,
           percentageGiven: optionPercentage,
           percentageGivenForAnswerId: question.questionOptions[random]?.id,
-          timeToAnswerInMiliseconds: getTimePassedSinceStart(),
+          timeToAnswerInMilliseconds: getTimePassedSinceStart(),
         });
       }
     },
@@ -147,7 +147,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
         <AnswerHeader questionTags={question.questionTags} />
 
         <QuestionCard
-          dueAt={getDueAt(question.durationMiliseconds)}
+          dueAt={getDueAt(question.durationMilliseconds)}
           question={question.question}
           type={question.type}
           viewImageSrc={question.imageUrl}

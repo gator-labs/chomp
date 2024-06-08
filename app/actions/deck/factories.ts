@@ -31,7 +31,7 @@ export const deckInputFactory = (
         ({
           question: question.question,
           type: question.type,
-          durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+          durationMilliseconds: ONE_MINUTE_IN_MILISECONDS,
           imageUrl: question.imageUrl,
           revealTokenAmount: question.revealTokenAmount,
           revealAtAnswerCount: deckInfo.revealAtAnswerCount,

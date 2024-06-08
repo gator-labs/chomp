@@ -5,7 +5,7 @@ import { ONE_MINUTE_IN_MILISECONDS } from "../app/utils/dateUtils";
 
 const questionBase = {
   id: 1,
-  durationMiliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
+  durationMilliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
   questionTags: [
     { id: 1, tag: "Defi" },
     { id: 2, tag: "Not defi" },
