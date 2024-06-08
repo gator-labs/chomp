@@ -15,11 +15,11 @@ const AnimatedTimer = ({
     if (circleRef.current) {
       const totalLength = circleRef.current.getTotalLength();
       circleRef.current.style.strokeDasharray = totalLength.toString();
-      circleRef.current.style.strokeDashoffset = "0";
+      circleRef.current.style.strokeDashoffset = (-totalLength).toString();
 
       anime({
         targets: circleRef.current,
-        strokeDashoffset: [0, totalLength],
+        strokeDashoffset: [totalLength, 0],
         duration: duration + 1000,
         easing: "easeInOutCubic",
         complete: () => {
