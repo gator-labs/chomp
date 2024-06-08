@@ -57,9 +57,12 @@ export function RadioInput({
               </p>
             </div>
             <div className="text-sm font-sora font-light text-white h-full px-4 border-[#666666] border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden">
-              {randomOptionId === o.id && (
+              {value === o.value && (
                 <div
-                  className="absolute bg-purple h-full left-0 -z-10"
+                  className={classNames("absolute h-full left-0 -z-10", {
+                    "bg-purple": o.value === value,
+                    "bg-[#4D4D4D]": o.value !== value,
+                  })}
                   style={{ width: `${randomOptionPercentage}%` }}
                 />
               )}
