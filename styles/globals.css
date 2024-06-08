@@ -70,14 +70,3 @@
 .bulleted-list li {
   margin-bottom: 5px;
 }
-
-.flyout-content {
-    width: 338px;
-    height: 100%;
-    transform: translateX(100%);
-    transition: transform 0.5s ease-in-out;
-}
-
-.flyout-content.open {
-    transform: translateX(0);
-}
