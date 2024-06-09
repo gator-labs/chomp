@@ -268,6 +268,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           rewardAmount={
             questionResponse.chompResults[0]?.rewardTokenAmount ?? 0
           }
+          questionIds={[questionResponse.id]}
         />
       )}
       {questionContent}

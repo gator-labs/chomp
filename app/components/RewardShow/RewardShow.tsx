@@ -1,4 +1,5 @@
 "use client";
+import { claimQuestions } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
@@ -10,11 +11,18 @@ import Pill from "../Pill/Pill";
 
 interface RewardShowProps {
   rewardAmount: number;
+  questionIds: number[];
 }
 
-const RewardShow = ({ rewardAmount }: RewardShowProps) => {
+const RewardShow = ({ rewardAmount, questionIds }: RewardShowProps) => {
   const { fire } = useConfetti();
-  const { infoToast } = useToast();
+  const { successToast } = useToast();
+
+  const onClaim = async () => {
+    await claimQuestions(questionIds);
+    fire();
+    successToast("Claimed!", "You have successfully claimed!");
+  };
 
   if (rewardAmount > 0) {
     return (
@@ -28,16 +36,7 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
             <p className="text-[13px] font-normal leading-[17.55px] text-left">
               Claim reward:
             </p>
-            <Pill
-              onClick={() => {
-                fire();
-                infoToast(
-                  `Reward Claimed! (${numberToCurrencyFormatter.format(Math.floor(rewardAmount))} BONK)`,
-                );
-              }}
-              variant="white"
-              className="cursor-pointer"
-            >
+            <Pill onClick={onClaim} variant="white" className="cursor-pointer">
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
                 BONK
