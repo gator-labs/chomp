@@ -45,7 +45,11 @@ const ConnectWithOtpView: FC = () => {
     console.log("burning");
     const blockhash = await CONNECTION.getLatestBlockhash();
     const signer = await primaryWallet!.connector.getSigner<ISolana>();
-    const tx = await genBonkBurnTx(primaryWallet!.address, blockhash.blockhash);
+    const tx = await genBonkBurnTx(
+      primaryWallet!.address,
+      blockhash.blockhash,
+      5000,
+    );
     const signature = await (
       primaryWallet!.connector as any
     ).signAndSendTransaction(tx);
