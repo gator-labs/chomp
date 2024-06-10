@@ -27,6 +27,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    status: "claimable",
     questionIds: [1],
     rewardAmount: 10000,
   },

@@ -265,6 +265,11 @@ const RevealAnswerPage = async ({ params }: Props) => {
       </div>
       {!!answerSelected && (
         <RewardShow
+          status={
+            questionResponse.chompResults[0]?.result === ResultType.Revealed
+              ? "claimable"
+              : "claimed"
+          }
           rewardAmount={
             questionResponse.chompResults[0]?.rewardTokenAmount ?? 0
           }
