@@ -7,6 +7,15 @@ import {
 } from "@prisma/client";
 import dayjs from "dayjs";
 
+export const BINARY_QUESTION_TRUE_LABELS = ["Yes", "YES", "True", "TRUE"];
+
+export const BINARY_QUESTION_FALSE_LABELS = ["No", "NO", "False", "FALSE"];
+
+export const BINARY_QUESTION_OPTION_LABELS = [
+  ...BINARY_QUESTION_TRUE_LABELS,
+  ...BINARY_QUESTION_FALSE_LABELS,
+];
+
 export type DeckQuestionIncludes = Question & {
   answerCount?: number;
   questionOptions: {

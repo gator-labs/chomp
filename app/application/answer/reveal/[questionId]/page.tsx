@@ -15,7 +15,12 @@ import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
 import { getProfileImage } from "@/app/queries/profile";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
-import { getAlphaIdentifier, isEntityRevealable } from "@/app/utils/question";
+import {
+  BINARY_QUESTION_OPTION_LABELS,
+  BINARY_QUESTION_TRUE_LABELS,
+  getAlphaIdentifier,
+  isEntityRevealable,
+} from "@/app/utils/question";
 import { QuestionType, ResultType } from "@prisma/client";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -43,7 +48,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
     answerCount: questionResponse.questionOptions[0].questionAnswers.length,
   });
 
-  if (!isQuestionRevealable) redirect("/application");
+  if (!isQuestionRevealable || !questionResponse.correctAnswer) {
+    redirect("/application");
+  }
 
   const isBinary = questionResponse.type === QuestionType.BinaryQuestion;
   const answerSelected = questionResponse.userAnswers.find((ua) => ua.selected);
@@ -99,6 +106,22 @@ const RevealAnswerPage = async ({ params }: Props) => {
   let answerContent = <></>;
 
   if (!!answerSelected && isBinary) {
+    let bestAnswerIcon = <></>;
+
+    if (
+      BINARY_QUESTION_OPTION_LABELS.includes(
+        answerSelected.questionOption?.option,
+      )
+    ) {
+      bestAnswerIcon = BINARY_QUESTION_TRUE_LABELS.includes(
+        questionResponse.correctAnswer?.option ?? "",
+      ) ? (
+        <LikeIcon />
+      ) : (
+        <UnlikeIcon />
+      );
+    }
+
     answerContent = (
       <>
         <div>
@@ -108,13 +131,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           />
         </div>
         <BestAnswerBinary
-          icon={
-            questionResponse.correctAnswer?.isLeft ? (
-              <LikeIcon />
-            ) : (
-              <UnlikeIcon />
-            )
-          }
+          icon={bestAnswerIcon}
           bestOption={questionResponse.correctAnswer?.option ?? ""}
           optionSelected={answerSelected.questionOption?.option ?? ""}
         />

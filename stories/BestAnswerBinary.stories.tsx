@@ -39,3 +39,10 @@ export const Incorrect: Story = {
     icon: <UnlikeIcon />,
   },
 };
+
+export const NonIcon: Story = {
+  args: {
+    optionSelected: "White",
+    bestOption: "White",
+  },
+};
