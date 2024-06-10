@@ -4,7 +4,7 @@ import { BestAnswer } from "../BestAnswer/BestAnswer";
 type BestAnswerBinaryProps = {
   optionSelected?: string;
   bestOption: string;
-  icon: ReactNode;
+  icon?: ReactNode;
 };
 
 export default function BestAnswerBinary({

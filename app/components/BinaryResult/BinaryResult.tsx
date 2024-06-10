@@ -8,7 +8,7 @@ export default function BinaryResult({
   percentage,
 }: BinaryResultProps) {
   return (
-    <div className="border-[#666666] border-[1px] rounded-lg flex items-center w-full justify-between px-4 relative overflow-hidden">
+    <div className="border-[#666666] border-[1px] rounded-lg flex items-center w-full justify-between px-4 relative overflow-hidden min-h-10">
       <div className="text-white text-sm font-bold z-10 flex items-center gap-1">
         <div>{percentage}% answered </div>
         <div className="text-black bg-white py-1 px-2 rounded-full">

@@ -31,3 +31,14 @@ export const Binary: Story = {
     isCorrect: true,
   },
 };
+
+export const RandomLabels: Story = {
+  args: {
+    optionSelected: "Blue",
+    percentageSelected: 73,
+    avatarSrc: AvatarSample.src,
+    leftOption: { option: "Blue", percentage: 73 },
+    rightOption: { option: "White", percentage: 27 },
+    isCorrect: true,
+  },
+};
