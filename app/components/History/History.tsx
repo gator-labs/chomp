@@ -3,10 +3,12 @@ import { revealQuestions } from "@/app/actions/chompResult";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { HistoryResult, HistorySortOptions } from "@/app/queries/history";
+import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { Button } from "../Button/Button";
 
 const HistoryFeed = dynamic(
   () => import("@/app/components/HistoryFeed/HistoryFeed"),
@@ -46,10 +48,6 @@ export default function History({ sort }: HistoryProps) {
     );
     const json = await data.json();
     setResponse(json.history);
-    setRewards({
-      totalRevealedRewards: json.totalRevealedRewards,
-      potentialRewards: json.potentialRewards,
-    });
 
     if (scrollId) {
       setScrollToId(scrollId);
@@ -72,46 +70,45 @@ export default function History({ sort }: HistoryProps) {
     getData(currentSort, revealedId);
   };
 
-  const revealAll = useCallback(
-    async (burnTx?: string, nftAddress?: string) => {
-      const questionIds = response
-        .filter(
-          (qs) => qs.isRevealable && !qs.isRevealed && qs.type === "Question",
-        )
-        .map((qs) => qs?.id)
-        .filter((id) => typeof id === "number")
-        .map((id) => id as number);
+  // TODO: Decide what to do with reveal all
+  // const revealAll = useCallback(
+  //   async (burnTx?: string, nftAddress?: string) => {
+  //     const questionIds = response
+  //       .filter(
+  //         (qs) => qs.isRevealable && !qs.isRevealed && qs.type === "Question",
+  //       )
+  //       .map((qs) => qs?.id)
+  //       .filter((id) => typeof id === "number")
+  //       .map((id) => id as number);
 
-      await revealQuestions(questionIds, burnTx, nftAddress);
-      const newParams = getAppendedNewSearchParams({
-        openIds: encodeURIComponent(JSON.stringify(questionIds)),
-      });
-      router.push(`${pathname}${newParams}`);
-      onRefreshCards(questionIds[0]);
-      closeRevealModal();
-    },
-    [response],
-  );
+  //     await revealQuestions(questionIds, burnTx, nftAddress);
+  //     const newParams = getAppendedNewSearchParams({
+  //       openIds: encodeURIComponent(JSON.stringify(questionIds)),
+  //     });
+  //     router.push(`${pathname}${newParams}`);
+  //     onRefreshCards(questionIds[0]);
+  //     closeRevealModal();
+  //   },
+  //   [response],
+  // );
 
-  const handleOpenRevealModal = useCallback(
-    () =>
-      openRevealModal(
-        revealAll,
-        response
-          .filter(
-            (q) => q.isRevealable && !q.isRevealed && q.type === "Question",
-          )
-          .reduce((acc, cur) => acc + (cur?.revealTokenAmount ?? 0), 0),
-        !!"multiple",
-      ),
-    [response],
-  );
+  // const handleOpenRevealModal = useCallback(
+  //   () =>
+  //     openRevealModal(
+  //       revealAll,
+  //       response
+  //         .filter(
+  //           (q) => q.isRevealable && !q.isRevealed && q.type === "Question",
+  //         )
+  //         .reduce((acc, cur) => acc + (cur?.revealTokenAmount ?? 0), 0),
+  //       !!"multiple",
+  //     ),
+  //   [response],
+  // );
 
   return (
     <>
-      {/*
-      uncomment these out when bonk rewards are integrated
-       <div className="flex justify-between px-4 my-4">
+      <div className="flex justify-between px-4 my-4">
         <div className="flex flex-col justify-between">
           <div className="text-sm text-white font-sora">
             Total Revealed Rewards
@@ -125,6 +122,8 @@ export default function History({ sort }: HistoryProps) {
           Claim all
         </Button>
       </div>
+      {/*
+        TODO: Decide what to do with reveal all
       <div className="flex justify-between px-4 mb-4">
         <div className="flex flex-col justify-between">
           <div className="text-sm text-white font-sora">Potential Rewards</div>
