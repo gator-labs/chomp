@@ -48,7 +48,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
     answerCount: questionResponse.questionOptions[0].questionAnswers.length,
   });
 
-  if (!isQuestionRevealable) redirect("/application");
+  if (!isQuestionRevealable || !questionResponse.correctAnswer) {
+    redirect("/application");
+  }
 
   const isBinary = questionResponse.type === QuestionType.BinaryQuestion;
   const answerSelected = questionResponse.userAnswers.find((ua) => ua.selected);
