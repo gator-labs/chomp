@@ -1,11 +1,10 @@
 "use client";
 
 import {
-  useConnectWithEmailOtp,
+  useConnectWithOtp,
   useDynamicContext,
   useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from "@dynamic-labs/solana";
 import { Connection } from "@solana/web3.js";
 
 import { FC, FormEventHandler } from "react";
@@ -21,7 +20,7 @@ const ConnectWithOtpView: FC = () => {
   console.log(userWallets);
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
 
-  const { verifyOneTimePassword, connectWithEmail } = useConnectWithEmailOtp();
+  const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
 
   const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (
     event,
@@ -44,11 +43,11 @@ const ConnectWithOtpView: FC = () => {
   const onBurn = async () => {
     console.log("burning");
     const blockhash = await CONNECTION.getLatestBlockhash();
-    const signer = await primaryWallet!.connector.getSigner<ISolana>();
+    // const signer = await primaryWallet!.connector.getSigner<ISolana>();
     const tx = await genBonkBurnTx(
       primaryWallet!.address,
       blockhash.blockhash,
-      5000,
+      1,
     );
     const signature = await (
       primaryWallet!.connector as any
