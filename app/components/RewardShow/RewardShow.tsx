@@ -3,6 +3,7 @@ import { claimQuestions } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { useState } from "react";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
@@ -18,11 +19,16 @@ interface RewardShowProps {
 const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
   const { fire } = useConfetti();
   const { successToast } = useToast();
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const onClaim = async () => {
+    if (isClaiming) return;
+
+    setIsClaiming(true);
     await claimQuestions(questionIds);
     fire();
     successToast("Claimed!", "You have successfully claimed!");
+    setIsClaiming(false);
   };
 
   if (rewardAmount > 0) {
