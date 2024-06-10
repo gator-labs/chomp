@@ -3,17 +3,8 @@ import CarIcon from "@/app/components/Icons/CarIcon";
 import WelcomeIcon from "@/app/components/Icons/WelcomeIcon";
 import ChompIcon from "../../components/Icons/ChompIcon";
 import CommunicationIcon from "../../components/Icons/CommunicationIcon";
-import RainingChompIcon from "../../components/Icons/RainingChompIcon";
 
 export const SLIDESHOW = [
-  {
-    icon: <RainingChompIcon />,
-    title: "Is it raining?",
-    description: [
-      "Because Chompy is drenched in droplets! If you have landed in Chomp from DRiP, welcome, waddle around and explore!",
-      "If you didn't, head over to DRiP to participate in Chomp's beta launch campaign, and be in to win collectible and prizes!",
-    ],
-  },
   {
     icon: <BetaIcon />,
     title: "Welcome to Chomp's Beta!",
