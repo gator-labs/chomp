@@ -4,6 +4,7 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
+import { useState } from "react";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
@@ -26,11 +27,16 @@ const ClaimButton = ({
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { successToast } = useToast();
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const onClick = async () => {
+    if (isClaiming) return;
+
+    setIsClaiming(true);
     await claimQuestions(questionIds);
     fire();
     successToast("Claimed!", "You have successfully claimed!");
+    setIsClaiming(false);
   };
 
   if (!didAnswer) {
@@ -86,7 +92,7 @@ const ClaimButton = ({
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
             You have claimed:
           </p>
-          <Pill onClick={onClick} variant="white" className="cursor-pointer">
+          <Pill variant="white" className="cursor-pointer">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
               {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
               BONK
