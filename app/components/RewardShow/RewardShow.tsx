@@ -1,4 +1,5 @@
 "use client";
+import { claimQuestions } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
@@ -10,14 +11,21 @@ import Pill from "../Pill/Pill";
 
 interface RewardShowProps {
   rewardAmount: number;
+  questionIds: number[];
 }
 
-const RewardShow = ({ rewardAmount }: RewardShowProps) => {
+const RewardShow = ({ rewardAmount, questionIds }: RewardShowProps) => {
   const { fire } = useConfetti();
-  const { infoToast } = useToast();
+  const { successToast } = useToast();
 
-  return rewardAmount > 0 ? (
-    <>
+  const onClaim = async () => {
+    await claimQuestions(questionIds);
+    fire();
+    successToast("Claimed!", "You have successfully claimed!");
+  };
+
+  if (rewardAmount > 0) {
+    return (
       <div className="flex bg-[#333333] p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold leading-[27px] text-left">
@@ -28,16 +36,7 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
             <p className="text-[13px] font-normal leading-[17.55px] text-left">
               Claim reward:
             </p>
-            <Pill
-              onClick={() => {
-                fire();
-                infoToast(
-                  `Reward Claimed! (${numberToCurrencyFormatter.format(Math.floor(rewardAmount))} BONK)`,
-                );
-              }}
-              variant="white"
-              className="cursor-pointer"
-            >
+            <Pill onClick={onClaim} variant="white" className="cursor-pointer">
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
                 BONK
@@ -48,8 +47,10 @@ const RewardShow = ({ rewardAmount }: RewardShowProps) => {
         </div>
         <Trophy width={70} height={85} />
       </div>
-    </>
-  ) : (
+    );
+  }
+
+  return (
     <div className="p-4 flex bg-[#333333] rounded-md justify-between">
       <div className="flex flex-col gap-4 w-max justify-between">
         <span className="text-xl font-bold leading-[27px] text-left">

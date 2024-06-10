@@ -44,6 +44,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       {!!question.userAnswer && (
         <RewardShow
           rewardAmount={question.chompResults[0]?.rewardTokenAmount ?? 0}
+          questionIds={[question.id]}
         />
       )}
       <AnsweredQuestionShow question={question} />
