@@ -19,6 +19,10 @@ export enum HistorySortOptions {
   Claimable = "Claimable",
 }
 
+type TotalRevealedRewardsQueryResult = {
+  totalRevealedRewards: number;
+};
+
 export async function getHistory(
   sort: HistorySortOptions = HistorySortOptions.Date,
 ) {
@@ -211,4 +215,22 @@ order by ${getSort()}
 `);
 
   return response;
+}
+
+export async function getTotalRevealedRewards(): Promise<number> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+  const userId = payload.sub;
+
+  const response: TotalRevealedRewardsQueryResult[] = await prisma.$queryRaw`
+	select 
+	coalesce(sum(cr."rewardTokenAmount"), 0) as "totalRevealedRewards"
+	from public."ChompResult" cr
+	where cr."userId" = ${userId} and cr."result" = 'Revealed'
+	`;
+
+  return response[0].totalRevealedRewards;
 }

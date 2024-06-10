@@ -1,6 +1,5 @@
 "use client";
 import { dasUmi } from "@/lib/web3";
-import { DotLottiePlayer } from "@dotlottie/react-player";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { publicKey } from "@metaplex-foundation/umi";
@@ -16,6 +15,7 @@ import {
 } from "react";
 import { getUsedGenesisNfts } from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
+import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { InfoIcon } from "../components/Icons/InfoIcon";
 import { Modal } from "../components/Modal/Modal";
 import Sheet from "../components/Sheet/Sheet";
@@ -358,21 +358,10 @@ export function RevealContextProvider({
 
   return (
     <RevealedContext.Provider value={value}>
-      {burnState === "burning" && (
-        <div className="absolute top-0 left-0 w-screen h-screen z-[99] bg-black bg-opacity-90">
-          <div className="flex flex-col absolute top-1/3 left-1/2 -translate-x-1/2 gap-2">
-            <div className="rounded-full overflow-hidden flex justify-center items-center w-fit ">
-              <DotLottiePlayer
-                className="w-32 h-32"
-                loop
-                autoplay
-                src="/lottie/chomp.lottie"
-              />
-            </div>
-            <p>Burning bonk...</p>
-          </div>
-        </div>
-      )}
+      <ChompFullScreenLoader
+        isLoading={burnState === "burning"}
+        loadingMessage="Burning bonk..."
+      />
       <Sheet
         disableClose={burnState === "burning"}
         isOpen={isRevealModalOpen}

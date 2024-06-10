@@ -10,7 +10,7 @@ export type HistoryFeedProps = {
   elementToScrollToId: number;
 };
 
-const SIZE_OF_ELEMENTS_ON_PROFILE = 380;
+const SIZE_OF_ELEMENTS_ON_PROFILE = 448;
 
 function HistoryFeed({ list, elementToScrollToId }: HistoryFeedProps) {
   const { height } = useWindowSize();

@@ -2,6 +2,7 @@
 import { ReactNode, createContext, useContext } from "react";
 import toast, { ToastOptions, Toaster } from "react-hot-toast";
 import AnimatedTimer from "../components/AnimatedTimer/AnimatedTimer";
+import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { ErrorIcon } from "../components/Icons/ToastIcons/ErrorIcon";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
@@ -31,6 +32,7 @@ type ToastContextType = {
       success: string;
       error: string;
       description?: string;
+      isChompLoader?: boolean;
     },
     options?: ToastOptions,
   ) => Promise<T>;
@@ -71,31 +73,12 @@ const successToastLayout = (
   description?: string,
 ) => (
   <div style={{ ...toastOptions.style }}>
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <div className="flex items-center gap-2">
       <SuccessIcon height={26} width={26} />
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <h4
-          style={{
-            fontSize: "13px",
-            fontWeight: "bold",
-            lineHeight: "16.38px",
-            textAlign: "left",
-          }}
-        >
-          {message}
-        </h4>
+      <div className="flex flex-col">
+        <h4 className="text-sm font-bold text-left">{message}</h4>
         {description && (
-          <p
-            style={{
-              fontSize: "10px",
-              fontWeight: "normal",
-              lineHeight: "12.6px",
-              textAlign: "left",
-              color: "#999999",
-            }}
-          >
-            {description}
-          </p>
+          <p className="text-xs text-left text-[#999]">{description}</p>
         )}
       </div>
     </div>
@@ -105,31 +88,12 @@ const successToastLayout = (
 
 const infoToastLayout = (message: string, id: string, description?: string) => (
   <div style={{ ...toastOptions.style }}>
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <div className="flex items-center gap-2">
       <InfoIcon height={26} width={26} />
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <h4
-          style={{
-            fontSize: "13px",
-            fontWeight: "bold",
-            lineHeight: "16.38px",
-            textAlign: "left",
-          }}
-        >
-          {message}
-        </h4>
+      <div className="flex flex-col">
+        <h4 className="text-sm font-bold text-left">{message}</h4>
         {description && (
-          <p
-            style={{
-              fontSize: "10px",
-              fontWeight: "normal",
-              lineHeight: "12.6px",
-              textAlign: "left",
-              color: "#999999",
-            }}
-          >
-            {description}
-          </p>
+          <p className="text-xs text-left text-[#999]">{description}</p>
         )}
       </div>
     </div>
@@ -143,31 +107,12 @@ const errorToastLayout = (
   description?: string,
 ) => (
   <div style={{ ...toastOptions.style }}>
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <div className="flex items-center gap-2">
       <ErrorIcon height={26} width={26} />
-      <div style={{ display: "flex", flexDirection: "column" }}>
-        <h4
-          style={{
-            fontSize: "13px",
-            fontWeight: "bold",
-            lineHeight: "16.38px",
-            textAlign: "left",
-          }}
-        >
-          {message}
-        </h4>
+      <div className="flex flex-col">
+        <h4 className="text-sm font-bold text-left">{message}</h4>
         {description && (
-          <p
-            style={{
-              fontSize: "10px",
-              fontWeight: "normal",
-              lineHeight: "12.6px",
-              textAlign: "left",
-              color: "#999999",
-            }}
-          >
-            {description}
-          </p>
+          <p className="text-xs text-left text-[#999]">{description}</p>
         )}
       </div>
     </div>
@@ -177,17 +122,8 @@ const errorToastLayout = (
 
 const defaultToastLayout = (message: string, id: string) => (
   <div style={{ ...toastOptions.style }}>
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <h4
-        style={{
-          fontSize: "10px",
-          fontWeight: "400",
-          lineHeight: "12.6px",
-          textAlign: "left",
-        }}
-      >
-        {message}
-      </h4>
+    <div className="flex flex-col">
+      <h4 className="text-sm font-bold text-left">{message}</h4>
     </div>
     <AnimatedTimer id={id} />
   </div>
@@ -241,6 +177,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       success: string;
       error: string;
       description?: string;
+      isChompLoader?: boolean;
     },
     options?: ToastOptions,
   ) => {
@@ -248,80 +185,27 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       promise,
       {
         loading: (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "flex-start",
-              alignItems: "flex-start",
-              width: "100%",
-            }}
-          >
-            <h4
-              style={{
-                fontSize: "13px",
-                fontWeight: "bold",
-                lineHeight: "16.38px",
-                textAlign: "left",
-              }}
-            >
-              {msgs.loading}
-            </h4>
-            {msgs.description && (
-              <p
-                style={{
-                  fontSize: "10px",
-                  fontWeight: "normal",
-                  lineHeight: "12.6px",
-                  textAlign: "left",
-                  color: "#999999",
-                }}
-              >
-                {msgs.description}
-              </p>
-            )}
-          </div>
+          <>
+            <ChompFullScreenLoader
+              isLoading={msgs.isChompLoader ?? false}
+              loadingMessage="Transferring funds..."
+            />
+            <div className="flex flex-col justify-start items-start start w-full">
+              <h4 className="text-sm font-bold text-left">{msgs.loading}</h4>
+              {msgs.description && (
+                <p className="text-xs font-normal text-left text-[#999]">
+                  {msgs.description}
+                </p>
+              )}
+            </div>
+          </>
         ),
         success: (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyItems: "space-between",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                width: "100%",
-              }}
-            >
-              <h4
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "bold",
-                  lineHeight: "16.38px",
-                  textAlign: "left",
-                }}
-              >
-                {msgs.success}
-              </h4>
+          <div className="flex flex-row justify-between text-center w-full">
+            <div className="flex flex-col justify-start items-start w-full">
+              <h4 className="text-sm font-bold text-left">{msgs.success}</h4>
               {msgs.description && (
-                <p
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "normal",
-                    lineHeight: "12.6px",
-                    textAlign: "left",
-                    color: "#999999",
-                  }}
-                >
+                <p className="text-xs font-normal text-left text-[#999]">
                   {msgs.description}
                 </p>
               )}
@@ -330,45 +214,11 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
           </div>
         ),
         error: (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyItems: "space-between",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                width: "100%",
-              }}
-            >
-              <h4
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "bold",
-                  lineHeight: "16.38px",
-                  textAlign: "left",
-                }}
-              >
-                {msgs.error}
-              </h4>
+          <div className="flex flex-row justify-between text-center w-full">
+            <div className="flex flex-column justify-start items-start w-full">
+              <h4 className="text-base font-bold text-left">{msgs.error}</h4>
               {msgs.description && (
-                <p
-                  style={{
-                    fontSize: "10px",
-                    fontWeight: "normal",
-                    lineHeight: "12.6px",
-                    textAlign: "left",
-                    color: "#999999",
-                  }}
-                >
+                <p className="text-xs font-normal text-left text-[#999]">
                   {msgs.error}
                 </p>
               )}
