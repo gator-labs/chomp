@@ -167,7 +167,7 @@ export function RevealContextProvider({
   );
 
   const revealButtons = useMemo(() => {
-    if (insufficientFunds) {
+    if (insufficientFunds && !genesisNft) {
       return (
         <>
           <a
@@ -259,7 +259,7 @@ export function RevealContextProvider({
                   : setIsRevealModalOpen(false)
               }
             >
-              {genesisNft && !reveal?.multiple
+              {genesisNft && !reveal?.multiple && !insufficientFunds
                 ? `Reveal for ${numberToCurrencyFormatter.format(reveal?.amount ?? 0)}
               BONK`
                 : "Cancel"}
