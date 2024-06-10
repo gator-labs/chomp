@@ -12,9 +12,10 @@ import Pill from "../Pill/Pill";
 interface RewardShowProps {
   rewardAmount: number;
   questionIds: number[];
+  status: "claimable" | "claimed";
 }
 
-const RewardShow = ({ rewardAmount, questionIds }: RewardShowProps) => {
+const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
   const { fire } = useConfetti();
   const { successToast } = useToast();
 
@@ -36,7 +37,11 @@ const RewardShow = ({ rewardAmount, questionIds }: RewardShowProps) => {
             <p className="text-[13px] font-normal leading-[17.55px] text-left">
               Claim reward:
             </p>
-            <Pill onClick={onClaim} variant="white" className="cursor-pointer">
+            <Pill
+              onClick={async () => status === "claimable" && onClaim()}
+              variant="white"
+              className="cursor-pointer"
+            >
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
                 BONK
