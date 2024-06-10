@@ -19,11 +19,6 @@ export default async function Page({ params: { id } }: PageProps) {
 
   const questions = await getDeckQuestionsForAnswerById(+id);
 
-  console.log({
-    condition:
-      !questions || dayjs(questions[0]?.deckRevealAtDate).isBefore(new Date()),
-  });
-
   if (
     !questions ||
     dayjs(questions[0]?.deckRevealAtDate).isBefore(new Date())
@@ -32,7 +27,7 @@ export default async function Page({ params: { id } }: PageProps) {
   }
 
   return (
-    <div className="max-h-[calc(100%-48px)] py-2">
+    <div className="h-full py-2">
       {questions && (
         <Deck questions={questions} deckId={+id} deckVariant="regular-deck" />
       )}

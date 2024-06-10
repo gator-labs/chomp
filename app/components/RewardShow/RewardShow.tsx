@@ -3,6 +3,7 @@ import { claimQuestions } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { useState } from "react";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
@@ -12,16 +13,22 @@ import Pill from "../Pill/Pill";
 interface RewardShowProps {
   rewardAmount: number;
   questionIds: number[];
+  status: "claimable" | "claimed";
 }
 
-const RewardShow = ({ rewardAmount, questionIds }: RewardShowProps) => {
+const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
   const { fire } = useConfetti();
   const { successToast } = useToast();
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const onClaim = async () => {
+    if (isClaiming) return;
+
+    setIsClaiming(true);
     await claimQuestions(questionIds);
     fire();
     successToast("Claimed!", "You have successfully claimed!");
+    setIsClaiming(false);
   };
 
   if (rewardAmount > 0) {
@@ -36,7 +43,11 @@ const RewardShow = ({ rewardAmount, questionIds }: RewardShowProps) => {
             <p className="text-[13px] font-normal leading-[17.55px] text-left">
               Claim reward:
             </p>
-            <Pill onClick={onClaim} variant="white" className="cursor-pointer">
+            <Pill
+              onClick={async () => status === "claimable" && onClaim()}
+              variant="white"
+              className="cursor-pointer"
+            >
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
                 BONK

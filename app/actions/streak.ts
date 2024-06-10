@@ -24,7 +24,9 @@ export async function updateStreak(userId: string): Promise<Streak> {
     dayjs(streakDb.lastDayOfStreak).isSame(dayjs().subtract(1, "day"), "date")
   ) {
     return prisma.streak.update({
-      data: {},
+      data: {
+        lastDayOfStreak: new Date(),
+      },
       where: { id: streakDb.id },
     });
   }

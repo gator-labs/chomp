@@ -4,6 +4,7 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
+import { useState } from "react";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
@@ -26,11 +27,16 @@ const ClaimButton = ({
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { successToast } = useToast();
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const onClick = async () => {
+    if (isClaiming) return;
+
+    setIsClaiming(true);
     await claimQuestions(questionIds);
     fire();
     successToast("Claimed!", "You have successfully claimed!");
+    setIsClaiming(false);
   };
 
   if (!didAnswer) {
@@ -47,7 +53,9 @@ const ClaimButton = ({
         </Button>
       </div>
     );
-  } else if (status === "claimable" && rewardAmount !== 0) {
+  }
+
+  if (status === "claimable" && rewardAmount !== 0) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
@@ -75,14 +83,16 @@ const ClaimButton = ({
         </Button>
       </div>
     );
-  } else if (status === "claimed" && rewardAmount !== 0) {
+  }
+
+  if (status === "claimed" && rewardAmount !== 0) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
             You have claimed:
           </p>
-          <Pill onClick={onClick} variant="white" className="cursor-pointer">
+          <Pill variant="white" className="cursor-pointer">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
               {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
               BONK
@@ -102,33 +112,33 @@ const ClaimButton = ({
         </Button>
       </div>
     );
-  } else {
-    return (
-      <div className="flex flex-col gap-4 items-center justify-center">
-        <div className="flex items-center justify-center gap-1">
-          <p className="text-[13px] font-normal leading-[17.55px] text-left">
-            Your claimable reward:
-          </p>
-          <Pill onClick={onClick} variant="white" className="cursor-pointer">
-            <span className="text-[10px] font-bold leading-[12.6px] text-left">
-              0 BONK
-            </span>
-          </Pill>
-          <RewardInfoBox />
-        </div>
-        <Button
-          disabled
-          className={classNames(
-            "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
-            className,
-          )}
-        >
-          <span className="text-[#666666]">Unclaimable</span>
-          <DollarIcon height={24} width={24} fill="#666666" />
-        </Button>
-      </div>
-    );
   }
+
+  return (
+    <div className="flex flex-col gap-4 items-center justify-center">
+      <div className="flex items-center justify-center gap-1">
+        <p className="text-[13px] font-normal leading-[17.55px] text-left">
+          Your claimable reward:
+        </p>
+        <Pill onClick={onClick} variant="white" className="cursor-pointer">
+          <span className="text-[10px] font-bold leading-[12.6px] text-left">
+            0 BONK
+          </span>
+        </Pill>
+        <RewardInfoBox />
+      </div>
+      <Button
+        disabled
+        className={classNames(
+          "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+          className,
+        )}
+      >
+        <span className="text-[#666666]">Unclaimable</span>
+        <DollarIcon height={24} width={24} fill="#666666" />
+      </Button>
+    </div>
+  );
 };
 
 export default ClaimButton;
