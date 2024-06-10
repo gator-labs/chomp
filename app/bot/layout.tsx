@@ -5,5 +5,9 @@ export default function BotLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <div>{children}</div>;
+  return (
+    <div className="font-sora bg-[#0D0D0D] text-white h-full flex justify-center">
+      {children}
+    </div>
+  );
 }
