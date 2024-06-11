@@ -1,5 +1,6 @@
 "use client";
 
+import { addTutorialPoints } from "@/app/actions/answer";
 import { Button } from "@/app/components/Button/Button";
 import { DashboardUserStats } from "@/app/components/DashboardUserStats/DashboardUserStats";
 import { ClockIcon } from "@/app/components/Icons/ClockIcon";
@@ -13,12 +14,20 @@ import { QuestionCardContent } from "@/app/components/QuestionCardContent/Questi
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
-import { QuestionType } from "@prisma/client";
+import { QuestionType, User } from "@prisma/client";
 import classNames from "classnames";
 import Link from "next/link";
 import { useState } from "react";
 
-const RevealScreen = () => {
+interface Props {
+  isCorrectFirstOrderMultipleQuestion: boolean;
+  currentUser: User;
+}
+
+const RevealScreen = ({
+  isCorrectFirstOrderMultipleQuestion,
+  currentUser,
+}: Props) => {
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<"reveal" | "claim">(
     "reveal",
@@ -26,9 +35,20 @@ const RevealScreen = () => {
   const [activeClaimScreenStep, setActiveClaimScreenStep] = useState<
     "congrats-step" | "claim-step" | "final-step"
   >("congrats-step");
+  const [isClaiming, setIsClaiming] = useState(false);
   const { fire } = useConfetti();
 
   const { successToast } = useToast();
+
+  const handleClaim = async () => {
+    setIsClaiming(true);
+    fire();
+    await addTutorialPoints(isCorrectFirstOrderMultipleQuestion);
+    successToast("Claimed!", "You have successfully claimed!");
+
+    setActiveClaimScreenStep("final-step");
+    setIsClaiming(false);
+  };
 
   if (currentScreen === "reveal")
     return (
@@ -40,7 +60,6 @@ const RevealScreen = () => {
           totalPointsEarned="100"
         />
         <div className="pt-4 flex flex-col gap-2 overflow-hidden">
-          {/* MAKE A SEPARATE COMPONENT FOR REVEAL CARD */}
           <Tooltip
             infoText="Click reveal to see the result"
             alwaysVisible={!isRevealModalOpen}
@@ -220,11 +239,16 @@ const RevealScreen = () => {
                 <Button
                   variant="purple"
                   className="h-[50px] w-full"
-                  onClick={() => {
-                    fire();
-                    successToast("Claimed!", "You have successfully claimed!");
+                  onClick={async () => {
+                    if (isClaiming) return;
 
-                    setActiveClaimScreenStep("final-step");
+                    if (!!currentUser.tutorialCompletedAt) {
+                      fire();
+                      setActiveClaimScreenStep("final-step");
+                      return;
+                    }
+
+                    return handleClaim();
                   }}
                 >
                   Claim

@@ -12,6 +12,7 @@ import { revalidatePath } from "next/cache";
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredDeck } from "../queries/deck";
 import { hasAnsweredQuestion } from "../queries/question";
+import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
@@ -24,6 +25,44 @@ export type SaveQuestionRequest = {
   percentageGivenForAnswerId?: number;
   timeToAnswerInMiliseconds?: number;
 };
+
+export async function addTutorialPoints(
+  isCorrectFirstOrderMultipleQuestion: boolean,
+) {
+  const totalNumberOfTutorialQuestions = 2;
+
+  const fungibleAssetRevealTasks = [
+    incrementFungibleAssetBalance(
+      FungibleAsset.Point,
+      totalNumberOfTutorialQuestions *
+        pointsPerAction[TransactionLogType.AnswerQuestion],
+      TransactionLogType.AnswerQuestion,
+    ),
+    incrementFungibleAssetBalance(
+      FungibleAsset.Point,
+      pointsPerAction[TransactionLogType.AnswerDeck],
+      TransactionLogType.AnswerDeck,
+    ),
+    incrementFungibleAssetBalance(
+      FungibleAsset.Point,
+      pointsPerAction[TransactionLogType.RevealAnswer],
+      TransactionLogType.RevealAnswer,
+    ),
+  ];
+
+  if (isCorrectFirstOrderMultipleQuestion)
+    fungibleAssetRevealTasks.push(
+      incrementFungibleAssetBalance(
+        FungibleAsset.Point,
+        pointsPerAction[TransactionLogType.CorrectFirstOrder],
+        TransactionLogType.CorrectFirstOrder,
+      ),
+    );
+
+  await Promise.all(fungibleAssetRevealTasks);
+  await addUserTutorialTimestamp();
+  revalidatePath("/tutorial");
+}
 
 export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
   const payload = await getJwtPayload();

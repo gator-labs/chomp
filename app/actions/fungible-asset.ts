@@ -51,7 +51,7 @@ export const incrementFungibleAssetBalance = async (
   asset: FungibleAsset,
   amount: number,
   transactionLogType: TransactionLogType,
-  injectedPrisma: PrismaTransactionClient = prisma,
+  injectedPrisma: (PrismaTransactionClient | undefined) = prisma,
 ): Promise<FungibleAssetBalance> => {
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";
