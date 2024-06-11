@@ -37,3 +37,26 @@ export async function getIsUserAdmin() {
 
   return user.isAdmin;
 }
+
+export async function getCurrentUser() {
+  const payload = await getJwtPayload();
+
+  return prisma.user.findUnique({
+    where: {
+      id: payload?.sub,
+    },
+  });
+}
+
+export async function addUserTutorialTimestamp() {
+  const payload = await getJwtPayload();
+
+  await prisma.user.update({
+    where: {
+      id: payload!.sub,
+    },
+    data: {
+      tutorialCompletedAt: new Date(),
+    },
+  });
+}

@@ -5,7 +5,6 @@ import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -15,16 +14,19 @@ interface Props {
   setActiveScreen: Dispatch<
     SetStateAction<"binary-question" | "multiple-choice" | "reveal" | null>
   >;
+  currentOptionSelected: number | undefined;
+  setCurrentOptionSelected: Dispatch<SetStateAction<number | undefined>>;
 }
 
 const getDueAt = (durationMiliseconds: number): Date => {
   return dayjs(new Date()).add(durationMiliseconds, "milliseconds").toDate();
 };
 
-const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
-  const { user } = useDynamicContext();
-  const [optionPercentage, setOptionPercentage] = useState(50);
-  const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
+const MultipleChoiceScreen = ({
+  setActiveScreen,
+  currentOptionSelected,
+  setCurrentOptionSelected,
+}: Props) => {
   const [dueAt, setDueAt] = useState(getDueAt(ONE_MINUTE_IN_MILISECONDS));
   const [tooltipIndex, setTooltipIndex] = useState(0);
   const [isFlowFinished, setIsFlowFinished] = useState(false);
@@ -49,13 +51,6 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
       setIsFlowFinished(true);
     }
   }, [tooltipIndex]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      `${user?.userId}-seen-tutorial-screens`,
-      JSON.stringify(["binary-question", "multiple-choice"]),
-    );
-  }, [user]);
 
   return (
     <>
@@ -82,10 +77,13 @@ const MultipleChoiceScreen = ({ setActiveScreen }: Props) => {
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
-              onOptionSelected={setCurrentOptionSelected}
+              onOptionSelected={(answer) => {
+                if (currentOptionSelected) return;
+
+                setCurrentOptionSelected(answer);
+              }}
               type={QuestionType.MultiChoice}
               step={QuestionStep.AnswerQuestion}
-              percentage={optionPercentage}
               randomOptionPercentage={othersResponseScale}
               questionOptions={[
                 { id: 1, option: "Jupiter" },
