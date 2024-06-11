@@ -9,9 +9,7 @@ import { useInterval } from "../../hooks/useInterval";
 import {
   ONE_SECOND_IN_MILISECONDS,
   getDueAtString,
-  getRevealedAtString,
 } from "../../utils/dateUtils";
-import { ClockIcon } from "../Icons/ClockIcon";
 import { CountdownIcon } from "../Icons/CountdownIcon";
 import { ImageIcon } from "../Icons/ImageIcon";
 import { Modal } from "../Modal/Modal";
@@ -26,7 +24,6 @@ type QuestionCardProps = {
   children?: ReactNode;
   style?: CSSProperties;
   isBlurred?: boolean;
-  isForReveal?: boolean;
   answer?: string;
 };
 
@@ -40,7 +37,6 @@ export function QuestionCard({
   onDurationRanOut,
   style,
   isBlurred,
-  isForReveal,
   answer,
 }: QuestionCardProps) {
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
@@ -77,24 +73,20 @@ export function QuestionCard({
       />
       <p
         className={classNames(
-          "text-white font-sora text-[24px] leading-[30px] max-w-[330px]",
+          "text-white font-sora text-[24px] leading-[30px] max-w-[330px] z-10",
           {
             "blur-sm": isBlurred,
             "opacity-30": isBlurred,
             "!text-base": type === QuestionType.MultiChoice,
           },
         )}
-        style={{ zIndex: 2 }} // Ensure the text has a proper z-index
       >
         {question}
       </p>
-      <div style={{ zIndex: 2 }}>{children}</div>
+      <div className="z-10">{children}</div>
       <div>
         {viewImageSrc && (
-          <div
-            className="flex items-center gap-[6px] mb-1"
-            style={{ zIndex: 2 }}
-          >
+          <div className="flex items-center gap-[6px] mb-1 z-10">
             <ImageIcon />
             <button
               onClick={() => setIsViewImageOpen(true)}
@@ -111,39 +103,14 @@ export function QuestionCard({
             </Modal>
           </div>
         )}
-        <div
-          className="flex items-center justify-between w-full"
-          style={{ zIndex: 2 }}
-        >
-          <div
-            className="flex justify-start items-center gap-x-1 w-full"
-            style={{ zIndex: 2 }}
-          >
+        <div className="flex items-center justify-between w-full z-10">
+          <div className="flex justify-start items-center gap-x-1 w-full z-10">
             {!!dueAt && (
               <>
-                {isForReveal ? (
-                  <>
-                    <ClockIcon fill="#fff" height={30} width={30} />
-                    <div className="text-white text-[13px] font-light leading-[16.38px] flex items-center justify-between w-full">
-                      <span>{getRevealedAtString(dueAt)}</span>
-                      <div className="flex items-center justify-end gap-1.5">
-                        {answer && <span>Your Answer</span>}
-                        {type === "BinaryQuestion" && answer && (
-                          <span className="py-1 px-2 bg-white rounded-2xl text-black text-[10px] font-bold leading-[12.6px] text-left">
-                            {answer}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <CountdownIcon fill="#999" />
-                    <span className="text-white font-sora text-sm !leading-[14px] font-light">
-                      {dueAtFormatted}
-                    </span>
-                  </>
-                )}
+                <CountdownIcon fill="#999" />
+                <span className="text-white font-sora text-sm !leading-[14px] font-light">
+                  {dueAtFormatted}
+                </span>
               </>
             )}
           </div>
