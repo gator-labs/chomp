@@ -1,5 +1,9 @@
 import { getJwtPayload } from "@/app/actions/jwt";
-import { getHistory, HistorySortOptions } from "@/app/queries/history";
+import {
+  getHistory,
+  getTotalRevealedRewards,
+  HistorySortOptions,
+} from "@/app/queries/history";
 
 export async function GET(request: Request) {
   const payload = await getJwtPayload();
@@ -14,10 +18,10 @@ export async function GET(request: Request) {
       searchParams.get("sort")?.toString() as keyof typeof HistorySortOptions
     ];
   const history = await getHistory(sort ?? HistorySortOptions.Date);
+  const totalRevealedRewards = await getTotalRevealedRewards();
 
   return Response.json({
     history,
-    totalRevealedRewards: 500000,
-    potentialRewards: 340000,
+    totalRevealedRewards,
   });
 }
