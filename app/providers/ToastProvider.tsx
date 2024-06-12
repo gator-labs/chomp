@@ -4,7 +4,7 @@ import toast, { ToastOptions, Toaster } from "react-hot-toast";
 import AnimatedTimer from "../components/AnimatedTimer/AnimatedTimer";
 import { ErrorIcon } from "../components/Icons/ToastIcons/ErrorIcon";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
-import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon"; // Assuming you have this icon for loading
+import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
 import { SuccessIcon } from "../components/Icons/ToastIcons/SuccessIcon";
 
 type ToastContextType = {
@@ -177,18 +177,13 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     // Handle the promise resolution or rejection
     promise
       .then(() => {
-        toast.success(
-          <div className="flex flex-row justify-between text-center w-full">
-            <div className="flex flex-col gap-0.5 justify-start items-start w-full">
-              <h4 className="text-sm font-bold text-left">{msgs.success}</h4>
-              {msgs.description && (
-                <p className="text-xs font-normal text-left text-[#999]">
-                  {msgs.description}
-                </p>
-              )}
-            </div>
-            <AnimatedTimer id={toastId} />
-          </div>,
+        toast.custom(
+          (t) =>
+            successToastLayout(
+              msgs.success,
+              t.id, // Ensure we pass the correct id to use AnimatedTimer
+              msgs.description,
+            ),
           {
             id: toastId,
             ...toastOptions,
@@ -197,18 +192,13 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
         );
       })
       .catch(() => {
-        toast.error(
-          <div className="flex flex-row justify-between text-center w-full">
-            <div className="flex flex-col gap-0.5 justify-start items-start w-full">
-              <h4 className="text-base font-bold text-left">{msgs.error}</h4>
-              {msgs.description && (
-                <p className="text-xs font-normal text-left text-[#999]">
-                  {msgs.description}
-                </p>
-              )}
-            </div>
-            <AnimatedTimer id={toastId} />
-          </div>,
+        toast.custom(
+          (t) =>
+            errorToastLayout(
+              msgs.error,
+              t.id, // Ensure we pass the correct id to use AnimatedTimer
+              msgs.description,
+            ),
           {
             id: toastId,
             ...toastOptions,
