@@ -85,24 +85,26 @@ export function QuestionCard({
       </p>
       <div className="z-10">{children}</div>
       <div>
-        {viewImageSrc && (
-          <div className="flex items-center gap-[6px] mb-1 z-10">
-            <ImageIcon />
-            <button
-              onClick={() => setIsViewImageOpen(true)}
-              className="underline text-white font-sora font-light text-sm"
-            >
-              View Image
-            </button>
-            <Modal
-              isOpen={isViewImageOpen}
-              onClose={() => setIsViewImageOpen(false)}
-              title=""
-            >
-              <img src={viewImageSrc} />
-            </Modal>
-          </div>
-        )}
+        {viewImageSrc &&
+          viewImageSrc.trim() !== "" &&
+          viewImageSrc.startsWith("http") && (
+            <div className="flex items-center gap-[6px] mb-1 z-10">
+              <ImageIcon />
+              <button
+                onClick={() => setIsViewImageOpen(true)}
+                className="underline text-white font-sora font-light text-sm"
+              >
+                View Image
+              </button>
+              <Modal
+                isOpen={isViewImageOpen}
+                onClose={() => setIsViewImageOpen(false)}
+                title=""
+              >
+                <img src={viewImageSrc} />
+              </Modal>
+            </div>
+          )}
         <div className="flex items-center justify-between w-full z-10">
           <div className="flex justify-start items-center gap-x-1 w-full z-10">
             {!!dueAt && (
