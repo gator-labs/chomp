@@ -131,6 +131,7 @@ export function RevealContextProvider({
               error: "You denied message signature.",
             },
           );
+          setIsRevealModalOpen(false);
 
           signature = sn;
         } catch (error) {
