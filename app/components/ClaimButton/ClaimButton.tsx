@@ -40,10 +40,10 @@ const ClaimButton = ({
       error: "Failed to claim rewards. Please try again.",
     })
       .then(() => {
-        fire(); // Fire confetti on success
+        fire();
       })
       .finally(() => {
-        setIsClaiming(false); // Reset the claiming state regardless of outcome
+        setIsClaiming(false);
       });
   };
 
@@ -83,11 +83,11 @@ const ClaimButton = ({
           className={classNames(
             "text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
             className,
-            { "cursor-not-allowed opacity-50": isClaiming }, // Add disabled styles
+            { "cursor-not-allowed opacity-50": isClaiming },
           )}
           variant="purple"
           onClick={onClick}
-          disabled={isClaiming} // Disable button while claiming
+          disabled={isClaiming}
         >
           <span>Claim</span>
           <DollarIcon height={24} width={24} />

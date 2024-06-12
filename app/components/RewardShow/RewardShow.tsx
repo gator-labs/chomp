@@ -3,7 +3,7 @@ import { claimQuestions } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import classNames from "classnames"; // Import classNames for conditional styling
+import classNames from "classnames";
 import { useState } from "react";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
@@ -33,10 +33,10 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
       error: "Failed to claim rewards. Please try again.",
     })
       .then(() => {
-        fire(); // Fire confetti on success
+        fire();
       })
       .finally(() => {
-        setIsClaiming(false); // Reset the claiming state regardless of outcome
+        setIsClaiming(false);
       });
   };
 
