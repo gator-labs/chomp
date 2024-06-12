@@ -14,8 +14,8 @@ import { getJwtPayload } from "../actions/jwt";
 import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
 import {
-  getQuestionState,
-  handleQuestionMappingForFeed,
+  isEntityRevealable,
+  mapPercentageResult,
   populateAnswerCount,
 } from "../utils/question";
 import { answerPercentageQuery } from "./answerPercentageQuery";
@@ -259,15 +259,9 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     await answerPercentageQuery(questionOptionIds);
 
   const populated = populateAnswerCount(question);
-  const isRevealable = getQuestionState(question);
 
-  handleQuestionMappingForFeed(
-    [question] as any,
-    questionOptionPercentages,
-    userId,
-    isRevealable.isRevealed,
-  );
-  // Extract the user's answer from the question options and include the option details
+  mapPercentageResult([question] as any, questionOptionPercentages);
+
   const userAnswers = question.questionOptions
     .flatMap((option) =>
       option.questionAnswers.map((answer) => ({
@@ -284,9 +278,19 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     )
     .filter((answer) => answer.userId === userId);
 
-  const correctAnswer = question.questionOptions.find(
-    (option) => option.isCorrect,
+  let correctAnswer = question.questionOptions.find(
+    (option) => option.calculatedIsCorrect,
   );
+
+  if (!correctAnswer) {
+    correctAnswer = question.questionOptions.find((option) => option.isCorrect);
+  }
+
+  const isQuestionRevealable = isEntityRevealable({
+    revealAtAnswerCount: question.revealAtAnswerCount,
+    revealAtDate: question.revealAtDate,
+    answerCount: question.questionOptions[0].questionAnswers.length,
+  });
 
   return {
     ...question,
@@ -301,5 +305,6 @@ export async function getQuestionWithUserAnswer(questionId: number) {
       ...qop,
       ...question.questionOptions.find((qo) => qo.id === qop.id),
     })),
+    isQuestionRevealable,
   };
 }
