@@ -1,10 +1,10 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
-import { useState } from "react";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
@@ -27,7 +27,7 @@ const ClaimButton = ({
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast } = useToast();
-  const [isClaiming, setIsClaiming] = useState(false);
+  const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClick = async () => {
     if (isClaiming) return;
@@ -131,7 +131,7 @@ const ClaimButton = ({
         <p className="text-[13px] font-normal leading-[17.55px] text-left">
           Your claimable reward:
         </p>
-        <Pill onClick={onClick} variant="white" className="cursor-pointer">
+        <Pill variant="white" className="cursor-pointer">
           <span className="text-[10px] font-bold leading-[12.6px] text-left">
             0 BONK
           </span>
