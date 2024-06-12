@@ -26,17 +26,25 @@ const ClaimButton = ({
   questionIds,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
-  const { successToast } = useToast();
+  const { promiseToast } = useToast();
   const [isClaiming, setIsClaiming] = useState(false);
 
   const onClick = async () => {
     if (isClaiming) return;
 
     setIsClaiming(true);
-    await claimQuestions(questionIds);
-    fire();
-    successToast("Claimed!", "You have successfully claimed!");
-    setIsClaiming(false);
+
+    promiseToast(claimQuestions(questionIds), {
+      loading: "Claiming your rewards...",
+      success: "You have successfully claimed your rewards!",
+      error: "Failed to claim rewards. Please try again.",
+    })
+      .then(() => {
+        fire(); // Fire confetti on success
+      })
+      .finally(() => {
+        setIsClaiming(false); // Reset the claiming state regardless of outcome
+      });
   };
 
   if (!didAnswer) {
@@ -48,6 +56,7 @@ const ClaimButton = ({
         <Button
           variant="grayish"
           className="items-center gap-1 h-[50px] !bg-[#999999] !text-[#666666] cursor-auto"
+          disabled
         >
           Claim <DollarIcon fill="#666666" />
         </Button>
@@ -74,9 +83,11 @@ const ClaimButton = ({
           className={classNames(
             "text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
             className,
+            { "cursor-not-allowed opacity-50": isClaiming }, // Add disabled styles
           )}
           variant="purple"
           onClick={onClick}
+          disabled={isClaiming} // Disable button while claiming
         >
           <span>Claim</span>
           <DollarIcon height={24} width={24} />
