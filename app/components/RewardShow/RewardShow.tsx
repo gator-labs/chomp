@@ -3,6 +3,7 @@ import { claimQuestions } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import classNames from "classnames"; // Import classNames for conditional styling
 import { useState } from "react";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
@@ -18,17 +19,25 @@ interface RewardShowProps {
 
 const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
   const { fire } = useConfetti();
-  const { successToast } = useToast();
+  const { promiseToast } = useToast();
   const [isClaiming, setIsClaiming] = useState(false);
 
   const onClaim = async () => {
     if (isClaiming) return;
 
     setIsClaiming(true);
-    await claimQuestions(questionIds);
-    fire();
-    successToast("Claimed!", "You have successfully claimed!");
-    setIsClaiming(false);
+
+    promiseToast(claimQuestions(questionIds), {
+      loading: "Claiming your rewards...",
+      success: "You have successfully claimed your rewards!",
+      error: "Failed to claim rewards. Please try again.",
+    })
+      .then(() => {
+        fire(); // Fire confetti on success
+      })
+      .finally(() => {
+        setIsClaiming(false); // Reset the claiming state regardless of outcome
+      });
   };
 
   if (rewardAmount > 0) {
@@ -44,9 +53,14 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
               Claim reward:
             </p>
             <Pill
-              onClick={async () => status === "claimable" && onClaim()}
+              onClick={async () =>
+                status === "claimable" && !isClaiming && onClaim()
+              }
               variant="white"
-              className="cursor-pointer"
+              className={classNames(
+                "cursor-pointer",
+                { "opacity-50 cursor-not-allowed": isClaiming }, // Add disabled styles
+              )}
             >
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
