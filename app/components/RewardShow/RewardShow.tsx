@@ -1,10 +1,10 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
-import { useState } from "react";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
@@ -18,9 +18,10 @@ interface RewardShowProps {
 }
 
 const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
+  const { isClaiming, setIsClaiming } = useClaiming();
+
   const { fire } = useConfetti();
   const { promiseToast } = useToast();
-  const [isClaiming, setIsClaiming] = useState(false);
 
   const onClaim = async () => {
     if (isClaiming) return;
