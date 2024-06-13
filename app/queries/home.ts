@@ -4,6 +4,7 @@ import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
 import { getJwtPayload } from "../actions/jwt";
+import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 
 const duration = require("dayjs/plugin/duration");
@@ -223,7 +224,10 @@ export async function getQuestionsForReadyToRevealSection(): Promise<
 
   const questions = await queryQuestionsForReadyToReveal(payload.sub);
 
-  return questions;
+  return questions.filter(
+    (question) =>
+      question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
+  );
 }
 
 async function queryQuestionsForReadyToReveal(

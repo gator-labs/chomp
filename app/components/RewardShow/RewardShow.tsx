@@ -1,9 +1,10 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { useState } from "react";
+import classNames from "classnames";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
@@ -17,23 +18,27 @@ interface RewardShowProps {
 }
 
 const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
+  const { isClaiming, setIsClaiming } = useClaiming();
+
   const { fire } = useConfetti();
-  const { successToast, errorToast } = useToast();
-  const [isClaiming, setIsClaiming] = useState(false);
+  const { promiseToast } = useToast();
 
   const onClaim = async () => {
-    try {
-      if (isClaiming) return;
+    if (isClaiming) return;
 
-      setIsClaiming(true);
-      await claimQuestions(questionIds);
-      fire();
-      successToast("Claimed!", "You have successfully claimed!");
-    } catch (error) {
-      errorToast("Error while claiming question");
-    } finally {
-      setIsClaiming(false);
-    }
+    setIsClaiming(true);
+
+    promiseToast(claimQuestions(questionIds), {
+      loading: "Claiming your rewards...",
+      success: "You have successfully claimed your rewards!",
+      error: "Failed to claim rewards. Please try again.",
+    })
+      .then(() => {
+        fire();
+      })
+      .finally(() => {
+        setIsClaiming(false);
+      });
   };
 
   if (rewardAmount > 0) {
@@ -49,9 +54,14 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
               Claim reward:
             </p>
             <Pill
-              onClick={async () => status === "claimable" && onClaim()}
+              onClick={async () =>
+                status === "claimable" && !isClaiming && onClaim()
+              }
               variant="white"
-              className="cursor-pointer"
+              className={classNames(
+                "cursor-pointer",
+                { "opacity-50 cursor-not-allowed": isClaiming }, // Add disabled styles
+              )}
             >
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}

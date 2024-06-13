@@ -1,10 +1,10 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import classNames from "classnames";
-import { useState } from "react";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
@@ -26,22 +26,25 @@ const ClaimButton = ({
   questionIds,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
-  const { successToast, errorToast } = useToast();
-  const [isClaiming, setIsClaiming] = useState(false);
+  const { promiseToast } = useToast();
+  const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClick = async () => {
-    try {
-      if (isClaiming) return;
+    if (isClaiming) return;
 
-      setIsClaiming(true);
-      await claimQuestions(questionIds);
-      fire();
-      successToast("Claimed!", "You have successfully claimed!");
-    } catch (error) {
-      errorToast("Error while claiming question");
-    } finally {
-      setIsClaiming(false);
-    }
+    setIsClaiming(true);
+
+    promiseToast(claimQuestions(questionIds), {
+      loading: "Claiming your rewards...",
+      success: "You have successfully claimed your rewards!",
+      error: "Failed to claim rewards. Please try again.",
+    })
+      .then(() => {
+        fire();
+      })
+      .finally(() => {
+        setIsClaiming(false);
+      });
   };
 
   if (!didAnswer) {
@@ -53,6 +56,7 @@ const ClaimButton = ({
         <Button
           variant="grayish"
           className="items-center gap-1 h-[50px] !bg-[#999999] !text-[#666666] cursor-auto"
+          disabled
         >
           Claim <DollarIcon fill="#666666" />
         </Button>
@@ -79,9 +83,11 @@ const ClaimButton = ({
           className={classNames(
             "text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
             className,
+            { "cursor-not-allowed opacity-50": isClaiming },
           )}
           variant="purple"
           onClick={onClick}
+          disabled={isClaiming}
         >
           <span>Claim</span>
           <DollarIcon height={24} width={24} />
@@ -125,7 +131,7 @@ const ClaimButton = ({
         <p className="text-[13px] font-normal leading-[17.55px] text-left">
           Your claimable reward:
         </p>
-        <Pill onClick={onClick} variant="white" className="cursor-pointer">
+        <Pill variant="white" className="cursor-pointer">
           <span className="text-[10px] font-bold leading-[12.6px] text-left">
             0 BONK
           </span>

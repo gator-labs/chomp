@@ -15,7 +15,11 @@ import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
 import { getProfileImage } from "@/app/queries/profile";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
-import { getAlphaIdentifier, isEntityRevealable } from "@/app/utils/question";
+import {
+  BINARY_QUESTION_OPTION_LABELS,
+  BINARY_QUESTION_TRUE_LABELS,
+  getAlphaIdentifier,
+} from "@/app/utils/question";
 import { QuestionType, ResultType } from "@prisma/client";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -25,6 +29,8 @@ interface Props {
     questionId: string;
   };
 }
+
+const BONK_REWARD_AMOUNT_FOR_FIRST_ORDER_CORRECT = 5000;
 
 const RevealAnswerPage = async ({ params }: Props) => {
   const questionResponse = await getQuestionWithUserAnswer(
@@ -37,33 +43,21 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   if (!questionResponse) notFound();
 
-  const isQuestionRevealable = isEntityRevealable({
-    revealAtAnswerCount: questionResponse.revealAtAnswerCount,
-    revealAtDate: questionResponse.revealAtDate,
-    answerCount: questionResponse.questionOptions[0].questionAnswers.length,
-  });
-
-  if (!isQuestionRevealable) redirect("/application");
+  if (
+    !questionResponse.isQuestionRevealable ||
+    !questionResponse.correctAnswer
+  ) {
+    redirect("/application");
+  }
 
   const isBinary = questionResponse.type === QuestionType.BinaryQuestion;
   const answerSelected = questionResponse.userAnswers.find((ua) => ua.selected);
-  const secondOrderMultiChoiceAnswer = questionResponse.userAnswers.find(
-    (ua) => ua.percentage !== null,
-  );
+
   const isFirstOrderCorrect =
     questionResponse.correctAnswer?.id === answerSelected?.questionOptionId;
-  const isSecondOrderCorrect = isBinary
-    ? questionResponse.questionOptionPercentages.some(
-        (qop) =>
-          qop.id === answerSelected?.id &&
-          qop.percentageResult === answerSelected?.percentage,
-      )
-    : questionResponse.questionOptionPercentages.some(
-        (qop) =>
-          qop.id === secondOrderMultiChoiceAnswer?.questionOptionId &&
-          qop.percentageResult === secondOrderMultiChoiceAnswer.percentage,
-      );
-
+  const isSecondOrderCorrect =
+    (questionResponse.chompResults[0]?.rewardTokenAmount ?? 0) >
+    BONK_REWARD_AMOUNT_FOR_FIRST_ORDER_CORRECT;
   let questionContent = <></>;
 
   if (isBinary) {
@@ -99,6 +93,22 @@ const RevealAnswerPage = async ({ params }: Props) => {
   let answerContent = <></>;
 
   if (!!answerSelected && isBinary) {
+    let bestAnswerIcon = <></>;
+
+    if (
+      BINARY_QUESTION_OPTION_LABELS.includes(
+        answerSelected.questionOption?.option,
+      )
+    ) {
+      bestAnswerIcon = BINARY_QUESTION_TRUE_LABELS.includes(
+        questionResponse.correctAnswer?.option ?? "",
+      ) ? (
+        <LikeIcon />
+      ) : (
+        <UnlikeIcon />
+      );
+    }
+
     answerContent = (
       <>
         <div>
@@ -108,13 +118,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           />
         </div>
         <BestAnswerBinary
-          icon={
-            questionResponse.correctAnswer?.isLeft ? (
-              <LikeIcon />
-            ) : (
-              <UnlikeIcon />
-            )
-          }
+          icon={bestAnswerIcon}
           bestOption={questionResponse.correctAnswer?.option ?? ""}
           optionSelected={answerSelected.questionOption?.option ?? ""}
         />
@@ -133,7 +137,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
           rightOption={{
             option:
@@ -143,7 +147,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => !qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
           optionSelected={answerSelected.questionOption.option ?? ""}
           percentageSelected={answerSelected.percentage ?? 0}
@@ -179,7 +183,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             (qop, index) => ({
               option: qop.option ?? "",
               label: getAlphaIdentifier(index),
-              percentage: qop.percentageResult,
+              percentage: qop.secondOrderAveragePercentagePicked,
             }),
           )}
           optionSelected={answerSelected.questionOption.option ?? ""}
@@ -213,7 +217,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
           rightOption={{
             option:
@@ -223,7 +227,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => !qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
         />
       </>
@@ -242,7 +246,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             (qop, index) => ({
               option: qop.option ?? "",
               label: getAlphaIdentifier(index),
-              percentage: qop.percentageResult,
+              percentage: qop.secondOrderAveragePercentagePicked,
             }),
           )}
         />

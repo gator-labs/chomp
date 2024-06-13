@@ -14,11 +14,7 @@ import dayjs from "dayjs";
 import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
-import {
-  getDeckState,
-  handleQuestionMappingForFeed,
-  populateAnswerCount,
-} from "../utils/question";
+import { mapPercentages, populateAnswerCount } from "../utils/question";
 import { answerPercentageQuery } from "./answerPercentageQuery";
 
 const questionDeckToRunInclude = {
@@ -275,13 +271,7 @@ export async function getDeckDetails(id: number) {
     await answerPercentageQuery(questionOptionIds);
 
   const populated = populateAnswerCount(deck);
-  const { isRevealable } = getDeckState(deck);
-  handleQuestionMappingForFeed(
-    questions as any,
-    questionOptionPercentages,
-    payload.sub,
-    isRevealable,
-  );
+  mapPercentages(questions, questionOptionPercentages);
 
   return { ...deck, answerCount: populated.answerCount ?? 0 };
 }

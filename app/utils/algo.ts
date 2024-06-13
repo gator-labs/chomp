@@ -68,16 +68,16 @@ const calculateBinaryCorrectAnswer = async (questionIds: number[]) => {
     const body = {
       first_order_percent_A: questionOptionPercentages.find(
         (percentage) => percentage.id === question.questionOptions[0].id,
-      )?.percentageResult,
+      )?.firstOrderSelectedAnswerPercentage,
       first_order_percent_B: questionOptionPercentages.find(
         (percentage) => percentage.id === question.questionOptions[1].id,
-      )?.percentageResult,
+      )?.firstOrderSelectedAnswerPercentage,
       second_order_percent_A: questionOptionPercentages.find(
         (percentage) => percentage.id === question.questionOptions[0].id,
-      )?.averagePercentAnswer,
+      )?.secondOrderAveragePercentagePicked,
       second_order_percent_B: questionOptionPercentages.find(
         (percentage) => percentage.id === question.questionOptions[1].id,
-      )?.averagePercentAnswer,
+      )?.secondOrderAveragePercentagePicked,
     };
 
     const { answer } = await getMechanismEngineResponse("answer/binary", body);
@@ -96,8 +96,10 @@ const calculateBinaryCorrectAnswer = async (questionIds: number[]) => {
         },
         data: {
           calculatedIsCorrect: correctOptionIds.includes(percentage.id),
-          calculatedPercentageOfSelectedAnswers: percentage.percentageResult,
-          calculatedAveragePercentage: percentage.averagePercentAnswer,
+          calculatedPercentageOfSelectedAnswers:
+            percentage.firstOrderSelectedAnswerPercentage,
+          calculatedAveragePercentage:
+            percentage.secondOrderAveragePercentagePicked,
         },
       }),
     ),
@@ -157,8 +159,10 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
         },
         data: {
           calculatedIsCorrect: correctOptionIds.includes(percentage.id),
-          calculatedPercentageOfSelectedAnswers: percentage.percentageResult,
-          calculatedAveragePercentage: percentage.averagePercentAnswer,
+          calculatedPercentageOfSelectedAnswers:
+            percentage.firstOrderSelectedAnswerPercentage,
+          calculatedAveragePercentage:
+            percentage.secondOrderAveragePercentagePicked,
         },
       }),
     ),

@@ -4,7 +4,22 @@ import { z } from "zod";
 export const deckSchema = z.object({
   id: z.number().optional(),
   deck: z.string().min(5),
-  imageUrl: z.string().nullish(),
+  imageUrl: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        try {
+          new URL(val);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      { message: "Invalid URL" },
+    ),
   tagIds: z.number().array().default([]),
   revealToken: z.nativeEnum(Token),
   date: z.date().nullish(),

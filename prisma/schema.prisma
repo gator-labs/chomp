@@ -26,6 +26,7 @@ model User {
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   streak                      Streak[]
   usedGenesisNfts             UsedGenesisNft[]
+  tutorialCompletedAt         DateTime?
 }
 
 model Wallet {

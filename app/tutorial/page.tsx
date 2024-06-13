@@ -6,7 +6,7 @@ import { Navbar } from "../components/Navbar/Navbar";
 import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 
 import ConfettiProvider from "../providers/ConfettiProvider";
-import { getIsUserAdmin } from "../queries/user";
+import { getCurrentUser } from "../queries/user";
 import TutorialFlowScreens from "../screens/TutorialScreens/TutorialFlowScreens/TutorialFlowScreens";
 
 const TutorialPage = async () => {
@@ -14,7 +14,7 @@ const TutorialPage = async () => {
 
   const formattedDate = format(currentDate, "MMMM do EEEE", { locale: enUS });
 
-  const isAdmin = await getIsUserAdmin();
+  const currentUser = (await getCurrentUser())!;
 
   return (
     <ConfettiProvider>
@@ -40,10 +40,10 @@ const TutorialPage = async () => {
             <p className="text-sm">{formattedDate}</p>
           </div>
 
-          <TutorialFlowScreens />
+          <TutorialFlowScreens currentUser={currentUser} />
         </main>
 
-        <TabNavigation isAdmin={isAdmin} />
+        <TabNavigation isAdmin={currentUser.isAdmin} />
       </div>
     </ConfettiProvider>
   );

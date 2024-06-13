@@ -1,7 +1,10 @@
 import { QuestionType } from "@prisma/client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Question } from "../app/components/Question/Question";
-import { ONE_MINUTE_IN_MILISECONDS } from "../app/utils/dateUtils";
+import {
+  ONE_HOUR_IN_MILISECONDS,
+  ONE_MINUTE_IN_MILISECONDS,
+} from "../app/utils/dateUtils";
 
 const questionBase = {
   id: 1,
@@ -35,7 +38,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const TrueFale: Story = {
+export const TrueFalse: Story = {
   args: {
     question: {
       ...questionBase,
@@ -71,4 +74,30 @@ export const MultipleChoice: Story = {
       questionTags: [],
     },
   },
+};
+
+export const Cramped: Story = {
+  args: {
+    question: {
+      ...questionBase,
+      durationMiliseconds: ONE_HOUR_IN_MILISECONDS,
+      type: QuestionType.BinaryQuestion,
+      questionOptions: [
+        {
+          id: 1,
+          option: "False",
+          isLeft: false,
+        },
+        { id: 2, option: "True", isLeft: true },
+      ],
+      question:
+        "The best way to secure your assets is to use a hardware wallet.",
+      questionTags: [],
+    },
+  },
+  decorators: (Story) => (
+    <div className="bg-black h-80 overflow-y-auto">
+      <Story />
+    </div>
+  ),
 };

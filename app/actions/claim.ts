@@ -31,6 +31,29 @@ export async function claimDecks(deckIds: number[]) {
   return await claimQuestions(questions.map((q) => q.questionId));
 }
 
+export async function claimAllAvailable() {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const revealedChompResults = await prisma.chompResult.findMany({
+    where: {
+      userId: payload.sub,
+      result: "Revealed",
+      questionId: { not: null },
+    },
+    select: {
+      questionId: true,
+    },
+  });
+
+  const questionIds = revealedChompResults.map((rcp) => rcp.questionId ?? 0); // Nulls are filtered in query
+
+  return await claimQuestions(questionIds);
+}
+
 export async function claimQuestions(questionIds: number[]) {
   const payload = await getJwtPayload();
 
@@ -153,6 +176,7 @@ export async function claimQuestions(questionIds: number[]) {
 
     release();
     revalidatePath("/application");
+    return sendTx;
   } catch (e) {
     console.log("Error while claiming question", e);
     release();

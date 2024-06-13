@@ -146,28 +146,26 @@ export function Question({ question, returnUrl }: QuestionProps) {
 
   return (
     <div className="flex flex-col justify-between h-full">
-      <div>
-        <AnswerHeader questionTags={question.questionTags} />
+      <AnswerHeader questionTags={question.questionTags} />
 
-        <QuestionCard
-          dueAt={getDueAt(question.durationMiliseconds)}
-          question={question.question}
+      <QuestionCard
+        dueAt={getDueAt(question.durationMiliseconds)}
+        question={question.question}
+        type={question.type}
+        viewImageSrc={question.imageUrl}
+        onDurationRanOut={handleSaveQuestion}
+        className="z-50 relative drop-shadow-question-card border-opacity-40"
+      >
+        <QuestionCardContent
+          optionSelectedId={currentOptionSelected}
+          onOptionSelected={setCurrentOptionSelected}
           type={question.type}
-          viewImageSrc={question.imageUrl}
-          onDurationRanOut={handleSaveQuestion}
-          className="z-50 relative drop-shadow-question-card border-opacity-40"
-        >
-          <QuestionCardContent
-            optionSelectedId={currentOptionSelected}
-            onOptionSelected={setCurrentOptionSelected}
-            type={question.type}
-            step={currentQuestionStep || QuestionStep.PickPercentage}
-            questionOptions={question.questionOptions}
-            randomOptionId={question.questionOptions[random]?.id}
-            percentage={optionPercentage}
-          />
-        </QuestionCard>
-      </div>
+          step={currentQuestionStep || QuestionStep.PickPercentage}
+          questionOptions={question.questionOptions}
+          randomOptionId={question.questionOptions[random]?.id}
+          percentage={optionPercentage}
+        />
+      </QuestionCard>
 
       <div className="pt-2 pb-[53px]">
         <QuestionAction
