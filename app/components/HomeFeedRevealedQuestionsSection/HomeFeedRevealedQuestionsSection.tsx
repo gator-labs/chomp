@@ -41,7 +41,10 @@ export function HomeFeedRevealedQuestionsSection({
         answerCount={q.answerCount}
         revealAtAnswerCount={q.revealAtAnswerCount}
         revealAtDate={q.revealAtDate}
-        onTopCornerAction={() => dismissQuestion(q.id)}
+        onTopCornerAction={(e) => {
+          dismissQuestion(q.id);
+          e.stopPropagation();
+        }}
         topCornerActionIcon={<CloseIcon />}
         onClick={() => handleView(q)}
         statusLabel={
