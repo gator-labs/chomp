@@ -3,16 +3,21 @@ import { dasUmi } from "@/lib/web3";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { publicKey } from "@metaplex-foundation/umi";
+import { ChompResult } from "@prisma/client";
 import classNames from "classnames";
 import {
-  createContext,
   ReactNode,
+  createContext,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
 } from "react";
+import {
+  createPendingRevealQuestion,
+  getUsersRevealedQuestion,
+} from "../actions/chompResult";
 import { getUsedGenesisNfts } from "../actions/used-nft-genesis";
 import { Button } from "../components/Button/Button";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
@@ -31,6 +36,7 @@ interface RevealContextState {
   openRevealModal: (
     reveal: (burnTx?: string, nftAddress?: string) => Promise<void>,
     amount: number,
+    questionId: number,
     multiple?: boolean,
   ) => void;
   openClaimModal: (claim: () => Promise<void>) => void;
@@ -68,18 +74,28 @@ export function RevealContextProvider({
     amount: number;
     multiple: boolean;
     reveal: (burnTx?: string, nftAddress?: string) => Promise<void>;
+    questionId: number;
     genesisNft?: string;
   }>();
   const [claim, setClaim] = useState<{
     claim: () => Promise<void>;
   }>();
   const [genesisNft, setGenesisNft] = useState<string | undefined>();
+  const [pendingRevealQuestion, setPendingRevealQuestion] =
+    useState<ChompResult | null>(null);
 
   const insufficientFunds = !!reveal?.amount && reveal.amount > bonkBalance;
 
   useEffect(() => {
     async function effect() {
-      if (reveal?.multiple || !primaryWallet?.address) return;
+      if (reveal?.multiple || !primaryWallet?.address || !reveal?.questionId)
+        return;
+
+      const revealedQuestion = await getUsersRevealedQuestion(
+        reveal!.questionId,
+      );
+
+      setPendingRevealQuestion(revealedQuestion);
 
       const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
         (usedGenesisNft) => usedGenesisNft.nftId,
@@ -110,9 +126,30 @@ export function RevealContextProvider({
   const burnAndReveal = useCallback(
     async (useGenesisNft = false) => {
       let burnTx: string | undefined;
-      if (!useGenesisNft || !genesisNft || reveal?.multiple) {
+
+      if (!!pendingRevealQuestion) {
+        setBurnState("burning");
+        const signature = pendingRevealQuestion.burnTransactionSignature!;
+
+        await CONNECTION.getTransaction(
+          pendingRevealQuestion.burnTransactionSignature!,
+          {
+            commitment: "finalized",
+            maxSupportedTransactionVersion: 0,
+          },
+        );
+
+        burnTx = signature;
+      }
+
+      if (
+        (!useGenesisNft || !genesisNft || reveal?.multiple) &&
+        !pendingRevealQuestion
+      ) {
         const blockhash = await CONNECTION.getLatestBlockhash();
+
         const signer = await primaryWallet!.connector.getSigner<ISolana>();
+
         const tx = await genBonkBurnTx(
           primaryWallet!.address,
           blockhash.blockhash,
@@ -139,6 +176,8 @@ export function RevealContextProvider({
           return;
         }
 
+        await createPendingRevealQuestion(reveal!.questionId, signature);
+
         await CONNECTION.confirmTransaction(
           {
             blockhash: blockhash.blockhash,
@@ -151,23 +190,21 @@ export function RevealContextProvider({
         burnTx = signature;
       }
 
-      if (reveal) {
-        await reveal.reveal(
-          burnTx,
-          genesisNft && !reveal?.multiple ? genesisNft : undefined,
-        );
+      await reveal!.reveal(
+        burnTx,
+        genesisNft && !reveal?.multiple ? genesisNft : undefined,
+      );
 
-        if (genesisNft && !reveal?.multiple) setGenesisNft(undefined);
+      if (genesisNft && !reveal?.multiple) setGenesisNft(undefined);
 
-        closeRevealModal();
-        setBurnState(INITIAL_BURN_STATE);
-      }
+      closeRevealModal();
+      setBurnState(INITIAL_BURN_STATE);
     },
     [reveal],
   );
 
   const revealButtons = useMemo(() => {
-    if (insufficientFunds && !genesisNft) {
+    if (insufficientFunds && !genesisNft && !pendingRevealQuestion) {
       return (
         <>
           <a
@@ -245,9 +282,11 @@ export function RevealContextProvider({
               onClick={() => burnAndReveal(!!"useGenesisNft")}
               className="flex items-center h-10"
             >
-              {genesisNft && !reveal?.multiple
-                ? "Reveal with genesis NFT"
-                : "Reveal"}
+              {!!pendingRevealQuestion
+                ? "Continue"
+                : genesisNft && !reveal?.multiple
+                  ? "Reveal with genesis NFT"
+                  : "Reveal"}
             </Button>
             <Button
               variant="black"
@@ -259,7 +298,10 @@ export function RevealContextProvider({
                   : setIsRevealModalOpen(false)
               }
             >
-              {genesisNft && !reveal?.multiple && !insufficientFunds
+              {genesisNft &&
+              !reveal?.multiple &&
+              !insufficientFunds &&
+              !pendingRevealQuestion
                 ? `Reveal for ${numberToCurrencyFormatter.format(reveal?.amount ?? 0)}
               BONK`
                 : "Cancel"}
@@ -291,16 +333,17 @@ export function RevealContextProvider({
     }
 
     return null;
-  }, [burnState, reveal, insufficientFunds]);
+  }, [burnState, reveal, insufficientFunds, pendingRevealQuestion]);
 
   const openRevealModal = useCallback(
     (
       reveal: (burnTx?: string, nftAddress?: string) => Promise<void>,
       amount: number,
+      questionId: number,
       multiple = false,
     ) => {
       setBurnState(INITIAL_BURN_STATE);
-      setReveal({ reveal, amount, multiple });
+      setReveal({ reveal, amount, questionId, multiple });
       setIsRevealModalOpen(true);
     },
     [setReveal, setIsRevealModalOpen, setBurnState],
@@ -335,7 +378,14 @@ export function RevealContextProvider({
   );
 
   const getDescriptionNode = () => {
-    if (insufficientFunds) {
+    if (pendingRevealQuestion) {
+      return (
+        <p className="text-sm">
+          It looks like you have started revealing this question. Please click
+          Continue.
+        </p>
+      );
+    } else if (insufficientFunds) {
       return (
         <p className="text-sm">
           It looks like you have insufficient funds to go to the next step.
@@ -374,11 +424,14 @@ export function RevealContextProvider({
             <div className="flex flex-row w-full items-center justify-between">
               <h3
                 className={classNames("font-bold", {
-                  "text-[#DD7944]": insufficientFunds,
-                  "text-[#A3A3EC]": !insufficientFunds,
+                  "text-[#DD7944]": insufficientFunds && !pendingRevealQuestion,
+                  "text-[#A3A3EC]":
+                    !insufficientFunds || !!pendingRevealQuestion,
                 })}
               >
-                {insufficientFunds ? "Insufficient Funds" : "Reveal answer?"}
+                {insufficientFunds && !pendingRevealQuestion
+                  ? "Insufficient Funds"
+                  : "Reveal answer?"}
               </h3>
             </div>
             {getDescriptionNode()}

@@ -21,11 +21,15 @@ export function HomeFeedRevealedQuestionsSection({
   const { openRevealModal } = useRevealedContext();
 
   const handleView = (q: RevealedQuestion) => {
-    openRevealModal(async (burnTx?: string, nftAddress?: string) => {
-      await revealQuestion(q.id, burnTx, nftAddress);
-      router.push("/application/answer/reveal/" + q.id);
-      router.refresh();
-    }, q.revealTokenAmount ?? 0);
+    openRevealModal(
+      async (burnTx?: string, nftAddress?: string) => {
+        await revealQuestion(q.id, burnTx, nftAddress);
+        router.push("/application/answer/reveal/" + q.id);
+        router.refresh();
+      },
+      q.revealTokenAmount ?? 0,
+      q.id,
+    );
   };
 
   const questionSlides = questions

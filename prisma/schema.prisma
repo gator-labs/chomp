@@ -146,19 +146,20 @@ model QuestionAnswer {
 }
 
 model ChompResult {
-  id                       Int        @id @default(autoincrement())
+  id                       Int               @id @default(autoincrement())
   userId                   String
-  user                     User       @relation(fields: [userId], references: [id])
+  user                     User              @relation(fields: [userId], references: [id])
   questionId               Int?
-  question                 Question?  @relation(fields: [questionId], references: [id])
+  question                 Question?         @relation(fields: [questionId], references: [id])
   deckId                   Int?
-  deck                     Deck?      @relation(fields: [deckId], references: [id])
+  deck                     Deck?             @relation(fields: [deckId], references: [id])
   burnTransactionSignature String?
   sendTransactionSignature String?
   rewardTokenAmount        Decimal?
   result                   ResultType
-  createdAt                DateTime   @default(now())
-  updatedAt                DateTime   @default(now()) @updatedAt
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @default(now()) @updatedAt
+  transactionStatus        TransactionStatus @default(Completed)
 }
 
 model FungibleAssetTransactionLog {
@@ -221,4 +222,9 @@ enum ResultType {
   Revealed
   Claimed
   Dismissed
+}
+
+enum TransactionStatus {
+  Pending
+  Completed
 }
