@@ -178,6 +178,7 @@ export async function claimQuestions(questionIds: number[]) {
     revalidatePath("/application");
     return sendTx;
   } catch (e) {
+    console.log("Error while claiming question", e);
     release();
     throw e;
   }
