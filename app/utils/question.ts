@@ -23,11 +23,7 @@ export type DeckQuestionIncludes = Question & {
     isCorrect: boolean;
     isLeft: boolean;
     calculatedIsCorrect: boolean | null;
-    questionAnswers: Array<
-      QuestionAnswer & {
-        percentageResult?: number | null;
-      }
-    >;
+    questionAnswers: QuestionAnswer[];
   }[];
   chompResults: ChompResult[];
 };
@@ -135,20 +131,24 @@ export const isEntityRevealable = (entity: RevealableEntityData) => {
   );
 };
 
-export const mapPercentageResult = (
+export const mapPercentages = (
   questions: DeckQuestionIncludes[],
   questionOptionPercentages: {
     id: number;
-    percentageResult: number;
+    firstOrderSelectedAnswerPercentage: number | null;
+    secondOrderAveragePercentagePicked: number | null;
   }[],
 ) => {
   questions.forEach((q) => {
     q.questionOptions?.forEach((qo: any) => {
       qo.questionAnswers?.forEach((qa: any) => {
-        qa.percentageResult =
-          questionOptionPercentages.find(
-            (qop) => qop.id === qa.questionOptionId,
-          )?.percentageResult ?? 0;
+        const optionPercentages = questionOptionPercentages.find(
+          (qop) => qop.id === qa.questionOptionId,
+        );
+        qa.firstOrderSelectedAnswerPercentage =
+          optionPercentages?.firstOrderSelectedAnswerPercentage ?? 0;
+        qa.secondOrderAveragePercentagePicked =
+          optionPercentages?.secondOrderAveragePercentagePicked ?? 0;
       });
     });
   });

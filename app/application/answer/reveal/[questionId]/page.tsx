@@ -137,7 +137,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
           rightOption={{
             option:
@@ -147,7 +147,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => !qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
           optionSelected={answerSelected.questionOption.option ?? ""}
           percentageSelected={answerSelected.percentage ?? 0}
@@ -183,7 +183,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             (qop, index) => ({
               option: qop.option ?? "",
               label: getAlphaIdentifier(index),
-              percentage: qop.percentageResult,
+              percentage: qop.secondOrderAveragePercentagePicked,
             }),
           )}
           optionSelected={answerSelected.questionOption.option ?? ""}
@@ -217,7 +217,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
           rightOption={{
             option:
@@ -227,7 +227,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             percentage:
               questionResponse.questionOptionPercentages.find(
                 (qop) => !qop.isLeft,
-              )?.percentageResult ?? 0,
+              )?.secondOrderAveragePercentagePicked ?? 0,
           }}
         />
       </>
@@ -246,7 +246,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
             (qop, index) => ({
               option: qop.option ?? "",
               label: getAlphaIdentifier(index),
-              percentage: qop.percentageResult,
+              percentage: qop.secondOrderAveragePercentagePicked,
             }),
           )}
         />
