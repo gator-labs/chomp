@@ -26,17 +26,22 @@ const ClaimButton = ({
   questionIds,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
-  const { successToast } = useToast();
+  const { successToast, errorToast } = useToast();
   const [isClaiming, setIsClaiming] = useState(false);
 
   const onClick = async () => {
-    if (isClaiming) return;
+    try {
+      if (isClaiming) return;
 
-    setIsClaiming(true);
-    await claimQuestions(questionIds);
-    fire();
-    successToast("Claimed!", "You have successfully claimed!");
-    setIsClaiming(false);
+      setIsClaiming(true);
+      await claimQuestions(questionIds);
+      fire();
+      successToast("Claimed!", "You have successfully claimed!");
+    } catch (error) {
+      errorToast("Error while claiming question");
+    } finally {
+      setIsClaiming(false);
+    }
   };
 
   if (!didAnswer) {

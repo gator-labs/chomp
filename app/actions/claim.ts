@@ -154,6 +154,7 @@ export async function claimQuestions(questionIds: number[]) {
     release();
     revalidatePath("/application");
   } catch (e) {
+    console.log("Error while claiming question", e);
     release();
     throw e;
   }
