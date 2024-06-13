@@ -15,7 +15,7 @@ import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
 import {
   isEntityRevealable,
-  mapPercentageResult,
+  mapPercentages,
   populateAnswerCount,
 } from "../utils/question";
 import { answerPercentageQuery } from "./answerPercentageQuery";
@@ -260,7 +260,7 @@ export async function getQuestionWithUserAnswer(questionId: number) {
 
   const populated = populateAnswerCount(question);
 
-  mapPercentageResult([question] as any, questionOptionPercentages);
+  mapPercentages([question] as any, questionOptionPercentages);
 
   const userAnswers = question.questionOptions
     .flatMap((option) =>
