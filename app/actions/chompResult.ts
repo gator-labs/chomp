@@ -370,13 +370,21 @@ export async function createQuestionChompResult(
     return null;
   }
 
-  await prisma.chompResult.createMany({
+  return prisma.chompResult.create({
     data: {
       userId: payload.sub,
       transactionStatus: TransactionStatus.Pending,
       questionId,
       result: ResultType.Revealed,
       burnTransactionSignature: burnTx,
+    },
+  });
+}
+
+export async function deleteQuestionChompResult(id: number) {
+  await prisma.chompResult.delete({
+    where: {
+      id,
     },
   });
 }

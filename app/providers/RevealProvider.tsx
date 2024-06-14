@@ -14,6 +14,7 @@ import {
 } from "react";
 import {
   createQuestionChompResult,
+  deleteQuestionChompResult,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getGenesisNft } from "../actions/used-nft-genesis";
@@ -56,7 +57,7 @@ export function RevealContextProvider({
   children: ReactNode;
   bonkBalance: number;
 }) {
-  const { promiseToast } = useToast();
+  const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [isClaimModelOpen, setIsClaimModalOpen] = useState(false);
   const [burnState, setBurnState] = useState<
@@ -145,79 +146,92 @@ export function RevealContextProvider({
   const burnAndReveal = useCallback(
     async (useGenesisNft = false) => {
       let burnTx: string | undefined;
+      let pendingChompResultId = questionChompResult?.id;
 
-      if (!!questionChompResult) {
-        setBurnState("burning");
-        const signature = questionChompResult.burnTransactionSignature!;
+      try {
+        if (!!questionChompResult) {
+          setBurnState("burning");
+          const signature = questionChompResult.burnTransactionSignature!;
 
-        await CONNECTION.getTransaction(
-          questionChompResult.burnTransactionSignature!,
-          {
-            commitment: "finalized",
-            maxSupportedTransactionVersion: 0,
-          },
-        );
-
-        burnTx = signature;
-      }
-
-      if (
-        (!useGenesisNft || !genesisNft || reveal?.multiple) &&
-        !questionChompResult
-      ) {
-        const blockhash = await CONNECTION.getLatestBlockhash();
-
-        const signer = await primaryWallet!.connector.getSigner<ISolana>();
-
-        const tx = await genBonkBurnTx(
-          primaryWallet!.address,
-          blockhash.blockhash,
-          reveal?.amount ?? 0,
-        );
-        setBurnState("burning");
-
-        let signature;
-
-        try {
-          const { signature: sn } = await promiseToast(
-            signer.signAndSendTransaction(tx),
+          await CONNECTION.getTransaction(
+            questionChompResult.burnTransactionSignature!,
             {
-              loading: "Waiting for signature...",
-              success: "Bonk burn transaction signed!",
-              error: "You denied message signature.",
+              commitment: "finalized",
+              maxSupportedTransactionVersion: 0,
             },
           );
 
-          signature = sn;
-        } catch (error) {
-          setBurnState(INITIAL_BURN_STATE);
-          setIsRevealModalOpen(false);
-          return;
+          burnTx = signature;
         }
 
-        await createQuestionChompResult(reveal!.questionId, signature);
+        if (
+          (!useGenesisNft || !genesisNft || reveal?.multiple) &&
+          !questionChompResult
+        ) {
+          const blockhash = await CONNECTION.getLatestBlockhash();
 
-        await CONNECTION.confirmTransaction(
-          {
-            blockhash: blockhash.blockhash,
-            lastValidBlockHeight: blockhash.lastValidBlockHeight,
+          const signer = await primaryWallet!.connector.getSigner<ISolana>();
+
+          const tx = await genBonkBurnTx(
+            primaryWallet!.address,
+            blockhash.blockhash,
+            reveal?.amount ?? 0,
+          );
+          setBurnState("burning");
+
+          let signature;
+
+          try {
+            const { signature: sn } = await promiseToast(
+              signer.signAndSendTransaction(tx),
+              {
+                loading: "Waiting for signature...",
+                success: "Bonk burn transaction signed!",
+                error: "You denied message signature.",
+              },
+            );
+
+            signature = sn;
+          } catch (error) {
+            setBurnState(INITIAL_BURN_STATE);
+            setIsRevealModalOpen(false);
+            return;
+          }
+
+          const chompResult = await createQuestionChompResult(
+            reveal!.questionId,
             signature,
-          },
-          "finalized",
+          );
+
+          pendingChompResultId = chompResult?.id || undefined;
+
+          await CONNECTION.confirmTransaction(
+            {
+              blockhash: blockhash.blockhash,
+              lastValidBlockHeight: blockhash.lastValidBlockHeight,
+              signature,
+            },
+            "finalized",
+          );
+
+          burnTx = signature;
+        }
+
+        await reveal!.reveal(
+          burnTx,
+          genesisNft && !reveal?.multiple ? genesisNft : undefined,
         );
 
-        burnTx = signature;
+        if (genesisNft && !reveal?.multiple) setGenesisNft(undefined);
+      } catch (error) {
+        if (pendingChompResultId)
+          await deleteQuestionChompResult(pendingChompResultId);
+
+        errorToast("Error happened while revealing question. Try again.");
+      } finally {
+        closeRevealModal();
+        setBurnState(INITIAL_BURN_STATE);
       }
-
-      await reveal!.reveal(
-        burnTx,
-        genesisNft && !reveal?.multiple ? genesisNft : undefined,
-      );
-
-      if (genesisNft && !reveal?.multiple) setGenesisNft(undefined);
-
-      closeRevealModal();
-      setBurnState(INITIAL_BURN_STATE);
     },
     [
       reveal,
@@ -226,6 +240,7 @@ export function RevealContextProvider({
       promiseToast,
       primaryWallet,
       closeRevealModal,
+      errorToast,
     ],
   );
 
