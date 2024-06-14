@@ -42,6 +42,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         data: {
           question: question.question,
           type: question.type,
+          imageUrl: question.imageUrl,
           revealToken: validatedFields.data.revealToken,
           revealTokenAmount: validatedFields.data.revealTokenAmount,
           revealAtDate: validatedFields.data.revealAtDate,
