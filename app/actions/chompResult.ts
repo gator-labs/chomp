@@ -360,7 +360,7 @@ export async function dismissQuestion(questionId: number) {
   revalidatePath("/application");
 }
 
-export async function createPendingRevealQuestion(
+export async function createQuestionChompResult(
   questionId: number,
   burnTx: string,
 ) {
@@ -381,7 +381,7 @@ export async function createPendingRevealQuestion(
   });
 }
 
-export async function getUsersRevealedQuestion(questionId: number) {
+export async function getUsersPendingChompResult(questionId: number) {
   const payload = await getJwtPayload();
 
   if (!payload) {
