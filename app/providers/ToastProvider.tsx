@@ -2,7 +2,6 @@
 import { ReactNode, createContext, useContext } from "react";
 import toast, { ToastOptions, Toaster } from "react-hot-toast";
 import AnimatedTimer from "../components/AnimatedTimer/AnimatedTimer";
-import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { ErrorIcon } from "../components/Icons/ToastIcons/ErrorIcon";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
@@ -67,14 +66,47 @@ const toastOptions: ToastOptions = {
   duration: 5000,
 };
 
+// Unified Toast Layout Function
+const toastLayout = (
+  IconComponent: React.ElementType,
+  message: string,
+  description?: string,
+  id?: string,
+) => (
+  <div style={{ ...toastOptions.style }}>
+    <div className="flex items-center gap-2">
+      <IconComponent height={26} width={26} />
+      <div className="flex flex-col">
+        <h4 className="text-sm font-bold text-left">{message}</h4>
+        {description && (
+          <p className="text-xs text-left text-[#999]">{description}</p>
+        )}
+      </div>
+    </div>
+    {id && <AnimatedTimer id={id} />}
+  </div>
+);
+
 const successToastLayout = (
   message: string,
   id: string,
   description?: string,
-) => (
+) => toastLayout(SuccessIcon, message, description, id);
+
+const infoToastLayout = (message: string, id: string, description?: string) =>
+  toastLayout(InfoIcon, message, description, id);
+
+const errorToastLayout = (message: string, id: string, description?: string) =>
+  toastLayout(ErrorIcon, message, description, id);
+
+const defaultToastLayout = (message: string, id: string) =>
+  toastLayout(SuccessIcon, message, undefined, id); // Using SuccessIcon as a placeholder for default
+
+// Loading Toast Layout without AnimatedTimer
+const loadingToastLayout = (message: string, description?: string) => (
   <div style={{ ...toastOptions.style }}>
     <div className="flex items-center gap-2">
-      <SuccessIcon height={26} width={26} />
+      <SpinnerIcon height={26} width={26} />
       <div className="flex flex-col">
         <h4 className="text-sm font-bold text-left">{message}</h4>
         {description && (
@@ -82,50 +114,6 @@ const successToastLayout = (
         )}
       </div>
     </div>
-    <AnimatedTimer id={id} />
-  </div>
-);
-
-const infoToastLayout = (message: string, id: string, description?: string) => (
-  <div style={{ ...toastOptions.style }}>
-    <div className="flex items-center gap-2">
-      <InfoIcon height={26} width={26} />
-      <div className="flex flex-col">
-        <h4 className="text-sm font-bold text-left">{message}</h4>
-        {description && (
-          <p className="text-xs text-left text-[#999]">{description}</p>
-        )}
-      </div>
-    </div>
-    <AnimatedTimer id={id} />
-  </div>
-);
-
-const errorToastLayout = (
-  message: string,
-  id: string,
-  description?: string,
-) => (
-  <div style={{ ...toastOptions.style }}>
-    <div className="flex items-center gap-2">
-      <ErrorIcon height={26} width={26} />
-      <div className="flex flex-col">
-        <h4 className="text-sm font-bold text-left">{message}</h4>
-        {description && (
-          <p className="text-xs text-left text-[#999]">{description}</p>
-        )}
-      </div>
-    </div>
-    <AnimatedTimer id={id} />
-  </div>
-);
-
-const defaultToastLayout = (message: string, id: string) => (
-  <div style={{ ...toastOptions.style }}>
-    <div className="flex flex-col">
-      <h4 className="text-sm font-bold text-left">{message}</h4>
-    </div>
-    <AnimatedTimer id={id} />
   </div>
 );
 
@@ -181,61 +169,45 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     },
     options?: ToastOptions,
   ) => {
-    return toast.promise(
-      promise,
-      {
-        loading: (
-          <>
-            <ChompFullScreenLoader
-              isLoading={msgs.isChompLoader ?? false}
-              loadingMessage="Transferring funds..."
-            />
-            <div className="flex flex-col justify-start items-start start w-full">
-              <h4 className="text-sm font-bold text-left">{msgs.loading}</h4>
-              {msgs.description && (
-                <p className="text-xs font-normal text-left text-[#999]">
-                  {msgs.description}
-                </p>
-              )}
-            </div>
-          </>
-        ),
-        success: (
-          <div className="flex flex-row justify-between text-center w-full">
-            <div className="flex flex-col justify-start items-start w-full">
-              <h4 className="text-sm font-bold text-left">{msgs.success}</h4>
-              {msgs.description && (
-                <p className="text-xs font-normal text-left text-[#999]">
-                  {msgs.description}
-                </p>
-              )}
-            </div>
-            <AnimatedTimer id="promise-toast" />
-          </div>
-        ),
-        error: (
-          <div className="flex flex-row justify-between text-center w-full">
-            <div className="flex flex-column justify-start items-start w-full">
-              <h4 className="text-base font-bold text-left">{msgs.error}</h4>
-              {msgs.description && (
-                <p className="text-xs font-normal text-left text-[#999]">
-                  {msgs.error}
-                </p>
-              )}
-            </div>
-            <AnimatedTimer id="promise-toast" />
-          </div>
-        ),
-      },
-      {
-        ...toastOptions,
-        ...options,
-        duration: undefined,
-        loading: { icon: <SpinnerIcon height={26} width={26} /> },
-        error: { icon: <ErrorIcon height={26} width={26} /> },
-        success: { icon: <SuccessIcon height={26} width={26} /> },
-      },
+    // Show the loading toast
+    const toastId = toast.custom(() =>
+      loadingToastLayout(msgs.loading, msgs.description),
     );
+
+    // Handle the promise resolution or rejection
+    promise
+      .then(() => {
+        toast.custom(
+          (t) =>
+            successToastLayout(
+              msgs.success,
+              t.id, // Ensure we pass the correct id to use AnimatedTimer
+              msgs.description,
+            ),
+          {
+            id: toastId,
+            ...toastOptions,
+            ...options,
+          },
+        );
+      })
+      .catch(() => {
+        toast.custom(
+          (t) =>
+            errorToastLayout(
+              msgs.error,
+              t.id, // Ensure we pass the correct id to use AnimatedTimer
+              msgs.description,
+            ),
+          {
+            id: toastId,
+            ...toastOptions,
+            ...options,
+          },
+        );
+      });
+
+    return promise;
   };
 
   return (
