@@ -29,11 +29,15 @@ export function RevealFeedQuestionCard({
   const { openRevealModal } = useRevealedContext();
 
   const handleReveal = () => {
-    openRevealModal(async (burnTx?: string, nftAddress?: string) => {
-      await revealQuestion(id, burnTx, nftAddress);
-      router.push("/application/answer/reveal/" + id);
-      router.refresh();
-    }, revealTokenAmount ?? 0);
+    openRevealModal(
+      async (burnTx?: string, nftAddress?: string) => {
+        await revealQuestion(id, burnTx, nftAddress);
+        router.push("/application/answer/reveal/" + id);
+        router.refresh();
+      },
+      revealTokenAmount ?? 0,
+      id,
+    );
   };
 
   return (

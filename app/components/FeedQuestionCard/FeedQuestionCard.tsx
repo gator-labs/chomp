@@ -1,4 +1,4 @@
-import { cloneElement, ReactElement } from "react";
+import { cloneElement, MouseEventHandler, ReactElement } from "react";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
 
 type FeedQuestionCardProps = {
@@ -6,7 +6,7 @@ type FeedQuestionCardProps = {
   revealAtDate?: Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
-  onTopCornerAction?: () => void;
+  onTopCornerAction?: MouseEventHandler<HTMLButtonElement> | undefined;
   topCornerActionIcon?: ReactElement;
   statusLabel?: ReactElement;
   action?: ReactElement;

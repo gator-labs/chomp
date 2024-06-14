@@ -2,7 +2,7 @@
 
 import { dasUmi } from "@/lib/web3";
 import { publicKey } from "@metaplex-foundation/umi";
-import { FungibleAsset, ResultType } from "@prisma/client";
+import { FungibleAsset, ResultType, TransactionStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import {
   COLLECTION_KEY,
@@ -278,23 +278,20 @@ export async function revealQuestions(
     const tokenAmount = await calculateReward(payload.sub, questionIds);
 
     await prisma.$transaction([
-      prisma.chompResult.createMany({
-        data: [
-          ...questionIds.map((questionId) => ({
-            questionId,
+      prisma.chompResult.updateMany({
+        data: {
+          transactionStatus: TransactionStatus.Completed,
+          rewardTokenAmount: tokenAmount,
+        },
+        where: {
+          AND: {
             userId: payload.sub,
-            result: ResultType.Revealed,
+            questionId: {
+              in: questionIds,
+            },
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: tokenAmount,
-          })),
-          ...decksToAddRevealFor.map((deck) => ({
-            deckId: deck.id,
-            userId: payload.sub,
-            result: ResultType.Revealed,
-            burnTransactionSignature: burnTx,
-            rewardTokenAmount: tokenAmount,
-          })),
-        ],
+          },
+        },
       }),
       prisma.fungibleAssetBalance.upsert({
         where: {
@@ -361,4 +358,49 @@ export async function dismissQuestion(questionId: number) {
   });
 
   revalidatePath("/application");
+}
+
+export async function createQuestionChompResult(
+  questionId: number,
+  burnTx: string,
+) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  return prisma.chompResult.create({
+    data: {
+      userId: payload.sub,
+      transactionStatus: TransactionStatus.Pending,
+      questionId,
+      result: ResultType.Revealed,
+      burnTransactionSignature: burnTx,
+    },
+  });
+}
+
+export async function deleteQuestionChompResult(id: number) {
+  await prisma.chompResult.delete({
+    where: {
+      id,
+    },
+  });
+}
+
+export async function getUsersPendingChompResult(questionId: number) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  return prisma.chompResult.findFirst({
+    where: {
+      userId: payload.sub,
+      questionId,
+      transactionStatus: TransactionStatus.Pending,
+    },
+  });
 }
