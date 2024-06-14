@@ -278,6 +278,15 @@ export async function revealQuestions(
     const tokenAmount = await calculateReward(payload.sub, questionIds);
 
     await prisma.$transaction([
+      prisma.chompResult.createMany({
+        data: decksToAddRevealFor.map((deck) => ({
+          deckId: deck.id,
+          userId: payload.sub,
+          result: ResultType.Revealed,
+          burnTransactionSignature: burnTx,
+          rewardTokenAmount: tokenAmount,
+        })),
+      }),
       prisma.chompResult.updateMany({
         data: {
           transactionStatus: TransactionStatus.Completed,
