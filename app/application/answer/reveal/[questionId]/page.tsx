@@ -45,7 +45,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   if (
     !questionResponse.isQuestionRevealable ||
-    !questionResponse.correctAnswer
+    !questionResponse.correctAnswer ||
+    !questionResponse.chompResults[0]
   ) {
     redirect("/application");
   }
