@@ -56,6 +56,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       tagIds: selectedTagIds,
       id: deck?.id,
     });
+    console.log(result);
     if (result?.errorMessage) {
       errorToast("Failed to save deck", result.errorMessage);
     }
@@ -132,6 +133,18 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="mb-3">
+              <label className="block mb-1">Image URL (optional)</label>
+              <TextInput
+                variant="secondary"
+                {...register(`questions.${questionIndex}.imageUrl`)}
+              />
+              <div className="text-red">
+                {errors.questions &&
+                  errors.questions[questionIndex]?.imageUrl?.message}
+              </div>
             </div>
 
             <div className="mb-3 flex flex-col gap-2">
