@@ -9,6 +9,7 @@ import { ClaimingProvider } from "../providers/ClaimingProvider";
 import ConfettiProvider from "../providers/ConfettiProvider";
 import MetadataProvider from "../providers/MetadataProvider";
 import { RevealContextProvider } from "../providers/RevealProvider";
+import { getQuestionsForReadyToRevealSection } from "../queries/home";
 import { getProfileImage } from "../queries/profile";
 import { getIsUserAdmin } from "../queries/user";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
@@ -23,6 +24,7 @@ export default async function Layout({ children }: PageLayoutProps) {
   const history = await getTransactionHistory();
   const profile = await getProfileImage();
   const address = getAddressFromVerifiedCredentials(payload);
+  const questionsForReveal = await getQuestionsForReadyToRevealSection();
 
   const bonkBalance = await getBonkBalance(address);
   const solBalance = await getSolBalance(address);
@@ -47,6 +49,7 @@ export default async function Layout({ children }: PageLayoutProps) {
                     date: h.createdAt,
                   }))}
                   address={address}
+                  revealedQuestions={questionsForReveal}
                 />
                 {children}
               </main>

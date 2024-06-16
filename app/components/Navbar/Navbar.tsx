@@ -1,8 +1,10 @@
 "use client";
+import { RevealedQuestion } from "@/app/queries/home";
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "../Avatar/Avatar";
 import { ChompFlatIcon } from "../Icons/ChompFlatIcon";
+import NotificationCenter from "../NotificationCenter/NotificationCenter";
 import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
 import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
 
@@ -13,6 +15,7 @@ export type NavbarProps = {
   transactions: TransactionData[];
   bonkBalance: number;
   solBalance: number;
+  revealedQuestions: RevealedQuestion[];
 };
 
 export function Navbar({
@@ -22,6 +25,7 @@ export function Navbar({
   address,
   bonkBalance,
   solBalance,
+  revealedQuestions,
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -48,9 +52,12 @@ export function Navbar({
         <button onClick={onNotificationClick}>
           <UnreadIcon />
         </button> */}
-        <button onClick={openQuickProfile}>
-          <Avatar src={avatarSrc} size="small" />
-        </button>
+        <div className="flex items-center justify-end gap-8">
+          <NotificationCenter questions={revealedQuestions} />
+          <button onClick={openQuickProfile}>
+            <Avatar src={avatarSrc} size="small" />
+          </button>
+        </div>
         <QuickViewProfile
           isOpen={isOpen}
           onClose={closeQuickProfile}
