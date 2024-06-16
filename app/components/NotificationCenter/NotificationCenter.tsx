@@ -102,25 +102,7 @@ const NotificationCenter = ({ questions }: NotificationCenterProps) => {
           />
         </div>
         <div className="flex flex-col gap-3 overflow-scroll">
-          {[
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-            ...questions,
-          ].map((question) => {
+          {questions.map((question) => {
             return (
               <div
                 key={question.id}
