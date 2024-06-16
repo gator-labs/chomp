@@ -37,6 +37,7 @@ export default async function Page() {
           dollarAmount: 0,
         })),
         address: address,
+        revealedQuestions: [],
       }}
     />
   );
