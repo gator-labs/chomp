@@ -5,6 +5,8 @@ require("dotenv").config({
   path: path.resolve(__dirname, "../.env.local"),
 });
 
+const tag = 'Test'
+
 const { PrismaClient, QuestionType, Token } = require("@prisma/client");
 
 console.log("Loaded environment variables:");
@@ -30,14 +32,14 @@ async function main(optionToSelect: string) {
   // Create a deck with one question
   const deck = await prisma.deck.create({
     data: {
-      deck: `Sample Deck ${new Date(Date.now())}`,
+      deck: `${tag}: Sample Deck ${new Date(Date.now())}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Reveal 24 hours later
       isActive: true,
       deckQuestions: {
         create: {
           question: {
             create: {
-              question: "What is the color of the sky?",
+              question: tag + ": What is the color of the sky?",
               type: QuestionType.BinaryQuestion, // Subjective question type
               revealToken: Token.Bonk,
               revealTokenAmount: 100,
@@ -59,7 +61,7 @@ async function main(optionToSelect: string) {
   console.log(`Created deck with ID: ${deck.id}`);
 
   // Create 20 users directly in the database
-  const users = await createUsers(20);
+  const susers = await createUsers(20);
 
   console.log(`Created ${users.length} users`);
 
