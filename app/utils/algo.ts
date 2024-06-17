@@ -216,13 +216,10 @@ export const calculateReward = async (
       (option) => option.calculatedIsCorrect,
     );
 
-    const correctOption = question.questionOptions.find(
-      (option) => option.isCorrect,
-    );
+    const correctOption = question.questionOptions[correctOptionIndex];
 
-    const calculatedCorrectOption = question.questionOptions.find(
-      (option) => option.calculatedIsCorrect,
-    );
+    const calculatedCorrectOption =
+      question.questionOptions[calculatedCorrectOptionIndex];
 
     const body = {
       first_order_choice:
