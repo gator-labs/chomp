@@ -26,7 +26,7 @@ async function createUsers(count: number) {
   return users;
 }
 
-async function main() {
+async function main(optionToSelect: string) {
   // Create a deck with one question
   const deck = await prisma.deck.create({
     data: {
@@ -37,16 +37,16 @@ async function main() {
         create: {
           question: {
             create: {
-              question: "Is the sky blue?",
-              type: QuestionType.BinaryQuestion, // Use QuestionType.MultiChoice for multiple choice
+              question: "What is the color of the sky?",
+              type: QuestionType.BinaryQuestion, // Subjective question type
               revealToken: Token.Bonk,
               revealTokenAmount: 100,
               revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Reveal 24 hours later
               durationMiliseconds: BigInt(600000), // Longer time to answer for testing
               questionOptions: {
                 create: [
-                  { option: "True", isCorrect: true, isLeft: true },
-                  { option: "False", isCorrect: false, isLeft: false },
+                  { option: "User's opinion" },
+                  { option: "Another User's opinion" },
                 ],
               },
             },
@@ -63,8 +63,8 @@ async function main() {
 
   console.log(`Created ${users.length} users`);
 
-  // Simulate users answering the question randomly
-  const questionOptionIds = await prisma.questionOption.findMany({
+  // Fetch the options for the created question
+  const questionOptions = await prisma.questionOption.findMany({
     where: {
       question: {
         deckQuestions: {
@@ -74,16 +74,26 @@ async function main() {
         },
       },
     },
-    select: { id: true },
   });
 
+  // Determine the selected option based on the input parameter
+  const selectedOption =
+    optionToSelect === "first"
+      ? questionOptions[0]
+      : optionToSelect === "second"
+        ? questionOptions[1]
+        : null;
+
+  // Simulate users answering the question with the specified option
   for (const user of users) {
-    const selectedOption =
-      questionOptionIds[Math.floor(Math.random() * questionOptionIds.length)];
+    const selectedOptionId = selectedOption
+      ? selectedOption.id
+      : questionOptions[Math.floor(Math.random() * questionOptions.length)].id;
+
     await prisma.questionAnswer.create({
       data: {
         userId: user.id,
-        questionOptionId: selectedOption.id,
+        questionOptionId: selectedOptionId,
         percentage: Math.floor(Math.random() * 100),
         selected: false,
         timeToAnswer: BigInt(Math.floor(Math.random() * 60000)), // Random time to answer within 60 seconds
@@ -91,10 +101,16 @@ async function main() {
     });
   }
 
-  console.log("Users have answered the question randomly");
+  console.log(
+    `Users have answered the question with the ${optionToSelect} option`,
+  );
 }
 
-main()
+// Parse the command line arguments to determine which option to select
+const args = process.argv.slice(2);
+const optionToSelect = args[0]; // The first argument is the option ("first" or "second")
+
+main(optionToSelect)
   .then(async () => {
     await prisma.$disconnect();
   })
