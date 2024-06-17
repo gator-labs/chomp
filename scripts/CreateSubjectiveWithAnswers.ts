@@ -64,7 +64,7 @@ async function main() {
   console.log(`Created ${users.length} users`);
 
   // Simulate users answering the question randomly
-  const questionOptionIds = await prisma.questionOption.findMany({
+  const questionOptions = await prisma.questionOption.findMany({
     where: {
       question: {
         deckQuestions: {
@@ -78,20 +78,25 @@ async function main() {
   });
 
   for (const user of users) {
-    const selectedOption =
-      questionOptionIds[Math.floor(Math.random() * questionOptionIds.length)];
-    await prisma.questionAnswer.create({
-      data: {
-        userId: user.id,
-        questionOptionId: selectedOption.id,
-        percentage: Math.floor(Math.random() * 100),
-        selected: false,
-        timeToAnswer: BigInt(Math.floor(Math.random() * 60000)), // Random time to answer within 60 seconds
-      },
-    });
+    const selectedOptionId =
+      questionOptions[Math.floor(Math.random() * questionOptions.length)].id;
+
+    for (const option of questionOptions) {
+      await prisma.questionAnswer.create({
+        data: {
+          userId: user.id,
+          questionOptionId: option.id,
+          percentage: Math.floor(Math.random() * 100),
+          selected: option.id === selectedOptionId,
+          timeToAnswer: BigInt(Math.floor(Math.random() * 60000)), // Random time to answer within 60 seconds
+        },
+      });
+    }
   }
 
-  console.log("Users have answered the question randomly");
+  console.log(
+    "Users have answered the question randomly with all options saved",
+  );
 }
 
 main()

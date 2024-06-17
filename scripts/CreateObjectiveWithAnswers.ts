@@ -86,19 +86,23 @@ async function main(optionToSelect: string) {
 
   // Simulate users answering the question with the specified option
   for (const user of users) {
-    const selectedOptionId = selectedOption
-      ? selectedOption.id
-      : questionOptions[Math.floor(Math.random() * questionOptions.length)].id;
-
-    await prisma.questionAnswer.create({
-      data: {
-        userId: user.id,
-        questionOptionId: selectedOptionId,
-        percentage: Math.floor(Math.random() * 100),
-        selected: false,
-        timeToAnswer: BigInt(Math.floor(Math.random() * 60000)), // Random time to answer within 60 seconds
-      },
-    });
+    for (const option of questionOptions) {
+      await prisma.questionAnswer.create({
+        data: {
+          userId: user.id,
+          questionOptionId: option.id,
+          percentage: Math.floor(Math.random() * 100),
+          selected:
+            option.id ===
+            (selectedOption
+              ? selectedOption.id
+              : questionOptions[
+                  Math.floor(Math.random() * questionOptions.length)
+                ].id),
+          timeToAnswer: BigInt(Math.floor(Math.random() * 60000)), // Random time to answer within 60 seconds
+        },
+      });
+    }
   }
 
   console.log(
