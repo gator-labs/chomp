@@ -61,7 +61,7 @@ async function main(optionToSelect: string) {
   console.log(`Created deck with ID: ${deck.id}`);
 
   // Create 20 users directly in the database
-  const susers = await createUsers(20);
+  const users = await createUsers(20);
 
   console.log(`Created ${users.length} users`);
 
