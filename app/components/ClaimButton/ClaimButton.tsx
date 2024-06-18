@@ -17,7 +17,7 @@ interface ClaimButtonProps {
   rewardAmount?: number;
   didAnswer?: boolean;
   questionIds: number[];
-  transactionHash: string;
+  transactionHash?: string;
 }
 
 const ClaimButton = ({
@@ -38,10 +38,12 @@ const ClaimButton = ({
 
       setIsClaiming(true);
 
-      await CONNECTION.getTransaction(transactionHash, {
+      const tx = await CONNECTION.getTransaction(transactionHash!, {
         commitment: "confirmed",
         maxSupportedTransactionVersion: 0,
       });
+
+      if (!tx) return errorToast("Cannot get transaction");
 
       promiseToast(claimQuestions(questionIds), {
         loading: "Claiming your rewards...",

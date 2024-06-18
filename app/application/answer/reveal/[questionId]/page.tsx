@@ -293,7 +293,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
         didAnswer={!!answerSelected}
         questionIds={[questionResponse.id]}
         transactionHash={
-          questionResponse.chompResults[0].burnTransactionSignature!
+          questionResponse.chompResults[0]?.burnTransactionSignature || ""
         }
       />
       {sendTransactionSignature && (
