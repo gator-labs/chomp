@@ -1,11 +1,11 @@
-const path = require("path");
 const { v4: uuidv4 } = require("uuid");
+const path = require("path");
 
 require("dotenv").config({
   path: path.resolve(__dirname, "../.env.local"),
 });
 
-const tag = 'Test'
+const tag = "Test";
 
 const { PrismaClient, QuestionType, Token } = require("@prisma/client");
 
@@ -15,7 +15,7 @@ console.log("DATABASE_PRISMA_URL:", process.env.DATABASE_PRISMA_URL);
 const prisma = new PrismaClient();
 
 async function createUsers(count: number) {
-  const users = [];
+  const users: { id: string; username: string }[] = [];
   for (let i = 0; i < count; i++) {
     users.push({
       id: uuidv4(), // Generate a unique UUID for each user
@@ -39,16 +39,16 @@ async function main(optionToSelect: string) {
         create: {
           question: {
             create: {
-              question: tag + ": What is the color of the sky?",
-              type: QuestionType.BinaryQuestion, // Subjective question type
+              question: tag + ": Is the sky blue?",
+              type: QuestionType.BinaryQuestion,
               revealToken: Token.Bonk,
               revealTokenAmount: 100,
               revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Reveal 24 hours later
               durationMiliseconds: BigInt(600000), // Longer time to answer for testing
               questionOptions: {
                 create: [
-                  { option: "User's opinion" },
-                  { option: "Another User's opinion" },
+                  { option: "True", isCorrect: true, isLeft: true },
+                  { option: "False", isCorrect: false, isLeft: false },
                 ],
               },
             },
