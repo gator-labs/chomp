@@ -1,4 +1,3 @@
-"use client";
 import { revealQuestion } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { RevealedQuestion } from "@/app/queries/home";
@@ -29,7 +28,7 @@ const NotificationCenter = ({ questions }: NotificationCenterProps) => {
     setIsOpen(!isOpen);
   };
 
-  const handleClickOutside = (event: MouseEvent) => {
+  const handleClickOutside = (event: MouseEvent | TouchEvent) => {
     if (
       sheetRef.current &&
       !sheetRef.current.contains(event.target as Node) &&
@@ -43,13 +42,15 @@ const NotificationCenter = ({ questions }: NotificationCenterProps) => {
   useEffect(() => {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     }
 
-    // Cleanup event listener on component unmount
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [isOpen]);
 
@@ -147,7 +148,6 @@ const NotificationCenter = ({ questions }: NotificationCenterProps) => {
   );
 };
 
-// Define the styles object with CSSProperties type
 const styles: { [key: string]: CSSProperties } = {
   bellButton: {
     border: "none",
