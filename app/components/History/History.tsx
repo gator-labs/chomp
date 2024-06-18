@@ -2,8 +2,9 @@
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import { HistoryResult, HistorySortOptions } from "@/app/queries/history";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
+import { useRouter } from "next-nprogress-bar";
 import dynamic from "next/dynamic";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import TotalRewardsClaimAll from "./TotalRewardsClaimAll/TotalRewardsClaimAll";
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "../Button/Button";
 import { TrophyGraphic } from "../Graphics/TrophyGraphic";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 import { QUESTION_CARD_CONTENT } from "./constants";
+
+import { useRouter } from "next-nprogress-bar";
 
 type NoQuestionsCardProps = {
   variant: "daily-deck" | "regular-deck" | "answer-page";

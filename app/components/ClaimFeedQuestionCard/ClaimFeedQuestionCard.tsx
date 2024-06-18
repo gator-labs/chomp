@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 import { Button } from "../Button/Button";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { MoneyIcon } from "../Icons/MoneyIcon";
