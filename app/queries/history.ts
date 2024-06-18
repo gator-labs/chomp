@@ -10,6 +10,8 @@ export type HistoryResult = {
   revealTokenAmount: number;
   isRevealable: boolean;
   isRevealed: boolean;
+  isClaimed: boolean;
+  isChomped: boolean;
   type: "Question" | "Deck";
 };
 
@@ -47,150 +49,158 @@ export async function getHistory(
 
   const response: HistoryResult[] = await prisma.$queryRawUnsafe(`
 select
-  *
+*
 from
 (
 	( 
-	select
-		q."id",
-		q."question",
-		q."revealAtDate",
-		(
-			select
-				count(distinct concat(qa."userId",qo."questionId"))
-			from public."QuestionOption" qo
-			join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-			where qo."questionId" = q."id"
-		) as "answerCount",
-		q."revealAtAnswerCount",
-		q."revealTokenAmount",
-		(
+		select
+			q."id",
+			q."question",
+			q."revealAtDate",
 			(
-			q."revealAtDate" is not null 
-			and 
-			q."revealAtDate" < now() 
-			)
-			or 
-			(
-			q."revealAtAnswerCount" is not null
-			and
-			q."revealAtAnswerCount" >=
-				(
 				select
 					count(distinct concat(qa."userId",qo."questionId"))
 				from public."QuestionOption" qo
 				join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
 				where qo."questionId" = q."id"
+			) as "answerCount",
+			q."revealAtAnswerCount",
+			q."revealTokenAmount",
+			(
+				(
+				q."revealAtDate" is not null 
+				and 
+				q."revealAtDate" < now() 
 				)
-			)
-		) as "isRevealable",
-		(
-			q."id" in
+				or 
+				(
+				q."revealAtAnswerCount" is not null
+				and
+				q."revealAtAnswerCount" >=
+					(
+					select
+						count(distinct concat(qa."userId",qo."questionId"))
+					from public."QuestionOption" qo
+					join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+					where qo."questionId" = q."id"
+					)
+				)
+			) as "isRevealable",
 			(
-				select
-					cr."questionId"
-				from public."ChompResult" cr
-				where cr."questionId" = q."id" and cr."userId" = '${userId}' and cr."result" = 'Revealed'
-			)
-			or
-			q."id" in
+				q."id" in
+				(
+					select
+						cr."questionId"
+					from public."ChompResult" cr
+					where cr."questionId" = q."id" and cr."userId" = '${userId}' and cr."result" = 'Revealed'
+				)
+			) as "isRevealed",
 			(
-				select
-					dq."questionId"
-				from public."DeckQuestion" dq
-				join public."Deck" d on d."id" = dq."deckId"
-				join public."ChompResult" cr on cr."deckId" = d."id"
-				where cr."userId" = '${userId}' and dq."questionId" = q."id" and cr."result" = 'Revealed'
-			)
-		) as "isRevealed",
-		'Question' as "type"
-	from public."Question" q 
-	where q."id" in
-			(
-				select 
-					qo."questionId"
-				from public."QuestionOption" qo
-				join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-				where qa."userId" = '${userId}' and qo."questionId" = q."id"
-			)
-		and
-			q."id" not in
-	    	(
-	    		select
-	    			dq."questionId"
-	    		from public."DeckQuestion" dq
-	    		where dq."questionId" = q."id"
-	    	)
-		and
-		(
-			q."id" not in
-			(
-				select
-					cr."questionId"
-				from public."ChompResult" cr
-				where cr."questionId" = q."id" and cr."userId" = '${userId}' and cr."result" = 'Claimed'
-			)
+				q."id" in
+				(
+					select
+						cr."questionId"
+					from public."ChompResult" cr
+					where cr."questionId" = q."id" and cr."userId" = '${userId}' and cr."result" = 'Claimed'
+				)
+			) as "isClaimed",
+			true as "isChomped",
+			'Question' as "type"
+		from public."Question" q 
+		where q."id" in
+				(
+					select 
+						qo."questionId"
+					from public."QuestionOption" qo
+					join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+					where qa."userId" = '${userId}' and qo."questionId" = q."id"
+				)
 			and
-			q."id" not in
-			(
-				select
-					dq."questionId"
-				from public."DeckQuestion" dq
-				join public."Deck" d on d."id" = dq."deckId"
-				join public."ChompResult" cr on cr."deckId" = d."id"
-				where cr."userId" = '${userId}' and dq."questionId" = q."id" and cr."result" = 'Claimed'
-			)
-		)
+				q."id" not in
+		    	(
+		    		select
+		    			dq."questionId"
+		    		from public."DeckQuestion" dq
+		    		where dq."questionId" = q."id"
+		    	)
 	)
 	union
 	(
 		select
-		d."id",
-		d."deck",
-		d."revealAtDate",
-		(
-			select
-				count(distinct concat(qa."userId", dq."deckId"))
-			from public."QuestionOption" qo
-			join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-			join public."DeckQuestion" dq on dq."questionId"  = qo."questionId"
-			where dq."deckId" = d."id"
-		) as "answerCount",
-		d."revealAtAnswerCount",
-		0 as "revealTokenAmount",
-		(
+			d."id",
+			d."deck",
+			d."revealAtDate",
 			(
-			d."revealAtDate" is not null 
-			and 
-			d."revealAtDate" < now() 
-			)
-			or 
-			(
-			d."revealAtAnswerCount" is not null
-			and
-			d."revealAtAnswerCount" >=
-				(
 				select
 					count(distinct concat(qa."userId", dq."deckId"))
 				from public."QuestionOption" qo
 				join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
 				join public."DeckQuestion" dq on dq."questionId"  = qo."questionId"
 				where dq."deckId" = d."id"
-				)
-			)
-		) as "isRevealable",
-		(
-			d."id" in
+			) as "answerCount",
+			d."revealAtAnswerCount",
+			0 as "revealTokenAmount",
 			(
-				select
-					cr."deckId"
-				from public."ChompResult" cr
-				where cr."deckId" = d."id" and cr."userId" = '${userId}' and cr."result" = 'Revealed'
-			)
-		) as "isRevealed",
-		'Deck' as "type"
-	from public."Deck" d 
-	where d."id" in
+				(
+				d."revealAtDate" is not null 
+				and 
+				d."revealAtDate" < now() 
+				)
+				or 
+				(
+				d."revealAtAnswerCount" is not null
+				and
+				d."revealAtAnswerCount" >=
+					(
+					select
+						count(distinct concat(qa."userId", dq."deckId"))
+					from public."QuestionOption" qo
+					join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+					join public."DeckQuestion" dq on dq."questionId"  = qo."questionId"
+					where dq."deckId" = d."id"
+					)
+				)
+			) as "isRevealable",
+			(
+				d."id" in
+				(
+					select
+						cr."deckId"
+					from public."ChompResult" cr
+					where cr."deckId" = d."id" and cr."userId" = '${userId}' and cr."result" = 'Revealed'
+				)
+			) as "isRevealed",
+			(
+				d."id" in
+				(
+					select
+						cr."deckId"
+					from public."ChompResult" cr
+					where cr."deckId" = d."id" and cr."userId" = '${userId}' and cr."result" = 'Claimed'
+				)
+			) as "isClaimed",
+			(
+				(
+					select 
+						count(distinct dq."deckId" + dq."questionId")
+					from public."QuestionOption" qo
+					join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+					join public."DeckQuestion" dq on dq."questionId"  = qo."questionId"
+					where qa."userId" = '${userId}' and dq."deckId" = d."id"
+					limit 1
+				)
+				=
+				(
+					select 
+						count(distinct dq."deckId" + dq."questionId")
+					from public."DeckQuestion" dq
+					where dq."deckId" = d."id"
+					limit 1
+				)
+			) as "isChomped",
+			'Deck' as "type"
+		from public."Deck" d 
+		where d."id" in
 			(
 				select 
 					dq."deckId"
@@ -199,16 +209,6 @@ from
 				join public."DeckQuestion" dq on dq."questionId"  = qo."questionId"
 				where qa."userId" = '${userId}' and dq."deckId" = d."id"
 			)
-		and
-		(
-			d."id" not in
-			(
-				select
-					cr."deckId"
-				from public."ChompResult" cr
-				where cr."deckId" = d."id" and cr."userId" = '${userId}' and cr."result" = 'Claimed'
-			)
-		)
 	)
 )
 order by ${getSort()}

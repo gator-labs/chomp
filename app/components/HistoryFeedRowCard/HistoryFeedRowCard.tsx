@@ -18,14 +18,18 @@ export function HistoryFeedRowCard({ element }: HistoryFeedRowCardProps) {
     return <ClaimFeedQuestionCard {...element} />;
   }
 
-  let statusLabel = <></>;
+  let statusLabel = <span className="text-xs leading-6 text-aqua">Chomp now</span>;;
 
-  if (element.isRevealable) {
+  if (element.isChomped) {
     statusLabel = <span className="text-xs leading-6 text-aqua">Chomped</span>;
   }
 
   if (element.isRevealed) {
     statusLabel = <span className="text-xs leading-6 text-aqua">Revealed</span>;
+  }
+
+  if (element.isClaimed) {
+    statusLabel = <span className="text-xs leading-6 text-aqua">Claimed</span>;
   }
 
   const feedCard = <FeedQuestionCard {...element} statusLabel={statusLabel} />;
