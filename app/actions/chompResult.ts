@@ -124,6 +124,7 @@ export async function revealQuestions(
         chompResults: {
           where: {
             userId: payload.sub,
+            transactionStatus: TransactionStatus.Completed,
           },
           select: {
             id: true,
@@ -171,6 +172,7 @@ export async function revealQuestions(
       const burnTransactionCount = await prisma.chompResult.count({
         where: {
           burnTransactionSignature: burnTx,
+          transactionStatus: TransactionStatus.Completed,
         },
       });
 
