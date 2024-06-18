@@ -17,7 +17,7 @@
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate",
     "storybook": "storybook dev -p 6006",
-    "dev:subj-question": "ts-node scripts/CreateSubjectiveWithAnswers.ts",
+    "dev:subj-question": "ts-node scripts/CreateSubjectiveWithAnswers.ts first",
     "dev:obj-question": "ts-node scripts/CreateObjectiveWithAnswers.ts first",
     "build-storybook": "storybook build",
     "test": "jest --watch",
