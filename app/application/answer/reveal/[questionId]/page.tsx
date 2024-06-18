@@ -292,6 +292,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
         rewardAmount={questionResponse.chompResults[0]?.rewardTokenAmount ?? 0}
         didAnswer={!!answerSelected}
         questionIds={[questionResponse.id]}
+        transactionHash={
+          questionResponse.chompResults[0].burnTransactionSignature!
+        }
       />
       {sendTransactionSignature && (
         <a

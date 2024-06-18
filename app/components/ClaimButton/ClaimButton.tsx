@@ -4,6 +4,7 @@ import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { CONNECTION } from "@/app/utils/solana";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
@@ -16,6 +17,7 @@ interface ClaimButtonProps {
   rewardAmount?: number;
   didAnswer?: boolean;
   questionIds: number[];
+  transactionHash: string;
 }
 
 const ClaimButton = ({
@@ -24,27 +26,37 @@ const ClaimButton = ({
   rewardAmount,
   didAnswer = true,
   questionIds,
+  transactionHash,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
-  const { promiseToast } = useToast();
+  const { promiseToast, errorToast } = useToast();
   const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClick = async () => {
-    if (isClaiming) return;
+    try {
+      if (isClaiming) return;
 
-    setIsClaiming(true);
+      setIsClaiming(true);
 
-    promiseToast(claimQuestions(questionIds), {
-      loading: "Claiming your rewards...",
-      success: "You have successfully claimed your rewards!",
-      error: "Failed to claim rewards. Please try again.",
-    })
-      .then(() => {
-        fire();
-      })
-      .finally(() => {
-        setIsClaiming(false);
+      await CONNECTION.getTransaction(transactionHash, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
       });
+
+      promiseToast(claimQuestions(questionIds), {
+        loading: "Claiming your rewards...",
+        success: "You have successfully claimed your rewards!",
+        error: "Failed to claim rewards. Please try again.",
+      })
+        .then(() => {
+          fire();
+        })
+        .finally(() => {
+          setIsClaiming(false);
+        });
+    } catch (error) {
+      errorToast("Failed to claim rewards. Please try again.");
+    }
   };
 
   if (!didAnswer) {
