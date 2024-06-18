@@ -1,14 +1,11 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { RevealedQuestion } from "@/app/queries/home";
-import { getRevealedAtString } from "@/app/utils/dateUtils";
 import { useRouter } from "next/navigation";
 import { CSSProperties, useEffect, useRef, useState } from "react";
-import { Button } from "../Button/Button";
 import { BellIcon } from "../Icons/BellIcon";
-import { ClockIcon } from "../Icons/ClockIcon";
 import { CloseIcon } from "../Icons/CloseIcon";
-import { ViewsIcon } from "../Icons/ViewsIcon";
+import { RevealFeedQuestionCard } from "../RevealFeedQuestionCard/RevealFeedQuestionCard";
 
 type NotificationCenterProps = {
   questions: RevealedQuestion[];
@@ -105,41 +102,13 @@ const NotificationCenter = ({ questions }: NotificationCenterProps) => {
         <div className="flex flex-col gap-3 overflow-scroll">
           {questions.map((question) => {
             return (
-              <div
+              <RevealFeedQuestionCard
                 key={question.id}
-                className="bg-btn-border-black rounded-lg border-[0.5px] border-solid border-[#666666] p-3 flex flex-col gap-1.5"
-              >
-                <div className="text-[13px] font-normal leading-[16.38px] text-left min-h-[3rem]">
-                  {question.question}
-                </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center justify-start gap-1">
-                    <ClockIcon width={18} height={18} />
-                    <span className="text-[10px] font-light leading-[12.6px] text-left">
-                      {getRevealedAtString(question.revealAtDate!)}
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-light leading-[12.6px] text-left text-aqua">
-                    Chomped
-                  </span>
-                </div>
-                <Button
-                  onClick={() => {
-                    setIsOpen(false);
-                    handleReveal({
-                      revealTokenAmount: question.revealTokenAmount!,
-                      id: question.id,
-                    });
-                  }}
-                  variant="grayish"
-                  className="!py-3"
-                >
-                  <div className="flex justify-center gap-1 items-center text-white">
-                    <div>Reveal</div>
-                    <ViewsIcon />
-                  </div>
-                </Button>
-              </div>
+                {...question}
+                closeNotificationCenter={() => {
+                  setIsOpen(false);
+                }}
+              />
             );
           })}
         </div>

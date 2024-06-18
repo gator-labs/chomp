@@ -15,6 +15,7 @@ type RevealFeedQuestionCardProps = {
   answerCount?: number;
   revealAtAnswerCount?: number;
   revealTokenAmount?: number;
+  closeNotificationCenter?: () => void;
 };
 
 export function RevealFeedQuestionCard({
@@ -24,6 +25,7 @@ export function RevealFeedQuestionCard({
   answerCount,
   revealAtAnswerCount,
   revealTokenAmount,
+  closeNotificationCenter,
 }: RevealFeedQuestionCardProps) {
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
@@ -48,7 +50,15 @@ export function RevealFeedQuestionCard({
       revealAtDate={revealAtDate}
       statusLabel={<span className="text-xs leading-6 text-aqua">Chomped</span>}
       action={
-        <Button onClick={handleReveal} variant="grayish">
+        <Button
+          onClick={() => {
+            handleReveal();
+            if (closeNotificationCenter) {
+              closeNotificationCenter();
+            }
+          }}
+          variant="grayish"
+        >
           <div className="flex justify-center gap-1 items-center text-white">
             <div>Reveal</div>
             <ViewsIcon />
