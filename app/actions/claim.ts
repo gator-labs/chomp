@@ -49,6 +49,18 @@ export async function claimAllAvailable() {
 }
 
 export async function claimQuestions(questionIds: number[]) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  console.log(
+    "user with id ",
+    payload.sub,
+    " tries to claim questions ",
+    questionIds,
+  );
   return null;
 
   // const payload = await getJwtPayload();

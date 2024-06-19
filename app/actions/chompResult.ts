@@ -95,6 +95,23 @@ export async function revealQuestions(
   burnTx?: string,
   nftAddress?: string,
 ) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  console.log(
+    "user with id ",
+    payload.sub,
+    " tries to reveal questions ",
+    questionIds,
+    " burn tx ",
+    burnTx,
+    " nft address ",
+    nftAddress,
+  );
+
   return null;
   // const payload = await getJwtPayload();
 
