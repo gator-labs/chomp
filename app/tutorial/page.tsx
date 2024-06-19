@@ -33,6 +33,7 @@ const TutorialPage = async () => {
             bonkBalance={0}
             solBalance={0}
             transactions={[]}
+            revealedQuestions={[]}
           />
         </div>
         <div className="px-6 py-5 mb-2">
