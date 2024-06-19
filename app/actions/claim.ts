@@ -4,7 +4,7 @@ import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
-  console.log("claim deck fired");
+  console.log("claim deck fired with id ", deckId);
 
   const decks = await claimDecks([deckId]);
   return decks ? decks[0] : null;
@@ -26,7 +26,7 @@ export async function claimDecks(deckIds: number[]) {
     },
   });
 
-  console.log("claim decks fired");
+  console.log("claim decks fired with deck ids ", deckIds);
 
   return await claimQuestions(questions.map((q) => q.questionId));
 }
