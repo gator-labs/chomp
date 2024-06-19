@@ -47,7 +47,7 @@ async function main(optionToSelect: string) {
               durationMiliseconds: BigInt(600000), // Longer time to answer for testing
               questionOptions: {
                 create: [
-                  { option: "User's opinion" },
+                  { option: "User's opinion", isLeft: true },
                   { option: "Another User's opinion" },
                 ],
               },
