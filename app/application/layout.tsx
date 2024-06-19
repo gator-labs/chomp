@@ -30,7 +30,7 @@ export default async function Layout({ children }: PageLayoutProps) {
   const isAdmin = await getIsUserAdmin();
 
   return (
-    <ConfettiProvider>
+    // <ConfettiProvider>
       <ClaimingProvider>
         <RevealContextProvider bonkBalance={bonkBalance}>
           <MetadataProvider profileSrc={profile}>
@@ -57,6 +57,6 @@ export default async function Layout({ children }: PageLayoutProps) {
           </MetadataProvider>
         </RevealContextProvider>
       </ClaimingProvider>
-    </ConfettiProvider>
+  // </ConfettiProvider>
   );
 }
