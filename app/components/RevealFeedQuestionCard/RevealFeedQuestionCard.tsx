@@ -6,7 +6,7 @@ import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
 
 import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 
 type RevealFeedQuestionCardProps = {
   id: number;

@@ -4,7 +4,7 @@ import { dismissQuestion, revealQuestion } from "@/app/actions/chompResult";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { RevealedQuestion } from "@/app/queries/home";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";

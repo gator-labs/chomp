@@ -5,7 +5,7 @@ import { useStopwatch } from "@/app/hooks/useStopwatch";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 import { useCallback, useEffect, useState } from "react";
 import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
 import { QuestionAction } from "../QuestionAction/QuestionAction";

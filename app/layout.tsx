@@ -6,6 +6,7 @@ import { sora } from "@/lib/fonts";
 import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
+import LinkProgressBar from "./components/LinkProgressBar/LinkProgressBar";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
 import { ToastProvider } from "./providers/ToastProvider";
 
@@ -43,6 +44,7 @@ export default function RootLayout({
             Demo mode
           </div>
         )}
+        <LinkProgressBar />
         <DynamicProvider>
           <ToastProvider>
             <MobileChromeDetector>{children}</MobileChromeDetector>
