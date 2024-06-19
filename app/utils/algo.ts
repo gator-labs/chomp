@@ -233,9 +233,9 @@ export const calculateReward = async (
       second_order_estimate: userAnswer.percentage,
       second_order_mean: (correctOption || calculatedCorrectOption)
         ?.calculatedAveragePercentage,
-      second_order_estimates: question.questionOptions
-        .find((option) => option.id === userAnswer.questionOptionId)
-        ?.questionAnswers.map((answer) => answer.percentage),
+      second_order_estimates: (
+        correctOption || calculatedCorrectOption
+      )?.questionAnswers.map((answer) => answer.percentage),
     };
 
     console.log(
