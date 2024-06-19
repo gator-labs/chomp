@@ -21,8 +21,6 @@ const Sheet = ({
   closIconWidth,
   disableClose = false,
 }: SheetProps) => {
-  if (!isOpen) return null;
-
   return (
     <BottomSheet
       open={isOpen}
