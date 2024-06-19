@@ -28,7 +28,10 @@ async function createUsers(count: number) {
   return users;
 }
 
-async function main(optionToSelect: string) {
+async function main(
+  correctOption: string = "first",
+  userSelectionMode: string,
+) {
   // Create a deck with one question
   const deck = await prisma.deck.create({
     data: {
@@ -47,8 +50,16 @@ async function main(optionToSelect: string) {
               durationMiliseconds: BigInt(600000), // Longer time to answer for testing
               questionOptions: {
                 create: [
-                  { option: "True", isCorrect: true, isLeft: true },
-                  { option: "False", isCorrect: false, isLeft: false },
+                  {
+                    option: "True",
+                    isCorrect: correctOption === "first",
+                    isLeft: true,
+                  },
+                  {
+                    option: "False",
+                    isCorrect: correctOption === "second",
+                    isLeft: false,
+                  },
                 ],
               },
             },
@@ -80,27 +91,34 @@ async function main(optionToSelect: string) {
 
   // Determine the selected option based on the input parameter
   const selectedOption =
-    optionToSelect === "first"
+    userSelectionMode === "first"
       ? questionOptions[0]
-      : optionToSelect === "second"
+      : userSelectionMode === "second"
         ? questionOptions[1]
         : null;
 
   // Simulate users answering the question with the specified option
   for (const user of users) {
+    // Assign percentages and selection status
     for (const option of questionOptions) {
+      // Random percentage for the first option
+      const randomPercentage = Math.floor(Math.random() * 100);
+      // Calculate the remaining percentage for the other option
+      const remainingPercentage = 100 - randomPercentage;
+      const isSelectedOption =
+        option.id ===
+        (selectedOption
+          ? selectedOption.id
+          : questionOptions[Math.floor(Math.random() * questionOptions.length)]
+              .id);
+
+      // Apply percentages such that they sum up to 100 for each user's answer set
       await prisma.questionAnswer.create({
         data: {
           userId: user.id,
           questionOptionId: option.id,
-          percentage: Math.floor(Math.random() * 100),
-          selected:
-            option.id ===
-            (selectedOption
-              ? selectedOption.id
-              : questionOptions[
-                  Math.floor(Math.random() * questionOptions.length)
-                ].id),
+          percentage: option.isLeft ? randomPercentage : remainingPercentage,
+          selected: isSelectedOption,
           timeToAnswer: BigInt(Math.floor(Math.random() * 60000)), // Random time to answer within 60 seconds
         },
       });
@@ -108,15 +126,16 @@ async function main(optionToSelect: string) {
   }
 
   console.log(
-    `Users have answered the question with the ${optionToSelect} option`,
+    `Users have answered the question with the ${userSelectionMode} option`,
   );
 }
 
 // Parse the command line arguments to determine which option to select
 const args = process.argv.slice(2);
-const optionToSelect = args[0]; // The first argument is the option ("first" or "second")
+const correctOption = args[0]; // The first argument is the correct option ("first" or "second")
+const userSelectionMode = args[1]; // The second argument is the user selection mode ("first" or "second")
 
-main(optionToSelect)
+main(correctOption, userSelectionMode)
   .then(async () => {
     await prisma.$disconnect();
   })
