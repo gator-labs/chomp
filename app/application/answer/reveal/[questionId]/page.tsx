@@ -114,7 +114,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       <>
         <div>
           <QuestionAnswerLabel
-            label="Question 1"
+            label="1st Order Answer"
             isCorrect={isFirstOrderCorrect}
           />
         </div>
@@ -125,7 +125,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
         />
         <div>
           <QuestionAnswerLabel
-            label="Question 2"
+            label="2nd Order Answer"
             isCorrect={isSecondOrderCorrect}
           />
         </div>
