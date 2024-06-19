@@ -235,7 +235,9 @@ export const calculateReward = async (
         ?.calculatedAveragePercentage,
       second_order_estimates: (
         correctOption || calculatedCorrectOption
-      )?.questionAnswers.map((answer) => answer.percentage),
+      )?.questionAnswers
+        .filter((answer) => answer.selected)
+        .map((answer) => answer.percentage),
     };
 
     console.log(
