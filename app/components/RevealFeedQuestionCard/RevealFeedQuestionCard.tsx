@@ -30,7 +30,7 @@ export function RevealFeedQuestionCard({
   const { infoToast } = useToast();
 
   const handleReveal = () => {
-    infoToast("View is currently disabled!");
+    infoToast("Reveal is currently disabled!");
 
     // openRevealModal(async (burnTx?: string, nftAddress?: string) => {
     //   await revealQuestion(id, burnTx, nftAddress);
