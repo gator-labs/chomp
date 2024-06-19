@@ -156,7 +156,7 @@ export function RevealContextProvider({
           await CONNECTION.getTransaction(
             questionChompResult.burnTransactionSignature!,
             {
-              commitment: "finalized",
+              commitment: "confirmed",
               maxSupportedTransactionVersion: 0,
             },
           );
@@ -212,7 +212,7 @@ export function RevealContextProvider({
               lastValidBlockHeight: blockhash.lastValidBlockHeight,
               signature,
             },
-            "finalized",
+            "confirmed",
           );
 
           burnTx = signature;

@@ -60,7 +60,7 @@ const ConfettiProvider = ({
     <ConfettiContext.Provider value={value}>
       {children}
       <Confetti
-        className="!z-[1000] absolute top-0 left-0 w-full h-full"
+        className="absolute top-0 left-0 w-full h-full"
         {...confettiProps}
       />
     </ConfettiContext.Provider>
