@@ -6,7 +6,8 @@ import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
 import { acquireMutex } from "../utils/mutex";
-import { sendBonk } from "../utils/solana";
+
+import { sendBonk } from "../utils/bonk";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
