@@ -1,6 +1,6 @@
 "use client";
 
-import { revealQuestion } from "@/app/actions/chompResult";
+import { useToast } from "@/app/providers/ToastProvider";
 import { Button } from "../Button/Button";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
@@ -27,13 +27,16 @@ export function RevealFeedQuestionCard({
 }: RevealFeedQuestionCardProps) {
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
+  const { infoToast } = useToast();
 
   const handleReveal = () => {
-    openRevealModal(async (burnTx?: string, nftAddress?: string) => {
-      await revealQuestion(id, burnTx, nftAddress);
-      router.push("/application/answer/reveal/" + id);
-      router.refresh();
-    }, revealTokenAmount ?? 0);
+    infoToast("Reveal is currently disabled!");
+
+    // openRevealModal(async (burnTx?: string, nftAddress?: string) => {
+    //   await revealQuestion(id, burnTx, nftAddress);
+    //   router.push("/application/answer/reveal/" + id);
+    //   router.refresh();
+    // }, revealTokenAmount ?? 0);
   };
 
   return (

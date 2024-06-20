@@ -10,7 +10,6 @@ import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { ChompResult, Deck } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback } from "react";
-import { Button } from "../Button/Button";
 import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
 import Stepper from "../Stepper/Stepper";
 
@@ -97,7 +96,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
             )}
           </div>
           <div>
-            {hasReveal && (
+            {/* {hasReveal && (
               <Button
                 size="small"
                 variant="white"
@@ -108,7 +107,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
               >
                 Reveal all
               </Button>
-            )}
+            )} */}
           </div>
         </div>
       )}

@@ -26,10 +26,12 @@ const ClaimButton = ({
   questionIds,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
-  const { promiseToast } = useToast();
+  const { promiseToast, infoToast } = useToast();
   const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClick = async () => {
+    infoToast("Claim is currently disabled");
+    return;
     if (isClaiming) return;
 
     setIsClaiming(true);

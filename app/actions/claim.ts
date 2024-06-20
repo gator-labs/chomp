@@ -1,20 +1,18 @@
 "use server";
 
-import { ResultType } from "@prisma/client";
-import { Keypair, PublicKey } from "@solana/web3.js";
-import base58 from "bs58";
-import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { acquireMutex } from "../utils/mutex";
-import { sendBonk } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
+  console.log("claim deck fired with id ", deckId);
+
   const decks = await claimDecks([deckId]);
   return decks ? decks[0] : null;
 }
 
 export async function claimQuestion(questionId: number) {
+  console.log("claim questions fired");
+
   const questions = await claimQuestions([questionId]);
   return questions ? questions[0] : null;
 }
@@ -28,6 +26,8 @@ export async function claimDecks(deckIds: number[]) {
     },
   });
 
+  console.log("claim decks fired with deck ids ", deckIds);
+
   return await claimQuestions(questions.map((q) => q.questionId));
 }
 
@@ -37,6 +37,8 @@ export async function claimAllAvailable() {
   if (!payload) {
     return null;
   }
+
+  console.log("user with id ", payload.sub, " tries to claim all questions ");
 
   const revealedChompResults = await prisma.chompResult.findMany({
     where: {
@@ -61,125 +63,139 @@ export async function claimQuestions(questionIds: number[]) {
     return null;
   }
 
-  const release = await acquireMutex({
-    identifier: "CLAIM",
-    data: { userId: payload.sub },
-  });
+  console.log(
+    "user with id ",
+    payload.sub,
+    " tries to claim questions ",
+    questionIds,
+  );
+  return null;
 
-  try {
-    const chompResults = await prisma.chompResult.findMany({
-      where: {
-        userId: payload.sub,
-        questionId: {
-          in: questionIds,
-        },
-        result: ResultType.Revealed,
-      },
-    });
+  // const payload = await getJwtPayload();
 
-    const userWallet = await prisma.wallet.findFirst({
-      where: {
-        userId: payload.sub,
-      },
-    });
+  // if (!payload) {
+  //   return null;
+  // }
 
-    if (!userWallet) {
-      return;
-    }
+  // const release = await acquireMutex({
+  //   identifier: "CLAIM",
+  //   data: { userId: payload.sub },
+  // });
 
-    const treasuryWallet = Keypair.fromSecretKey(
-      base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
-    );
+  // try {
+  //   const chompResults = await prisma.chompResult.findMany({
+  //     where: {
+  //       userId: payload.sub,
+  //       questionId: {
+  //         in: questionIds,
+  //       },
+  //       result: ResultType.Revealed,
+  //     },
+  //   });
 
-    const tokenAmount = chompResults.reduce(
-      (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
-      0,
-    );
+  //   const userWallet = await prisma.wallet.findFirst({
+  //     where: {
+  //       userId: payload.sub,
+  //     },
+  //   });
 
-    let sendTx: string | null = null;
-    if (tokenAmount > 0) {
-      sendTx = await sendBonk(
-        treasuryWallet,
-        new PublicKey(userWallet.address),
-        Math.round(tokenAmount * 10 ** 5),
-      );
-    }
+  //   if (!userWallet) {
+  //     return;
+  //   }
 
-    await prisma.$transaction(async (tx) => {
-      await tx.chompResult.updateMany({
-        where: {
-          id: {
-            in: chompResults.map((r) => r.id),
-          },
-        },
-        data: {
-          result: ResultType.Claimed,
-          sendTransactionSignature: sendTx,
-        },
-      });
+  //   const treasuryWallet = Keypair.fromSecretKey(
+  //     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
+  //   );
 
-      const decks = await tx.deck.findMany({
-        where: {
-          deckQuestions: {
-            every: {
-              question: {
-                chompResults: {
-                  some: {
-                    userId: payload.sub,
-                    result: ResultType.Revealed,
-                  },
-                },
-              },
-            },
-          },
-        },
-        include: {
-          chompResults: {
-            where: {
-              userId: payload.sub,
-            },
-          },
-        },
-      });
+  //   const tokenAmount = chompResults.reduce(
+  //     (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
+  //     0,
+  //   );
 
-      const deckRevealsToUpdate = decks
-        .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
-        .map((deck) => deck.id);
+  //   let sendTx: string | null = null;
+  //   if (tokenAmount > 0) {
+  //     sendTx = await sendBonk(
+  //       treasuryWallet,
+  //       new PublicKey(userWallet.address),
+  //       Math.round(tokenAmount * 10 ** 5),
+  //     );
+  //   }
 
-      if (deckRevealsToUpdate.length > 0) {
-        await tx.chompResult.updateMany({
-          where: {
-            deckId: { in: deckRevealsToUpdate },
-          },
-          data: {
-            result: ResultType.Claimed,
-            sendTransactionSignature: sendTx,
-          },
-        });
-      }
+  //   await prisma.$transaction(async (tx) => {
+  //     await tx.chompResult.updateMany({
+  //       where: {
+  //         id: {
+  //           in: chompResults.map((r) => r.id),
+  //         },
+  //       },
+  //       data: {
+  //         result: ResultType.Claimed,
+  //         sendTransactionSignature: sendTx,
+  //       },
+  //     });
 
-      const deckRevealsToCreate = decks
-        .filter((deck) => !deck.chompResults || deck.chompResults.length === 0)
-        .map((deck) => deck.id);
+  //     const decks = await tx.deck.findMany({
+  //       where: {
+  //         deckQuestions: {
+  //           every: {
+  //             question: {
+  //               chompResults: {
+  //                 some: {
+  //                   userId: payload.sub,
+  //                   result: ResultType.Revealed,
+  //                 },
+  //               },
+  //             },
+  //           },
+  //         },
+  //       },
+  //       include: {
+  //         chompResults: {
+  //           where: {
+  //             userId: payload.sub,
+  //           },
+  //         },
+  //       },
+  //     });
 
-      if (deckRevealsToCreate.length > 0) {
-        await tx.chompResult.createMany({
-          data: deckRevealsToCreate.map((deckId) => ({
-            deckId,
-            userId: payload.sub,
-            result: ResultType.Claimed,
-            sendTransactionSignature: sendTx,
-          })),
-        });
-      }
-    });
+  //     const deckRevealsToUpdate = decks
+  //       .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
+  //       .map((deck) => deck.id);
 
-    release();
-    revalidatePath("/application");
-    return sendTx;
-  } catch (e) {
-    console.log("Error while claiming question", e);
-    release();
-    throw e;
-  }
+  //     if (deckRevealsToUpdate.length > 0) {
+  //       await tx.chompResult.updateMany({
+  //         where: {
+  //           deckId: { in: deckRevealsToUpdate },
+  //         },
+  //         data: {
+  //           result: ResultType.Claimed,
+  //           sendTransactionSignature: sendTx,
+  //         },
+  //       });
+  //     }
+
+  //     const deckRevealsToCreate = decks
+  //       .filter((deck) => !deck.chompResults || deck.chompResults.length === 0)
+  //       .map((deck) => deck.id);
+
+  //     if (deckRevealsToCreate.length > 0) {
+  //       await tx.chompResult.createMany({
+  //         data: deckRevealsToCreate.map((deckId) => ({
+  //           deckId,
+  //           userId: payload.sub,
+  //           result: ResultType.Claimed,
+  //           sendTransactionSignature: sendTx,
+  //         })),
+  //       });
+  //     }
+  //   });
+
+  //   release();
+  //   revalidatePath("/application");
+  //   return sendTx;
+  // } catch (e) {
+  //   console.log("Error while claiming question", e);
+  //   release();
+  //   throw e;
+  // }
 }
