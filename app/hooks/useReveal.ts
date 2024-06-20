@@ -135,7 +135,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const resetReveal = useCallback(() => {
     setReveal(undefined);
     setIsRevealModalOpen(false);
-  }, [setReveal, setIsRevealModalOpen]);
+    setBurnState(INITIAL_BURN_STATE);
+  }, [setReveal, setIsRevealModalOpen, setBurnState]);
 
   const onReveal = useCallback(async () => {
     await reveal?.reveal();
@@ -228,7 +229,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     burnState,
     isRevealModalOpen,
     insufficientFunds,
-    genesisNft,
     isMultiple,
     revealPrice: reveal?.amount ?? 0,
     hasPendingTransactions,

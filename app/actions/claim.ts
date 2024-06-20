@@ -47,6 +47,7 @@ export async function getAllRevealableQuestions() {
     select: {
       questionId: true,
       rewardTokenAmount: true,
+      burnTransactionSignature: true,
     },
   });
 

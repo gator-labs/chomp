@@ -6,9 +6,8 @@ import {
   getDeckState,
   getQuestionState,
 } from "@/app/utils/question";
-import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { ChompResult, Deck } from "@prisma/client";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { Button } from "../Button/Button";
 import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
@@ -27,7 +26,6 @@ type DeckDetailsProps = {
 };
 
 function DeckDetails({ deck }: DeckDetailsProps) {
-  const pathname = usePathname();
   const router = useRouter();
 
   const { openRevealModal, closeRevealModal } = useRevealedContext();
@@ -46,12 +44,6 @@ function DeckDetails({ deck }: DeckDetailsProps) {
   const revealAll = useCallback(
     async (burnTx?: string, nftAddress?: string) => {
       await revealDeck(deck.id, burnTx, nftAddress);
-      const newParams = getAppendedNewSearchParams({
-        openIds: encodeURIComponent(
-          JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
-        ),
-      });
-      router.push(`${pathname}${newParams}`);
       router.refresh();
       closeRevealModal();
     },

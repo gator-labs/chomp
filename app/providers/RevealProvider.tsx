@@ -1,7 +1,7 @@
 "use client";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
-import { ReactNode, createContext, useContext, useMemo } from "react";
+import { ReactNode, createContext, useContext } from "react";
 import { Button } from "../components/Button/Button";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { InfoIcon } from "../components/Icons/InfoIcon";
@@ -39,7 +39,6 @@ export function RevealContextProvider({
     burnState,
     isRevealModalOpen,
     insufficientFunds,
-    genesisNft,
     revealPrice,
     hasPendingTransactions,
     doesSatisfyCriteriaToRevealWithGenesisNft,
@@ -49,7 +48,7 @@ export function RevealContextProvider({
     wallet: primaryWallet,
   });
 
-  const revealButtons = useMemo(() => {
+  const revealButtons = () => {
     if (insufficientFunds && !doesSatisfyCriteriaToRevealWithGenesisNft) {
       return (
         <>
@@ -168,7 +167,7 @@ export function RevealContextProvider({
     }
 
     return null;
-  }, [burnState, insufficientFunds, genesisNft]);
+  };
 
   const getDescriptionNode = () => {
     if (hasPendingTransactions) {
@@ -232,7 +231,7 @@ export function RevealContextProvider({
             </div>
             {getDescriptionNode()}
           </div>
-          <div className="flex flex-col gap-2">{revealButtons}</div>
+          <div className="flex flex-col gap-2">{revealButtons()}</div>
         </div>
       </Sheet>
 

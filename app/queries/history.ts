@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getAllRevealableQuestions } from "../actions/claim";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { onlyUniqueBy } from "../utils/array";
 
 export type HistoryResult = {
   id: number;
@@ -222,10 +223,9 @@ export async function getTotalRevealedRewards(): Promise<number> {
   }
 
   const revealableQuestions = await getAllRevealableQuestions();
-  const totalRevealedRewards = revealableQuestions!.reduce(
-    (acc, curr) => acc + (curr.rewardTokenAmount?.toNumber() ?? 0),
-    0,
-  );
+  const totalRevealedRewards = revealableQuestions!
+    .filter(onlyUniqueBy((x) => x.burnTransactionSignature))
+    .reduce((acc, curr) => acc + (curr.rewardTokenAmount?.toNumber() ?? 0), 0);
 
   return totalRevealedRewards;
 }
