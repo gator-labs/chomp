@@ -5,12 +5,15 @@ import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard
 import { Profile } from "@/app/components/Profile/Profile";
 import { getProfile, getProfileImage } from "@/app/queries/profile";
 import { getAddressFromVerifiedCredentials } from "@/app/utils/wallet";
+import { redirect } from "next/navigation";
 
 type PageProps = {
   searchParams: { sort: string; openIds: string };
 };
 
 export default async function Page({ searchParams }: PageProps) {
+  return redirect("/application");
+
   const payload = await getJwtPayload();
   const balances = await getMyFungibleAssetBalances();
   const profileSrc = await getProfileImage();
