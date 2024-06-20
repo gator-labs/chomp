@@ -1,6 +1,7 @@
 import { QuestionType } from "@prisma/client";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
+import { getAverage } from "./array";
 
 export const calculateCorrectAnswer = async (questionIds: number[]) => {
   const questions = await prisma.question.findMany({
@@ -194,7 +195,7 @@ export const calculateReward = async (
     },
   });
 
-  let rewardTotal = 0;
+  const rewardsPerQuestionId: Record<number, number> = {};
 
   for (const question of questions) {
     const optionsList = question.questionOptions.map((option) => option.id);
@@ -208,22 +209,35 @@ export const calculateReward = async (
       return;
     }
 
+    const correctOptionIndex = question.questionOptions.findIndex(
+      (option) => option.isCorrect,
+    );
+    const calculatedCorrectOptionIndex = question.questionOptions.findIndex(
+      (option) => option.calculatedIsCorrect,
+    );
+    const correctOption = question.questionOptions[correctOptionIndex];
+
+    const calculatedCorrectOption =
+      question.questionOptions[calculatedCorrectOptionIndex];
+
+    const second_order_estimates = (
+      correctOption || calculatedCorrectOption
+    )?.questionAnswers
+      .filter((answer) => answer.selected)
+      .map((answer) => answer.percentage!);
+
     const body = {
       first_order_choice:
         inputList[optionsList.indexOf(userAnswer.questionOptionId)],
       first_order_actual:
         inputList[
-          question.questionOptions.findIndex(
-            (option) => option.calculatedIsCorrect,
-          )
+          correctOptionIndex === -1
+            ? calculatedCorrectOptionIndex
+            : correctOptionIndex
         ],
       second_order_estimate: userAnswer.percentage,
-      second_order_mean: question.questionOptions.find(
-        (option) => option.calculatedIsCorrect,
-      )?.calculatedAveragePercentage,
-      second_order_estimates: question.questionOptions
-        .find((option) => option.id === userAnswer.questionOptionId)
-        ?.questionAnswers.map((answer) => answer.percentage),
+      second_order_mean: getAverage(second_order_estimates),
+      second_order_estimates,
     };
 
     console.log(
@@ -237,6 +251,8 @@ export const calculateReward = async (
 
     const { rewards } = await getMechanismEngineResponse("rewards", body);
 
+    rewardsPerQuestionId[question.id] = rewards * 1 ?? 0;
+
     console.log(
       "user",
       userId,
@@ -246,11 +262,9 @@ export const calculateReward = async (
       question.id,
       "question",
     );
-
-    rewardTotal += +rewards;
   }
 
-  console.log("rewardsTotal", rewardTotal, "user", userId);
+  console.log("user", userId, "for questions ", questionIds);
 
-  return rewardTotal;
+  return rewardsPerQuestionId;
 };

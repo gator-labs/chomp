@@ -1,9 +1,8 @@
 "use client";
 
-import { dismissQuestion } from "@/app/actions/chompResult";
+import { dismissQuestion, revealQuestion } from "@/app/actions/chompResult";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { useToast } from "@/app/providers/ToastProvider";
 import { RevealedQuestion } from "@/app/queries/home";
 import { useRouter } from "next/navigation";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
@@ -20,15 +19,13 @@ export function HomeFeedRevealedQuestionsSection({
 }: HomeFeedRevealedQuestionsSectionProps) {
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
-  const { infoToast } = useToast();
 
   const handleView = (q: RevealedQuestion) => {
-    infoToast("View is currently disabled!");
-    // openRevealModal(async (burnTx?: string, nftAddress?: string) => {
-    //   await revealQuestion(q.id, burnTx, nftAddress);
-    //   router.push("/application/answer/reveal/" + q.id);
-    //   router.refresh();
-    // }, q.revealTokenAmount ?? 0);
+    openRevealModal(async (burnTx?: string, nftAddress?: string) => {
+      await revealQuestion(q.id, burnTx, nftAddress);
+      router.push("/application/answer/reveal/" + q.id);
+      router.refresh();
+    }, q.revealTokenAmount ?? 0);
   };
 
   const questionSlides = questions
