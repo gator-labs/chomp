@@ -31,14 +31,14 @@ export async function claimDecks(deckIds: number[]) {
   return await claimQuestions(questions.map((q) => q.questionId));
 }
 
-export async function claimAllAvailable() {
+export async function getAllRevealableQuestions() {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return null;
   }
 
-  const revealedChompResults = await prisma.chompResult.findMany({
+  const revealableQuestionsAndAmount = await prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
       result: "Revealed",
@@ -46,10 +46,22 @@ export async function claimAllAvailable() {
     },
     select: {
       questionId: true,
+      rewardTokenAmount: true,
     },
   });
 
-  const questionIds = revealedChompResults.map((rcp) => rcp.questionId ?? 0); // Nulls are filtered in query
+  return revealableQuestionsAndAmount;
+}
+
+export async function claimAllAvailable() {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const revealedChompResults = await getAllRevealableQuestions();
+  const questionIds = revealedChompResults!.map((rcp) => rcp.questionId ?? 0); // Nulls are filtered in query
 
   return await claimQuestions(questionIds);
 }

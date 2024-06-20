@@ -1,13 +1,16 @@
 "use client";
+import { revealDeck } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import {
   DeckQuestionIncludes,
   getDeckState,
   getQuestionState,
 } from "@/app/utils/question";
+import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { ChompResult, Deck } from "@prisma/client";
-import { useRouter } from "next-nprogress-bar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback } from "react";
+import { Button } from "../Button/Button";
 import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
 import Stepper from "../Stepper/Stepper";
 
@@ -30,44 +33,43 @@ function DeckDetails({ deck }: DeckDetailsProps) {
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
   const deckState = getDeckState(deck);
-  const questionStates = deck.deckQuestions.map((dq) =>
-    getQuestionState(dq.question),
-  );
+  const questionStates = deck.deckQuestions.map((dq) => ({
+    ...dq,
+    ...getQuestionState(dq.question),
+  }));
 
   const revealableQuestions = questionStates.filter(
     (state) => state.isAnswered && !state.isRevealed,
   );
   const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
 
-  // const revealAll = useCallback(
-  //   async (burnTx?: string, nftAddress?: string) => {
-  //     await revealDeck(deck.id, burnTx, nftAddress);
-  //     const newParams = getAppendedNewSearchParams({
-  //       openIds: encodeURIComponent(
-  //         JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
-  //       ),
-  //     });
-  //     router.push(`${pathname}${newParams}`);
-  //     router.refresh();
-  //     closeRevealModal();
-  //   },
-  //   [],
-  // );
+  const revealAll = useCallback(
+    async (burnTx?: string, nftAddress?: string) => {
+      await revealDeck(deck.id, burnTx, nftAddress);
+      const newParams = getAppendedNewSearchParams({
+        openIds: encodeURIComponent(
+          JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
+        ),
+      });
+      router.push(`${pathname}${newParams}`);
+      router.refresh();
+      closeRevealModal();
+    },
+    [],
+  );
 
-  // const handleRevealAll = useCallback(
-  //   () =>
-  //     openRevealModal(
-  //       revealAll,
-  //       deck.deckQuestions
-  //         .filter((dq) => {
-  //           const state = getQuestionState(dq.question);
-  //           return state.isAnswered && !state.isRevealed;
-  //         })
-  //         .reduce((acc, cur) => acc + cur.question.revealTokenAmount, 0),
-  //       !!"multiple",
-  //     ),
-  //   [],
-  // );
+  const handleRevealAll = useCallback(
+    () =>
+      openRevealModal({
+        reveal: revealAll,
+        amount: revealableQuestions.reduce(
+          (curr, acc) => curr + acc.question.revealTokenAmount,
+          0,
+        ),
+        questionIds: revealableQuestions.map((q) => q.question.id),
+      }),
+    [],
+  );
 
   const hasChomped = !questionStates.some((qs) => !qs.isAnswered);
 
@@ -93,7 +95,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
               </div>
             )}
           </div>
-          {/* <div>
+          <div>
             {hasReveal && (
               <Button
                 size="small"
@@ -106,7 +108,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
                 Reveal all
               </Button>
             )}
-          </div> */}
+          </div>
         </div>
       )}
       <div className="px-4">

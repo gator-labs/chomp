@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
-export const ONE_SECOND_IN_MILISECONDS = 1000;
-export const ONE_MINUTE_IN_MILISECONDS = ONE_SECOND_IN_MILISECONDS * 60;
+export const ONE_SECOND_IN_MILLISECONDS = 1000;
+export const ONE_MINUTE_IN_MILISECONDS = ONE_SECOND_IN_MILLISECONDS * 60;
 export const ONE_HOUR_IN_MILISECONDS = ONE_MINUTE_IN_MILISECONDS * 60;
 export const ONE_DAY_IN_MILISECONDS = ONE_HOUR_IN_MILISECONDS * 24;
 
@@ -37,8 +37,8 @@ export const getTimeString = (date: Date) => {
     differenceInMiliseconds *= -1;
   }
   let timeString = "1s";
-  if (differenceInMiliseconds > ONE_SECOND_IN_MILISECONDS) {
-    timeString = `${Math.floor(differenceInMiliseconds / ONE_SECOND_IN_MILISECONDS)}s`;
+  if (differenceInMiliseconds > ONE_SECOND_IN_MILLISECONDS) {
+    timeString = `${Math.floor(differenceInMiliseconds / ONE_SECOND_IN_MILLISECONDS)}s`;
   }
 
   if (differenceInMiliseconds > ONE_MINUTE_IN_MILISECONDS) {

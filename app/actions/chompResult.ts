@@ -371,9 +371,8 @@ export async function dismissQuestion(questionId: number) {
   revalidatePath("/application");
 }
 
-export async function createQuestionChompResult(
-  questionId: number,
-  burnTx: string,
+export async function createQuestionChompResults(
+  questionChomps: { questionId: number; burnTx: string }[],
 ) {
   const payload = await getJwtPayload();
 
@@ -381,37 +380,67 @@ export async function createQuestionChompResult(
     return null;
   }
 
-  return prisma.chompResult.create({
-    data: {
-      userId: payload.sub,
-      transactionStatus: TransactionStatus.Pending,
-      questionId,
-      result: ResultType.Revealed,
-      burnTransactionSignature: burnTx,
-    },
-  });
+  return await prisma.$transaction(
+    questionChomps.map((qc) =>
+      prisma.chompResult.create({
+        data: {
+          userId: payload.sub,
+          transactionStatus: TransactionStatus.Pending,
+          questionId: qc.questionId,
+          result: ResultType.Revealed,
+          burnTransactionSignature: qc.burnTx,
+        },
+      }),
+    ),
+  );
 }
 
-export async function deleteQuestionChompResult(id: number) {
-  await prisma.chompResult.delete({
-    where: {
-      id,
-    },
-  });
+export async function createQuestionChompResult(
+  questionId: number,
+  burnTx: string,
+) {
+  const results = await createQuestionChompResults([{ questionId, burnTx }]);
+
+  if (!results) {
+    return null;
+  }
+
+  return results;
 }
 
-export async function getUsersPendingChompResult(questionId: number) {
+export async function deleteQuestionChompResults(ids: number[]) {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return null;
   }
 
-  return prisma.chompResult.findFirst({
+  await prisma.chompResult.deleteMany({
+    where: {
+      id: { in: ids },
+      userId: payload.sub,
+    },
+  });
+}
+
+export async function deleteQuestionChompResult(id: number) {
+  return await deleteQuestionChompResults([id]);
+}
+
+export async function getUsersPendingChompResult(questionIds: number[]) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  return prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
-      questionId,
       transactionStatus: TransactionStatus.Pending,
+      questionId: {
+        in: questionIds,
+      },
     },
   });
 }
