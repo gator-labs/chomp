@@ -295,7 +295,7 @@ export async function revealQuestions(
             userId: payload.sub,
             result: ResultType.Revealed,
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: rewardsPerQuestionId![questionId],
+            rewardTokenAmount: rewardsPerQuestionId?.[questionId],
           })),
           ...decksToAddRevealFor.map((deck) => ({
             deckId: deck.id,
