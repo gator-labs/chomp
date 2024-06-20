@@ -1,6 +1,7 @@
 import { QuestionType } from "@prisma/client";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
+import { getAverage } from "./array";
 
 export const calculateCorrectAnswer = async (questionIds: number[]) => {
   const questions = await prisma.question.findMany({
@@ -208,22 +209,35 @@ export const calculateReward = async (
       return;
     }
 
+    const correctOptionIndex = question.questionOptions.findIndex(
+      (option) => option.isCorrect,
+    );
+    const calculatedCorrectOptionIndex = question.questionOptions.findIndex(
+      (option) => option.calculatedIsCorrect,
+    );
+    const correctOption = question.questionOptions[correctOptionIndex];
+
+    const calculatedCorrectOption =
+      question.questionOptions[calculatedCorrectOptionIndex];
+
+    const second_order_estimates = (
+      correctOption || calculatedCorrectOption
+    )?.questionAnswers
+      .filter((answer) => answer.selected)
+      .map((answer) => answer.percentage!);
+
     const body = {
       first_order_choice:
         inputList[optionsList.indexOf(userAnswer.questionOptionId)],
       first_order_actual:
         inputList[
-          question.questionOptions.findIndex(
-            (option) => option.calculatedIsCorrect,
-          )
+          correctOptionIndex === -1
+            ? calculatedCorrectOptionIndex
+            : correctOptionIndex
         ],
       second_order_estimate: userAnswer.percentage,
-      second_order_mean: question.questionOptions.find(
-        (option) => option.calculatedIsCorrect,
-      )?.calculatedAveragePercentage,
-      second_order_estimates: question.questionOptions
-        .find((option) => option.id === userAnswer.questionOptionId)
-        ?.questionAnswers.map((answer) => answer.percentage),
+      second_order_mean: getAverage(second_order_estimates),
+      second_order_estimates,
     };
 
     console.log(
