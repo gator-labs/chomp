@@ -151,6 +151,13 @@ export async function revealQuestions(
         }),
     );
 
+    if (!revealableQuestions.length)
+      throw new Error("No revealable questions available");
+
+    const revealableQuestionIds = revealableQuestions.map(
+      (revealableQuestion) => revealableQuestion.id,
+    );
+
     const bonkToBurn = revealableQuestions
       .slice(nftAddress && (await checkNft(nftAddress)) ? 1 : 0) // skip bonk burn for first question if nft is supplied
       .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
@@ -275,24 +282,26 @@ export async function revealQuestions(
     );
     const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
 
-    const tokenAmount = await calculateReward(payload.sub, questionIds);
+    const rewardsPerQuestionId = await calculateReward(
+      payload.sub,
+      revealableQuestionIds,
+    );
 
     await prisma.$transaction([
       prisma.chompResult.createMany({
         data: [
-          ...questionIds.map((questionId) => ({
+          ...revealableQuestionIds.map((questionId) => ({
             questionId,
             userId: payload.sub,
             result: ResultType.Revealed,
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: tokenAmount,
+            rewardTokenAmount: rewardsPerQuestionId![questionId],
           })),
           ...decksToAddRevealFor.map((deck) => ({
             deckId: deck.id,
             userId: payload.sub,
             result: ResultType.Revealed,
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: tokenAmount,
           })),
         ],
       }),

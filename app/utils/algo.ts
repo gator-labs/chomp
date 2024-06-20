@@ -194,7 +194,7 @@ export const calculateReward = async (
     },
   });
 
-  let rewardTotal = 0;
+  const rewardsPerQuestionId: Record<number, number> = {};
 
   for (const question of questions) {
     const optionsList = question.questionOptions.map((option) => option.id);
@@ -237,6 +237,8 @@ export const calculateReward = async (
 
     const { rewards } = await getMechanismEngineResponse("rewards", body);
 
+    rewardsPerQuestionId[question.id] = rewards * 1 ?? 0;
+
     console.log(
       "user",
       userId,
@@ -246,11 +248,9 @@ export const calculateReward = async (
       question.id,
       "question",
     );
-
-    rewardTotal += +rewards;
   }
 
-  console.log("rewardsTotal", rewardTotal, "user", userId);
+  console.log("user", userId, "for questions ", questionIds);
 
-  return rewardTotal;
+  return rewardsPerQuestionId;
 };
