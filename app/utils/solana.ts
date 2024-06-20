@@ -1,12 +1,17 @@
 import {
   createBurnCheckedInstruction,
+  createTransferInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import {
+  ComputeBudgetProgram,
   Connection,
+  Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
   Transaction,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
@@ -83,59 +88,59 @@ export const getSolBalance = async (address: string): Promise<number> => {
   return balance / LAMPORTS_PER_SOL;
 };
 
-// export const sendBonk = async (
-//   fromWallet: Keypair,
-//   toWallet: PublicKey,
-//   amount: number,
-// ) => {
-//   const bonkMint = new PublicKey(
-//     "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-//   );
+export const sendBonk = async (
+  fromWallet: Keypair,
+  toWallet: PublicKey,
+  amount: number,
+) => {
+  const bonkMint = new PublicKey(
+    "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+  );
 
-//   const fromTokenAccount = await getAssociatedTokenAddress(
-//     bonkMint,
-//     fromWallet.publicKey,
-//   );
-//   const toTokenAccount = await getAssociatedTokenAddress(bonkMint, toWallet);
+  const fromTokenAccount = await getAssociatedTokenAddress(
+    bonkMint,
+    fromWallet.publicKey,
+  );
+  const toTokenAccount = await getAssociatedTokenAddress(bonkMint, toWallet);
 
-//   const instruction = createTransferInstruction(
-//     fromTokenAccount,
-//     toTokenAccount,
-//     fromWallet.publicKey,
-//     amount,
-//   );
+  const instruction = createTransferInstruction(
+    fromTokenAccount,
+    toTokenAccount,
+    fromWallet.publicKey,
+    amount,
+  );
 
-//   const instructions = [];
+  const instructions = [];
 
-//   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
-//     microLamports: 100_000,
-//   });
-//   instructions.push(addPriorityFee);
-//   instructions.push(instruction);
+  const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: 100_000,
+  });
+  instructions.push(addPriorityFee);
+  instructions.push(instruction);
 
-//   const blockhash = await CONNECTION.getLatestBlockhash();
+  const blockhash = await CONNECTION.getLatestBlockhash();
 
-//   const message = new TransactionMessage({
-//     payerKey: fromWallet.publicKey,
-//     recentBlockhash: blockhash.blockhash,
-//     instructions,
-//   }).compileToV0Message();
+  const message = new TransactionMessage({
+    payerKey: fromWallet.publicKey,
+    recentBlockhash: blockhash.blockhash,
+    instructions,
+  }).compileToV0Message();
 
-//   const transaction = new VersionedTransaction(message);
+  const transaction = new VersionedTransaction(message);
 
-//   transaction.sign([fromWallet]);
+  transaction.sign([fromWallet]);
 
-//   const signature = await CONNECTION.sendTransaction(transaction, {
-//     maxRetries: 10,
-//   });
+  const signature = await CONNECTION.sendTransaction(transaction, {
+    maxRetries: 10,
+  });
 
-//   await CONNECTION.confirmTransaction(
-//     {
-//       signature,
-//       ...blockhash,
-//     },
-//     "confirmed",
-//   );
+  await CONNECTION.confirmTransaction(
+    {
+      signature,
+      ...blockhash,
+    },
+    "confirmed",
+  );
 
-//   return signature;
-// };
+  return signature;
+};
