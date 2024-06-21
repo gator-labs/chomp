@@ -8,8 +8,6 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 export default async function Page() {
-  return redirect("/application");
-
   const profile = await getProfile();
   const path = headers().get("x-path");
 
