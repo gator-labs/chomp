@@ -196,6 +196,8 @@ model RevealNft {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   nftType   NftType
+
+  @@unique([nftId, userId])
 }
 
 enum QuestionType {
