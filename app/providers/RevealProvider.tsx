@@ -254,13 +254,21 @@ export function RevealContextProvider({
 
           burnTx = signature;
         } else {
-          await createQuestionChompResult(reveal!.questionId);
+          const chompResult = await createQuestionChompResult(
+            reveal!.questionId,
+          );
+
+          pendingChompResultId = chompResult?.id || undefined;
         }
 
         await reveal!.reveal(
           burnTx,
-          revealNft && !reveal?.multiple ? revealNft.id : undefined,
-          revealNft && !reveal?.multiple ? revealNft.type : undefined,
+          revealNft && !reveal?.multiple && useRevealNft
+            ? revealNft.id
+            : undefined,
+          revealNft && !reveal?.multiple && useRevealNft
+            ? revealNft.type
+            : undefined,
         );
 
         if (revealNft && !reveal?.multiple) setRevealNft(undefined);

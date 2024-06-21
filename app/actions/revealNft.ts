@@ -81,9 +81,7 @@ export const checkNft = async (nftAddress: string, nftType: NftType) => {
 
   const isEligible = checkIsNftEligible(asset, nftType);
 
-  if (!isEligible) {
-    return false;
-  }
+  if (!isEligible) throw new Error("This nft is not eligible!");
 
   const payload = await getJwtPayload();
 
