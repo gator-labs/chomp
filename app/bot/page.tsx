@@ -6,6 +6,9 @@ import {
   useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
 import { Connection } from "@solana/web3.js";
+import { ISolana } from "@dynamic-labs/solana";
+
+import { genBonkBurnTx } from "../utils/solana"
 
 import { FC, FormEventHandler, useState } from "react";
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
@@ -14,15 +17,15 @@ const ConnectWithOtpView: FC = () => {
   const { user } = useDynamicContext();
   // const { primaryWallet } = useDynamicContext();
   const userWallets = useUserWallets();
-  console.log(user);
-  console.log("userWallets");
-  console.log(userWallets);
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [burned, setBurned] = useState(false);
 
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
+
+  console.log(userWallets, 'wallet', primaryWallet, 'user', user)
+
 
   const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (
     event,
@@ -47,23 +50,22 @@ const ConnectWithOtpView: FC = () => {
   const onBurn = async () => {
     console.log("burning");
     setBurned(true);
-    // const blockhash = await CONNECTION.getLatestBlockhash();
-    // // const signer = await primaryWallet!.connector.getSigner<ISolana>();
-    // const tx = await genBonkBurnTx(
-    //   primaryWallet!.address,
-    //   blockhash.blockhash,
-    //   1,
-    // );
-    // const signature = await (
-    //   primaryWallet!.connector as any
-    // ).signAndSendTransaction(tx);
-    // // const { signature } =
-    // //   await primaryWallet!.connector.signAndSendTransaction(tx);
-    // await CONNECTION.confirmTransaction({
-    //   blockhash: blockhash.blockhash,
-    //   lastValidBlockHeight: blockhash.lastValidBlockHeight,
-    //   signature,
-    // });
+    const blockhash = await CONNECTION.getLatestBlockhash();
+    const signer = await primaryWallet!.connector.getSigner<ISolana>();
+    const tx = await genBonkBurnTx(
+      primaryWallet!.address,
+      blockhash.blockhash,
+      1,
+    );
+    const signature = await (
+      primaryWallet!.connector as any
+    ).signAndSendTransaction(tx);
+
+    await CONNECTION.confirmTransaction({
+      blockhash: blockhash.blockhash,
+      lastValidBlockHeight: blockhash.lastValidBlockHeight,
+      signature,
+    });
   };
 
   return (
