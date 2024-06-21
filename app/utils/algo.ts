@@ -1,6 +1,7 @@
 import { QuestionType } from "@prisma/client";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
+import { getAverage } from "./array";
 
 export const calculateCorrectAnswer = async (questionIds: number[]) => {
   const questions = await prisma.question.findMany({
@@ -221,6 +222,12 @@ export const calculateReward = async (
     const calculatedCorrectOption =
       question.questionOptions[calculatedCorrectOptionIndex];
 
+    const second_order_estimates = (
+      correctOption || calculatedCorrectOption
+    )?.questionAnswers
+      .filter((answer) => answer.selected)
+      .map((answer) => answer.percentage!);
+
     const body = {
       first_order_choice:
         inputList[optionsList.indexOf(userAnswer.questionOptionId)],
@@ -231,11 +238,8 @@ export const calculateReward = async (
             : correctOptionIndex
         ],
       second_order_estimate: userAnswer.percentage,
-      second_order_mean: (correctOption || calculatedCorrectOption)
-        ?.calculatedAveragePercentage,
-      second_order_estimates: question.questionOptions
-        .find((option) => option.id === userAnswer.questionOptionId)
-        ?.questionAnswers.map((answer) => answer.percentage),
+      second_order_mean: getAverage(second_order_estimates),
+      second_order_estimates,
     };
 
     console.log(
