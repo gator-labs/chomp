@@ -369,7 +369,7 @@ export function RevealContextProvider({
       case "burning":
         return (
           <Button variant="white" className="h-10" isPill disabled>
-            Burning BONK...
+            Burning $BONK...
           </Button>
         );
     }
@@ -417,7 +417,7 @@ export function RevealContextProvider({
     <RevealedContext.Provider value={value}>
       <ChompFullScreenLoader
         isLoading={burnState === "burning"}
-        loadingMessage="Burning bonk..."
+        loadingMessage="Burning $BONK..."
       />
       <Sheet
         disableClose={burnState === "burning"}
