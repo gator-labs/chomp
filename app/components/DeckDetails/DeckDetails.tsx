@@ -6,8 +6,7 @@ import {
   getQuestionState,
 } from "@/app/utils/question";
 import { ChompResult, Deck } from "@prisma/client";
-import { useRouter } from "next-nprogress-bar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
 import Stepper from "../Stepper/Stepper";
 

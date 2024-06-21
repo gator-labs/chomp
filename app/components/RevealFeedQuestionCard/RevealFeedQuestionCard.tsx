@@ -1,10 +1,10 @@
 "use client";
 
-import { revealQuestion } from "@/app/actions/chompResult";
 import { Button } from "../Button/Button";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
 
+import { revealQuestion } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { useRouter } from "next-nprogress-bar";
 
