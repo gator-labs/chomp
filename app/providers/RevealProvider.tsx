@@ -253,7 +253,14 @@ export function RevealContextProvider({
           );
 
           burnTx = signature;
-        } else {
+        }
+
+        if (
+          !!useRevealNft &&
+          !!revealNft &&
+          !reveal?.multiple &&
+          !questionChompResult
+        ) {
           const chompResult = await createQuestionChompResult(
             reveal!.questionId,
           );
@@ -369,7 +376,14 @@ export function RevealContextProvider({
             <Button
               variant="white"
               isPill
-              onClick={() => burnAndReveal(!!"useRevealNft")}
+              onClick={() =>
+                burnAndReveal(
+                  revealNft &&
+                    !reveal?.multiple &&
+                    !questionChompResult &&
+                    !!"useRevealNft",
+                )
+              }
               className="flex items-center h-10"
             >
               {!!questionChompResult
