@@ -5,6 +5,7 @@ import {
 import { Connection, PublicKey } from "@solana/web3.js";
 
 import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
+import { publicKey } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
 export const dasUmi = createUmi(process.env.NEXT_PUBLIC_RPC_URL!).use(dasApi());
@@ -53,4 +54,10 @@ export const getTokenBalances = async (addr: string | string[]) => {
   }
 
   return tokenBalances;
+};
+
+export const getUserAssets = async (address: string) => {
+  return dasUmi.rpc.getAssetsByOwner({
+    owner: publicKey(address),
+  });
 };

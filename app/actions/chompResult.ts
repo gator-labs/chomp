@@ -1,13 +1,13 @@
 "use server";
 
-import { dasUmi } from "@/lib/web3";
-import { publicKey } from "@metaplex-foundation/umi";
-import { FungibleAsset, ResultType, TransactionStatus } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 import {
-  COLLECTION_KEY,
-  GENESIS_COLLECTION_VALUE,
-} from "../constants/genesis-nfts";
+  FungibleAsset,
+  NftType,
+  ResultType,
+  TransactionStatus,
+} from "@prisma/client";
+import { revalidatePath } from "next/cache";
+
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
@@ -15,40 +15,7 @@ import { calculateRevealPoints } from "../utils/points";
 import { getQuestionState, isEntityRevealable } from "../utils/question";
 import { CONNECTION } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
-import { createUsedGenesisNft, getUsedGenesisNfts } from "./used-nft-genesis";
-
-const checkNft = async (nftAddress: string) => {
-  const usedGenesisNftIds = (await getUsedGenesisNfts()).map(
-    (usedGenesisNft) => usedGenesisNft.nftId,
-  );
-
-  if (usedGenesisNftIds.includes(nftAddress)) {
-    return false;
-  }
-
-  const asset = await dasUmi.rpc.getAsset(publicKey(nftAddress));
-
-  const isEligible =
-    asset.grouping.find(
-      (group) =>
-        group.group_key === COLLECTION_KEY &&
-        group.group_value === GENESIS_COLLECTION_VALUE,
-    ) && !asset.burnt;
-
-  if (!isEligible) {
-    return false;
-  }
-
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  await createUsedGenesisNft(nftAddress, payload.sub);
-
-  return true;
-};
+import { checkNft } from "./revealNft";
 
 export async function revealDeck(
   deckId: number,
@@ -63,8 +30,14 @@ export async function revealQuestion(
   questionId: number,
   burnTx?: string,
   nftAddress?: string,
+  nftType?: NftType,
 ) {
-  const questions = await revealQuestions([questionId], burnTx, nftAddress);
+  const questions = await revealQuestions(
+    [questionId],
+    burnTx,
+    nftAddress,
+    nftType,
+  );
   return questions ? questions[0] : null;
 }
 
@@ -72,6 +45,7 @@ export async function revealDecks(
   deckIds: number[],
   burnTx?: string,
   nftAddress?: string,
+  nftType?: NftType,
 ) {
   const payload = await getJwtPayload();
 
@@ -91,6 +65,7 @@ export async function revealDecks(
     questionIds.map((q) => q.questionId),
     burnTx,
     nftAddress,
+    nftType,
   );
   revalidatePath("/application");
 }
@@ -99,6 +74,7 @@ export async function revealQuestions(
   questionIds: number[],
   burnTx?: string,
   nftAddress?: string,
+  nftType?: NftType,
 ) {
   const payload = await getJwtPayload();
 
@@ -160,7 +136,9 @@ export async function revealQuestions(
     );
 
     const bonkToBurn = revealableQuestions
-      .slice(nftAddress && (await checkNft(nftAddress)) ? 1 : 0) // skip bonk burn for first question if nft is supplied
+      .slice(
+        nftAddress && nftType && (await checkNft(nftAddress, nftType)) ? 1 : 0,
+      ) // skip bonk burn for first question if nft is supplied
       .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
     const wallets = (
@@ -389,7 +367,7 @@ export async function dismissQuestion(questionId: number) {
 
 export async function createQuestionChompResult(
   questionId: number,
-  burnTx: string,
+  burnTx?: string,
 ) {
   const payload = await getJwtPayload();
 
