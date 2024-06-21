@@ -20,10 +20,6 @@ import { publicKey } from "@metaplex-foundation/umi";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 
-export const getRevealNfts = async () => {
-  return await prisma.revealNft.findMany();
-};
-
 export const createRevealNft = async (
   nftId: string,
   userId: string,
@@ -39,9 +35,11 @@ export const createRevealNft = async (
 };
 
 export const getUnusedGenesisNft = async (assets: DasApiAssetList) => {
-  const revealNftIds = (await getRevealNfts()).map(
-    (revealNft) => revealNft.nftId,
-  );
+  const revealNftIds = (
+    await prisma.revealNft.findMany({
+      select: { nftId: true },
+    })
+  ).map((nft) => nft.nftId);
 
   const [genesisNft] = assets.items.filter(
     (item) =>
@@ -53,9 +51,11 @@ export const getUnusedGenesisNft = async (assets: DasApiAssetList) => {
 };
 
 export const getUnusedGlowburgerNft = async (assets: DasApiAssetList) => {
-  const revealNftIds = (await getRevealNfts()).map(
-    (revealNft) => revealNft.nftId,
-  );
+  const revealNftIds = (
+    await prisma.revealNft.findMany({
+      select: { nftId: true },
+    })
+  ).map((nft) => nft.nftId);
 
   const [glowburgerNft] = assets.items.filter(
     (item) =>
@@ -67,9 +67,11 @@ export const getUnusedGlowburgerNft = async (assets: DasApiAssetList) => {
 };
 
 export const checkNft = async (nftAddress: string, nftType: NftType) => {
-  const revealNftIds = (await getRevealNfts()).map(
-    (revealNft) => revealNft.nftId,
-  );
+  const revealNftIds = (
+    await prisma.revealNft.findMany({
+      select: { nftId: true },
+    })
+  ).map((nft) => nft.nftId);
 
   if (revealNftIds.includes(nftAddress)) {
     return false;
