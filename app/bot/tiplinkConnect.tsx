@@ -1,6 +1,6 @@
 import { GoogleViaTipLinkWalletName } from '@tiplink/wallet-adapter'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { CONNECTION, genBonkBurnTx } from '../utils/solana';
+import { CONNECTION, genBonkBurnTx, getBonkBalance } from '../utils/solana';
 import { Keypair, SystemProgram, Transaction } from '@solana/web3.js';
 import { ISolana } from '@dynamic-labs/solana';
 
@@ -23,15 +23,14 @@ function TiplinkConnect() {
 
     const onBurn = async () => {
         console.log("burning");
-
+        // const blockhash = await CONNECTION.getLatestBlockhash();
         const lamports = await CONNECTION.getMinimumBalanceForRentExemption(0);
-        console.log(lamports)
 
         const transaction = new Transaction().add(
             SystemProgram.transfer({
                 fromPubkey: publicKey,
                 toPubkey: Keypair.generate().publicKey,
-                lamports,
+                lamports
             })
         );
 
@@ -40,7 +39,16 @@ function TiplinkConnect() {
             value: { blockhash, lastValidBlockHeight }
         } = await CONNECTION.getLatestBlockhashAndContext();
 
-        const signature = await sendTransaction(transaction, CONNECTION, { minContextSlot });
+        const tx = await genBonkBurnTx(
+            publicKey,
+            blockhash?.blockhash,
+            1000
+        );
+
+        // const balance = await getBonkBalance(publicKey)
+        // console.log(balance)
+
+        const signature = await sendTransaction(tx, CONNECTION, { minContextSlot });
         // // const signer = await primaryWallet!.connector.getSigner<ISolana>();
         // const tx = await genBonkBurnTx(
         //     primaryWallet!.address,
