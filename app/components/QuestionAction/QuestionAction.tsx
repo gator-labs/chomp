@@ -20,6 +20,7 @@ type QuestionActionProps = {
   step: QuestionStep;
   percentage?: number;
   setPercentage?: Dispatch<SetStateAction<number>>;
+  disabled?: boolean;
 };
 
 export function QuestionAction({
@@ -30,7 +31,15 @@ export function QuestionAction({
   randomQuestionMarker,
   percentage = 50,
   setPercentage,
+  disabled,
 }: QuestionActionProps) {
+  if (disabled) {
+    return (
+      <div className="text-center text-white font-semibold">
+        <div className="text-md mb-4">Please wait for the next question</div>
+      </div>
+    );
+  }
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
