@@ -39,6 +39,12 @@ export async function getDailyDeck() {
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
 
+  if (!payload) {
+    return null;
+  }
+
+  const userId = payload.sub;
+
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
@@ -52,9 +58,27 @@ export async function getDailyDeck() {
           },
         },
       },
-      ...(payload
-        ? { userDeck: { none: { userId: payload?.sub ?? "" } } }
-        : {}),
+      NOT: {
+        deckQuestions: {
+          some: {
+            question: {
+              questionOptions: {
+                some: {
+                  questionAnswers: {
+                    some: {
+                      userId: userId,
+                      OR: [
+                        { hasViewedButNotSubmitted: true },
+                        { selected: true },
+                      ],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     include: questionDeckToRunInclude,
   });
@@ -71,6 +95,36 @@ export async function getDailyDeck() {
     date: dailyDeck.date,
   };
 }
+
+const mapQuestionFromDeck = (
+  deck: Deck & {
+    deckQuestions: Array<
+      DeckQuestion & {
+        question: Question & {
+          questionOptions: QuestionOption[];
+          questionTags: (QuestionTag & { tag: Tag })[];
+        };
+      }
+    >;
+  },
+) => {
+  const questions = deck?.deckQuestions.map((dq) => ({
+    id: dq.questionId,
+    durationMiliseconds: Number(dq.question.durationMiliseconds),
+    question: dq.question.question,
+    type: dq.question.type,
+    imageUrl: dq.question.imageUrl ?? undefined,
+    questionOptions: dq.question.questionOptions.map((qo) => ({
+      id: qo.id,
+      option: qo.option,
+      isLeft: qo.isLeft,
+    })),
+    questionTags: dq.question.questionTags,
+    deckRevealAtDate: deck.revealAtDate,
+  }));
+
+  return questions;
+};
 
 /**
  * Get the daily deck for Farcaster Frame.
@@ -125,36 +179,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   );
   return questions;
 }
-
-const mapQuestionFromDeck = (
-  deck: Deck & {
-    deckQuestions: Array<
-      DeckQuestion & {
-        question: Question & {
-          questionOptions: QuestionOption[];
-          questionTags: (QuestionTag & { tag: Tag })[];
-        };
-      }
-    >;
-  },
-) => {
-  const questions = deck?.deckQuestions.map((dq) => ({
-    id: dq.questionId,
-    durationMiliseconds: Number(dq.question.durationMiliseconds),
-    question: dq.question.question,
-    type: dq.question.type,
-    imageUrl: dq.question.imageUrl ?? undefined,
-    questionOptions: dq.question.questionOptions.map((qo) => ({
-      id: qo.id,
-      option: qo.option,
-      isLeft: qo.isLeft,
-    })),
-    questionTags: dq.question.questionTags,
-    deckRevealAtDate: deck.revealAtDate,
-  }));
-
-  return questions;
-};
 
 export async function getDecks() {
   const decks = await prisma.deck.findMany({
@@ -308,4 +332,40 @@ export async function hasAnsweredDeck(
   });
 
   return answeredCount > 0;
+}
+
+export async function markQuestionAnswersAsViewed(deckId: number) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const userId = payload.sub;
+
+  const deck = await prisma.deck.findFirst({
+    where: { id: deckId },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!deck) {
+    return null;
+  }
+
+  await addPlaceholderAnswers(
+    deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
+    payload.sub,
+  );
+
+  return { success: true };
 }
