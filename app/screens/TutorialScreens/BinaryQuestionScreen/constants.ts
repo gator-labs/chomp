@@ -6,7 +6,7 @@ export const STEPS = [
     style: {
       bottom: "unset",
       top: "12%",
-      left: "35%",
+      left: "40%",
     },
     isQuestionCardTooltip: true,
     position: "bottom",
@@ -35,7 +35,10 @@ export const STEPS = [
   },
   {
     text: "Use the slider to share your best estimate of how the crowd would choose their answer.",
-    style: {},
+    style: {
+      bottom: "70%",
+      top: "unset",
+    },
     position: "top",
     isQuestionCardTooltip: false,
     questionActionStep: QuestionStep.PickPercentage,

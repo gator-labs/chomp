@@ -279,11 +279,13 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     .filter((answer) => answer.userId === userId);
 
   let correctAnswer = question.questionOptions.find(
-    (option) => option.calculatedIsCorrect,
+    (option) => option.isCorrect,
   );
 
   if (!correctAnswer) {
-    correctAnswer = question.questionOptions.find((option) => option.isCorrect);
+    correctAnswer = question.questionOptions.find(
+      (option) => option.calculatedIsCorrect,
+    );
   }
 
   const isQuestionRevealable = isEntityRevealable({

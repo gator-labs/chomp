@@ -84,7 +84,7 @@ export function QuestionCard({
         {question}
       </p>
       <div className="z-10">{children}</div>
-      <div>
+      <div className="relative z-50">
         {viewImageSrc && (
           <div className="flex items-center gap-[6px] mb-1 z-10">
             <ImageIcon />

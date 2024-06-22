@@ -1,15 +1,12 @@
 "use client";
-import { revealDeck } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import {
   DeckQuestionIncludes,
   getDeckState,
   getQuestionState,
 } from "@/app/utils/question";
-import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { ChompResult, Deck } from "@prisma/client";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback } from "react";
 import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
 import Stepper from "../Stepper/Stepper";
 
@@ -41,35 +38,35 @@ function DeckDetails({ deck }: DeckDetailsProps) {
   );
   const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
 
-  const revealAll = useCallback(
-    async (burnTx?: string, nftAddress?: string) => {
-      await revealDeck(deck.id, burnTx, nftAddress);
-      const newParams = getAppendedNewSearchParams({
-        openIds: encodeURIComponent(
-          JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
-        ),
-      });
-      router.push(`${pathname}${newParams}`);
-      router.refresh();
-      closeRevealModal();
-    },
-    [],
-  );
+  // const revealAll = useCallback(
+  //   async (burnTx?: string, nftAddress?: string) => {
+  //     await revealDeck(deck.id, burnTx, nftAddress);
+  //     const newParams = getAppendedNewSearchParams({
+  //       openIds: encodeURIComponent(
+  //         JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
+  //       ),
+  //     });
+  //     router.push(`${pathname}${newParams}`);
+  //     router.refresh();
+  //     closeRevealModal();
+  //   },
+  //   [],
+  // );
 
-  const handleRevealAll = useCallback(
-    () =>
-      openRevealModal(
-        revealAll,
-        deck.deckQuestions
-          .filter((dq) => {
-            const state = getQuestionState(dq.question);
-            return state.isAnswered && !state.isRevealed;
-          })
-          .reduce((acc, cur) => acc + cur.question.revealTokenAmount, 0),
-        !!"multiple",
-      ),
-    [],
-  );
+  // const handleRevealAll = useCallback(
+  //   () =>
+  //     openRevealModal(
+  //       revealAll,
+  //       deck.deckQuestions
+  //         .filter((dq) => {
+  //           const state = getQuestionState(dq.question);
+  //           return state.isAnswered && !state.isRevealed;
+  //         })
+  //         .reduce((acc, cur) => acc + cur.question.revealTokenAmount, 0),
+  //       !!"multiple",
+  //     ),
+  //   [],
+  // );
 
   const hasChomped = !questionStates.some((qs) => !qs.isAnswered);
 
@@ -95,8 +92,8 @@ function DeckDetails({ deck }: DeckDetailsProps) {
               </div>
             )}
           </div>
-          <div>
-            {/* {hasReveal && (
+          {/* <div>
+            {hasReveal && (
               <Button
                 size="small"
                 variant="white"
@@ -107,8 +104,8 @@ function DeckDetails({ deck }: DeckDetailsProps) {
               >
                 Reveal all
               </Button>
-            )} */}
-          </div>
+            )}
+          </div> */}
         </div>
       )}
       <div className="px-4">

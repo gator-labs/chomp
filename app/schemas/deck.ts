@@ -37,6 +37,22 @@ export const deckSchema = z.object({
         })
         .min(5),
       type: z.nativeEnum(QuestionType),
+      imageUrl: z
+        .string()
+        .optional()
+        .nullable()
+        .refine(
+          (val) => {
+            if (!val) return true;
+            try {
+              new URL(val);
+              return true;
+            } catch {
+              return false;
+            }
+          },
+          { message: "Invalid URL" },
+        ),
       questionOptions: z
         .object({
           id: z.number().optional(),

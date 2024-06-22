@@ -1,7 +1,7 @@
 "use client";
 
 import { DeckExpiringSoon } from "@/app/queries/home";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedDeckCard } from "../HomeFeedDeckCard/HomeFeedDeckCard";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";

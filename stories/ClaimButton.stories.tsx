@@ -29,23 +29,27 @@ type Story = StoryObj<typeof meta>;
 export const DidNotAnswer: Story = {
   args: {
     didAnswer: false,
+    transactionHash: "",
   },
 };
 
 export const Claimable: Story = {
   args: {
     status: "claimable",
+    transactionHash: "",
   },
 };
 
 export const Claimed: Story = {
   args: {
     status: "claimed",
+    transactionHash: "",
   },
 };
 
 export const Unclaimable: Story = {
   args: {
     status: "unclaimable",
+    transactionHash: "",
   },
 };

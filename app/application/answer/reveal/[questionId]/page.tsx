@@ -20,7 +20,7 @@ import {
   BINARY_QUESTION_TRUE_LABELS,
   getAlphaIdentifier,
 } from "@/app/utils/question";
-import { QuestionType, ResultType } from "@prisma/client";
+import { QuestionType, ResultType, TransactionStatus } from "@prisma/client";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -46,7 +46,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
   if (
     !questionResponse.isQuestionRevealable ||
     !questionResponse.correctAnswer ||
-    !questionResponse?.chompResults[0]
+    questionResponse.chompResults[0]?.transactionStatus !==
+      TransactionStatus.Completed
   ) {
     redirect("/application");
   }
@@ -114,7 +115,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       <>
         <div>
           <QuestionAnswerLabel
-            label="Question 1"
+            label="1st Order Answer"
             isCorrect={isFirstOrderCorrect}
           />
         </div>
@@ -125,7 +126,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
         />
         <div>
           <QuestionAnswerLabel
-            label="Question 2"
+            label="2nd Order Answer"
             isCorrect={isSecondOrderCorrect}
           />
         </div>
@@ -292,6 +293,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
         rewardAmount={questionResponse.chompResults[0]?.rewardTokenAmount ?? 0}
         didAnswer={!!answerSelected}
         questionIds={[questionResponse.id]}
+        transactionHash={
+          questionResponse.chompResults[0]?.burnTransactionSignature || ""
+        }
       />
       {sendTransactionSignature && (
         <a

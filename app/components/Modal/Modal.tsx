@@ -40,7 +40,7 @@ export function Modal({ title, isOpen, children, onClose }: ModalProps) {
               </button>
             </div>
           </div>
-          <div>{children}</div>
+          <div className="flex items-center justify-center">{children}</div>
         </div>
       </div>
     </ReactPortal>

@@ -73,7 +73,7 @@ const MultipleChoiceScreen = ({
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILISECONDS))
             }
-            className={`relative max-w-[480px] mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
+            className={`relative max-w-[480px] mx-auto flex flex-col gap-5 drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}

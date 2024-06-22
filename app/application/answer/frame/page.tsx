@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { saveQuestion } from "../../../actions/answer";
 
