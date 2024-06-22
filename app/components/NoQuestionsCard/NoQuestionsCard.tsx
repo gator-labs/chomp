@@ -1,14 +1,19 @@
+// NoQuestionsCard Component
 "use client";
 
 import { Button } from "../Button/Button";
-import { TrophyGraphic } from "../Graphics/TrophyGraphic";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 import { QUESTION_CARD_CONTENT } from "./constants";
 
 import { useRouter } from "next-nprogress-bar";
 
 type NoQuestionsCardProps = {
-  variant: "daily-deck" | "regular-deck" | "answer-page";
+  variant:
+    | "daily-deck"
+    | "regular-deck"
+    | "answer-page"
+    | "missed-all"
+    | "missed-some";
   browseHomeUrl?: string;
 };
 
@@ -21,7 +26,7 @@ export function NoQuestionsCard({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-between h-full w-full">
+    <div className="flex flex-col justify-start gap-5 h-full w-full">
       <div
         className="questions-card text-white font-sora relative"
         style={{
@@ -37,7 +42,9 @@ export function NoQuestionsCard({
             {QUESTION_CARD_CONTENT[variant].body}
           </div>
         </div>
-        <TrophyGraphic className="absolute bottom-2.5 right-4" />
+        <div className="absolute bottom-2.5 right-4">
+          {QUESTION_CARD_CONTENT[variant].icon}
+        </div>
       </div>
       {hasBrowseHome && (
         <Button

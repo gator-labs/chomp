@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { TrophyGraphic } from "../Graphics/TrophyGraphic";
+import { BrokenHeartIcon } from "../Icons/BrokenHeartIcon";
+import { FlagIcon } from "../Icons/FlagIcon";
 
 export const QUESTION_CARD_CONTENT = {
   "daily-deck": {
@@ -11,6 +14,7 @@ export const QUESTION_CARD_CONTENT = {
         did, and get rewarded!
       </>
     ),
+    icon: <TrophyGraphic />,
   },
   "regular-deck": {
     title: "Nice!",
@@ -29,6 +33,7 @@ export const QUESTION_CARD_CONTENT = {
         to check for more decks.
       </>
     ),
+    icon: <TrophyGraphic />,
   },
   "answer-page": {
     title: "Wait, is there more?",
@@ -41,5 +46,30 @@ export const QUESTION_CARD_CONTENT = {
         </b>
       </>
     ),
+    icon: <TrophyGraphic />,
+  },
+  "missed-all": {
+    title: "You missed out :(",
+    body: (
+      <>
+        Chompy is sad that you didn&apos;t answer any questions in the Deck
+        questions. <br /> <br /> For now, waddle over to Home and see what else
+        is available for you to Chomp on!
+      </>
+    ),
+    icon: <BrokenHeartIcon fill="#393939" height={163} width={134} />,
+  },
+  "missed-some": {
+    title: "You can do better!",
+    body: (
+      <>
+        Chompy is sad that you didn&apos;t answer all the questions in the deck.{" "}
+        <br /> <br /> Deck will be revealed in 3 days! Come back then to burn
+        some BONK, reveal the answer, see how you did, and get rewarded! <br />{" "}
+        <br /> For now, waddle over to Home and see what else is available for
+        you to Chomp on!
+      </>
+    ),
+    icon: <FlagIcon fill="#393939" height={163} width={134} />,
   },
 };
