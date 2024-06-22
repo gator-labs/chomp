@@ -301,7 +301,9 @@ export async function addPlaceholderAnswers(
       }) as QuestionAnswer,
   );
 
-  await prisma.questionAnswer.createMany({ data: placeholderQuestionAnswers });
+  await prisma.questionAnswer.createMany({
+    data: placeholderQuestionAnswers,
+  });
 
   revalidatePath("/application");
 }
