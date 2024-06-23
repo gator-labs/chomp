@@ -5,12 +5,14 @@ import {
   useDynamicContext,
   useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
-import { Connection } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import { ISolana } from "@dynamic-labs/solana";
+// import { getLogs } from '@solana-developers/helpers'
 
 import { genBonkBurnTx } from "../utils/solana"
 
 import { FC, FormEventHandler, useState } from "react";
+import { sign } from "crypto";
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const ConnectWithOtpView: FC = () => {
@@ -48,24 +50,45 @@ const ConnectWithOtpView: FC = () => {
   };
 
   const onBurn = async () => {
-    console.log("burning");
     setBurned(true);
-    const blockhash = await CONNECTION.getLatestBlockhash();
-    const signer = await primaryWallet!.connector.getSigner<ISolana>();
-    const tx = await genBonkBurnTx(
-      primaryWallet!.address,
-      blockhash.blockhash,
-      1,
-    );
-    const signature = await (
-      primaryWallet!.connector as any
-    ).signAndSendTransaction(tx);
+    try {
+      const blockhash = await CONNECTION.getLatestBlockhash();
 
-    await CONNECTION.confirmTransaction({
-      blockhash: blockhash.blockhash,
-      lastValidBlockHeight: blockhash.lastValidBlockHeight,
-      signature,
-    });
+      const signer = await primaryWallet!.connector.getSigner<ISolana>();
+
+
+      console.log(primaryWallet?.address)
+
+      const balance = await CONNECTION.getBalance(new PublicKey(primaryWallet!.address));
+      console.log('Sender account balance:', balance);
+
+      if (balance < 1000) {
+        throw new Error('Insufficient balance for the transaction');
+      }
+
+
+      const tx = await genBonkBurnTx(
+        primaryWallet!.address,
+        blockhash.blockhash,
+        1000,
+      );
+      console.log(tx, signer, 'tx')
+      const signature = await signer.signAndSendTransaction(tx);
+
+
+
+
+      await CONNECTION.confirmTransaction({
+        blockhash: blockhash.blockhash,
+        lastValidBlockHeight: blockhash.lastValidBlockHeight,
+        signature,
+      });
+      // const logs = await getLogs(CONNECTION, tx);
+      // console.log(logs)
+    } catch (err) {
+      console.log(err)
+
+    }
   };
 
   return (
@@ -125,14 +148,14 @@ const ConnectWithOtpView: FC = () => {
         </form>
       )}
 
-      {!!verificationSuccess && !burned && (
-        <button
-          className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
-          onClick={onBurn}
-        >
-          Burn BONK and reveal
-        </button>
-      )}
+      {/* {!!verificationSuccess && !burned && ( */}
+      <button
+        className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
+        onClick={onBurn}
+      >
+        Burn BONK and reveal
+      </button>
+      {/* )} */}
 
       {!!burned && (
         <p className="text-2xl text-[#A3A3EC]">
