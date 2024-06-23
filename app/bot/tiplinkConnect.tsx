@@ -42,8 +42,10 @@ function TiplinkConnect() {
         const tx = await genBonkBurnTx(
             publicKey,
             blockhash?.blockhash,
-            1000
+            10
         );
+
+        console.log(tx)
 
         // const balance = await getBonkBalance(publicKey)
         // console.log(balance)
