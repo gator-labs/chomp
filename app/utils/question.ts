@@ -4,6 +4,7 @@ import {
   Question,
   QuestionAnswer,
   ResultType,
+  TransactionStatus,
 } from "@prisma/client";
 import dayjs from "dayjs";
 
@@ -43,7 +44,10 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   const isAnswered = question.questionOptions?.some(
     (qo) => qo.questionAnswers.length !== 0,
   );
-  const isRevealed = question.chompResults?.length !== 0;
+  const isRevealed =
+    question.chompResults.filter(
+      (cr) => cr.transactionStatus === TransactionStatus.Completed,
+    )?.length !== 0;
   const isRevealable = isEntityRevealable(question);
   const isClaimed =
     question.chompResults &&
@@ -69,7 +73,10 @@ export function getDeckState(
   const isAnswered = deck.deckQuestions?.some((dq) =>
     dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0),
   );
-  const isRevealed = deck.chompResults?.length !== 0;
+  const isRevealed =
+    deck.chompResults.filter(
+      (cr) => cr.transactionStatus === TransactionStatus.Completed,
+    )?.length !== 0;
   const isRevealable = isEntityRevealable(deck);
 
   return { isAnswered, isRevealed, isRevealable };

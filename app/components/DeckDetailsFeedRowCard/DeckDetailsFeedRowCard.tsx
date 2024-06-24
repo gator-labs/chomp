@@ -12,19 +12,6 @@ export function DeckDetailsFeedRowCard({
   element,
 }: DeckDetailsFeedRowCardProps) {
   const state = getQuestionState(element);
-  if (state.isRevealable && !state.isRevealed) {
-    return (
-      <RevealFeedQuestionCard
-        id={element.id}
-        question={element.question}
-        answerCount={element.answerCount}
-        revealAtAnswerCount={element.revealAtAnswerCount ?? undefined}
-        revealAtDate={element.revealAtDate ?? new Date()}
-        revealTokenAmount={element.revealTokenAmount ?? 0}
-      />
-    );
-  }
-
   if (state.isRevealed) {
     return (
       <ClaimFeedQuestionCard
@@ -33,6 +20,19 @@ export function DeckDetailsFeedRowCard({
         answerCount={element.answerCount}
         revealAtAnswerCount={element.revealAtAnswerCount ?? undefined}
         revealAtDate={element.revealAtDate ?? new Date()}
+      />
+    );
+  }
+
+  if (state.isRevealable) {
+    return (
+      <RevealFeedQuestionCard
+        id={element.id}
+        question={element.question}
+        answerCount={element.answerCount}
+        revealAtAnswerCount={element.revealAtAnswerCount ?? undefined}
+        revealAtDate={element.revealAtDate ?? new Date()}
+        revealTokenAmount={element.revealTokenAmount ?? 0}
       />
     );
   }

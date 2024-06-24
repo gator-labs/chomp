@@ -46,20 +46,11 @@ type RevealState = {
 
 const INITIAL_BURN_STATE = "idle";
 
-const createGetTransactionTask = async (
-  chompResult: ChompResult,
-): Promise<{ chompResult: ChompResult; burnTx: string }> => {
-  const signature = chompResult.burnTransactionSignature!;
-
-  await CONNECTION.getTransaction(chompResult.burnTransactionSignature!, {
+const createGetTransactionTask = async (signature: string): Promise<void> => {
+  await CONNECTION.getTransaction(signature, {
     commitment: "finalized",
     maxSupportedTransactionVersion: 0,
   });
-
-  return {
-    chompResult,
-    burnTx: signature,
-  };
 };
 
 export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
@@ -153,8 +144,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       if (hasPendingTransactions) {
         signature = pendingChompResults[0].burnTransactionSignature!;
         setBurnState("burning");
-        await Promise.all(pendingChompResults.map(createGetTransactionTask));
-        setIsRevealModalOpen(false);
+        await createGetTransactionTask(signature);
       }
 
       if (
@@ -215,7 +205,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         setGenesisNft(undefined);
       }
     } catch (error) {
-      if (pendingChompResultIds) {
+      if (pendingChompResultIds.length > 0) {
         await deleteQuestionChompResults(pendingChompResultIds);
       }
 
