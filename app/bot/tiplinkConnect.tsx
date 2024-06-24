@@ -1,95 +1,84 @@
 import { GoogleViaTipLinkWalletName } from '@tiplink/wallet-adapter'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { CONNECTION, genBonkBurnTx, getBonkBalance } from '../utils/solana';
-import { Keypair, SystemProgram, Transaction } from '@solana/web3.js';
-import { ISolana } from '@dynamic-labs/solana';
+import { publicKey } from '@metaplex-foundation/umi';
+import { useState } from 'react';
+import { burn } from '@solana/spl-token';
 
-// assuming the ExampleComponent is a descendant of the 
-// WalletProvider somewhere
 function TiplinkConnect() {
+
     const { select, connect, publicKey, sendTransaction } = useWallet();
 
+    const [burned, setBurned] = useState(false);
 
-    console.log(publicKey)
-
-    // call this function upon button click
     const connectTiplink = async function loginViaTipLink() {
-        select(GoogleViaTipLinkWalletName)
+        try {
 
-        // if autoconnect is not set to true on the WalletProvider, 
-        // include this line below
-        await connect();
+            select(GoogleViaTipLinkWalletName)
+            await connect();
+        }
+        catch (error) {
+            console.log(error)
+        }
     }
 
     const onBurn = async () => {
-        console.log("burning");
-        // const blockhash = await CONNECTION.getLatestBlockhash();
-        const lamports = await CONNECTION.getMinimumBalanceForRentExemption(0);
 
-        const transaction = new Transaction().add(
-            SystemProgram.transfer({
-                fromPubkey: publicKey,
-                toPubkey: Keypair.generate().publicKey,
-                lamports
-            })
-        );
+        try {
 
-        const {
-            context: { slot: minContextSlot },
-            value: { blockhash, lastValidBlockHeight }
-        } = await CONNECTION.getLatestBlockhashAndContext();
 
-        const tx = await genBonkBurnTx(
-            publicKey,
-            blockhash?.blockhash,
-            10
-        );
+            const {
+                context: { slot: minContextSlot },
+                value: { blockhash, lastValidBlockHeight }
+            } = await CONNECTION.getLatestBlockhashAndContext();
 
-        console.log(tx)
+            const tx = await genBonkBurnTx(
+                publicKey,
+                blockhash?.blockhash,
+                10
+            );
+            const signature = await sendTransaction(tx, CONNECTION, { minContextSlot });
 
-        // const balance = await getBonkBalance(publicKey)
-        // console.log(balance)
-
-        const signature = await sendTransaction(tx, CONNECTION, { minContextSlot });
-        // // const signer = await primaryWallet!.connector.getSigner<ISolana>();
-        // const tx = await genBonkBurnTx(
-        //     primaryWallet!.address,
-        //     blockhash.blockhash,
-        //     1,
-        // );
-        // const signer = await primaryWallet!.connector.getSigner<ISolana>();
-        // const tx = await genBonkBurnTx(
-        //     primaryWallet!.address,
-        //     blockhash.blockhash,
-        //     1,
-        // );
-        // const signature = await (
-        //   primaryWallet!.connector as any
-        // ).signAndSendTransaction(tx);
-        // // const { signature } =
-        // //   await primaryWallet!.connector.signAndSendTransaction(tx);
-        await CONNECTION.confirmTransaction({
-            blockhash: blockhash?.blockhash,
-            lastValidBlockHeight: blockhash.lastValidBlockHeight,
-            signature,
-        });
+            const res = await CONNECTION.confirmTransaction({
+                blockhash: blockhash,
+                lastValidBlockHeight: lastValidBlockHeight,
+                signature,
+            });
+            console.log(res)
+            setBurned(true)
+        }
+        catch (error) {
+            console.log(error)
+        }
     };
-
+    console.log(publicKey)
     return (
         <div>
-            <button
-                className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
-                onClick={connectTiplink}
-            >
-                Connect
-            </button>
-            <button
-                className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
-                onClick={onBurn}
-            >
-                Burn
-            </button>
-            <div />
+            {burned ?
+                <p className="text-2xl text-[#A3A3EC]">
+                    BONK burn and reveal successful! Return to Telegram.
+                </p> :
+                <p className='pb-2'>
+                    You have 8 questions to reveal. You must reveal in order to see the
+                    answer and find out if you won anything.
+                </p>
+            }
+            {
+                publicKey === null ?
+                    <button
+                        className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2 mb-10"
+                        onClick={connectTiplink}
+                    >
+                        Connect
+                    </button>
+                    :
+                    !burned ?
+                        <button
+                            className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
+                            onClick={onBurn}
+                        >
+                            Burn
+                        </button> : ''}
         </div>
     )
 

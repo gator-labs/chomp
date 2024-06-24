@@ -37,17 +37,20 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={classNames(sora.variable, "h-full")}>
+      <head>
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+      </head>
       <body className="font-sora bg-[#0D0D0D] text-white h-full">
         {isDemo && (
           <div className="fixed top-0 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-btn-text-primary rounded-b-lg">
             Demo mode
           </div>
         )}
-        <DynamicProvider>
-          <ToastProvider>
-            <MobileChromeDetector>{children}</MobileChromeDetector>
-          </ToastProvider>
-        </DynamicProvider>
+        {/* <DynamicProvider> */}
+        <ToastProvider>
+          <MobileChromeDetector>{children}</MobileChromeDetector>
+        </ToastProvider>
+        {/* </DynamicProvider> */}
         <Analytics />
       </body>
     </html>
