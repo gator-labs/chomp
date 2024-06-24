@@ -273,7 +273,7 @@ export async function revealQuestions(
           AND: {
             userId: payload.sub,
             questionId: {
-              in: questionIds,
+              in: revealableQuestionIds,
             },
             burnTransactionSignature: burnTx,
             transactionStatus: TransactionStatus.Pending,
