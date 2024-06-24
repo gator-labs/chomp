@@ -39,18 +39,24 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   isRevealed: boolean;
   isRevealable: boolean;
   isClaimed: boolean;
+  isClaimable: boolean;
 } {
   const isAnswered = question.questionOptions?.some(
     (qo) => qo.questionAnswers.length !== 0,
   );
   const isRevealed = question.chompResults?.length !== 0;
-  const isRevealable = isEntityRevealable(question);
+  const isRevealable = isEntityRevealable(question) && !isRevealed;
   const isClaimed =
     question.chompResults &&
     question.chompResults.length > 0 &&
     question.chompResults[0].result === ResultType.Claimed;
 
-  return { isAnswered, isRevealed, isRevealable, isClaimed };
+  const isClaimable =
+    (Number(question.chompResults?.[0]?.rewardTokenAmount) ?? 0) > 0 &&
+    isRevealed &&
+    !isClaimed;
+
+  return { isAnswered, isRevealed, isRevealable, isClaimed, isClaimable };
 }
 
 export function getDeckState(
