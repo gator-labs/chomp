@@ -1,6 +1,6 @@
 "use client";
 import { QuestionType } from "@prisma/client";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../Button/Button";
 import { QuestionStep } from "../Question/Question";
 import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
@@ -31,6 +31,8 @@ export function QuestionAction({
   percentage = 50,
   setPercentage,
 }: QuestionActionProps) {
+  const [isSliderTouched, setIsSliderTouched] = useState(false);
+
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
@@ -82,10 +84,17 @@ export function QuestionAction({
               }
               labelLeft="No one"
               labelRight="Everyone"
+              isSliderTouched={isSliderTouched}
+              onTouchStart={() => {
+                if (!isSliderTouched) {
+                  setIsSliderTouched(true);
+                }
+              }}
             />
           </div>
           <Button
             onClick={() => onButtonClick(percentage)}
+            disabled={!isSliderTouched}
             variant="purple"
             size="normal"
             className="w-max py-6 !rounded-2xl self-stretch"
@@ -129,10 +138,17 @@ export function QuestionAction({
               }
               labelLeft="No one"
               labelRight="Everyone"
+              isSliderTouched={isSliderTouched}
+              onTouchStart={() => {
+                if (!isSliderTouched) {
+                  setIsSliderTouched(true);
+                }
+              }}
             />
           </div>
           <Button
             onClick={() => onButtonClick(percentage)}
+            disabled={!isSliderTouched}
             variant="purple"
             size="normal"
             className="w-max py-6 !rounded-2xl self-stretch"
