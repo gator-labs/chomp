@@ -17,6 +17,8 @@
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate",
     "storybook": "storybook dev -p 6006",
+    "dev:subj-question": "ts-node scripts/CreateSubjectiveWithAnswers.ts",
+    "dev:obj-question": "ts-node scripts/CreateObjectiveWithAnswers.ts",
     "build-storybook": "storybook build",
     "test": "jest --watch",
     "gh-test": "jest"
@@ -88,6 +90,7 @@
     "prisma": "^5.10.2",
     "storybook": "^8.0.0",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   },
   "prisma": {
