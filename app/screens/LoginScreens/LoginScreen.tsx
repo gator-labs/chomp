@@ -1,6 +1,7 @@
 "use client";
 
-import { getJwtPayload, setJwt } from "@/app/actions/jwt";
+import { setJwt } from "@/app/actions/jwt";
+import { DynamicJwtPayload } from "@/lib/auth";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useEffect, useState } from "react";
 import ExistingUserScreen from "./ExistingUserScreen";
@@ -10,38 +11,34 @@ import SlideshowScreen from "./SlideshowScreen";
 
 interface Props {
   hasDailyDeck: boolean;
+  payload: DynamicJwtPayload | null;
 }
 
-const LoginScreen = ({ hasDailyDeck }: Props) => {
-  const { authToken, isAuthenticated } = useDynamicContext();
-  const [isNewUser, setIsNewUser] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
+  const { authToken, isAuthenticated, awaitingSignatureState } =
+    useDynamicContext();
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const checkIsNewUser = async () => {
-      const payload = await getJwtPayload();
-
-      setIsNewUser(payload?.new_user || false);
-      setIsLoading(false);
-    };
-
-    if (authToken) {
+    if (awaitingSignatureState === "linking_new_wallet") {
       setIsLoading(true);
-
-      setJwt(authToken);
-      checkIsNewUser();
-      return;
     }
 
-    setIsLoading(false);
-  }, [authToken]);
+    if (authToken) setJwt(authToken);
+
+    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle")
+      setIsLoading(false);
+
+    if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
+      setIsLoading(false);
+  }, [authToken, payload?.sub, awaitingSignatureState]);
 
   if (isLoading) return <LoadingScreen />;
 
-  if (isAuthenticated && !isNewUser)
+  if (isAuthenticated && !payload?.new_user)
     return <ExistingUserScreen hasDailyDeck={hasDailyDeck} />;
 
-  if (isAuthenticated && isNewUser) return <NewUserScreen />;
+  if (isAuthenticated && payload?.new_user) return <NewUserScreen />;
 
   return <SlideshowScreen />;
 };
