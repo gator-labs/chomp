@@ -60,7 +60,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
 
   return (
     <>
-      <div className="flex flex-col justify-between w-full h-full pointer-events-auto px-6">
+      <div className="flex flex-col justify-start gap-10 w-full h-full pointer-events-auto px-4">
         <Tooltip
           infoText={STEPS[tooltipIndex].text}
           alwaysVisible={
@@ -79,7 +79,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILLISECONDS))
             }
-            className={`relative w-full mx-auto drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "!-z-10"}`}
+            className={`relative w-full mx-auto drop-shadow-question-card border-opacity-40 h-[calc(100vh_-_400px)] ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "!-z-10"}`}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}

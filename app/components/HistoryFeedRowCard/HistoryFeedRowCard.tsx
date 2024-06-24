@@ -10,11 +10,14 @@ type HistoryFeedRowCardProps = {
 };
 
 export function HistoryFeedRowCard({ element }: HistoryFeedRowCardProps) {
+  // Return null for now for questions on history
   if (element.isRevealed && element.type === "Question") {
+    return null;
     return <ClaimFeedQuestionCard {...element} />;
   }
-
+  // Return null for now for questions on history
   if (element.isRevealable && element.type === "Question") {
+    return null;
     return <RevealFeedQuestionCard {...element} />;
   }
 

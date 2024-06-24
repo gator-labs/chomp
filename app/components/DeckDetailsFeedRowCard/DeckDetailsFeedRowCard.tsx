@@ -12,6 +12,7 @@ export function DeckDetailsFeedRowCard({
   element,
 }: DeckDetailsFeedRowCardProps) {
   const state = getQuestionState(element);
+
   if (state.isRevealed) {
     return (
       <ClaimFeedQuestionCard

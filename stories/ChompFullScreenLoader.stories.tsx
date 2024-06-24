@@ -22,6 +22,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     isLoading: true,
-    loadingMessage: "Burning bonk...",
+    loadingMessage: "Burning $BONK..",
   },
 };

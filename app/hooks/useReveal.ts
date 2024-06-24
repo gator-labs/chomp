@@ -1,13 +1,18 @@
+import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
-import { ChompResult } from "@prisma/client";
+import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
+import { ChompResult, NftType } from "@prisma/client";
 import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
-import { getGenesisNft } from "../actions/used-nft-genesis";
+import {
+  getUnusedGenesisNft,
+  getUnusedGlowburgerNft,
+} from "../actions/revealNft";
 import { useToast } from "../providers/ToastProvider";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
@@ -39,7 +44,11 @@ export type RevealCallbackProps =
 
 type RevealState = {
   amount: number;
-  reveal: (burnTx?: string, nftAddress?: string) => Promise<void>;
+  reveal: (
+    burnTx?: string,
+    nftAddress?: string,
+    nftType?: NftType,
+  ) => Promise<void>;
   questionIds: number[];
   genesisNft?: string;
 };
@@ -57,7 +66,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
-  const [genesisNft, setGenesisNft] = useState<string | undefined>();
+  const [revealNft, setRevealNft] = useState<{
+    id: UmiPublicKey;
+    type: NftType;
+  }>();
 
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
@@ -71,7 +83,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const insufficientFunds =
     !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions;
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
-  const doesSatisfyCriteriaToRevealWithGenesisNft = genesisNft && !isMultiple;
+  const isRevealWithNftMode = revealNft && !isMultiple;
 
   useEffect(() => {
     async function effect(address: string, reveal: RevealState) {
@@ -92,9 +104,23 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         return;
       }
 
-      const genesisNft = await getGenesisNft(address);
-      if (genesisNft) {
-        return setGenesisNft(genesisNft.id);
+      const userAssets = await getUserAssets(address);
+      const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
+
+      if (!!glowburgerNft) {
+        return setRevealNft({
+          id: glowburgerNft.id,
+          type: NftType.Glowburger,
+        });
+      }
+
+      const genesisNft = await getUnusedGenesisNft(userAssets);
+
+      if (!!genesisNft) {
+        return setRevealNft({
+          id: genesisNft.id,
+          type: NftType.Genesis,
+        });
       }
     }
 
@@ -106,7 +132,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
     return () => {
       setPendingChompResults([]);
-      setGenesisNft(undefined);
+      setRevealNft(undefined);
     };
   }, [reveal, address, reveal?.questionIds]);
 
@@ -147,10 +173,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await createGetTransactionTask(signature);
       }
 
-      if (
-        !doesSatisfyCriteriaToRevealWithGenesisNft &&
-        !hasPendingTransactions
-      ) {
+      if (!isRevealWithNftMode && !hasPendingTransactions) {
         const blockhash = await CONNECTION.getLatestBlockhash();
         const signer = await wallet!.connector.getSigner<ISolana>();
 
@@ -196,13 +219,14 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         );
       }
 
-      await reveal!.reveal(
-        signature,
-        genesisNft && !isMultiple ? genesisNft : undefined,
-      );
+      if (isMultiple) {
+        await reveal!.reveal(signature);
+      } else {
+        await reveal!.reveal(signature, revealNft!.id, revealNft!.type);
+      }
 
-      if (genesisNft && !isMultiple) {
-        setGenesisNft(undefined);
+      if (revealNft && !isMultiple) {
+        setRevealNft(undefined);
       }
     } catch (error) {
       if (pendingChompResultIds.length > 0) {
@@ -222,7 +246,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     isMultiple,
     revealPrice: reveal?.amount ?? 0,
     hasPendingTransactions,
-    doesSatisfyCriteriaToRevealWithGenesisNft,
+    isRevealWithNftMode,
+    nftType: revealNft?.type,
     burnAndReveal,
     onReveal,
     onSetReveal,

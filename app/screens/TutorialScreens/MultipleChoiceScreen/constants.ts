@@ -4,7 +4,7 @@ export const STEPS = [
   {
     text: "Pick the answer you agree with the most.",
     style: {
-      bottom: "80px",
+      bottom: "65px",
       left: "0%",
     },
     isQuestionCardTooltip: true,

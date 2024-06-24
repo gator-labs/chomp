@@ -25,7 +25,7 @@ model User {
   fungibleAssetBalance        FungibleAssetBalance[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   streak                      Streak[]
-  usedGenesisNfts             UsedGenesisNft[]
+  revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
 }
 
@@ -160,6 +160,8 @@ model ChompResult {
   createdAt                DateTime          @default(now())
   updatedAt                DateTime          @default(now()) @updatedAt
   transactionStatus        TransactionStatus @default(Completed)
+
+  @@unique([userId, questionId, deckId])
 }
 
 model FungibleAssetTransactionLog {
@@ -189,12 +191,15 @@ model Streak {
   lastDayOfStreak DateTime @default(now()) @updatedAt
 }
 
-model UsedGenesisNft {
+model RevealNft {
   nftId     String   @unique
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  nftType   NftType
+
+  @@unique([nftId, userId])
 }
 
 enum QuestionType {
@@ -227,4 +232,9 @@ enum ResultType {
 enum TransactionStatus {
   Pending
   Completed
+}
+
+enum NftType {
+  Genesis
+  Glowburger
 }

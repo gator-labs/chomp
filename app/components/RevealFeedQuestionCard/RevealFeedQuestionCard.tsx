@@ -1,11 +1,12 @@
 "use client";
 
-import { revealQuestion } from "@/app/actions/chompResult";
 import { Button } from "../Button/Button";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
 
+import { revealQuestion } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { NftType } from "@prisma/client";
 import { useRouter } from "next-nprogress-bar";
 
 type RevealFeedQuestionCardProps = {
@@ -30,8 +31,12 @@ export function RevealFeedQuestionCard({
 
   const handleReveal = () => {
     openRevealModal({
-      reveal: async (burnTx?: string, nftAddress?: string) => {
-        await revealQuestion(id, burnTx, nftAddress);
+      reveal: async (
+        burnTx?: string,
+        nftAddress?: string,
+        nftType?: NftType,
+      ) => {
+        await revealQuestion(id, burnTx, nftAddress, nftType);
         router.push("/application/answer/reveal/" + id);
         router.refresh();
       },

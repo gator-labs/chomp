@@ -41,7 +41,8 @@ export function RevealContextProvider({
     insufficientFunds,
     revealPrice,
     hasPendingTransactions,
-    doesSatisfyCriteriaToRevealWithGenesisNft,
+    isRevealWithNftMode,
+    nftType,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
@@ -49,7 +50,7 @@ export function RevealContextProvider({
   });
 
   const revealButtons = () => {
-    if (insufficientFunds && !doesSatisfyCriteriaToRevealWithGenesisNft) {
+    if (insufficientFunds && !isRevealWithNftMode) {
       return (
         <>
           <a
@@ -122,8 +123,8 @@ export function RevealContextProvider({
             >
               {hasPendingTransactions
                 ? "Continue"
-                : doesSatisfyCriteriaToRevealWithGenesisNft
-                  ? "Reveal with genesis NFT"
+                : isRevealWithNftMode
+                  ? `Reveal with ${nftType} NFT`
                   : "Reveal"}
             </Button>
             <Button
@@ -131,12 +132,10 @@ export function RevealContextProvider({
               className="h-10"
               isPill
               onClick={() =>
-                doesSatisfyCriteriaToRevealWithGenesisNft
-                  ? burnAndReveal()
-                  : resetReveal()
+                isRevealWithNftMode ? burnAndReveal() : resetReveal()
               }
             >
-              {doesSatisfyCriteriaToRevealWithGenesisNft
+              {isRevealWithNftMode
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
@@ -161,7 +160,7 @@ export function RevealContextProvider({
       case "burning":
         return (
           <Button variant="white" className="h-10" isPill disabled>
-            Burning BONK...
+            Burning $BONK...
           </Button>
         );
     }
@@ -188,8 +187,8 @@ export function RevealContextProvider({
       );
     }
 
-    if (doesSatisfyCriteriaToRevealWithGenesisNft) {
-      return <p className="text-sm">Genesis NFT will be used for reveal</p>;
+    if (isRevealWithNftMode) {
+      return <p className="text-sm">{nftType} NFT will be used for reveal</p>;
     }
 
     return (
@@ -208,7 +207,7 @@ export function RevealContextProvider({
     >
       <ChompFullScreenLoader
         isLoading={burnState === "burning"}
-        loadingMessage="Burning bonk..."
+        loadingMessage="Burning $BONK..."
       />
       <Sheet
         disableClose={burnState === "burning"}

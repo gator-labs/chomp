@@ -58,7 +58,7 @@ Chomp is two sided, including people who ask questions and people who answer que
 1. Question asker deposits capital to fund engagement rewards
 2. Question asker asks questions
 3. Question answerer answers one or more questions
-4. At some point in the future, the question answer can be revealed after burning BONK
+4. At some point in the future, the question answer can be revealed after burning $BONK
 5. User rewarded if they got the answer correct
 
 ![Chomp Overview](./docs/ChompOverview.jpg)

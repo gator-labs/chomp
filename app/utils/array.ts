@@ -9,3 +9,11 @@ export function onlyUniqueBy<T, U>(selector: (value: T) => U) {
     );
   };
 }
+
+export function getAverage(numbers: number[]): number {
+  return (
+    numbers.reduce((sum, currentValue) => {
+      return sum + currentValue;
+    }, 0) / numbers.length
+  );
+}
