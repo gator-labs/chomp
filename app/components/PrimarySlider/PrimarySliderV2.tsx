@@ -3,6 +3,7 @@
 "use client";
 import * as Slider from "@radix-ui/react-slider";
 import classNames from "classnames";
+import { TouchEventHandler } from "react";
 
 interface PrimarySliderV2Props {
   value: number;
@@ -13,6 +14,8 @@ interface PrimarySliderV2Props {
   className?: string;
   trackClassName?: string;
   rangeClassName?: string;
+  onTouchStart?: TouchEventHandler<HTMLDivElement> | undefined;
+  isSliderTouched?: boolean;
 }
 
 const PrimarySliderV2 = ({
@@ -24,6 +27,8 @@ const PrimarySliderV2 = ({
   className,
   trackClassName,
   rangeClassName,
+  onTouchStart,
+  isSliderTouched,
 }: PrimarySliderV2Props) => {
   return (
     <div
@@ -42,10 +47,14 @@ const PrimarySliderV2 = ({
         step={1}
         onValueChange={(value) => setValue && setValue(Number(value))}
         value={[value]}
+        onTouchStart={onTouchStart}
       >
         <Slider.Track
           className={classNames(
             "relative flex items-center justify-center w-full rounded-[8px] min-h-[50px] overflow-hidden bg-pink-gradient",
+            {
+              isSliderTouched: "",
+            },
             trackClassName,
           )}
           style={{
@@ -67,7 +76,12 @@ const PrimarySliderV2 = ({
             className="block w-[30px] h-[19px] bg-white rounded-2xl focus:outline-none px-[2px] cursor-pointer p-[2px] shadow-[0px_4px_4px_0px_#00000040]"
             aria-label="Volume"
           >
-            <div className="w-full h-full bg-dark-purple rounded-2xl" />
+            <div
+              className={classNames("w-full h-full rounded-2xl", {
+                "bg-[#575CDF]": isSliderTouched,
+                "animate-purplePulse": !isSliderTouched,
+              })}
+            />
           </Slider.Thumb>
         )}
       </Slider.Root>
