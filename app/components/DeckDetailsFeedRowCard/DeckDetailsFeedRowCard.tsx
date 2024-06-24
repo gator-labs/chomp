@@ -13,6 +13,20 @@ export function DeckDetailsFeedRowCard({
 }: DeckDetailsFeedRowCardProps) {
   const state = getQuestionState(element);
 
+  if (state.isClaimed) {
+    return (
+      <FeedQuestionCard
+        question={element.question}
+        answerCount={element.answerCount}
+        revealAtAnswerCount={element.revealAtAnswerCount ?? undefined}
+        revealAtDate={element.revealAtDate ?? new Date()}
+        statusLabel={
+          <span className="text-xs leading-6 text-aqua">Claimed</span>
+        }
+      />
+    );
+  }
+
   if (state.isRevealed) {
     return (
       <ClaimFeedQuestionCard

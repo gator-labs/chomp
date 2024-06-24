@@ -124,15 +124,22 @@ export async function claimQuestions(questionIds: number[]) {
           },
         });
 
+        const questionIdsClaimed = chompResults.map((cr) => cr.questionId ?? 0);
+        // We're querying dirty data in transaction so we need claimed questions
         const decks = await tx.deck.findMany({
           where: {
             deckQuestions: {
+              some: {
+                questionId: {
+                  in: questionIdsClaimed,
+                },
+              },
               every: {
                 question: {
                   chompResults: {
-                    some: {
+                    every: {
                       userId: payload.sub,
-                      result: ResultType.Revealed,
+                      result: ResultType.Claimed,
                     },
                   },
                 },
