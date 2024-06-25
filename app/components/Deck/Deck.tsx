@@ -122,8 +122,6 @@ export function Deck({
 
   const onQuestionActionClick = useCallback(
     (number: number | undefined) => {
-      console.log("in");
-
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
