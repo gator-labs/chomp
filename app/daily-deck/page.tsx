@@ -1,4 +1,6 @@
-import { getDailyDeck } from "@/app/queries/deck";
+import { getDailyAnsweredQuestions, getDailyDeck } from "@/app/queries/deck";
+
+import { redirect } from "next/navigation";
 import { getTransactionHistory } from "../actions/fungible-asset";
 import { getJwtPayload } from "../actions/jwt";
 import { getProfileImage } from "../queries/profile";
@@ -9,6 +11,7 @@ import { getAddressFromVerifiedCredentials } from "../utils/wallet";
 
 export default async function Page() {
   const dailyDeck = await getDailyDeck();
+
   const isAdmin = await getIsUserAdmin();
 
   const payload = await getJwtPayload();
@@ -19,12 +22,21 @@ export default async function Page() {
   const bonkBalance = await getBonkBalance(address);
   const solBalance = await getSolBalance(address);
 
+  const dailyAnsweredQuestions = await getDailyAnsweredQuestions();
+
+  if (!dailyAnsweredQuestions?.questions?.length) redirect("/application");
+
   return (
     <DailyDeckScreen
       date={dailyDeck?.date}
       id={dailyDeck?.id}
       questions={dailyDeck?.questions}
       isAdmin={isAdmin}
+      percentOfAnsweredQuestions={
+        (dailyAnsweredQuestions.answers.length /
+          dailyAnsweredQuestions.questions.length) *
+        100
+      }
       navBarData={{
         avatarSrc: profile,
         bonkBalance: bonkBalance,
