@@ -12,12 +12,6 @@ function TiplinkConnect() {
 
     const [burned, setBurned] = useState(false);
 
-    if (!publicKey) {
-        // Handle the case where publicKey is null
-        console.error("Public key is null. Please connect your wallet.");
-        return;
-    }
-
     const connectTiplink = async function loginViaTipLink() {
         try {
 
@@ -32,12 +26,18 @@ function TiplinkConnect() {
     const onBurn = async () => {
 
         try {
-
-
             const {
                 context: { slot: minContextSlot },
                 value: { blockhash, lastValidBlockHeight }
             } = await CONNECTION.getLatestBlockhashAndContext();
+
+
+            if (!publicKey) {
+                // Handle the case where publicKey is null
+                console.error("Public key is null. Please connect your wallet.");
+                return;
+            }
+
             // console.log(blockhash)
             const tx = await genBonkBurnTx(
                 publicKey.toString(),
