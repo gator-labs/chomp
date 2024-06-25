@@ -159,3 +159,15 @@ export const mapPercentages = (
     });
   });
 };
+
+export const getAnsweredQuestionsStatus = (
+  percentOfAnsweredQuestions: number,
+) => {
+  if (percentOfAnsweredQuestions === 100) {
+    return "daily-deck";
+  } else if (percentOfAnsweredQuestions === 0) {
+    return "answered-none";
+  } else {
+    return "answered-some";
+  }
+};
