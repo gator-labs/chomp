@@ -15,6 +15,9 @@ export async function updateStreak(
         not: null,
       },
     },
+    orderBy: {
+      date: "desc",
+    },
   });
 
   const previousDeck = await prisma.deck.findFirst({
@@ -23,6 +26,9 @@ export async function updateStreak(
         lt: dayjs().startOf("date").toDate(),
         not: null,
       },
+    },
+    orderBy: {
+      date: "desc",
     },
   });
 
@@ -39,6 +45,10 @@ export async function updateStreak(
     return await prisma.streak.create({
       data: { userId, count: 1 },
     });
+  }
+
+  if (dayjs(streakDb.updatedAt).isSame(dayjs(), "date")) {
+    return;
   }
 
   if (dayjs(streakDb.updatedAt).isSame(previousDeck?.date, "date")) {
