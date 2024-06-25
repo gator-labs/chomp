@@ -105,6 +105,7 @@ export function RevealContextProvider({
       if (!!chompResult) return setQuestionChompResult(chompResult);
 
       const userAssets = await getUserAssets(address);
+      console.log(userAssets);
 
       const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
 
