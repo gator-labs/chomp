@@ -44,11 +44,11 @@ export default function RootLayout({
             Demo mode
           </div>
         )}
-        {/* <DynamicProvider> */}
-        <ToastProvider>
-          <MobileChromeDetector>{children}</MobileChromeDetector>
-        </ToastProvider>
-        {/* </DynamicProvider> */}
+        <DynamicProvider>
+          <ToastProvider>
+            <MobileChromeDetector>{children}</MobileChromeDetector>
+          </ToastProvider>
+        </DynamicProvider>
         <Analytics />
       </body>
     </html>
