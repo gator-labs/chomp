@@ -56,7 +56,6 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       tagIds: selectedTagIds,
       id: deck?.id,
     });
-    console.log(result);
     if (result?.errorMessage) {
       errorToast("Failed to save deck", result.errorMessage);
     }
