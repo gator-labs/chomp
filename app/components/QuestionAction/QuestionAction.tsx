@@ -85,7 +85,12 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onClick={() => {
+              onPointerDown={() => {
+                if (!isSliderTouched) {
+                  setIsSliderTouched(true);
+                }
+              }}
+              onTouchStart={() => {
                 if (!isSliderTouched) {
                   setIsSliderTouched(true);
                 }
@@ -139,7 +144,12 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onClick={() => {
+              onPointerDown={() => {
+                if (!isSliderTouched) {
+                  setIsSliderTouched(true);
+                }
+              }}
+              onTouchStart={() => {
                 if (!isSliderTouched) {
                   setIsSliderTouched(true);
                 }

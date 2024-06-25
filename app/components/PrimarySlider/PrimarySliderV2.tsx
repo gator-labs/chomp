@@ -3,7 +3,7 @@
 "use client";
 import * as Slider from "@radix-ui/react-slider";
 import classNames from "classnames";
-import { MouseEventHandler } from "react";
+import { PointerEventHandler, TouchEventHandler } from "react";
 
 interface PrimarySliderV2Props {
   value: number;
@@ -14,7 +14,8 @@ interface PrimarySliderV2Props {
   className?: string;
   trackClassName?: string;
   rangeClassName?: string;
-  onClick?: MouseEventHandler<HTMLDivElement> | undefined;
+  onPointerDown?: PointerEventHandler<HTMLSpanElement> | undefined;
+  onTouchStart?: TouchEventHandler<HTMLSpanElement> | undefined;
   isSliderTouched?: boolean;
 }
 
@@ -27,7 +28,8 @@ const PrimarySliderV2 = ({
   className,
   trackClassName,
   rangeClassName,
-  onClick,
+  onPointerDown,
+  onTouchStart,
   isSliderTouched,
 }: PrimarySliderV2Props) => {
   return (
@@ -47,14 +49,10 @@ const PrimarySliderV2 = ({
         step={1}
         onValueChange={(value) => setValue && setValue(Number(value))}
         value={[value]}
-        onClick={onClick}
       >
         <Slider.Track
           className={classNames(
             "relative flex items-center justify-center w-full rounded-[8px] min-h-[50px] overflow-hidden bg-pink-gradient",
-            {
-              isSliderTouched: "",
-            },
             trackClassName,
           )}
           style={{
@@ -73,6 +71,8 @@ const PrimarySliderV2 = ({
         </Slider.Track>
         {!hideThumb && (
           <Slider.Thumb
+              onPointerDown={onPointerDown}
+              onTouchStart={onTouchStart}
             className="block w-[30px] h-[19px] bg-white rounded-2xl focus:outline-none px-[2px] cursor-pointer p-[2px] shadow-[0px_4px_4px_0px_#00000040]"
             aria-label="Volume"
           >

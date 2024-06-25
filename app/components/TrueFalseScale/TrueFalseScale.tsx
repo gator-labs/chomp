@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { MouseEventHandler } from "react";
+import { PointerEventHandler, TouchEventHandler } from "react";
 import PrimarySliderV2 from "../PrimarySlider/PrimarySliderV2";
 
 type TrueFalseScaleProps = {
@@ -12,7 +12,8 @@ type TrueFalseScaleProps = {
   progressColor?: string;
   bgColor?: string;
   hideThumb?: boolean;
-  onClick?: MouseEventHandler<HTMLDivElement> | undefined;
+  onPointerDown?: PointerEventHandler<HTMLSpanElement> | undefined;
+  onTouchStart?: TouchEventHandler<HTMLSpanElement> | undefined;
   isSliderTouched?: boolean;
 };
 
@@ -26,7 +27,8 @@ export function TrueFalseScale({
   progressColor,
   bgColor,
   hideThumb,
-  onClick,
+  onPointerDown,
+  onTouchStart,
   isSliderTouched = true,
 }: TrueFalseScaleProps) {
   return (
@@ -39,7 +41,8 @@ export function TrueFalseScale({
         className={sliderClassName}
         trackClassName={trackClassName}
         hideThumb={hideThumb}
-        onClick={onClick}
+        onPointerDown={onPointerDown}
+        onTouchStart={onTouchStart}
         isSliderTouched={isSliderTouched}
       />
 
