@@ -6,7 +6,7 @@ import Disabled from "@/app/components/Disabled/Disabled";
 import { Navbar, NavbarProps } from "@/app/components/Navbar/Navbar";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import { TabNavigation } from "@/app/components/TabNavigation/TabNavigation";
-import { useState } from "react";
+import { getAnsweredQuestionsStatus } from "@/app/utils/question";
 
 interface Props {
   date?: Date | null;
@@ -14,6 +14,7 @@ interface Props {
   id?: number;
   isAdmin: boolean;
   navBarData: NavbarProps;
+  percentOfAnsweredQuestions: number;
 }
 
 const DailyDeckScreen = ({
@@ -22,8 +23,9 @@ const DailyDeckScreen = ({
   id,
   isAdmin,
   navBarData,
+  percentOfAnsweredQuestions,
 }: Props) => {
-  const [hasReachedEnd, setHasReachedEnd] = useState(!questions?.length);
+  const deckVariant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
 
   return (
     <>
@@ -31,7 +33,7 @@ const DailyDeckScreen = ({
         <main className="flex-grow overflow-y-auto mb-2 h-full w-full max-w-lg mx-auto">
           <div className="flex flex-col h-full px-4">
             <Disabled
-              disabled={!hasReachedEnd}
+              disabled={!!questions?.length}
               toastMessage="Please complete this Daily Deck first ✨"
             >
               <Navbar {...navBarData} />
@@ -47,12 +49,11 @@ const DailyDeckScreen = ({
                   questions={questions}
                   deckId={id!}
                   browseHomeUrl="/application"
-                  setHasReachedEnd={setHasReachedEnd}
                 />
               ) : (
                 <NoQuestionsCard
                   browseHomeUrl="/application"
-                  variant="daily-deck"
+                  variant={deckVariant}
                 />
               )}
             </div>
@@ -60,7 +61,7 @@ const DailyDeckScreen = ({
         </main>
         <Disabled
           className="after:opacity-90 after:bg-[#1B1B1B]"
-          disabled={!hasReachedEnd}
+          disabled={!!questions?.length}
           toastMessage="Please complete this Daily Deck first ✨"
         >
           <TabNavigation isAdmin={isAdmin} />
