@@ -45,7 +45,6 @@ const DailyDeckScreen = ({
             <div className="flex-1">
               {!!questions?.length ? (
                 <Deck
-                  deckVariant="daily-deck"
                   questions={questions}
                   deckId={id!}
                   browseHomeUrl="/application"
