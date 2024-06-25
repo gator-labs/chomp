@@ -85,7 +85,7 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onTouchStart={() => {
+              onClick={() => {
                 if (!isSliderTouched) {
                   setIsSliderTouched(true);
                 }
@@ -139,7 +139,7 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onTouchStart={() => {
+              onClick={() => {
                 if (!isSliderTouched) {
                   setIsSliderTouched(true);
                 }
