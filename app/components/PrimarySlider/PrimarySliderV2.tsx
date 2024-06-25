@@ -3,7 +3,7 @@
 "use client";
 import * as Slider from "@radix-ui/react-slider";
 import classNames from "classnames";
-import { TouchEventHandler } from "react";
+import { MouseEventHandler } from "react";
 
 interface PrimarySliderV2Props {
   value: number;
@@ -14,7 +14,7 @@ interface PrimarySliderV2Props {
   className?: string;
   trackClassName?: string;
   rangeClassName?: string;
-  onTouchStart?: TouchEventHandler<HTMLDivElement> | undefined;
+  onClick?: MouseEventHandler<HTMLDivElement> | undefined;
   isSliderTouched?: boolean;
 }
 
@@ -27,7 +27,7 @@ const PrimarySliderV2 = ({
   className,
   trackClassName,
   rangeClassName,
-  onTouchStart,
+  onClick,
   isSliderTouched,
 }: PrimarySliderV2Props) => {
   return (
@@ -47,7 +47,7 @@ const PrimarySliderV2 = ({
         step={1}
         onValueChange={(value) => setValue && setValue(Number(value))}
         value={[value]}
-        onTouchStart={onTouchStart}
+        onClick={onClick}
       >
         <Slider.Track
           className={classNames(
