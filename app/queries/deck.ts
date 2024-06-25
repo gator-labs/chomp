@@ -39,6 +39,8 @@ export async function getDailyDeck() {
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
 
+  if (!payload?.sub) return null;
+
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
