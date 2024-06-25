@@ -227,7 +227,7 @@ export function Deck({
   if (questions.length === 0 || hasReachedEnd) {
     const percentOfAnsweredQuestions =
       (numberOfAnsweredQuestions / questions.length) * 100;
-    console.log({ percentOfAnsweredQuestions, numberOfAnsweredQuestions });
+
     const variant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
 
     return (
