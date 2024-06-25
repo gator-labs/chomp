@@ -44,14 +44,13 @@ function TiplinkConnect() {
                 lastValidBlockHeight: lastValidBlockHeight,
                 signature,
             });
-            console.log(res)
+
             setBurned(true)
         }
         catch (error) {
             console.log(error)
         }
     };
-    console.log(publicKey)
     return (
         <div>
             {burned ?

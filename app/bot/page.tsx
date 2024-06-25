@@ -1,29 +1,16 @@
 "use client";
 
-import { FC, FormEventHandler, useState, useMemo, useEffect } from "react";
-// import { useRouter } from "next/router";
-// import {
-//   useConnectWithOtp,
-//   useDynamicContext,
-//   useUserWallets,
-// } from "@dynamic-labs/sdk-react-core";
-import { Connection } from "@solana/web3.js";
-
-import { registerTipLinkWallet } from "@tiplink/wallet-adapter";
-import { TipLinkWalletAutoConnectV2 } from "@tiplink/wallet-adapter-react-ui";
-import { GoogleViaTipLinkWalletName } from '@tiplink/wallet-adapter'
-import { WalletProvider, useWallet } from '@solana/wallet-adapter-react';
+import { FC, useMemo } from "react";
+import { WalletProvider } from '@solana/wallet-adapter-react';
 import { TipLinkWalletAdapter } from "@tiplink/wallet-adapter";
-import { CONNECTION, genBonkBurnTx } from '../utils/solana';
 
 import TiplinkConnect from "./tiplinkConnect";
 
-
 const ConnectWithOtpView: FC = () => {
-  // const urlParams = new URLSearchParams(window.location.search);
-  // const initData = urlParams.get('initData');
-  // console.log(initData)
-  const tele = window?.Telegram?.WebApp
+
+  // const [user, setUser] = useState(null);
+
+
   const wallets = useMemo(
     () => [
       new TipLinkWalletAdapter({
@@ -35,18 +22,46 @@ const ConnectWithOtpView: FC = () => {
     []
   );
 
-  useEffect(() => {
-    console.log(tele)
-  }, [])
+
+
+  // useEffect(() => {
+  //   // Ensure Telegram Web App API is available
+  //   const script = document.createElement('script');
+  //   script.src = "https://telegram.org/js/telegram-web-app.js";
+  //   script.async = true;
+  //   document.body.appendChild(script);
+
+  //   script.onload = () => {
+  //     Telegram.WebApp.ready();
+
+  //     // Retrieve user details
+  //     const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
+  //     const user = initDataUnsafe.user;
+
+  //     // Set user details in state
+  //     if (user) {
+  //       setUser(user);
+  //     }
+  //   };
+
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []);
 
   return (
     <WalletProvider wallets={wallets} autoConnect >
       <div className="space-y-6 flex flex-col w-2/3 mt-12">
-        <p className="text-2xl text-center">Good job chompin!</p>
-        {JSON.stringify(tele)}
-
+        <p className="text-2xl text-center">Good job chompins!</p>
 
         <TiplinkConnect />
+
+        {/* <p>User ID: {user?.id}</p>
+        <p>First Name: {user?.first_name}</p>
+        <p>Last Name: {user?.last_name}</p>
+        <p>Username: {user?.username}</p>
+        <p>Language Code: {user?.language_code}</p> */}
+
 
 
       </div>
