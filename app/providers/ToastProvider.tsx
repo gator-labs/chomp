@@ -1,6 +1,6 @@
 "use client";
-import { ReactNode, createContext, useContext } from "react";
-import toast, { ToastOptions, Toaster } from "react-hot-toast";
+import { ReactNode, createContext, useContext, useEffect } from "react";
+import toast, { ToastOptions, Toaster, useToaster } from "react-hot-toast";
 import AnimatedTimer from "../components/AnimatedTimer/AnimatedTimer";
 import { ErrorIcon } from "../components/Icons/ToastIcons/ErrorIcon";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
@@ -118,6 +118,14 @@ const loadingToastLayout = (message: string, description?: string) => (
 );
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
+  const { toasts } = useToaster();
+
+  useEffect(() => {
+    const toastsToRemove = toasts.filter((toast) => !toast.visible);
+
+    toastsToRemove.map((toastToRemove) => toast.remove(toastToRemove.id));
+  }, [toasts]);
+
   const successToast = (
     message: string,
     description?: string,
