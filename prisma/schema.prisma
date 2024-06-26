@@ -184,11 +184,11 @@ model FungibleAssetBalance {
 }
 
 model Streak {
-  id              Int      @id @default(autoincrement())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id])
-  streakStartedAt DateTime @default(now())
-  lastDayOfStreak DateTime @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  count     Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model RevealNft {

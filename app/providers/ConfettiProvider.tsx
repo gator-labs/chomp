@@ -33,6 +33,7 @@ const defaultConfettiProps = {
 };
 
 const CONFETTI_DURATION = 5000;
+const UNMOUNT_DELAY = 2000;
 
 const ConfettiProvider = ({
   children,
@@ -41,8 +42,10 @@ const ConfettiProvider = ({
 }>) => {
   const [confettiProps, setConfettiProps] =
     useState<ConfettiProps>(defaultConfettiProps);
+  const [isVisible, setIsVisible] = useState(false);
 
   const fire = useCallback(() => {
+    setIsVisible(true);
     setConfettiProps((prevProps) => ({
       ...prevProps,
       run: true,
@@ -51,7 +54,13 @@ const ConfettiProvider = ({
     const finishRecycling = setTimeout(() => {
       setConfettiProps((prevProps) => ({ ...prevProps, recycle: false }));
     }, CONFETTI_DURATION);
-    return () => clearTimeout(finishRecycling);
+    const unmountConfetti = setTimeout(() => {
+      setIsVisible(false);
+    }, CONFETTI_DURATION + UNMOUNT_DELAY);
+    return () => {
+      clearTimeout(finishRecycling);
+      clearTimeout(unmountConfetti);
+    };
   }, []);
 
   const value = useMemo(() => ({ fire }), [fire]);
@@ -59,10 +68,12 @@ const ConfettiProvider = ({
   return (
     <ConfettiContext.Provider value={value}>
       {children}
-      <Confetti
-        className="absolute top-0 left-0 w-full h-full"
-        {...confettiProps}
-      />
+      {isVisible && (
+        <Confetti
+          className="absolute top-0 left-0 w-full h-full"
+          {...confettiProps}
+        />
+      )}
     </ConfettiContext.Provider>
   );
 };

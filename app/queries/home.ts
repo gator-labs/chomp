@@ -331,11 +331,10 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       limit 1
     ) as "averageTimeToAnswer",
     (
-      select
-        date_part('day', s."lastDayOfStreak" - s."streakStartedAt") + 1
+      select s."count"
       from public."Streak" s
       where s."userId" = u."id"
-      order by date_part('day', s."lastDayOfStreak" - s."streakStartedAt") desc
+      order by s."count" desc
       limit 1
     ) as "daysStreak",
     (

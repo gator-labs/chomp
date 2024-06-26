@@ -1,3 +1,5 @@
+import classNames from "classnames";
+import { PointerEventHandler, TouchEventHandler } from "react";
 import PrimarySliderV2 from "../PrimarySlider/PrimarySliderV2";
 
 type TrueFalseScaleProps = {
@@ -10,6 +12,9 @@ type TrueFalseScaleProps = {
   progressColor?: string;
   bgColor?: string;
   hideThumb?: boolean;
+  onPointerDown?: PointerEventHandler<HTMLSpanElement> | undefined;
+  onTouchStart?: TouchEventHandler<HTMLSpanElement> | undefined;
+  isSliderTouched?: boolean;
 };
 
 export function TrueFalseScale({
@@ -22,6 +27,9 @@ export function TrueFalseScale({
   progressColor,
   bgColor,
   hideThumb,
+  onPointerDown,
+  onTouchStart,
+  isSliderTouched = true,
 }: TrueFalseScaleProps) {
   return (
     <div className="relative h-max flex flex-col gap-4">
@@ -33,12 +41,21 @@ export function TrueFalseScale({
         className={sliderClassName}
         trackClassName={trackClassName}
         hideThumb={hideThumb}
+        onPointerDown={onPointerDown}
+        onTouchStart={onTouchStart}
+        isSliderTouched={isSliderTouched}
       />
 
       <div className="flex justify-between text-white font-sora text-base font-semibold z-30 relative items-center">
         <span className="text-sm pl-2">{labelLeft}</span>
         <span className="absolute left-1/2 -translate-x-1/2 bg-white py-1 px-2 rounded-2xl text-[#0D0D0D] text-xs font-bold">
-          {ratioLeft}%
+          <p
+            className={classNames(
+              isSliderTouched ? "opacity-100" : "opacity-0",
+            )}
+          >
+            {ratioLeft}%
+          </p>
         </span>
         <span className="text-sm pr-2">{labelRight}</span>
       </div>
