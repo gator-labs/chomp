@@ -50,9 +50,14 @@ const ConnectWithOtpView: FC = () => {
   };
 
   const onBurn = async () => {
-    setBurned(true);
+
     try {
-      const blockhash = await CONNECTION.getLatestBlockhash();
+
+
+      const {
+        context: { slot: minContextSlot },
+        value: { blockhash, lastValidBlockHeight }
+      } = await CONNECTION.getLatestBlockhashAndContext();
 
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
 
@@ -66,23 +71,37 @@ const ConnectWithOtpView: FC = () => {
         throw new Error('Insufficient balance for the transaction');
       }
 
-
+      // console.log(blockhash, "b")
       const tx = await genBonkBurnTx(
         primaryWallet!.address,
-        blockhash.blockhash,
-        1000,
+        blockhash,
+        10,
       );
       console.log(tx, signer, 'tx')
-      const signature = await signer.signAndSendTransaction(tx);
+
+      const signature = await signer
+        .signAndSendTransaction(tx)
+        .then((res: any) => {
+          // eslint-disable-next-line no-console
+          console.log(res)
+          // setTxnHash(res.signature);
+        })
+        .catch((reason: any) => {
+          // eslint-disable-next-line no-console
+          console.error(reason);
+        });
 
 
 
+      setBurned(true);
 
-      await CONNECTION.confirmTransaction({
-        blockhash: blockhash.blockhash,
-        lastValidBlockHeight: blockhash.lastValidBlockHeight,
-        signature,
-      });
+
+      // await CONNECTION.confirmTransaction({
+      //   blockhash: blockhash,
+      //   lastValidBlockHeight: lastValidBlockHeight,
+      //   signature,
+      // });
+      // console.log(signature)
       // const logs = await getLogs(CONNECTION, tx);
       // console.log(logs)
     } catch (err) {
@@ -148,14 +167,14 @@ const ConnectWithOtpView: FC = () => {
         </form>
       )}
 
-      {/* {!!verificationSuccess && !burned && ( */}
-      <button
-        className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
-        onClick={onBurn}
-      >
-        Burn BONK and reveal
-      </button>
-      {/* )} */}
+      {!!verificationSuccess && !burned && (
+        <button
+          className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
+          onClick={onBurn}
+        >
+          Burn BONK and reveal
+        </button>
+      )}
 
       {!!burned && (
         <p className="text-2xl text-[#A3A3EC]">
