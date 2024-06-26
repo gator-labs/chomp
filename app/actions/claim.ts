@@ -11,16 +11,21 @@ import { sendBonk } from "../utils/bonk";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
+  console.log("claim deck fired with id ", deckId);
+
   const decks = await claimDecks([deckId]);
   return decks ? decks[0] : null;
 }
 
 export async function claimQuestion(questionId: number) {
+  console.log("claim questions fired");
   const questions = await claimQuestions([questionId]);
   return questions ? questions[0] : null;
 }
 
 export async function claimDecks(deckIds: number[]) {
+  console.log("claim decks fired with deck ids ", deckIds);
+
   const questions = await prisma.deckQuestion.findMany({
     where: {
       deckId: {
@@ -38,7 +43,7 @@ export async function claimAllAvailable() {
   if (!payload) {
     return null;
   }
-
+  console.log("user with id ", payload.sub, " tries to claim all questions ");
   const revealedChompResults = await prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
