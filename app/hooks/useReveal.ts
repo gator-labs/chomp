@@ -57,7 +57,7 @@ const INITIAL_BURN_STATE = "idle";
 
 const createGetTransactionTask = async (signature: string): Promise<void> => {
   await CONNECTION.getTransaction(signature, {
-    commitment: "finalized",
+    commitment: "confirmed",
     maxSupportedTransactionVersion: 0,
   });
 };
@@ -215,7 +215,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             lastValidBlockHeight: blockhash.lastValidBlockHeight,
             signature,
           },
-          "finalized",
+          "confirmed",
         );
       }
 
