@@ -2,23 +2,20 @@
 import { SaveQuestionRequest, saveDeck } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
-import { getAlphaIdentifier } from "@/app/utils/question";
+import {
+  getAlphaIdentifier,
+  getAnsweredQuestionsStatus,
+} from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "../Button/Button";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
+import Sheet from "../Sheet/Sheet";
 import Stepper from "../Stepper/Stepper";
 
 export type Option = {
@@ -41,8 +38,7 @@ type DeckProps = {
   questions: Question[];
   browseHomeUrl?: string;
   deckId: number;
-  setHasReachedEnd?: Dispatch<SetStateAction<boolean>>;
-  deckVariant: "daily-deck" | "regular-deck";
+  deckVariant?: "daily-deck" | "regular-deck";
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -55,7 +51,6 @@ export function Deck({
   questions,
   browseHomeUrl,
   deckId,
-  setHasReachedEnd,
   deckVariant,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
@@ -77,6 +72,8 @@ export function Deck({
         : 0,
   });
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
+  const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
+  const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
 
   useEffect(() => {
     start();
@@ -118,6 +115,7 @@ export function Deck({
   );
 
   const handleNoAnswer = useCallback(() => {
+    setIsTimeOutPopUpVisible(false);
     setDeckResponse((prev) => [...prev, { questionId: question.id }]);
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
@@ -192,6 +190,7 @@ export function Deck({
           return newResponses;
         });
       }
+      setNumberOfAnsweredQuestions((prev) => prev + 1);
 
       handleNextIndex();
     },
@@ -213,7 +212,6 @@ export function Deck({
 
   useEffect(() => {
     if (hasReachedEnd) {
-      setHasReachedEnd?.(true);
       saveDeck(deckResponse, deckId);
     }
   }, [hasReachedEnd, deckResponse]);
@@ -225,9 +223,17 @@ export function Deck({
   }, [questionsRef.current]);
 
   if (questions.length === 0 || hasReachedEnd) {
+    const percentOfAnsweredQuestions =
+      (numberOfAnsweredQuestions / questions.length) * 100;
+
+    const variant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
+
     return (
       <div className="flex flex-col justify-evenly h-full pb-4">
-        <NoQuestionsCard browseHomeUrl={browseHomeUrl} variant={deckVariant} />
+        <NoQuestionsCard
+          browseHomeUrl={browseHomeUrl}
+          variant={deckVariant || variant}
+        />
       </div>
     );
   }
@@ -247,7 +253,7 @@ export function Deck({
             question={question.question}
             type={question.type}
             viewImageSrc={question.imageUrl}
-            onDurationRanOut={handleNoAnswer}
+            onDurationRanOut={() => setIsTimeOutPopUpVisible(true)}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -273,6 +279,32 @@ export function Deck({
           setPercentage={setOptionPercentage}
         />
       )}
+
+      <Sheet
+        disableClose
+        isOpen={isTimeOutPopUpVisible}
+        setIsOpen={setIsTimeOutPopUpVisible}
+        closIconHeight={16}
+        closIconWidth={16}
+      >
+        <div className="p-6 pt-2 flex flex-col gap-6">
+          <p className="text-base text-purple font-bold">
+            Are you still there?
+          </p>
+          <p className="text-sm text-white">
+            Your time&apos;s up! To prevent you from missing out on the next
+            question, click proceed to continue.
+          </p>
+          <Button
+            variant="white"
+            isPill
+            className="!h-10"
+            onClick={handleNoAnswer}
+          >
+            Proceed
+          </Button>
+        </div>
+      </Sheet>
     </div>
   );
 }

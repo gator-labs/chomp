@@ -13,8 +13,8 @@ const colors = {
   "btn-border-black": "#333333",
   warning: "#ED6A5A",
   "btn-text-warning": "#0D0D0D",
-  disabled: "#EDEDED",
-  "btn-text-disabled": "#999999",
+  disabled: "#999999",
+  "btn-text-disabled": "#666666",
   "border-white": "#E9E9E9",
   aqua: "#6DECAF",
   gray: "#999999",
@@ -38,6 +38,16 @@ module.exports = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        purplePulse: {
+          "0%": { backgroundColor: "#8872A5" },
+          "50%": { backgroundColor: "#575CDF" },
+          "100%": { backgroundColor: "#8872A5" },
+        },
+      },
+      animation: {
+        purplePulse: "purplePulse 2s infinite",
+      },
       fontFamily: {
         sora: ["var(--font-sora)"],
       },

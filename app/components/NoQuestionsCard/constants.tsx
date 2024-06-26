@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { TrophyGraphic } from "../Graphics/TrophyGraphic";
+import FlagIcon from "../Icons/FlagIcon";
+import HeartIcon from "../Icons/HeartIcon";
 
 export const QUESTION_CARD_CONTENT = {
   "daily-deck": {
@@ -11,6 +14,7 @@ export const QUESTION_CARD_CONTENT = {
         did, and get rewarded!
       </>
     ),
+    backgroundIcon: <TrophyGraphic />,
   },
   "regular-deck": {
     title: "Nice!",
@@ -29,6 +33,7 @@ export const QUESTION_CARD_CONTENT = {
         to check for more decks.
       </>
     ),
+    backgroundIcon: <TrophyGraphic />,
   },
   "answer-page": {
     title: "Wait, is there more?",
@@ -41,5 +46,34 @@ export const QUESTION_CARD_CONTENT = {
         </b>
       </>
     ),
+    backgroundIcon: <TrophyGraphic />,
+  },
+  "answered-none": {
+    title: "You missed out :(",
+    body: (
+      <>
+        Chompy is sad that you didn&apos;t answer any of today&apos;s Daily Deck
+        questions.
+        <br /> <br />
+        For now, waddle over to Home and see what else is available for you to
+        Chomp on!
+      </>
+    ),
+    backgroundIcon: <HeartIcon />,
+  },
+  "answered-some": {
+    title: "You can do better!",
+    body: (
+      <>
+        Chompy is sad that you didn&apos;t answer all the questions of
+        today&apos;s Daily Deck. <br /> <br />
+        Today&apos;s Daily Deck will be revealed in 3 days! Come back then to
+        burn some BONK, reveal the answer, see how you did, and get rewarded!
+        <br /> <br />
+        For now, waddle over to Home and see what else is available for you to
+        Chomp on!
+      </>
+    ),
+    backgroundIcon: <FlagIcon />,
   },
 };

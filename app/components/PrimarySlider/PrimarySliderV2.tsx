@@ -3,6 +3,7 @@
 "use client";
 import * as Slider from "@radix-ui/react-slider";
 import classNames from "classnames";
+import { PointerEventHandler, TouchEventHandler } from "react";
 
 interface PrimarySliderV2Props {
   value: number;
@@ -13,6 +14,9 @@ interface PrimarySliderV2Props {
   className?: string;
   trackClassName?: string;
   rangeClassName?: string;
+  onPointerDown?: PointerEventHandler<HTMLSpanElement> | undefined;
+  onTouchStart?: TouchEventHandler<HTMLSpanElement> | undefined;
+  isSliderTouched?: boolean;
 }
 
 const PrimarySliderV2 = ({
@@ -24,6 +28,9 @@ const PrimarySliderV2 = ({
   className,
   trackClassName,
   rangeClassName,
+  onPointerDown,
+  onTouchStart,
+  isSliderTouched,
 }: PrimarySliderV2Props) => {
   return (
     <div
@@ -64,10 +71,17 @@ const PrimarySliderV2 = ({
         </Slider.Track>
         {!hideThumb && (
           <Slider.Thumb
+              onPointerDown={onPointerDown}
+              onTouchStart={onTouchStart}
             className="block w-[30px] h-[19px] bg-white rounded-2xl focus:outline-none px-[2px] cursor-pointer p-[2px] shadow-[0px_4px_4px_0px_#00000040]"
             aria-label="Volume"
           >
-            <div className="w-full h-full bg-dark-purple rounded-2xl" />
+            <div
+              className={classNames("w-full h-full rounded-2xl", {
+                "bg-[#575CDF]": isSliderTouched,
+                "animate-purplePulse": !isSliderTouched,
+              })}
+            />
           </Slider.Thumb>
         )}
       </Slider.Root>

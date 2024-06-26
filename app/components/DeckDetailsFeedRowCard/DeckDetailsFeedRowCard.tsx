@@ -3,6 +3,7 @@ import { DeckQuestionIncludes, getQuestionState } from "@/app/utils/question";
 import { ClaimFeedQuestionCard } from "../ClaimFeedQuestionCard/ClaimFeedQuestionCard";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { RevealFeedQuestionCard } from "../RevealFeedQuestionCard/RevealFeedQuestionCard";
+import { SeeFeedQuestionCard } from "../SeeFeedQuestionCard/SeeFeedQuestionCard";
 
 type DeckDetailsFeedRowCardProps = {
   element: DeckQuestionIncludes;
@@ -13,7 +14,20 @@ export function DeckDetailsFeedRowCard({
 }: DeckDetailsFeedRowCardProps) {
   const state = getQuestionState(element);
 
-  if (state.isRevealed) {
+  if (state.isRevealable) {
+    return (
+      <RevealFeedQuestionCard
+        id={element.id}
+        question={element.question}
+        answerCount={element.answerCount}
+        revealAtAnswerCount={element.revealAtAnswerCount ?? undefined}
+        revealAtDate={element.revealAtDate ?? new Date()}
+        revealTokenAmount={element.revealTokenAmount ?? 0}
+      />
+    );
+  }
+
+  if (state.isClaimable) {
     return (
       <ClaimFeedQuestionCard
         id={element.id}
@@ -25,15 +39,14 @@ export function DeckDetailsFeedRowCard({
     );
   }
 
-  if (state.isRevealable) {
+  if (!state.isClaimable || state.isRevealed) {
     return (
-      <RevealFeedQuestionCard
+      <SeeFeedQuestionCard
         id={element.id}
         question={element.question}
         answerCount={element.answerCount}
         revealAtAnswerCount={element.revealAtAnswerCount ?? undefined}
         revealAtDate={element.revealAtDate ?? new Date()}
-        revealTokenAmount={element.revealTokenAmount ?? 0}
       />
     );
   }

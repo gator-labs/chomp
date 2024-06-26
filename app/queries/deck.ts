@@ -39,6 +39,8 @@ export async function getDailyDeck() {
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
 
+  if (!payload?.sub) return null;
+
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
@@ -177,6 +179,63 @@ export async function getDecks() {
   });
 
   return decks;
+}
+
+export async function getDailyAnsweredQuestions() {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const dailyDeck = await prisma.deck.findFirst({
+    where: {
+      date: { gte: currentDayStart, lte: currentDayEnd },
+      isActive: true,
+      deckQuestions: {
+        every: {
+          question: {
+            revealAtDate: {
+              gte: new Date(),
+            },
+          },
+        },
+      },
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!dailyDeck) {
+    return { answers: [], questions: [] };
+  }
+
+  const questionOptionIds = dailyDeck?.deckQuestions.flatMap((questions) =>
+    questions.question.questionOptions.map((q) => q.id),
+  );
+
+  const answers = await prisma.questionAnswer.findMany({
+    where: {
+      userId: payload.sub,
+      questionOptionId: {
+        in: questionOptionIds,
+      },
+      selected: true,
+    },
+  });
+
+  return { answers, questions: dailyDeck?.deckQuestions };
 }
 
 export async function getDeckSchema(id: number) {
