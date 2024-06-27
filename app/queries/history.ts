@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+import { getAllRevealableQuestions } from "../actions/claim";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { onlyUniqueBy } from "../utils/array";
 
 export type HistoryResult = {
   id: number;
@@ -20,10 +22,6 @@ export enum HistorySortOptions {
   Revealed = "Revealed",
   Claimable = "Claimable",
 }
-
-type TotalRevealedRewardsQueryResult = {
-  totalRevealedRewards: number;
-};
 
 export async function getHistory(
   sort: HistorySortOptions = HistorySortOptions.Date,
@@ -223,14 +221,11 @@ export async function getTotalRevealedRewards(): Promise<number> {
   if (!payload) {
     return redirect("/login");
   }
-  const userId = payload.sub;
 
-  const response: TotalRevealedRewardsQueryResult[] = await prisma.$queryRaw`
-	select 
-	coalesce(sum(cr."rewardTokenAmount"), 0) as "totalRevealedRewards"
-	from public."ChompResult" cr
-	where cr."userId" = ${userId} and cr."result" = 'Revealed'
-	`;
+  const revealableQuestions = await getAllRevealableQuestions();
+  const totalRevealedRewards = revealableQuestions!
+    .filter(onlyUniqueBy((x) => x.burnTransactionSignature))
+    .reduce((acc, curr) => acc + (curr.rewardTokenAmount?.toNumber() ?? 0), 0);
 
-  return response[0].totalRevealedRewards;
+  return totalRevealedRewards;
 }

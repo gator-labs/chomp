@@ -1,6 +1,6 @@
 import { DeckImportModel } from "@/app/schemas/deckImport";
 import { onlyUnique } from "@/app/utils/array";
-import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
+import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
 import { Prisma } from "@prisma/client";
 
 import { parseDateToDateDefaultUtc } from "@/app/utils/date";
@@ -31,7 +31,7 @@ export const deckInputFactory = (
         ({
           question: question.question,
           type: question.type,
-          durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+          durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
           imageUrl: question.imageUrl,
           revealTokenAmount: question.revealTokenAmount,
           revealAtAnswerCount: deckInfo.revealAtAnswerCount,

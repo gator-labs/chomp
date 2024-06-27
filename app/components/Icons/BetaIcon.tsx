@@ -76,7 +76,7 @@ export function BetaIcon({ width = 358, height = 337 }: IconProps) {
           width="58.7769"
           height="94.3738"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
@@ -110,7 +110,7 @@ export function BetaIcon({ width = 358, height = 337 }: IconProps) {
           width="71.1556"
           height="93.0057"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
@@ -144,7 +144,7 @@ export function BetaIcon({ width = 358, height = 337 }: IconProps) {
           width="75.0953"
           height="93.4995"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
@@ -178,7 +178,7 @@ export function BetaIcon({ width = 358, height = 337 }: IconProps) {
           width="69.7937"
           height="94.2634"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
@@ -212,7 +212,7 @@ export function BetaIcon({ width = 358, height = 337 }: IconProps) {
           width="83.1656"
           height="94.7319"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
           <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix

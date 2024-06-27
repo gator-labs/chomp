@@ -284,8 +284,8 @@ export function Deck({
         disableClose
         isOpen={isTimeOutPopUpVisible}
         setIsOpen={setIsTimeOutPopUpVisible}
-        closIconHeight={16}
-        closIconWidth={16}
+        closeIconHeight={16}
+        closeIconWidth={16}
       >
         <div className="p-6 pt-2 flex flex-col gap-6">
           <p className="text-base text-purple font-bold">
