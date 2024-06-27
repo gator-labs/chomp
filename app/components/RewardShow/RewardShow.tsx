@@ -46,7 +46,7 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
       <div className="flex bg-[#333333] p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold leading-[27px] text-left">
-            Congrats, you won!
+            {rewardAmount === 5000 ? "Well done!" : "Congrats, you won!"}
           </span>
           <div className="h-[1px] w-full bg-[#666666]" />
           <div className="flex items-center gap-1 justify-between">
