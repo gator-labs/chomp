@@ -11,7 +11,6 @@ import {
 } from "@prisma/client";
 import { addSeconds } from "date-fns";
 import dayjs from "dayjs";
-import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { mapPercentages, populateAnswerCount } from "../utils/question";
@@ -121,10 +120,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   }
 
   const questions = mapQuestionFromDeck(deck);
-  await addPlaceholderAnswers(
-    deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
-    payload.sub,
-  );
   return questions;
 }
 
@@ -355,7 +350,7 @@ export async function hasAnsweredDeck(
   const answeredCount = await prisma.questionAnswer.count({
     where: {
       createdAt: {
-        lt: addSeconds(new Date(), -20),
+        lt: addSeconds(new Date(), -1),
       },
       userId: { equals: userId },
       questionOption: {
