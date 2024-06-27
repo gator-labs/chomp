@@ -7,7 +7,7 @@ import { getIsUserAdmin } from "../../queries/user";
 import { questionSchema } from "../../schemas/question";
 import { QuestionImportModel } from "../../schemas/questionImport";
 import prisma from "../../services/prisma";
-import { ONE_MINUTE_IN_MILISECONDS } from "../../utils/dateUtils";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
 import { PrismaTransactionalClient } from "../../utils/prisma";
 import { formatErrorsToString } from "../../utils/zod";
 import { questionInputFactory } from "./factories";
@@ -30,7 +30,7 @@ export async function createQuestion(data: z.infer<typeof questionSchema>) {
     tagIds: undefined,
     questionOptions: undefined,
     id: undefined,
-    durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+    durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
   };
 
   await prisma.question.create({
@@ -83,7 +83,7 @@ export async function editQuestion(data: z.infer<typeof questionSchema>) {
   const questionData = {
     ...validatedFields.data,
     tagIds: undefined,
-    durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+    durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
     questionOptions: undefined,
     id: undefined,
   };

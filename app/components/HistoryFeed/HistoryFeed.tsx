@@ -29,7 +29,7 @@ function HistoryFeed({ list, elementToScrollToId }: HistoryFeedProps) {
   return (
     <Virtuoso
       style={{ height: height - SIZE_OF_ELEMENTS_ON_PROFILE }}
-      data={list}
+      data={list.filter((item) => item.type === "Deck")}
       className="mx-4"
       itemContent={(_, element) => (
         <div className="pb-4">

@@ -4,7 +4,7 @@ import { QuestionAction } from "@/app/components/QuestionAction/QuestionAction";
 import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
-import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
+import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
@@ -27,7 +27,7 @@ const MultipleChoiceScreen = ({
   currentOptionSelected,
   setCurrentOptionSelected,
 }: Props) => {
-  const [dueAt, setDueAt] = useState(getDueAt(ONE_MINUTE_IN_MILISECONDS));
+  const [dueAt, setDueAt] = useState(getDueAt(ONE_MINUTE_IN_MILLISECONDS));
   const [tooltipIndex, setTooltipIndex] = useState(0);
   const [isFlowFinished, setIsFlowFinished] = useState(false);
   const [othersResponseScale, setOthersResponseScale] = useState(50);
@@ -71,7 +71,7 @@ const MultipleChoiceScreen = ({
             type={QuestionType.MultiChoice}
             viewImageSrc="/test"
             onDurationRanOut={() =>
-              setDueAt(getDueAt(ONE_MINUTE_IN_MILISECONDS))
+              setDueAt(getDueAt(ONE_MINUTE_IN_MILLISECONDS))
             }
             className={`relative max-w-[480px] mx-auto flex flex-col gap-5 drop-shadow-question-card border-opacity-40 ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "-z-10"}`}
           >

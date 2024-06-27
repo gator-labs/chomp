@@ -13,7 +13,7 @@ const UnlikeIcon = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_5170_2561)">
+      <g clipPath="url(#clip0_5170_2561)">
         <path
           fillRule="evenodd"
           clipRule="evenodd"
