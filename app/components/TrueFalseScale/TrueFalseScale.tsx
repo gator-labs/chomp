@@ -1,5 +1,9 @@
 import classNames from "classnames";
-import { PointerEventHandler, TouchEventHandler } from "react";
+import {
+  MouseEventHandler,
+  PointerEventHandler,
+  TouchEventHandler,
+} from "react";
 import PrimarySliderV2 from "../PrimarySlider/PrimarySliderV2";
 
 type TrueFalseScaleProps = {
@@ -14,6 +18,8 @@ type TrueFalseScaleProps = {
   hideThumb?: boolean;
   onPointerDown?: PointerEventHandler<HTMLSpanElement> | undefined;
   onTouchStart?: TouchEventHandler<HTMLSpanElement> | undefined;
+  onClick?: MouseEventHandler<HTMLDivElement> | undefined;
+
   isSliderTouched?: boolean;
 };
 
@@ -29,6 +35,7 @@ export function TrueFalseScale({
   hideThumb,
   onPointerDown,
   onTouchStart,
+  onClick,
   isSliderTouched = true,
 }: TrueFalseScaleProps) {
   return (
@@ -43,6 +50,7 @@ export function TrueFalseScale({
         hideThumb={hideThumb}
         onPointerDown={onPointerDown}
         onTouchStart={onTouchStart}
+        onClick={onClick}
         isSliderTouched={isSliderTouched}
       />
 

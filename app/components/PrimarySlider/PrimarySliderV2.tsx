@@ -3,7 +3,11 @@
 "use client";
 import * as Slider from "@radix-ui/react-slider";
 import classNames from "classnames";
-import { PointerEventHandler, TouchEventHandler } from "react";
+import {
+  MouseEventHandler,
+  PointerEventHandler,
+  TouchEventHandler,
+} from "react";
 
 interface PrimarySliderV2Props {
   value: number;
@@ -16,6 +20,7 @@ interface PrimarySliderV2Props {
   rangeClassName?: string;
   onPointerDown?: PointerEventHandler<HTMLSpanElement> | undefined;
   onTouchStart?: TouchEventHandler<HTMLSpanElement> | undefined;
+  onClick?: MouseEventHandler<HTMLDivElement> | undefined;
   isSliderTouched?: boolean;
 }
 
@@ -30,6 +35,7 @@ const PrimarySliderV2 = ({
   rangeClassName,
   onPointerDown,
   onTouchStart,
+  onClick,
   isSliderTouched,
 }: PrimarySliderV2Props) => {
   return (
@@ -49,6 +55,7 @@ const PrimarySliderV2 = ({
         step={1}
         onValueChange={(value) => setValue && setValue(Number(value))}
         value={[value]}
+        onClick={onClick}
       >
         <Slider.Track
           className={classNames(
@@ -71,8 +78,8 @@ const PrimarySliderV2 = ({
         </Slider.Track>
         {!hideThumb && (
           <Slider.Thumb
-              onPointerDown={onPointerDown}
-              onTouchStart={onTouchStart}
+            onPointerDown={onPointerDown}
+            onTouchStart={onTouchStart}
             className="block w-[30px] h-[19px] bg-white rounded-2xl focus:outline-none px-[2px] cursor-pointer p-[2px] shadow-[0px_4px_4px_0px_#00000040]"
             aria-label="Volume"
           >

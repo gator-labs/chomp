@@ -33,6 +33,12 @@ export function QuestionAction({
 }: QuestionActionProps) {
   const [isSliderTouched, setIsSliderTouched] = useState(false);
 
+  const activateSlider = () => {
+    if (!isSliderTouched) {
+      setIsSliderTouched(true);
+    }
+  };
+
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
@@ -85,16 +91,9 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onPointerDown={() => {
-                if (!isSliderTouched) {
-                  setIsSliderTouched(true);
-                }
-              }}
-              onTouchStart={() => {
-                if (!isSliderTouched) {
-                  setIsSliderTouched(true);
-                }
-              }}
+              onPointerDown={activateSlider}
+              onTouchStart={activateSlider}
+              onClick={activateSlider}
             />
           </div>
           <Button
@@ -144,16 +143,9 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onPointerDown={() => {
-                if (!isSliderTouched) {
-                  setIsSliderTouched(true);
-                }
-              }}
-              onTouchStart={() => {
-                if (!isSliderTouched) {
-                  setIsSliderTouched(true);
-                }
-              }}
+              onPointerDown={activateSlider}
+              onTouchStart={activateSlider}
+              onClick={activateSlider}
             />
           </div>
           <Button
