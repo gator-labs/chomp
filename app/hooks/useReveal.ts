@@ -219,7 +219,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         );
       }
 
-      if (isMultiple) {
+      if (!isRevealWithNftMode) {
         await reveal!.reveal(signature);
       } else {
         await reveal!.reveal(signature, revealNft!.id, revealNft!.type);
