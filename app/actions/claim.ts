@@ -20,12 +20,13 @@ export async function claimDeck(deckId: number) {
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
-
   const questions = await claimQuestions([questionId]);
   return questions ? questions[0] : null;
 }
 
 export async function claimDecks(deckIds: number[]) {
+  console.log("claim decks fired with deck ids ", deckIds);
+
   const questions = await prisma.deckQuestion.findMany({
     where: {
       deckId: {
@@ -33,8 +34,6 @@ export async function claimDecks(deckIds: number[]) {
       },
     },
   });
-
-  console.log("claim decks fired with deck ids ", deckIds);
 
   return await claimQuestions(questions.map((q) => q.questionId));
 }
