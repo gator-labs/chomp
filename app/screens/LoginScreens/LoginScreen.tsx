@@ -26,11 +26,9 @@ const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
 
     if (authToken) setJwt(authToken);
 
-    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle")
+    if (awaitingSignatureState === "idle") {
       setIsLoading(false);
-
-    if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
-      setIsLoading(false);
+    }
   }, [authToken, payload?.sub, awaitingSignatureState]);
 
   if (isLoading) return <LoadingScreen />;
