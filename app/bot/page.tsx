@@ -4,6 +4,7 @@ import {
   useConnectWithOtp,
   useDynamicContext,
   useUserWallets,
+  useEmbeddedWallet,
 } from "@dynamic-labs/sdk-react-core";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { ISolana } from "@dynamic-labs/solana";
@@ -13,41 +14,54 @@ import { genBonkBurnTx } from "../utils/solana"
 
 import { FC, FormEventHandler, useState } from "react";
 import { sign } from "crypto";
+import error from "next/error";
+import { redirect } from "next/navigation";
+// import console from "console";
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const ConnectWithOtpView: FC = () => {
-  const { user } = useDynamicContext();
+  const { user, isAuthenticated } = useDynamicContext();
+
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
+
+  // console.log(user, isAuthenticated)
   // const { primaryWallet } = useDynamicContext();
   const userWallets = useUserWallets();
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
-  const [verificationSent, setVerificationSent] = useState(false);
-  const [verificationSuccess, setVerificationSuccess] = useState(false);
+
   const [burned, setBurned] = useState(false);
 
-  const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
-
-  console.log(userWallets, 'wallet', primaryWallet, 'user', user)
 
 
-  const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (
-    event,
-  ) => {
-    event.preventDefault();
+  const { sendOneTimeCode, createOrRestoreSession } = useEmbeddedWallet();
 
-    await connectWithEmail(event.currentTarget.email.value);
-    setVerificationSent(true);
+
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+
+
+
+  // console.log(userWallets, 'wallet', primaryWallet, 'user', user)
+
+
+
+
+
+  const sendOTP = async () => {
+    console.log('otp sent')
+    try {
+      console.log("sent")
+      // console.log(await sendOneTimeCode())
+      await sendOneTimeCode();
+      setOtpSent(true);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  const onSubmitOtpHandler: FormEventHandler<HTMLFormElement> = async (
-    event,
-  ) => {
-    event.preventDefault();
 
-    const otp = event.currentTarget.otp.value;
-
-    await verifyOneTimePassword(otp);
-    setVerificationSuccess(true);
-  };
 
   const onBurn = async () => {
 
@@ -62,7 +76,7 @@ const ConnectWithOtpView: FC = () => {
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
 
 
-      console.log(primaryWallet?.address)
+      // console.log(primaryWallet?.address)
 
       const balance = await CONNECTION.getBalance(new PublicKey(primaryWallet!.address));
       console.log('Sender account balance:', balance);
@@ -79,6 +93,12 @@ const ConnectWithOtpView: FC = () => {
       );
       console.log(tx, signer, 'tx')
 
+      // await sendOneTimeCode();
+
+      // const otc = await promptForOneTimeCode();
+
+      // await createOrRestoreSession(otc);
+
       const signature = await signer
         .signAndSendTransaction(tx)
         .then((res: any) => {
@@ -86,10 +106,16 @@ const ConnectWithOtpView: FC = () => {
           console.log(res)
           // setTxnHash(res.signature);
         })
-        .catch((reason: any) => {
+        .catch((errror: any) => {
+          // if (reason.message.includes("Passkey not found")) {
+
+          console.log(error, 'err')
+          // }
           // eslint-disable-next-line no-console
-          console.error(reason);
+          // console.error(reason.message, 'err');
         });
+
+      console.log(signature)
 
 
 
@@ -105,9 +131,43 @@ const ConnectWithOtpView: FC = () => {
       // const logs = await getLogs(CONNECTION, tx);
       // console.log(logs)
     } catch (err) {
-      console.log(err)
+      console.log(err, 'e')
 
     }
+  };
+
+  const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
+
+  const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (
+    event,
+  ) => {
+    event.preventDefault();
+
+    console.log("email")
+
+    await connectWithEmail(event.currentTarget.email.value);
+    setVerificationSent(true);
+  };
+
+  const verifyOTPAndBurn = async () => {
+    try {
+      await createOrRestoreSession({ oneTimeCode: otp });
+      await onBurn();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const onSubmitOtpHandler: FormEventHandler<HTMLFormElement> = async (
+    event,
+  ) => {
+    event.preventDefault();
+
+    const otp = event.currentTarget.otp.value;
+
+    await verifyOneTimePassword(otp);
+    setVerificationSuccess(true);
+    // redirect('/bot')
   };
 
   return (
@@ -167,14 +227,33 @@ const ConnectWithOtpView: FC = () => {
         </form>
       )}
 
-      {!!verificationSuccess && !burned && (
-        <button
-          className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
-          onClick={onBurn}
-        >
-          Burn BONK and reveal
-        </button>
-      )}
+      {/* {!!verificationSuccess && !burned && ( */}
+      {/* <button
+        className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
+        onClick={onBurn}
+      >
+        Burn BONK and reveal
+      </button> */}
+      {/* )} */}
+
+      {!!verificationSuccess && !otpSent &&
+        <div>
+          <button onClick={sendOTP} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2 mt-2">Burn Bonk</button>
+        </div>}
+
+      {
+        !burned && otpSent &&
+        <div>
+          <input
+            type="text"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            placeholder="Enter OTP"
+            className="rounded-sm p-2 text-black w-full"
+          />
+          <button onClick={verifyOTPAndBurn} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2">Verify Burn</button>
+        </div>
+      }
 
       {!!burned && (
         <p className="text-2xl text-[#A3A3EC]">
