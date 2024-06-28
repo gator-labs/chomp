@@ -34,6 +34,13 @@ export const genBonkBurnTx = async (
   );
 
   const tx = new Transaction();
+
+  const priorityFeeInstruction = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: 100000,
+  });
+
+  tx.add(priorityFeeInstruction);
+
   tx.add(
     createBurnCheckedInstruction(
       ata,
