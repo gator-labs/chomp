@@ -18,6 +18,7 @@
     "postinstall": "prisma generate",
     "storybook": "storybook dev -p 6006",
     "dev:subj-question": "ts-node scripts/CreateSubjectiveWithAnswers.ts",
+    "dev:mc-obj": "ts-node -P tsconfig.scripts.json scripts/objective-multiple-choice-questions.ts",
     "dev:obj-question": "ts-node scripts/CreateObjectiveWithAnswers.ts",
     "build-storybook": "storybook build",
     "test": "jest --watch",

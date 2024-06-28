@@ -1,0 +1,127 @@
+import { PrismaClient, QuestionType, Token } from "@prisma/client";
+import { format } from "date-fns";
+import { askQuestion, generateUsers, selectOption } from "./utils";
+
+console.log(
+  "\x1b[34m\x1b[1m --- SCRIPT FOR CREATING MC OBJECTIVE QUESTION --- \x1b[0m",
+);
+console.log("Loaded environment variables:");
+console.log("DATABASE_PRISMA_URL:", process.env.DATABASE_PRISMA_URL);
+
+const prisma = new PrismaClient();
+
+async function main() {
+  const correctOption = await selectOption(
+    "Select correct option for question.",
+    ["A", "B", "C", "D"],
+  );
+
+  const tag = await askQuestion("Insert tag name: ");
+  const currentDate = new Date();
+
+  const deck = await prisma.deck.create({
+    data: {
+      deck: `${tag}: Deck ${format(currentDate, "MM/dd/yyyy")}`,
+      revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      isActive: true,
+      deckQuestions: {
+        create: {
+          question: {
+            create: {
+              question: tag + ": Lorem ipsum?",
+              type: QuestionType.MultiChoice,
+              revealToken: Token.Bonk,
+              revealTokenAmount: 10,
+              revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+              durationMiliseconds: BigInt(60000),
+              questionOptions: {
+                create: [
+                  {
+                    option: "A",
+                    isCorrect: correctOption === "A",
+                    isLeft: false,
+                  },
+                  {
+                    option: "B",
+                    isCorrect: correctOption === "B",
+                    isLeft: false,
+                  },
+                  {
+                    option: "C",
+                    isCorrect: correctOption === "C",
+                    isLeft: false,
+                  },
+                  {
+                    option: "D",
+                    isCorrect: correctOption === "D",
+                    isLeft: false,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  console.log(`Created deck with ID: ${deck.id}`);
+
+  const users = await generateUsers(50);
+
+  await prisma.user.createMany({
+    data: users,
+  });
+
+  console.log(`Created ${users.length} users`);
+
+  const questionOptions = await prisma.questionOption.findMany({
+    where: {
+      question: {
+        deckQuestions: {
+          some: {
+            deckId: deck.id,
+          },
+        },
+      },
+    },
+  });
+
+  let secondOrderOptionIndex = 0;
+
+  console.log(questionOptions);
+  for (const user of users) {
+    const selectedOption = questionOptions[Math.floor(Math.random() * 4)];
+    const secondOrderOption = questionOptions[secondOrderOptionIndex];
+
+    for (const option of questionOptions) {
+      const isSelectedOption = option.id === selectedOption.id;
+      const percentage =
+        secondOrderOption.id === option.id
+          ? Math.floor(Math.random() * 100)
+          : null;
+
+      await prisma.questionAnswer.create({
+        data: {
+          userId: user.id,
+          questionOptionId: option.id,
+          percentage: percentage,
+          selected: isSelectedOption,
+          timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
+        },
+      });
+    }
+    secondOrderOptionIndex =
+      secondOrderOptionIndex === 3 ? 0 : secondOrderOptionIndex + 1;
+  }
+}
+
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

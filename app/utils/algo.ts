@@ -183,13 +183,7 @@ export const calculateReward = async (
     include: {
       questionOptions: {
         include: {
-          questionAnswers: {
-            where: {
-              percentage: {
-                not: null,
-              },
-            },
-          },
+          questionAnswers: true,
         },
       },
     },
@@ -203,11 +197,24 @@ export const calculateReward = async (
 
     const userAnswer = question.questionOptions
       .flatMap((option) => option.questionAnswers)
+      .filter((answer) =>
+        question.type === QuestionType.BinaryQuestion
+          ? answer.percentage !== null
+          : answer,
+      )
       .find((answer) => answer.userId === userId && answer.selected);
 
     if (!userAnswer) {
       return;
     }
+
+    let body = {
+      first_order_choice: "",
+      first_order_actual: "",
+      second_order_estimate: 0,
+      second_order_mean: 0,
+      second_order_estimates: [0],
+    };
 
     const correctOptionIndex = question.questionOptions.findIndex(
       (option) => option.isCorrect,
@@ -215,30 +222,65 @@ export const calculateReward = async (
     const calculatedCorrectOptionIndex = question.questionOptions.findIndex(
       (option) => option.calculatedIsCorrect,
     );
-    const correctOption = question.questionOptions[correctOptionIndex];
 
-    const calculatedCorrectOption =
-      question.questionOptions[calculatedCorrectOptionIndex];
+    if (question.type === QuestionType.BinaryQuestion) {
+      const correctOption = question.questionOptions[correctOptionIndex];
 
-    const second_order_estimates = (
-      correctOption || calculatedCorrectOption
-    )?.questionAnswers
-      .filter((answer) => answer.selected)
-      .map((answer) => answer.percentage!);
+      const calculatedCorrectOption =
+        question.questionOptions[calculatedCorrectOptionIndex];
 
-    const body = {
-      first_order_choice:
-        inputList[optionsList.indexOf(userAnswer.questionOptionId)],
-      first_order_actual:
-        inputList[
-          correctOptionIndex === -1
-            ? calculatedCorrectOptionIndex
-            : correctOptionIndex
-        ],
-      second_order_estimate: userAnswer.percentage,
-      second_order_mean: getAverage(second_order_estimates),
-      second_order_estimates,
-    };
+      const second_order_estimates = (
+        correctOption || calculatedCorrectOption
+      )?.questionAnswers
+        .filter((answer) => answer.selected)
+        .map((answer) => answer.percentage!);
+
+      body = {
+        first_order_choice:
+          inputList[optionsList.indexOf(userAnswer.questionOptionId)],
+        first_order_actual:
+          inputList[
+            correctOptionIndex === -1
+              ? calculatedCorrectOptionIndex
+              : correctOptionIndex
+          ],
+        second_order_estimate: userAnswer.percentage!,
+        second_order_mean: getAverage(second_order_estimates),
+        second_order_estimates,
+      };
+    }
+
+    if (question.type === QuestionType.MultiChoice) {
+      const questionOptionAnswers = question.questionOptions.flatMap(
+        (option) => option.questionAnswers,
+      );
+
+      const estimatedOption = questionOptionAnswers.find(
+        (answer) => answer.userId === userId && answer.percentage !== null,
+      );
+
+      const second_order_estimates = questionOptionAnswers
+        .filter(
+          (answer) =>
+            estimatedOption?.questionOptionId === answer.questionOptionId &&
+            answer.percentage !== null,
+        )
+        .map((answer) => answer.percentage!);
+
+      body = {
+        first_order_choice:
+          inputList[optionsList.indexOf(userAnswer.questionOptionId)],
+        first_order_actual:
+          inputList[
+            correctOptionIndex === -1
+              ? calculatedCorrectOptionIndex
+              : correctOptionIndex
+          ],
+        second_order_estimate: estimatedOption!.percentage!,
+        second_order_mean: getAverage(second_order_estimates),
+        second_order_estimates: second_order_estimates,
+      };
+    }
 
     console.log(
       "user",

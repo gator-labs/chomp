@@ -9,7 +9,6 @@ import {
 } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
-import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
 import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
@@ -49,7 +48,6 @@ export async function getQuestionForAnswerById(questionId: number) {
   }
 
   const mappedQuestion = mapToViewModelQuestion(question);
-  await addPlaceholderAnswers(question.questionOptions, payload.sub);
   return mappedQuestion;
 }
 
