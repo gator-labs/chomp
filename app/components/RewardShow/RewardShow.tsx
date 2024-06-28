@@ -58,10 +58,11 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
                 status === "claimable" && !isClaiming && onClaim()
               }
               variant="white"
-              className={classNames(
-                "cursor-pointer",
-                { "opacity-50 cursor-not-allowed": isClaiming }, // Add disabled styles
-              )}
+              className={classNames({
+                "opacity-50 cursor-not-allowed": isClaiming,
+                "!cursor-auto": status === "claimed",
+                "!cursor-pointer": status === "claimable",
+              })}
             >
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
@@ -87,7 +88,7 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
             Claim reward:
           </p>
-          <Pill variant="white" className="cursor-pointer">
+          <Pill variant="white" className="!cursor-auto">
             <p className="text-[10px] font-bold leading-[12.6px] text-center ">
               0 BONK
             </p>
