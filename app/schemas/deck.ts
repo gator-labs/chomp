@@ -62,5 +62,22 @@ export const deckSchema = z.object({
         })
         .array(),
     })
+    .refine(
+      (q) => {
+        if (q.type === QuestionType.BinaryQuestion) {
+          const isLeftCount = q.questionOptions.filter(
+            (option) => option.isLeft,
+          ).length;
+          console.log({ isLeftCount });
+          if (isLeftCount === 0 || isLeftCount === 2) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+        return true;
+      },
+      { message: "Only one is left option is required in" },
+    )
     .array(),
 });
