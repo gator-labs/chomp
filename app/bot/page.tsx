@@ -18,7 +18,7 @@ import { formatAddress } from "../utils/wallet";
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const ConnectWithOtpView: FC = () => {
-  const [tuser, setTUser] = useState(null);
+  // const [tuser, setTUser] = useState(null);
   const [burned, setBurned] = useState(false);
 
   const [otp, setOtp] = useState('');
@@ -31,22 +31,13 @@ const ConnectWithOtpView: FC = () => {
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
 
   const userWallets = useUserWallets();
-  const { successToast } = useToast();
+  const { successToast, errorToast } = useToast();
 
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
 
   const address = primaryWallet?.address || ""
 
 
-
-  const sendOTP = async () => {
-    try {
-      await sendOneTimeCode();
-      setOtpSent(true);
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   const onBurn = async () => {
     try {
@@ -74,25 +65,34 @@ const ConnectWithOtpView: FC = () => {
       setBurned(true);
 
     } catch (err) {
+      // errorToast("Failed to save deck", );
       console.log(err, 'e')
     }
   };
 
-  const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (
-    event,
-  ) => {
+  const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
 
-    await connectWithEmail(event.currentTarget.email.value);
-    setVerificationSent(true);
+    try {
+      await connectWithEmail(event.currentTarget.email.value);
+      setVerificationSent(true);
+    } catch (error) {
+      // Handle the error here
+      console.error("Error occurred while connecting with email:", error);
+      // Optionally, you can set an error state to display an error message to the user
+      errorToast("Failed to send verification email. Please try again.");
+    }
   };
 
-  const verifyOTPAndBurn = async () => {
+
+
+  const sendOTP = async () => {
     try {
-      await createOrRestoreSession({ oneTimeCode: otp });
-      await onBurn();
-    } catch (err) {
-      console.error(err);
+      await sendOneTimeCode();
+      setOtpSent(true);
+    } catch (error) {
+      console.error("Error while initaiting bonk burn", error);
+      errorToast("Failed to send verification email. Please try again.");
     }
   };
 
@@ -100,12 +100,29 @@ const ConnectWithOtpView: FC = () => {
     event,
   ) => {
     event.preventDefault();
+    try {
+      const otp = event.currentTarget.otp.value;
 
-    const otp = event.currentTarget.otp.value;
-
-    await verifyOneTimePassword(otp);
-    setVerificationSuccess(true);
+      await verifyOneTimePassword(otp);
+      setVerificationSuccess(true);
+    } catch (error) {
+      // Handle the error here
+      console.error("Error occurred while verifying otp:", error);
+      // Optionally, you can set an error state to display an error message to the user
+      errorToast("Error occurred while verifying otp");
+    }
   };
+
+  const verifyOTPAndBurn = async () => {
+    try {
+      await createOrRestoreSession({ oneTimeCode: otp });
+      await onBurn();
+    } catch (error) {
+      console.error("Error while burn", error);
+      errorToast("Error while burn");
+    }
+  };
+
 
   const handleCopyToClipboard = async () => {
     await copyTextToClipboard(address);
