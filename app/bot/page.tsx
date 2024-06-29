@@ -180,12 +180,13 @@ const ConnectWithOtpView: FC = () => {
         answer and find out if you won anything.
       </p>
       {address !== '' &&
-        <p className="text-center flex flex-col ml">
-          <span>
-            Your address:
-          </span>
-          <span>
+        <div className="text-center flex flex-col ml">
+          Your address:
+          <p className="whitespace-nowrap overflow-hidden text-ellipsis text-center ">
             {address}
+          </p>
+
+          <span>
             <Button
               isPill
               className="!p-0 !w-[28px] !h-[28px] bg-[#A3A3EC] border-none ml-2"
@@ -194,7 +195,7 @@ const ConnectWithOtpView: FC = () => {
               <CopyIcon />
             </Button>
           </span>
-        </p>}
+        </div>}
       <div />
       {!primaryWallet && !verificationSent && (
         <form
