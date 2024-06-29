@@ -36,6 +36,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
   const questionResponse = await getQuestionWithUserAnswer(
     Number(params.questionId),
   );
+
   const profile = await getProfileImage();
 
   const sendTransactionSignature =
@@ -161,6 +162,10 @@ const RevealAnswerPage = async ({ params }: Props) => {
   }
 
   if (!!answerSelected && !isBinary) {
+    const optionSelected = questionResponse.userAnswers.find(
+      (ua) => ua.percentage !== null,
+    );
+
     answerContent = (
       <>
         <div>
@@ -188,8 +193,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
               percentage: qop.secondOrderAveragePercentagePicked,
             }),
           )}
-          optionSelected={answerSelected.questionOption.option ?? ""}
-          percentageSelected={answerSelected.percentage ?? 0}
+          optionSelected={optionSelected?.questionOption.option ?? ""}
+          percentageSelected={optionSelected?.percentage ?? 0}
           isCorrect={isSecondOrderCorrect}
           avatarSrc={profile}
         />

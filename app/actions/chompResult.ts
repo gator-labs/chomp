@@ -7,6 +7,7 @@ import {
   TransactionStatus,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
@@ -56,7 +57,6 @@ export async function revealDecks(
   const questionIds = await prisma.deckQuestion.findMany({
     where: {
       deckId: { in: deckIds },
-      question: { chompResults: { none: { userId: payload.sub } } },
     },
     select: { questionId: true },
   });
@@ -88,52 +88,33 @@ export async function revealQuestions(
   });
 
   try {
-    const questions = await prisma.question.findMany({
+    await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
+    const questionsFilteredForUser = await prisma.question.findMany({
       where: {
         id: { in: questionIds },
       },
-      select: {
-        id: true,
-        revealAtDate: true,
-        revealAtAnswerCount: true,
-        revealTokenAmount: true,
+      include: {
         chompResults: {
           where: {
             userId: payload.sub,
-            transactionStatus: TransactionStatus.Completed,
-          },
-          select: {
-            id: true,
-          },
-        },
-        questionOptions: {
-          select: {
-            questionAnswers: {
-              select: {
-                id: true,
-              },
-            },
           },
         },
       },
     });
+    const questionAnswersCount = await questionAnswerCountQuery(questionIds);
 
-    const revealableQuestions = questions.filter(
-      (question) =>
-        question.chompResults.length === 0 &&
-        isEntityRevealable({
-          revealAtDate: question.revealAtDate,
-          revealAtAnswerCount: question.revealAtAnswerCount,
-          answerCount: question.questionOptions[0].questionAnswers.length,
-        }),
+    const revealableQuestions = questionsFilteredForUser.filter((question) =>
+      isEntityRevealable({
+        revealAtAnswerCount: question.revealAtAnswerCount,
+        revealAtDate: question.revealAtDate,
+        answerCount:
+          questionAnswersCount.find((qa) => qa.id === question.id)?.count ?? 0,
+      }),
     );
 
-    if (!revealableQuestions.length)
+    if (!revealableQuestions.length) {
       throw new Error("No revealable questions available");
-
-    const revealableQuestionIds = revealableQuestions.map(
-      (revealableQuestion) => revealableQuestion.id,
-    );
+    }
 
     const bonkToBurn = revealableQuestions
       .slice(
@@ -141,120 +122,24 @@ export async function revealQuestions(
       ) // skip bonk burn for first question if nft is supplied
       .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
-    const wallets = (
-      await prisma.wallet.findMany({
-        where: {
-          userId: payload.sub,
-        },
-      })
-    ).map((wallet) => wallet.address);
-
     if (bonkToBurn > 0) {
-      if (!burnTx) {
-        return null;
-      }
-
-      const burnTransactionCount = await prisma.chompResult.count({
-        where: {
-          burnTransactionSignature: burnTx,
-          transactionStatus: TransactionStatus.Completed,
-        },
-      });
-
-      if (burnTransactionCount > 0) {
-        return null;
-      }
-
-      const transaction = await CONNECTION.getParsedTransaction(burnTx, {
-        commitment: "confirmed",
-        maxSupportedTransactionVersion: 0,
-      });
-
-      if (!transaction || transaction.meta?.err) {
-        return null;
-      }
-
-      const burnInstruction = transaction.transaction.message.instructions.find(
-        (instruction) =>
-          "parsed" in instruction &&
-          +instruction.parsed.info.tokenAmount.amount >= bonkToBurn * 10 ** 5 &&
-          instruction.parsed.type === "burnChecked" &&
-          wallets.includes(instruction.parsed.info.authority) &&
-          instruction.parsed.info.mint ===
-            "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      const isSuccessful = await hasBonkBurnedCorrectly(
+        burnTx,
+        bonkToBurn,
+        payload.sub,
       );
 
-      if (!burnInstruction) {
+      if (!isSuccessful) {
         return null;
       }
     }
 
-    const decksOfQuestions = await prisma.deck.findMany({
-      where: {
-        deckQuestions: { some: { questionId: { in: questionIds } } },
-        chompResults: { none: { userId: payload.sub } },
-      },
-      include: {
-        deckQuestions: {
-          include: {
-            question: {
-              include: {
-                questionOptions: {
-                  include: {
-                    questionAnswers: { where: { userId: payload.sub } },
-                  },
-                },
-                chompResults: { where: { userId: payload.sub } },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    const decksToAddRevealFor = decksOfQuestions.filter((deck) => {
-      const questionStates = deck.deckQuestions.map((dq) => ({
-        questionId: dq.questionId,
-        state: getQuestionState(dq.question),
-      }));
-
-      const alreadyRevealed = questionStates
-        .filter((qs) => qs.state.isRevealed)
-        .map((qs) => qs.questionId);
-
-      const newlyRevealed = questionStates
-        .filter(
-          (qs) =>
-            revealableQuestions.some((rq) => rq.id === qs.questionId) &&
-            !qs.state.isRevealed,
-        )
-        .map((qs) => qs.questionId);
-
-      const revealedQuestions = [...alreadyRevealed, ...newlyRevealed];
-      const allQuestionIds = deck.deckQuestions.map((dq) => dq.questionId);
-
-      const remainingQuestions = allQuestionIds.filter(
-        (qId) => !revealedQuestions.includes(qId),
+    const revealableQuestionIds = revealableQuestions.map((q) => q.id);
+    const decksToAddRevealFor =
+      await getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
+        revealableQuestionIds,
+        payload.sub,
       );
-
-      return remainingQuestions.length === 0;
-    });
-
-    const uncalculatedQuestionOptionCount = await prisma.questionOption.count({
-      where: {
-        OR: [
-          { calculatedIsCorrect: null },
-          { calculatedAveragePercentage: null },
-        ],
-        questionId: {
-          in: questionIds,
-        },
-      },
-    });
-
-    if (uncalculatedQuestionOptionCount > 0) {
-      await calculateCorrectAnswer(revealableQuestions.map((q) => q.id));
-    }
 
     const revealPoints = await calculateRevealPoints(
       payload.sub,
@@ -365,9 +250,8 @@ export async function dismissQuestion(questionId: number) {
   revalidatePath("/application");
 }
 
-export async function createQuestionChompResult(
-  questionId: number,
-  burnTx?: string,
+export async function createQuestionChompResults(
+  questionChomps: { questionId: number; burnTx: string }[],
 ) {
   const payload = await getJwtPayload();
 
@@ -375,37 +259,214 @@ export async function createQuestionChompResult(
     return null;
   }
 
-  return prisma.chompResult.create({
-    data: {
-      userId: payload.sub,
-      transactionStatus: TransactionStatus.Pending,
-      questionId,
-      result: ResultType.Revealed,
-      burnTransactionSignature: burnTx,
-    },
-  });
+  return await prisma.$transaction(
+    questionChomps.map((qc) =>
+      prisma.chompResult.create({
+        data: {
+          userId: payload.sub,
+          transactionStatus: TransactionStatus.Pending,
+          questionId: qc.questionId,
+          result: ResultType.Revealed,
+          burnTransactionSignature: qc.burnTx,
+        },
+      }),
+    ),
+  );
 }
 
-export async function deleteQuestionChompResult(id: number) {
-  await prisma.chompResult.delete({
-    where: {
-      id,
-    },
-  });
+export async function createQuestionChompResult(
+  questionId: number,
+  burnTx: string,
+) {
+  const results = await createQuestionChompResults([{ questionId, burnTx }]);
+
+  if (!results) {
+    return null;
+  }
+
+  return results;
 }
 
-export async function getUsersPendingChompResult(questionId: number) {
+export async function deleteQuestionChompResults(ids: number[]) {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return null;
   }
 
-  return prisma.chompResult.findFirst({
+  await prisma.chompResult.deleteMany({
     where: {
+      id: { in: ids },
       userId: payload.sub,
-      questionId,
-      transactionStatus: TransactionStatus.Pending,
     },
   });
+}
+
+export async function deleteQuestionChompResult(id: number) {
+  return await deleteQuestionChompResults([id]);
+}
+
+export async function getUsersPendingChompResult(questionIds: number[]) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  return prisma.chompResult.findMany({
+    where: {
+      userId: payload.sub,
+      transactionStatus: TransactionStatus.Pending,
+      questionId: {
+        in: questionIds,
+      },
+    },
+  });
+}
+
+async function hasBonkBurnedCorrectly(
+  burnTx: string | undefined,
+  bonkToBurn: number,
+  userId: string,
+): Promise<boolean> {
+  if (!burnTx) {
+    return false;
+  }
+
+  const wallets = (
+    await prisma.wallet.findMany({
+      where: {
+        userId,
+      },
+    })
+  ).map((wallet) => wallet.address);
+
+  const burnTransactionCount = await prisma.chompResult.count({
+    where: {
+      burnTransactionSignature: burnTx,
+      transactionStatus: TransactionStatus.Completed,
+    },
+  });
+
+  if (burnTransactionCount > 0) {
+    return false;
+  }
+
+  const transaction = await CONNECTION.getParsedTransaction(burnTx, {
+    commitment: "confirmed",
+    maxSupportedTransactionVersion: 0,
+  });
+
+  if (!transaction || transaction.meta?.err) {
+    return false;
+  }
+
+  const burnInstruction = transaction.transaction.message.instructions.find(
+    (instruction) =>
+      "parsed" in instruction &&
+      +instruction.parsed.info.tokenAmount.amount >= bonkToBurn * 10 ** 5 &&
+      instruction.parsed.type === "burnChecked" &&
+      wallets.includes(instruction.parsed.info.authority) &&
+      instruction.parsed.info.mint ===
+        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+  );
+
+  if (!burnInstruction) {
+    return false;
+  }
+
+  return true;
+}
+
+async function getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
+  revealableQuestionIds: number[],
+  userId: string,
+) {
+  const decksWithQuestions = await prisma.deck.findMany({
+    where: {
+      deckQuestions: { some: { questionId: { in: revealableQuestionIds } } },
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: { where: { userId: userId } },
+                },
+              },
+              chompResults: { where: { userId: userId } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const decksToAddRevealFor = decksWithQuestions.filter((deck) => {
+    const questionStates = deck.deckQuestions.map((dq) => ({
+      questionId: dq.questionId,
+      state: getQuestionState(dq.question),
+    }));
+
+    const alreadyRevealed = questionStates
+      .filter((qs) => qs.state.isRevealed)
+      .map((qs) => qs.questionId);
+
+    const newlyRevealed = questionStates
+      .filter(
+        (qs) =>
+          revealableQuestionIds.includes(qs.questionId) && !qs.state.isRevealed,
+      )
+      .map((qs) => qs.questionId);
+
+    const revealedQuestions = [...alreadyRevealed, ...newlyRevealed];
+    const allQuestionIds = deck.deckQuestions.map((dq) => dq.questionId);
+
+    const remainingQuestions = allQuestionIds.filter(
+      (qId) => !revealedQuestions.includes(qId),
+    );
+
+    return remainingQuestions.length === 0;
+  });
+
+  return decksToAddRevealFor;
+}
+
+async function handleFirstRevealToPopulateSubjectiveQuestion(
+  questionIds: number[],
+) {
+  const questions = await prisma.question.findMany({
+    where: {
+      id: { in: questionIds },
+    },
+    include: {
+      questionOptions: {
+        include: {
+          questionAnswers: true,
+        },
+      },
+    },
+  });
+
+  const revealableQuestions = questions.filter((question) =>
+    isEntityRevealable(question),
+  );
+
+  const uncalculatedQuestionOptionCount = await prisma.questionOption.count({
+    where: {
+      OR: [
+        { calculatedIsCorrect: null },
+        { calculatedAveragePercentage: null },
+      ],
+      questionId: {
+        in: questionIds,
+      },
+    },
+  });
+
+  if (uncalculatedQuestionOptionCount > 0) {
+    await calculateCorrectAnswer(revealableQuestions.map((q) => q.id));
+  }
 }

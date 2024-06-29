@@ -117,7 +117,7 @@ const ClaimButton = ({
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
             You have claimed:
           </p>
-          <Pill variant="white" className="cursor-pointer">
+          <Pill variant="white" className="!cursor-auto">
             <span className="text-[10px] font-bold leading-[12.6px] text-left">
               {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
               BONK
@@ -145,7 +145,7 @@ const ClaimButton = ({
         <p className="text-[13px] font-normal leading-[17.55px] text-left">
           Your claimable reward:
         </p>
-        <Pill variant="white" className="cursor-pointer">
+        <Pill variant="white" className="!cursor-auto">
           <span className="text-[10px] font-bold leading-[12.6px] text-left">
             0 BONK
           </span>

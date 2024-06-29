@@ -2,13 +2,13 @@
 
 import { dismissQuestion, revealQuestion } from "@/app/actions/chompResult";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
-import {  useRevealedContext } from "@/app/providers/RevealProvider";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { RevealedQuestion } from "@/app/queries/home";
+import { NftType } from "@prisma/client";
 import { useRouter } from "next-nprogress-bar";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
-import { NftType } from "@prisma/client";
 
 type HomeFeedRevealedQuestionsSectionProps = {
   questions: RevealedQuestion[];
@@ -22,15 +22,19 @@ export function HomeFeedRevealedQuestionsSection({
   const { openRevealModal } = useRevealedContext();
 
   const handleView = (q: RevealedQuestion) => {
-    openRevealModal(
-      async (burnTx?: string, nftAddress?: string, nftType?: NftType) => {
+    openRevealModal({
+      reveal: async (
+        burnTx?: string,
+        nftAddress?: string,
+        nftType?: NftType,
+      ) => {
         await revealQuestion(q.id, burnTx, nftAddress, nftType);
         router.push("/application/answer/reveal/" + q.id);
         router.refresh();
       },
-      q.revealTokenAmount ?? 0,
-      q.id,
-    );
+      amount: q.revealTokenAmount ?? 0,
+      questionId: q.id,
+    });
   };
 
   const questionSlides = questions

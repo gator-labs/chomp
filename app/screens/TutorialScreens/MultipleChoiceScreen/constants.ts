@@ -29,10 +29,3 @@ export const STEPS = [
     isTooltip: false,
   },
 ];
-
-export const SELECTED_OPTION = {
-  1: "A",
-  2: "B",
-  3: "C",
-  4: "D",
-};

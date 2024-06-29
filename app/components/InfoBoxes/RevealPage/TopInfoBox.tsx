@@ -17,8 +17,8 @@ const TopInfoBox = () => {
       <Sheet
         isOpen={isInfoSheetOpen}
         setIsOpen={setIsInfoSheetOpen}
-        closIconHeight={16}
-        closIconWidth={16}
+        closeIconHeight={16}
+        closeIconWidth={16}
       >
         <div className="flex flex-col gap-5 px-5 pb-5">
           <div className="flex flex-col gap-5">

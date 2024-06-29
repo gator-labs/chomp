@@ -3,6 +3,7 @@ import {
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
 import {
+  ComputeBudgetProgram,
   Connection,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -28,7 +29,14 @@ export const genBonkBurnTx = async (
     burnFromPublic, // owner
   );
 
+  const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: 100_000,
+  });
+
   const tx = new Transaction();
+
+  tx.add(addPriorityFee);
+
   tx.add(
     createBurnCheckedInstruction(
       ata,

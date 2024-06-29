@@ -3,7 +3,8 @@ import { claimAllAvailable } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { ONE_SECOND_IN_MILISECONDS } from "@/app/utils/dateUtils";
+import { ONE_SECOND_IN_MILLISECONDS } from "@/app/utils/dateUtils";
+import { Button } from "../../Button/Button";
 
 type TotalRewardsClaimAllProps = {
   totalRevealedRewards: number;
@@ -32,7 +33,7 @@ export default function TotalRewardsClaimAll({
       );
       setTimeout(() => {
         onRefresh();
-      }, ONE_SECOND_IN_MILISECONDS * 4);
+      }, ONE_SECOND_IN_MILLISECONDS * 4);
     } catch (error) {
       return;
     }
@@ -48,7 +49,7 @@ export default function TotalRewardsClaimAll({
           {numberToCurrencyFormatter.format(totalRevealedRewards)} BONK
         </div>
       </div>
-      {/* {totalRevealedRewards !== 0 && (
+      {totalRevealedRewards !== 0 && (
         <Button
           onClick={onClaimAll}
           variant="white"
@@ -58,7 +59,7 @@ export default function TotalRewardsClaimAll({
         >
           Claim all
         </Button>
-      )} */}
+      )}
     </div>
   );
 }
