@@ -2,7 +2,7 @@ import { GoogleViaTipLinkWalletName } from '@tiplink/wallet-adapter'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { CONNECTION, genBonkBurnTx, getBonkBalance } from '../utils/solana';
 
-import { PublicKey } from "@solana/web3.js";
+import { useToast } from "../providers/ToastProvider";
 import { useState } from 'react';
 
 
@@ -10,16 +10,18 @@ function TiplinkConnect() {
 
     const { select, connect, publicKey, sendTransaction } = useWallet();
 
+    const { errorToast } = useToast();
+
     const [burned, setBurned] = useState(false);
 
     const connectTiplink = async function loginViaTipLink() {
         try {
-
             select(GoogleViaTipLinkWalletName)
             await connect();
         }
         catch (error) {
             console.log(error)
+            errorToast("connection failed");
         }
     }
 
@@ -33,12 +35,10 @@ function TiplinkConnect() {
 
 
             if (!publicKey) {
-                // Handle the case where publicKey is null
                 console.error("Public key is null. Please connect your wallet.");
                 return;
             }
 
-            // console.log(blockhash)
             const tx = await genBonkBurnTx(
                 publicKey.toString(),
                 blockhash,
@@ -46,7 +46,7 @@ function TiplinkConnect() {
             );
             const signature = await sendTransaction(tx, CONNECTION, { minContextSlot });
 
-            const res = await CONNECTION.confirmTransaction({
+            await CONNECTION.confirmTransaction({
                 blockhash: blockhash,
                 lastValidBlockHeight: lastValidBlockHeight,
                 signature,
