@@ -1,59 +1,46 @@
 "use client";
-
+import { FC, FormEventHandler, useEffect, useState } from "react";
 import {
   useConnectWithOtp,
   useDynamicContext,
   useUserWallets,
   useEmbeddedWallet,
+  CopyIcon,
 } from "@dynamic-labs/sdk-react-core";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { ISolana } from "@dynamic-labs/solana";
-// import { getLogs } from '@solana-developers/helpers'
-
 import { genBonkBurnTx } from "../utils/solana"
+import { copyTextToClipboard } from "../utils/clipboard";
+import { Button } from "../components/Button/Button";
+import { useToast } from "../providers/ToastProvider";
+import { formatAddress } from "../utils/wallet";
 
-import { FC, FormEventHandler, useState } from "react";
-import { sign } from "crypto";
-import error from "next/error";
-import { redirect } from "next/navigation";
-// import console from "console";
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const ConnectWithOtpView: FC = () => {
-  const { user, isAuthenticated } = useDynamicContext();
+  const [tuser, setTUser] = useState(null);
+  const [burned, setBurned] = useState(false);
+
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
 
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
 
-  // console.log(user, isAuthenticated)
-  // const { primaryWallet } = useDynamicContext();
+  const { sendOneTimeCode, createOrRestoreSession } = useEmbeddedWallet();
+  const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
+
   const userWallets = useUserWallets();
+  const { successToast } = useToast();
+
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
 
-  const [burned, setBurned] = useState(false);
-
-
-
-  const { sendOneTimeCode, createOrRestoreSession } = useEmbeddedWallet();
-
-
-  const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-
-
-
-  // console.log(userWallets, 'wallet', primaryWallet, 'user', user)
-
-
+  const address = primaryWallet?.address || ""
 
 
 
   const sendOTP = async () => {
-    console.log('otp sent')
     try {
-      console.log("sent")
-      // console.log(await sendOneTimeCode())
       await sendOneTimeCode();
       setOtpSent(true);
     } catch (e) {
@@ -61,89 +48,40 @@ const ConnectWithOtpView: FC = () => {
     }
   };
 
-
-
   const onBurn = async () => {
-
     try {
-
-
       const {
-        context: { slot: minContextSlot },
-        value: { blockhash, lastValidBlockHeight }
+        value: { blockhash }
       } = await CONNECTION.getLatestBlockhashAndContext();
 
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
 
-
-      // console.log(primaryWallet?.address)
-
       const balance = await CONNECTION.getBalance(new PublicKey(primaryWallet!.address));
-      console.log('Sender account balance:', balance);
 
       if (balance < 1000) {
         throw new Error('Insufficient balance for the transaction');
       }
 
-      // console.log(blockhash, "b")
       const tx = await genBonkBurnTx(
         primaryWallet!.address,
         blockhash,
         10,
       );
-      console.log(tx, signer, 'tx')
 
-      // await sendOneTimeCode();
-
-      // const otc = await promptForOneTimeCode();
-
-      // await createOrRestoreSession(otc);
-
-      const signature = await signer
+      await signer
         .signAndSendTransaction(tx)
-        .then((res: any) => {
-          // eslint-disable-next-line no-console
-          console.log(res)
-          // setTxnHash(res.signature);
-        })
-        .catch((errror: any) => {
-          // if (reason.message.includes("Passkey not found")) {
-
-          console.log(error, 'err')
-          // }
-          // eslint-disable-next-line no-console
-          // console.error(reason.message, 'err');
-        });
-
-      console.log(signature)
-
-
 
       setBurned(true);
 
-
-      // await CONNECTION.confirmTransaction({
-      //   blockhash: blockhash,
-      //   lastValidBlockHeight: lastValidBlockHeight,
-      //   signature,
-      // });
-      // console.log(signature)
-      // const logs = await getLogs(CONNECTION, tx);
-      // console.log(logs)
     } catch (err) {
       console.log(err, 'e')
-
     }
   };
-
-  const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
 
   const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (
     event,
   ) => {
     event.preventDefault();
-
-    console.log("email")
 
     await connectWithEmail(event.currentTarget.email.value);
     setVerificationSent(true);
@@ -167,8 +105,72 @@ const ConnectWithOtpView: FC = () => {
 
     await verifyOneTimePassword(otp);
     setVerificationSuccess(true);
-    // redirect('/bot')
   };
+
+  const handleCopyToClipboard = async () => {
+    await copyTextToClipboard(address);
+    successToast(
+      "Copied to clipboard",
+      `Copied ${formatAddress(address)} to clipboard`,
+    );
+  };
+
+
+
+  // const dataVerification = async (initData) => {
+  //   // setVerifying(true);
+
+  //   const options = {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ initData }),
+  //   };
+
+  //   fetch(
+  //     `https://7b6cbaff4eb5.ngrok.app/api/validate`,
+  //     options,
+  //   )
+  //     .then((response) => response.json())
+  //     .then((response) => {
+  //       console.log(response)
+  //       // setUUID(response.verificationUUID);
+  //     })
+  //     .catch((err) => console.error(err));
+  // };
+
+
+  // useEffect(() => {
+  //   // Ensure Telegram Web App API is available
+  //   const script = document.createElement('script');
+  //   script.src = "https://telegram.org/js/telegram-web-app.js";
+  //   script.async = true;
+  //   document.body.appendChild(script);
+
+  //   script.onload = () => {
+  //     Telegram.WebApp.ready();
+
+  //     // Retrieve user details
+  //     const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
+  //     const user = initDataUnsafe.user;
+  //     console.log(Telegram.WebApp.initData, initDataUnsafe)
+
+  //     dataVerification(Telegram.WebApp.initData)
+
+  //     // Set user details in state
+  //     if (user) {
+  //       setTUser(user);
+  //     }
+  //   };
+
+  //   return () => {
+  //     document.body.removeChild(script);
+  //   };
+  // }, []);
+
+
+
 
   return (
     <div className="space-y-6 flex flex-col w-2/3 mt-12">
@@ -177,8 +179,24 @@ const ConnectWithOtpView: FC = () => {
         You have 8 questions to reveal. You must reveal in order to see the
         answer and find out if you won anything.
       </p>
+      {address !== '' &&
+        <p className="text-center flex flex-col ml">
+          <span>
+            Your address:
+          </span>
+          <span>
+            {address}
+            <Button
+              isPill
+              className="!p-0 !w-[28px] !h-[28px] bg-[#A3A3EC] border-none ml-2"
+              onClick={handleCopyToClipboard}
+            >
+              <CopyIcon />
+            </Button>
+          </span>
+        </p>}
       <div />
-      {!verificationSent && (
+      {!primaryWallet && !verificationSent && (
         <form
           key="sms-form"
           onSubmit={onSubmitEmailHandler}
@@ -206,7 +224,7 @@ const ConnectWithOtpView: FC = () => {
         </form>
       )}
 
-      {!!verificationSent && !verificationSuccess && (
+      {!primaryWallet && !!verificationSent && !verificationSuccess && (
         <form
           key="otp-form"
           className="flex justify-center flex-col space-y-4 w-full"
@@ -227,16 +245,7 @@ const ConnectWithOtpView: FC = () => {
         </form>
       )}
 
-      {/* {!!verificationSuccess && !burned && ( */}
-      {/* <button
-        className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
-        onClick={onBurn}
-      >
-        Burn BONK and reveal
-      </button> */}
-      {/* )} */}
-
-      {!!verificationSuccess && !otpSent &&
+      {(primaryWallet || !!verificationSuccess) && !otpSent &&
         <div>
           <button onClick={sendOTP} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2 mt-2">Burn Bonk</button>
         </div>}
@@ -249,7 +258,7 @@ const ConnectWithOtpView: FC = () => {
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
             placeholder="Enter OTP"
-            className="rounded-sm p-2 text-black w-full"
+            className="rounded-sm p-2 text-black w-full mb-2"
           />
           <button onClick={verifyOTPAndBurn} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2">Verify Burn</button>
         </div>
@@ -261,12 +270,6 @@ const ConnectWithOtpView: FC = () => {
         </p>
       )}
 
-      {/* {!!user && (
-        <>
-          <p>Authenticated user:</p>
-          <pre>{JSON.stringify(user, null, 2)}</pre>
-        </>
-      )} */}
     </div>
   );
 };
