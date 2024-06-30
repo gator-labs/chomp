@@ -155,27 +155,7 @@ export function Deck({
         return;
       }
 
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "BinaryQuestion"
-      ) {
-        setDeckResponse((prev) => {
-          const newResponses = [...prev];
-          const response = newResponses.pop();
-          if (response) {
-            response.percentageGiven = number ?? 0;
-            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
-            newResponses.push(response);
-          }
-
-          return newResponses;
-        });
-      }
-
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "MultiChoice"
-      ) {
+      if (currentQuestionStep === QuestionStep.PickPercentage) {
         setDeckResponse((prev) => {
           const newResponses = [...prev];
           const response = newResponses.pop();
@@ -238,6 +218,11 @@ export function Deck({
     );
   }
 
+  const randomQuestionMarker =
+    question.type === QuestionType.MultiChoice
+      ? getAlphaIdentifier(random)
+      : question.questionOptions[random].option;
+
   return (
     <div className="flex flex-col justify-start h-full pb-4">
       <Stepper
@@ -274,7 +259,7 @@ export function Deck({
           type={question.type}
           step={currentQuestionStep}
           questionOptions={question.questionOptions}
-          randomQuestionMarker={getAlphaIdentifier(random)}
+          randomQuestionMarker={randomQuestionMarker}
           percentage={optionPercentage}
           setPercentage={setOptionPercentage}
         />
