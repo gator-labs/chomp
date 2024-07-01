@@ -2,7 +2,6 @@
 import Image from "next/image";
 import { ReactElement, useState } from "react";
 import gatorHeadImage from "../../../public/images/gator-head.png";
-import { ImageIcon } from "../Icons/ImageIcon";
 import { Modal } from "../Modal/Modal";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
 
@@ -37,18 +36,19 @@ export default function QuestionAnswerPreview({
       />
       {children}
       {viewImageSrc && (
-        <div className="flex items-center gap-[6px] mb-1 z-20">
-          <ImageIcon />
-          <button
+        <div className="flex z-10">
+          <img
             onClick={() => setIsViewImageOpen(true)}
-            className="underline text-white font-sora font-light text-sm"
-          >
-            View Image
-          </button>
+            src={viewImageSrc}
+            alt="preview-image"
+            className="w-14 rounded-lg"
+          />
+
           <Modal
             isOpen={isViewImageOpen}
             onClose={() => setIsViewImageOpen(false)}
             title=""
+            variant="image-only"
           >
             <img src={viewImageSrc} />
           </Modal>
