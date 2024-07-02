@@ -105,6 +105,17 @@ export async function claimQuestions(questionIds: number[]) {
       0,
     );
 
+    await prisma.chompResult.updateMany({
+      where: {
+        id: {
+          in: chompResults.map((r) => r.id),
+        },
+      },
+      data: {
+        result: ResultType.Claimed,
+      },
+    });
+
     let sendTx: string | null = null;
     console.log(
       "user with id " +
@@ -120,7 +131,7 @@ export async function claimQuestions(questionIds: number[]) {
       );
     }
 
-    console.log({ sendTx });
+    if (!sendTx) throw new Error("Missing send tx");
 
     await prisma.$transaction(async (tx) => {
       await tx.chompResult.updateMany({
