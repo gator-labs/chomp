@@ -106,6 +106,12 @@ export async function claimQuestions(questionIds: number[]) {
     );
 
     let sendTx: string | null = null;
+    console.log(
+      "user with id " +
+        payload.sub +
+        " tries to claim questions " +
+        questionIds,
+    );
     if (tokenAmount > 0) {
       sendTx = await sendBonk(
         treasuryWallet,
@@ -113,6 +119,8 @@ export async function claimQuestions(questionIds: number[]) {
         Math.round(tokenAmount * 10 ** 5),
       );
     }
+
+    console.log({ sendTx });
 
     await prisma.$transaction(async (tx) => {
       await tx.chompResult.updateMany({
