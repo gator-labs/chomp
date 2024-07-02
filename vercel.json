@@ -1,9 +1,6 @@
 {
   "functions": {
-    "app/actions/**/*": {
-      "maxDuration": 300
-    },
-    "app/api/**/*": {
+    "app/**/*": {
       "maxDuration": 300
     }
   }
