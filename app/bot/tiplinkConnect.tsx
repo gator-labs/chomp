@@ -17,6 +17,8 @@ function TiplinkConnect() {
     const { select, connect, publicKey, sendTransaction, wallet } = useWallet();
 
     const { successToast, errorToast } = useToast();
+    /*
+        // @ts-ignore */
     const address = wallet?.adapter?._wallet?.publicKeyString;
 
     const [burned, setBurned] = useState(false);
