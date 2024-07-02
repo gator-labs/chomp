@@ -6,7 +6,7 @@ import crypto from "crypto";
 
 const BOT_TOKEN = "7100975194:AAHj3_7mCH9lHCQ54axMS9XtqykSQuMYh-8";
 
-const validateTelegramData = (initData) => {
+const validateTelegramData = (initData:any) => {
   const queryString = new URLSearchParams(initData);
   const data = Object.fromEntries(queryString.entries());
 
