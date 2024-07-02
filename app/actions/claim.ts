@@ -141,7 +141,6 @@ export async function claimQuestions(questionIds: number[]) {
           },
         },
         data: {
-          result: ResultType.Claimed,
           sendTransactionSignature: sendTx,
         },
       });
