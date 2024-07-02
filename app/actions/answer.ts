@@ -134,7 +134,6 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     } as QuestionAnswer;
   });
 
-  await removePlaceholderAnswerByDeck(deckId, userId);
   await prisma.$transaction(async (tx) => {
     await tx.userDeck.create({
       data: {

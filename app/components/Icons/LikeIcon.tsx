@@ -13,7 +13,7 @@ const LikeIcon = ({
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <g clip-path="url(#clip0_5170_1115)">
+      <g clipPath="url(#clip0_5170_1115)">
         <path
           fillRule="evenodd"
           clipRule="evenodd"

@@ -56,7 +56,6 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
       tagIds: selectedTagIds,
       id: deck?.id,
     });
-    console.log(result);
     if (result?.errorMessage) {
       errorToast("Failed to save deck", result.errorMessage);
     }
@@ -178,7 +177,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                       </div>
                       {watch(`questions.${questionIndex}.type`) ===
                         QuestionType.BinaryQuestion && (
-                        <div className="w-24 flex justify-center items-center gap-2">
+                        <div className="w-24 flex justify-center items-center gap-2 relative">
                           <div>is left?</div>
                           <input
                             type="checkbox"
@@ -186,6 +185,12 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                               `questions.${questionIndex}.questionOptions.${optionIndex}.isLeft`,
                             )}
                           />
+                          {!!errors?.questions?.[questionIndex]?.root
+                            ?.message && (
+                            <div className="text-red absolute -bottom-4 left-3 w-96">
+                              {errors.questions[questionIndex]?.root?.message}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>

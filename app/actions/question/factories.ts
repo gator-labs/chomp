@@ -1,6 +1,6 @@
 import { QuestionImportModel } from "@/app/schemas/questionImport";
 import { parseDateToDateDefaultUtc } from "@/app/utils/date";
-import { ONE_MINUTE_IN_MILISECONDS } from "@/app/utils/dateUtils";
+import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
 import { Prisma, QuestionOption } from "@prisma/client";
 
 const INDEX_OFFSET = 1;
@@ -14,7 +14,7 @@ export const questionInputFactory = (
     const questionMapped = {
       question: question.question,
       type: question.type,
-      durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+      durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
       imageUrl: question.imageUrl,
       revealTokenAmount: question.revealTokenAmount,
       revealAtAnswerCount: question.revealAtAnswerCount,

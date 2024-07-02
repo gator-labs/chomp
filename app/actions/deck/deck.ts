@@ -7,7 +7,7 @@ import { z } from "zod";
 import { getIsUserAdmin } from "../../queries/user";
 import { deckSchema } from "../../schemas/deck";
 import prisma from "../../services/prisma";
-import { ONE_MINUTE_IN_MILISECONDS } from "../../utils/dateUtils";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
 import { formatErrorsToString } from "../../utils/zod";
 import { handleUpsertingQuestionOptionsConcurrently } from "../question/question";
 import { deckInputFactory } from "./factories";
@@ -47,7 +47,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
           revealTokenAmount: validatedFields.data.revealTokenAmount,
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
-          durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+          durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
           deckQuestions: {
             create: {
               deckId: deck.id,
@@ -133,7 +133,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealTokenAmount: validatedFields.data.revealTokenAmount,
             revealAtDate: validatedFields.data.revealAtDate,
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
-            durationMiliseconds: ONE_MINUTE_IN_MILISECONDS,
+            durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
             deckQuestions: {
               create: {
                 deckId: deck.id,

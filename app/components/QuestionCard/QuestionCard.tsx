@@ -7,7 +7,7 @@ import { CSSProperties, ReactNode, useCallback, useState } from "react";
 import gatorHeadImage from "../../../public/images/gator-head.png";
 import { useInterval } from "../../hooks/useInterval";
 import {
-  ONE_SECOND_IN_MILISECONDS,
+  ONE_SECOND_IN_MILLISECONDS,
   getDueAtString,
 } from "../../utils/dateUtils";
 import { CountdownIcon } from "../Icons/CountdownIcon";
@@ -52,7 +52,7 @@ export function QuestionCard({
     }
   }, [setDueAtFormatted, dueAt, onDurationRanOut]);
 
-  useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILISECONDS);
+  useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILLISECONDS);
 
   return (
     <div

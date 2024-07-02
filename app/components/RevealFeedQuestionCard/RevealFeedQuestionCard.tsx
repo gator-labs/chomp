@@ -30,15 +30,19 @@ export function RevealFeedQuestionCard({
   const { openRevealModal } = useRevealedContext();
 
   const handleReveal = () => {
-    openRevealModal(
-      async (burnTx?: string, nftAddress?: string, nftType?: NftType) => {
+    openRevealModal({
+      reveal: async (
+        burnTx?: string,
+        nftAddress?: string,
+        nftType?: NftType,
+      ) => {
         await revealQuestion(id, burnTx, nftAddress, nftType);
         router.push("/application/answer/reveal/" + id);
         router.refresh();
       },
-      revealTokenAmount ?? 0,
-      id,
-    );
+      amount: revealTokenAmount ?? 0,
+      questionId: id,
+    });
   };
 
   return (
