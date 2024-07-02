@@ -64,10 +64,12 @@ const ConnectWithOtpView: FC = () => {
 
       setBurned(true);
 
-    } catch (err) {
-      // errorToast("Failed to save deck", );
-      console.log(err, 'e')
+    } catch (err: any) {
+      const errorMessage = err?.message ? err.message : "Failed to Burn";
+      errorToast(errorMessage);
+      console.log(err?.message, 'e');
     }
+
   };
 
   const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (event) => {
