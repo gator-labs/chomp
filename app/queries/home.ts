@@ -186,7 +186,7 @@ async function queryRevealedQuestions(
 	    		select
 	    			cr."questionId"
 	    		from public."ChompResult" cr
-	    		where cr."questionId" = q."id" and cr."userId" = ${userId}
+	    		where cr."questionId" = q."id" and cr."userId" = ${userId} and cr."transactionStatus" = 'Completed'
 	    	)
 	    	and
 	    	q."id" not in
