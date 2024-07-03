@@ -61,6 +61,8 @@ model Question {
   questionTags        QuestionTag[]
   deckQuestions       DeckQuestion[]
   chompResults        ChompResult[]
+  campaign            Campaign?        @relation(fields: [campaignId], references: [id])
+  campaignId          Int?
 }
 
 model QuestionOption {
@@ -200,6 +202,15 @@ model RevealNft {
   nftType   NftType
 
   @@unique([nftId, userId])
+}
+
+model Campaign {
+  id        Int        @id @default(autoincrement())
+  name      String
+  isActive  Boolean
+  image     String
+  questions Question[]
+  createdAt DateTime   @default(now())
 }
 
 enum QuestionType {
