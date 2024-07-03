@@ -1,5 +1,7 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import { useCopyToClipboard } from "@/app/hooks/useCopyToClipboard";
+import useCurrentUrl from "@/app/hooks/useCurrentUrl";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
@@ -8,6 +10,7 @@ import { CONNECTION } from "@/app/utils/solana";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
+import { ShareIcon } from "../Icons/ShareIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 
@@ -31,6 +34,8 @@ const ClaimButton = ({
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
   const { isClaiming, setIsClaiming } = useClaiming();
+  const currentURL = useCurrentUrl();
+  const { handleCopy } = useCopyToClipboard();
 
   const onClick = async () => {
     try {
@@ -67,13 +72,27 @@ const ClaimButton = ({
         <p className="text-sm text-[#666666]">
           You did not participate in this Chomp
         </p>
-        <Button
-          variant="grayish"
-          className="items-center gap-1 h-[50px] !bg-[#999999] !text-[#666666] cursor-auto"
-          disabled
-        >
-          Claim <DollarIcon fill="#666666" />
-        </Button>
+        <div className="flex flex-col gap-4 w-full">
+          <Button
+            variant="grayish"
+            className="items-center gap-1 h-[50px] !bg-[#999999] !text-[#666666] cursor-auto"
+            disabled
+          >
+            Claim <DollarIcon fill="#666666" />
+          </Button>
+          <Button
+            variant="grayish"
+            onClick={async () =>
+              handleCopy({
+                text: currentURL,
+                infoText: "Question link copied to clipboard!",
+              })
+            }
+            className="flex gap-1 h-[50px]"
+          >
+            Share <ShareIcon />
+          </Button>
+        </div>
       </div>
     );
   }
@@ -93,19 +112,33 @@ const ClaimButton = ({
           </Pill>
           <RewardInfoBox />
         </div>
-        <Button
-          className={classNames(
-            "text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
-            className,
-            { "cursor-not-allowed opacity-50": isClaiming },
-          )}
-          variant="purple"
-          onClick={onClick}
-          disabled={isClaiming}
-        >
-          <span>Claim</span>
-          <DollarIcon height={24} width={24} />
-        </Button>
+        <div className="flex flex-col gap-4 w-full">
+          <Button
+            className={classNames(
+              "text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
+              className,
+              { "cursor-not-allowed opacity-50": isClaiming },
+            )}
+            variant="purple"
+            onClick={onClick}
+            disabled={isClaiming}
+          >
+            <span>Claim</span>
+            <DollarIcon height={24} width={24} />
+          </Button>
+          <Button
+            variant="grayish"
+            onClick={async () =>
+              handleCopy({
+                text: currentURL,
+                infoText: "Question link copied to clipboard!",
+              })
+            }
+            className="flex gap-1 h-[50px]"
+          >
+            Share <ShareIcon />
+          </Button>
+        </div>
       </div>
     );
   }
@@ -125,16 +158,30 @@ const ClaimButton = ({
           </Pill>
           <RewardInfoBox />
         </div>
-        <Button
-          disabled
-          className={classNames(
-            "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
-            className,
-          )}
-        >
-          <span className="text-[#666666]">Claimed</span>
-          <DollarIcon height={24} width={24} fill="#666666" />
-        </Button>
+        <div className="flex flex-col gap-4 w-full">
+          <Button
+            disabled
+            className={classNames(
+              "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+              className,
+            )}
+          >
+            <span className="text-[#666666]">Claimed</span>
+            <DollarIcon height={24} width={24} fill="#666666" />
+          </Button>
+          <Button
+            variant="grayish"
+            onClick={async () =>
+              handleCopy({
+                text: currentURL,
+                infoText: "Question link copied to clipboard!",
+              })
+            }
+            className="flex gap-1 h-[50px]"
+          >
+            Share <ShareIcon />
+          </Button>
+        </div>
       </div>
     );
   }
@@ -152,16 +199,30 @@ const ClaimButton = ({
         </Pill>
         <RewardInfoBox />
       </div>
-      <Button
-        disabled
-        className={classNames(
-          "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
-          className,
-        )}
-      >
-        <span className="text-[#666666]">Unclaimable</span>
-        <DollarIcon height={24} width={24} fill="#666666" />
-      </Button>
+      <div className="flex flex-col gap-4 w-full">
+        <Button
+          disabled
+          className={classNames(
+            "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+            className,
+          )}
+        >
+          <span className="text-[#666666]">Unclaimable</span>
+          <DollarIcon height={24} width={24} fill="#666666" />
+        </Button>
+        <Button
+          variant="grayish"
+          onClick={async () =>
+            handleCopy({
+              text: currentURL,
+              infoText: "Question link copied to clipboard!",
+            })
+          }
+          className="flex gap-1 h-[50px]"
+        >
+          Share <ShareIcon />
+        </Button>
+      </div>
     </div>
   );
 };
