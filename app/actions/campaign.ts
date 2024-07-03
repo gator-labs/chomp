@@ -23,8 +23,10 @@ export async function createCampaign(data: z.infer<typeof campaignSchema>) {
     return false;
   }
 
+  if (!validatedFields.data.image) return false;
+
   const isBucketImageValid = await validateBucketImage(
-    validatedFields.data.image.split("/").pop(),
+    validatedFields.data.image.split("/").pop()!,
     validatedFields.data.image,
   );
 
@@ -59,8 +61,10 @@ export async function editCampaign(data: z.infer<typeof campaignSchema>) {
     return false;
   }
 
+  if (!validatedFields.data.image) return false;
+
   const isBucketImageValid = await validateBucketImage(
-    validatedFields.data.image.split("/").pop(),
+    validatedFields.data.image.split("/").pop()!,
     validatedFields.data.image,
   );
 

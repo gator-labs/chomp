@@ -1,4 +1,3 @@
-import { editCampaign } from "@/app/actions/campaign";
 import CampaignForm from "@/app/components/CampaignForm/CampaignForm";
 import { getCampaign } from "@/app/queries/campaign";
 import { notFound } from "next/navigation";
@@ -14,7 +13,7 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
 
   if (!campaign) return notFound();
 
-  return <CampaignForm campaign={campaign} action={editCampaign} />;
+  return <CampaignForm campaign={campaign} action="update" />;
 };
 
 export default CampaignPage;

@@ -4,23 +4,23 @@ import { Campaign } from "@prisma/client";
 
 import { campaignSchema } from "@/app/schemas/campaign";
 
+import { createCampaign, editCampaign } from "@/app/actions/campaign";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { SubmitButton } from "../SubmitButton/SubmitButton";
+import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
 
 type CampaignFormProps = {
   campaign?: Campaign;
-  action: (data: z.infer<typeof campaignSchema>) => void;
+  action: "update" | "create";
 };
 
 export default function CampaignForm({ campaign, action }: CampaignFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting, isLoading },
     watch,
   } = useForm({
     resolver: zodResolver(campaignSchema),
@@ -28,36 +28,42 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
       id: campaign?.id,
       name: campaign?.name || "",
       isActive: !!campaign?.isActive,
-      file: null as any,
+      file: [],
       image: campaign?.image || "",
     },
   });
-  const fileList = watch("file");
-  const file = fileList?.[0];
+  const file = watch("file")?.[0];
 
   const previewUrl = !!file ? URL.createObjectURL(file) : campaign?.image;
 
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        console.log({ data });
-
         let imageUrl = campaign?.image;
 
         if (!!file) imageUrl = await uploadImageToS3Bucket(file);
 
-        action({
-          isActive: data.isActive,
-          name: data.name,
-          id: data.id,
-          image: imageUrl,
-        });
+        if (action === "create") {
+          await createCampaign({
+            isActive: data.isActive,
+            name: data.name,
+            image: imageUrl,
+          });
+        }
+
+        if (action === "update") {
+          await editCampaign({
+            id: data.id,
+            isActive: data.isActive,
+            name: data.name,
+            image: imageUrl,
+          });
+        }
       })}
     >
       <h1 className="text-3xl mb-3">
         {campaign ? `Edit campaign #${campaign.id}` : "Create campaign"}
       </h1>
-
       <div className="mb-3">
         <label className="block mb-1">Campaign</label>
         <TextInput variant="secondary" {...register("name")} />
@@ -87,8 +93,9 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
 
         <div className="text-red">{errors.file?.message as string}</div>
       </div>
-
-      <SubmitButton />
+      <Button variant="primary" type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Submitting" : "Submit"}
+      </Button>
     </form>
   );
 }

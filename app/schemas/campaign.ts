@@ -18,37 +18,45 @@ export const campaignSchema = z
     id: z.number().optional(),
     name: z.string().trim().min(1, "Name is required"),
     isActive: z.boolean(),
-    image: z.any().refine(
-      (value) => {
-        if (!value) return true;
-
-        try {
-          new URL(value);
-          return true;
-        } catch {
-          return false;
+    file: z
+      .custom<File[]>()
+      .optional()
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return files[0].size <= MAX_IMAGE_UPLOAD_SIZE;
         }
-      },
-      {
-        message: "Invalid image source",
-      },
-    ),
-    file: z.any().refine(
-      (value) => {
-        if (!value?.[0]) return true;
+        return true;
+      }, "Max image size is 1MB.")
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return IMAGE_VALID_TYPES.includes(files[0].type);
+        }
+        return true;
+      }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
+    image: z
+      .string()
+      .optional()
+      .refine(
+        (value) => {
+          if (!value) return true;
 
-        return validateFile(value[0]);
-      },
-      {
-        message: "Image must be a PNG or JPG file and less than 1MB",
-      },
-    ),
+          try {
+            new URL(value);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        {
+          message: "Invalid image source",
+        },
+      ),
   })
   .superRefine((data, ctx) => {
-    if (!data.image && !data.file) {
+    if (!data.image && (!data.file || data.file.length === 0)) {
       ctx.addIssue({
         path: ["file"],
-        message: "File is required",
+        message: "Upload image.",
         code: z.ZodIssueCode.custom,
       });
     }
