@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import crypto from "crypto";
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
+const BOT_TOKEN = process.env.BOT_TOKEN || "";
 
 const validateTelegramData = (initData: any) => {
   const queryString = new URLSearchParams(initData);
