@@ -16,7 +16,7 @@ export default async function Page({ searchParams }: PageProps) {
   const address = getAddressFromVerifiedCredentials(payload);
 
   return (
-    <div className="flex flex-col px-4 gap-4">
+    <div className="flex flex-col gap-4">
       <Profile address={address} avatarSrc={profileSrc} />
       <UserStatsCards
         averageTimeToAnswer={stats.averageTimeToAnswer}

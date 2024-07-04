@@ -35,7 +35,6 @@ export function UserStatsCards({
           title="Average Time Per Question"
           value={averageTimeToAnswer}
           icon={<TimeIcon height={38} width={38} fill="#A3A3EC" />}
-          className="basis-1/2"
         />
       </ChompSpeedInfo>
       <DailyDeckStreakInfo>
@@ -43,7 +42,6 @@ export function UserStatsCards({
           title="Longest Streak"
           value={daysStreak}
           icon={<StreakIcon height={38} width={38} fill="#A3A3EC" />}
-          className="basis-1/2"
         />
       </DailyDeckStreakInfo>
       <TotalPointsEarnedInfo>
@@ -51,7 +49,6 @@ export function UserStatsCards({
           title="Total Points Earned"
           value={totalPointsEarned}
           icon={<TotalPercentageIcon height={38} width={38} fill="#A3A3EC" />}
-          className="basis-1/2"
         />
       </TotalPointsEarnedInfo>
     </div>

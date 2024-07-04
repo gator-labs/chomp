@@ -9,7 +9,7 @@ type ProfileProps = {
 
 export function Profile({ address, avatarSrc }: ProfileProps) {
   return (
-    <div className="flex items-center p-6 rounded-2xl bg-[#0D0D0D] gap-4">
+    <div className="flex items-center p-4 rounded-2xl bg-[#0D0D0D] gap-4">
       <Avatar
         size="extralarge"
         className="border-chomp-purple"
