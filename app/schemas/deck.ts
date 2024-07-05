@@ -21,7 +21,7 @@ export const deckSchema = z.object({
       { message: "Invalid URL" },
     ),
   tagIds: z.number().array().default([]),
-  campaignId: z.number().nullable(),
+  campaignId: z.number().optional(),
   revealToken: z.nativeEnum(Token),
   date: z.date().nullish(),
   revealTokenAmount: z.number().min(0),
@@ -69,7 +69,7 @@ export const deckSchema = z.object({
           const isLeftCount = q.questionOptions.filter(
             (option) => option.isLeft,
           ).length;
-          console.log({ isLeftCount });
+
           if (isLeftCount === 0 || isLeftCount === 2) {
             return false;
           } else {

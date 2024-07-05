@@ -56,7 +56,7 @@ export default function DeckForm({
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
   const [selectedCampaignId, setSelectedCampaignId] = useState(
-    deck?.campaignId || null,
+    deck?.campaignId || undefined,
   );
 
   const onSubmit = handleSubmit(async (data) => {
@@ -351,7 +351,7 @@ export default function DeckForm({
               tag={campaign.name}
               onSelected={() =>
                 setSelectedCampaignId((prev) =>
-                  prev === campaign.id ? null : campaign.id,
+                  prev === campaign.id ? undefined : campaign.id,
                 )
               }
               isSelected={selectedCampaignId === campaign.id}

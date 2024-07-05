@@ -5,6 +5,7 @@ import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard
 import { Profile } from "@/app/components/Profile/Profile";
 import { getProfile, getProfileImage } from "@/app/queries/profile";
 import { getAddressFromVerifiedCredentials } from "@/app/utils/wallet";
+import Link from "next/link";
 
 type PageProps = {
   searchParams: { sort: string; openIds: string };
@@ -19,6 +20,10 @@ export default async function Page({ searchParams }: PageProps) {
 
   return (
     <div className="flex flex-col px-4 gap-4">
+      <div className="flex justify-between">
+        <Link href="/application/profile">Dashboard</Link>
+        <Link href="/application/profile/leaderboard">Leaderboard</Link>
+      </div>
       <Profile
         address={address}
         avatarSrc={profileSrc}

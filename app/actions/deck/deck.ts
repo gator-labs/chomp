@@ -34,6 +34,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
         date: validatedFields.data.date,
         isActive: validatedFields.data.isActive,
+        campaignId: validatedFields.data.campaignId,
       },
     });
 
