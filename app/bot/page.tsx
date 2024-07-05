@@ -8,11 +8,13 @@ import TiplinkConnect from "./tiplinkConnect";
 
 const ConnectWithOtpView: FC = () => {
 
+  const clientId = process.env.NEXT_PUBLIC_TIPLINK_CLIENT_ID || ''
+
   const wallets = useMemo(
     () => [
       new TipLinkWalletAdapter({
         title: "Chomp",
-        clientId: "cf579504-6e22-4950-868a-9004cc3f489d",
+        clientId: clientId,
         theme: "dark"
       }),
     ],
