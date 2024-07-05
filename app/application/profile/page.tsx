@@ -1,9 +1,8 @@
-import { getMyFungibleAssetBalances } from "@/app/actions/fungible-asset";
 import { getJwtPayload } from "@/app/actions/jwt";
-import History from "@/app/components/History/History";
-import PointBalanceCard from "@/app/components/PointBalanceCard/PointBalanceCard";
 import { Profile } from "@/app/components/Profile/Profile";
-import { getProfile, getProfileImage } from "@/app/queries/profile";
+import { UserStatsCards } from "@/app/components/UserStatsCards/UserStatsCards";
+import { getUserStatistics } from "@/app/queries/home";
+import { getProfileImage } from "@/app/queries/profile";
 import { getAddressFromVerifiedCredentials } from "@/app/utils/wallet";
 
 type PageProps = {
@@ -12,21 +11,19 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const payload = await getJwtPayload();
-  const balances = await getMyFungibleAssetBalances();
   const profileSrc = await getProfileImage();
-  const profile = await getProfile();
+  const stats = await getUserStatistics();
   const address = getAddressFromVerifiedCredentials(payload);
 
   return (
-    <div className="flex flex-col px-4 gap-4">
-      <Profile
-        address={address}
-        avatarSrc={profileSrc}
-        joinDate={profile?.createdAt ?? new Date()}
+    <div className="flex flex-col gap-4">
+      <Profile address={address} avatarSrc={profileSrc} />
+      <UserStatsCards
+        averageTimeToAnswer={stats.averageTimeToAnswer}
+        cardsChomped={stats.cardsChomped}
+        daysStreak={stats.daysStreak}
+        totalPointsEarned={stats.totalPointsEarned}
       />
-
-      <PointBalanceCard amount={balances.Point} />
-      <History sort={searchParams.sort ?? "Date"} />
     </div>
   );
 }
