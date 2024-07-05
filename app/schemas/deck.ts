@@ -21,7 +21,7 @@ export const deckSchema = z.object({
       { message: "Invalid URL" },
     ),
   tagIds: z.number().array().default([]),
-  campaignId: z.number().optional(),
+  campaignId: z.number().optional().nullish(),
   revealToken: z.nativeEnum(Token),
   date: z.date().nullish(),
   revealTokenAmount: z.number().min(0),
