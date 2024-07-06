@@ -67,7 +67,7 @@ export const getCampaignLeaderboard = async (
 
     ranking.push({
       user,
-      points: entry._sum.points,
+      points: entry._sum.points!,
       rank,
     });
   }
