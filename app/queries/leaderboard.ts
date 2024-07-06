@@ -48,24 +48,29 @@ export const getCampaignLeaderboard = async (
   let loggedInUserRank: number | undefined;
   let loggedInUserPoints: number | undefined;
 
-  const ranking = campaignLeaderboard.map((entry, index) => {
-    const user = users.find((u) => u.id === entry.userId)!;
+  const ranking = [];
+  for (let index = 0; index < campaignLeaderboard.length; index++) {
+    const entry = campaignLeaderboard[index];
+    const user = users.find((u) => u.id === entry.userId);
 
     if (entry._sum.points !== campaignLeaderboard[index - 1]?._sum.points)
       rank = rank + 1;
 
-    if (user.id === loggedInUserId) {
+    if (rank > 100) {
+      break;
+    }
+
+    if (user!.id === loggedInUserId) {
       loggedInUserRank = rank;
       loggedInUserPoints = entry._sum.points!;
     }
 
-    return {
+    ranking.push({
       user,
-      points: entry._sum.points!,
+      points: entry._sum.points,
       rank,
-    };
-  });
-
+    });
+  }
   return {
     ranking,
     loggedInUserScore: {
