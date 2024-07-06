@@ -2,6 +2,8 @@
 
 import prisma from "../services/prisma";
 
+const MAX_RANK_NUMBER = 100;
+
 export const getCampaignLeaderboard = async (
   campaignId: number,
   loggedInUserId: string,
@@ -26,7 +28,6 @@ export const getCampaignLeaderboard = async (
         points: "desc",
       },
     },
-    take: 100,
   });
 
   // TODO: optimize this later
@@ -52,6 +53,8 @@ export const getCampaignLeaderboard = async (
 
     if (entry._sum.points !== campaignLeaderboard[index - 1]?._sum.points)
       rank = rank + 1;
+
+    if (rank > MAX_RANK_NUMBER) return;
 
     if (user.id === loggedInUserId) {
       loggedInUserRank = rank;
