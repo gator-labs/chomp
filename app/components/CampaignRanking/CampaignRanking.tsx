@@ -26,6 +26,8 @@ const CampaignRanking = ({ ranking, loggedUserId }: Props) => {
       {!!ranking.length ? (
         <ul className="flex flex-col gap-2 overflow-y-auto">
           {ranking.map((rankItem, index) => {
+            if (rankItem.rank > 100) return;
+
             return (
               <RankingCard
                 key={index || rankItem.user.id}

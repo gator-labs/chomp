@@ -54,8 +54,6 @@ export const getCampaignLeaderboard = async (
     if (entry._sum.points !== campaignLeaderboard[index - 1]?._sum.points)
       rank = rank + 1;
 
-    if (rank > MAX_RANK_NUMBER) return;
-
     if (user.id === loggedInUserId) {
       loggedInUserRank = rank;
       loggedInUserPoints = entry._sum.points!;
