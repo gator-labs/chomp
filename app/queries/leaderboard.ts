@@ -4,11 +4,8 @@ import prisma from "../services/prisma";
 
 export const getCampaignLeaderboard = async (
   campaignId: number,
-  page: number = 1,
-  pageSize: number = 10,
+  loggedInUserId: string,
 ) => {
-  const skip = (page - 1) * pageSize;
-
   const campaignLeaderboard = await prisma.dailyLeaderboard.groupBy({
     by: ["userId"],
     where: {
@@ -29,8 +26,7 @@ export const getCampaignLeaderboard = async (
         points: "desc",
       },
     },
-    skip: skip,
-    take: pageSize,
+    take: 100,
   });
 
   // TODO: optimize this later
@@ -47,36 +43,33 @@ export const getCampaignLeaderboard = async (
     },
   });
 
-  const leaderboardWithUsers = campaignLeaderboard.map((entry) => {
+  let rank = 0;
+  let loggedInUserRank: number | undefined;
+  let loggedInUserPoints: number | undefined;
+
+  const ranking = campaignLeaderboard.map((entry, index) => {
     const user = users.find((u) => u.id === entry.userId)!;
+
+    if (entry._sum.points !== campaignLeaderboard[index - 1]?._sum.points)
+      rank = rank + 1;
+
+    if (user.id === loggedInUserId) {
+      loggedInUserRank = rank;
+      loggedInUserPoints = entry._sum.points!;
+    }
+
     return {
       user,
       points: entry._sum.points!,
+      rank,
     };
   });
 
-  return leaderboardWithUsers;
-};
-
-export const getUserPointsInCampaign = async (
-  userId: string,
-  campaignId: number,
-) => {
-  const result = await prisma.dailyLeaderboard.groupBy({
-    by: ["userId"],
-    where: {
-      campaignId: campaignId,
-      userId,
+  return {
+    ranking,
+    loggedInUserScore: {
+      loggedInUserRank,
+      loggedInUserPoints,
     },
-    _sum: {
-      points: true,
-    },
-  });
-
-  if (result.length === 0) {
-    return 0;
-  }
-
-  const [user] = result;
-  return user._sum.points ?? 0;
+  };
 };

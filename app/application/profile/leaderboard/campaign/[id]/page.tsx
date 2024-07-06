@@ -4,11 +4,9 @@ import { Avatar } from "@/app/components/Avatar/Avatar";
 import CampaignRanking from "@/app/components/CampaignRanking/CampaignRanking";
 import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import { getCampaign } from "@/app/queries/campaign";
-import {
-  getCampaignLeaderboard,
-  getUserPointsInCampaign,
-} from "@/app/queries/leaderboard";
+import { getCampaignLeaderboard } from "@/app/queries/leaderboard";
 import { getCurrentUser } from "@/app/queries/user";
+import { nthNumber } from "@/app/utils/number";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -25,8 +23,12 @@ const CampaignLeaderboardPage = async ({ params }: PageProps) => {
 
   if (!campaign) return notFound();
 
-  const ranking = await getCampaignLeaderboard(Number(params.id));
-  const userPoints = await getUserPointsInCampaign(user!.id, Number(params.id));
+  const { ranking, loggedInUserScore } = await getCampaignLeaderboard(
+    Number(params.id),
+    user!.id,
+  );
+
+  const { loggedInUserPoints, loggedInUserRank } = loggedInUserScore;
 
   return (
     <div className="pt-4 pb-1 flex flex-col gap-4 h-full">
@@ -51,9 +53,12 @@ const CampaignLeaderboardPage = async ({ params }: PageProps) => {
           <span className="text-xs text-[#999999]">All time points</span>
           <div className="flex justify-between items-center">
             <p className="text-[15px] leading-[17.25px] font-bold">
-              {userPoints} Points{" "}
+              {!!loggedInUserRank
+                ? `Ranking ${loggedInUserRank}
+              ${nthNumber(loggedInUserRank)} place`
+                : "- No Ranking Yet"}
             </p>
-            {/* <p className="text-xs font-bold">{userPoints} Points</p> */}
+            <p className="text-xs font-bold">{loggedInUserPoints} Points</p>
           </div>
         </div>
       </div>
@@ -62,11 +67,7 @@ const CampaignLeaderboardPage = async ({ params }: PageProps) => {
         <p className="text-[#0D0D0D] text-xs">Total Points</p>
       </div>
 
-      <CampaignRanking
-        initialRanking={ranking}
-        loggedUserId={user?.id!}
-        campaignId={Number(params.id)}
-      />
+      <CampaignRanking ranking={ranking} loggedUserId={user?.id!} />
     </div>
   );
 };
