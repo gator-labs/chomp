@@ -1,6 +1,10 @@
 "use client";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
-import { HistoryResult, HistorySortOptions } from "@/app/queries/history";
+import {
+  HistoryResult,
+  HistorySortOptions,
+  HistoryTypeOptions,
+} from "@/app/queries/history";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { useRouter } from "next-nprogress-bar";
 import dynamic from "next/dynamic";
@@ -15,6 +19,7 @@ const HistoryFeed = dynamic(
 
 type HistoryProps = {
   sort: string;
+  type: string;
 };
 
 const sortStateMachine = {
@@ -23,20 +28,33 @@ const sortStateMachine = {
   [HistorySortOptions.Revealed]: HistorySortOptions.Date,
 };
 
-export default function History({ sort }: HistoryProps) {
+const typeStateMachine = {
+  [HistoryTypeOptions.Deck]: HistoryTypeOptions.Question,
+  [HistoryTypeOptions.Question]: HistoryTypeOptions.Deck,
+};
+
+export default function History({ sort, type }: HistoryProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [currentSort, setCurrentSort] = useState(HistorySortOptions.Date);
+  const [currentType, setCurrentType] = useState(HistoryTypeOptions.Deck);
   const [scrollToId, setScrollToId] = useState(0);
   const [response, setResponse] = useState<HistoryResult[]>([]);
   const [rewards, setRewards] = useState<{
     totalRevealedRewards: number;
   }>({ totalRevealedRewards: 0 });
 
-  const getData = async (sort: HistorySortOptions, scrollId?: number) => {
+  const getData = async (
+    sort: HistorySortOptions,
+    type: HistoryTypeOptions,
+    scrollId?: number,
+  ) => {
     const searchParams = new URLSearchParams();
     if (sort) {
       searchParams.set("sort", sort);
+    }
+    if (type) {
+      searchParams.set("type", type);
     }
     const params = searchParams.toString() ? `?${searchParams}` : "";
     const data = await fetch(
@@ -52,19 +70,36 @@ export default function History({ sort }: HistoryProps) {
   };
 
   useIsomorphicLayoutEffect(() => {
-    getData(HistorySortOptions[sort as keyof typeof HistorySortOptions]);
+    getData(
+      HistorySortOptions[sort as keyof typeof HistorySortOptions],
+      HistoryTypeOptions[type as keyof typeof HistoryTypeOptions],
+    );
   }, []);
 
   const handleSort = () => {
     const nextSort = sortStateMachine[currentSort];
     setCurrentSort(nextSort);
-    const newParams = getAppendedNewSearchParams({ sort: nextSort.toString() });
+    const newParams = getAppendedNewSearchParams({
+      sort: nextSort.toString(),
+      type: currentType.toString(),
+    });
     router.push(`${pathname}${newParams}`);
-    getData(nextSort);
+    getData(nextSort, currentType);
+  };
+
+  const handleViewType = () => {
+    const nextType = typeStateMachine[currentType];
+    setCurrentType(nextType);
+    const newParams = getAppendedNewSearchParams({
+      sort: currentSort.toString(),
+      type: nextType.toString(),
+    });
+    router.push(`${pathname}${newParams}`);
+    getData(currentSort, nextType);
   };
 
   const onRefreshCards = () => {
-    getData(currentSort);
+    getData(currentSort, currentType);
   };
 
   return (
@@ -73,12 +108,21 @@ export default function History({ sort }: HistoryProps) {
         totalRevealedRewards={rewards.totalRevealedRewards}
         onRefresh={onRefreshCards}
       />
-      <div
-        className="px-4 pt-4 text-base font-sora cursor-pointer"
-        onClick={handleSort}
-      >
-        <span>Sort by: </span>
-        <span className="font-bold">{sort}</span>
+      <div className="flex flex-row justify-between">
+        <div
+          className="px-4 pt-4 text-base font-sora cursor-pointer"
+          onClick={handleSort}
+        >
+          <span>Sort by: </span>
+          <span className="font-bold">{sort}</span>
+        </div>
+        <div
+          className="px-4 pt-4 text-base font-sora cursor-pointer"
+          onClick={handleViewType}
+        >
+          <span>Viewing: </span>
+          <span className="font-bold">{type}</span>
+        </div>
       </div>
       {response && (
         <HistoryFeed list={response} elementToScrollToId={scrollToId} />

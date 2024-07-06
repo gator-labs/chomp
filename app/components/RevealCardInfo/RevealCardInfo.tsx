@@ -19,7 +19,7 @@ export function RevealCardInfo({
   return (
     <div className="flex text-xs text-white leading-6 items-center gap-1">
       <>
-        <ClockIcon />
+        <ClockIcon width={18} height={18} />
         <div>
           {revealAtDate && <span>{getRevealedAtString(revealAtDate)} </span>}
           {revealAtDate && isRevealAtCount && <span>or </span>}
