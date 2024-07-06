@@ -51,7 +51,7 @@ export const getCampaignLeaderboard = async (
   const ranking = [];
   for (let index = 0; index < campaignLeaderboard.length; index++) {
     const entry = campaignLeaderboard[index];
-    const user = users.find((u) => u.id === entry.userId);
+    const user = users.find((u) => u.id === entry.userId)!;
 
     if (entry._sum.points !== campaignLeaderboard[index - 1]?._sum.points)
       rank = rank + 1;
