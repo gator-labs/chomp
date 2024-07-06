@@ -33,7 +33,7 @@ const CampaignLeaderboardPage = async ({ params }: PageProps) => {
   return (
     <div className="pt-4 pb-1 flex flex-col gap-4 h-full">
       <div className="flex items-center gap-4 py-[5px]">
-        <Link href="/application/profile">
+        <Link href="/application/profile/leaderboard">
           <HalfArrowLeftIcon />
         </Link>
         <div className="relative w-[38px] h-[38px]">
@@ -54,8 +54,7 @@ const CampaignLeaderboardPage = async ({ params }: PageProps) => {
           <div className="flex justify-between items-center">
             <p className="text-[15px] leading-[17.25px] font-bold">
               {!!loggedInUserRank
-                ? `Ranking ${loggedInUserRank}
-              ${nthNumber(loggedInUserRank)} place`
+                ? `Ranking ${loggedInUserRank}${nthNumber(loggedInUserRank)} place`
                 : "- No Ranking Yet"}
             </p>
             <p className="text-xs font-bold">{loggedInUserPoints} Points</p>
