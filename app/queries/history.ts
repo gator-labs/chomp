@@ -223,7 +223,6 @@ export async function getQuestionsHistory(
 						where dq."questionId" = q."id")) AS QuestionHistory
 				ORDER BY ${sortClause};
 		`,
-    [userId, userId, userId, sortClause],
   );
 
   return historyResult;
