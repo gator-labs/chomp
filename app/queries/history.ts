@@ -86,7 +86,7 @@ export async function getDecksHistory(
     `
 	SELECT * FROM (
 	    SELECT  d."id",
-				d."deck",
+				d."deck" AS "question",
 				d."revealAtDate",
 				(SELECT COUNT(DISTINCT CONCAT(qa."userId", dq."deckId"))
 					FROM public."QuestionOption" qo

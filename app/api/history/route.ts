@@ -3,6 +3,7 @@ import {
   getHistory,
   getTotalRevealedRewards,
   HistorySortOptions,
+  HistoryTypeOptions,
 } from "@/app/queries/history";
 
 export async function GET(request: Request) {
@@ -17,7 +18,14 @@ export async function GET(request: Request) {
     HistorySortOptions[
       searchParams.get("sort")?.toString() as keyof typeof HistorySortOptions
     ];
-  const history = await getHistory(sort ?? HistorySortOptions.Date);
+  const type =
+    HistoryTypeOptions[
+      searchParams.get("type") as keyof typeof HistoryTypeOptions
+    ];
+  const history = await getHistory(
+    sort ?? HistorySortOptions.Date,
+    type ?? HistoryTypeOptions.Deck,
+  );
   const totalRevealedRewards = await getTotalRevealedRewards();
 
   return Response.json({
