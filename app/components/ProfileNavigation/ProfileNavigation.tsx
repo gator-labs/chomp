@@ -18,7 +18,7 @@ const ProfileNavigation = () => {
           key={href}
         >
           <Link
-            className="text-xs leading-[7px] py-[12.5px] flex items-center justify-center"
+            className="text-xs h-[32px] flex items-center justify-center"
             href={href}
           >
             {label}
