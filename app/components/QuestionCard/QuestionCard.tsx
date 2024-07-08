@@ -102,7 +102,7 @@ export function QuestionCard({
               onClick={() => setIsViewImageOpen(true)}
               src={viewImageSrc}
               alt="preview-image"
-              className="w-14 rounded-lg"
+              className="w-14 rounded-lg cursor-pointer"
             />
 
             <Modal
