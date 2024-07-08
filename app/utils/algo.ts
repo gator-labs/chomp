@@ -143,13 +143,13 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
       ),
     };
 
-    const { answer } = await getMechanismEngineResponse(
+    const response = await getMechanismEngineResponse(
       "answer/multi-choice",
       body,
     );
 
     const resultList = ["A", "B", "C", "D", "E", "F", "G"];
-    correctOptionIds.push(optionsList[resultList.indexOf(answer)]);
+    correctOptionIds.push(optionsList[resultList.indexOf(response?.answer)]);
   }
 
   await prisma.$transaction([
