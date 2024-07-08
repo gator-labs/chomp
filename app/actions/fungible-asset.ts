@@ -51,7 +51,8 @@ export const incrementFungibleAssetBalance = async (
   asset: FungibleAsset,
   amount: number,
   transactionLogType: TransactionLogType,
-  injectedPrisma: (PrismaTransactionClient | undefined) = prisma,
+  injectedPrisma: PrismaTransactionClient | undefined = prisma,
+  campaignId?: number | null,
 ): Promise<FungibleAssetBalance> => {
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";
@@ -84,7 +85,35 @@ export const incrementFungibleAssetBalance = async (
     },
   });
 
-  const result = await Promise.all([upsertTask, transactionLogTask]);
+  let dailyLeaderboardTask;
+
+  if (!!campaignId) {
+    const currentDate = new Date();
+
+    dailyLeaderboardTask = await injectedPrisma.dailyLeaderboard.upsert({
+      where: {
+        user_campaign_date: {
+          userId,
+          campaignId,
+          date: currentDate,
+        },
+      },
+      create: {
+        userId,
+        campaignId,
+        points: amount,
+      },
+      update: {
+        points: { increment: amount },
+      },
+    });
+  }
+
+  const result = await Promise.all([
+    upsertTask,
+    transactionLogTask,
+    dailyLeaderboardTask,
+  ]);
 
   return result[0];
 };

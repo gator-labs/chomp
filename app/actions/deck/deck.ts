@@ -34,6 +34,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
         date: validatedFields.data.date,
         isActive: validatedFields.data.isActive,
+        campaignId: validatedFields.data.campaignId,
       },
     });
 
@@ -63,6 +64,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
               data: validatedFields.data.tagIds.map((tagId) => ({ tagId })),
             },
           },
+          campaignId: validatedFields.data.campaignId,
         },
       });
     }
@@ -149,6 +151,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
                 data: validatedFields.data.tagIds.map((tagId) => ({ tagId })),
               },
             },
+            campaignId: validatedFields.data.campaignId,
           },
         });
       }
@@ -183,6 +186,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
                 },
               },
             },
+            campaignId: validatedFields.data.campaignId,
           },
         });
 

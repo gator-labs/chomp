@@ -77,15 +77,11 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     return;
   }
 
-  const revealAtDateObject = await prisma.deck.findFirst({
+  const deck = await prisma.deck.findFirst({
     where: { id: { equals: deckId } },
-    select: { revealAtDate: true },
   });
 
-  if (
-    revealAtDateObject?.revealAtDate &&
-    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
-  ) {
+  if (deck?.revealAtDate && dayjs(deck?.revealAtDate).isBefore(new Date())) {
     return;
   }
 
@@ -144,12 +140,14 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
         questionIds.length * pointsPerAction[TransactionLogType.AnswerQuestion],
         TransactionLogType.AnswerQuestion,
         tx,
+        deck?.campaignId,
       ),
       incrementFungibleAssetBalance(
         FungibleAsset.Point,
         pointsPerAction[TransactionLogType.AnswerDeck],
         TransactionLogType.AnswerDeck,
         tx,
+        deck?.campaignId,
       ),
     ];
 
@@ -183,14 +181,13 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     return;
   }
 
-  const revealAtDateObject = await prisma.question.findFirst({
+  const question = await prisma.question.findFirst({
     where: { id: { equals: request.questionId } },
-    select: { revealAtDate: true },
   });
 
   if (
-    revealAtDateObject?.revealAtDate &&
-    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
+    question?.revealAtDate &&
+    dayjs(question?.revealAtDate).isBefore(new Date())
   ) {
     return;
   }
@@ -236,6 +233,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       pointsPerAction[TransactionLogType.AnswerQuestion],
       TransactionLogType.AnswerQuestion,
       tx,
+      question?.campaignId,
     );
 
     await updateStreak(userId);

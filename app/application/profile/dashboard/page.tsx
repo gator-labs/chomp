@@ -5,11 +5,7 @@ import { getUserStatistics } from "@/app/queries/home";
 import { getProfileImage } from "@/app/queries/profile";
 import { getAddressFromVerifiedCredentials } from "@/app/utils/wallet";
 
-type PageProps = {
-  searchParams: { sort: string; openIds: string };
-};
-
-export default async function Page({ searchParams }: PageProps) {
+export default async function Page() {
   const payload = await getJwtPayload();
   const profileSrc = await getProfileImage();
   const stats = await getUserStatistics();
