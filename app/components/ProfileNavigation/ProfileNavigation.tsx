@@ -8,8 +8,6 @@ import { PROFILE_LINKS } from "./constants";
 const ProfileNavigation = () => {
   const pathname = usePathname();
 
-  console.log({ pathname });
-
   return (
     <ul className="p-1 gap-2 bg-[#333333] rounded-[48px] grid grid-cols-3 my-4">
       {PROFILE_LINKS.map(({ href, label }) => (
