@@ -31,7 +31,7 @@ const CampaignLeaderboardPage = async ({ params }: PageProps) => {
   const { loggedInUserPoints, loggedInUserRank } = loggedInUserScore;
 
   return (
-    <div className="pt-4 pb-1 flex flex-col gap-4 h-full">
+    <div className="pb-1 flex flex-col gap-4 h-full">
       <div className="flex items-center gap-4 py-[5px]">
         <Link href="/application/profile/leaderboard">
           <HalfArrowLeftIcon />

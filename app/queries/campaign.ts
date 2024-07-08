@@ -4,7 +4,7 @@ import prisma from "../services/prisma";
 
 export async function getCampaigns() {
   return prisma.campaign.findMany({
-    orderBy: [{ createdAt: "desc" }],
+    orderBy: [{ name: "asc" }],
   });
 }
 
