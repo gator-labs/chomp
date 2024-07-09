@@ -140,6 +140,10 @@ const RevealScreen = ({
                 alwaysVisible
                 disabledHover
                 position="top"
+                style={{
+                  position: "absolute",
+                  top: "-90px",
+                }}
               >
                 <Button
                   variant="white"
@@ -198,7 +202,7 @@ const RevealScreen = ({
             question="Which of the following is NOT a DEX?"
             type={QuestionType.MultiChoice}
             viewImageSrc="/test"
-            className="relative w-full mx-auto drop-shadow-question-card border-opacity-40 -z-10"
+            className="relative w-full mx-auto drop-shadow-question-card border-opacity-40 -z-20"
           >
             <QuestionCardContent
               onOptionSelected={() => {}}

@@ -11,7 +11,7 @@ type PageProps = {
 };
 
 export default async function Page({ params: { id } }: PageProps) {
-  const hasAnswered = await hasAnsweredDeck(+id);
+  const hasAnswered = await hasAnsweredDeck(+id, null, true);
 
   if (hasAnswered) {
     return redirect("/application");

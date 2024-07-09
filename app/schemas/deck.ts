@@ -21,6 +21,7 @@ export const deckSchema = z.object({
       { message: "Invalid URL" },
     ),
   tagIds: z.number().array().default([]),
+  campaignId: z.number().optional().nullish(),
   revealToken: z.nativeEnum(Token),
   date: z.date().nullish(),
   revealTokenAmount: z.number().min(0),
@@ -62,5 +63,22 @@ export const deckSchema = z.object({
         })
         .array(),
     })
+    .refine(
+      (q) => {
+        if (q.type === QuestionType.BinaryQuestion) {
+          const isLeftCount = q.questionOptions.filter(
+            (option) => option.isLeft,
+          ).length;
+
+          if (isLeftCount === 0 || isLeftCount === 2) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+        return true;
+      },
+      { message: "Only one is left option is required in" },
+    )
     .array(),
 });

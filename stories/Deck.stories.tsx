@@ -1,11 +1,11 @@
 import { QuestionType } from "@prisma/client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Deck } from "../app/components/Deck/Deck";
-import { ONE_MINUTE_IN_MILISECONDS } from "../app/utils/dateUtils";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../app/utils/dateUtils";
 
 const questionBase = {
   type: QuestionType.BinaryQuestion,
-  durationMiliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
+  durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS / 4,
   questionOptions: [
     {
       id: 1,

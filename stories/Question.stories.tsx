@@ -2,13 +2,13 @@ import { QuestionType } from "@prisma/client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Question } from "../app/components/Question/Question";
 import {
-  ONE_HOUR_IN_MILISECONDS,
-  ONE_MINUTE_IN_MILISECONDS,
+  ONE_HOUR_IN_MILLISECONDS,
+  ONE_MINUTE_IN_MILLISECONDS,
 } from "../app/utils/dateUtils";
 
 const questionBase = {
   id: 1,
-  durationMiliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
+  durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS / 4,
   questionTags: [
     { id: 1, tag: "Defi" },
     { id: 2, tag: "Not defi" },
@@ -80,7 +80,7 @@ export const Cramped: Story = {
   args: {
     question: {
       ...questionBase,
-      durationMiliseconds: ONE_HOUR_IN_MILISECONDS,
+      durationMiliseconds: ONE_HOUR_IN_MILLISECONDS,
       type: QuestionType.BinaryQuestion,
       questionOptions: [
         {

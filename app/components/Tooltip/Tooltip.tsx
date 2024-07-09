@@ -37,7 +37,7 @@ const Tooltip = ({
       {children}
       <div
         className={classNames(
-          "max-w-[230px] w-fit bg-[#575CDF] text-center opacity-0 p-4 rounded-lg absolute z-50 h-fit",
+          "max-w-[250px] w-fit bg-[#575CDF] text-center opacity-0 p-4 rounded-lg absolute z-50 h-fit text-[13px] font-normal leading-[16.38px]",
           {
             "opacity-100": alwaysVisible || showTooltip,
             "left-0 -top-1 translate-y-[-100%]": position === "top-start",

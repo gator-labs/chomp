@@ -4,6 +4,7 @@ import {
   Question,
   QuestionAnswer,
   ResultType,
+  TransactionStatus,
 } from "@prisma/client";
 import dayjs from "dayjs";
 
@@ -39,18 +40,27 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   isRevealed: boolean;
   isRevealable: boolean;
   isClaimed: boolean;
+  isClaimable: boolean;
 } {
   const isAnswered = question.questionOptions?.some(
     (qo) => qo.questionAnswers.length !== 0,
   );
-  const isRevealed = question.chompResults?.length !== 0;
-  const isRevealable = isEntityRevealable(question);
+  const isRevealed =
+    question.chompResults.filter(
+      (cr) => cr.transactionStatus === TransactionStatus.Completed,
+    )?.length !== 0;
+  const isRevealable = isEntityRevealable(question) && !isRevealed;
   const isClaimed =
     question.chompResults &&
     question.chompResults.length > 0 &&
     question.chompResults[0].result === ResultType.Claimed;
 
-  return { isAnswered, isRevealed, isRevealable, isClaimed };
+  const isClaimable =
+    (Number(question.chompResults?.[0]?.rewardTokenAmount) ?? 0) > 0 &&
+    isRevealed &&
+    !isClaimed;
+
+  return { isAnswered, isRevealed, isRevealable, isClaimed, isClaimable };
 }
 
 export function getDeckState(
@@ -69,7 +79,10 @@ export function getDeckState(
   const isAnswered = deck.deckQuestions?.some((dq) =>
     dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0),
   );
-  const isRevealed = deck.chompResults?.length !== 0;
+  const isRevealed =
+    deck.chompResults.filter(
+      (cr) => cr.transactionStatus === TransactionStatus.Completed,
+    )?.length !== 0;
   const isRevealable = isEntityRevealable(deck);
 
   return { isAnswered, isRevealed, isRevealable };
@@ -152,4 +165,16 @@ export const mapPercentages = (
       });
     });
   });
+};
+
+export const getAnsweredQuestionsStatus = (
+  percentOfAnsweredQuestions: number,
+) => {
+  if (percentOfAnsweredQuestions === 100) {
+    return "daily-deck";
+  } else if (percentOfAnsweredQuestions === 0) {
+    return "answered-none";
+  } else {
+    return "answered-some";
+  }
 };

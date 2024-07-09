@@ -26,8 +26,9 @@ model User {
   fungibleAssetBalance        FungibleAssetBalance[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   streak                      Streak[]
-  usedGenesisNfts             UsedGenesisNft[]
+  revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
+  dailyLeaderboard            DailyLeaderboard[]
 }
 
 model Wallet {
@@ -62,6 +63,8 @@ model Question {
   questionTags        QuestionTag[]
   deckQuestions       DeckQuestion[]
   chompResults        ChompResult[]
+  campaign            Campaign?        @relation(fields: [campaignId], references: [id])
+  campaignId          Int?
 }
 
 model QuestionOption {
@@ -107,6 +110,8 @@ model Deck {
   createdAt           DateTime       @default(now())
   updatedAt           DateTime       @default(now()) @updatedAt
   isActive            Boolean        @default(true)
+  campaign            Campaign?      @relation(fields: [campaignId], references: [id])
+  campaignId          Int?
   deckQuestions       DeckQuestion[]
   userDeck            UserDeck[]
   chompResults        ChompResult[]
@@ -161,6 +166,8 @@ model ChompResult {
   createdAt                DateTime          @default(now())
   updatedAt                DateTime          @default(now()) @updatedAt
   transactionStatus        TransactionStatus @default(Completed)
+
+  @@unique([userId, questionId, deckId])
 }
 
 model FungibleAssetTransactionLog {
@@ -183,19 +190,50 @@ model FungibleAssetBalance {
 }
 
 model Streak {
-  id              Int      @id @default(autoincrement())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id])
-  streakStartedAt DateTime @default(now())
-  lastDayOfStreak DateTime @default(now()) @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  count     Int      @default(0)
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
-model UsedGenesisNft {
+model RevealNft {
   nftId     String   @unique
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  nftType   NftType
+
+  @@unique([nftId, userId])
+}
+
+model Campaign {
+  id               Int                @id @default(autoincrement())
+  name             String
+  isActive         Boolean
+  image            String
+  questions        Question[]
+  createdAt        DateTime           @default(now())
+  dailyLeaderboard DailyLeaderboard[]
+  deck             Deck[]
+}
+
+model DailyLeaderboard {
+  id                  Int       @id @default(autoincrement())
+  user                User      @relation(fields: [userId], references: [id])
+  userId              String
+  campaign            Campaign? @relation(fields: [campaignId], references: [id])
+  campaignId          Int?
+  firstOrderAccuracy  Int?      @default(0)
+  secondOrderAccuracy Int?      @default(0)
+  points              Int?      @default(0)
+  date                DateTime  @default(now()) @db.Date
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+
+  @@unique([userId, campaignId, date], name: "user_campaign_date")
+  @@index([date])
 }
 
 enum QuestionType {
@@ -228,4 +266,9 @@ enum ResultType {
 enum TransactionStatus {
   Pending
   Completed
+}
+
+enum NftType {
+  Genesis
+  Glowburger
 }

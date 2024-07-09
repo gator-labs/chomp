@@ -52,7 +52,7 @@ export function Button({
     {
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
       "border-purple border-[1px]": variant === "pink-border",
-      "bg-disabled": disabled,
+      "!bg-disabled": disabled,
       "text-btn-text-disabled": disabled,
       "cursor-default": disabled,
       "py-2 px-4": size === "small",

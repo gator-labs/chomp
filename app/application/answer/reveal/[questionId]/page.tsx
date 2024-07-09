@@ -20,7 +20,7 @@ import {
   BINARY_QUESTION_TRUE_LABELS,
   getAlphaIdentifier,
 } from "@/app/utils/question";
-import { QuestionType, ResultType } from "@prisma/client";
+import { QuestionType, ResultType, TransactionStatus } from "@prisma/client";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -36,6 +36,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
   const questionResponse = await getQuestionWithUserAnswer(
     Number(params.questionId),
   );
+
   const profile = await getProfileImage();
 
   const sendTransactionSignature =
@@ -46,7 +47,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
   if (
     !questionResponse.isQuestionRevealable ||
     !questionResponse.correctAnswer ||
-    !questionResponse.chompResults[0]
+    questionResponse.chompResults[0]?.transactionStatus !==
+      TransactionStatus.Completed
   ) {
     redirect("/application");
   }
@@ -160,6 +162,10 @@ const RevealAnswerPage = async ({ params }: Props) => {
   }
 
   if (!!answerSelected && !isBinary) {
+    const optionSelected = questionResponse.userAnswers.find(
+      (ua) => ua.percentage !== null,
+    );
+
     answerContent = (
       <>
         <div>
@@ -187,8 +193,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
               percentage: qop.secondOrderAveragePercentagePicked,
             }),
           )}
-          optionSelected={answerSelected.questionOption.option ?? ""}
-          percentageSelected={answerSelected.percentage ?? 0}
+          optionSelected={optionSelected?.questionOption.option ?? ""}
+          percentageSelected={optionSelected?.percentage ?? 0}
           isCorrect={isSecondOrderCorrect}
           avatarSrc={profile}
         />

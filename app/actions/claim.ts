@@ -1,25 +1,32 @@
 "use server";
 
-import { ResultType } from "@prisma/client";
+import { ChompResult, ResultType } from "@prisma/client";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
-import { sendBonk } from "../utils/solana";
+
+import { sendBonk } from "../utils/bonk";
 import { getJwtPayload } from "./jwt";
 
 export async function claimDeck(deckId: number) {
+  console.log("claim deck fired with id ", deckId);
+
   const decks = await claimDecks([deckId]);
   return decks ? decks[0] : null;
 }
 
 export async function claimQuestion(questionId: number) {
+  console.log("claim questions fired");
   const questions = await claimQuestions([questionId]);
   return questions ? questions[0] : null;
 }
 
 export async function claimDecks(deckIds: number[]) {
+  console.log("claim decks fired with deck ids ", deckIds);
+
   const questions = await prisma.deckQuestion.findMany({
     where: {
       deckId: {
@@ -31,14 +38,14 @@ export async function claimDecks(deckIds: number[]) {
   return await claimQuestions(questions.map((q) => q.questionId));
 }
 
-export async function claimAllAvailable() {
+export async function getAllRevealableQuestions() {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return null;
   }
 
-  const revealedChompResults = await prisma.chompResult.findMany({
+  const revealableQuestionsAndAmount = await prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
       result: "Revealed",
@@ -46,10 +53,23 @@ export async function claimAllAvailable() {
     },
     select: {
       questionId: true,
+      rewardTokenAmount: true,
+      burnTransactionSignature: true,
     },
   });
 
-  const questionIds = revealedChompResults.map((rcp) => rcp.questionId ?? 0); // Nulls are filtered in query
+  return revealableQuestionsAndAmount;
+}
+
+export async function claimAllAvailable() {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const revealedChompResults = await getAllRevealableQuestions();
+  const questionIds = revealedChompResults!.map((rcp) => rcp.questionId ?? 0); // Nulls are filtered in query
 
   return await claimQuestions(questionIds);
 }
@@ -87,92 +107,103 @@ export async function claimQuestions(questionIds: number[]) {
       return;
     }
 
-    const treasuryWallet = Keypair.fromSecretKey(
-      base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
-    );
+    await prisma.chompResult.updateMany({
+      where: {
+        id: {
+          in: chompResults.map((r) => r.id),
+        },
+      },
+      data: {
+        result: ResultType.Claimed,
+      },
+    });
 
-    const tokenAmount = chompResults.reduce(
-      (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
-      0,
-    );
+    const sendTx = await handleSendBonk(chompResults, userWallet.address);
 
-    let sendTx: string | null = null;
-    if (tokenAmount > 0) {
-      sendTx = await sendBonk(
-        treasuryWallet,
-        new PublicKey(userWallet.address),
-        Math.round(tokenAmount * 10 ** 5),
-      );
-    }
+    if (!sendTx) throw new Error("Send tx is missing");
 
-    await prisma.$transaction(async (tx) => {
-      await tx.chompResult.updateMany({
-        where: {
-          id: {
-            in: chompResults.map((r) => r.id),
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.chompResult.updateMany({
+          where: {
+            id: {
+              in: chompResults.map((r) => r.id),
+            },
           },
-        },
-        data: {
-          result: ResultType.Claimed,
-          sendTransactionSignature: sendTx,
-        },
-      });
+          data: {
+            sendTransactionSignature: sendTx,
+          },
+        });
 
-      const decks = await tx.deck.findMany({
-        where: {
-          deckQuestions: {
-            every: {
-              question: {
-                chompResults: {
-                  some: {
-                    userId: payload.sub,
-                    result: ResultType.Revealed,
+        const questionIdsClaimed = chompResults.map((cr) => cr.questionId ?? 0);
+        // We're querying dirty data in transaction so we need claimed questions
+        const decks = await tx.deck.findMany({
+          where: {
+            deckQuestions: {
+              some: {
+                questionId: {
+                  in: questionIdsClaimed,
+                },
+              },
+              every: {
+                question: {
+                  chompResults: {
+                    every: {
+                      userId: payload.sub,
+                      result: ResultType.Claimed,
+                    },
                   },
                 },
               },
             },
           },
-        },
-        include: {
-          chompResults: {
-            where: {
-              userId: payload.sub,
+          include: {
+            chompResults: {
+              where: {
+                userId: payload.sub,
+              },
             },
           },
-        },
-      });
-
-      const deckRevealsToUpdate = decks
-        .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
-        .map((deck) => deck.id);
-
-      if (deckRevealsToUpdate.length > 0) {
-        await tx.chompResult.updateMany({
-          where: {
-            deckId: { in: deckRevealsToUpdate },
-          },
-          data: {
-            result: ResultType.Claimed,
-            sendTransactionSignature: sendTx,
-          },
         });
-      }
 
-      const deckRevealsToCreate = decks
-        .filter((deck) => !deck.chompResults || deck.chompResults.length === 0)
-        .map((deck) => deck.id);
+        const deckRevealsToUpdate = decks
+          .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
+          .map((deck) => deck.id);
 
-      if (deckRevealsToCreate.length > 0) {
-        await tx.chompResult.createMany({
-          data: deckRevealsToCreate.map((deckId) => ({
-            deckId,
-            userId: payload.sub,
-            result: ResultType.Claimed,
-            sendTransactionSignature: sendTx,
-          })),
-        });
-      }
-    });
+        if (deckRevealsToUpdate.length > 0) {
+          await tx.chompResult.updateMany({
+            where: {
+              deckId: { in: deckRevealsToUpdate },
+            },
+            data: {
+              result: ResultType.Claimed,
+              sendTransactionSignature: sendTx,
+            },
+          });
+        }
+
+        const deckRevealsToCreate = decks
+          .filter(
+            (deck) => !deck.chompResults || deck.chompResults.length === 0,
+          )
+          .map((deck) => deck.id);
+
+        if (deckRevealsToCreate.length > 0) {
+          await tx.chompResult.createMany({
+            data: deckRevealsToCreate.map((deckId) => ({
+              deckId,
+              userId: payload.sub,
+              result: ResultType.Claimed,
+              sendTransactionSignature: sendTx,
+            })),
+          });
+        }
+      },
+      {
+        isolationLevel: "Serializable",
+        timeout: ONE_MINUTE_IN_MILLISECONDS,
+      },
+    );
 
     release();
     revalidatePath("/application");
@@ -182,4 +213,26 @@ export async function claimQuestions(questionIds: number[]) {
     release();
     throw e;
   }
+}
+
+async function handleSendBonk(chompResults: ChompResult[], address: string) {
+  const treasuryWallet = Keypair.fromSecretKey(
+    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
+  );
+
+  const tokenAmount = chompResults.reduce(
+    (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
+    0,
+  );
+
+  let sendTx: string | null = null;
+  if (tokenAmount > 0) {
+    sendTx = await sendBonk(
+      treasuryWallet,
+      new PublicKey(address),
+      Math.round(tokenAmount * 10 ** 5),
+    );
+  }
+
+  return sendTx;
 }

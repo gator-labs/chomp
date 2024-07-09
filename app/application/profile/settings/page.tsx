@@ -15,7 +15,7 @@ export default async function Page() {
     if (!path) {
       return redirect("/login");
     }
-    return redirect(`/login?next=${encodeURIComponent(path)}`);
+    return redirect(`/login?next=${encodeURIComponent(path!)}`);
   }
 
   return (

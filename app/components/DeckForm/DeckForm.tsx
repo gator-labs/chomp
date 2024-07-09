@@ -3,7 +3,7 @@
 import { useToast } from "@/app/providers/ToastProvider";
 import { deckSchema } from "@/app/schemas/deck";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { QuestionType, Tag as TagType, Token } from "@prisma/client";
+import { Campaign, QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -17,12 +17,18 @@ import { TextInput } from "../TextInput/TextInput";
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
+  campaigns: Campaign[];
   action: (
     data: z.infer<typeof deckSchema>,
   ) => Promise<{ errorMessage?: string } | void>;
 };
 
-export default function DeckForm({ deck, tags, action }: DeckFormProps) {
+export default function DeckForm({
+  deck,
+  tags,
+  campaigns,
+  action,
+}: DeckFormProps) {
   const { errorToast } = useToast();
 
   const {
@@ -49,14 +55,17 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
   });
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
+  const [selectedCampaignId, setSelectedCampaignId] = useState(
+    deck?.campaignId || undefined,
+  );
 
   const onSubmit = handleSubmit(async (data) => {
     const result = await action({
       ...data,
       tagIds: selectedTagIds,
+      campaignId: selectedCampaignId,
       id: deck?.id,
     });
-    console.log(result);
     if (result?.errorMessage) {
       errorToast("Failed to save deck", result.errorMessage);
     }
@@ -178,7 +187,7 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                       </div>
                       {watch(`questions.${questionIndex}.type`) ===
                         QuestionType.BinaryQuestion && (
-                        <div className="w-24 flex justify-center items-center gap-2">
+                        <div className="w-24 flex justify-center items-center gap-2 relative">
                           <div>is left?</div>
                           <input
                             type="checkbox"
@@ -186,6 +195,12 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
                               `questions.${questionIndex}.questionOptions.${optionIndex}.isLeft`,
                             )}
                           />
+                          {!!errors?.questions?.[questionIndex]?.root
+                            ?.message && (
+                            <div className="text-red absolute -bottom-4 left-3 w-96">
+                              {errors.questions[questionIndex]?.root?.message}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -328,7 +343,34 @@ export default function DeckForm({ deck, tags, action }: DeckFormProps) {
         </div>
       </div>
 
+      <div className="mb-4">
+        <label className="block mb-1">Campaign (optional)</label>
+        <div className="flex gap-2">
+          {campaigns.map((campaign) => (
+            <Tag
+              tag={campaign.name}
+              onSelected={() =>
+                setSelectedCampaignId((prev) =>
+                  prev === campaign.id ? undefined : campaign.id,
+                )
+              }
+              isSelected={selectedCampaignId === campaign.id}
+              key={campaign.id}
+            />
+          ))}
+        </div>
+      </div>
+
       <SubmitButton />
     </form>
   );
 }
+
+[
+  {
+    AllowedHeaders: ["*"],
+    AllowedMethods: ["PUT"],
+    AllowedOrigins: ["*"],
+    ExposeHeaders: [],
+  },
+];

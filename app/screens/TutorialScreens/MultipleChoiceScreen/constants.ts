@@ -4,7 +4,7 @@ export const STEPS = [
   {
     text: "Pick the answer you agree with the most.",
     style: {
-      bottom: "80px",
+      bottom: "65px",
       left: "0%",
     },
     isQuestionCardTooltip: true,
@@ -29,10 +29,3 @@ export const STEPS = [
     isTooltip: false,
   },
 ];
-
-export const SELECTED_OPTION = {
-  1: "A",
-  2: "B",
-  3: "C",
-  4: "D",
-};

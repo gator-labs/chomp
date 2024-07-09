@@ -10,15 +10,16 @@ type HistoryFeedRowCardProps = {
 };
 
 export function HistoryFeedRowCard({ element }: HistoryFeedRowCardProps) {
+  if (element.isRevealed && element.type === "Question") {
+    return <ClaimFeedQuestionCard {...element} />;
+  }
   if (element.isRevealable && element.type === "Question") {
     return <RevealFeedQuestionCard {...element} />;
   }
 
-  if (element.isRevealed && element.type === "Question") {
-    return <ClaimFeedQuestionCard {...element} />;
-  }
-
-  let statusLabel = <span className="text-xs leading-6 text-aqua">Chomp now</span>;;
+  let statusLabel = (
+    <span className="text-xs leading-6 text-aqua">Chomp now</span>
+  );
 
   if (element.isChomped) {
     statusLabel = <span className="text-xs leading-6 text-aqua">Chomped</span>;

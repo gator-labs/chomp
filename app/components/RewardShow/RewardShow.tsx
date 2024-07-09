@@ -46,7 +46,7 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
       <div className="flex bg-[#333333] p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold leading-[27px] text-left">
-            Congrats, you won!
+            {rewardAmount === 5000 ? "Well done!" : "Congrats, you won!"}
           </span>
           <div className="h-[1px] w-full bg-[#666666]" />
           <div className="flex items-center gap-1 justify-between">
@@ -58,10 +58,11 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
                 status === "claimable" && !isClaiming && onClaim()
               }
               variant="white"
-              className={classNames(
-                "cursor-pointer",
-                { "opacity-50 cursor-not-allowed": isClaiming }, // Add disabled styles
-              )}
+              className={classNames({
+                "opacity-50 cursor-not-allowed": isClaiming,
+                "!cursor-auto": status === "claimed",
+                "!cursor-pointer": status === "claimable",
+              })}
             >
               <p className="text-[10px] font-bold leading-[12.6px] text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
@@ -87,7 +88,7 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
             Claim reward:
           </p>
-          <Pill variant="white" className="cursor-pointer">
+          <Pill variant="white" className="!cursor-auto">
             <p className="text-[10px] font-bold leading-[12.6px] text-center ">
               0 BONK
             </p>

@@ -1,6 +1,7 @@
 import { QuestionType } from "@prisma/client";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
+import { getAverage } from "./array";
 
 export const calculateCorrectAnswer = async (questionIds: number[]) => {
   const questions = await prisma.question.findMany({
@@ -182,19 +183,13 @@ export const calculateReward = async (
     include: {
       questionOptions: {
         include: {
-          questionAnswers: {
-            where: {
-              percentage: {
-                not: null,
-              },
-            },
-          },
+          questionAnswers: true,
         },
       },
     },
   });
 
-  let rewardTotal = 0;
+  const rewardsPerQuestionId: Record<number, number> = {};
 
   for (const question of questions) {
     const optionsList = question.questionOptions.map((option) => option.id);
@@ -202,41 +197,90 @@ export const calculateReward = async (
 
     const userAnswer = question.questionOptions
       .flatMap((option) => option.questionAnswers)
+      .filter((answer) =>
+        question.type === QuestionType.BinaryQuestion
+          ? answer.percentage !== null
+          : answer,
+      )
       .find((answer) => answer.userId === userId && answer.selected);
 
     if (!userAnswer) {
       return;
     }
 
+    let body = {
+      first_order_choice: "",
+      first_order_actual: "",
+      second_order_estimate: 0,
+      second_order_mean: 0,
+      second_order_estimates: [0],
+    };
+
     const correctOptionIndex = question.questionOptions.findIndex(
       (option) => option.isCorrect,
     );
-
     const calculatedCorrectOptionIndex = question.questionOptions.findIndex(
       (option) => option.calculatedIsCorrect,
     );
 
-    const correctOption = question.questionOptions[correctOptionIndex];
+    if (question.type === QuestionType.BinaryQuestion) {
+      const correctOption = question.questionOptions[correctOptionIndex];
 
-    const calculatedCorrectOption =
-      question.questionOptions[calculatedCorrectOptionIndex];
+      const calculatedCorrectOption =
+        question.questionOptions[calculatedCorrectOptionIndex];
 
-    const body = {
-      first_order_choice:
-        inputList[optionsList.indexOf(userAnswer.questionOptionId)],
-      first_order_actual:
-        inputList[
-          correctOptionIndex === -1
-            ? calculatedCorrectOptionIndex
-            : correctOptionIndex
-        ],
-      second_order_estimate: userAnswer.percentage,
-      second_order_mean: (correctOption || calculatedCorrectOption)
-        ?.calculatedAveragePercentage,
-      second_order_estimates: question.questionOptions
-        .find((option) => option.id === userAnswer.questionOptionId)
-        ?.questionAnswers.map((answer) => answer.percentage),
-    };
+      const second_order_estimates = (
+        correctOption || calculatedCorrectOption
+      )?.questionAnswers
+        .filter((answer) => answer.selected)
+        .map((answer) => answer.percentage!);
+
+      body = {
+        first_order_choice:
+          inputList[optionsList.indexOf(userAnswer.questionOptionId)],
+        first_order_actual:
+          inputList[
+            correctOptionIndex === -1
+              ? calculatedCorrectOptionIndex
+              : correctOptionIndex
+          ],
+        second_order_estimate: userAnswer.percentage!,
+        second_order_mean: getAverage(second_order_estimates),
+        second_order_estimates,
+      };
+    }
+
+    if (question.type === QuestionType.MultiChoice) {
+      const questionOptionAnswers = question.questionOptions.flatMap(
+        (option) => option.questionAnswers,
+      );
+
+      const estimatedOption = questionOptionAnswers.find(
+        (answer) => answer.userId === userId && answer.percentage !== null,
+      );
+
+      const second_order_estimates = questionOptionAnswers
+        .filter(
+          (answer) =>
+            estimatedOption?.questionOptionId === answer.questionOptionId &&
+            answer.percentage !== null,
+        )
+        .map((answer) => answer.percentage!);
+
+      body = {
+        first_order_choice:
+          inputList[optionsList.indexOf(userAnswer.questionOptionId)],
+        first_order_actual:
+          inputList[
+            correctOptionIndex === -1
+              ? calculatedCorrectOptionIndex
+              : correctOptionIndex
+          ],
+        second_order_estimate: estimatedOption!.percentage!,
+        second_order_mean: getAverage(second_order_estimates),
+        second_order_estimates: second_order_estimates,
+      };
+    }
 
     console.log(
       "user",
@@ -249,6 +293,8 @@ export const calculateReward = async (
 
     const { rewards } = await getMechanismEngineResponse("rewards", body);
 
+    rewardsPerQuestionId[question.id] = rewards * 1 ?? 0;
+
     console.log(
       "user",
       userId,
@@ -258,11 +304,9 @@ export const calculateReward = async (
       question.id,
       "question",
     );
-
-    rewardTotal += +rewards;
   }
 
-  console.log("rewardsTotal", rewardTotal, "user", userId);
+  console.log("user", userId, "for questions ", questionIds);
 
-  return rewardTotal;
+  return rewardsPerQuestionId;
 };

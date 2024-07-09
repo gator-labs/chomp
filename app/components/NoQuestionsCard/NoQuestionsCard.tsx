@@ -1,14 +1,18 @@
 "use client";
 
 import { Button } from "../Button/Button";
-import { TrophyGraphic } from "../Graphics/TrophyGraphic";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 import { QUESTION_CARD_CONTENT } from "./constants";
 
 import { useRouter } from "next-nprogress-bar";
 
 type NoQuestionsCardProps = {
-  variant: "daily-deck" | "regular-deck" | "answer-page";
+  variant:
+    | "daily-deck"
+    | "regular-deck"
+    | "answer-page"
+    | "answered-none"
+    | "answered-some";
   browseHomeUrl?: string;
 };
 
@@ -37,7 +41,9 @@ export function NoQuestionsCard({
             {QUESTION_CARD_CONTENT[variant].body}
           </div>
         </div>
-        <TrophyGraphic className="absolute bottom-2.5 right-4" />
+        <div className="absolute bottom-2.5 right-4">
+          {QUESTION_CARD_CONTENT[variant].backgroundIcon}
+        </div>
       </div>
       {hasBrowseHome && (
         <Button
