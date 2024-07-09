@@ -10,7 +10,6 @@ import { CONNECTION } from "@/app/utils/solana";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
-import { ShareIcon } from "../Icons/ShareIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 
@@ -80,18 +79,6 @@ const ClaimButton = ({
           >
             Claim <DollarIcon fill="#666666" />
           </Button>
-          <Button
-            variant="grayish"
-            onClick={async () =>
-              handleCopy({
-                text: currentURL,
-                infoText: "Question link copied to clipboard!",
-              })
-            }
-            className="flex gap-1 h-[50px]"
-          >
-            Share <ShareIcon />
-          </Button>
         </div>
       </div>
     );
@@ -126,18 +113,6 @@ const ClaimButton = ({
             <span>Claim</span>
             <DollarIcon height={24} width={24} />
           </Button>
-          <Button
-            variant="grayish"
-            onClick={async () =>
-              handleCopy({
-                text: currentURL,
-                infoText: "Question link copied to clipboard!",
-              })
-            }
-            className="flex gap-1 h-[50px]"
-          >
-            Share <ShareIcon />
-          </Button>
         </div>
       </div>
     );
@@ -169,18 +144,6 @@ const ClaimButton = ({
             <span className="text-[#666666]">Claimed</span>
             <DollarIcon height={24} width={24} fill="#666666" />
           </Button>
-          <Button
-            variant="grayish"
-            onClick={async () =>
-              handleCopy({
-                text: currentURL,
-                infoText: "Question link copied to clipboard!",
-              })
-            }
-            className="flex gap-1 h-[50px]"
-          >
-            Share <ShareIcon />
-          </Button>
         </div>
       </div>
     );
@@ -209,18 +172,6 @@ const ClaimButton = ({
         >
           <span className="text-[#666666]">Unclaimable</span>
           <DollarIcon height={24} width={24} fill="#666666" />
-        </Button>
-        <Button
-          variant="grayish"
-          onClick={async () =>
-            handleCopy({
-              text: currentURL,
-              infoText: "Question link copied to clipboard!",
-            })
-          }
-          className="flex gap-1 h-[50px]"
-        >
-          Share <ShareIcon />
         </Button>
       </div>
     </div>
