@@ -1,64 +1,49 @@
-// // pages/api/validate-initdata.js
-import { NextApiResponse } from "next";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 import crypto from "crypto";
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
 
-const validateTelegramData = (initData: any) => {
+export async function POST(req: NextRequest) {
+  const data = await req.json();
+
+  const initData = data?.initData;
+
   const queryString = new URLSearchParams(initData);
-  const data = Object.fromEntries(queryString.entries());
+  const dataEnteries = Object.fromEntries(queryString.entries());
 
-  const hash = data.hash;
-  delete data.hash;
+  const hash = dataEnteries?.hash;
+  delete dataEnteries?.hash;
 
-  const dataCheckString = Object.keys(data)
+  const dataCheckString = Object.keys(dataEnteries)
     .sort()
-    .map((key) => `${key}=${data[key]}`)
+    .map((key) => `${key}=${dataEnteries[key]}`)
     .join("\n");
-
-  console.log(dataCheckString, "d");
 
   const secretKey = crypto
     .createHmac("sha256", "WebAppData")
     .update(BOT_TOKEN)
     .digest();
 
-  console.log(secretKey, "s");
-
   const computedHash = crypto
     .createHmac("sha256", secretKey)
     .update(dataCheckString)
     .digest("hex");
 
-  console.log(computedHash, "c");
-
-  // console.log(computedHash !== hash);
-
   if (computedHash !== hash) {
-    return false;
+    return new Response(`Hash not matched`, {
+      status: 400,
+    });
   }
 
   const currentTime = Math.floor(Date.now() / 1000);
-  const authDate = parseInt(data.auth_date, 10);
+  const authDate = parseInt(dataEnteries.auth_date, 10);
 
   if (currentTime - authDate > 86400) {
-    // 86400 seconds = 24 hours
-    return false;
+    return new Response(`Req expired`, {
+      status: 400,
+    });
   }
 
-  return true;
-};
-
-export async function POST(req: NextRequest, res: NextApiResponse) {
-  const data = await req.json();
-  // console.log(data, req.body);
-  const resD = validateTelegramData(data?.initData);
-  return NextResponse.json({ message: resD }, { status: 200 });
-  // if () {
-
-  // } else {
-  //   return res.json({ valid: false });
-  // }
+  return Response.json({ message: dataEnteries?.user }, { status: 200 });
 }
