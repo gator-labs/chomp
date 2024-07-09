@@ -1,7 +1,5 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
-import { useCopyToClipboard } from "@/app/hooks/useCopyToClipboard";
-import useCurrentUrl from "@/app/hooks/useCurrentUrl";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
@@ -33,8 +31,6 @@ const ClaimButton = ({
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
   const { isClaiming, setIsClaiming } = useClaiming();
-  const currentURL = useCurrentUrl();
-  const { handleCopy } = useCopyToClipboard();
 
   const onClick = async () => {
     try {
