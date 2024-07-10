@@ -2,8 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { getLeaderboard } from "@/app/actions/leaderboard";
+import { getLeaderboard, getPreviousUserRank } from "@/app/actions/leaderboard";
 import { nthNumber } from "@/app/utils/number";
+import { cn } from "@/app/utils/tailwind";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { User } from "@prisma/client";
 import Link from "next/link";
@@ -11,8 +12,10 @@ import { useEffect, useState } from "react";
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
 import Chip from "../Chip/Chip";
+import DownIcon from "../Icons/DownIcon";
 import { HalfArrowLeftIcon } from "../Icons/HalfArrowLeftIcon";
 import { SpinnerIcon } from "../Icons/ToastIcons/SpinnerIcon";
+import UpIcon from "../Icons/UpIcon";
 import LeaderboardRanking from "../LeaderboardRanking/LeaderboardRanking";
 import { FILTERS } from "./constants";
 
@@ -25,7 +28,7 @@ interface Props {
   isLeaderboardActive?: boolean;
 }
 
-interface Ranking {
+export interface Ranking {
   user: {
     wallets: {
       address: string;
@@ -68,6 +71,9 @@ const Leaderboard = ({
     loggedInUserRank: undefined,
     loggedInUserPoints: undefined,
   });
+  const [previousUserRank, setPreviousUserRank] = useState<number | undefined>(
+    undefined,
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -83,6 +89,13 @@ const Leaderboard = ({
       setLoggedInUserScore(res?.loggedInUserScore);
       setRanking(res?.ranking || []);
       setIsLoading(false);
+
+      if (variant !== "campaign") {
+        const rank = await getPreviousUserRank(variant, filter);
+        setPreviousUserRank(rank);
+      } else {
+        setPreviousUserRank(undefined);
+      }
     };
 
     setIsLoading(true);
@@ -93,6 +106,11 @@ const Leaderboard = ({
         | "chompedQuestions",
     );
   }, [activeFilter, campaignId]);
+
+  const rankDifference =
+    previousUserRank && loggedInUserScore?.loggedInUserRank
+      ? previousUserRank - loggedInUserScore?.loggedInUserRank
+      : undefined;
 
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
@@ -114,20 +132,44 @@ const Leaderboard = ({
       </div>
 
       <div className="p-4 rounded-lg bg-[#333333] gap-4 flex">
-        <Avatar
-          src={loggedUser.profileSrc || AvatarPlaceholder.src}
-          size="medium"
-        />
-        <div className="flex flex-col gap-2 flex-1">
-          <span className="text-xs text-[#999999]">
+        <div className="h-10">
+          <Avatar
+            src={loggedUser.profileSrc || AvatarPlaceholder.src}
+            size="medium"
+          />
+        </div>
+        <div className="flex flex-col gap-2 flex-1 justify-center">
+          <span className="text-xs leading-[7px] text-[#999999]">
             {variant === "campaign"
               ? "All time ranking"
               : variant === "daily"
                 ? "Today"
                 : "This week"}
           </span>
-          <div className="flex justify-between items-center">
-            <p className="text-[15px] leading-[17.25px] font-bold">
+          {!!rankDifference && (
+            <div className="flex gap-1 items-center">
+              {rankDifference > 1 ? (
+                <UpIcon fill="#6DECAF" />
+              ) : (
+                <DownIcon fill="#ED6A5A" />
+              )}
+              <p
+                className={cn("text-[15px] leading-[11px] font-bold", {
+                  "text-[#6DECAF]": rankDifference > 0,
+                  "text-[#ED6A5A]": rankDifference < 0,
+                })}
+              >
+                {Math.abs(rankDifference)}
+                {Math.abs(rankDifference) > 1 ? " Places" : " Place"}
+              </p>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <p
+              className={cn("text-xs leading-[7px]", {
+                "text-[15px] leading-[11px] font-bold": !rankDifference,
+              })}
+            >
               {!!loggedInUserScore?.loggedInUserRank
                 ? `Ranking ${loggedInUserScore.loggedInUserRank}${nthNumber(loggedInUserScore.loggedInUserRank)} place`
                 : "- No Ranking Yet"}

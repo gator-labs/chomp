@@ -28,14 +28,16 @@ export const getWeekStartAndEndDates = (
   };
 };
 
-export const getStartAndEndOfDay = (): {
+export const getStartAndEndOfDay = (
+  date: Date,
+): {
   startOfTheDay: Date;
   endOfTheDay: Date;
 } => {
-  var startOfTheDay = new Date();
+  var startOfTheDay = new Date(date);
   startOfTheDay.setUTCHours(0, 0, 0, 0);
 
-  var endOfTheDay = new Date();
+  var endOfTheDay = new Date(date);
   endOfTheDay.setUTCHours(23, 59, 59, 999);
 
   return {

@@ -1,6 +1,10 @@
 "use server";
 
 import { FungibleAsset, ResultType } from "@prisma/client";
+
+import { kv } from "@/lib/kv";
+import { differenceInSeconds, subDays } from "date-fns";
+import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
   getNumberOfChompedQuestionsOfCampaignQuery,
   getNumberOfChompedQuestionsQuery,
@@ -8,19 +12,120 @@ import {
 import { getCurrentUser } from "../queries/user";
 import prisma from "../services/prisma";
 import { getStartAndEndOfDay, getWeekStartAndEndDates } from "../utils/date";
-
 interface LeaderboardProps {
   variant: "weekly" | "daily" | "campaign";
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions";
   campaignId?: number;
 }
 
+export const getPreviousUserRank = async (
+  variant: "weekly" | "daily",
+  filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions",
+) => {
+  const currentUser = await getCurrentUser();
+  const dateRange = getDateRange(variant, true);
+  const { endDate: expirationDate } = getDateRange(variant)!;
+
+  const dateFilter = {
+    createdAt: {
+      gte: dateRange!.startDate,
+      lte: dateRange!.endDate,
+    },
+  };
+
+  const key = `${variant}-${filter}`;
+
+  if (filter === "totalPoints") {
+    const cachedRanking = (await kv.get(key)) as Ranking[] | null;
+
+    console.log({ cachedRanking });
+
+    if (!!cachedRanking) {
+      return cachedRanking.find(
+        (ranking) => ranking.user.id === currentUser?.id,
+      )?.rank;
+    }
+
+    const totalPoints = await getTotalPoints(dateFilter);
+
+    const expirationInSeconds = Math.abs(
+      differenceInSeconds(new Date(), expirationDate),
+    );
+
+    await kv.set(key, JSON.stringify(totalPoints.ranking), {
+      ex: expirationInSeconds,
+    });
+
+    return totalPoints.ranking.find(
+      (ranking) => ranking.user.id === currentUser?.id,
+    )?.rank;
+  }
+
+  if (filter === "totalBonkClaimed") {
+    const cachedRanking = (await kv.get(key)) as Ranking[] | null;
+
+    if (!!cachedRanking) {
+      return cachedRanking.find(
+        (ranking) => ranking.user.id === currentUser?.id,
+      )?.rank;
+    }
+
+    const totalBonkClaimed = await getTotalBonkClaimed(dateFilter);
+
+    const expirationInSeconds = Math.abs(
+      differenceInSeconds(new Date(), expirationDate),
+    );
+
+    await kv.set(key, JSON.stringify(totalBonkClaimed.ranking), {
+      ex: expirationInSeconds,
+    });
+
+    return totalBonkClaimed.ranking.find(
+      (ranking) => ranking.user.id === currentUser?.id,
+    )?.rank;
+  }
+
+  if (filter === "chompedQuestions") {
+    const cachedRanking = (await kv.get(key)) as Ranking[] | null;
+
+    if (!!cachedRanking) {
+      return cachedRanking.find(
+        (ranking) => ranking.user.id === currentUser?.id,
+      )?.rank;
+    }
+
+    const chompedQuestions = await getNumberOfChompedQuestions(dateFilter);
+
+    const expirationInSeconds = Math.abs(
+      differenceInSeconds(new Date(), expirationDate),
+    );
+
+    await kv.set(key, JSON.stringify(chompedQuestions.ranking), {
+      ex: expirationInSeconds,
+    });
+
+    return chompedQuestions.ranking.find(
+      (ranking) => ranking.user.id === currentUser?.id,
+    )?.rank;
+  }
+};
+
 export const getLeaderboard = async ({
   filter,
   variant,
   campaignId,
 }: LeaderboardProps) => {
-  const dateFilter = variant === "campaign" ? {} : getDateFilter(variant)!;
+  let dateFilter = {};
+
+  if (variant !== "campaign") {
+    const dateRange = getDateRange(variant);
+    dateFilter = {
+      createdAt: {
+        gte: dateRange!.startDate,
+        lte: dateRange!.endDate,
+      },
+    };
+  }
 
   if (filter === "totalPoints") return getTotalPoints(dateFilter, campaignId);
 
@@ -192,28 +297,27 @@ const mapLeaderboardData = async (
   };
 };
 
-const getDateFilter = (variant: "weekly" | "daily", previous?: boolean) => {
+const getDateRange = (variant: "weekly" | "daily", previous?: boolean) => {
+  console.log({ variant });
   if (variant === "weekly") {
     const { startDateOfTheWeek, endDateOfTheWeek } = getWeekStartAndEndDates(
-      new Date(),
+      subDays(new Date(), previous ? 7 : 0),
     );
 
     return {
-      createdAt: {
-        gte: startDateOfTheWeek,
-        lte: endDateOfTheWeek,
-      },
+      startDate: startDateOfTheWeek,
+      endDate: endDateOfTheWeek,
     };
   }
 
   if (variant === "daily") {
-    const { startOfTheDay, endOfTheDay } = getStartAndEndOfDay();
+    const { startOfTheDay, endOfTheDay } = getStartAndEndOfDay(
+      subDays(new Date(), previous ? 1 : 0),
+    );
 
     return {
-      createdAt: {
-        gte: startOfTheDay,
-        lte: endOfTheDay,
-      },
+      startDate: startOfTheDay,
+      endDate: endOfTheDay,
     };
   }
 };
