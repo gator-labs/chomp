@@ -141,16 +141,13 @@ export async function revealQuestions(
         payload.sub,
       );
 
-    const rewardsPerQuestionId = await calculateReward(
+    const questionRewards = await calculateReward(
       payload.sub,
       revealableQuestionIds,
     );
 
-    const revealPoints = await calculateRevealPoints(
-      Object.values(rewardsPerQuestionId!),
-    );
+    const revealPoints = await calculateRevealPoints(questionRewards);
 
-    console.log(revealPoints);
     const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
 
     await prisma.$transaction(async (tx) => {
@@ -169,12 +166,12 @@ export async function revealQuestions(
 
       await tx.chompResult.createMany({
         data: [
-          ...revealableQuestionIds.map((questionId) => ({
-            questionId,
+          ...questionRewards.map((questionReward) => ({
+            questionId: questionReward.questionId,
             userId: payload.sub,
             result: ResultType.Revealed,
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: rewardsPerQuestionId?.[questionId],
+            rewardTokenAmount: questionReward.rewardAmount,
             transactionStatus: TransactionStatus.Completed,
           })),
           ...decksToAddRevealFor.map((deck) => ({
@@ -205,29 +202,29 @@ export async function revealQuestions(
         },
       });
 
-      const campaignId = revealableQuestions[0].campaignId;
+      // const campaignId = revealableQuestions[0].campaignId;
 
-      if (!!campaignId) {
-        const currentDate = new Date();
+      // if (!!campaignId) {
+      //   const currentDate = new Date();
 
-        await tx.dailyLeaderboard.upsert({
-          where: {
-            user_campaign_date: {
-              userId: payload.sub,
-              campaignId: revealableQuestions[0].campaignId!,
-              date: currentDate,
-            },
-          },
-          create: {
-            userId: payload.sub,
-            campaignId: revealableQuestions[0].campaignId,
-            points: pointsAmount,
-          },
-          update: {
-            points: { increment: pointsAmount },
-          },
-        });
-      }
+      //   await tx.dailyLeaderboard.upsert({
+      //     where: {
+      //       user_campaign_date: {
+      //         userId: payload.sub,
+      //         campaignId: revealableQuestions[0].campaignId!,
+      //         date: currentDate,
+      //       },
+      //     },
+      //     create: {
+      //       userId: payload.sub,
+      //       campaignId: revealableQuestions[0].campaignId,
+      //       points: pointsAmount,
+      //     },
+      //     update: {
+      //       points: { increment: pointsAmount },
+      //     },
+      //   });
+      // }
 
       await tx.fungibleAssetTransactionLog.createMany({
         data: revealPoints.map((revealPointsTx) => ({
@@ -235,6 +232,7 @@ export async function revealQuestions(
           type: revealPointsTx.type,
           change: revealPointsTx.amount,
           userId: payload.sub,
+          questionId: revealPointsTx.questionId,
         })),
       });
     });
