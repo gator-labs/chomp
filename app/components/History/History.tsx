@@ -109,7 +109,7 @@ export default function History({ sort, type }: HistoryProps) {
   };
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <TotalRewardsClaimAll
         totalRevealedRewards={rewards.totalRevealedRewards}
         onRefresh={onRefreshCards}
@@ -197,6 +197,6 @@ export default function History({ sort, type }: HistoryProps) {
       {response && (
         <HistoryFeed list={response} elementToScrollToId={scrollToId} />
       )}
-    </>
+    </div>
   );
 }

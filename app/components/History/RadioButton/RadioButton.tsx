@@ -1,14 +1,14 @@
-export type RadioButtonProps = {
-  value: string;
-  checked: boolean;
+import { cn } from "@/app/utils/tailwind";
+import { InputHTMLAttributes } from "react";
+
+interface RadioButtonProps extends InputHTMLAttributes<HTMLInputElement> {
   text: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void; // Specify the correct type for the onChange event handler
-};
+}
 
 export default function RadioButton({
+  text,
   value,
   checked,
-  text,
   onChange,
 }: RadioButtonProps) {
   return (
@@ -18,10 +18,18 @@ export default function RadioButton({
         type="radio"
         value={value}
         name="default-radio"
-        className="w-4 h-4 text-[#A3A3EC] bg-gray-100 border-gray-300 focus:ring-[#CFC5F7] dark:focus:ring-[#A3A3EC] dark:ring-[#A3A3EC focus:ring-2 dark:ring-[#A3A3EC dark:ring-[#A3A3EC"
+        className={cn(
+          "appearance-none w-6 h-6 border-2 rounded-[40px] border-[#999999] bg-[#FFFFFF]",
+          {
+            "border-[#CFC5F7]": checked,
+          },
+        )}
         onChange={onChange}
         checked={checked}
       />
+      {checked && (
+        <div className="absolute w-4 h-4 rounded-full bg-[#A3A3EC] ml-1" />
+      )}
       <label className="ms-2 text-sm font-sora font-light text-[#FFFFFF]">
         {text}
       </label>
