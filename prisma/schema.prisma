@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = "postgresql://postgres:postgres@localhost:5432/chomp-db?schema=public"
-  directUrl = "postgresql://postgres:postgres@localhost:5432/chomp-db?schema=public"
+  url       = env("DATABASE_PRISMA_URL")
+  directUrl = env("DATABASE_URL_NON_POOLING")
 }
 
 model User {

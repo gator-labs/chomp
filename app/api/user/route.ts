@@ -15,16 +15,16 @@ export async function GET(req: Request) {
     const email = searchParams.get("email");
   
     if (!email || Array.isArray(email)) {
-      return Response.json("telegramId parameter is required", { status: 400 });
+      return Response.json("email parameter is required", { status: 400 });
     }
   
-    const profiles = await getUserByEmail(email);
+    const profile = await getUserByEmail(email);
   
-    if (!profiles) {
+    if (!profile) {
       return Response.json("No data found", { status: 404 });
     }
   
-    return Response.json({ profiles });
+    return Response.json({ profile });
   }
 
 export async function POST(req: Request) {

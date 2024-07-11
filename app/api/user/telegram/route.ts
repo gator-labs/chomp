@@ -18,13 +18,13 @@ export async function GET(req: Request) {
     return Response.json("telegramId parameter is required", { status: 400 });
   }
 
-  const profiles = await getUserByTelegram(telegramId as string);
+  const profile = await getUserByTelegram(telegramId as string);
 
-  if (!profiles) {
+  if (!profile) {
     return Response.json("No data found", { status: 404 });
   }
 
-  return Response.json({ profiles });
+  return Response.json({ profile });
 }
 
 export async function POST(req: Request) {
