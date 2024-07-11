@@ -63,7 +63,7 @@ export function Deck({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const { random, generateRandom } = useRandom({
+  const { random, generateRandom, setRandom } = useRandom({
     min: 0,
     max:
       questions[currentQuestionIndex] &&
@@ -126,6 +126,9 @@ export function Deck({
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setDeckResponse((prev) => [
           ...prev,
           { questionId: question.id, questionOptionId: number },

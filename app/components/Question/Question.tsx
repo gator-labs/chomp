@@ -49,7 +49,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
   );
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const { random } = useRandom({
+  const { random, setRandom } = useRandom({
     min: 0,
     max:
       question.questionOptions.length > 0
@@ -86,6 +86,9 @@ export function Question({ question, returnUrl }: QuestionProps) {
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setAnswerState({ questionId: question.id, questionOptionId: number });
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 

@@ -12,5 +12,5 @@ export function useRandom({ min, max }: RandomProps) {
     setRandom(getRandomInteger(min, max));
   }, [setRandom]);
 
-  return { random, generateRandom };
+  return { random, generateRandom, setRandom };
 }
