@@ -32,31 +32,33 @@ export async function addTutorialPoints(
   const totalNumberOfTutorialQuestions = 2;
 
   const fungibleAssetRevealTasks = [
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      totalNumberOfTutorialQuestions *
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount:
+        totalNumberOfTutorialQuestions *
         pointsPerAction[TransactionLogType.AnswerQuestion],
-      TransactionLogType.AnswerQuestion,
-    ),
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.AnswerDeck],
-      TransactionLogType.AnswerDeck,
-    ),
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.RevealAnswer],
-      TransactionLogType.RevealAnswer,
-    ),
+      transactionLogType: TransactionLogType.AnswerQuestion,
+    }),
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerDeck],
+      transactionLogType: TransactionLogType.AnswerDeck,
+    }),
+
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.RevealAnswer],
+      transactionLogType: TransactionLogType.RevealAnswer,
+    }),
   ];
 
   if (isCorrectFirstOrderMultipleQuestion)
     fungibleAssetRevealTasks.push(
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        pointsPerAction[TransactionLogType.CorrectFirstOrder],
-        TransactionLogType.CorrectFirstOrder,
-      ),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.CorrectFirstOrder],
+        transactionLogType: TransactionLogType.CorrectFirstOrder,
+      }),
     );
 
   await Promise.all(fungibleAssetRevealTasks);
@@ -135,20 +137,20 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     });
 
     const fungibleAssetRevealTasks = [
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        questionIds.length * pointsPerAction[TransactionLogType.AnswerQuestion],
-        TransactionLogType.AnswerQuestion,
-        tx,
-        deck?.campaignId,
-      ),
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        pointsPerAction[TransactionLogType.AnswerDeck],
-        TransactionLogType.AnswerDeck,
-        tx,
-        deck?.campaignId,
-      ),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+        transactionLogType: TransactionLogType.AnswerQuestion,
+        injectedPrisma: tx,
+        questionIds,
+      }),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerDeck],
+        transactionLogType: TransactionLogType.AnswerDeck,
+        injectedPrisma: tx,
+        deckIds: [deckId],
+      }),
     ];
 
     await updateStreak(userId);
@@ -228,13 +230,13 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       data: questionAnswers,
     });
 
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.AnswerQuestion],
-      TransactionLogType.AnswerQuestion,
-      tx,
-      question?.campaignId,
-    );
+    await incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+      transactionLogType: TransactionLogType.AnswerQuestion,
+      injectedPrisma: tx,
+      questionIds: [request.questionId],
+    });
 
     await updateStreak(userId);
   });

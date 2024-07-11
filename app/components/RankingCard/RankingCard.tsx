@@ -4,7 +4,7 @@ import { cn } from "@/app/utils/tailwind";
 interface Props {
   name: string;
   imageSrc: string;
-  points: number;
+  value: number;
   loggedUserId: string;
   userId: string;
   rank: number;
@@ -13,7 +13,7 @@ interface Props {
 const RankingCard = ({
   name,
   imageSrc,
-  points,
+  value,
   loggedUserId,
   userId,
   rank,
@@ -44,7 +44,7 @@ const RankingCard = ({
         <Avatar src={imageSrc} size="medium" />
         <p className="ml-6 text-sm">{name}</p>
       </div>
-      <p className="text-base font-bold">{points}</p>
+      <p className="text-base font-bold">{value.toLocaleString("en-US")}</p>
     </li>
   );
 };

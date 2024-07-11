@@ -1,4 +1,10 @@
-import { PrismaClient, QuestionType, Token } from "@prisma/client";
+import {
+  FungibleAsset,
+  PrismaClient,
+  QuestionType,
+  Token,
+  TransactionLogType,
+} from "@prisma/client";
 import { format } from "date-fns";
 import { generateUsers } from "./utils";
 
@@ -77,14 +83,6 @@ async function main() {
 
   console.log(`Created ${users.length} users`);
 
-  await prisma.dailyLeaderboard.createMany({
-    data: users.map((user) => ({
-      userId: user.id,
-      campaignId: campaign.id,
-      points: Math.floor(Math.random() * (100 - 1 + 1) + 1),
-    })),
-  });
-
   const questionOptions = await prisma.questionOption.findMany({
     where: {
       question: {
@@ -99,7 +97,6 @@ async function main() {
 
   let secondOrderOptionIndex = 0;
 
-  console.log(questionOptions);
   for (const user of users) {
     const selectedOption = questionOptions[Math.floor(Math.random() * 4)];
     const secondOrderOption = questionOptions[secondOrderOptionIndex];
@@ -118,6 +115,16 @@ async function main() {
           percentage: percentage,
           selected: isSelectedOption,
           timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
+        },
+      });
+
+      await prisma.fungibleAssetTransactionLog.create({
+        data: {
+          userId: user.id,
+          questionId: option.questionId,
+          asset: FungibleAsset.Point,
+          change: Math.floor(Math.random() * 100),
+          type: TransactionLogType.AnswerQuestion,
         },
       });
     }
