@@ -11,9 +11,9 @@ export default function Page() {
   const [message, setMessage] = useState("Answering question...");
 
   useEffect(() => {
-    const vals = searchParams.get("vals");
+    const vals = searchParams?.get("vals");
     const [questionId, questionOptionId, percentageGiven] = vals!.split("~");
-    const percentageGivenForAnswerId = searchParams.get(
+    const percentageGivenForAnswerId = searchParams?.get(
       "percentageGivenForAnswerId",
     );
 

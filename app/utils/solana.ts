@@ -29,13 +29,13 @@ export const genBonkBurnTx = async (
     burnFromPublic, // owner
   );
 
-  const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: 100_000,
-  });
-
   const tx = new Transaction();
 
-  tx.add(addPriorityFee);
+  const priorityFeeInstruction = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: 100000,
+  });
+
+  tx.add(priorityFeeInstruction);
 
   tx.add(
     createBurnCheckedInstruction(

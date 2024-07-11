@@ -57,7 +57,7 @@ export const getTokenBalances = async (addr: string | string[]) => {
 };
 
 export const getUserAssets = async (address: string) => {
-  return dasUmi.rpc.getAssetsByOwner({
+  return (dasUmi.rpc as any).getAssetsByOwner({
     owner: publicKey(address),
   });
 };

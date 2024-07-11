@@ -1,7 +1,6 @@
 "use client";
 
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import { shortenWalletAddress } from "@dynamic-labs/sdk-react-core";
 import { User, Wallet } from "@prisma/client";
 import RankingCard from "../RankingCard/RankingCard";
 
@@ -32,9 +31,9 @@ const CampaignRanking = ({ ranking, loggedUserId }: Props) => {
                 points={rankItem.points}
                 rank={rankItem.rank}
                 // TODO: remove this when merge to prod
-                name={shortenWalletAddress(
-                  rankItem.user.wallets[0]?.address || "mocked user",
-                )}
+                name={
+                  rankItem.user.wallets[0]?.address?.slice(-6) || "mocked user"
+                }
                 loggedUserId={loggedUserId}
                 userId={rankItem.user.id}
                 imageSrc={rankItem.user!.profileSrc || AvatarPlaceholder.src}
