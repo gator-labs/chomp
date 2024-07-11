@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_PRISMA_URL")
-  directUrl = env("DATABASE_URL_NON_POOLING")
+  url       = "postgresql://postgres:postgres@localhost:5432/chomp-db?schema=public"
+  directUrl = "postgresql://postgres:postgres@localhost:5432/chomp-db?schema=public"
 }
 
 model User {
@@ -13,6 +13,7 @@ model User {
   isAdmin                     Boolean                       @default(false)
   createdAt                   DateTime                      @default(now())
   updatedAt                   DateTime                      @default(now()) @updatedAt
+  telegramId                  String?
   firstName                   String?
   lastName                    String?
   username                    String?
