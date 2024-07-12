@@ -155,7 +155,7 @@ const mapQuestionFromDeck = (
 
 export async function getDecks() {
   const decks = await prisma.deck.findMany({
-    orderBy: [{ createdAt: "desc" }, { deck: "asc" }],
+    orderBy: [{ revealAtDate: "desc" }, { deck: "asc" }],
     include: {
       deckQuestions: {
         take: 1,
