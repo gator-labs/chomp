@@ -60,16 +60,20 @@ export function Deck({
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion,
   );
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
+  const min = 0;
+  const max =
+    questions[currentQuestionIndex] &&
+    questions[currentQuestionIndex].questionOptions.length > 0
+      ? questions[currentQuestionIndex].questionOptions.length - 1
+      : 0;
+
   const { random, generateRandom, setRandom } = useRandom({
-    min: 0,
-    max:
-      questions[currentQuestionIndex] &&
-      questions[currentQuestionIndex].questionOptions.length > 0
-        ? questions[currentQuestionIndex].questionOptions.length - 1
-        : 0,
+    min,
+    max,
   });
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
   const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
