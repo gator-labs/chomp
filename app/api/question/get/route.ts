@@ -4,7 +4,6 @@ import prisma from "@/app/services/prisma";
 import dayjs from "dayjs";
 import { getRandomElement } from "@/app/utils/randomUtils";
 
-
 const questionDeckToRunInclude = {
   deckQuestions: {
     include: {
@@ -22,27 +21,25 @@ const questionDeckToRunInclude = {
   },
 } satisfies Prisma.DeckInclude;
 
-
 export async function GET(req: Request) {
+
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-
   if (apiKey !== process.env.BOT_API_KEY) {
     return new Response(`Invalid api-key`, {
       status: 400,
     });
   }
 
-  const { searchParams} = new URL(req.url);
+  const {searchParams} = new URL(req.url);
   const userId = searchParams.get("userId");
-
   if (!userId|| Array.isArray(userId)) {
     return Response.json("userId parameter is required", { status: 400 });
   }
 
   const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
-
+  
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
@@ -56,12 +53,12 @@ export async function GET(req: Request) {
           },
         },
       },
-        userDeck: { none: { userId: userId } }
+      userDeck: { none: { userId: userId } }
     },
     include: questionDeckToRunInclude,
   });
 
-const getDailyDeckQuestions = dailyDeck?.deckQuestions.map((dq) => ({
+  const getDailyDeckQuestions = dailyDeck?.deckQuestions.map((dq) => ({
   id: dq.questionId,
   durationMiliseconds: Number(dq.question.durationMiliseconds),
   question: dq.question.question,
@@ -76,17 +73,10 @@ const getDailyDeckQuestions = dailyDeck?.deckQuestions.map((dq) => ({
   deckRevealAtDate: dailyDeck.revealAtDate,
 }));
 
-if (getDailyDeckQuestions?.length === 0)
-{
+// Daily Deck
+if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0){
   return Response.json({ question: getRandomElement(getDailyDeckQuestions)});
-}
-  // new Response(`No questions found to load`, {
-  //   status: 400,
-  // });
-
-
-
-if(!getDailyDeckQuestions){
+}else{ // Unanwsered Questions
   const dailyDeckQuestions = await prisma.deckQuestion.findMany({
     where: {
       deck: {
@@ -111,7 +101,16 @@ if(!getDailyDeckQuestions){
       },
     },
     include: {
-      question: true,
+      question: {
+        include: {
+          questionOptions: true,
+          questionTags: {
+            include: {
+              tag: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       deck: { date: "desc" },
@@ -125,6 +124,6 @@ if(!getDailyDeckQuestions){
       status: 400,
     });
 
-  return Response.json({ question: questions[0]});
+  return Response.json({ question: getRandomElement(questions)});
 }
 }
