@@ -1,6 +1,5 @@
 import { Prisma } from "@prisma/client";
 import { headers } from "next/headers";
-import { mapQuestionFromDeck } from "@/app/queries/deck";
 import prisma from "@/app/services/prisma";
 import dayjs from "dayjs";
 import { getRandomElement } from "@/app/utils/randomUtils";
