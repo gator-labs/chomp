@@ -79,9 +79,7 @@ const ConnectWithOtpView: FC = () => {
       await connectWithEmail(event.currentTarget.email.value);
       setVerificationSent(true);
     } catch (error) {
-      // Handle the error here
       console.error("Error occurred while connecting with email:", error);
-      // Optionally, you can set an error state to display an error message to the user
       errorToast("Failed to send verification email. Please try again.");
     }
   };
@@ -108,9 +106,7 @@ const ConnectWithOtpView: FC = () => {
       await verifyOneTimePassword(otp);
       setVerificationSuccess(true);
     } catch (error) {
-      // Handle the error here
       console.error("Error occurred while verifying otp:", error);
-      // Optionally, you can set an error state to display an error message to the user
       errorToast("Error occurred while verifying otp");
     }
   };
@@ -127,13 +123,17 @@ const ConnectWithOtpView: FC = () => {
 
 
   const handleCopyToClipboard = async () => {
-    await copyTextToClipboard(address);
-    successToast(
-      "Copied to clipboard",
-      `Copied ${formatAddress(address)} to clipboard`,
-    );
-  };
+    try {
+      await copyTextToClipboard(address);
+      successToast(
+        "Copied to clipboard",
+        `Copied ${formatAddress(address)} to clipboard`,
+      );
+    } catch (error) {
+      errorToast("Error in copy to clip");
+    };
 
+  }
 
 
   // const dataVerification = async (initData) => {
@@ -201,7 +201,7 @@ const ConnectWithOtpView: FC = () => {
       {address !== '' &&
         <div className="text-center flex flex-col ml">
           Your address:
-          <p className="whitespace-nowrap overflow-hidden text-ellipsis text-center ">
+          <p className="break-words">
             {address}
           </p>
 
