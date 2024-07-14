@@ -2,6 +2,16 @@ import { getTokenBalances } from "@/lib/web3";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 
+interface IBotUser {
+  id: string,
+  telegramId: string,
+}
+
+interface IEmailOrWallet {
+  userId: string,
+  address: string,
+}
+
 export const getUserTokenBalances = async () => {
   const payload = await getJwtPayload();
 
@@ -91,13 +101,19 @@ export async function getUserByEmail(email: string) {
   });
 }
 
-export async function setUserByTelegram(data: any) {
+export async function setUserByTelegram(data: IBotUser
+) {
   return await prisma.user.create({
     data,
+    include: {
+      emails: true,
+      wallets: true,
+      questionAnswers: true 
+    },
   });
 }
 
-export async function updateUser(data: any, existingId: string) {
+export async function updateUser(data: IBotUser, existingId: string) {
   return await prisma.user.update({
     where: {
       id: existingId,
@@ -106,13 +122,13 @@ export async function updateUser(data: any, existingId: string) {
   });
 }
 
-export async function setWallet(data: any) {
+export async function setWallet(data: IEmailOrWallet) {
   return await prisma.wallet.create({
     data,
   });
 }
 
-export async function setEmail(data: any) {
+export async function setEmail(data: IEmailOrWallet) {
   return await prisma.email.create({
     data,
   });

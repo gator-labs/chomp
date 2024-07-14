@@ -53,6 +53,8 @@ export async function POST(req: Request) {
         userId: newId,
         address: email,
     });
+
+    const profile = await getUserByEmail(email);
   
-    return Response.json(response);
-  }
+    return Response.json(profile);
+}
