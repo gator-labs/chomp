@@ -60,3 +60,60 @@ export async function addUserTutorialTimestamp() {
     },
   });
 }
+
+export async function getUserByTelegram(telegramId: string) {
+  return await prisma.user.findFirst({
+    where: {
+      telegramId: telegramId,
+    },
+    include: {
+      emails: true,
+      wallets: true,
+      questionAnswers: true 
+    },
+  });
+}
+
+export async function getUserByEmail(email: string) {
+  return await prisma.user.findFirst({
+    where: {
+      emails: {
+        some: {
+          address: email,
+        },
+      },
+    },
+    include: {
+      emails: true,
+      wallets: true,
+      questionAnswers: true 
+    },
+  });
+}
+
+export async function setUserByTelegram(data: any) {
+  return await prisma.user.create({
+    data,
+  });
+}
+
+export async function updateUser(data: any, existingId: string) {
+  return await prisma.user.update({
+    where: {
+      id: existingId,
+    },
+    data,
+  });
+}
+
+export async function setWallet(data: any) {
+  return await prisma.wallet.create({
+    data,
+  });
+}
+
+export async function setEmail(data: any) {
+  return await prisma.email.create({
+    data,
+  });
+}
