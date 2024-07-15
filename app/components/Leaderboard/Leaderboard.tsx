@@ -112,12 +112,6 @@ const Leaderboard = ({
       ? previousUserRank - loggedInUserScore?.loggedInUserRank
       : undefined;
 
-  console.log(
-    rankDifference,
-    previousUserRank,
-    loggedInUserScore?.loggedInUserRank,
-  );
-
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center gap-4 py-[5px]">
