@@ -112,6 +112,12 @@ const Leaderboard = ({
       ? previousUserRank - loggedInUserScore?.loggedInUserRank
       : undefined;
 
+  console.log(
+    rankDifference,
+    previousUserRank,
+    loggedInUserScore?.loggedInUserRank,
+  );
+
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center gap-4 py-[5px]">
@@ -148,7 +154,7 @@ const Leaderboard = ({
           </span>
           {!!rankDifference && (
             <div className="flex gap-1 items-center">
-              {rankDifference > 1 ? (
+              {rankDifference >= 1 ? (
                 <UpIcon fill="#6DECAF" />
               ) : (
                 <DownIcon fill="#ED6A5A" />
