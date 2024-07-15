@@ -148,7 +148,7 @@ const Leaderboard = ({
           </span>
           {!!rankDifference && (
             <div className="flex gap-1 items-center">
-              {rankDifference > 1 ? (
+              {rankDifference >= 1 ? (
                 <UpIcon fill="#6DECAF" />
               ) : (
                 <DownIcon fill="#ED6A5A" />
@@ -165,18 +165,29 @@ const Leaderboard = ({
             </div>
           )}
           <div className="flex justify-between">
-            <p
-              className={cn("text-xs leading-[7px]", {
-                "text-[15px] leading-[11px] font-bold": !rankDifference,
-              })}
-            >
-              {!!loggedInUserScore?.loggedInUserRank
-                ? `Ranking ${loggedInUserScore.loggedInUserRank}${nthNumber(loggedInUserScore.loggedInUserRank)} place`
-                : "- No Ranking Yet"}
-            </p>
-            <p className="text-xs font-bold">
-              {loggedInUserScore?.loggedInUserPoints || 0} {activeFilter.label}
-            </p>
+            <div className="flex flex-col gap-2">
+              <p
+                className={cn("text-xs leading-[7px]", {
+                  "text-[15px] leading-[11px] font-bold": !rankDifference,
+                })}
+              >
+                {!!loggedInUserScore?.loggedInUserRank
+                  ? `Ranking ${loggedInUserScore.loggedInUserRank}${nthNumber(loggedInUserScore.loggedInUserRank)} place`
+                  : "- No Ranking Yet"}
+              </p>
+              {!loggedInUserScore?.loggedInUserRank && (
+                <p className="text-xs leading-[7px]">
+                  Your ranking will be displayed once ready!
+                </p>
+              )}
+            </div>
+
+            {!!loggedInUserScore?.loggedInUserRank && (
+              <p className="text-xs font-bold">
+                {loggedInUserScore?.loggedInUserPoints || 0}{" "}
+                {activeFilter.label}
+              </p>
+            )}
           </div>
         </div>
       </div>
