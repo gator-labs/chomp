@@ -39,7 +39,7 @@ export type DeckExpiringSoon = {
   revealAtDate?: Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
-  imageUrl?: string;
+  image?: string;
 };
 
 export type QuestionsForReveal = {
@@ -81,8 +81,9 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
         where dq."deckId" = d."id"
       ) as "answerCount",
       d."revealAtAnswerCount",
-      d."imageUrl"
+      c."image"
   from public."Deck" d
+  full join "Campaign" c on c."id" = d."campaignId"
   where
       (
         (
@@ -156,8 +157,10 @@ async function queryRevealedQuestions(
 	    where qo."questionId" = q."id"
   	) as "answerCount",
   	q."revealAtAnswerCount",
-  	q."revealTokenAmount"
+  	q."revealTokenAmount",
+    c."image"
   from public."Question" q 
+  full join "Campaign" c on c."id" = q."campaignId"
   where
   	(
 	    (

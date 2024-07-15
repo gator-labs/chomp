@@ -119,6 +119,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
           date: validatedFields.data.date,
+          campaignId: validatedFields.data.campaignId,
         },
       });
 
