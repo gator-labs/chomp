@@ -2,6 +2,7 @@ import { formatAddress } from "@/app/utils/wallet";
 import Link from "next/link";
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
+import { PenIcon } from "../Icons/PenIcon";
 
 type ProfileProps = {
   address: string;
@@ -32,6 +33,9 @@ export function Profile({
             <span className="font-normal font-sora">
               {formatAddress(address)}
             </span>
+            <div className="p-[3.5px]">
+              <PenIcon width={12} height={12} fill="#999999" />
+            </div>
           </Button>
           {showLeaderboardButton && (
             <Link href="/application/profile/leaderboard" className="contents">
