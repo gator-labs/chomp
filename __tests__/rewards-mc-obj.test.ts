@@ -6,5 +6,5 @@ test("rewards: multiple choice objective", async () => {
   const questionIds = [questionId]
 
   const actualReward = await calculateReward(userId, questionIds)
-  expect(actualReward).toStrictEqual({"166": 6778.502776581657})
+  expect(actualReward).toStrictEqual({"questionId": 166, "rewardAmount":  6778.502776581657})
 })
