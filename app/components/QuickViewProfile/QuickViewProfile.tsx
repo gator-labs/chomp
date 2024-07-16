@@ -5,6 +5,8 @@ import { useEffect } from "react";
 import { Button } from "../Button/Button";
 import { Flyout } from "../Flyout/Flyout";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
+import TelegramIcon from "../Icons/TelegramIcon";
+import XIcon from "../Icons/XIcon";
 import { TransactionProfile } from "../TransactionProfile/TransactionProfile";
 import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
 import { TransactionsTable } from "../TransactionsTable/TransactionsTable";
@@ -42,29 +44,45 @@ export function QuickViewProfile({
   return (
     <Flyout isOpen={isOpen} onClose={onClose}>
       <div className="p-4 flex flex-col justify-between h-full">
-        <div>
-          <TransactionProfile
-            avatarSrc={avatarSrc}
-            bonkAmount={bonkAmount}
-            dollarAmount={dollarAmount}
-            solAmount={solAmount}
-            onClose={onClose}
-            className="mb-4"
-          />
-          <WalletWidget address={address} className="mb-4" />
-          <Link href="/tutorial">
-            <Button
-              size="small"
-              variant="black"
-              className="flex justify-between text-white text-base"
+        <TransactionProfile
+          avatarSrc={avatarSrc}
+          bonkAmount={bonkAmount}
+          dollarAmount={dollarAmount}
+          solAmount={solAmount}
+          onClose={onClose}
+          className="mb-4"
+        />
+        <WalletWidget address={address} className="mb-4" />
+        <Link href="/tutorial">
+          <Button
+            size="small"
+            variant="black"
+            className="flex justify-between text-white text-base"
+          >
+            View tutorial <HalfArrowRightIcon />
+          </Button>
+        </Link>
+        <TransactionsTable transactions={transactions} />
+        <div className="flex gap-2 items-center">
+          <div className="p-2 rounded-lg bg-[#666666] flex gap-2">
+            <a
+              href="https://t.me/+BN0ZDiUhTUkxNzZl"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              View tutorial <HalfArrowRightIcon />
-            </Button>
-          </Link>
-          <TransactionsTable
-            transactions={transactions}
-            className="max-h-[calc(100vh-296px)] my-4"
-          />
+              <TelegramIcon />
+            </a>
+            <a
+              href="https://x.com/chompdotgames"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <XIcon />
+            </a>
+          </div>
+          <p className="text-sm font-normal !text-[10px]">
+            Follow our socials for the latest news and special announcements!
+          </p>
         </div>
       </div>
     </Flyout>
