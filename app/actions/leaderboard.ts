@@ -119,6 +119,7 @@ export const getLeaderboard = async ({
 
   if (variant !== "campaign") {
     const dateRange = getDateRange(variant);
+    console.log(dateRange);
     dateFilter = {
       createdAt: {
         gte: dateRange!.startDate,
