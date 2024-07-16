@@ -69,7 +69,6 @@ const MultipleChoiceScreen = ({
             dueAt={dueAt}
             question="Which of the following is NOT a DEX?"
             type={QuestionType.MultiChoice}
-            viewImageSrc="/test"
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILLISECONDS))
             }

@@ -32,31 +32,33 @@ export async function addTutorialPoints(
   const totalNumberOfTutorialQuestions = 2;
 
   const fungibleAssetRevealTasks = [
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      totalNumberOfTutorialQuestions *
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount:
+        totalNumberOfTutorialQuestions *
         pointsPerAction[TransactionLogType.AnswerQuestion],
-      TransactionLogType.AnswerQuestion,
-    ),
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.AnswerDeck],
-      TransactionLogType.AnswerDeck,
-    ),
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.RevealAnswer],
-      TransactionLogType.RevealAnswer,
-    ),
+      transactionLogType: TransactionLogType.AnswerQuestion,
+    }),
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerDeck],
+      transactionLogType: TransactionLogType.AnswerDeck,
+    }),
+
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.RevealAnswer],
+      transactionLogType: TransactionLogType.RevealAnswer,
+    }),
   ];
 
   if (isCorrectFirstOrderMultipleQuestion)
     fungibleAssetRevealTasks.push(
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        pointsPerAction[TransactionLogType.CorrectFirstOrder],
-        TransactionLogType.CorrectFirstOrder,
-      ),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.CorrectFirstOrder],
+        transactionLogType: TransactionLogType.CorrectFirstOrder,
+      }),
     );
 
   await Promise.all(fungibleAssetRevealTasks);
@@ -77,15 +79,11 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     return;
   }
 
-  const revealAtDateObject = await prisma.deck.findFirst({
+  const deck = await prisma.deck.findFirst({
     where: { id: { equals: deckId } },
-    select: { revealAtDate: true },
   });
 
-  if (
-    revealAtDateObject?.revealAtDate &&
-    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
-  ) {
+  if (deck?.revealAtDate && dayjs(deck?.revealAtDate).isBefore(new Date())) {
     return;
   }
 
@@ -104,28 +102,20 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     );
     const isOptionSelected = qo.id === answerForQuestion?.questionOptionId;
 
-    if (qo.question.type === QuestionType.BinaryQuestion) {
-      return {
-        percentage: qo.isLeft
-          ? answerForQuestion?.percentageGiven
-          : 100 - (answerForQuestion?.percentageGiven ?? 0),
-        questionOptionId: qo.id,
-        selected: isOptionSelected,
-        timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
-          ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
-          : null,
-        userId,
-      } as QuestionAnswer;
-    }
-
     const percentageForQuestionOption =
       answerForQuestion?.percentageGivenForAnswerId === qo.id
         ? answerForQuestion.percentageGiven
         : undefined;
 
+    const percentage =
+      qo.question.type === QuestionType.BinaryQuestion &&
+      !percentageForQuestionOption
+        ? 100 - answerForQuestion!.percentageGiven!
+        : percentageForQuestionOption;
+
     return {
       selected: isOptionSelected,
-      percentage: percentageForQuestionOption,
+      percentage,
       questionOptionId: qo.id,
       timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
         ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
@@ -147,18 +137,20 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     });
 
     const fungibleAssetRevealTasks = [
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        questionIds.length * pointsPerAction[TransactionLogType.AnswerQuestion],
-        TransactionLogType.AnswerQuestion,
-        tx,
-      ),
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        pointsPerAction[TransactionLogType.AnswerDeck],
-        TransactionLogType.AnswerDeck,
-        tx,
-      ),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+        transactionLogType: TransactionLogType.AnswerQuestion,
+        injectedPrisma: tx,
+        questionIds,
+      }),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerDeck],
+        transactionLogType: TransactionLogType.AnswerDeck,
+        injectedPrisma: tx,
+        deckIds: [deckId],
+      }),
     ];
 
     await updateStreak(userId);
@@ -191,14 +183,13 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     return;
   }
 
-  const revealAtDateObject = await prisma.question.findFirst({
+  const question = await prisma.question.findFirst({
     where: { id: { equals: request.questionId } },
-    select: { revealAtDate: true },
   });
 
   if (
-    revealAtDateObject?.revealAtDate &&
-    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
+    question?.revealAtDate &&
+    dayjs(question?.revealAtDate).isBefore(new Date())
   ) {
     return;
   }
@@ -211,28 +202,20 @@ export async function saveQuestion(request: SaveQuestionRequest) {
   const questionAnswers = questionOptions.map((qo) => {
     const isOptionSelected = qo.id === request?.questionOptionId;
 
-    if (qo.question.type === QuestionType.BinaryQuestion) {
-      return {
-        percentage: qo.isLeft
-          ? request?.percentageGiven
-          : 100 - (request?.percentageGiven ?? 0),
-        questionOptionId: qo.id,
-        selected: isOptionSelected,
-        timeToAnswer: request?.timeToAnswerInMiliseconds
-          ? BigInt(request?.timeToAnswerInMiliseconds)
-          : null,
-        userId,
-      } as QuestionAnswer;
-    }
-
     const percentageForQuestionOption =
       request?.percentageGivenForAnswerId === qo.id
         ? request.percentageGiven
         : undefined;
 
+    const percentage =
+      qo.question.type === QuestionType.BinaryQuestion &&
+      !percentageForQuestionOption
+        ? 100 - request!.percentageGiven!
+        : percentageForQuestionOption;
+
     return {
       selected: isOptionSelected,
-      percentage: percentageForQuestionOption,
+      percentage,
       questionOptionId: qo.id,
       timeToAnswer: request?.timeToAnswerInMiliseconds
         ? BigInt(request?.timeToAnswerInMiliseconds)
@@ -247,12 +230,13 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       data: questionAnswers,
     });
 
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.AnswerQuestion],
-      TransactionLogType.AnswerQuestion,
-      tx,
-    );
+    await incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+      transactionLogType: TransactionLogType.AnswerQuestion,
+      injectedPrisma: tx,
+      questionIds: [request.questionId],
+    });
 
     await updateStreak(userId);
   });

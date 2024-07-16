@@ -27,6 +27,7 @@ model User {
   streak                      Streak[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
+  dailyLeaderboard            DailyLeaderboard[]
 }
 
 model Wallet {
@@ -46,21 +47,24 @@ model Email {
 }
 
 model Question {
-  id                  Int              @id @default(autoincrement())
-  question            String
-  durationMiliseconds BigInt?
-  type                QuestionType
-  revealToken         Token            @default(Bonk)
-  revealTokenAmount   Int              @default(0)
-  revealAtDate        DateTime?
-  revealAtAnswerCount Int?
-  imageUrl            String?
-  createdAt           DateTime         @default(now())
-  updatedAt           DateTime         @default(now()) @updatedAt
-  questionOptions     QuestionOption[]
-  questionTags        QuestionTag[]
-  deckQuestions       DeckQuestion[]
-  chompResults        ChompResult[]
+  id                          Int                           @id @default(autoincrement())
+  question                    String
+  durationMiliseconds         BigInt?
+  type                        QuestionType
+  revealToken                 Token                         @default(Bonk)
+  revealTokenAmount           Int                           @default(0)
+  revealAtDate                DateTime?
+  revealAtAnswerCount         Int?
+  imageUrl                    String?
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @default(now()) @updatedAt
+  questionOptions             QuestionOption[]
+  questionTags                QuestionTag[]
+  deckQuestions               DeckQuestion[]
+  chompResults                ChompResult[]
+  campaign                    Campaign?                     @relation(fields: [campaignId], references: [id])
+  campaignId                  Int?
+  fungibleAssetTransactionLog FungibleAssetTransactionLog[]
 }
 
 model QuestionOption {
@@ -97,18 +101,21 @@ model QuestionTag {
 }
 
 model Deck {
-  id                  Int            @id @default(autoincrement())
-  deck                String
-  date                DateTime?
-  revealAtDate        DateTime?
-  revealAtAnswerCount Int?
-  imageUrl            String?
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @default(now()) @updatedAt
-  isActive            Boolean        @default(true)
-  deckQuestions       DeckQuestion[]
-  userDeck            UserDeck[]
-  chompResults        ChompResult[]
+  id                          Int                           @id @default(autoincrement())
+  deck                        String
+  date                        DateTime?
+  revealAtDate                DateTime?
+  revealAtAnswerCount         Int?
+  imageUrl                    String?
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @default(now()) @updatedAt
+  isActive                    Boolean                       @default(true)
+  campaign                    Campaign?                     @relation(fields: [campaignId], references: [id])
+  campaignId                  Int?
+  deckQuestions               DeckQuestion[]
+  userDeck                    UserDeck[]
+  chompResults                ChompResult[]
+  fungibleAssetTransactionLog FungibleAssetTransactionLog[]
 }
 
 model UserDeck {
@@ -165,13 +172,17 @@ model ChompResult {
 }
 
 model FungibleAssetTransactionLog {
-  id        Int                @id @default(autoincrement())
-  type      TransactionLogType
-  asset     FungibleAsset
-  createdAt DateTime           @default(now())
-  change    Decimal
-  userId    String
-  user      User               @relation(fields: [userId], references: [id])
+  id         Int                @id @default(autoincrement())
+  type       TransactionLogType
+  asset      FungibleAsset
+  createdAt  DateTime           @default(now())
+  change     Decimal
+  userId     String
+  user       User               @relation(fields: [userId], references: [id])
+  question   Question?          @relation(fields: [questionId], references: [id])
+  questionId Int?
+  deck       Deck?              @relation(fields: [deckId], references: [id])
+  deckId     Int?
 }
 
 model FungibleAssetBalance {
@@ -200,6 +211,34 @@ model RevealNft {
   nftType   NftType
 
   @@unique([nftId, userId])
+}
+
+model Campaign {
+  id               Int                @id @default(autoincrement())
+  name             String
+  isActive         Boolean
+  image            String
+  questions        Question[]
+  createdAt        DateTime           @default(now())
+  dailyLeaderboard DailyLeaderboard[]
+  deck             Deck[]
+}
+
+model DailyLeaderboard {
+  id                  Int       @id @default(autoincrement())
+  user                User      @relation(fields: [userId], references: [id])
+  userId              String
+  campaign            Campaign? @relation(fields: [campaignId], references: [id])
+  campaignId          Int?
+  firstOrderAccuracy  Int?      @default(0)
+  secondOrderAccuracy Int?      @default(0)
+  points              Int?      @default(0)
+  date                DateTime  @default(now()) @db.Date
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+
+  @@unique([userId, campaignId, date], name: "user_campaign_date")
+  @@index([date])
 }
 
 enum QuestionType {

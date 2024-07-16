@@ -141,19 +141,17 @@ export async function revealQuestions(
         payload.sub,
       );
 
-    const revealPoints = await calculateRevealPoints(
-      payload.sub,
-      questionIds.filter((questionId) => questionId !== null) as number[],
-    );
-    const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
-
-    const rewardsPerQuestionId = await calculateReward(
+    const questionRewards = await calculateReward(
       payload.sub,
       revealableQuestionIds,
     );
 
-    await prisma.$transaction([
-      prisma.chompResult.deleteMany({
+    const revealPoints = await calculateRevealPoints(questionRewards);
+
+    const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.chompResult.deleteMany({
         where: {
           AND: {
             userId: payload.sub,
@@ -164,15 +162,16 @@ export async function revealQuestions(
             transactionStatus: TransactionStatus.Pending,
           },
         },
-      }),
-      prisma.chompResult.createMany({
+      });
+
+      await tx.chompResult.createMany({
         data: [
-          ...revealableQuestionIds.map((questionId) => ({
-            questionId,
+          ...questionRewards.map((questionReward) => ({
+            questionId: questionReward.questionId,
             userId: payload.sub,
             result: ResultType.Revealed,
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: rewardsPerQuestionId?.[questionId],
+            rewardTokenAmount: questionReward.rewardAmount,
             transactionStatus: TransactionStatus.Completed,
           })),
           ...decksToAddRevealFor.map((deck) => ({
@@ -182,8 +181,9 @@ export async function revealQuestions(
             burnTransactionSignature: burnTx,
           })),
         ],
-      }),
-      prisma.fungibleAssetBalance.upsert({
+      });
+
+      await tx.fungibleAssetBalance.upsert({
         where: {
           asset_userId: {
             asset: FungibleAsset.Point,
@@ -200,16 +200,42 @@ export async function revealQuestions(
           asset: FungibleAsset.Point,
           amount: pointsAmount,
         },
-      }),
-      prisma.fungibleAssetTransactionLog.createMany({
+      });
+
+      // const campaignId = revealableQuestions[0].campaignId;
+
+      // if (!!campaignId) {
+      //   const currentDate = new Date();
+
+      //   await tx.dailyLeaderboard.upsert({
+      //     where: {
+      //       user_campaign_date: {
+      //         userId: payload.sub,
+      //         campaignId: revealableQuestions[0].campaignId!,
+      //         date: currentDate,
+      //       },
+      //     },
+      //     create: {
+      //       userId: payload.sub,
+      //       campaignId: revealableQuestions[0].campaignId,
+      //       points: pointsAmount,
+      //     },
+      //     update: {
+      //       points: { increment: pointsAmount },
+      //     },
+      //   });
+      // }
+
+      await tx.fungibleAssetTransactionLog.createMany({
         data: revealPoints.map((revealPointsTx) => ({
           asset: FungibleAsset.Point,
           type: revealPointsTx.type,
           change: revealPointsTx.amount,
           userId: payload.sub,
+          questionId: revealPointsTx.questionId,
         })),
-      }),
-    ]);
+      });
+    });
 
     release();
     revalidatePath("/application");

@@ -18,6 +18,7 @@ export function HomeFeedDeckExpiringSection({
   const deckSlides = !!decks.length
     ? decks.map((d) => (
         <HomeFeedDeckCard
+          imageUrl={d.image}
           key={d.id}
           deck={d.deck}
           answerCount={d.answerCount}

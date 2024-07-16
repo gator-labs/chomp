@@ -1,4 +1,6 @@
 import { cloneElement, MouseEventHandler, ReactElement } from "react";
+import { DeckIcon } from "../Icons/DeckIcon";
+import LeadToIcon from "../Icons/LeadToIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
 
 type FeedQuestionCardProps = {
@@ -10,6 +12,7 @@ type FeedQuestionCardProps = {
   topCornerActionIcon?: ReactElement;
   statusLabel?: ReactElement;
   action?: ReactElement;
+  type?: "Question" | "Deck";
   onClick?: () => void;
 };
 
@@ -22,6 +25,7 @@ export function FeedQuestionCard({
   topCornerActionIcon,
   statusLabel,
   action,
+  type,
   onClick,
 }: FeedQuestionCardProps) {
   return (
@@ -29,6 +33,11 @@ export function FeedQuestionCard({
       className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2 h-full"
       onClick={onClick}
     >
+      {type === "Deck" && (
+        <div>
+          <DeckIcon width={77.2} height={87.84} />
+        </div>
+      )}
       <div className="flex flex-col gap-y-2 w-full justify-between">
         <div className="flex flex-col gap-y-2 w-full">
           <div className="flex gap-2 w-full justify-between">
@@ -40,6 +49,9 @@ export function FeedQuestionCard({
                 {cloneElement(topCornerActionIcon, { height: 18, width: 18 })}
               </button>
             )}
+            <div>
+              <LeadToIcon width={24} height={24} />
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-y-2">

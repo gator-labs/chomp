@@ -49,7 +49,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
   );
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const { random } = useRandom({
+  const { random, setRandom } = useRandom({
     min: 0,
     max:
       question.questionOptions.length > 0
@@ -86,6 +86,9 @@ export function Question({ question, returnUrl }: QuestionProps) {
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setAnswerState({ questionId: question.id, questionOptionId: number });
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
@@ -109,21 +112,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
         return;
       }
 
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "BinaryQuestion"
-      ) {
-        handleSaveQuestion({
-          ...answerState,
-          percentageGiven: number ?? 0,
-          timeToAnswerInMiliseconds: getTimePassedSinceStart(),
-        });
-      }
-
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "MultiChoice"
-      ) {
+      if (currentQuestionStep === QuestionStep.PickPercentage) {
         handleSaveQuestion({
           ...answerState,
           percentageGiven: optionPercentage,
@@ -143,6 +132,11 @@ export function Question({ question, returnUrl }: QuestionProps) {
       answerState,
     ],
   );
+
+  const randomQuestionMarker =
+    question.type === QuestionType.MultiChoice
+      ? getAlphaIdentifier(random)
+      : question.questionOptions[random].option;
 
   return (
     <div className="flex flex-col justify-between h-full">
@@ -173,7 +167,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           type={question.type}
           step={currentQuestionStep || QuestionStep.PickPercentage}
           questionOptions={question.questionOptions}
-          randomQuestionMarker={getAlphaIdentifier(random)}
+          randomQuestionMarker={randomQuestionMarker}
           percentage={optionPercentage}
           setPercentage={setOptionPercentage}
         />

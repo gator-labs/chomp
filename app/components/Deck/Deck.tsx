@@ -60,16 +60,20 @@ export function Deck({
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion,
   );
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const { random, generateRandom } = useRandom({
-    min: 0,
-    max:
-      questions[currentQuestionIndex] &&
-      questions[currentQuestionIndex].questionOptions.length > 0
-        ? questions[currentQuestionIndex].questionOptions.length - 1
-        : 0,
+  const min = 0;
+  const max =
+    questions[currentQuestionIndex] &&
+    questions[currentQuestionIndex].questionOptions.length > 0
+      ? questions[currentQuestionIndex].questionOptions.length - 1
+      : 0;
+
+  const { random, generateRandom, setRandom } = useRandom({
+    min,
+    max,
   });
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
   const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
@@ -126,6 +130,9 @@ export function Deck({
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setDeckResponse((prev) => [
           ...prev,
           { questionId: question.id, questionOptionId: number },
@@ -155,27 +162,7 @@ export function Deck({
         return;
       }
 
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "BinaryQuestion"
-      ) {
-        setDeckResponse((prev) => {
-          const newResponses = [...prev];
-          const response = newResponses.pop();
-          if (response) {
-            response.percentageGiven = number ?? 0;
-            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
-            newResponses.push(response);
-          }
-
-          return newResponses;
-        });
-      }
-
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "MultiChoice"
-      ) {
+      if (currentQuestionStep === QuestionStep.PickPercentage) {
         setDeckResponse((prev) => {
           const newResponses = [...prev];
           const response = newResponses.pop();
@@ -238,6 +225,11 @@ export function Deck({
     );
   }
 
+  const randomQuestionMarker =
+    question.type === QuestionType.MultiChoice
+      ? getAlphaIdentifier(random)
+      : question.questionOptions[random].option;
+
   return (
     <div className="flex flex-col justify-start h-full pb-4">
       <Stepper
@@ -274,7 +266,7 @@ export function Deck({
           type={question.type}
           step={currentQuestionStep}
           questionOptions={question.questionOptions}
-          randomQuestionMarker={getAlphaIdentifier(random)}
+          randomQuestionMarker={randomQuestionMarker}
           percentage={optionPercentage}
           setPercentage={setOptionPercentage}
         />

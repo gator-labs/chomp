@@ -12,6 +12,11 @@ const nextConfig = {
         destination: "/application",
         permanent: true,
       },
+      {
+        source: "/application/profile",
+        destination: "/application/profile/dashboard",
+        permanent: true,
+      },
     ];
   },
 };

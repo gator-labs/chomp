@@ -3,6 +3,7 @@ import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from "..";
 export function SpinnerIcon({
   width = ICON_DEFAULT_WIDTH_HEIGHT,
   height = ICON_DEFAULT_WIDTH_HEIGHT,
+  fill = "#fff",
 }: IconProps) {
   return (
     <svg
@@ -10,7 +11,7 @@ export function SpinnerIcon({
       height={height}
       viewBox="0 0 38 38"
       xmlns="http://www.w3.org/2000/svg"
-      stroke="#fff"
+      stroke={fill}
     >
       <g fill="none" fillRule="evenodd">
         <g transform="translate(1 1)" strokeWidth="2">

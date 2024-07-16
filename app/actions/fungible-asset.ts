@@ -47,12 +47,23 @@ export const getTransactionHistory = async () => {
   return transactionHistory;
 };
 
-export const incrementFungibleAssetBalance = async (
-  asset: FungibleAsset,
-  amount: number,
-  transactionLogType: TransactionLogType,
-  injectedPrisma: (PrismaTransactionClient | undefined) = prisma,
-): Promise<FungibleAssetBalance> => {
+interface IncrementFungibleAssetBalanceProps {
+  asset: FungibleAsset;
+  amount: number;
+  transactionLogType: TransactionLogType;
+  injectedPrisma?: PrismaTransactionClient | undefined;
+  questionIds?: number[];
+  deckIds?: number[];
+}
+
+export const incrementFungibleAssetBalance = async ({
+  asset,
+  amount,
+  transactionLogType,
+  injectedPrisma = prisma,
+  questionIds,
+  deckIds,
+}: IncrementFungibleAssetBalanceProps): Promise<FungibleAssetBalance> => {
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";
 
@@ -75,14 +86,53 @@ export const incrementFungibleAssetBalance = async (
     },
   });
 
-  const transactionLogTask = injectedPrisma.fungibleAssetTransactionLog.create({
-    data: {
-      asset: asset,
-      type: transactionLogType,
-      change: amount,
-      userId: userId,
-    },
-  });
+  let transactionLogTask;
+
+  if (!!questionIds?.length)
+    transactionLogTask = injectedPrisma.fungibleAssetTransactionLog.createMany({
+      data: questionIds.map((questionId) => ({
+        asset: asset,
+        type: transactionLogType,
+        change: amount,
+        userId: userId,
+        questionId: questionId,
+      })),
+    });
+
+  if (!!deckIds?.length)
+    transactionLogTask = injectedPrisma.fungibleAssetTransactionLog.createMany({
+      data: deckIds.map((deckId) => ({
+        asset: asset,
+        type: transactionLogType,
+        change: amount,
+        userId: userId,
+        deckId: deckId,
+      })),
+    });
+
+  // let dailyLeaderboardTask;
+
+  // if (!!campaignId) {
+  //   const currentDate = new Date();
+
+  //   dailyLeaderboardTask = await injectedPrisma.dailyLeaderboard.upsert({
+  //     where: {
+  //       user_campaign_date: {
+  //         userId,
+  //         campaignId,
+  //         date: currentDate,
+  //       },
+  //     },
+  //     create: {
+  //       userId,
+  //       campaignId,
+  //       points: amount,
+  //     },
+  //     update: {
+  //       points: { increment: amount },
+  //     },
+  //   });
+  // }
 
   const result = await Promise.all([upsertTask, transactionLogTask]);
 

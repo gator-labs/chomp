@@ -11,7 +11,6 @@ import {
   getDueAtString,
 } from "../../utils/dateUtils";
 import { CountdownIcon } from "../Icons/CountdownIcon";
-import { ImageIcon } from "../Icons/ImageIcon";
 import { Modal } from "../Modal/Modal";
 
 type QuestionCardProps = {
@@ -84,26 +83,8 @@ export function QuestionCard({
         {question}
       </p>
       <div className="z-10">{children}</div>
-      <div className="relative z-50">
-        {viewImageSrc && (
-          <div className="flex items-center gap-[6px] mb-1 z-10">
-            <ImageIcon />
-            <button
-              onClick={() => setIsViewImageOpen(true)}
-              className="underline text-white font-sora font-light text-sm"
-            >
-              View Image
-            </button>
-            <Modal
-              isOpen={isViewImageOpen}
-              onClose={() => setIsViewImageOpen(false)}
-              title=""
-            >
-              <img src={viewImageSrc} />
-            </Modal>
-          </div>
-        )}
-        <div className="flex items-center justify-between w-full z-10">
+      <div className="relative z-50 flex justify-between items-end">
+        <div className="flex items-center justify-between z-10">
           <div className="flex justify-start items-center gap-x-1 w-full z-10">
             {!!dueAt && (
               <>
@@ -115,6 +96,25 @@ export function QuestionCard({
             )}
           </div>
         </div>
+        {viewImageSrc && (
+          <div className="flex z-10">
+            <img
+              onClick={() => setIsViewImageOpen(true)}
+              src={viewImageSrc}
+              alt="preview-image"
+              className="w-14 rounded-lg cursor-pointer"
+            />
+
+            <Modal
+              isOpen={isViewImageOpen}
+              onClose={() => setIsViewImageOpen(false)}
+              title=""
+              variant="image-only"
+            >
+              <img src={viewImageSrc} />
+            </Modal>
+          </div>
+        )}
       </div>
     </div>
   );
