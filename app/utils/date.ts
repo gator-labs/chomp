@@ -16,7 +16,7 @@ export function parseDateToDateDefaultUtc(
 export const getWeekStartAndEndDates = (
   date: Date,
 ): { startDateOfTheWeek: Date; endDateOfTheWeek: Date } => {
-  const startDateOfTheWeek = startOfWeek(date, { weekStartsOn: 2 });
+  const startDateOfTheWeek = startOfWeek(date, { weekStartsOn: 1 });
   startDateOfTheWeek.setUTCHours(0, 0, 0, 0);
 
   const endDateOfTheWeek = endOfWeek(date, { weekStartsOn: 1 });
