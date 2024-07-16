@@ -3,7 +3,12 @@
 import { FungibleAsset, ResultType } from "@prisma/client";
 
 import { kv } from "@/lib/kv";
-import { differenceInSeconds, isWithinInterval, subDays } from "date-fns";
+import {
+  differenceInSeconds,
+  isSameDay,
+  isWithinInterval,
+  subDays,
+} from "date-fns";
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
   getNumberOfChompedQuestionsOfCampaignQuery,
@@ -23,14 +28,18 @@ export const getPreviousUserRank = async (
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions",
 ) => {
   const today = new Date();
-  const startDateLeaderboard = new Date(Date.UTC(2024, 6, 15, 0, 0, 0, 0)); // July 15, 2024 00:00:00 UTC
+  const startDateLeaderboard = new Date(Date.UTC(2024, 6, 16, 0, 0, 0, 0)); // July 16, 2024 00:00:00 UTC
   const endDateLeaderboard = new Date(Date.UTC(2024, 6, 21, 23, 59, 59, 999)); // July 21, 2024 23:59:59.999 UTC
 
+  console.log(isSameDay(today, startDateLeaderboard));
+
   if (
-    isWithinInterval(today, {
-      start: startDateLeaderboard,
-      end: endDateLeaderboard,
-    })
+    (variant === "weekly" &&
+      isWithinInterval(today, {
+        start: startDateLeaderboard,
+        end: endDateLeaderboard,
+      })) ||
+    (variant === "daily" && isSameDay(today, startDateLeaderboard))
   )
     return;
 
