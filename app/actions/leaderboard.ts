@@ -31,8 +31,6 @@ export const getPreviousUserRank = async (
   const startDateLeaderboard = new Date(Date.UTC(2024, 6, 16, 0, 0, 0, 0)); // July 16, 2024 00:00:00 UTC
   const endDateLeaderboard = new Date(Date.UTC(2024, 6, 21, 23, 59, 59, 999)); // July 21, 2024 23:59:59.999 UTC
 
-  console.log(isSameDay(today, startDateLeaderboard));
-
   if (
     (variant === "weekly" &&
       isWithinInterval(today, {
