@@ -70,7 +70,7 @@ export function getSortClause(sort: string): string {
     case HistorySortOptions.Claimable:
       return '"isRevealed" desc, "revealAtDate"';
     case HistorySortOptions.Date:
-      return '"revealAtDate"';
+      return '"revealAtDate" DESC';
     case HistorySortOptions.Revealed:
       return '"isRevealable" desc, "revealAtDate"';
     default:
