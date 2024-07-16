@@ -3,7 +3,7 @@
 import { FungibleAsset, ResultType } from "@prisma/client";
 
 import { kv } from "@/lib/kv";
-import { differenceInSeconds, subDays } from "date-fns";
+import { differenceInSeconds, isWithinInterval, subDays } from "date-fns";
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
   getNumberOfChompedQuestionsOfCampaignQuery,
@@ -22,6 +22,18 @@ export const getPreviousUserRank = async (
   variant: "weekly" | "daily",
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions",
 ) => {
+  const today = new Date();
+  const startDateLeaderboard = new Date(Date.UTC(2024, 6, 15, 0, 0, 0, 0)); // July 15, 2024 00:00:00 UTC
+  const endDateLeaderboard = new Date(Date.UTC(2024, 6, 21, 23, 59, 59, 999)); // July 21, 2024 23:59:59.999 UTC
+
+  if (
+    isWithinInterval(today, {
+      start: startDateLeaderboard,
+      end: endDateLeaderboard,
+    })
+  )
+    return;
+
   const currentUser = await getCurrentUser();
   const dateRange = getDateRange(variant, true);
   const { endDate: expirationDate } = getDateRange(variant)!;
@@ -37,8 +49,6 @@ export const getPreviousUserRank = async (
 
   if (filter === "totalPoints") {
     const cachedRanking = (await kv.get(key)) as Ranking[] | null;
-
-    console.log({ cachedRanking });
 
     if (!!cachedRanking) {
       return cachedRanking.find(
