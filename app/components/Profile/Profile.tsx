@@ -34,7 +34,9 @@ export function Profile({
               {formatAddress(address)}
             </span>
             <div className="p-[3.5px]">
-              <PenIcon width={12} height={12} fill="#999999" />
+              <a href="/application/profile/settings">
+                <PenIcon width={12} height={12} fill="#999999" />
+              </a>
             </div>
           </Button>
           {showLeaderboardButton && (

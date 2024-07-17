@@ -18,6 +18,19 @@ export async function updateProfile(data: z.infer<typeof profileSchema>) {
     return false;
   }
 
+  if (validatedFields.data.username) {
+    const user = await prisma.user.findFirst({
+      where: {
+        username: validatedFields.data.username,
+      },
+    });
+
+    if (user) {
+      console.log("Username already exists");
+      return false;
+    }
+  }
+
   await prisma.user.update({
     data: {
       firstName: validatedFields.data.firstName ?? "",

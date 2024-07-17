@@ -3,7 +3,13 @@ import { CSSProperties } from "react";
 
 type AvatarProps = {
   src: string;
-  size: "extrasmall" | "small" | "medium" | "large" | "extralarge";
+  size:
+    | "extrasmall"
+    | "small"
+    | "medium"
+    | "large"
+    | "extralarge"
+    | "oversized";
   className?: string;
   style?: CSSProperties;
 };
@@ -21,6 +27,8 @@ export function Avatar({ src, size, className, style }: AvatarProps) {
         return 64;
       case "extralarge":
         return 80;
+      case "oversized":
+        return 103;
       default:
         return 0;
     }
