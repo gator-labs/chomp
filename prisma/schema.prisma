@@ -224,6 +224,18 @@ model Campaign {
   deck             Deck[]
 }
 
+model Banner {
+  id              Int      @id @default(autoincrement())
+  title           String
+  description     String
+  url             String?
+  isActive        Boolean
+  backgroundColor String
+  image           String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+}
+
 model DailyLeaderboard {
   id                  Int       @id @default(autoincrement())
   user                User      @relation(fields: [userId], references: [id])
