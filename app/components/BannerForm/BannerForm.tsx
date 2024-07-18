@@ -28,8 +28,6 @@ const BannerForm = ({ banner, action }: Props) => {
     ),
     defaultValues: {
       id: banner?.id,
-      title: banner?.title || "",
-      description: banner?.description || "",
       url: banner?.url || "",
       backgroundColor: banner?.backgroundColor || "#000",
       isActive: !!banner?.isActive,
@@ -47,8 +45,6 @@ const BannerForm = ({ banner, action }: Props) => {
         const formData = new FormData();
 
         formData.append("id", banner?.id.toString() || "");
-        formData.append("title", data.title);
-        formData.append("description", data.description);
         formData.append("url", data.url);
         formData.append("image", data.image[0]);
         formData.append("backgroundColor", data.backgroundColor);
@@ -59,16 +55,6 @@ const BannerForm = ({ banner, action }: Props) => {
       })}
     >
       <h1 className="text-3xl mb-3">Banner</h1>
-      <div className="mb-3">
-        <label className="block mb-1">Title*</label>
-        <TextInput variant="secondary" {...register("title")} />
-        <div className="text-red">{errors.title?.message}</div>
-      </div>
-      <div className="mb-3">
-        <label className="block mb-1">Description*</label>
-        <TextInput variant="secondary" {...register("description")} />
-        <div className="text-red">{errors.description?.message}</div>
-      </div>
       <div className="mb-3">
         <label className="block mb-1">Url</label>
         <TextInput variant="secondary" {...register("url")} />

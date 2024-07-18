@@ -38,8 +38,6 @@ export async function createBanner(formData: FormData) {
 
   await prisma.banner.create({
     data: {
-      title: data.title,
-      description: data.description,
       isActive: data.isActive,
       image: imageUrl,
       backgroundColor: data.backgroundColor,
@@ -101,8 +99,6 @@ export async function updateBanner(formData: FormData) {
       id: data.id,
     },
     data: {
-      title: data.title,
-      description: data.description,
       isActive: data.isActive,
       image: imageUrl,
       backgroundColor: data.backgroundColor,

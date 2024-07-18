@@ -226,8 +226,6 @@ model Campaign {
 
 model Banner {
   id              Int      @id @default(autoincrement())
-  title           String
-  description     String
   url             String?
   isActive        Boolean
   backgroundColor String

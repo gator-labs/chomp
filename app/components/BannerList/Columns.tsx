@@ -7,7 +7,6 @@ import Link from "next/link";
 import { Button } from "../Button/Button";
 
 export const columns: ColumnDef<Banner>[] = [
-  { accessorKey: "title", header: "Banner" },
   {
     accessorKey: "image",
     header: "Image",

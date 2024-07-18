@@ -3,9 +3,7 @@
 import prisma from "../services/prisma";
 
 export async function getBanners() {
-  return prisma.banner.findMany({
-    orderBy: [{ title: "asc" }],
-  });
+  return prisma.banner.findMany({});
 }
 
 export async function getActiveBanners() {

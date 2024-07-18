@@ -8,8 +8,6 @@ import {
 } from "./common/imageSchema";
 
 const baseBannerSchema = z.object({
-  title: z.string().trim().min(1, "Name is required"),
-  description: z.string().trim().min(1, "Description is required"),
   url: z
     .string()
     .url({ message: "Invalid URL format." })
