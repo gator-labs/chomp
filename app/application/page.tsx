@@ -4,6 +4,7 @@ import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringS
 import { HomeFeedReadyToRevealSection } from "../components/HomeFeedReadyToRevealSection/HomeFeedReadyToRevealSection";
 import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealedQuestionsSection/HomeFeedRevealedQuestionsSection";
 import { Profile } from "../components/Profile/Profile";
+import { SendTransactionSolanaSection } from "../components/Test/Test";
 import {
   getDecksForExpiringSection,
   getQuestionsForReadyToRevealSection,
@@ -26,6 +27,7 @@ export default async function Page({}: PageProps) {
 
   return (
     <>
+      <SendTransactionSolanaSection />
       <Profile address={address} avatarSrc={profileSrc} showLeaderboardButton />
       <DashboardUserStats
         averageTimeToAnswer={stats.averageTimeToAnswer}
