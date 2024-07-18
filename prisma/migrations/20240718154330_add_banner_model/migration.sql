@@ -1,7 +1,6 @@
 -- CreateTable
 CREATE TABLE "Banner" (
     "id" SERIAL NOT NULL,
-    "name" TEXT NOT NULL,
     "url" TEXT,
     "isActive" BOOLEAN NOT NULL,
     "backgroundColor" TEXT NOT NULL,
