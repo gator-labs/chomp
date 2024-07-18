@@ -37,10 +37,32 @@ export const profileSchema = z.object({
     .or(z.literal("")),
 });
 
-export const profileSchemaClient = profileSchema.extend({
-  image: imageSchemaClientOptional,
-});
+export const profileSchemaClient = profileSchema
+  .extend({
+    image: imageSchemaClientOptional,
+  })
+  .refine(
+    (data) => {
+      const { firstName, lastName } = data;
+      return (!firstName && !lastName) || (firstName && lastName);
+    },
+    {
+      message: "Both firstName and lastName are required if one is provided.",
+      path: ["firstName"],
+    },
+  );
 
-export const profileSchemaServer = profileSchema.extend({
-  image: imageSchemaServerOptional,
-});
+export const profileSchemaServer = profileSchema
+  .extend({
+    image: imageSchemaServerOptional,
+  })
+  .refine(
+    (data) => {
+      const { firstName, lastName } = data;
+      return (!firstName && !lastName) || (firstName && lastName);
+    },
+    {
+      message: "Both firstName and lastName are required if one is provided.",
+      path: ["firstName"],
+    },
+  );
