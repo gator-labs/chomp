@@ -2579,6 +2579,11 @@
     "@solana/web3.js" "1.70.1"
     starknet "5.25.0"
 
+"@dynamic-labs/sdk-api-core@0.0.460":
+  version "0.0.460"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-api-core/-/sdk-api-core-0.0.460.tgz#30797ed0594bff7e33dc711ccf773ea6673fb680"
+  integrity sha512-g80gsR7Ub5GsqlUpZI6c7+/XmV6gm4FQ5flgrCfUArrPWpvSERXezyaSXCz3xLM9JbxWuli4pM+Pd3glphHSXA==
+
 "@dynamic-labs/sdk-api@0.0.387":
   version "0.0.387"
   resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-api/-/sdk-api-0.0.387.tgz#ee27cdcf9b44c4ecaccc93448fadf078337df6fb"
@@ -2683,6 +2688,13 @@
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/@dynamic-labs/wallet-connector-core/-/wallet-connector-core-1.4.2.tgz#ba190fe9529fb4131dce70c5d2dfe697c9959d71"
   integrity sha512-Cnw3BY9pDPRr4tHZIPr7RgxdnKU0BWY7NmvuLQ/mAzwWF/Kq0yzut35C/iDF29rkprUEYwBfzKnrqZmE5akrIQ==
+
+"@dynamic-labs/wallet-connector-core@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/wallet-connector-core/-/wallet-connector-core-2.3.2.tgz#6730a7e38c62046008f688e09eddfcae04698005"
+  integrity sha512-nLd8DE3y0VmTmxdG7wsddxNRp1dvZ62dZFw8XlmdU7dpjV6GlIBE/MZc8Uwaj5cpxheWROAe9jVScpU6WYMXOw==
+  dependencies:
+    "@dynamic-labs/sdk-api-core" "0.0.460"
 
 "@emnapi/runtime@^0.45.0":
   version "0.45.0"
