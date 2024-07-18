@@ -42,8 +42,13 @@ const useSignAndSendTransaction = () => {
   }, [primaryWallet?.connector]);
 
   const execute = async (transaction: Transaction | VersionedTransaction) => {
+    alert(primaryWallet?.address);
     if (!primaryWallet) return;
+    alert(primaryWallet?.address);
+
     const signer = await primaryWallet.connector.getSigner<ISolana>();
+    alert(signer.publicKey);
+
     return signer.signAndSendTransaction(transaction);
   };
 
