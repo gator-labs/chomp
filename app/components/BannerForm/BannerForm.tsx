@@ -29,7 +29,6 @@ const BannerForm = ({ banner, action }: Props) => {
     defaultValues: {
       id: banner?.id,
       url: banner?.url || "",
-      backgroundColor: banner?.backgroundColor || "#000",
       isActive: !!banner?.isActive,
       image: [],
     },
@@ -47,7 +46,6 @@ const BannerForm = ({ banner, action }: Props) => {
         formData.append("id", banner?.id.toString() || "");
         formData.append("url", data.url);
         formData.append("image", data.image[0]);
-        formData.append("backgroundColor", data.backgroundColor);
         formData.append("isActive", data.isActive.toString());
 
         if (action === "create") await createBanner(formData);
@@ -59,11 +57,6 @@ const BannerForm = ({ banner, action }: Props) => {
         <label className="block mb-1">Url</label>
         <TextInput variant="secondary" {...register("url")} />
         <div className="text-red">{errors.url?.message}</div>
-      </div>
-      <div className="mb-3">
-        <label className="block mb-1">Background Color</label>
-        <input type="color" {...register("backgroundColor")} />
-        <div className="text-red">{errors.backgroundColor?.message}</div>
       </div>
       <div className="mb-3">
         <label className="mr-3">Is active</label>

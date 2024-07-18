@@ -20,7 +20,6 @@ const BannerSlider = ({ banners, className }: Props) => {
         {banners.map((banner) => (
           <SwiperSlide
             key={banner.id}
-            style={{ background: banner.backgroundColor }}
             className={cn("rounded-3xl mb-4", className)}
           >
             {banner.url ? (

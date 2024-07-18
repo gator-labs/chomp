@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { colorSchema } from "./common/colorSchema";
 import {
   imageSchemaClient,
   imageSchemaClientOptional,
@@ -13,7 +12,6 @@ const baseBannerSchema = z.object({
     .url({ message: "Invalid URL format." })
     .or(z.literal("").optional())
     .optional(),
-  backgroundColor: colorSchema,
   isActive: z.coerce.string().transform((val) => val === "true"),
 });
 
