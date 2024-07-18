@@ -27,7 +27,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isDirty, isSubmitting },
+    reset,
+    getValues,
+    formState: { errors, isDirty, isSubmitting, isSubmitSuccessful },
   } = useForm({
     resolver: zodResolver(profileSchemaClient),
     defaultValues: {
@@ -49,6 +51,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       errorMessages.forEach((message) => errorToast(message));
     }
   }, [errors]);
+
+  useEffect(() => {
+    if (isSubmitSuccessful) {
+      reset(getValues());
+    }
+  }, [isSubmitSuccessful, reset]);
 
   const onSubmit = handleSubmit(async (data) => {
     const formData = new FormData();
