@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 
 import { Transaction, VersionedTransaction } from "@solana/web3.js";
@@ -45,6 +47,8 @@ const useSignAndSendTransaction = () => {
     alert(primaryWallet?.address);
     if (!primaryWallet) return;
     alert(primaryWallet?.address);
+    alert(await primaryWallet.connector.getBalance());
+    alert(await primaryWallet.connector.getSigner());
 
     const signer = await primaryWallet.connector.getSigner<ISolana>();
     alert(signer.publicKey);
