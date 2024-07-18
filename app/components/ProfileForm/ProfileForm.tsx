@@ -1,20 +1,21 @@
 "use client";
 import { updateProfile } from "@/app/actions/profile";
 import { useToast } from "@/app/providers/ToastProvider";
-import { profileSchema } from "@/app/schemas/profile";
+import { ProfileData } from "@/app/queries/profile";
+import { profileSchemaClient } from "@/app/schemas/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next-nprogress-bar";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
 import { ChompBackgroundProfileIcon } from "../Icons/ChompBackgroundProfileIcon";
+import { PencilEditIcon } from "../Icons/PencilEditIcon";
 import Sheet from "../Sheet/Sheet";
 import { TextInput } from "../TextInput/TextInput";
 
 type ProfileFormProps = {
-  profile: z.infer<typeof profileSchema>;
+  profile: ProfileData;
 };
 
 export function ProfileForm({ profile }: ProfileFormProps) {
@@ -25,12 +26,21 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isDirty, isSubmitting },
-    reset,
   } = useForm({
-    resolver: zodResolver(profileSchema),
-    defaultValues: profile,
+    resolver: zodResolver(profileSchemaClient),
+    defaultValues: {
+      firstName: profile.firstName || "",
+      lastName: profile.lastName || "",
+      username: profile.username || "",
+      image: [],
+    },
   });
+
+  const file = watch("image")?.[0] as File;
+
+  const previewUrl = !!file ? URL.createObjectURL(file) : profile?.profileSrc;
 
   useEffect(() => {
     const errorMessages = Object.values(errors).map((error) => error.message!);
@@ -41,7 +51,14 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   }, [errors]);
 
   const onSubmit = handleSubmit(async (data) => {
-    const res = await updateProfile(data);
+    const formData = new FormData();
+
+    formData.append("firstName", data.firstName);
+    formData.append("lastName", data?.lastName);
+    formData.append("username", data?.username);
+    formData.append("image", data?.image?.[0]);
+
+    const res = await updateProfile(formData);
 
     if (!!res?.error) {
       errorToast(res?.error);
@@ -58,10 +75,20 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     <form className="p-4" onSubmit={onSubmit}>
       <div className="flex flex-col gap-4">
         <div className="flex justify-center bg-[#A3A3EC] h-[112px] rounded-lg p-1 relative">
-          <div className="absolute inset-0 z-0 rounded-lg w-fit h-fit">
+          <div className="absolute inset-0 z-0 rounded-lg w-full h-full [&>*]:w-full">
             <ChompBackgroundProfileIcon width={358} height={112} />
           </div>
-          <Avatar src="/avatars/2.png" size="oversized" />
+          <div className="relative cursor-pointer">
+            <Avatar src={previewUrl!} size="oversized" />
+            <input
+              type="file"
+              className="opacity-0 w-full h-full absolute top-0 left-0 cursor-pointer z-50"
+              {...register("image")}
+            />
+            <div className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center right-3.5 bottom-6">
+              <PencilEditIcon width={8} height={8} />
+            </div>
+          </div>
         </div>
         <div>
           <div className="text-white font-sora text-sm font-normal mb-2">

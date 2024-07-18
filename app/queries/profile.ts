@@ -31,7 +31,7 @@ export async function getProfile() {
     username: user?.username,
     firstName: user?.firstName,
     lastName: user?.lastName,
-    profileSrc: user?.profileSrc,
+    profileSrc: user?.profileSrc || AvatarPlaceholder.src,
   };
 
   return profile;

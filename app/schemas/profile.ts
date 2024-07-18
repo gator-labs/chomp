@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  imageSchemaClientOptional,
+  imageSchemaServerOptional,
+} from "./common/imageSchema";
 
 export const profileSchema = z.object({
   firstName: z
@@ -31,4 +35,12 @@ export const profileSchema = z.object({
     .max(45, { message: "Username must be at most 45 characters long." })
     .optional()
     .or(z.literal("")),
+});
+
+export const profileSchemaClient = profileSchema.extend({
+  image: imageSchemaClientOptional,
+});
+
+export const profileSchemaServer = profileSchema.extend({
+  image: imageSchemaServerOptional,
 });
