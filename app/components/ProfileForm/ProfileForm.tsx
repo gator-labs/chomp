@@ -1,4 +1,5 @@
 "use client";
+import { updateProfile } from "@/app/actions/profile";
 import { useToast } from "@/app/providers/ToastProvider";
 import { profileSchema } from "@/app/schemas/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,10 +15,9 @@ import { TextInput } from "../TextInput/TextInput";
 
 type ProfileFormProps = {
   profile: z.infer<typeof profileSchema>;
-  action: (data: z.infer<typeof profileSchema>) => void;
 };
 
-export function ProfileForm({ profile, action }: ProfileFormProps) {
+export function ProfileForm({ profile }: ProfileFormProps) {
   const { errorToast } = useToast();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const router = useRouter();
@@ -25,27 +25,27 @@ export function ProfileForm({ profile, action }: ProfileFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, isSubmitting },
+    reset,
   } = useForm({
     resolver: zodResolver(profileSchema),
     defaultValues: profile,
   });
 
   useEffect(() => {
-    console.log(errors);
-    if (errors.firstName) {
-      errorToast(errors.firstName?.message ?? "An error occurred");
-    }
-    if (errors.lastName) {
-      errorToast(errors.lastName?.message ?? "An error occurred");
-    }
-    if (errors.username) {
-      errorToast(errors.username?.message ?? "An error occurred");
+    const errorMessages = Object.values(errors).map((error) => error.message!);
+
+    if (!!errorMessages.length) {
+      errorMessages.forEach((message) => errorToast(message));
     }
   }, [errors]);
 
-  const onSubmit = handleSubmit((data) => {
-    action(data);
+  const onSubmit = handleSubmit(async (data) => {
+    const res = await updateProfile(data);
+
+    if (!!res?.error) {
+      errorToast(res?.error);
+    }
   });
 
   const onDiscard = () => {
@@ -97,6 +97,7 @@ export function ProfileForm({ profile, action }: ProfileFormProps) {
           variant="white"
           type="submit"
           className="flex items-center !rounded-[32px]"
+          disabled={isSubmitting || !isDirty}
         >
           Save changes
         </Button>

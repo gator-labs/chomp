@@ -1,4 +1,5 @@
 "use server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { profileSchema } from "../schemas/profile";
@@ -15,10 +16,10 @@ export async function updateProfile(data: z.infer<typeof profileSchema>) {
   const validatedFields = profileSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return false;
+    return { error: "Something went wrong!" };
   }
 
-  if (validatedFields.data.username) {
+  if (!!validatedFields.data.username) {
     const user = await prisma.user.findFirst({
       where: {
         username: validatedFields.data.username,
@@ -26,8 +27,7 @@ export async function updateProfile(data: z.infer<typeof profileSchema>) {
     });
 
     if (user) {
-      console.log("Username already exists");
-      return false;
+      return { error: "Username already exists" };
     }
   }
 
@@ -41,4 +41,6 @@ export async function updateProfile(data: z.infer<typeof profileSchema>) {
       id: payload.sub,
     },
   });
+
+  revalidatePath("/application/profile/settings");
 }
