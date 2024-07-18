@@ -51,3 +51,18 @@ export async function getProfileImage() {
 
   return profile?.profileSrc ?? AvatarPlaceholder.src;
 }
+
+export async function getUsername(): Promise<string | null> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const profile = await prisma.user.findFirst({
+    where: { id: { equals: payload.sub } },
+    select: { username: true },
+  });
+
+  return profile?.username ?? "";
+}

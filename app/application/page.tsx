@@ -10,7 +10,7 @@ import {
   getQuestionsForRevealedSection,
   getUserStatistics,
 } from "../queries/home";
-import { getProfileImage } from "../queries/profile";
+import { getProfileImage, getUsername } from "../queries/profile";
 import { getAddressFromVerifiedCredentials } from "../utils/wallet";
 
 type PageProps = {};
@@ -23,10 +23,16 @@ export default async function Page({}: PageProps) {
   const decks = await getDecksForExpiringSection();
   const profileSrc = await getProfileImage();
   const address = getAddressFromVerifiedCredentials(payload);
+  const username = await getUsername();
 
   return (
     <>
-      <Profile address={address} avatarSrc={profileSrc} showLeaderboardButton />
+      <Profile
+        address={address}
+        avatarSrc={profileSrc}
+        showLeaderboardButton
+        username={username || ""}
+      />
       <DashboardUserStats
         averageTimeToAnswer={stats.averageTimeToAnswer}
         cardsChomped={stats.cardsChomped}

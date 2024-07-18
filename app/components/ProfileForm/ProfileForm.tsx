@@ -19,7 +19,7 @@ type ProfileFormProps = {
 };
 
 export function ProfileForm({ profile }: ProfileFormProps) {
-  const { errorToast } = useToast();
+  const { errorToast, successToast } = useToast();
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const router = useRouter();
 
@@ -71,6 +71,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     if (!!res?.error) {
       errorToast(res?.error);
     }
+
+    successToast("Profile successfully updated");
   });
 
   const onDiscard = () => {
