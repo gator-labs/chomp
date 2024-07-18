@@ -25,20 +25,21 @@ export function Profile({
       <div className="flex flex-col font-sora text-white gap-y-4 flex-1">
         <span className="font-light text-sm">{"Welcome back,"}</span>
         <div className="flex gap-2">
-          <Button
-            className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-[#333] !w-fit"
-            isPill
-            size="small"
-          >
-            <span className="font-normal font-sora">
-              {formatAddress(address)}
-            </span>
-            <div className="p-[3.5px]">
-              <a href="/application/profile/settings">
+          <Link href="/application/profile/settings">
+            <Button
+              className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-[#333] !w-fit"
+              isPill
+              size="small"
+            >
+              <span className="font-normal font-sora">
+                {formatAddress(address)}
+              </span>
+              <div className="p-[3.5px]">
                 <PenIcon width={12} height={12} fill="#999999" />
-              </a>
-            </div>
-          </Button>
+              </div>
+            </Button>
+          </Link>
+
           {showLeaderboardButton && (
             <Link href="/application/profile/leaderboard" className="contents">
               <Button
