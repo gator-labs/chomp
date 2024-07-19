@@ -49,7 +49,7 @@ export function HomeFeedDeckCard({
             <img
               src={imageUrl}
               alt="logo"
-              className="z-10 absolute w-9 h-9 rounded-full top-1/2 left-1/2 translate-x-[-50%] -translate-y-1/2"
+              className="z-10 absolute w-9 h-9 rounded-full top-1/2 left-1/2 translate-x-[-50%] -translate-y-1/2 object-cover"
             />
           </>
         ) : (

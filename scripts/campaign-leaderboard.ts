@@ -21,7 +21,7 @@ async function main() {
       isActive: true,
       name: "Bonkaton",
       image:
-        "https://chomp-devnet.s3.eu-north-1.amazonaws.com/1d003cf8-25f7-41d9-ba39-f1861ded9277",
+        "https://chomp-staging.s3.eu-north-1.amazonaws.com/cd22a4d3-556e-4899-be89-837ded272cb3",
     },
   });
 
