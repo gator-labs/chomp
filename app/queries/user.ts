@@ -45,6 +45,9 @@ export async function getCurrentUser() {
     where: {
       id: payload?.sub,
     },
+    include: {
+      wallets: true,
+    },
   });
 }
 
