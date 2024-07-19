@@ -33,7 +33,7 @@ export default async function Layout({ children }: PageLayoutProps) {
       <ClaimingProvider>
         <RevealContextProvider bonkBalance={bonkBalance}>
           <div className="flex flex-col h-full">
-            <main className="flex-grow overflow-y-auto w-full max-w-lg mx-auto flex flex-col px-4 pt-12 pb-4">
+            <main className="flex-grow overflow-y-auto w-full max-w-lg mx-auto flex flex-col px-4 pt-12 pb-4 overflow-x-hidden">
               <Navbar
                 avatarSrc={profile}
                 bonkBalance={bonkBalance}

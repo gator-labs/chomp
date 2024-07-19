@@ -1,11 +1,18 @@
+import BannerSlider from "@/app/components/BannerSlider/BannerSlider";
 import CampaignLeaderboard from "@/app/components/CampaignLeaderboard/CampaignLeaderboard";
 import ChompLeaderboard from "@/app/components/ChompLeaderboard/ChompLeaderboard";
+import { getActiveBanners } from "@/app/queries/banner";
 
-const LeaderboardPage = () => {
+const LeaderboardPage = async () => {
+  const banners = await getActiveBanners();
+
   return (
-    <div className="flex flex-col gap-4 overflow-auto pb-4">
-      <ChompLeaderboard />
-      <CampaignLeaderboard />
+    <div>
+      <BannerSlider banners={banners} />
+      <div className="flex flex-col gap-4 pb-4">
+        <ChompLeaderboard />
+        <CampaignLeaderboard />
+      </div>
     </div>
   );
 };
