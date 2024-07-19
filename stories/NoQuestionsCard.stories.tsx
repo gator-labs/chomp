@@ -7,9 +7,7 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  args: {
-    browseHomeUrl: "/application",
-  },
+  args: {},
   tags: ["autodocs"],
 } satisfies Meta<typeof NoQuestionsCard>;
 

@@ -25,6 +25,7 @@ export type Option = {
 };
 
 export type Question = {
+  deckRevealAtDate?: Date | null;
   id: number;
   durationMiliseconds: number;
   question: string;
@@ -36,8 +37,8 @@ export type Question = {
 
 type DeckProps = {
   questions: Question[];
-  browseHomeUrl?: string;
   deckId: number;
+  nextDeckId?: number;
   deckVariant?: "daily-deck" | "regular-deck";
 };
 
@@ -49,8 +50,8 @@ const getDueAt = (questions: Question[], index: number): Date => {
 
 export function Deck({
   questions,
-  browseHomeUrl,
   deckId,
+  nextDeckId,
   deckVariant,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
@@ -203,6 +204,7 @@ export function Deck({
     }
   }, [hasReachedEnd, deckResponse]);
 
+  console.log(questions);
   useEffect(() => {
     if (questionsRef.current) {
       questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;
@@ -218,8 +220,9 @@ export function Deck({
     return (
       <div className="flex flex-col justify-evenly h-full pb-4">
         <NoQuestionsCard
-          browseHomeUrl={browseHomeUrl}
           variant={deckVariant || variant}
+          nextDeckId={nextDeckId}
+          deckRevealAtDate={questions[0].deckRevealAtDate}
         />
       </div>
     );
