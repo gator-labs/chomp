@@ -82,10 +82,10 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   };
 
   return (
-    <form className="p-4" onSubmit={onSubmit}>
+    <form className="pt-4" onSubmit={onSubmit}>
       <div className="flex flex-col gap-4">
         <div className="flex justify-center bg-[#A3A3EC] h-[112px] rounded-lg p-1 relative">
-          <div className="absolute inset-0 z-0 rounded-lg w-full h-full [&>*]:w-full">
+          <div className="absolute inset-0 z-0 rounded-lg w-full h-full [&>*]:w-full overflow-hidden">
             <ChompBackgroundProfileIcon width={358} height={112} />
           </div>
           <div className="relative cursor-pointer">
