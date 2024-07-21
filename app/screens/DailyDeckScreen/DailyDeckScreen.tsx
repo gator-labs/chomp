@@ -44,16 +44,9 @@ const DailyDeckScreen = ({
             </div>
             <div className="flex-1">
               {!!questions?.length ? (
-                <Deck
-                  questions={questions}
-                  deckId={id!}
-                  browseHomeUrl="/application"
-                />
+                <Deck questions={questions} deckId={id!} />
               ) : (
-                <NoQuestionsCard
-                  browseHomeUrl="/application"
-                  variant={deckVariant}
-                />
+                <NoQuestionsCard variant={deckVariant} />
               )}
             </div>
           </div>
