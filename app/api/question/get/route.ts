@@ -69,13 +69,14 @@ export async function GET(req: Request) {
     option: qo.option,
     isLeft: qo.isLeft,
   })),
+  deckId: dq.deckId,
   questionTags: dq.question.questionTags,
   deckRevealAtDate: dailyDeck.revealAtDate,
 }));
 
 // Daily Deck
 if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0){
-  return Response.json({ question: getRandomElement(getDailyDeckQuestions)});
+  return Response.json({ question: getRandomElement(getDailyDeckQuestions) });
 }else{ // Unanwsered Questions
   const dailyDeckQuestions = await prisma.deckQuestion.findMany({
     where: {
@@ -124,6 +125,6 @@ if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0){
       status: 400,
     });
 
-  return Response.json({ question: getRandomElement(questions)});
+  return Response.json({ question: getRandomElement(questions) });
 }
 }
