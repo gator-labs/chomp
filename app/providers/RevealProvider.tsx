@@ -42,7 +42,6 @@ export function RevealContextProvider({
     revealPrice,
     hasPendingTransactions,
     isRevealWithNftMode,
-    nftType,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
@@ -124,7 +123,7 @@ export function RevealContextProvider({
               {hasPendingTransactions
                 ? "Continue"
                 : isRevealWithNftMode
-                  ? `Reveal with ${nftType} NFT`
+                  ? "Reveal with Chomp Collectible"
                   : "Reveal"}
             </Button>
             <Button
@@ -188,7 +187,9 @@ export function RevealContextProvider({
     }
 
     if (isRevealWithNftMode) {
-      return <p className="text-sm">{nftType} NFT will be used for reveal</p>;
+      return (
+        <p className="text-sm">Chomp Collectible will be used for reveal</p>
+      );
     }
 
     return (
