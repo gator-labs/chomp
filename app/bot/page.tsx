@@ -288,9 +288,9 @@ const ConnectWithOtpView: FC = () => {
 
       {(primaryWallet || !!verificationSuccess) && !otpSent &&
         <div>
-          <p className="text-2xl font-bold">Let's Keep Chomping! </p>
+          <p className="text-2xl font-bold">Let&apos;s Keep Chomping! </p>
           <p className="text-left">
-            You’re all set. Click below or close this button to continue with your Chomp journey.
+            You&apos;re all set. Click below or close this button to continue with your Chomp journey.
           </p>
           <button onClick={handleClose} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2 mt-2">Continue Chomping</button>
         </div>}
