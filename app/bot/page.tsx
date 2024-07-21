@@ -1,5 +1,6 @@
 "use client";
 import { FC, FormEventHandler, useEffect, useState } from "react";
+import Image from "next/image";
 import {
   useConnectWithOtp,
   useDynamicContext,
@@ -14,8 +15,17 @@ import { copyTextToClipboard } from "../utils/clipboard";
 import { Button } from "../components/Button/Button";
 import { useToast } from "../providers/ToastProvider";
 import { formatAddress } from "../utils/wallet";
+import ChompCover from '@/public/images/ChompBotCover.png'
+import arrowIcon from '@/public/icons/arrowIcon.svg'
+
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
+
+declare global {
+  interface Window {
+    Telegram: any;
+  }
+}
 
 const ConnectWithOtpView: FC = () => {
   // const [tuser, setTUser] = useState(null);
@@ -67,20 +77,18 @@ const ConnectWithOtpView: FC = () => {
     } catch (err: any) {
       const errorMessage = err?.message ? err.message : "Failed to Burn";
       errorToast(errorMessage);
-      console.log(err?.message, 'e');
     }
 
   };
 
   const onSubmitEmailHandler: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-
     try {
       await connectWithEmail(event.currentTarget.email.value);
       setVerificationSent(true);
     } catch (error) {
-      console.error("Error occurred while connecting with email:", error);
-      errorToast("Failed to send verification email. Please try again.");
+      const errorMessage = (error as { message: string }).message;
+      errorToast(errorMessage);
     }
   };
 
@@ -102,10 +110,14 @@ const ConnectWithOtpView: FC = () => {
     event.preventDefault();
     try {
       const otp = event.currentTarget.otp.value;
-
       await verifyOneTimePassword(otp);
+
+      await createOrRestoreSession({ oneTimeCode: otp });
+
+      // await onBurn();
       setVerificationSuccess(true);
     } catch (error) {
+
       console.error("Error occurred while verifying otp:", error);
       errorToast("Error occurred while verifying otp");
     }
@@ -160,45 +172,43 @@ const ConnectWithOtpView: FC = () => {
   // };
 
 
-  // useEffect(() => {
-  //   // Ensure Telegram Web App API is available
-  //   const script = document.createElement('script');
-  //   script.src = "https://telegram.org/js/telegram-web-app.js";
-  //   script.async = true;
-  //   document.body.appendChild(script);
+  useEffect(() => {
+    // Ensure Telegram Web App API is available
+    const script = document.createElement('script');
+    script.src = "https://telegram.org/js/telegram-web-app.js";
+    script.async = true;
+    document.body.appendChild(script);
 
-  //   script.onload = () => {
-  //     Telegram.WebApp.ready();
+    script.onload = () => {
+      window.Telegram.WebApp.ready();
 
-  //     // Retrieve user details
-  //     const initDataUnsafe = Telegram.WebApp.initDataUnsafe;
-  //     const user = initDataUnsafe.user;
-  //     console.log(Telegram.WebApp.initData, initDataUnsafe)
+      // Retrieve validated user details
+      // dataVerification(Telegram.WebApp.initData)
 
-  //     dataVerification(Telegram.WebApp.initData)
+      // Set user details in state
+      // if (user) {
+      // setTUser(user);
+      // }
+    };
 
-  //     // Set user details in state
-  //     if (user) {
-  //       setTUser(user);
-  //     }
-  //   };
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
-  //   return () => {
-  //     document.body.removeChild(script);
-  //   };
-  // }, []);
-
-
+  const handleClose = () => {
+    if (window.Telegram) {
+      window.Telegram.WebApp.close();
+    }
+  };
 
 
   return (
-    <div className="space-y-6 flex flex-col w-2/3 mt-12">
-      <p className="text-2xl text-center">Good job chompin!</p>
-      <p>
-        You have 8 questions to reveal. You must reveal in order to see the
-        answer and find out if you won anything.
-      </p>
-      {address !== '' &&
+    <div className="space-y-6 flex flex-col w-3/3 mt-12 p-4 items-center justify-center">
+      <Image src={ChompCover} width={400} height={400} alt="Chomp Cover" className="mt-12" />
+      {/* <button onClick={handleClose} > Close</button> */}
+
+      {/* {address !== '' &&
         <div className="text-center flex flex-col ml">
           Your address:
           <p className="break-words">
@@ -214,7 +224,7 @@ const ConnectWithOtpView: FC = () => {
               <CopyIcon />
             </Button>
           </span>
-        </div>}
+        </div>} */}
       <div />
       {!primaryWallet && !verificationSent && (
         <form
@@ -222,6 +232,10 @@ const ConnectWithOtpView: FC = () => {
           onSubmit={onSubmitEmailHandler}
           className="flex justify-center flex-col space-y-4 w-full"
         >
+          <p className="text-2xl font-bold">Chomp at its full potential!</p>
+          <p className="text-left">
+            To access all features of Chomp (i.e revealing answer, viewing results, earning BONK), you can register by entering your e-mail below.
+          </p>
           <div>
             <label htmlFor="email" className="">
               Email:
@@ -230,15 +244,16 @@ const ConnectWithOtpView: FC = () => {
               type="text"
               name="email"
               className="rounded-sm p-2 text-black w-full"
-              placeholder="john@example.com"
+              placeholder="Enter your email here"
             />
           </div>
           <div>
             <button
               type="submit"
-              className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
+              className="w-full rounded-sm bg-[#A3A3EC] text-base p-2 text-black flex flex-row justify-center items-center"
             >
-              Continue
+              Send OTP
+              <Image src={arrowIcon} width={20} height={20} alt="Chomp Cover" />
             </button>
           </div>
         </form>
@@ -250,6 +265,10 @@ const ConnectWithOtpView: FC = () => {
           className="flex justify-center flex-col space-y-4 w-full"
           onSubmit={onSubmitOtpHandler}
         >
+          <p className="text-2xl font-bold">Chomp at its full potential!</p>
+          <p className="text-left">
+            OTP sent to your email! Copy it and paste it here to access all of Chomp’s features!
+          </p>
           <input
             type="text"
             name="otp"
@@ -260,17 +279,23 @@ const ConnectWithOtpView: FC = () => {
             type="submit"
             className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
           >
-            Submit
+            Next
           </button>
         </form>
       )}
 
+
+
       {(primaryWallet || !!verificationSuccess) && !otpSent &&
         <div>
-          <button onClick={sendOTP} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2 mt-2">Burn Bonk</button>
+          <p className="text-2xl font-bold">Let's Keep Chomping! </p>
+          <p className="text-left">
+            You’re all set. Click below or close this button to continue with your Chomp journey.
+          </p>
+          <button onClick={handleClose} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2 mt-2">Continue Chomping</button>
         </div>}
 
-      {
+      {/* {
         !burned && otpSent &&
         <div>
           <input
@@ -282,14 +307,7 @@ const ConnectWithOtpView: FC = () => {
           />
           <button onClick={verifyOTPAndBurn} className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2">Verify Burn</button>
         </div>
-      }
-
-      {!!burned && (
-        <p className="text-2xl text-[#A3A3EC]">
-          BONK burn and reveal successful! Return to Telegram.
-        </p>
-      )}
-
+      } */}
     </div>
   );
 };
