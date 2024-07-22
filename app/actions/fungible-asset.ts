@@ -42,6 +42,7 @@ export const getTransactionHistory = async () => {
   const transactionHistory = await prisma.fungibleAssetTransactionLog.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
+    take: 25,
   });
 
   return transactionHistory;

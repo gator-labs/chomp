@@ -160,27 +160,12 @@ async function queryRevealedQuestions(
   	q."revealTokenAmount",
     c."image"
   from public."Question" q 
-  full join "Campaign" c on c."id" = q."campaignId"
+  left join "Campaign" c on c."id" = q."campaignId"
   where
   	(
-	    (
 	      q."revealAtDate" is not null 
 	      and 
 	      q."revealAtDate" < now() 
-	    )
-	    or 
-	    (
-	      q."revealAtAnswerCount" is not null
-	      and
-	      q."revealAtAnswerCount" >=
-	        (
-	          select
-	          	count(distinct concat(qa."userId",qo."questionId"))
-	          from public."QuestionOption" qo
-	          join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	          where qo."questionId" = q."id"
-	        )
-	    )
     )
     and
     	(
@@ -211,6 +196,7 @@ async function queryRevealedQuestions(
           	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
           	where qa."userId" = ${userId} and qo."questionId" = q."id"
 	    )
+      limit 5
   `;
 
   return revealQuestions;
@@ -253,24 +239,9 @@ async function queryQuestionsForReadyToReveal(
   from public."Question" q 
   where
   	(
-	    (
 	      q."revealAtDate" is not null 
 	      and 
-	      q."revealAtDate" < now() 
-	    )
-	    or 
-	    (
-	      q."revealAtAnswerCount" is not null
-	      and
-	      q."revealAtAnswerCount" >=
-	        (
-	          select
-	          	count(distinct concat(qa."userId",qo."questionId"))
-	          from public."QuestionOption" qo
-	          join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	          where qo."questionId" = q."id"
-	        )
-	    )
+	      q."revealAtDate" < now()
     )
     and
     	(
