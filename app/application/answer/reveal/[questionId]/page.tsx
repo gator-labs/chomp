@@ -13,8 +13,8 @@ import QuestionAnswerPreviewBinary from "@/app/components/QuestionAnswerPreviewB
 import QuestionAnswerPreviewMultipleChoice from "@/app/components/QuestionAnswerPreviewMultipleChoice/QuestionAnswerPreviewMultipleChoice";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
-import { getProfileImage } from "@/app/queries/profile";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
+import { getCurrentUser } from "@/app/queries/user";
 import {
   BINARY_QUESTION_OPTION_LABELS,
   BINARY_QUESTION_TRUE_LABELS,
@@ -33,11 +33,10 @@ interface Props {
 const BONK_REWARD_AMOUNT_FOR_FIRST_ORDER_CORRECT = 5000;
 
 const RevealAnswerPage = async ({ params }: Props) => {
-  const questionResponse = await getQuestionWithUserAnswer(
-    Number(params.questionId),
-  );
-
-  const profile = await getProfileImage();
+  const [questionResponse, user] = await Promise.all([
+    getQuestionWithUserAnswer(Number(params.questionId)),
+    getCurrentUser(),
+  ]);
 
   const sendTransactionSignature =
     questionResponse?.chompResults[0]?.sendTransactionSignature;
@@ -155,7 +154,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           optionSelected={answerSelected.questionOption.option ?? ""}
           percentageSelected={answerSelected.percentage ?? 0}
           isCorrect={isSecondOrderCorrect}
-          avatarSrc={profile}
+          avatarSrc={user?.profileSrc || ""}
         />
       </>
     );
@@ -196,7 +195,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           optionSelected={optionSelected?.questionOption.option ?? ""}
           percentageSelected={optionSelected?.percentage ?? 0}
           isCorrect={isSecondOrderCorrect}
-          avatarSrc={profile}
+          avatarSrc={user?.profileSrc || ""}
         />
       </>
     );

@@ -12,7 +12,6 @@ interface Props {
   date?: Date | null;
   questions?: Question[];
   id?: number;
-  isAdmin: boolean;
   navBarData: NavbarProps;
   percentOfAnsweredQuestions: number;
 }
@@ -21,7 +20,6 @@ const DailyDeckScreen = ({
   date,
   questions,
   id,
-  isAdmin,
   navBarData,
   percentOfAnsweredQuestions,
 }: Props) => {
@@ -56,7 +54,7 @@ const DailyDeckScreen = ({
           disabled={!!questions?.length}
           toastMessage="Please complete this Daily Deck first ✨"
         >
-          <TabNavigation isAdmin={isAdmin} />
+          <TabNavigation />
         </Disabled>
       </div>
     </>

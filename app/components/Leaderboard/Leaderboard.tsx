@@ -7,6 +7,7 @@ import { nthNumber } from "@/app/utils/number";
 import { cn } from "@/app/utils/tailwind";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { User } from "@prisma/client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
@@ -121,7 +122,8 @@ const Leaderboard = ({
         {leaderboardImage && (
           <div className="relative w-[38px] h-[38px]">
             <ActiveIndicator isActive={isLeaderboardActive} />
-            <img
+            <Image
+              fill
               src={leaderboardImage}
               alt={`${leaderboardName}-logo`}
               className="object-cover w-full h-full rounded-full"

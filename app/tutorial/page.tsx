@@ -43,7 +43,7 @@ const TutorialPage = async () => {
           <TutorialFlowScreens currentUser={currentUser} />
         </main>
 
-        <TabNavigation isAdmin={currentUser.isAdmin} />
+        <TabNavigation />
       </div>
     </ConfettiProvider>
   );

@@ -8,7 +8,6 @@ import { TransactionData } from "../TransactionsTable/TransactionRow/Transaction
 
 export type NavbarProps = {
   avatarSrc: string;
-  onNotificationClick?: () => {};
   address: string;
   transactions: TransactionData[];
   bonkBalance: number;
@@ -18,7 +17,6 @@ export type NavbarProps = {
 export function Navbar({
   avatarSrc,
   transactions,
-  onNotificationClick,
   address,
   bonkBalance,
   solBalance,
@@ -39,15 +37,6 @@ export function Navbar({
         <ChompFlatIcon fill="#fff" />
       </Link>
       <div className="flex gap-6 items-center">
-        {/* <Link
-          className="font-sora text-xs text-chomp-purple underline"
-          href="#"
-        >
-          Feedback
-        </Link>
-        <button onClick={onNotificationClick}>
-          <UnreadIcon />
-        </button> */}
         <button onClick={openQuickProfile}>
           <Avatar src={avatarSrc} size="small" />
         </button>

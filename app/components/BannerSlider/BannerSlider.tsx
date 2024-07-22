@@ -2,6 +2,7 @@
 
 import { cn } from "@/app/utils/tailwind";
 import { Banner } from "@prisma/client";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 interface Props {
@@ -11,7 +12,12 @@ interface Props {
 
 const BannerSlider = ({ banners, className }: Props) => {
   const sliderContent = (banner: Banner) => (
-    <img src={banner.image} className="w-full h-full" />
+    <Image
+      fill
+      src={banner.image}
+      className="w-full h-full"
+      alt="banner-image"
+    />
   );
 
   return (
@@ -26,12 +32,12 @@ const BannerSlider = ({ banners, className }: Props) => {
               <a
                 href={banner.url}
                 target="_blank"
-                className="flex gap-4 items-center"
+                className="flex gap-4 items-center relative h-[175px]"
               >
                 {sliderContent(banner)}
               </a>
             ) : (
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-4 items-center relative h-[175px]">
                 {sliderContent(banner)}
               </div>
             )}

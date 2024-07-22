@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { getTransactionHistory } from "../actions/fungible-asset";
-import { getJwtPayload } from "../actions/jwt";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 import { DailyDeckRedirect } from "../components/DailyDeckRedirect/DailyDeckRedirect";
 import { Navbar } from "../components/Navbar/Navbar";
@@ -8,25 +7,25 @@ import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 import { ClaimingProvider } from "../providers/ClaimingProvider";
 import ConfettiProvider from "../providers/ConfettiProvider";
 import { RevealContextProvider } from "../providers/RevealProvider";
-import { getProfileImage } from "../queries/profile";
-import { getIsUserAdmin } from "../queries/user";
+import { getCurrentUser } from "../queries/user";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
-import { getAddressFromVerifiedCredentials } from "../utils/wallet";
 
 type PageLayoutProps = {
   children: ReactNode;
 };
 
 export default async function Layout({ children }: PageLayoutProps) {
-  const payload = await getJwtPayload();
-  const history = await getTransactionHistory();
-  const profile = await getProfileImage();
-  const address = getAddressFromVerifiedCredentials(payload);
+  const [user, history] = await Promise.all([
+    getCurrentUser(),
+    getTransactionHistory(),
+  ]);
 
-  const bonkBalance = await getBonkBalance(address);
-  const solBalance = await getSolBalance(address);
+  const address = user?.wallets[0].address || "";
 
-  const isAdmin = await getIsUserAdmin();
+  const [bonkBalance, solBalance] = await Promise.all([
+    getBonkBalance(address),
+    getSolBalance(address),
+  ]);
 
   return (
     <ConfettiProvider>
@@ -35,7 +34,7 @@ export default async function Layout({ children }: PageLayoutProps) {
           <div className="flex flex-col h-full">
             <main className="flex-grow overflow-y-auto w-full max-w-lg mx-auto flex flex-col px-4 pt-12 pb-4 overflow-x-hidden">
               <Navbar
-                avatarSrc={profile}
+                avatarSrc={user?.profileSrc || ""}
                 bonkBalance={bonkBalance}
                 solBalance={solBalance}
                 transactions={history.map((h) => ({
@@ -48,7 +47,7 @@ export default async function Layout({ children }: PageLayoutProps) {
               />
               {children}
             </main>
-            <TabNavigation isAdmin={isAdmin} />
+            <TabNavigation />
             <AuthRedirect />
             <DailyDeckRedirect />
           </div>

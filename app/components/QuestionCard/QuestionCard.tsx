@@ -98,7 +98,7 @@ export function QuestionCard({
         </div>
         {viewImageSrc && (
           <div className="flex z-10">
-            <img
+            <Image
               onClick={() => setIsViewImageOpen(true)}
               src={viewImageSrc}
               alt="preview-image"
@@ -111,7 +111,7 @@ export function QuestionCard({
               title=""
               variant="image-only"
             >
-              <img src={viewImageSrc} />
+              <Image alt="preview-image" src={viewImageSrc} />
             </Modal>
           </div>
         )}

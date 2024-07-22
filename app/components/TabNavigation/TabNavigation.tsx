@@ -1,5 +1,4 @@
-"use client";
-
+import { getIsUserAdmin } from "@/app/queries/user";
 import { ChallengeIcon } from "../Icons/ChallengeIcon";
 import { ComposeIcon } from "../Icons/ComposeIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
@@ -21,11 +20,9 @@ const adminNavigationItems = [
   { label: "Admin", icon: <SettingsIcon />, href: "/admin" },
 ];
 
-interface Props {
-  isAdmin: boolean;
-}
+export async function TabNavigation() {
+  const isAdmin = await getIsUserAdmin();
 
-export function TabNavigation({ isAdmin }: Props) {
   return (
     <Navigation
       items={[...navigationItems, ...(isAdmin ? adminNavigationItems : [])]}

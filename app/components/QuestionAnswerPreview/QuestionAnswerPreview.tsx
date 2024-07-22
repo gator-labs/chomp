@@ -37,11 +37,12 @@ export default function QuestionAnswerPreview({
       {children}
       {viewImageSrc && (
         <div className="flex z-10">
-          <img
+          <Image
             onClick={() => setIsViewImageOpen(true)}
             src={viewImageSrc}
             alt="preview-image"
             className="w-14 rounded-lg cursor-pointer"
+            fill
           />
 
           <Modal
@@ -50,7 +51,7 @@ export default function QuestionAnswerPreview({
             title=""
             variant="image-only"
           >
-            <img src={viewImageSrc} />
+            <Image fill alt="preview-image" src={viewImageSrc} />
           </Modal>
         </div>
       )}

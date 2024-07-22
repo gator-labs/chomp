@@ -7,6 +7,7 @@ import { campaignSchema } from "@/app/schemas/campaign";
 import { createCampaign, editCampaign } from "@/app/actions/campaign";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
@@ -82,7 +83,12 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
         <label className="block mb-1">Image</label>
         {!!previewUrl && (
           <div className="w-32 h-32 relative overflow-hidden rounded-full">
-            <img src={previewUrl} className="object-cover w-full h-full" />
+            <Image
+              fill
+              alt="preview-image-campaign"
+              src={previewUrl}
+              className="object-cover w-full h-full"
+            />
           </div>
         )}
         <input

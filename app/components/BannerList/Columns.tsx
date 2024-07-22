@@ -3,6 +3,7 @@
 import { Banner } from "@prisma/client";
 
 import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../Button/Button";
 
@@ -11,7 +12,12 @@ export const columns: ColumnDef<Banner>[] = [
     accessorKey: "image",
     header: "Image",
     cell: ({ row }) => (
-      <img className="w-32 h-32 object-contain" src={row.original.image} />
+      <Image
+        fill
+        alt="banner-image"
+        className="w-32 h-32 object-contain"
+        src={row.original.image}
+      />
     ),
   },
   {

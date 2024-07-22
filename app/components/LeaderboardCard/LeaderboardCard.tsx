@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
@@ -28,7 +29,8 @@ const LeaderboardCard = ({
           <div className="relative w-[38px] h-[38px]">
             {showActiveIndicator && <ActiveIndicator isActive={isActive} />}
             {imageSrc && (
-              <img
+              <Image
+                fill
                 src={imageSrc}
                 alt={`${name}-logo`}
                 className="object-cover w-full h-full rounded-full"
