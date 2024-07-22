@@ -367,17 +367,6 @@ async function hasBonkBurnedCorrectly(
     })
   ).map((wallet) => wallet.address);
 
-  const burnTransactionCount = await prisma.chompResult.count({
-    where: {
-      burnTransactionSignature: burnTx,
-      transactionStatus: TransactionStatus.Completed,
-    },
-  });
-
-  if (burnTransactionCount > 0) {
-    return false;
-  }
-
   const transaction = await CONNECTION.getParsedTransaction(burnTx, {
     commitment: "confirmed",
     maxSupportedTransactionVersion: 0,
@@ -387,10 +376,18 @@ async function hasBonkBurnedCorrectly(
     return false;
   }
 
+  const burnTransactionCount = await prisma.chompResult.count({
+    where: {
+      burnTransactionSignature: burnTx,
+      transactionStatus: TransactionStatus.Completed,
+    },
+  });
+
   const burnInstruction = transaction.transaction.message.instructions.find(
     (instruction) =>
       "parsed" in instruction &&
-      +instruction.parsed.info.tokenAmount.amount >= bonkToBurn * 10 ** 5 &&
+      +instruction.parsed.info.tokenAmount.amount >=
+        bonkToBurn * 10 ** 5 * (burnTransactionCount + 1) &&
       instruction.parsed.type === "burnChecked" &&
       wallets.includes(instruction.parsed.info.authority) &&
       instruction.parsed.info.mint ===
