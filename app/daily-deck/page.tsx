@@ -27,6 +27,7 @@ export default async function Page() {
     <DailyDeckScreen
       date={dailyDeck?.date}
       id={dailyDeck?.id}
+      isAdmin={!!user?.isAdmin}
       questions={dailyDeck?.questions}
       percentOfAnsweredQuestions={
         (dailyAnsweredQuestions.answers.length /
