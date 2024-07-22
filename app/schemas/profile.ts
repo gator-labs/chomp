@@ -21,7 +21,6 @@ export const profileSchema = z.object({
       message:
         "Invalid last name. No spaces or special characters are allowed.",
     })
-    .min(1, { message: "Last name must be at least 1 character long." })
     .max(20, { message: "Last name must be at most 20 characters long." })
     .optional()
     .or(z.literal("")),
@@ -43,11 +42,11 @@ export const profileSchemaClient = profileSchema
   })
   .refine(
     (data) => {
-      const { firstName, lastName } = data;
-      return (!firstName && !lastName) || (firstName && lastName);
+      const { firstName } = data;
+      return !!firstName;
     },
     {
-      message: "Both firstName and lastName are required if one is provided.",
+      message: "Firstname is required.",
       path: ["firstName"],
     },
   );
@@ -58,11 +57,11 @@ export const profileSchemaServer = profileSchema
   })
   .refine(
     (data) => {
-      const { firstName, lastName } = data;
-      return (!firstName && !lastName) || (firstName && lastName);
+      const { firstName } = data;
+      return !!firstName;
     },
     {
-      message: "Both firstName and lastName are required if one is provided.",
+      message: "Firstname is required.",
       path: ["firstName"],
     },
   );
