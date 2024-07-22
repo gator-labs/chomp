@@ -1,6 +1,5 @@
 import { HomeFeedDeckCard } from "@/app/components/HomeFeedDeckCard/HomeFeedDeckCard";
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
 import dayjs from "dayjs";
 
 const meta = {
@@ -15,7 +14,7 @@ const meta = {
     revealAtAnswerCount: 20,
     revealAtDate: dayjs(new Date()).add(1, "day").toDate(),
     status: "new",
-    onClick: fn(),
+    deckId: 1,
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof HomeFeedDeckCard>;
