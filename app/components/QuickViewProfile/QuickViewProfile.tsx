@@ -43,7 +43,7 @@ export function QuickViewProfile({
 
   return (
     <Flyout isOpen={isOpen} onClose={onClose}>
-      <div className="p-4 flex flex-col justify-between h-full">
+      <div className="p-4 flex flex-col justify-start h-full">
         <TransactionProfile
           avatarSrc={avatarSrc}
           bonkAmount={bonkAmount}
@@ -63,7 +63,7 @@ export function QuickViewProfile({
           </Button>
         </Link>
         <TransactionsTable transactions={transactions} />
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center mt-auto">
           <div className="p-2 rounded-lg bg-[#666666] flex gap-2">
             <a
               href="https://t.me/+BN0ZDiUhTUkxNzZl"

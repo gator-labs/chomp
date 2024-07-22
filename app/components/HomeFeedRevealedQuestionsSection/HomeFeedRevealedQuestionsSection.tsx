@@ -37,31 +37,29 @@ export function HomeFeedRevealedQuestionsSection({
     });
   };
 
-  const questionSlides = questions
-    .filter((_, index) => index < QUESTIONS_IN_SECTION)
-    .map((q) => (
-      <FeedQuestionCard
-        key={q.id}
-        question={q.question}
-        answerCount={q.answerCount}
-        revealAtAnswerCount={q.revealAtAnswerCount}
-        revealAtDate={q.revealAtDate}
-        onTopCornerAction={(e) => {
-          dismissQuestion(q.id);
-          e.stopPropagation();
-        }}
-        topCornerActionIcon={<CloseIcon />}
-        onClick={() => handleView(q)}
-        statusLabel={
-          <button
-            onClick={() => handleView(q)}
-            className="text-xs leading-6 text-white font-bold cursor-pointer"
-          >
-            View
-          </button>
-        }
-      />
-    ));
+  const questionSlides = questions.map((q) => (
+    <FeedQuestionCard
+      key={q.id}
+      question={q.question}
+      answerCount={q.answerCount}
+      revealAtAnswerCount={q.revealAtAnswerCount}
+      revealAtDate={q.revealAtDate}
+      onTopCornerAction={(e) => {
+        dismissQuestion(q.id);
+        e.stopPropagation();
+      }}
+      topCornerActionIcon={<CloseIcon />}
+      onClick={() => handleView(q)}
+      statusLabel={
+        <button
+          onClick={() => handleView(q)}
+          className="text-xs leading-6 text-white font-bold cursor-pointer"
+        >
+          View
+        </button>
+      }
+    />
+  ));
 
   if (questionSlides.length < QUESTIONS_IN_SECTION) {
     questionSlides.push(
