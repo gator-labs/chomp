@@ -10,8 +10,10 @@ type PageProps = {
 };
 
 const CampaignLeaderboardPage = async ({ params }: PageProps) => {
-  const campaign = await getCampaign(Number(params.id));
-  const user = await getCurrentUser();
+  const [user, campaign] = await Promise.all([
+    getCurrentUser(),
+    getCampaign(Number(params.id)),
+  ]);
 
   if (!campaign) return notFound();
 

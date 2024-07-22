@@ -12,8 +12,8 @@ interface Props {
   date?: Date | null;
   questions?: Question[];
   id?: number;
-  isAdmin: boolean;
   navBarData: NavbarProps;
+  isAdmin: boolean;
   percentOfAnsweredQuestions: number;
 }
 
@@ -21,9 +21,9 @@ const DailyDeckScreen = ({
   date,
   questions,
   id,
-  isAdmin,
   navBarData,
   percentOfAnsweredQuestions,
+  isAdmin,
 }: Props) => {
   const deckVariant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
 
@@ -44,16 +44,9 @@ const DailyDeckScreen = ({
             </div>
             <div className="flex-1">
               {!!questions?.length ? (
-                <Deck
-                  questions={questions}
-                  deckId={id!}
-                  browseHomeUrl="/application"
-                />
+                <Deck questions={questions} deckId={id!} />
               ) : (
-                <NoQuestionsCard
-                  browseHomeUrl="/application"
-                  variant={deckVariant}
-                />
+                <NoQuestionsCard variant={deckVariant} />
               )}
             </div>
           </div>

@@ -13,15 +13,15 @@ type NoQuestionsCardProps = {
     | "answer-page"
     | "answered-none"
     | "answered-some";
-  browseHomeUrl?: string;
+  nextDeckId?: number;
+  deckRevealAtDate?: Date | null;
 };
 
 export function NoQuestionsCard({
-  browseHomeUrl,
   variant,
+  nextDeckId,
+  deckRevealAtDate,
 }: NoQuestionsCardProps) {
-  const hasBrowseHome = !!browseHomeUrl;
-
   const router = useRouter();
 
   return (
@@ -38,20 +38,32 @@ export function NoQuestionsCard({
             {QUESTION_CARD_CONTENT[variant].title}
           </div>
           <div className="text-base relative z-10">
-            {QUESTION_CARD_CONTENT[variant].body}
+            {QUESTION_CARD_CONTENT[variant].body(deckRevealAtDate)}
           </div>
         </div>
         <div className="absolute bottom-2.5 right-4">
           {QUESTION_CARD_CONTENT[variant].backgroundIcon}
         </div>
       </div>
-      {hasBrowseHome && (
+      {nextDeckId ? (
         <Button
           variant="pink"
           size="big"
           className="gap-1"
           onClick={() => {
-            router.replace(browseHomeUrl);
+            router.replace(`/application/answer/deck/${nextDeckId}`);
+            router.refresh();
+          }}
+        >
+          Next Deck <HalfArrowRightIcon fill="#0D0D0D" />
+        </Button>
+      ) : (
+        <Button
+          variant="pink"
+          size="big"
+          className="gap-1"
+          onClick={() => {
+            router.replace("/application");
             router.refresh();
           }}
         >

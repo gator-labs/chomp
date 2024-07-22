@@ -33,6 +33,12 @@ const navigationItems = [
     href: "/admin/campaigns",
     isActiveRegex: "/admin/campaigns.*",
   },
+  {
+    label: "Banners",
+    icon: <MoneyIcon />,
+    href: "/admin/banners",
+    isActiveRegex: "/admin/banners.*",
+  },
 ];
 
 export function AdminTabNavigation() {

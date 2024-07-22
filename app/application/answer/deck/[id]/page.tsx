@@ -3,6 +3,7 @@ import {
   getDeckQuestionsForAnswerById,
   hasAnsweredDeck,
 } from "@/app/queries/deck";
+import { getDecksForExpiringSection } from "@/app/queries/home";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
 
@@ -11,13 +12,14 @@ type PageProps = {
 };
 
 export default async function Page({ params: { id } }: PageProps) {
-  const hasAnswered = await hasAnsweredDeck(+id, null, true);
+  const currentDeckId = Number(id);
+  const hasAnswered = await hasAnsweredDeck(currentDeckId, null, true);
 
   if (hasAnswered) {
     return redirect("/application");
   }
 
-  const questions = await getDeckQuestionsForAnswerById(+id);
+  const questions = await getDeckQuestionsForAnswerById(currentDeckId);
 
   if (
     !questions ||
@@ -26,10 +28,18 @@ export default async function Page({ params: { id } }: PageProps) {
     return redirect("/application");
   }
 
+  const decks = await getDecksForExpiringSection();
+  const nextDeck = decks.filter((deck) => deck.id !== currentDeckId)?.[0];
+
   return (
     <div className="h-full py-2">
       {questions && (
-        <Deck questions={questions} deckId={+id} deckVariant="regular-deck" />
+        <Deck
+          questions={questions}
+          deckId={currentDeckId}
+          nextDeckId={nextDeck?.id}
+          deckVariant="regular-deck"
+        />
       )}
     </div>
   );
