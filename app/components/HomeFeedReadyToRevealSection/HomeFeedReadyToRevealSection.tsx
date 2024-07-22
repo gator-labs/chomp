@@ -1,17 +1,11 @@
-"use client";
-
-import { RevealedQuestion } from "@/app/queries/home";
+import { getQuestionsForReadyToRevealSection } from "@/app/queries/home";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
 import { RevealFeedQuestionCard } from "../RevealFeedQuestionCard/RevealFeedQuestionCard";
 
-type HomeFeedReadyToRevealSectionProps = {
-  questions: RevealedQuestion[];
-};
+export async function HomeFeedReadyToRevealSection() {
+  const questions = await getQuestionsForReadyToRevealSection();
 
-export function HomeFeedReadyToRevealSection({
-  questions,
-}: HomeFeedReadyToRevealSectionProps) {
   const questionSlides = !!questions.length
     ? questions.map((q) => (
         <RevealFeedQuestionCard

@@ -12,8 +12,8 @@ interface Props {
   date?: Date | null;
   questions?: Question[];
   id?: number;
-  isAdmin: boolean;
   navBarData: NavbarProps;
+  isAdmin: boolean;
   percentOfAnsweredQuestions: number;
 }
 
@@ -21,9 +21,9 @@ const DailyDeckScreen = ({
   date,
   questions,
   id,
-  isAdmin,
   navBarData,
   percentOfAnsweredQuestions,
+  isAdmin,
 }: Props) => {
   const deckVariant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
 

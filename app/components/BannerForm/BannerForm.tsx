@@ -7,6 +7,7 @@ import {
 } from "@/app/schemas/banner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Banner } from "@prisma/client";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
@@ -71,7 +72,12 @@ const BannerForm = ({ banner, action }: Props) => {
         <label className="block mb-1">Image*</label>
         {!!previewUrl && (
           <div className="w-32 h-32 relative overflow-hidden mb-2">
-            <img src={previewUrl} className="object-contain w-full h-full" />
+            <Image
+              fill
+              src={previewUrl}
+              alt="banner-image"
+              className="object-contain w-full h-full"
+            />
           </div>
         )}
         <input

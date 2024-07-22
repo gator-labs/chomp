@@ -11,13 +11,14 @@ import Trophy from "@/app/components/Icons/Trophy";
 import { QuestionStep } from "@/app/components/Question/Question";
 import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
+import Spinner from "@/app/components/Spinner/Spinner";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { QuestionType, User } from "@prisma/client";
 import classNames from "classnames";
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 interface Props {
   isCorrectFirstOrderMultipleQuestion: boolean;
@@ -53,12 +54,9 @@ const RevealScreen = ({
   if (currentScreen === "reveal")
     return (
       <div className="px-6">
-        <DashboardUserStats
-          averageTimeToAnswer="0:05"
-          cardsChomped="1"
-          daysStreak="1"
-          totalPointsEarned="100"
-        />
+        <Suspense fallback={<Spinner />}>
+          <DashboardUserStats />
+        </Suspense>{" "}
         <div className="pt-4 flex flex-col gap-2 overflow-hidden">
           <Tooltip
             infoText="Click reveal to see the result"

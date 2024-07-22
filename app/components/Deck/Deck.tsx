@@ -204,7 +204,6 @@ export function Deck({
     }
   }, [hasReachedEnd, deckResponse]);
 
-  console.log(questions);
   useEffect(() => {
     if (questionsRef.current) {
       questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;

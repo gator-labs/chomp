@@ -1,3 +1,4 @@
+import { getCurrentUser } from "@/app/queries/user";
 import { formatAddress } from "@/app/utils/wallet";
 import Link from "next/link";
 import { Avatar } from "../Avatar/Avatar";
@@ -5,20 +6,19 @@ import { Button } from "../Button/Button";
 import { PenIcon } from "../Icons/PenIcon";
 
 type ProfileProps = {
-  address: string;
-  avatarSrc: string;
-  username: string;
   showLeaderboardButton?: boolean;
   editAllowed?: boolean;
 };
 
-export function Profile({
-  address,
-  avatarSrc,
-  username,
+export async function Profile({
   showLeaderboardButton = false,
   editAllowed = false,
 }: ProfileProps) {
+  const user = await getCurrentUser();
+  const username = user?.username || "";
+  const address = user?.wallets[0].address || "";
+  const avatarSrc = user?.profileSrc || "";
+
   return (
     <div className="flex items-center py-4 rounded-2xl bg-[#0D0D0D] gap-4">
       <Avatar
