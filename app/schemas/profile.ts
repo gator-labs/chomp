@@ -42,11 +42,13 @@ export const profileSchemaClient = profileSchema
   })
   .refine(
     (data) => {
-      const { firstName } = data;
-      return !!firstName;
+      const { firstName, lastName } = data;
+      // First name is not required if last name is not set.
+      // If last name is set, first name must also be set.
+      return !lastName || (lastName && !!firstName);
     },
     {
-      message: "Firstname is required.",
+      message: "First name must be provided if a last name is set.",
       path: ["firstName"],
     },
   );
@@ -57,11 +59,13 @@ export const profileSchemaServer = profileSchema
   })
   .refine(
     (data) => {
-      const { firstName } = data;
-      return !!firstName;
+      const { firstName, lastName } = data;
+      // First name is not required if last name is not set.
+      // If last name is set, first name must also be set.
+      return !lastName || (lastName && !!firstName);
     },
     {
-      message: "Firstname is required.",
+      message: "First name must be provided if a last name is set.",
       path: ["firstName"],
     },
   );
