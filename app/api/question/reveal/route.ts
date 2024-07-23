@@ -1,8 +1,4 @@
-import { Prisma } from "@prisma/client";
 import { headers } from "next/headers";
-import prisma from "@/app/services/prisma";
-import dayjs from "dayjs";
-import { getRandomElement } from "@/app/utils/randomUtils";
 import { queryQuestionsForReadyToReveal } from "@/app/queries/home";
 import { MINIMAL_ANSWER_COUNT } from "@/app/constants/answers";
 
