@@ -24,17 +24,6 @@ type HistoryProps = {
   type: string;
 };
 
-const sortStateMachine = {
-  [HistorySortOptions.Date]: HistorySortOptions.Claimable,
-  [HistorySortOptions.Claimable]: HistorySortOptions.Revealed,
-  [HistorySortOptions.Revealed]: HistorySortOptions.Date,
-};
-
-const typeStateMachine = {
-  [HistoryTypeOptions.Deck]: HistoryTypeOptions.Question,
-  [HistoryTypeOptions.Question]: HistoryTypeOptions.Deck,
-};
-
 export default function History({ sort, type }: HistoryProps) {
   const router = useRouter();
   const pathname = usePathname();
