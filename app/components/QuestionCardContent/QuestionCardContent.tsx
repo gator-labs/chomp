@@ -72,7 +72,7 @@ export function QuestionCardContent({
             <AnswerResult
               index={index}
               answerText={qo.option}
-              percentage={qo.id === randomOptionId ? percentage ?? 0 : 0}
+              percentage={qo.id === randomOptionId ? (percentage ?? 0) : 0}
               handleRatioChange={
                 qo.id === randomOptionId ? onPercentageChanged : undefined
               }

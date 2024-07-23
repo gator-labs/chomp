@@ -26,7 +26,9 @@ export default function ChompFullScreenLoader({
               src="/lottie/chomp.lottie"
             />
           </div>
-          <p className="text-base text-white w-full text-center">{loadingMessage}</p>
+          <p className="text-base text-white w-full text-center">
+            {loadingMessage}
+          </p>
         </div>
       </div>
     </ReactPortal>

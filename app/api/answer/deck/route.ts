@@ -1,25 +1,25 @@
+import { SaveQuestionRequest } from "@/app/actions/answer";
+import { updateStreak } from "@/app/actions/streak";
 import { hasAnsweredDeck } from "@/app/queries/deck";
 import prisma from "@/app/services/prisma";
-import { headers } from "next/headers";
-import dayjs from "dayjs";
-import { SaveQuestionRequest } from "@/app/actions/answer";
 import { QuestionAnswer, QuestionType } from "@prisma/client";
-import { updateStreak } from "@/app/actions/streak";
+import dayjs from "dayjs";
+import { headers } from "next/headers";
 
 export async function POST(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-  
+
   if (apiKey !== process.env.BOT_API_KEY) {
     return new Response(`Invalid api-key`, {
       status: 400,
     });
   }
-  
+
   const data = await req.json();
   const { deckId, userId, answers } = data;
   const request: SaveQuestionRequest[] = answers;
-    
+
   const hasAnswered = await hasAnsweredDeck(deckId, userId, true);
 
   if (hasAnswered) {
