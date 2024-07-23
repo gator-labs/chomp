@@ -16,6 +16,7 @@ import {
 import { useToast } from "../providers/ToastProvider";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import useSignAndSendTransaction from "./useSignAndSendTransaction";
 
 type UseRevealProps = {
   wallet: Wallet | null;
@@ -63,6 +64,7 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
 };
 
 export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
+  const { execute } = useSignAndSendTransaction();
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
@@ -185,16 +187,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         setBurnState("burning");
 
         try {
-          const { signature: sn } = await promiseToast(
-            signer.signAndSendTransaction(tx),
-            {
-              loading: "Waiting for signature...",
-              success: "Bonk burn transaction signed!",
-              error: "You denied message signature.",
-            },
-          );
+          const res = await promiseToast(execute(tx), {
+            loading: "Waiting for signature...",
+            success: "Bonk burn transaction signed!",
+            error: "You denied message signature.",
+          });
 
-          signature = sn;
+          signature = res!.signature;
         } catch (error) {
           resetReveal();
           return;
