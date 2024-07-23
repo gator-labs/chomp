@@ -193,6 +193,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             error: "You denied message signature.",
           });
 
+          alert(res?.signature);
+
           signature = res!.signature;
         } catch (error) {
           resetReveal();
