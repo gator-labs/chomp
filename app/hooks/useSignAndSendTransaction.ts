@@ -21,6 +21,7 @@ const useSignAndSendTransaction = () => {
   );
 
   useEffect(() => {
+    if (!primaryWallet?.connector) return;
     if (!isPhantomRedirectConnector(primaryWallet?.connector)) return;
     const handler: SignAndSendTransactionListener = (response) => {
       if (response.signature) {
