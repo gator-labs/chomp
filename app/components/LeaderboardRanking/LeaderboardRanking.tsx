@@ -1,7 +1,7 @@
 "use client";
 
+import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import { shortenWalletAddress } from "@dynamic-labs/sdk-react-core";
 import { User, Wallet } from "@prisma/client";
 import RankingCard from "../RankingCard/RankingCard";
 
@@ -32,7 +32,7 @@ const LeaderboardRanking = ({ label, loggedUserId, ranking }: Props) => {
                 key={rankItem.user.id}
                 value={rankItem.value}
                 rank={rankItem.rank}
-                name={shortenWalletAddress(rankItem.user.wallets[0]?.address)}
+                name={formatAddress(rankItem.user.wallets[0]?.address)}
                 loggedUserId={loggedUserId}
                 userId={rankItem.user.id}
                 imageSrc={rankItem.user!.profileSrc || AvatarPlaceholder.src}
