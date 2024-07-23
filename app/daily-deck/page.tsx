@@ -2,17 +2,20 @@ import { getDailyAnsweredQuestions, getDailyDeck } from "@/app/queries/deck";
 
 import { redirect } from "next/navigation";
 import { getTransactionHistory } from "../actions/fungible-asset";
+import { getNextDeckId } from "../queries/home";
 import { getCurrentUser } from "../queries/user";
 import DailyDeckScreen from "../screens/DailyDeckScreen/DailyDeckScreen";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 
 export default async function Page() {
-  const [dailyDeck, user, history, dailyAnsweredQuestions] = await Promise.all([
-    getDailyDeck(),
-    getCurrentUser(),
-    getTransactionHistory(),
-    getDailyAnsweredQuestions(),
-  ]);
+  const [dailyDeck, nextDeckId, user, history, dailyAnsweredQuestions] =
+    await Promise.all([
+      getDailyDeck(),
+      getNextDeckId(),
+      getCurrentUser(),
+      getTransactionHistory(),
+      getDailyAnsweredQuestions(),
+    ]);
 
   const address = user?.wallets[0].address || "";
 
@@ -25,6 +28,7 @@ export default async function Page() {
 
   return (
     <DailyDeckScreen
+      nextDeckId={nextDeckId}
       date={dailyDeck?.date}
       id={dailyDeck?.id}
       isAdmin={!!user?.isAdmin}
