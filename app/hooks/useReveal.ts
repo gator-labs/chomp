@@ -70,6 +70,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     id: UmiPublicKey;
     type: NftType;
   }>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
@@ -87,40 +88,46 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
   useEffect(() => {
     async function effect(address: string, reveal: RevealState) {
-      const chompResults = await getUsersPendingChompResult(
-        reveal?.questionIds ?? [],
-      );
-      setPendingChompResults(chompResults);
-      if (chompResults.length > 0) {
-        const uniqueValues = chompResults
-          .map((cr) => cr.burnTransactionSignature)
-          .filter(onlyUnique);
+      try {
+        const chompResults = await getUsersPendingChompResult(
+          reveal?.questionIds ?? [],
+        );
+        setPendingChompResults(chompResults);
+        if (chompResults.length > 0) {
+          const uniqueValues = chompResults
+            .map((cr) => cr.burnTransactionSignature)
+            .filter(onlyUnique);
 
-        if (uniqueValues.length > 1) {
-          resetReveal();
-          errorToast("Only one pending transaction is allowed.");
+          if (uniqueValues.length > 1) {
+            resetReveal();
+            errorToast("Only one pending transaction is allowed.");
+          }
+
+          return;
         }
 
-        return;
-      }
+        const userAssets = await getUserAssets(address);
+        const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
 
-      const userAssets = await getUserAssets(address);
-      const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
+        if (!!glowburgerNft) {
+          return setRevealNft({
+            id: glowburgerNft.id,
+            type: NftType.Glowburger,
+          });
+        }
 
-      if (!!glowburgerNft) {
-        return setRevealNft({
-          id: glowburgerNft.id,
-          type: NftType.Glowburger,
-        });
-      }
+        const genesisNft = await getUnusedGenesisNft(userAssets);
 
-      const genesisNft = await getUnusedGenesisNft(userAssets);
-
-      if (!!genesisNft) {
-        return setRevealNft({
-          id: genesisNft.id,
-          type: NftType.Genesis,
-        });
+        if (!!genesisNft) {
+          return setRevealNft({
+            id: genesisNft.id,
+            type: NftType.Genesis,
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -128,9 +135,12 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       return;
     }
 
+    setIsLoading(true);
+
     effect(address, reveal);
 
     return () => {
+      setIsLoading(false);
       setPendingChompResults([]);
       setRevealNft(undefined);
     };
@@ -253,5 +263,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     onSetReveal,
     resetReveal,
     cancelReveal: resetReveal,
+    isLoading,
   };
 }
