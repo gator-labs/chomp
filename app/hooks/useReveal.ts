@@ -78,7 +78,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   );
 
   useEffect(() => {
-    if (!!signature) alert(signature);
+    if (!!signature) alert(`${signature} in useEffect`);
   }, [signature]);
 
   const [burnState, setBurnState] = useState<
@@ -197,7 +197,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             error: "You denied message signature.",
           });
 
-          alert(res?.signature);
+          alert(res?.signature + " after promise");
 
           signature = res!.signature;
         } catch (error) {
