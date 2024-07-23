@@ -64,7 +64,7 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
 };
 
 export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
-  const { execute, signature, setSignature } = useSignAndSendTransaction();
+  const { execute, signature } = useSignAndSendTransaction();
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
