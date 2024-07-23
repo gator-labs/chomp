@@ -64,7 +64,7 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
 };
 
 export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
-  const { execute, signature } = useSignAndSendTransaction();
+  const { execute, signature, setSignature } = useSignAndSendTransaction();
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
@@ -78,7 +78,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   );
 
   useEffect(() => {
-    if (!!signature) alert(`${signature} in useEffect`);
+    if (!!signature) {
+      alert(`${signature} in useEffect`);
+      alert(`${reveal?.questionIds} in useEffect`);
+    }
   }, [signature]);
 
   const [burnState, setBurnState] = useState<
@@ -175,6 +178,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     try {
       if (hasPendingTransactions) {
         signature = pendingChompResults[0].burnTransactionSignature!;
+        console.log({ signature });
         setBurnState("burning");
         await createGetTransactionTask(signature);
       }
