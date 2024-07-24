@@ -7,16 +7,11 @@ import {
 } from "@/app/queries/history";
 import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
 import { useRouter } from "next-nprogress-bar";
-import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import HistoryFeed from "../HistoryFeed/HistoryFeed";
 import Sheet from "../Sheet/Sheet";
 import RadioButton from "./RadioButton/RadioButton";
-
-const HistoryFeed = dynamic(
-  () => import("@/app/components/HistoryFeed/HistoryFeed"),
-  { ssr: false },
-);
 
 type HistoryProps = {
   sort: string;
@@ -29,7 +24,7 @@ export default function History({ sort, type }: HistoryProps) {
   const pathname = usePathname();
   const [currentSort, setCurrentSort] = useState(HistorySortOptions.Date);
   const [currentType, setCurrentType] = useState(HistoryTypeOptions.Deck);
-  const [scrollToId, setScrollToId] = useState(0);
+
   const [response, setResponse] = useState<HistoryResult[]>([]);
 
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
@@ -38,7 +33,6 @@ export default function History({ sort, type }: HistoryProps) {
   const getData = async (
     sort: HistorySortOptions,
     type: HistoryTypeOptions,
-    scrollId?: number,
   ) => {
     const searchParams = new URLSearchParams();
     if (sort) {
@@ -53,10 +47,6 @@ export default function History({ sort, type }: HistoryProps) {
     );
     const json = await data.json();
     setResponse(json.history);
-
-    if (scrollId) {
-      setScrollToId(scrollId);
-    }
   };
 
   useIsomorphicLayoutEffect(() => {
@@ -91,7 +81,7 @@ export default function History({ sort, type }: HistoryProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2 overflow-hidden">
       <div className="flex flex-row justify-between">
         <div
           className="text-base font-sora cursor-pointer h-6"
@@ -172,9 +162,7 @@ export default function History({ sort, type }: HistoryProps) {
           </Sheet>
         </div>
       </div>
-      {response && (
-        <HistoryFeed list={response} elementToScrollToId={scrollToId} />
-      )}
+      {response && <HistoryFeed list={response} />}
     </div>
   );
 }

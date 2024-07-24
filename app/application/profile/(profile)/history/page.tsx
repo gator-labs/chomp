@@ -9,7 +9,7 @@ type PageProps = {
 export default async function Page({ searchParams }: PageProps) {
   const totalClaimableRewards = await getTotalClaimableRewards();
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 overflow-hidden">
       <HistoryHeader totalClaimableRewards={totalClaimableRewards} />
       <History
         totalClaimableRewards={totalClaimableRewards}
