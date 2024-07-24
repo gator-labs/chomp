@@ -17,9 +17,5 @@ export default async function Page({
     return redirect(returnUrl ?? "/application");
   }
 
-  return (
-    <div className="h-full p-2">
-      <DeckDetails deck={deck} />
-    </div>
-  );
+  return <DeckDetails deck={deck} />;
 }
