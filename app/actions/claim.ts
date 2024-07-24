@@ -99,7 +99,7 @@ export async function claimAllAvailable() {
 
   const claimableQuestionIds = await getClaimableQuestionIds();
 
-  if (!claimableQuestionIds) throw new Error("No claimable questions");
+  if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
   await claimQuestions(claimableQuestionIds);
 }
