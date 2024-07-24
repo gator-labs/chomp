@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Sheet from "../Sheet/Sheet";
+import PotentialRewardsRevealAll from "./PotentialRewardsRevealAll/PotentialRewardsRevealAll";
 import RadioButton from "./RadioButton/RadioButton";
 import TotalRewardsClaimAll from "./TotalRewardsClaimAll/TotalRewardsClaimAll";
 
@@ -62,11 +63,21 @@ export default function History({ sort, type }: HistoryProps) {
     }
   };
 
+  const getPotentialRewardsData = async () => {
+    const data = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/profile/potential-rewards`,
+    );
+    const json = await data.json();
+
+    console.log(json);
+  };
+
   useIsomorphicLayoutEffect(() => {
     getData(
       HistorySortOptions[sort as keyof typeof HistorySortOptions],
       HistoryTypeOptions[type as keyof typeof HistoryTypeOptions],
     );
+    getPotentialRewardsData();
   }, []);
 
   const handleSort = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,6 +106,7 @@ export default function History({ sort, type }: HistoryProps) {
 
   const onRefreshCards = () => {
     getData(currentSort, currentType);
+    getPotentialRewardsData();
   };
 
   return (
@@ -103,6 +115,7 @@ export default function History({ sort, type }: HistoryProps) {
         totalRevealedRewards={rewards.totalRevealedRewards}
         onRefresh={onRefreshCards}
       />
+      <PotentialRewardsRevealAll potentialRevealRewards={0} />
       <div className="flex flex-row justify-between">
         <div
           className="px-4 pt-4 text-base font-sora cursor-pointer h-6"
