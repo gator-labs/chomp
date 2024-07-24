@@ -28,7 +28,6 @@ export default function History({ sort, type }: HistoryProps) {
   const [response, setResponse] = useState<HistoryResult[]>([]);
 
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
-  const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
 
   const getData = async (
     sort: HistorySortOptions,
@@ -68,29 +67,19 @@ export default function History({ sort, type }: HistoryProps) {
     getData(nextSort, currentType);
   };
 
-  const handleViewType = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextType = event.target.value as HistoryTypeOptions;
-    setCurrentType(nextType);
-    const newParams = getAppendedNewSearchParams({
-      sort: currentSort.toString(),
-      type: nextType.toString(),
-    });
-    setIsViewSheetOpen(false);
-    router.push(`${pathname}${newParams}`);
-    getData(currentSort, nextType);
-  };
-
   return (
     <div className="flex flex-col gap-2 overflow-hidden">
-      <div className="flex flex-row justify-between">
+      <div className="flex flex-row justify-between py-[3.8px]">
         <div
-          className="text-base font-sora cursor-pointer h-6"
+          className="cursor-pointer flex"
           onClick={() => {
             setIsSortSheetOpen(true);
           }}
         >
-          <span>Sort by: </span>
-          <span className="font-bold">{sort}</span>
+          <p className="text-sm">
+            Sort by:
+            <span className="text-sm font-bold ml-1">{sort}</span>
+          </p>
 
           <Sheet
             isOpen={isSortSheetOpen}
@@ -121,42 +110,6 @@ export default function History({ sort, type }: HistoryProps) {
                 checked={currentSort === HistorySortOptions.Claimable}
                 text="Claimed"
                 onChange={handleSort}
-              />
-            </div>
-          </Sheet>
-        </div>
-        <div
-          className="text-base font-sora cursor-pointer"
-          onClick={() => {
-            setIsViewSheetOpen(true);
-          }}
-        >
-          <span>Viewing: </span>
-          <span className="font-bold">{type}</span>
-
-          <Sheet
-            isOpen={isViewSheetOpen}
-            setIsOpen={setIsViewSheetOpen}
-            closeIconHeight={16}
-            closeIconWidth={16}
-          >
-            <div className="px-6">
-              <span className="font-sora text-base font-bold text-[#CFC5F7]">
-                View
-              </span>
-            </div>
-            <div className="flex flex-col gap-6 p-6">
-              <RadioButton
-                value={HistoryTypeOptions.Deck}
-                checked={currentType === HistoryTypeOptions.Deck}
-                text="Decks only"
-                onChange={handleViewType}
-              />
-              <RadioButton
-                value={HistoryTypeOptions.Question}
-                checked={currentType === HistoryTypeOptions.Question}
-                text="Cards only"
-                onChange={handleViewType}
               />
             </div>
           </Sheet>
