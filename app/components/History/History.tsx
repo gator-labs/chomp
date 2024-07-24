@@ -12,7 +12,6 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import Sheet from "../Sheet/Sheet";
 import RadioButton from "./RadioButton/RadioButton";
-import TotalRewardsClaimAll from "./TotalRewardsClaimAll/TotalRewardsClaimAll";
 
 const HistoryFeed = dynamic(
   () => import("@/app/components/HistoryFeed/HistoryFeed"),
@@ -22,17 +21,7 @@ const HistoryFeed = dynamic(
 type HistoryProps = {
   sort: string;
   type: string;
-};
-
-const sortStateMachine = {
-  [HistorySortOptions.Date]: HistorySortOptions.Claimable,
-  [HistorySortOptions.Claimable]: HistorySortOptions.Revealed,
-  [HistorySortOptions.Revealed]: HistorySortOptions.Date,
-};
-
-const typeStateMachine = {
-  [HistoryTypeOptions.Deck]: HistoryTypeOptions.Question,
-  [HistoryTypeOptions.Question]: HistoryTypeOptions.Deck,
+  totalClaimableRewards: number;
 };
 
 export default function History({ sort, type }: HistoryProps) {
@@ -42,9 +31,7 @@ export default function History({ sort, type }: HistoryProps) {
   const [currentType, setCurrentType] = useState(HistoryTypeOptions.Deck);
   const [scrollToId, setScrollToId] = useState(0);
   const [response, setResponse] = useState<HistoryResult[]>([]);
-  const [rewards, setRewards] = useState<{
-    totalRevealedRewards: number;
-  }>({ totalRevealedRewards: 0 });
+
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
   const [isViewSheetOpen, setIsViewSheetOpen] = useState(false);
 
@@ -66,7 +53,6 @@ export default function History({ sort, type }: HistoryProps) {
     );
     const json = await data.json();
     setResponse(json.history);
-    setRewards({ totalRevealedRewards: +json.totalRevealedRewards });
 
     if (scrollId) {
       setScrollToId(scrollId);
@@ -104,19 +90,11 @@ export default function History({ sort, type }: HistoryProps) {
     getData(currentSort, nextType);
   };
 
-  const onRefreshCards = () => {
-    getData(currentSort, currentType);
-  };
-
   return (
     <div className="flex flex-col gap-4">
-      <TotalRewardsClaimAll
-        totalRevealedRewards={rewards.totalRevealedRewards}
-        onRefresh={onRefreshCards}
-      />
       <div className="flex flex-row justify-between">
         <div
-          className="px-4 pt-4 text-base font-sora cursor-pointer h-6"
+          className="text-base font-sora cursor-pointer h-6"
           onClick={() => {
             setIsSortSheetOpen(true);
           }}
@@ -158,7 +136,7 @@ export default function History({ sort, type }: HistoryProps) {
           </Sheet>
         </div>
         <div
-          className="px-4 pt-4 text-base font-sora cursor-pointer"
+          className="text-base font-sora cursor-pointer"
           onClick={() => {
             setIsViewSheetOpen(true);
           }}

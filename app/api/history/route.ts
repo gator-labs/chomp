@@ -1,7 +1,6 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import {
   getHistory,
-  getTotalRevealedRewards,
   HistorySortOptions,
   HistoryTypeOptions,
 } from "@/app/queries/history";
@@ -26,10 +25,8 @@ export async function GET(request: Request) {
     sort ?? HistorySortOptions.Date,
     type ?? HistoryTypeOptions.Deck,
   );
-  const totalRevealedRewards = await getTotalRevealedRewards();
 
   return Response.json({
     history,
-    totalRevealedRewards,
   });
 }

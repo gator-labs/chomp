@@ -38,6 +38,35 @@ export async function claimDecks(deckIds: number[]) {
   return await claimQuestions(questions.map((q) => q.questionId));
 }
 
+export async function getClaimableQuestionIds(): Promise<number[]> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const claimableQuestions = await prisma.chompResult.findMany({
+    where: {
+      userId: payload.sub,
+      result: "Revealed",
+      burnTransactionSignature: {
+        not: null,
+      },
+      questionId: { not: null },
+      rewardTokenAmount: {
+        gt: 0,
+      },
+    },
+    select: {
+      questionId: true,
+    },
+  });
+
+  return claimableQuestions.map(
+    (claimableQuestion) => claimableQuestion.questionId!,
+  );
+}
+
 export async function getAllRevealableQuestions() {
   const payload = await getJwtPayload();
 
@@ -68,10 +97,11 @@ export async function claimAllAvailable() {
     return null;
   }
 
-  const revealedChompResults = await getAllRevealableQuestions();
-  const questionIds = revealedChompResults!.map((rcp) => rcp.questionId ?? 0); // Nulls are filtered in query
+  const claimableQuestionIds = await getClaimableQuestionIds();
 
-  return await claimQuestions(questionIds);
+  if (!claimableQuestionIds) throw new Error("No claimable questions");
+
+  await claimQuestions(claimableQuestionIds);
 }
 
 export async function claimQuestions(questionIds: number[]) {
