@@ -50,6 +50,30 @@ export async function getHistory(
   }
 }
 
+export async function getTotalClaimableRewards(): Promise<number> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const res = await prisma.chompResult.aggregate({
+    where: {
+      userId: payload.sub,
+      result: "Revealed",
+      questionId: { not: null },
+      rewardTokenAmount: {
+        gt: 0,
+      },
+    },
+    _sum: {
+      rewardTokenAmount: true,
+    },
+  });
+
+  return Math.trunc(Number(res._sum.rewardTokenAmount));
+}
+
 export async function getTotalRevealedRewards(): Promise<number> {
   const payload = await getJwtPayload();
 

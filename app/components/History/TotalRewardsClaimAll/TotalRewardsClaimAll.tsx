@@ -3,66 +3,56 @@ import { claimAllAvailable } from "@/app/actions/claim";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { ONE_SECOND_IN_MILLISECONDS } from "@/app/utils/dateUtils";
+import { useState } from "react";
+import { Button } from "../../Button/Button";
 
 type TotalRewardsClaimAllProps = {
   totalRevealedRewards: number;
-  onRefresh: () => void;
 };
 
 export default function TotalRewardsClaimAll({
   totalRevealedRewards,
-  onRefresh,
 }: TotalRewardsClaimAllProps) {
   const { promiseToast, successToast } = useToast();
   const { fire } = useConfetti();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onClaimAll = async () => {
-    try {
-      await promiseToast(claimAllAvailable(), {
-        loading: "Waiting for transaction...",
-        success: "Funds are transferred!",
-        error: "Issue transferring funds.",
-        isChompLoader: true,
-      });
-      fire();
-      successToast(
-        "Claimed!",
-        `You have successfully claimed ${numberToCurrencyFormatter.format(totalRevealedRewards)} BONK!`,
-      );
-      setTimeout(() => {
-        onRefresh();
-      }, ONE_SECOND_IN_MILLISECONDS * 4);
-    } catch (error) {
-      return;
-    }
+    setIsLoading(true);
+    await promiseToast(claimAllAvailable(), {
+      loading: "Waiting for transaction...",
+      success: "Funds are transferred!",
+      error: "Issue transferring funds.",
+      isChompLoader: true,
+    });
+    fire();
+    successToast(
+      "Claimed!",
+      `You have successfully claimed ${numberToCurrencyFormatter.format(totalRevealedRewards)} BONK!`,
+    );
+    setIsLoading(false);
   };
 
   return (
-    <div className="flex justify-between px-4 mt-4">
-      <div className="flex flex-col justify-between">
-        <div className="text-xs text-white font-sora">
-          Total Revealed Rewards
-        </div>
-        <div className="text-base text-white font-sora font-semibold">
+    <div className="flex justify-between">
+      <div className="flex flex-col justify-between gap-[10px]">
+        <p className="text-xs text-white leading-[7px]">Claimable rewards</p>
+        <p className="text-base text-white leading-[12px]">
           {numberToCurrencyFormatter.format(totalRevealedRewards)} BONK
-        </div>
+        </p>
       </div>
-      {/**
-       * Commented out the claim all button
-       * We'll probably need this in the future
-       */}
-      {/* {totalRevealedRewards !== 0 && (
+      {totalRevealedRewards !== 0 && (
         <Button
           onClick={onClaimAll}
+          disabled={isLoading}
           variant="white"
           size="small"
           isPill
-          className="basis-24"
+          className="!w-fit h-[29px] px-4 text-xs"
         >
           Claim all
         </Button>
-      )} */}
+      )}
     </div>
   );
 }

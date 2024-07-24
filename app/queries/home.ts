@@ -65,6 +65,72 @@ export async function getDecksForExpiringSection(): Promise<
   return decks;
 }
 
+export async function getNextDeckId(): Promise<number | undefined> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const nextDeckId = await getNextDeckIdQuery(payload.sub);
+
+  return nextDeckId;
+}
+
+async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
+  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
+    select
+    d."id",
+    d."deck",
+    d."revealAtDate",
+    d."revealAtAnswerCount",
+    c."image"
+    from public."Deck" d
+    full join "Campaign" c on c."id" = d."campaignId"
+    where
+      (
+        (
+      		d."revealAtDate" > now() and d."revealAtDate" < now() + interval '3' day
+  		  )
+        and 
+        (
+      		d."date" is null
+  		  )
+        and 
+        (
+          d."revealAtAnswerCount" is null
+          or
+          d."revealAtAnswerCount" >
+            (
+              select
+                count(distinct concat(dq."deckId", qa."userId"))
+              from public."QuestionOption" qo
+              join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+              join public."Question" q on qo."questionId" = q."id"
+              join public."DeckQuestion" dq on dq."questionId" = q."id"
+              where dq."deckId" = d."id"
+            )
+        )
+      )
+      and	
+      d."id" not in
+        (
+          select
+            dq."deckId"
+          from public."QuestionOption" qo
+            join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+            join public."Question" q on qo."questionId" = q."id"
+            join public."DeckQuestion" dq on dq."questionId" = q."id"
+            where dq."deckId" = d."id" and qa."userId" = ${userId}
+        )
+      and
+      d."isActive" = true
+      limit 1
+  `;
+
+  return deckExpiringSoon?.[0]?.id;
+}
+
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
   select
