@@ -6,6 +6,7 @@ import { Button } from "../components/Button/Button";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { InfoIcon } from "../components/Icons/InfoIcon";
 import Sheet from "../components/Sheet/Sheet";
+import Spinner from "../components/Spinner/Spinner";
 import { RevealCallbackProps, useReveal } from "../hooks/useReveal";
 import { numberToCurrencyFormatter } from "../utils/currency";
 
@@ -42,6 +43,7 @@ export function RevealContextProvider({
     revealPrice,
     hasPendingTransactions,
     isRevealWithNftMode,
+    isLoading,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
@@ -217,22 +219,28 @@ export function RevealContextProvider({
         closeIconHeight={16}
         closeIconWidth={16}
       >
-        <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-row w-full items-center justify-between">
-              <h3
-                className={classNames("font-bold", {
-                  "text-[#DD7944]": insufficientFunds,
-                  "text-[#A3A3EC]": !insufficientFunds,
-                })}
-              >
-                {insufficientFunds ? "Insufficient Funds" : "Reveal answer?"}
-              </h3>
-            </div>
-            {getDescriptionNode()}
+        {isLoading ? (
+          <div className="h-[270px] flex items-center justify-center">
+            <Spinner />
           </div>
-          <div className="flex flex-col gap-2">{revealButtons()}</div>
-        </div>
+        ) : (
+          <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-row w-full items-center justify-between">
+                <h3
+                  className={classNames("font-bold", {
+                    "text-[#DD7944]": insufficientFunds,
+                    "text-[#A3A3EC]": !insufficientFunds,
+                  })}
+                >
+                  {insufficientFunds ? "Insufficient Funds" : "Reveal answer?"}
+                </h3>
+              </div>
+              {getDescriptionNode()}
+            </div>
+            <div className="flex flex-col gap-2">{revealButtons()}</div>
+          </div>
+        )}
       </Sheet>
 
       {children}
