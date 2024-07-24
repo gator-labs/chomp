@@ -220,7 +220,9 @@ export function RevealContextProvider({
         closeIconWidth={16}
       >
         {isLoading ? (
-          <Spinner />
+          <div className="h-[270px] flex items-center justify-center">
+            <Spinner />
+          </div>
         ) : (
           <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
             <div className="flex flex-col gap-6">
