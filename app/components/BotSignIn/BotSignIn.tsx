@@ -4,12 +4,13 @@ import { genBonkBurnTx } from "@/app/utils/solana";
 import {
   useConnectWithOtp,
   useEmbeddedWallet,
+  useIsLoggedIn,
   useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { Connection, PublicKey } from "@solana/web3.js";
 import Image from "next/image";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
@@ -23,23 +24,17 @@ declare global {
 }
 
 export default function BotSignIn() {
-  const [burned, setBurned] = useState(false);
-
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-
-  const [verificationSent, setVerificationSent] = useState(false);
-  const [verificationSuccess, setVerificationSuccess] = useState(false);
-
+  const [email, setEmail] = useState<string>("");
+  const [otp, setOtp] = useState<number>(0);
+  const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
+    useState<boolean>(false);
+  const isLoggedIn = useIsLoggedIn();
   const { sendOneTimeCode, createOrRestoreSession } = useEmbeddedWallet();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
-
   const userWallets = useUserWallets();
-  const { successToast, errorToast } = useToast();
+  const { errorToast } = useToast();
 
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
-
-  const address = primaryWallet?.address || "";
 
   const onBurn = async () => {
     try {
@@ -60,8 +55,6 @@ export default function BotSignIn() {
       const tx = await genBonkBurnTx(primaryWallet!.address, blockhash, 10);
 
       await signer.signAndSendTransaction(tx);
-
-      setBurned(true);
     } catch (err: any) {
       const errorMessage = err?.message ? err.message : "Failed to Burn";
       errorToast(errorMessage);
@@ -73,8 +66,15 @@ export default function BotSignIn() {
   ) => {
     event.preventDefault();
     try {
-      await connectWithEmail(event.currentTarget.email.value);
-      setVerificationSent(true);
+      const emailRegex =
+        /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+      const email = event.currentTarget.email.value;
+      if (!emailRegex.test(email)) {
+        errorToast("Invalid email");
+      } else {
+        await connectWithEmail(email);
+        setIsVerificationIsInProgress(true);
+      }
     } catch (error) {
       const errorMessage = (error as { message: string }).message;
       errorToast(errorMessage);
@@ -84,7 +84,6 @@ export default function BotSignIn() {
   const sendOTP = async () => {
     try {
       await sendOneTimeCode();
-      setOtpSent(true);
     } catch (error) {
       console.error("Error while initaiting bonk burn", error);
       errorToast("Failed to send verification email. Please try again.");
@@ -97,12 +96,12 @@ export default function BotSignIn() {
     event.preventDefault();
     try {
       const otp = event.currentTarget.otp.value;
-      await verifyOneTimePassword(otp);
-
-      await createOrRestoreSession({ oneTimeCode: otp });
-
-      // await onBurn();
-      setVerificationSuccess(true);
+      const otpRegex = /(?:\d{6})/;
+      if (!otpRegex.test(otp)) {
+        errorToast("Invalid OTP");
+      } else {
+        await verifyOneTimePassword(otp);
+      }
     } catch (error) {
       console.error("Error occurred while verifying otp:", error);
       errorToast("Error occurred while verifying otp");
@@ -111,7 +110,7 @@ export default function BotSignIn() {
 
   const verifyOTPAndBurn = async () => {
     try {
-      await createOrRestoreSession({ oneTimeCode: otp });
+      await createOrRestoreSession({ oneTimeCode: otp!.toString() });
       await onBurn();
     } catch (error) {
       console.error("Error while burn", error);
@@ -119,52 +118,29 @@ export default function BotSignIn() {
     }
   };
 
-  // const dataVerification = async (initData) => {
-  //   // setVerifying(true);
+    useEffect(() => {
+      // Ensure Telegram Web App API is available
+      const script = document.createElement('script');
+      script.src = "https://telegram.org/js/telegram-web-app.js";
+      script.async = true;
+      document.body.appendChild(script);
 
-  //   const options = {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify({ initData }),
-  //   };
+      script.onload = () => {
+        window.Telegram.WebApp.ready();
 
-  //   fetch(
-  //     `https://7b6cbaff4eb5.ngrok.app/api/validate`,
-  //     options,
-  //   )
-  //     .then((response) => response.json())
-  //     .then((response) => {
-  //       console.log(response)
-  //       // setUUID(response.verificationUUID);
-  //     })
-  //     .catch((err) => console.error(err));
-  // };
+        // Retrieve validated user details
+        // dataVerification(Telegram.WebApp.initData)
 
-  //   useEffect(() => {
-  //     // Ensure Telegram Web App API is available
-  //     const script = document.createElement('script');
-  //     script.src = "https://telegram.org/js/telegram-web-app.js";
-  //     script.async = true;
-  //     document.body.appendChild(script);
+        // Set user details in state
+        // if (user) {
+        // setTUser(user);
+        // }
+      };
 
-  //     script.onload = () => {
-  //       window.Telegram.WebApp.ready();
-
-  //       // Retrieve validated user details
-  //       // dataVerification(Telegram.WebApp.initData)
-
-  //       // Set user details in state
-  //       // if (user) {
-  //       // setTUser(user);
-  //       // }
-  //     };
-
-  //     return () => {
-  //       document.body.removeChild(script);
-  //     };
-  //   }, []);
+      return () => {
+        document.body.removeChild(script);
+      };
+    }, []);
 
   const handleClose = () => {
     if (window.Telegram) {
@@ -173,21 +149,75 @@ export default function BotSignIn() {
   };
 
   return (
-    <div className="space-y-6 flex flex-col w-3/3 mt-12 p-4 items-center justify-center">
+    <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
       <Image
         src="/images/chomp-asset.png"
         width={400}
         height={400}
         alt="Chomp Cover"
-        className="mt-12"
+        className="mt-5"
       />
-      {!primaryWallet && !verificationSent && (
+      {isLoggedIn ? (
+        <div>
+          <p className="text-2xl font-bold text-center">
+            Let&apos;s Keep Chomping!{" "}
+          </p>
+          <p className="text-left">
+            You&apos;re all set. Click below or close this button to continue
+            with your Chomp journey.
+          </p>
+          <Button
+            variant="purple"
+            size="normal"
+            className="gap-2 text-black font-medium mt-4"
+            onClick={handleClose}
+            isFullWidth
+          >
+            Continue Chomping
+          </Button>
+        </div>
+      ) : isVerificationIsInProgress ? (
         <form
-          key="sms-form"
-          onSubmit={onSubmitEmailHandler}
-          className="flex justify-center flex-col space-y-4 w-full"
+          key="verifyOtp"
+          className="flex flex-col justify-center space-y-4 w-full"
+          onSubmit={onSubmitOtpHandler}
         >
-          <p className="text-[1.6rem] font-bold">
+          <p className="text-[1.6rem] font-bold text-center">
+            Chomp at its full potential!
+          </p>
+          <p className="text-left">
+            OTP sent to your email! Copy it and paste it here to access all of
+            Chomp&apos;s features!
+          </p>
+          <div className="flex flex-col gap-4">
+            <TextInput
+              name="otp"
+              placeholder="OTP"
+              type="number"
+              value={otp !== 0 ? otp : ''}
+              onChange={(event) => {
+                setOtp(parseInt(event.target.value));
+              }}
+              variant="primary"
+              required
+            />
+            <Button
+              variant="purple"
+              size="normal"
+              className="gap-2 text-black font-medium"
+              isFullWidth
+            >
+              Next
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <form
+          key="emailVerification"
+          onSubmit={onSubmitEmailHandler}
+          className="flex flex-col justify-center space-y-4 w-full"
+        >
+          <p className="text-[1.6rem] font-bold text-center">
             Chomp at its full potential!
           </p>
           <p className="text-left">
@@ -197,10 +227,14 @@ export default function BotSignIn() {
           </p>
           <div className="flex flex-col gap-4">
             <TextInput
+              name="email"
               placeholder="ENTER YOUR EMAIL HERE"
-              value=""
-              onChange={() => {}}
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+              }}
               variant="primary"
+              required
             />
             <Button
               variant="purple"
@@ -212,48 +246,6 @@ export default function BotSignIn() {
             </Button>
           </div>
         </form>
-      )}
-
-      {!primaryWallet && !!verificationSent && !verificationSuccess && (
-        <form
-          key="otp-form"
-          className="flex justify-center flex-col space-y-4 w-full"
-          onSubmit={onSubmitOtpHandler}
-        >
-          <p className="text-2xl font-bold">Chomp at its full potential!</p>
-          <p className="text-left">
-            OTP sent to your email! Copy it and paste it here to access all of
-            Chomp’s features!
-          </p>
-          <input
-            type="text"
-            name="otp"
-            placeholder="OTP"
-            className="rounded-sm p-2 text-black w-full"
-          />
-          <button
-            type="submit"
-            className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2"
-          >
-            Next
-          </button>
-        </form>
-      )}
-
-      {(primaryWallet || !!verificationSuccess) && !otpSent && (
-        <div>
-          <p className="text-2xl font-bold">Let&apos;s Keep Chomping! </p>
-          <p className="text-left">
-            You&apos;re all set. Click below or close this button to continue
-            with your Chomp journey.
-          </p>
-          <button
-            onClick={handleClose}
-            className="w-full rounded-sm bg-[#A3A3EC] text-xl p-2 mt-2"
-          >
-            Continue Chomping
-          </button>
-        </div>
       )}
     </div>
   );
