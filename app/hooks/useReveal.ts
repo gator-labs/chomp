@@ -147,6 +147,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
       const question = await getChompedQuestionByBurnTx(signature);
 
+      alert(signature);
+
       alert(question?.id || "nema nista");
 
       if (!question) {
