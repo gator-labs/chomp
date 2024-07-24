@@ -3,11 +3,14 @@ import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
+import { useRouter } from "next-nprogress-bar";
 import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
+  getChompedQuestionByBurnTx,
   getUsersPendingChompResult,
+  revealQuestion,
 } from "../actions/chompResult";
 import {
   getUnusedGenesisNft,
@@ -64,7 +67,7 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
 };
 
 export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
-  const { execute, signature } = useSignAndSendTransaction();
+  const { execute, signature, setSignature } = useSignAndSendTransaction();
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
@@ -72,17 +75,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     id: UmiPublicKey;
     type: NftType;
   }>();
-
+  const router = useRouter();
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
   );
-
-  useEffect(() => {
-    if (!!signature) {
-      alert(`${signature} in useEffect`);
-      alert(`${reveal?.questionIds} in useEffect`);
-    }
-  }, [signature]);
 
   const [burnState, setBurnState] = useState<
     "burning" | "error" | "idle" | "skipburn"
@@ -144,6 +140,29 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       setRevealNft(undefined);
     };
   }, [reveal, address, reveal?.questionIds]);
+
+  useEffect(() => {
+    const revealInMobileBrowser = async (signature: string) => {
+      setBurnState("burning");
+
+      const question = await getChompedQuestionByBurnTx(signature);
+
+      if (!question) {
+        return setBurnState(INITIAL_BURN_STATE);
+      }
+
+      await createGetTransactionTask(signature);
+      await revealQuestion(question.id, signature);
+      router.push("/application/answer/reveal/" + question.id);
+      router.refresh();
+    };
+
+    if (!!signature) revealInMobileBrowser(signature);
+
+    return () => {
+      setSignature(undefined);
+    };
+  }, [signature]);
 
   const onSetReveal = useCallback(
     ({ amount, questionId, questionIds, reveal }: RevealCallbackProps) => {

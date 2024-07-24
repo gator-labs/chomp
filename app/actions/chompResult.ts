@@ -493,3 +493,16 @@ async function handleFirstRevealToPopulateSubjectiveQuestion(
     await calculateCorrectAnswer(revealableQuestions.map((q) => q.id));
   }
 }
+
+export async function getChompedQuestionByBurnTx(burnTx: string) {
+  const chompRes = await prisma.chompResult.findFirst({
+    where: {
+      burnTransactionSignature: burnTx,
+    },
+    include: {
+      question: true,
+    },
+  });
+
+  return chompRes?.question;
+}

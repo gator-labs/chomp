@@ -47,7 +47,7 @@ const useSignAndSendTransaction = () => {
     return signer.signAndSendTransaction(transaction);
   };
 
-  return { errorCode, errorMessage, execute, signature };
+  return { errorCode, errorMessage, execute, signature, setSignature };
 };
 
 export default useSignAndSendTransaction;
