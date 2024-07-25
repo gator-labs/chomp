@@ -1,3 +1,4 @@
+import { getHistoryDecks } from "@/app/actions/history";
 import History from "@/app/components/History/History";
 import HistoryHeader from "@/app/components/HistoryHeader/HistoryHeader";
 import { getTotalClaimableRewards } from "@/app/queries/history";
@@ -7,15 +8,15 @@ type PageProps = {
 };
 
 export default async function Page({ searchParams }: PageProps) {
-  const totalClaimableRewards = await getTotalClaimableRewards();
+  const [deckHistory, totalClaimableRewards] = await Promise.all([
+    getHistoryDecks(),
+    getTotalClaimableRewards(),
+  ]);
+
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
       <HistoryHeader totalClaimableRewards={totalClaimableRewards} />
-      <History
-        totalClaimableRewards={totalClaimableRewards}
-        sort={searchParams.sort ?? "Date"}
-        type={searchParams.type ?? "Deck"}
-      />
+      <History deckHistory={deckHistory} />
     </div>
   );
 }
