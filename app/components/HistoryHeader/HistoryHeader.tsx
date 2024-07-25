@@ -15,8 +15,8 @@ const HistoryHeader = ({
 }: Props) => {
   return (
     <div className="py-4 flex flex-col gap-4">
-      <TotalRewardsClaimAll totalRevealedRewards={totalClaimableRewards} />
       <PotentialRewardsRevealAll revealableQuestions={revealableQuestions} />
+      <TotalRewardsClaimAll totalRevealedRewards={totalClaimableRewards} />
     </div>
   );
 };
