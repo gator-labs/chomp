@@ -72,7 +72,7 @@ export function HomeFeedRevealedQuestionsSection({
 
   return (
     <HomeFeedCardCarousel
-      className="mt-6"
+      className="mt-6 mb-4"
       title={
         <span className="text-base text-white">
           Check out others’ revealed questions

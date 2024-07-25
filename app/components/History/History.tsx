@@ -1,71 +1,38 @@
 "use client";
-import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
-import {
-  HistoryResult,
-  HistorySortOptions,
-  HistoryTypeOptions,
-} from "@/app/queries/history";
-import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
-import { useRouter } from "next-nprogress-bar";
-import { usePathname } from "next/navigation";
+
+import { HistoryResult, HistorySortOptions } from "@/app/queries/history";
 import { useState } from "react";
 import HistoryFeed from "../HistoryFeed/HistoryFeed";
 import Sheet from "../Sheet/Sheet";
 import RadioButton from "./RadioButton/RadioButton";
 
 type HistoryProps = {
-  sort: string;
-  type: string;
-  totalClaimableRewards: number;
+  deckHistory: HistoryResult[];
 };
 
-export default function History({ sort, type }: HistoryProps) {
-  const router = useRouter();
-  const pathname = usePathname();
+export default function History({ deckHistory }: HistoryProps) {
   const [currentSort, setCurrentSort] = useState(HistorySortOptions.Date);
-  const [currentType, setCurrentType] = useState(HistoryTypeOptions.Deck);
-
-  const [response, setResponse] = useState<HistoryResult[]>([]);
 
   const [isSortSheetOpen, setIsSortSheetOpen] = useState(false);
-
-  const getData = async (
-    sort: HistorySortOptions,
-    type: HistoryTypeOptions,
-  ) => {
-    const searchParams = new URLSearchParams();
-    if (sort) {
-      searchParams.set("sort", sort);
-    }
-    if (type) {
-      searchParams.set("type", type);
-    }
-    const params = searchParams.toString() ? `?${searchParams}` : "";
-    const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/history${params}`,
-    );
-    const json = await data.json();
-    setResponse(json.history);
-  };
-
-  useIsomorphicLayoutEffect(() => {
-    getData(
-      HistorySortOptions[sort as keyof typeof HistorySortOptions],
-      HistoryTypeOptions[type as keyof typeof HistoryTypeOptions],
-    );
-  }, []);
 
   const handleSort = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextSort = event.target.value as HistorySortOptions;
     setCurrentSort(nextSort);
-    const newParams = getAppendedNewSearchParams({
-      sort: nextSort.toString(),
-      type: currentType.toString(),
-    });
     setIsSortSheetOpen(false);
-    router.push(`${pathname}${newParams}`);
-    getData(nextSort, currentType);
   };
+
+  const sortedDeckHistory = deckHistory.sort((a, b) => {
+    if (currentSort === HistorySortOptions.Claimable)
+      return a.isClaimed === b.isClaimed ? 0 : a.isClaimed ? -1 : 1;
+
+    if (currentSort === HistorySortOptions.Revealed)
+      return a.isRevealed === b.isRevealed ? 0 : a.isRevealed ? -1 : 1;
+
+    const dateA = new Date(a.revealAtDate);
+    const dateB = new Date(b.revealAtDate);
+
+    return dateA.getTime() - dateB.getTime();
+  });
 
   return (
     <div className="flex flex-col gap-2 overflow-hidden">
@@ -78,7 +45,7 @@ export default function History({ sort, type }: HistoryProps) {
         >
           <p className="text-sm">
             Sort by:
-            <span className="text-sm font-bold ml-1">{sort}</span>
+            <span className="text-sm font-bold ml-1">{currentSort}</span>
           </p>
 
           <Sheet
@@ -115,7 +82,7 @@ export default function History({ sort, type }: HistoryProps) {
           </Sheet>
         </div>
       </div>
-      {response && <HistoryFeed list={response} />}
+      <HistoryFeed list={sortedDeckHistory} />
     </div>
   );
 }

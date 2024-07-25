@@ -18,18 +18,20 @@ export function RevealCardInfo({
     revealAtAnswerCount !== null;
   return (
     <div className="flex text-xs text-white leading-6 items-center gap-1">
-      <>
-        <ClockIcon width={18} height={18} />
-        <div>
-          {revealAtDate && <span>{getRevealedAtString(revealAtDate)} </span>}
-          {revealAtDate && isRevealAtCount && <span>or </span>}
-          {isRevealAtCount && (
-            <span>
-              {answerCount.toString()}/{revealAtAnswerCount.toString()}
-            </span>
-          )}
-        </div>
-      </>
+      <ClockIcon />
+      <div>
+        {revealAtDate && (
+          <span className="text-xs font-light">
+            {getRevealedAtString(revealAtDate)}{" "}
+          </span>
+        )}
+        {revealAtDate && isRevealAtCount && <span>or </span>}
+        {isRevealAtCount && (
+          <span>
+            {answerCount.toString()}/{revealAtAnswerCount.toString()}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

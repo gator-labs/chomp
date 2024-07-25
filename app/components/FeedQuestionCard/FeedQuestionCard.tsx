@@ -30,7 +30,7 @@ export function FeedQuestionCard({
 }: FeedQuestionCardProps) {
   return (
     <div
-      className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-2 h-full"
+      className="bg-[#333] border-[0.5px] border-[#666] rounded-lg p-4 py-[15px] flex gap-4 h-full"
       onClick={onClick}
     >
       {type === "Deck" && (
@@ -41,16 +41,16 @@ export function FeedQuestionCard({
       <div className="flex flex-col gap-y-2 w-full justify-between">
         <div className="flex flex-col gap-y-2 w-full">
           <div className="flex gap-2 w-full justify-between">
-            <div className="text-white text-base font-sora font-semibold">
+            <p className="text-white text-base font-sora font-semibold text-sm">
               {question}
-            </div>
+            </p>
             {onTopCornerAction && topCornerActionIcon && (
               <button className="cursor-pointer" onClick={onTopCornerAction}>
                 {cloneElement(topCornerActionIcon, { height: 18, width: 18 })}
               </button>
             )}
             <div>
-              <LeadToIcon width={24} height={24} />
+              <LeadToIcon width={16} height={13} />
             </div>
           </div>
         </div>
