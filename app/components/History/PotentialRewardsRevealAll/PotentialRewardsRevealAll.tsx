@@ -2,7 +2,7 @@
 import { revealQuestions } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Button } from "../../Button/Button";
 
 type PotentialRewardsRevealAllProps = {
@@ -15,7 +15,6 @@ type PotentialRewardsRevealAllProps = {
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
 }: PotentialRewardsRevealAllProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
   const revealAll = useCallback(
@@ -57,7 +56,6 @@ export default function PotentialRewardsRevealAll({
       {revealableQuestions.length * 10000 !== 0 && (
         <Button
           onClick={handleRevealAll}
-          disabled={isLoading}
           variant="white"
           size="small"
           isPill
