@@ -2,7 +2,7 @@
 import { revealQuestions } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "../../Button/Button";
 
 type PotentialRewardsRevealAllProps = {
@@ -15,16 +15,19 @@ type PotentialRewardsRevealAllProps = {
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
 }: PotentialRewardsRevealAllProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
   const revealAll = useCallback(
     async (burnTx?: string, nftAddress?: string) => {
+      setIsLoading(true);
       await revealQuestions(
         revealableQuestions.map((q) => q.id),
         burnTx,
         nftAddress,
       );
       closeRevealModal();
+      setIsLoading(false);
     },
     [],
   );
@@ -56,6 +59,7 @@ export default function PotentialRewardsRevealAll({
       {revealableQuestions.length * 10000 !== 0 && (
         <Button
           onClick={handleRevealAll}
+          disabled={isLoading}
           variant="white"
           size="small"
           isPill
