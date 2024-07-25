@@ -146,8 +146,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
       alert(signature);
 
-      return;
-
       await createGetTransactionTask(signature);
       await revealQuestion(15, signature);
       router.push("/application/answer/reveal/" + 15);
