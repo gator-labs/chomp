@@ -17,7 +17,6 @@ export default function History({ deckHistory }: HistoryProps) {
 
   const handleSort = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextSort = event.target.value as HistorySortOptions;
-    console.log(nextSort);
     setCurrentSort(nextSort);
     setIsSortSheetOpen(false);
   };
