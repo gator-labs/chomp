@@ -146,6 +146,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
       alert(signature);
 
+      await createQuestionChompResults([{ burnTx: signature, questionId: 15 }]);
+
       await createGetTransactionTask(signature);
       await revealQuestion(15, signature);
       router.push("/application/answer/reveal/" + 15);
