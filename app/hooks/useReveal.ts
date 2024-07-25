@@ -8,9 +8,8 @@ import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
-  getChompedQuestionByBurnTx,
   getUsersPendingChompResult,
-  revealQuestion,
+  revealQuestions,
 } from "../actions/chompResult";
 import {
   getUnusedGenesisNft,
@@ -19,6 +18,7 @@ import {
 import { useToast } from "../providers/ToastProvider";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import { useLocalStorage } from "./useLocalStorage";
 import useSignAndSendTransaction from "./useSignAndSendTransaction";
 
 type UseRevealProps = {
@@ -78,6 +78,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const router = useRouter();
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
+  );
+  const [revealQuestionIds, setRevealQuestionIds] = useLocalStorage(
+    "revealQuestionIds",
+    [] as number[],
   );
 
   const [burnState, setBurnState] = useState<
@@ -145,19 +149,20 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     const revealInMobileBrowser = async (signature: string) => {
       setBurnState("burning");
 
-      const question = await getChompedQuestionByBurnTx(signature);
-
       alert(signature);
 
-      alert(question?.id || "nema nista");
+      alert(revealQuestionIds[0] || "nema nista");
 
-      if (!question) {
+      if (!revealQuestionIds.length) {
         return setBurnState(INITIAL_BURN_STATE);
       }
 
       await createGetTransactionTask(signature);
-      await revealQuestion(question.id, signature);
-      router.push("/application/answer/reveal/" + question.id);
+      await revealQuestions(revealQuestionIds, signature);
+
+      if (revealQuestionIds.length === 1)
+        router.push("/application/answer/reveal/" + revealQuestionIds[0]);
+
       router.refresh();
     };
 
@@ -193,6 +198,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
   const burnAndReveal = async () => {
+    setRevealQuestionIds(reveal?.questionIds || []);
+
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
       (chr) => chr.questionId ?? 0,
