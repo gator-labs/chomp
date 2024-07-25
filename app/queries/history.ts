@@ -28,26 +28,28 @@ export enum HistoryTypeOptions {
   Question = "Question",
 }
 
-export async function getHistory(
-  sort: HistorySortOptions = HistorySortOptions.Date,
-  type: HistoryTypeOptions = HistoryTypeOptions.Deck,
-): Promise<HistoryResult[]> {
+export async function getTotalClaimableRewards(): Promise<number> {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return redirect("/login");
   }
-  const userId = payload.sub;
-  const sortClause = getSortClause(sort);
 
-  switch (type) {
-    case HistoryTypeOptions.Deck:
-      return await getDecksHistory(userId, sortClause);
-    case HistoryTypeOptions.Question:
-      return await getQuestionsHistory(userId, sortClause);
-    default:
-      return await getDecksHistory(userId, sortClause);
-  }
+  const res = await prisma.chompResult.aggregate({
+    where: {
+      userId: payload.sub,
+      result: "Revealed",
+      questionId: { not: null },
+      rewardTokenAmount: {
+        gt: 0,
+      },
+    },
+    _sum: {
+      rewardTokenAmount: true,
+    },
+  });
+
+  return Math.trunc(Number(res._sum.rewardTokenAmount));
 }
 
 export async function getTotalRevealedRewards(): Promise<number> {
@@ -80,21 +82,13 @@ export function getSortClause(sort: string): string {
 
 export async function getDecksHistory(
   userId: string,
-  sortClause: string,
 ): Promise<HistoryResult[]> {
   const decksHistory: HistoryResult[] = await prisma.$queryRawUnsafe(
-    `
-	SELECT * FROM (
-	    SELECT  d."id",
-				d."deck" AS "question",
-				d."revealAtDate",
-				(SELECT COUNT(DISTINCT CONCAT(qa."userId", dq."deckId"))
-					FROM public."QuestionOption" qo
-							JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
-							JOIN public."DeckQuestion" dq ON dq."questionId" = qo."questionId"
-					WHERE dq."deckId" = d."id") AS "answerCount",
-				d."revealAtAnswerCount",
-				0                            AS "revealTokenAmount",
+    `select distinct
+    d."id",
+    d."deck" AS "question",
+		'Deck' AS "type",
+    d."revealAtDate",
 				(
 					(
 						d."revealAtDate" IS NOT NULL
@@ -112,7 +106,7 @@ export async function getDecksHistory(
 									JOIN public."DeckQuestion" dq ON dq."questionId" = qo."questionId"
 							WHERE dq."deckId" = d."id")
 						)
-					)                        AS "isRevealable",
+					) AS "isRevealable",
 				(
 					d."id" IN
 					(SELECT cr."deckId"
@@ -143,17 +137,12 @@ export async function getDecksHistory(
 						WHERE dq."deckId" = d."id"
 						LIMIT 1)
 					)                        AS "isChomped",
-				'Deck'                       AS "type"
-			FROM public."Deck" d
-			WHERE d."id" IN
-				(SELECT dq."deckId"
-				FROM public."QuestionOption" qo
-							JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
-							JOIN public."DeckQuestion" dq ON dq."questionId" = qo."questionId"
-				WHERE qa."userId" = '${userId}'
-					AND dq."deckId" = d."id")) AS deckHistory
-			ORDER BY ${sortClause};
-		`,
+    d."revealAtAnswerCount"
+		FROM public."Deck" d
+		JOIN public."DeckQuestion" dq ON dq."deckId" = d."id"
+		JOIN public."QuestionOption" qo ON qo."questionId" = dq."questionId"
+		JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+		WHERE qa."userId" = '${userId}';`,
   );
 
   return decksHistory;
