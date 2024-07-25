@@ -157,10 +157,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     };
 
     if (!!signature) revealInMobileBrowser(signature);
-
-    return () => {
-      setSignature(undefined);
-    };
   }, [signature]);
 
   const onSetReveal = useCallback(
