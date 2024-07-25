@@ -18,7 +18,6 @@ import {
 import { useToast } from "../providers/ToastProvider";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
-import { useLocalStorage } from "./useLocalStorage";
 import useSignAndSendTransaction from "./useSignAndSendTransaction";
 
 type UseRevealProps = {
@@ -78,10 +77,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const router = useRouter();
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
-  );
-  const [revealQuestionIds, setRevealQuestionIds] = useLocalStorage(
-    "revealQuestionIds",
-    [] as number[],
   );
 
   const [burnState, setBurnState] = useState<
@@ -151,17 +146,12 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
       alert(signature);
 
-      alert(revealQuestionIds[0] || "nema nista");
-
-      if (!revealQuestionIds.length) {
-        return setBurnState(INITIAL_BURN_STATE);
-      }
+      alert(15);
 
       await createGetTransactionTask(signature);
-      await revealQuestions(revealQuestionIds, signature);
+      await revealQuestions([15], signature);
 
-      if (revealQuestionIds.length === 1)
-        router.push("/application/answer/reveal/" + revealQuestionIds[0]);
+      router.push("/application/answer/reveal/" + 15);
 
       router.refresh();
     };
@@ -198,8 +188,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
   const burnAndReveal = async () => {
-    setRevealQuestionIds(reveal?.questionIds || []);
-
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
       (chr) => chr.questionId ?? 0,
