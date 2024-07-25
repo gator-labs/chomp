@@ -9,7 +9,7 @@ import {
   createQuestionChompResults,
   deleteQuestionChompResults,
   getUsersPendingChompResult,
-  revealQuestions,
+  revealQuestion,
 } from "../actions/chompResult";
 import {
   getUnusedGenesisNft,
@@ -146,17 +146,19 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
       alert(signature);
 
-      alert(15);
+      return;
 
       await createGetTransactionTask(signature);
-      await revealQuestions([15], signature);
-
+      await revealQuestion(15, signature);
       router.push("/application/answer/reveal/" + 15);
-
       router.refresh();
     };
 
     if (!!signature) revealInMobileBrowser(signature);
+
+    return () => {
+      setSignature(undefined);
+    };
   }, [signature]);
 
   const onSetReveal = useCallback(
