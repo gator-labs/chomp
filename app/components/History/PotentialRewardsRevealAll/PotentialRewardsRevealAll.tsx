@@ -1,20 +1,71 @@
+"use client";
+import { revealQuestions } from "@/app/actions/chompResult";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { useCallback, useState } from "react";
+import { Button } from "../../Button/Button";
 
 type PotentialRewardsRevealAllProps = {
-  potentialRevealRewards: number;
+  revealableQuestions: {
+    id: number;
+    revealTokenAmount: number;
+  }[];
 };
 
 export default function PotentialRewardsRevealAll({
-  potentialRevealRewards = 0,
+  revealableQuestions,
 }: PotentialRewardsRevealAllProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { openRevealModal, closeRevealModal } = useRevealedContext();
+
+  const revealAll = useCallback(
+    async (burnTx?: string, nftAddress?: string) => {
+      await revealQuestions(
+        revealableQuestions.map((q) => q.id),
+        burnTx,
+        nftAddress,
+      );
+      closeRevealModal();
+    },
+    [],
+  );
+
+  const handleRevealAll = useCallback(
+    () =>
+      openRevealModal({
+        reveal: revealAll,
+        amount: revealableQuestions.reduce(
+          (curr, acc) => curr + acc.revealTokenAmount,
+          0,
+        ),
+        questionIds: revealableQuestions.map((q) => q.id),
+      }),
+    [],
+  );
+
   return (
-    <div className="flex justify-between px-4 mt-4">
-      <div className="flex flex-col justify-between">
-        <div className="text-xs text-white font-sora">Potential Rewards</div>
-        <div className="text-base text-white font-sora font-semibold">
-          {numberToCurrencyFormatter.format(potentialRevealRewards)} BONK
+    <div className="flex justify-between ">
+      <div className="flex flex-col justify-between gap-[10px]">
+        <div className="text-xs text-white font-sora leading-[7px]">
+          Potential Rewards
+        </div>
+        <div className="text-base text-white font-sora font-semibold leading-[12px]">
+          {numberToCurrencyFormatter.format(revealableQuestions.length * 10000)}{" "}
+          BONK
         </div>
       </div>
+      {revealableQuestions.length * 10000 !== 0 && (
+        <Button
+          onClick={handleRevealAll}
+          disabled={isLoading}
+          variant="white"
+          size="small"
+          isPill
+          className="!w-fit h-[29px] px-4 text-xs"
+        >
+          Reveal All Chomped Cards
+        </Button>
+      )}
     </div>
   );
 }

@@ -253,5 +253,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     onSetReveal,
     resetReveal,
     cancelReveal: resetReveal,
+    questionIds: reveal?.questionIds || [],
   };
 }

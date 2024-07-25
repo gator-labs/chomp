@@ -42,6 +42,7 @@ export function RevealContextProvider({
     revealPrice,
     hasPendingTransactions,
     isRevealWithNftMode,
+    questionIds,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
@@ -226,7 +227,11 @@ export function RevealContextProvider({
                   "text-[#A3A3EC]": !insufficientFunds,
                 })}
               >
-                {insufficientFunds ? "Insufficient Funds" : "Reveal answer?"}
+                {insufficientFunds
+                  ? "Insufficient Funds"
+                  : !!questionIds.length
+                    ? "Reveal all?"
+                    : "Reveal answer?"}
               </h3>
             </div>
             {getDescriptionNode()}

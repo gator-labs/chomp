@@ -48,21 +48,11 @@ export default function History({ sort, type }: HistoryProps) {
     setResponse(json.history);
   };
 
-  const getPotentialRewardsData = async () => {
-    const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/profile/potential-rewards`,
-    );
-    const json = await data.json();
-
-    console.log(json);
-  };
-
   useIsomorphicLayoutEffect(() => {
     getData(
       HistorySortOptions[sort as keyof typeof HistorySortOptions],
       HistoryTypeOptions[type as keyof typeof HistoryTypeOptions],
     );
-    getPotentialRewardsData();
   }, []);
 
   const handleSort = (event: React.ChangeEvent<HTMLInputElement>) => {
