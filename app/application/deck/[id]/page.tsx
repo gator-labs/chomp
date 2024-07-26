@@ -1,6 +1,4 @@
-import DeckDetails from "@/app/components/DeckDetails/DeckDetails";
-import { getDeckDetails } from "@/app/queries/deck";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 type PageProps = {
   params: { id: string };
@@ -11,11 +9,13 @@ export default async function Page({
   params: { id },
   searchParams: { returnUrl },
 }: PageProps) {
-  const deck = await getDeckDetails(+id);
+  return notFound();
 
-  if (!deck) {
-    return redirect(returnUrl ?? "/application");
-  }
+  // const deck = await getDeckDetails(+id);
 
-  return <DeckDetails deck={deck} />;
+  // if (!deck) {
+  //   return redirect(returnUrl ?? "/application");
+  // }
+
+  // return <DeckDetails deck={deck} />;
 }
