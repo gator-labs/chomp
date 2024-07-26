@@ -216,3 +216,37 @@ export async function getQuestionsHistory(
 
   return historyResult;
 }
+
+export async function getAllQuestionsReadyForReveal(): Promise<
+  { id: number; revealTokenAmount: number }[]
+> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const userId = payload.sub;
+
+  const questions = await prisma.$queryRawUnsafe<
+    { id: number; revealTokenAmount: number }[]
+  >(
+    `
+		SELECT q.id,                  
+      		   q."revealTokenAmount"
+		FROM public."Question" q
+         LEFT JOIN "ChompResult" cr ON cr."questionId" = q.id
+    		AND cr."userId" = '${userId}'
+    		AND cr."transactionStatus" = 'Completed'
+         JOIN "QuestionOption" qo ON q.id = qo."questionId"
+         JOIN "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+		WHERE cr."questionId" IS NULL
+  			AND q."revealAtDate" IS NOT NULL
+  			AND q."revealAtDate" < NOW()
+ 			AND qa.selected = TRUE
+  			AND qa."userId" = '${userId}'
+	`,
+  );
+
+  return questions;
+}
