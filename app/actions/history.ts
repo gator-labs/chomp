@@ -1,6 +1,11 @@
 "use server";
 
-import { getDecksHistory } from "../queries/history";
+import {
+  getDecksHistory,
+  getQuestionsHistoryQuery,
+  QuestionHistory,
+} from "../queries/history";
+import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 
 export const getHistoryDecks = async () => {
@@ -12,3 +17,37 @@ export const getHistoryDecks = async () => {
 
   return getDecksHistory(payload.sub);
 };
+
+export const getQuestionsHistory = async (): Promise<QuestionHistory[]> => {
+  const payload = await getJwtPayload();
+
+  if (!payload?.sub) {
+    return [];
+  }
+
+  return getQuestionsHistoryQuery(payload.sub);
+};
+
+export async function getTotalClaimableRewards(): Promise<number> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return 0;
+  }
+
+  const res = await prisma.chompResult.aggregate({
+    where: {
+      userId: payload.sub,
+      result: "Revealed",
+      questionId: { not: null },
+      rewardTokenAmount: {
+        gt: 0,
+      },
+    },
+    _sum: {
+      rewardTokenAmount: true,
+    },
+  });
+
+  return Math.trunc(Number(res._sum.rewardTokenAmount));
+}
