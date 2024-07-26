@@ -1,7 +1,7 @@
+import { getTotalClaimableRewards } from "@/app/actions/history";
 import HistoryHeader from "@/app/components/HistoryHeader/HistoryHeader";
 import HistoryList from "@/app/components/HistoryList/HistoryList";
 import HistoryListSkeleton from "@/app/components/HistoryListSkeleton/HistoryListSkeleton";
-import { getTotalClaimableRewards } from "@/app/queries/history";
 import { Suspense } from "react";
 
 export default async function Page() {
