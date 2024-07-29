@@ -134,7 +134,7 @@ export function RevealContextProvider({
               className="h-10"
               isPill
               onClick={() =>
-                isRevealWithNftMode ? burnAndReveal() : resetReveal()
+                isRevealWithNftMode ? burnAndReveal(true) : resetReveal()
               }
             >
               {isRevealWithNftMode

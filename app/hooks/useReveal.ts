@@ -106,6 +106,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           return;
         }
 
+        if (reveal?.questionIds?.length !== 1) return;
+
         const userAssets = await getUserAssets(address);
         const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
 
@@ -170,7 +172,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     setIsRevealModalOpen(false);
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
-  const burnAndReveal = async () => {
+  const burnAndReveal = async (ignoreNft?: boolean) => {
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
       (chr) => chr.questionId ?? 0,
@@ -183,7 +185,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await createGetTransactionTask(signature);
       }
 
-      if (!isRevealWithNftMode && !hasPendingTransactions) {
+      if ((!isRevealWithNftMode || ignoreNft) && !hasPendingTransactions) {
         const blockhash = await CONNECTION.getLatestBlockhash();
         const signer = await wallet!.connector.getSigner<ISolana>();
 
