@@ -1,6 +1,10 @@
+import { revealQuestion } from "@/app/actions/chompResult";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { QuestionHistory } from "@/app/queries/history";
 import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
 import { cn } from "@/app/utils/tailwind";
+import { NftType } from "@prisma/client";
+import { useRouter } from "next-nprogress-bar";
 import Link from "next/link";
 import { forwardRef } from "react";
 import { Button } from "../Button/Button";
@@ -12,6 +16,7 @@ import LeadToIcon from "../Icons/LeadToIcon";
 const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
   (question, ref) => {
     const revealAtText = getRevealAtText(question.revealAtDate);
+    const router = useRouter();
 
     const questionStatus = getQuestionStatus({
       isAnswered: question.isAnswered,
@@ -19,6 +24,24 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
       isRevealable: question.isRevealable,
       claimedAmount: question.claimedAmount,
     });
+
+    const { openRevealModal } = useRevealedContext();
+
+    const handleReveal = () => {
+      openRevealModal({
+        reveal: async (
+          burnTx?: string,
+          nftAddress?: string,
+          nftType?: NftType,
+        ) => {
+          await revealQuestion(question.id, burnTx, nftAddress, nftType);
+          router.push("/application/answer/reveal/" + question.id);
+          router.refresh();
+        },
+        amount: question.claimedAmount || 0,
+        questionId: question.id,
+      });
+    };
 
     return (
       <li
@@ -49,7 +72,11 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
         </div>
 
         {question.isRevealable && question.isAnswered && (
-          <Button className="h-[50px] flex gap-1" variant="grayish">
+          <Button
+            className="h-[50px] flex gap-1"
+            variant="grayish"
+            onClick={handleReveal}
+          >
             Reveal
             <EyeIcon />
           </Button>
@@ -57,17 +84,18 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
         {question.isClaimable && (
           <Button className="h-[50px] flex gap-1" variant="grayish">
             Claim
-            <DollarIcon />
+            <DollarIcon fill="#fff" />
           </Button>
         )}
-        {(question.isClaimed || question.isRevealed) && (
-          <Link href={`/application/answer/reveal/${question.id}`}>
-            <Button className="h-[50px] flex gap-1" variant="grayish">
-              View
-              <EyeIcon />
-            </Button>
-          </Link>
-        )}
+        {(question.isClaimed || question.isRevealed) &&
+          !question.isClaimable && (
+            <Link href={`/application/answer/reveal/${question.id}`}>
+              <Button className="h-[50px] flex gap-1" variant="grayish">
+                View
+                <EyeIcon />
+              </Button>
+            </Link>
+          )}
       </li>
     );
   },
