@@ -108,8 +108,6 @@ export async function getQuestionsHistoryQuery(
 		WHERE q."revealAtDate" IS NOT NULL
 		GROUP BY 
 				q.id, cr."rewardTokenAmount"
-		ORDER BY 
-				q."createdAt" DESC
 		LIMIT ${pageSize} OFFSET ${offset}
 				`,
   );
