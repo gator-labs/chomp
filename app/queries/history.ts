@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getJwtPayload } from "../actions/jwt";
-import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 
 export type HistoryResult = {
@@ -102,14 +101,7 @@ export async function getQuestionsHistoryQuery(
         		WHEN COUNT(CASE WHEN cr.result = 'Claimed' OR cr.result = 'Revealed' THEN 1 ELSE NULL END) = 0
         			AND q."revealAtDate" < NOW() THEN true
         		ELSE false 
-    		END AS "isRevealable",
-				 (
-  		SELECT
-          	COUNT(distinct concat(qa."userId",qo."questionId"))
-	    FROM public."QuestionOption" qo
-	    JOIN public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	    WHERE qo."questionId" = q."id"
-  	) as "answerCount"
+    		END AS "isRevealable"
 		FROM 
 				"Question" q 
 		JOIN 
@@ -121,17 +113,22 @@ export async function getQuestionsHistoryQuery(
 		WHERE q."revealAtDate" IS NOT NULL
 		GROUP BY 
 				q.id, cr."rewardTokenAmount", cr."burnTransactionSignature"
+				HAVING 
+    (
+        SELECT COUNT(distinct concat(qa."userId", qo."questionId"))
+        FROM public."QuestionOption" qo
+        JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        WHERE qo."questionId" = q."id"
+    ) >= 20
 		LIMIT ${pageSize} OFFSET ${offset}
 				`,
   );
 
-  return historyResult
-    .filter((h) => h.answerCount >= MINIMAL_ANSWER_COUNT)
-    .map((hr) => ({
-      ...hr,
-      claimedAmount: Math.trunc(Number(hr.claimedAmount)),
-      revealTokenAmount: Number(hr.revealTokenAmount),
-    }));
+  return historyResult.map((hr) => ({
+    ...hr,
+    claimedAmount: Math.trunc(Number(hr.claimedAmount)),
+    revealTokenAmount: Number(hr.revealTokenAmount),
+  }));
 }
 
 export async function getAllQuestionsReadyForReveal(): Promise<
