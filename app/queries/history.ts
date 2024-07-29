@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getAllRevealableQuestions } from "../actions/claim";
 import { getJwtPayload } from "../actions/jwt";
+import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 import { onlyUniqueBy } from "../utils/array";
 
@@ -229,15 +230,22 @@ export async function getAllQuestionsReadyForReveal(): Promise<
   const userId = payload.sub;
 
   const questions = await prisma.$queryRawUnsafe<
-    { id: number; revealTokenAmount: number }[]
+    { id: number; revealTokenAmount: number; answerCount: number }[]
   >(
     `
 		SELECT q.id,                  
-      		   q."revealTokenAmount"
+      		   q."revealTokenAmount",
+		(	
+  		SELECT
+          	COUNT(distinct concat(qa."userId",qo."questionId"))
+	    FROM public."QuestionOption" qo
+	    JOIN public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+	    WHERE qo."questionId" = q."id"
+  	) as "answerCount"
 		FROM public."Question" q
          LEFT JOIN "ChompResult" cr ON cr."questionId" = q.id
     		AND cr."userId" = '${userId}'
-    		AND cr."transactionStatus" = 'Completed'
+    		AND cr."transactionStatus" IS NOT NULL
          JOIN "QuestionOption" qo ON q.id = qo."questionId"
          JOIN "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
 		WHERE cr."questionId" IS NULL
@@ -248,5 +256,8 @@ export async function getAllQuestionsReadyForReveal(): Promise<
 	`,
   );
 
-  return questions;
+  return questions.filter(
+    (question) =>
+      question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
+  );
 }
