@@ -1,19 +1,21 @@
 import { getTotalClaimableRewards } from "@/app/actions/history";
+import History from "@/app/components/History/History";
 import HistoryHeader from "@/app/components/HistoryHeader/HistoryHeader";
-import HistoryList from "@/app/components/HistoryList/HistoryList";
-import HistoryListSkeleton from "@/app/components/HistoryListSkeleton/HistoryListSkeleton";
-import { Suspense } from "react";
+import { getAllQuestionsReadyForReveal } from "@/app/queries/history";
 
 export default async function Page() {
-  const totalClaimableRewards = await getTotalClaimableRewards();
+  const [revealableQuestions, totalClaimableRewards] = await Promise.all([
+    getAllQuestionsReadyForReveal(),
+    getTotalClaimableRewards(),
+  ]);
 
   return (
     <div className="flex flex-col gap-4 overflow-hidden">
-      <HistoryHeader totalClaimableRewards={totalClaimableRewards} />
-
-      <Suspense fallback={<HistoryListSkeleton />}>
-        <HistoryList />
-      </Suspense>
+      <HistoryHeader
+        totalClaimableRewards={totalClaimableRewards}
+        revealableQuestions={revealableQuestions}
+      />
+      <History />
     </div>
   );
 }
