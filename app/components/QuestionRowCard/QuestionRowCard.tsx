@@ -62,8 +62,13 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
             <p className="text-xs font-light -mb-0.5">{revealAtText}</p>
           </div>
           <p
+            onClick={() => {
+              if (questionStatus !== "Reveal unchomped question") return;
+
+              handleReveal();
+            }}
             className={cn("text-xs text-[#6DECAF]", {
-              "text-[#CFC5F7] underline":
+              "text-[#CFC5F7] underline cursor-pointer":
                 questionStatus === "Reveal unchomped question",
             })}
           >
