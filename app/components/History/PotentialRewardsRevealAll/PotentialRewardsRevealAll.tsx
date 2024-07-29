@@ -2,6 +2,7 @@
 import { revealQuestions } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { Button } from "../../Button/Button";
 
@@ -15,6 +16,7 @@ type PotentialRewardsRevealAllProps = {
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
 }: PotentialRewardsRevealAllProps) {
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
@@ -26,6 +28,7 @@ export default function PotentialRewardsRevealAll({
         burnTx,
         nftAddress,
       );
+      queryClient.invalidateQueries({ queryKey: ["questions-history"] });
       closeRevealModal();
       setIsLoading(false);
     },
