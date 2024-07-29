@@ -1,12 +1,15 @@
 "use client";
 
 import useInfiniteQuestionsHistory from "@/app/_reactQuery/useInfiniteQuestionsHistory";
+import HistoryListSkeleton from "../HistoryListSkeleton/HistoryListSkeleton";
 import QuestionRowCard from "../QuestionRowCard/QuestionRowCard";
 import Skeleton from "../Skeleton/Skeleton";
 
 export default function History() {
   const { data, isFetchingNextPage, lastElementRef, isLoading } =
     useInfiniteQuestionsHistory();
+
+  if (isLoading) return <HistoryListSkeleton />;
 
   return (
     <div className="flex flex-col gap-2 overflow-hidden">
@@ -18,7 +21,7 @@ export default function History() {
             ref={lastElementRef}
           />
         ))}
-        {(isFetchingNextPage || isLoading) && <Skeleton />}
+        {isFetchingNextPage && <Skeleton />}
       </ul>
     </div>
   );
