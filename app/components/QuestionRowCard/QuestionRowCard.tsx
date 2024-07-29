@@ -38,7 +38,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           router.push("/application/answer/reveal/" + question.id);
           router.refresh();
         },
-        amount: question.claimedAmount || 0,
+        amount: question.revealTokenAmount || 0,
         questionId: question.id,
       });
     };

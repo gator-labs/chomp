@@ -25,6 +25,7 @@ export type QuestionHistory = {
   isClaimable: boolean;
   isRevealable: boolean;
   claimedAmount?: number;
+  revealTokenAmount: number;
 };
 
 export async function getDecksHistory(
@@ -75,6 +76,7 @@ export async function getQuestionsHistoryQuery(
 				q.question,
 				q."revealAtDate",
 				cr."rewardTokenAmount" as "claimedAmount",
+				q."revealTokenAmount",
 				CASE 
 						WHEN COUNT(CASE WHEN qa.selected = true THEN 1 ELSE NULL END) > 0 THEN true
 						ELSE false 
@@ -115,6 +117,7 @@ export async function getQuestionsHistoryQuery(
   return historyResult.map((hr) => ({
     ...hr,
     claimedAmount: Math.trunc(Number(hr.claimedAmount)),
+    revealTokenAmount: Number(hr.revealTokenAmount),
   }));
 }
 
