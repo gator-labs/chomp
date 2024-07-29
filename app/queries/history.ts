@@ -61,7 +61,11 @@ export async function getDecksHistory(
 
 export async function getQuestionsHistoryQuery(
   userId: string,
+  pageSize: number,
+  currentPage: number,
 ): Promise<QuestionHistory[]> {
+  const offset = (currentPage - 1) * pageSize;
+
   const historyResult: QuestionHistory[] = await prisma.$queryRawUnsafe(
     `
 		SELECT 
@@ -103,8 +107,13 @@ export async function getQuestionsHistoryQuery(
 		GROUP BY 
 				q.id, cr."rewardTokenAmount"
 		ORDER BY 
-				q."createdAt" DESC		`,
+				q."createdAt" DESC
+		LIMIT ${pageSize} OFFSET ${offset}
+				`,
   );
 
-  return historyResult;
+  return historyResult.map((hr) => ({
+    ...hr,
+    claimedAmount: Math.trunc(Number(hr.claimedAmount)),
+  }));
 }

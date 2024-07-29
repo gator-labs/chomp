@@ -1,10 +1,26 @@
-import { getHistoryDecks } from "@/app/actions/history";
+import { getQuestionsHistory } from "@/app/actions/history";
+
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
 import History from "../History/History";
 
 const HistoryList = async () => {
-  const deckHistory = await getHistoryDecks();
+  const queryClient = new QueryClient();
 
-  return <History deckHistory={deckHistory} />;
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: ["questions-history"],
+    queryFn: ({ pageParam }) => getQuestionsHistory({ pageParam }),
+    initialPageParam: 1,
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <History />
+    </HydrationBoundary>
+  );
 };
 
 export default HistoryList;

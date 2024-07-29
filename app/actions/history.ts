@@ -8,6 +8,8 @@ import {
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 
+const PAGE_SIZE = 10;
+
 export const getHistoryDecks = async () => {
   const payload = await getJwtPayload();
 
@@ -18,14 +20,18 @@ export const getHistoryDecks = async () => {
   return getDecksHistory(payload.sub);
 };
 
-export const getQuestionsHistory = async (): Promise<QuestionHistory[]> => {
+export const getQuestionsHistory = async ({
+  pageParam,
+}: {
+  pageParam: number;
+}): Promise<QuestionHistory[]> => {
   const payload = await getJwtPayload();
 
   if (!payload?.sub) {
     return [];
   }
 
-  return getQuestionsHistoryQuery(payload.sub);
+  return getQuestionsHistoryQuery(payload.sub, PAGE_SIZE, pageParam);
 };
 
 export async function getTotalClaimableRewards(): Promise<number> {

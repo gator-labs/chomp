@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
 import LinkProgressBar from "./components/LinkProgressBar/LinkProgressBar";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
+import ReactQueryProvider from "./providers/ReactQueryProvider";
 import { ToastProvider } from "./providers/ToastProvider";
 
 export const viewport: Viewport = {
@@ -45,11 +46,13 @@ export default function RootLayout({
           </div>
         )}
         <LinkProgressBar />
-        <DynamicProvider>
-          <ToastProvider>
-            <MobileChromeDetector>{children}</MobileChromeDetector>
-          </ToastProvider>
-        </DynamicProvider>
+        <ReactQueryProvider>
+          <DynamicProvider>
+            <ToastProvider>
+              <MobileChromeDetector>{children}</MobileChromeDetector>
+            </ToastProvider>
+          </DynamicProvider>
+        </ReactQueryProvider>
         <Analytics />
       </body>
     </html>

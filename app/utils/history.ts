@@ -51,7 +51,7 @@ export function getQuestionStatus({
   if (!isAnswered && isRevealable) return "Reveal unchomped question";
   if (isAnswered && isRevealable) return "Chomped";
   if (isClaimed && !!claimedAmount && claimedAmount > 0)
-    return `${Math.trunc(+claimedAmount).toLocaleString("en-US")} $BONK Rewarded`;
+    return `${claimedAmount.toLocaleString("en-US")} $BONK Rewarded`;
 
   return "";
 }
