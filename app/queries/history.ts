@@ -76,7 +76,6 @@ export async function getQuestionsHistoryQuery(
     q.id, 
     q.question,
     q."revealAtDate",
-		q."createdAt",
     cr."rewardTokenAmount" as "claimedAmount",
     cr."burnTransactionSignature",
     q."revealTokenAmount",
@@ -127,7 +126,7 @@ export async function getQuestionsHistoryQuery(
 `;
 
   const endQuery = `
-  ORDER BY q."createdAt" DESC, q."id"
+  ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
 
