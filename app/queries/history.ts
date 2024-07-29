@@ -71,58 +71,74 @@ export async function getQuestionsHistoryQuery(
 ): Promise<QuestionHistory[]> {
   const offset = (currentPage - 1) * pageSize;
 
-  const historyResult: QuestionHistory[] = await prisma.$queryRawUnsafe(
-    `
-		SELECT 
-				q.id, 
-				q.question,
-				q."revealAtDate",
-				cr."rewardTokenAmount" as "claimedAmount",
-				cr."burnTransactionSignature",
-				q."revealTokenAmount",
-				CASE 
-						WHEN COUNT(CASE WHEN qa.selected = true THEN 1 ELSE NULL END) > 0 THEN true
-						ELSE false 
-				END AS "isAnswered",
-				CASE 
-						WHEN COUNT(CASE WHEN cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0 THEN 1 ELSE NULL END) > 0 THEN true
-						ELSE false 
-				END AS "isClaimed",
-				CASE 
-						WHEN COUNT(CASE WHEN (cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0) OR cr.result = 'Revealed' THEN 1 ELSE NULL END) > 0 THEN true
-						ELSE false 
-				END AS "isRevealed",
-				CASE 
-						WHEN COUNT(CASE WHEN cr.result = 'Revealed' AND cr."rewardTokenAmount" > 0 THEN 1 ELSE NULL END) > 0
-								AND COUNT(CASE WHEN cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0 THEN 1 ELSE NULL END) = 0 THEN true
-						ELSE false 
-				END AS "isClaimable",
-				CASE 
-        		WHEN COUNT(CASE WHEN cr.result = 'Claimed' OR cr.result = 'Revealed' THEN 1 ELSE NULL END) = 0
-        			AND q."revealAtDate" < NOW() THEN true
-        		ELSE false 
-    		END AS "isRevealable"
-		FROM 
-				"Question" q 
-		JOIN 
-				"QuestionOption" qo ON qo."questionId" = q.id 
-		LEFT JOIN 
-				"QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
-		LEFT JOIN 
-				"ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
-		WHERE q."revealAtDate" IS NOT NULL
-		GROUP BY 
-				q.id, cr."rewardTokenAmount", cr."burnTransactionSignature"
-				HAVING 
+  const baseQuery = `
+  SELECT 
+    q.id, 
+    q.question,
+    q."revealAtDate",
+		q."createdAt",
+    cr."rewardTokenAmount" as "claimedAmount",
+    cr."burnTransactionSignature",
+    q."revealTokenAmount",
+    CASE 
+      WHEN COUNT(CASE WHEN qa.selected = true THEN 1 ELSE NULL END) > 0 THEN true
+      ELSE false 
+    END AS "isAnswered",
+    CASE 
+      WHEN COUNT(CASE WHEN cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0 THEN 1 ELSE NULL END) > 0 THEN true
+      ELSE false 
+    END AS "isClaimed",
+    CASE 
+      WHEN COUNT(CASE WHEN (cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0) OR cr.result = 'Revealed' THEN 1 ELSE NULL END) > 0 THEN true
+      ELSE false 
+    END AS "isRevealed",
+    CASE 
+      WHEN COUNT(CASE WHEN cr.result = 'Revealed' AND cr."rewardTokenAmount" > 0 THEN 1 ELSE NULL END) > 0
+          AND COUNT(CASE WHEN cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0 THEN 1 ELSE NULL END) = 0 THEN true
+      ELSE false 
+    END AS "isClaimable",
+    CASE 
+      WHEN COUNT(CASE WHEN cr.result = 'Claimed' OR cr.result = 'Revealed' THEN 1 ELSE NULL END) = 0
+          AND q."revealAtDate" < NOW() THEN true
+      ELSE false 
+    END AS "isRevealable"
+  FROM 
+    "Question" q 
+  JOIN 
+    "QuestionOption" qo ON qo."questionId" = q.id 
+  LEFT JOIN 
+    "QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
+  LEFT JOIN 
+    "ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
+  WHERE 
+    q."revealAtDate" IS NOT NULL
+  GROUP BY 
+    q.id, cr."rewardTokenAmount", cr."burnTransactionSignature"
+`;
+
+  const havingClause = `
+  HAVING 
     (
-        SELECT COUNT(distinct concat(qa."userId", qo."questionId"))
-        FROM public."QuestionOption" qo
-        JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
-        WHERE qo."questionId" = q."id"
+      SELECT COUNT(distinct concat(qa."userId", qo."questionId"))
+      FROM public."QuestionOption" qo
+      JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+      WHERE qo."questionId" = q."id"
     ) >= 20
-		LIMIT ${pageSize} OFFSET ${offset}
-				`,
-  );
+`;
+
+  const endQuery = `
+  ORDER BY q."createdAt" DESC, q."id"
+  LIMIT ${pageSize} OFFSET ${offset}
+`;
+
+  let finalQuery = baseQuery;
+  if (process.env.NODE_ENV !== "production") {
+    finalQuery += havingClause;
+  }
+  finalQuery += endQuery;
+
+  const historyResult: QuestionHistory[] =
+    await prisma.$queryRawUnsafe(finalQuery);
 
   return historyResult.map((hr) => ({
     ...hr,
