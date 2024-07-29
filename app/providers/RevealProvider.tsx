@@ -236,7 +236,7 @@ export function RevealContextProvider({
                 >
                   {insufficientFunds
                     ? "Insufficient Funds"
-                    : !!questionIds.length
+                    : questionIds.length > 1
                       ? "Reveal all?"
                       : "Reveal answer?"}
                 </h3>
