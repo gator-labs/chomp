@@ -3,13 +3,13 @@ import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 
 interface IBotUser {
-  id: string,
-  telegramId: string,
+  id: string;
+  telegramId: string;
 }
 
 interface IEmailOrWallet {
-  userId: string,
-  address: string,
+  userId: string;
+  address: string;
 }
 
 export const getUserTokenBalances = async () => {
@@ -79,7 +79,7 @@ export async function getUserByTelegram(telegramId: string) {
     include: {
       emails: true,
       wallets: true,
-      questionAnswers: true 
+      questionAnswers: true,
     },
   });
 }
@@ -96,19 +96,18 @@ export async function getUserByEmail(email: string) {
     include: {
       emails: true,
       wallets: true,
-      questionAnswers: true 
+      questionAnswers: true,
     },
   });
 }
 
-export async function setUserByTelegram(data: IBotUser
-) {
+export async function setUserByTelegram(data: IBotUser) {
   return await prisma.user.create({
     data,
     include: {
       emails: true,
       wallets: true,
-      questionAnswers: true 
+      questionAnswers: true,
     },
   });
 }

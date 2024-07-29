@@ -11,7 +11,7 @@ export async function GET(req: Request) {
     });
   }
 
-  const { searchParams} = new URL(req.url);
+  const { searchParams } = new URL(req.url);
   const telegramId = searchParams.get("telegramId");
 
   if (!telegramId || Array.isArray(telegramId)) {

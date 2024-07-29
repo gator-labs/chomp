@@ -1,10 +1,8 @@
-import { headers } from "next/headers";
-import { queryQuestionsForReadyToReveal } from "@/app/queries/home";
 import { MINIMAL_ANSWER_COUNT } from "@/app/constants/answers";
-
+import { queryQuestionsForReadyToReveal } from "@/app/queries/home";
+import { headers } from "next/headers";
 
 export async function GET(req: Request) {
-
   const headersList = headers();
   const apiKey = headersList.get("api-key");
   if (apiKey !== process.env.BOT_API_KEY) {
@@ -13,9 +11,9 @@ export async function GET(req: Request) {
     });
   }
 
-  const {searchParams} = new URL(req.url);
+  const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
-  if (!userId|| Array.isArray(userId)) {
+  if (!userId || Array.isArray(userId)) {
     return Response.json("userId parameter is required", { status: 400 });
   }
 
@@ -26,5 +24,4 @@ export async function GET(req: Request) {
       question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
   );
   return Response.json(questionMinAnswerFilter);
-
 }

@@ -2,7 +2,7 @@
 
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { SolanaWalletConnectors } from "@dynamic-labs/solana";
-import { usePathname } from 'next/navigation'
+import { usePathname } from "next/navigation";
 import { clearJwt } from "../actions/jwt";
 
 export default function DynamicProvider({
@@ -10,8 +10,7 @@ export default function DynamicProvider({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
     <DynamicContextProvider
@@ -21,7 +20,7 @@ export default function DynamicProvider({
         walletConnectors: [SolanaWalletConnectors],
         eventsCallbacks: {
           onLogout: () => {
-            if (pathname !== '/bot') {
+            if (pathname !== "/bot") {
               clearJwt();
             }
           },
