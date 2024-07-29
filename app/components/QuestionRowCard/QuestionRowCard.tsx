@@ -1,7 +1,12 @@
 import { revealQuestion } from "@/app/actions/chompResult";
+import { claimQuestions } from "@/app/actions/claim";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
+import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { useToast } from "@/app/providers/ToastProvider";
 import { QuestionHistory } from "@/app/queries/history";
 import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
+import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
 import { NftType } from "@prisma/client";
 import { useRouter } from "next-nprogress-bar";
@@ -17,6 +22,43 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
   (question, ref) => {
     const revealAtText = getRevealAtText(question.revealAtDate);
     const router = useRouter();
+    const { fire } = useConfetti();
+    const { promiseToast, errorToast } = useToast();
+    const { isClaiming, setIsClaiming } = useClaiming();
+
+    const claimQuestion = async (
+      questionId: number,
+      transactionHash: string,
+    ) => {
+      try {
+        if (isClaiming) return;
+
+        setIsClaiming(true);
+
+        const tx = await CONNECTION.getTransaction(transactionHash, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
+
+        if (!tx) return errorToast("Cannot get transaction");
+
+        promiseToast(claimQuestions([questionId]), {
+          loading: "Claiming your rewards...",
+          success: "You have successfully claimed your rewards!",
+          error: "Failed to claim rewards. Please try again.",
+        })
+          .then(() => {
+            router.push("/application/answer/reveal/" + question.id);
+            router.refresh();
+            fire();
+          })
+          .finally(() => {
+            setIsClaiming(false);
+          });
+      } catch (error) {
+        errorToast("Failed to claim rewards. Please try again.");
+      }
+    };
 
     const questionStatus = getQuestionStatus({
       isAnswered: question.isAnswered,
@@ -87,7 +129,14 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           </Button>
         )}
         {question.isClaimable && (
-          <Button className="h-[50px] flex gap-1" variant="grayish">
+          <Button
+            className="h-[50px] flex gap-1"
+            variant="grayish"
+            disabled={isClaiming}
+            onClick={() =>
+              claimQuestion(question.id, question.burnTransactionSignature!)
+            }
+          >
             Claim
             <DollarIcon fill="#fff" />
           </Button>

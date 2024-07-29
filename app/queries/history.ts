@@ -26,6 +26,7 @@ export type QuestionHistory = {
   isRevealable: boolean;
   claimedAmount?: number;
   revealTokenAmount: number;
+  burnTransactionSignature?: string;
 };
 
 export async function getDecksHistory(
@@ -76,6 +77,7 @@ export async function getQuestionsHistoryQuery(
 				q.question,
 				q."revealAtDate",
 				cr."rewardTokenAmount" as "claimedAmount",
+				cr."burnTransactionSignature",
 				q."revealTokenAmount",
 				CASE 
 						WHEN COUNT(CASE WHEN qa.selected = true THEN 1 ELSE NULL END) > 0 THEN true
@@ -109,7 +111,7 @@ export async function getQuestionsHistoryQuery(
 				"ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
 		WHERE q."revealAtDate" IS NOT NULL
 		GROUP BY 
-				q.id, cr."rewardTokenAmount"
+				q.id, cr."rewardTokenAmount", cr."burnTransactionSignature"
 		LIMIT ${pageSize} OFFSET ${offset}
 				`,
   );
