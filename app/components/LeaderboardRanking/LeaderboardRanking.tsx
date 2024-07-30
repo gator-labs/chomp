@@ -32,7 +32,11 @@ const LeaderboardRanking = ({ label, loggedUserId, ranking }: Props) => {
                 key={rankItem.user.id}
                 value={rankItem.value}
                 rank={rankItem.rank}
-                name={formatAddress(rankItem.user.wallets[0]?.address)}
+                name={
+                  rankItem.user.wallets[0]?.address
+                    ? formatAddress(rankItem.user.wallets[0].address)
+                    : "mocked user"
+                }
                 loggedUserId={loggedUserId}
                 userId={rankItem.user.id}
                 imageSrc={rankItem.user!.profileSrc || AvatarPlaceholder.src}
