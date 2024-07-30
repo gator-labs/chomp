@@ -1,4 +1,5 @@
 "use client";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 import { useState } from "react";
 import { Avatar } from "../Avatar/Avatar";
@@ -38,7 +39,7 @@ export function Navbar({
       </Link>
       <div className="flex gap-6 items-center">
         <button onClick={openQuickProfile}>
-          <Avatar src={avatarSrc} size="small" />
+          <Avatar src={avatarSrc || AvatarPlaceholder.src} size="small" />
         </button>
         <QuickViewProfile
           isOpen={isOpen}
