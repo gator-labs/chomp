@@ -10,6 +10,7 @@ import {
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import {
+  getUnusedChompyAndFriendsNft,
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
@@ -109,6 +110,16 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         if (reveal?.questionIds?.length !== 1) return;
 
         const userAssets = await getUserAssets(address);
+        const chompyAndFriendsNft =
+          await getUnusedChompyAndFriendsNft(userAssets);
+
+        if (!!chompyAndFriendsNft) {
+          return setRevealNft({
+            id: chompyAndFriendsNft.id,
+            type: NftType.ChompyAndFriends,
+          });
+        }
+
         const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
 
         if (!!glowburgerNft) {
