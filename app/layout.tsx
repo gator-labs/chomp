@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
 import LinkProgressBar from "./components/LinkProgressBar/LinkProgressBar";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
+import ReactQueryProvider from "./providers/ReactQueryProvider";
 import { ToastProvider } from "./providers/ToastProvider";
 
 export const viewport: Viewport = {
@@ -24,8 +25,8 @@ export const metadata: Metadata = {
   generator: "Next.js",
   manifest: "/manifest.json",
   icons: [
-    { rel: "apple-touch-icon", url: "icons/icon-128x128.png" },
-    { rel: "icon", url: "icons/icon-128x128.png" },
+    { rel: "apple-touch-icon", url: "/icons/icon-128x128.png" },
+    { rel: "icon", url: "/icons/icon-128x128.png" },
   ],
 };
 
@@ -45,11 +46,13 @@ export default function RootLayout({
           </div>
         )}
         <LinkProgressBar />
-        <DynamicProvider>
-          <ToastProvider>
-            <MobileChromeDetector>{children}</MobileChromeDetector>
-          </ToastProvider>
-        </DynamicProvider>
+        <ReactQueryProvider>
+          <DynamicProvider>
+            <ToastProvider>
+              <MobileChromeDetector>{children}</MobileChromeDetector>
+            </ToastProvider>
+          </DynamicProvider>
+        </ReactQueryProvider>
         <Analytics />
       </body>
     </html>

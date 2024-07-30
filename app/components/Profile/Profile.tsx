@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/app/queries/user";
 import { formatAddress } from "@/app/utils/wallet";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
@@ -17,7 +18,7 @@ export async function Profile({
   const user = await getCurrentUser();
   const username = user?.username || "";
   const address = user?.wallets[0].address || "";
-  const avatarSrc = user?.profileSrc || "";
+  const avatarSrc = user?.profileSrc || AvatarPlaceholder.src;
 
   return (
     <div className="flex items-center py-4 rounded-2xl bg-[#0D0D0D] gap-4">

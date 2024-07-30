@@ -9,6 +9,7 @@ import { TabNavigation } from "@/app/components/TabNavigation/TabNavigation";
 import { getAnsweredQuestionsStatus } from "@/app/utils/question";
 
 interface Props {
+  nextDeckId?: number;
   date?: Date | null;
   questions?: Question[];
   id?: number;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const DailyDeckScreen = ({
+  nextDeckId,
   date,
   questions,
   id,
@@ -44,9 +46,16 @@ const DailyDeckScreen = ({
             </div>
             <div className="flex-1">
               {!!questions?.length ? (
-                <Deck questions={questions} deckId={id!} />
+                <Deck
+                  questions={questions}
+                  deckId={id!}
+                  nextDeckId={nextDeckId}
+                />
               ) : (
-                <NoQuestionsCard variant={deckVariant} />
+                <NoQuestionsCard
+                  nextDeckId={nextDeckId}
+                  variant={deckVariant}
+                />
               )}
             </div>
           </div>

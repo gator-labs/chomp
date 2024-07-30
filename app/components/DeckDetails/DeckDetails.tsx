@@ -7,10 +7,12 @@ import {
   getQuestionState,
 } from "@/app/utils/question";
 import { ChompResult, Deck } from "@prisma/client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { Button } from "../Button/Button";
 import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
+import { HalfArrowLeftIcon } from "../Icons/HalfArrowLeftIcon";
 import Stepper from "../Stepper/Stepper";
 
 type DeckProp = Deck & {
@@ -66,18 +68,21 @@ function DeckDetails({ deck }: DeckDetailsProps) {
   const hasChomped = !questionStates.some((qs) => !qs.isAnswered);
 
   return (
-    <div>
-      <div className="text-sm color-[#F1F1F1] flex justify-between px-4 mb-4">
+    <div className="overflow-hidden flex flex-col gap-4">
+      <div className="text-sm color-[#F1F1F1] flex gap-2 items-center">
+        <Link href="/application/profile/history">
+          <HalfArrowLeftIcon />
+        </Link>
         <span>{deck.deck}</span>
       </div>
       <Stepper
         numberOfSteps={deck.deckQuestions.length}
         activeStep={questionStates.filter((qs) => qs.isAnswered).length}
         color="green"
-        className="px-4 !py-0 mb-4"
+        className="!p-0"
       />
       {(hasChomped || hasReveal) && (
-        <div className="flex justify-between items-center px-4 mb-4">
+        <div className="flex justify-between items-center">
           <div>
             {hasChomped && (
               <div className="bg-aqua rounded-full text-center px-4 py-2">
@@ -103,7 +108,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
           </div>
         </div>
       )}
-      <div className="px-4">
+      <ul className="overflow-y-auto">
         {deck.deckQuestions
           .map((dq) => dq.question)
           .map((element) => (
@@ -111,7 +116,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
               <DeckDetailsFeedRowCard element={element} />
             </div>
           ))}
-      </div>
+      </ul>
     </div>
   );
 }

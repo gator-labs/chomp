@@ -285,4 +285,5 @@ enum TransactionStatus {
 enum NftType {
   Genesis
   Glowburger
+  ChompyAndFriends
 }

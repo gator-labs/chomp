@@ -66,27 +66,33 @@ const calculateBinaryCorrectAnswer = async (questionIds: number[]) => {
   const correctOptionIds: number[] = [];
 
   for (const question of questions) {
+    const questionOptions = question.questionOptions;
+    const correctOption = questionOptions.find((option) => option.isCorrect);
+
+    if (!!correctOption) {
+      correctOptionIds.push(correctOption.id);
+      continue;
+    }
+
     const body = {
       first_order_percent_A: questionOptionPercentages.find(
-        (percentage) => percentage.id === question.questionOptions[0].id,
+        (percentage) => percentage.id === questionOptions[0].id,
       )?.firstOrderSelectedAnswerPercentage,
       first_order_percent_B: questionOptionPercentages.find(
-        (percentage) => percentage.id === question.questionOptions[1].id,
+        (percentage) => percentage.id === questionOptions[1].id,
       )?.firstOrderSelectedAnswerPercentage,
       second_order_percent_A: questionOptionPercentages.find(
-        (percentage) => percentage.id === question.questionOptions[0].id,
+        (percentage) => percentage.id === questionOptions[0].id,
       )?.secondOrderAveragePercentagePicked,
       second_order_percent_B: questionOptionPercentages.find(
-        (percentage) => percentage.id === question.questionOptions[1].id,
+        (percentage) => percentage.id === questionOptions[1].id,
       )?.secondOrderAveragePercentagePicked,
     };
 
     const { answer } = await getMechanismEngineResponse("answer/binary", body);
 
     const resultList = ["A", "B"];
-    correctOptionIds.push(
-      question.questionOptions[resultList.indexOf(answer)].id,
-    );
+    correctOptionIds.push(questionOptions[resultList.indexOf(answer)].id);
   }
 
   await prisma.$transaction([
@@ -130,13 +136,21 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
   const correctOptionIds: number[] = [];
 
   for (const question of questions) {
-    const optionsList = question.questionOptions.map((option) => option.id);
+    const questionOptions = question.questionOptions;
+    const correctOption = questionOptions.find((option) => option.isCorrect);
+
+    if (!!correctOption) {
+      correctOptionIds.push(correctOption.id);
+      continue;
+    }
+
+    const optionsList = questionOptions.map((option) => option.id);
 
     const body = {
-      first_order_answers: question.questionOptions.flatMap((option) =>
+      first_order_answers: questionOptions.flatMap((option) =>
         option.questionAnswers.map((_) => optionsList.indexOf(option.id)),
       ),
-      second_order_answers: question.questionOptions.map((option) =>
+      second_order_answers: questionOptions.map((option) =>
         option.questionAnswers
           .map((answer) => answer.percentage)
           .filter((percentage) => percentage !== null),

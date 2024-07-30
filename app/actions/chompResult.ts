@@ -367,10 +367,26 @@ async function hasBonkBurnedCorrectly(
     })
   ).map((wallet) => wallet.address);
 
-  const transaction = await CONNECTION.getParsedTransaction(burnTx, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
+  let transaction;
+  const interval = 1000;
+  const maxRetries = 5;
+  let attempts = 0;
+
+  while (!transaction && attempts < maxRetries) {
+    try {
+      transaction = await CONNECTION.getParsedTransaction(burnTx, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+    } catch (error) {
+      console.error("Error fetching transaction, retrying...", error);
+    }
+
+    if (!transaction) {
+      attempts++;
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+  }
 
   if (!transaction || transaction.meta?.err) {
     return false;
@@ -473,9 +489,9 @@ async function handleFirstRevealToPopulateSubjectiveQuestion(
     },
   });
 
-  const revealableQuestions = questions.filter((question) =>
-    isEntityRevealable(question),
-  );
+  const revealableQuestionIds = questions
+    ?.filter((question) => isEntityRevealable(question))
+    ?.map((q) => q?.id);
 
   const uncalculatedQuestionOptionCount = await prisma.questionOption.count({
     where: {
@@ -484,12 +500,12 @@ async function handleFirstRevealToPopulateSubjectiveQuestion(
         { calculatedAveragePercentage: null },
       ],
       questionId: {
-        in: questionIds,
+        in: revealableQuestionIds,
       },
     },
   });
 
   if (uncalculatedQuestionOptionCount > 0) {
-    await calculateCorrectAnswer(revealableQuestions.map((q) => q.id));
+    await calculateCorrectAnswer(revealableQuestionIds);
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import classNames from "classnames";
 import Link from "next/link";
 import { Avatar } from "../Avatar/Avatar";
@@ -30,7 +31,7 @@ export function TransactionProfile({
       className={classNames("flex p-6 rounded-2xl bg-black gap-4", className)}
     >
       <Link href="/application/profile">
-        <Avatar size="large" src={avatarSrc} />
+        <Avatar size="large" src={avatarSrc || AvatarPlaceholder.src} />
       </Link>
       <div className="flex flex-col font-sora text-white text-base gap-y-3 self-center flex-grow">
         {typeof pointAmount === "number" && (

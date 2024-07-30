@@ -1,0 +1,20 @@
+import { cn } from "@/app/utils/tailwind";
+
+interface Props {
+  className?: string;
+}
+
+const Skeleton = ({ className }: Props) => {
+  return (
+    <div
+      className={cn(
+        "border-[#666666] border-[0.5px] rounded-lg w-full animate-pulse h-[120px] shrink-0 overflow-hidden",
+        className,
+      )}
+    >
+      <div className="bg-[#333333] flex space-x-4 h-full"></div>
+    </div>
+  );
+};
+
+export default Skeleton;

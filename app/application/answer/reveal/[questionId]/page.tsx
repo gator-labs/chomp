@@ -1,7 +1,7 @@
+import BackButton from "@/app/components/BackButton/BackButton";
 import BestAnswerBinary from "@/app/components/BestAnswerBinary/BestAnswerBinary";
 import BestAnswerMultipleChoice from "@/app/components/BestAnswerMultipleChoice/BestAnswerMultipleChoice";
 import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
-import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import LikeIcon from "@/app/components/Icons/LikeIcon";
 import { OpenLinkIcon } from "@/app/components/Icons/OpenLinkIcon";
 import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
@@ -21,7 +21,6 @@ import {
   getAlphaIdentifier,
 } from "@/app/utils/question";
 import { QuestionType, ResultType, TransactionStatus } from "@prisma/client";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 interface Props {
@@ -264,9 +263,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
     <div className="py-2 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 justify-start">
-          <Link href="/application">
-            <HalfArrowLeftIcon />
-          </Link>
+          <BackButton />
           <h4 className="text-[13px] font-normal leading-[13px] text-left">
             Viewing answer results
           </h4>

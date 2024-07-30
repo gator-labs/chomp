@@ -1,4 +1,5 @@
 import { BestAnswer } from "../BestAnswer/BestAnswer";
+import LikeIcon from "../Icons/LikeIcon";
 import MultipleChoiceResult from "../MultipleChoiceResult/MultipleChoiceResult";
 
 type BestAnswerMultipleChoiceProps = {
@@ -16,7 +17,7 @@ export default function BestAnswerMultipleChoice({
     <BestAnswer optionSelected={optionSelected} bestOption={bestOption}>
       <div className="flex gap-3.5">
         <div className="bg-aqua min-w-10 h-10 flex justify-center items-center text-sm font-sora font-bold rounded-lg">
-          {bestOption}
+          <LikeIcon fill="#fff" />
         </div>
         <MultipleChoiceResult
           text={
