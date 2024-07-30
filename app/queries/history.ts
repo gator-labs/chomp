@@ -29,6 +29,7 @@ export type QuestionHistory = {
   revealTokenAmount: number;
   burnTransactionSignature?: string;
   answerCount: number;
+  image?: string;
 };
 
 export async function getDecksHistory(
@@ -79,6 +80,7 @@ export async function getQuestionsHistoryQuery(
     q."revealAtDate",
     cr."rewardTokenAmount" as "claimedAmount",
     cr."burnTransactionSignature",
+    c."image",
     q."revealTokenAmount",
     CASE 
       WHEN COUNT(CASE WHEN qa.selected = true THEN 1 ELSE NULL END) > 0 THEN true
@@ -110,10 +112,11 @@ export async function getQuestionsHistoryQuery(
     "QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
   LEFT JOIN 
     "ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
+  FULL JOIN "Campaign" c on c.id = q."campaignId"
   WHERE 
     q."revealAtDate" IS NOT NULL
   GROUP BY 
-    q.id, cr."rewardTokenAmount", cr."burnTransactionSignature"
+    q.id, cr."rewardTokenAmount", cr."burnTransactionSignature", c."image"
 `;
 
   const havingClause = `

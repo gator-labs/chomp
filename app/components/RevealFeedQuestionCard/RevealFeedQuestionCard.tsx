@@ -16,6 +16,7 @@ type RevealFeedQuestionCardProps = {
   answerCount?: number;
   revealAtAnswerCount?: number;
   revealTokenAmount?: number;
+  image?: string;
 };
 
 export function RevealFeedQuestionCard({
@@ -25,6 +26,7 @@ export function RevealFeedQuestionCard({
   answerCount,
   revealAtAnswerCount,
   revealTokenAmount,
+  image,
 }: RevealFeedQuestionCardProps) {
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
@@ -49,6 +51,7 @@ export function RevealFeedQuestionCard({
     <FeedQuestionCard
       question={question}
       answerCount={answerCount}
+      image={image}
       revealAtAnswerCount={revealAtAnswerCount}
       revealAtDate={revealAtDate}
       statusLabel={<span className="text-xs leading-6 text-aqua">Chomped</span>}

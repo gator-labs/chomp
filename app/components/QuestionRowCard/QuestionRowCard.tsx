@@ -10,6 +10,7 @@ import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
 import { NftType } from "@prisma/client";
 import { useRouter } from "next-nprogress-bar";
+import Image from "next/image";
 import Link from "next/link";
 import { forwardRef } from "react";
 import { Button } from "../Button/Button";
@@ -92,7 +93,17 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
         ref={ref}
       >
         <div className="flex gap-4 justify-between items-start">
-          <p className="text-sm text-white">{question.question}</p>
+          {question.image && (
+            <div className="relative w-6 h-6 flex-shrink-0">
+              <Image
+                src={question.image}
+                alt="campaign-image"
+                fill
+                className="rounded-full"
+              />
+            </div>
+          )}
+          <p className="text-sm text-white mr-auto">{question.question}</p>
           <div>
             <LeadToIcon width={16} height={13} />
           </div>

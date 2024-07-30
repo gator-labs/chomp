@@ -9,6 +9,7 @@ export async function HomeFeedReadyToRevealSection() {
   const questionSlides = !!questions.length
     ? questions.map((q) => (
         <RevealFeedQuestionCard
+          image={q.image}
           key={q.id}
           id={q.id}
           question={q.question}
