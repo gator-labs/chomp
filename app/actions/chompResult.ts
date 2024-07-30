@@ -489,9 +489,9 @@ async function handleFirstRevealToPopulateSubjectiveQuestion(
     },
   });
 
-  const revealableQuestions = questions.filter((question) =>
-    isEntityRevealable(question),
-  );
+  const revealableQuestionIds = questions
+    ?.filter((question) => isEntityRevealable(question))
+    ?.map((q) => q?.id);
 
   const uncalculatedQuestionOptionCount = await prisma.questionOption.count({
     where: {
@@ -500,12 +500,12 @@ async function handleFirstRevealToPopulateSubjectiveQuestion(
         { calculatedAveragePercentage: null },
       ],
       questionId: {
-        in: questionIds,
+        in: revealableQuestionIds,
       },
     },
   });
 
   if (uncalculatedQuestionOptionCount > 0) {
-    await calculateCorrectAnswer(revealableQuestions.map((q) => q.id));
+    await calculateCorrectAnswer(revealableQuestionIds);
   }
 }
