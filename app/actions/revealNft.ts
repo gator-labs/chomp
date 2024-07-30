@@ -6,6 +6,7 @@ import {
 } from "@metaplex-foundation/digital-asset-standard-api";
 import { NftType } from "@prisma/client";
 import {
+  CHOMPY_AND_FRIEDNS_DROP_VALUE,
   COLLECTION_KEY,
   GENESIS_COLLECTION_VALUE,
   GLOWBURGER_COLLECTION_VALUE,
@@ -44,6 +45,22 @@ export const getUnusedGenesisNft = async (assets: DasApiAssetList) => {
   const [genesisNft] = assets.items.filter(
     (item) =>
       checkIsNftEligible(item, NftType.Genesis) &&
+      !revealNftIds.includes(item.id),
+  );
+
+  return genesisNft;
+};
+
+export const getUnusedChompyAndFriendsNft = async (assets: DasApiAssetList) => {
+  const revealNftIds = (
+    await prisma.revealNft.findMany({
+      select: { nftId: true },
+    })
+  ).map((nft) => nft.nftId);
+
+  const [genesisNft] = assets.items.filter(
+    (item) =>
+      checkIsNftEligible(item, NftType.ChompyAndFriends) &&
       !revealNftIds.includes(item.id),
   );
 
@@ -122,6 +139,24 @@ const checkIsNftEligible = (asset: DasApiAsset, nftType: NftType) => {
           group.group_key === COLLECTION_KEY &&
           group.group_value === GENESIS_COLLECTION_VALUE,
       ) && !asset.burnt
+    );
+  }
+
+  if (nftType === NftType.ChompyAndFriends) {
+    return (
+      !!asset.grouping.find(
+        (group) =>
+          group.group_key === COLLECTION_KEY &&
+          group.group_value === GENESIS_COLLECTION_VALUE,
+      ) &&
+      !!asset.content.metadata.attributes?.find(
+        (attribute) =>
+          (attribute.trait_type === GLOWBURGER_DROP_TRAIT_TYPE &&
+            attribute.value === CHOMPY_AND_FRIEDNS_DROP_VALUE) ||
+          (attribute.trait_type === RARITY_TYPE &&
+            attribute.value === RARITY.ULTIMATE),
+      ) &&
+      !asset.burnt
     );
   }
 };

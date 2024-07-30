@@ -9,8 +9,11 @@ export const GLOWBURGER_COLLECTION_VALUE =
 export const GLOWBURGER_DROP_TRAIT_TYPE = "Drop";
 export const GLOWBURGER_DROP_VALUE = "31";
 
+export const CHOMPY_AND_FRIEDNS_DROP_VALUE = "3";
+
 export const RARITY_TYPE = "Rarity";
 export const RARITY = {
   RARE: "Rare",
   LEGENDARY: "Legendary",
+  ULTIMATE: "Ultimate",
 };
