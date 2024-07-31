@@ -126,14 +126,6 @@ export default function BotMiniApp() {
     }
   };
 
-  const sendOTP = async () => {
-    try {
-      await sendOneTimeCode();
-    } catch (error) {
-      errorToast("Failed to send verification email. Please try again.");
-    }
-  };
-
   const onSubmitOtpHandler: FormEventHandler<HTMLFormElement> = async (
     event,
   ) => {
@@ -148,15 +140,6 @@ export default function BotMiniApp() {
       }
     } catch (error) {
       errorToast("Error occurred while verifying otp");
-    }
-  };
-
-  const verifyOTPAndBurn = async () => {
-    try {
-      await createOrRestoreSession({ oneTimeCode: otp!.toString() });
-      await onBurn();
-    } catch (error) {
-      errorToast("Error while burn");
     }
   };
 
@@ -221,7 +204,6 @@ export default function BotMiniApp() {
 
     script.onload = () => {
       window.Telegram.WebApp.ready();
-      // Retrieve validated user details
       dataVerification(window.Telegram.WebApp.initData);
     };
 
@@ -240,7 +222,7 @@ export default function BotMiniApp() {
 
   return (
     <>
-      {!isLoggedIn && !isVerificationSucceed ? (
+      {isLoggedIn && !isVerificationSucceed ? (
         <div className="space-y-6 flex flex-col p-5 items-start justify-center">
           <span className="flex w-full items-center justify-between">
             <Image
