@@ -72,7 +72,7 @@ export async function getQuestionsHistoryQuery(
 ): Promise<QuestionHistory[]> {
   const offset = (currentPage - 1) * pageSize;
 
-  const query = `
+  const baseQuery = `
   SELECT 
     q.id, 
     q.question,
@@ -114,6 +114,9 @@ export async function getQuestionsHistoryQuery(
     q."revealAtDate" IS NOT NULL
   GROUP BY 
     q.id, cr."rewardTokenAmount", cr."burnTransactionSignature"
+`;
+
+  const havingClause = `
   HAVING 
     (
       SELECT COUNT(distinct concat(qa."userId", qo."questionId"))
@@ -121,11 +124,21 @@ export async function getQuestionsHistoryQuery(
       JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
       WHERE qo."questionId" = q."id"
     ) >= 20
+`;
+
+  const endQuery = `
   ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
 
-  const historyResult: QuestionHistory[] = await prisma.$queryRawUnsafe(query);
+  let finalQuery = baseQuery;
+  // if (process.env.ENVIRONMENT === "staging") {
+  //   finalQuery += havingClause;
+  // }
+  finalQuery += endQuery;
+
+  const historyResult: QuestionHistory[] =
+    await prisma.$queryRawUnsafe(finalQuery);
 
   return historyResult.map((hr) => ({
     ...hr,
