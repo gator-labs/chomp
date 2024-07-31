@@ -9,6 +9,7 @@ import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
 import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
 import { NftType } from "@prisma/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next-nprogress-bar";
 import Link from "next/link";
 import { forwardRef } from "react";
@@ -21,6 +22,7 @@ import LeadToIcon from "../Icons/LeadToIcon";
 const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
   (question, ref) => {
     const revealAtText = getRevealAtText(question.revealAtDate);
+    const queryClient = useQueryClient();
     const router = useRouter();
     const { fire } = useConfetti();
     const { promiseToast, errorToast } = useToast();
@@ -48,6 +50,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           error: "Failed to claim rewards. Please try again.",
         })
           .then(() => {
+            queryClient.invalidateQueries({ queryKey: ["questions-history"] });
             router.push("/application/answer/reveal/" + question.id);
             router.refresh();
             fire();
@@ -77,6 +80,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           nftType?: NftType,
         ) => {
           await revealQuestion(question.id, burnTx, nftAddress, nftType);
+          queryClient.invalidateQueries({ queryKey: ["questions-history"] });
           router.push("/application/answer/reveal/" + question.id);
           router.refresh();
         },

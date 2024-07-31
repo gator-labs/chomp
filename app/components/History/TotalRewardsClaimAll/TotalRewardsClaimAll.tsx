@@ -1,9 +1,9 @@
 "use client";
 import { claimAllAvailable } from "@/app/actions/claim";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { useState } from "react";
 import { Button } from "../../Button/Button";
 
 type TotalRewardsClaimAllProps = {
@@ -15,10 +15,10 @@ export default function TotalRewardsClaimAll({
 }: TotalRewardsClaimAllProps) {
   const { promiseToast, successToast } = useToast();
   const { fire } = useConfetti();
-  const [isLoading, setIsLoading] = useState(false);
+  const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClaimAll = async () => {
-    setIsLoading(true);
+    setIsClaiming(true);
     await promiseToast(claimAllAvailable(), {
       loading: "Waiting for transaction...",
       success: "Funds are transferred!",
@@ -30,7 +30,7 @@ export default function TotalRewardsClaimAll({
       "Claimed!",
       `You have successfully claimed ${numberToCurrencyFormatter.format(totalRevealedRewards)} BONK!`,
     );
-    setIsLoading(false);
+    setIsClaiming(false);
   };
 
   return (
@@ -44,7 +44,7 @@ export default function TotalRewardsClaimAll({
       {totalRevealedRewards !== 0 && (
         <Button
           onClick={onClaimAll}
-          disabled={isLoading}
+          disabled={isClaiming}
           variant="white"
           size="small"
           isPill
