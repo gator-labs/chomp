@@ -1,7 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
+import { getUserId } from "@/app/actions/bot";
 import { useToast } from "@/app/providers/ToastProvider";
+import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import { genBonkBurnTx } from "@/app/utils/solana";
 import { extractId } from "@/app/utils/telegramId";
 import {
@@ -15,13 +17,8 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
-import { RiWallet3Fill } from "react-icons/ri";
 import { Button } from "../Button/Button";
-import { Checkbox } from "../Checkbox/Checkbox";
-import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
-import Tabs from "../Tabs/Tabs";
 import { TextInput } from "../TextInput/TextInput";
-import { getUserId } from "@/app/actions/bot";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
@@ -50,6 +47,8 @@ export default function BotMiniApp() {
     useState<boolean>(false);
   const [isVerificationSucceed, setIsVerificationSucceed] =
     useState<boolean>(false);
+  const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
+
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
@@ -81,12 +80,29 @@ export default function BotMiniApp() {
     }
   };
 
+  const processBurnAndClaim = async (signature: string) => {
+    try {
+      fetch(`/api/question/reveal/?userId=${userId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
+        },
+        body: JSON.stringify({
+          questionIds: [1, 3],
+          burnTx: signature,
+        }),
+      });
+    } catch (error: any) {
+      console.error("Error fetching questions:", error);
+    }
+  };
+
   const onBurn = async () => {
     try {
       const {
         value: { blockhash },
       } = await CONNECTION.getLatestBlockhashAndContext();
-
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
 
       const balance = await CONNECTION.getBalance(
@@ -99,8 +115,12 @@ export default function BotMiniApp() {
 
       const tx = await genBonkBurnTx(primaryWallet!.address, blockhash, 10);
 
-      await signer.signAndSendTransaction(tx);
+      const burnTx = await signer.signAndSendTransaction(tx);
+      setIsBurnInProgress(true);
+      await processBurnAndClaim(burnTx?.signature);
+      setIsBurnInProgress(false);
     } catch (err: any) {
+      setIsBurnInProgress(false);
       const errorMessage = err?.message ? err.message : "Failed to Burn";
       errorToast(errorMessage);
     }
@@ -174,7 +194,7 @@ export default function BotMiniApp() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "api-key": "tijo",
+        "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
       },
     };
     try {
@@ -183,6 +203,7 @@ export default function BotMiniApp() {
         options,
       );
       const data = await response.json();
+      console.log(data, "reveal questions");
       setQuestions(data);
     } catch (error) {
       errorToast("Failed to get reveal questions");
@@ -222,67 +243,83 @@ export default function BotMiniApp() {
 
   return (
     <>
+      {isBurnInProgress && <LoadingScreen />}
       {isLoggedIn && !isVerificationSucceed ? (
-        <div className="space-y-6 flex flex-col p-5 items-start justify-center">
-          <span className="flex w-full items-center justify-between">
-            <Image
-              src="/images/gator-head-white.png"
-              width={50}
-              height={50}
-              alt="chomp-head"
-            />
-            <RiWallet3Fill size={20} />
-          </span>
-          <p className="text-2xl font-bold">Reveal and Claim</p>
-          <p>
-            You can view and reveal all cards that are ready to reveal below.
-            Only cards with correct answers will Claim tab.
-          </p>
-          <Tabs
-            tabs={["Reveal & Claim", "History"]}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="select-all"
-              checked={selectAll}
-              onClick={handleSelectAll}
-            />
-            <label
-              htmlFor="select-all"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Select All
-            </label>
-          </div>
-          <div className="flex flex-col w-full h-[18rem] gap-2 overflow-auto">
-            {questions.length > 0 ? (
-              questions.map((questionData: Question, index) => (
-                <RevealQuestionCard
-                  key={index}
-                  id={questionData.id}
-                  question={questionData.question}
-                  date={questionData.revealAtDate}
-                  isSelected={selectedRevealQuestions.includes(index)}
-                  handleSelect={() => handleSelect(index)}
-                />
-              ))
-            ) : (
-              <p>No questions for reveal. Keep Chomping!</p>
-            )}
-          </div>
+        // <div className="space-y-6 flex flex-col p-5 items-start justify-center">
+        //   <span className="flex w-full items-center justify-between">
+        //     <Image
+        //       src="/images/gator-head-white.png"
+        //       width={50}
+        //       height={50}
+        //       alt="chomp-head"
+        //     />
+        //     <RiWallet3Fill size={20} />
+        //   </span>
+        //   <p className="text-2xl font-bold">Reveal and Claim</p>
+        //   <p>
+        //     You can view and reveal all cards that are ready to reveal below.
+        //     Only cards with correct answers will Claim tab.
+        //   </p>
+        //   <Tabs
+        //     tabs={["Reveal & Claim", "History"]}
+        //     activeTab={activeTab}
+        //     setActiveTab={setActiveTab}
+        //   />
+        //   <div className="flex items-center space-x-2">
+        //     <Checkbox
+        //       id="select-all"
+        //       checked={selectAll}
+        //       onClick={handleSelectAll}
+        //     />
+        //     <label
+        //       htmlFor="select-all"
+        //       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        //     >
+        //       Select All
+        //     </label>
+        //   </div>
+        //   <div className="flex flex-col w-full h-[18rem] gap-2 overflow-auto">
+        //     {questions.length > 0 ? (
+        //       questions.map((questionData: Question, index) => (
+        //         <RevealQuestionCard
+        //           key={index}
+        //           id={questionData.id}
+        //           question={questionData.question}
+        //           date={questionData.revealAtDate}
+        //           isSelected={selectedRevealQuestions.includes(index)}
+        //           handleSelect={() => handleSelect(index)}
+        //         />
+        //       ))
+        //     ) : (
+        //       <p>No questions for reveal. Keep Chomping!</p>
+        //     )}
+        //   </div>
+        //   <Button
+        //     variant="purple"
+        //     size="normal"
+        //     className="gap-2 text-black font-medium mt-4"
+        //     isFullWidth
+        //     onClick={onBurn}
+        //   >
+        //     {selectedRevealQuestions.length > 1
+        //       ? "Reveal Cards"
+        //       : "Reveal Card"}
+        //   </Button>
+        // </div>
+
+        <>
+          {" "}
+          {/* <LoadingScreen /> */}
           <Button
             variant="purple"
             size="normal"
             className="gap-2 text-black font-medium mt-4"
             isFullWidth
+            onClick={onBurn}
           >
-            {selectedRevealQuestions.length > 0
-              ? "Reveal Cards"
-              : "Reveal Card"}
+            Reveal Card
           </Button>
-        </div>
+        </>
       ) : isLoggedIn && isVerificationSucceed ? (
         <div>
           <Image
