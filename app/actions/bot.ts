@@ -37,3 +37,45 @@ export const getRevealQuestions = async (userId: string) => {
     return null;
   }
 };
+
+export const getQuestionsReadyToReveal = async (userId: string) => {
+  try {
+    const response = await fetch(`/api/question/reveal/?userId=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+  } catch (error: any) {
+    console.error("Error fetching questions:", error);
+  }
+};
+
+export const processBurnAndClaim = async (
+  userId: string,
+  signature: string,
+) => {
+  try {
+    fetch(`/api/question/reveal/?userId=${userId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": `test`,
+      },
+      body: JSON.stringify({
+        questionIds: [1, 3],
+        burnTx: signature,
+      }),
+    });
+  } catch (error: any) {
+    console.error("Error fetching questions:", error);
+  }
+};

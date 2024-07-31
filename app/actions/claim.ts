@@ -236,8 +236,5 @@ export async function handleSendBonk(
       Math.round(tokenAmount * 10 ** 5),
     );
   }
-
-  console.log(sendTx, tokenAmount);
-
   return sendTx;
 }

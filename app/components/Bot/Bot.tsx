@@ -89,7 +89,7 @@ export default function BotMiniApp() {
           "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
         },
         body: JSON.stringify({
-          questionIds: [1, 3],
+          questionIds: questions.map((item: any) => item?.id),
           burnTx: signature,
         }),
       });
