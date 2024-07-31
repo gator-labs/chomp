@@ -28,7 +28,7 @@ export default function useInfiniteQuestionsHistory() {
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetching) {
+        if (entries[0].isIntersecting && hasNextPage) {
           fetchNextPage();
         }
       });
