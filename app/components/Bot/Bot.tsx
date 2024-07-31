@@ -48,6 +48,7 @@ export default function BotMiniApp() {
   const [isVerificationSucceed, setIsVerificationSucceed] =
     useState<boolean>(false);
   const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
+  const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
 
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
@@ -118,8 +119,10 @@ export default function BotMiniApp() {
       const burnTx = await signer.signAndSendTransaction(tx);
       setIsBurnInProgress(true);
       await processBurnAndClaim(burnTx?.signature);
+      setBurnSuccessfull(true)
       setIsBurnInProgress(false);
     } catch (err: any) {
+      setBurnSuccessfull(false)
       setIsBurnInProgress(false);
       const errorMessage = err?.message ? err.message : "Failed to Burn";
       errorToast(errorMessage);
@@ -310,7 +313,7 @@ export default function BotMiniApp() {
         <>
           {" "}
           {/* <LoadingScreen /> */}
-          <Button
+          {!burnSuccessfull ? <Button
             variant="purple"
             size="normal"
             className="gap-2 text-black font-medium mt-4"
@@ -318,7 +321,33 @@ export default function BotMiniApp() {
             onClick={onBurn}
           >
             Reveal Card
-          </Button>
+          </Button> : <div>
+            <Image
+              src="/images/chomp-asset.png"
+              width={400}
+              height={400}
+              alt="Chomp Cover"
+              className="mt-5"
+            />
+            <p className="text-2xl font-bold text-center">
+              Let&apos;s Keep Chomping!{" "}
+            </p>
+            <p className="text-left">
+              You&apos;re all set. Click below or close this button to continue
+              with your Chomp journey.
+            </p>
+            <Button
+              variant="purple"
+              size="normal"
+              className="gap-2 text-black font-medium mt-4"
+              onClick={() => {
+                setIsVerificationSucceed(false);
+              }}
+              isFullWidth
+            >
+              Continue Chomping
+            </Button>
+          </div>}
         </>
       ) : isLoggedIn && isVerificationSucceed ? (
         <div>
