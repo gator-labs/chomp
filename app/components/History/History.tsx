@@ -11,7 +11,7 @@ export default function History() {
 
   if (isLoading) return <HistoryListSkeleton />;
 
-  console.log(process.env.NODE_ENVIRONMENT);
+  console.log(process.env.NEXT_PUBLIC_ENVIRONMENT);
 
   return (
     <div className="flex flex-col gap-2 overflow-hidden">
