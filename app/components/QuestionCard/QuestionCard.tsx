@@ -103,6 +103,8 @@ export function QuestionCard({
               src={viewImageSrc}
               alt="preview-image"
               className="w-14 rounded-lg cursor-pointer"
+              width={56}
+              height={56}
             />
 
             <Modal
@@ -111,7 +113,7 @@ export function QuestionCard({
               title=""
               variant="image-only"
             >
-              <Image alt="preview-image" src={viewImageSrc} />
+              <img alt="preview-image" src={viewImageSrc} />
             </Modal>
           </div>
         )}
