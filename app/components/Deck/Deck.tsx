@@ -119,8 +119,6 @@ export function Deck({
     [questions, currentQuestionIndex],
   );
 
-  console.log(deckResponse);
-
   const handleNoAnswer = useCallback(() => {
     setIsTimeOutPopUpVisible(false);
     setDeckResponse((prevRes) => {
