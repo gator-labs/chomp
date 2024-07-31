@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useToast } from "@/app/providers/ToastProvider";
 import { genBonkBurnTx } from "@/app/utils/solana";
+import { extractId } from "@/app/utils/telegramId";
 import {
   useConnectWithOtp,
   useEmbeddedWallet,
@@ -19,6 +21,7 @@ import { Checkbox } from "../Checkbox/Checkbox";
 import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
 import Tabs from "../Tabs/Tabs";
 import { TextInput } from "../TextInput/TextInput";
+import { getUserId } from "@/app/actions/bot";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
@@ -28,12 +31,21 @@ declare global {
   }
 }
 
-const questions = ["", "", ""];
+interface Question {
+  id: number;
+  question: string;
+  revealAtDate: Date;
+  answerCount: number;
+  revealAtAnswerCount: number | null;
+  revealTokenAmount: number;
+}
 
-export default function Bot() {
+export default function BotMiniApp() {
   const [email, setEmail] = useState<string>("");
   const [otp, setOtp] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [userId, setUserId] = useState<string>();
+  const [questions, setQuestions] = useState([]);
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
   const [isVerificationSucceed, setIsVerificationSucceed] =
@@ -118,7 +130,6 @@ export default function Bot() {
     try {
       await sendOneTimeCode();
     } catch (error) {
-      console.error("Error while initaiting bonk burn", error);
       errorToast("Failed to send verification email. Please try again.");
     }
   };
@@ -136,7 +147,6 @@ export default function Bot() {
         await verifyOneTimePassword(otp);
       }
     } catch (error) {
-      console.error("Error occurred while verifying otp:", error);
       errorToast("Error occurred while verifying otp");
     }
   };
@@ -146,10 +156,61 @@ export default function Bot() {
       await createOrRestoreSession({ oneTimeCode: otp!.toString() });
       await onBurn();
     } catch (error) {
-      console.error("Error while burn", error);
       errorToast("Error while burn");
     }
   };
+
+  const dataVerification = async (initData: any) => {
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ initData }),
+    };
+
+    fetch(`/api/validate`, options)
+      .then((response) => response.json())
+      .then(async (response) => {
+        const telegramId = extractId(response.message);
+        if (telegramId) {
+          const response = await getUserId(telegramId);
+          setUserId(response.id);
+        } else {
+          errorToast("Not an authorized request to access");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        errorToast("Not an authorized request to access");
+      });
+  };
+
+  const getRevealQuestions = async (userId: string) => {
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": "tijo",
+      },
+    };
+    try {
+      const response = await fetch(
+        `/api/question/reveal?userId=${userId}`,
+        options,
+      );
+      const data = await response.json();
+      setQuestions(data);
+    } catch (error) {
+      errorToast("Failed to get reveal questions");
+    }
+  };
+
+  useEffect(() => {
+    if (userId) {
+      getRevealQuestions(userId);
+    }
+  }, [userId]);
 
   useEffect(() => {
     // Ensure Telegram Web App API is available
@@ -160,14 +221,8 @@ export default function Bot() {
 
     script.onload = () => {
       window.Telegram.WebApp.ready();
-
       // Retrieve validated user details
-      // dataVerification(Telegram.WebApp.initData)
-
-      // Set user details in state
-      // if (user) {
-      // setTUser(user);
-      // }
+      dataVerification(window.Telegram.WebApp.initData);
     };
 
     return () => {
@@ -181,12 +236,11 @@ export default function Bot() {
     } else {
       setSelectAll(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRevealQuestions, questions]);
 
   return (
     <>
-      {isLoggedIn && !isVerificationSucceed ? (
+      {!isLoggedIn && !isVerificationSucceed ? (
         <div className="space-y-6 flex flex-col p-5 items-start justify-center">
           <span className="flex w-full items-center justify-between">
             <Image
@@ -222,10 +276,12 @@ export default function Bot() {
           </div>
           <div className="flex flex-col w-full h-[18rem] gap-2 overflow-auto">
             {questions.length > 0 ? (
-              questions.map((question, index) => (
+              questions.map((questionData: Question, index) => (
                 <RevealQuestionCard
                   key={index}
-                  question={question}
+                  id={questionData.id}
+                  question={questionData.question}
+                  date={questionData.revealAtDate}
                   isSelected={selectedRevealQuestions.includes(index)}
                   handleSelect={() => handleSelect(index)}
                 />

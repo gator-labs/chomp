@@ -1,16 +1,21 @@
 "use client";
 
+import { getRevealedAtString } from "@/app/utils/dateUtils";
 import { Checkbox } from "../Checkbox/Checkbox";
 import { ClockIcon } from "../Icons/ClockIcon";
 
 type RevealQuestionCardProps = {
+  id: number,
   question: string;
+  date: Date;
   isSelected: boolean;
   handleSelect: () => void;
 };
 
 export default function RevealQuestionCard({
+  id,
   question,
+  date,
   isSelected,
   handleSelect,
 }: RevealQuestionCardProps) {
@@ -21,14 +26,11 @@ export default function RevealQuestionCard({
     >
       <span className="flex gap-3 items-center">
         <Checkbox checked={isSelected} />
-        <p>
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Distinctio
-          doloremque labore necessitatibus!
-        </p>
+        <p>{question}</p>
       </span>
       <div className="flex items-center justify-between">
         <span className="flex gap-1 items-center">
-          <ClockIcon /> Revealed 18hr ago
+          <ClockIcon /> {getRevealedAtString(date)}
         </span>
         <p className="text-emerald-400">Chomped</p>
       </div>
