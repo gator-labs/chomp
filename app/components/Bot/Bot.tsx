@@ -1,27 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
+import { getUserId } from "@/app/actions/bot";
 import { useToast } from "@/app/providers/ToastProvider";
 import { genBonkBurnTx } from "@/app/utils/solana";
 import { extractId } from "@/app/utils/telegramId";
 import {
   useConnectWithOtp,
-  useEmbeddedWallet,
   useIsLoggedIn,
   useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { Connection, PublicKey } from "@solana/web3.js";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
-import { RiWallet3Fill } from "react-icons/ri";
+import { RiShareBoxLine, RiWallet3Fill } from "react-icons/ri";
 import { Button } from "../Button/Button";
 import { Checkbox } from "../Checkbox/Checkbox";
 import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
 import Tabs from "../Tabs/Tabs";
 import { TextInput } from "../TextInput/TextInput";
-import { getUserId } from "@/app/actions/bot";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
@@ -55,29 +55,28 @@ export default function BotMiniApp() {
     number[]
   >([]);
   const isLoggedIn = useIsLoggedIn();
-  const { sendOneTimeCode, createOrRestoreSession } = useEmbeddedWallet();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
   const userWallets = useUserWallets();
   const { errorToast } = useToast();
-
+  const router = useRouter();
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
 
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedRevealQuestions([]);
     } else {
-      setSelectedRevealQuestions(questions.map((_, index) => index));
+      setSelectedRevealQuestions(questions.map((question: Question, index) => question.id));
     }
     setSelectAll(!selectAll);
   };
 
-  const handleSelect = (index: number) => {
-    if (selectedRevealQuestions.includes(index)) {
+  const handleSelect = (id: number) => {
+    if (selectedRevealQuestions.includes(id)) {
       setSelectedRevealQuestions(
-        selectedRevealQuestions.filter((i) => i !== index),
+        selectedRevealQuestions.filter((i) => i !== id),
       );
     } else {
-      setSelectedRevealQuestions([...selectedRevealQuestions, index]);
+      setSelectedRevealQuestions([...selectedRevealQuestions, id]);
     }
   };
 
@@ -174,7 +173,7 @@ export default function BotMiniApp() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "api-key": "tijo",
+        "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
       },
     };
     try {
@@ -243,45 +242,68 @@ export default function BotMiniApp() {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
           />
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="select-all"
-              checked={selectAll}
-              onClick={handleSelectAll}
-            />
-            <label
-              htmlFor="select-all"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Select All
-            </label>
-          </div>
-          <div className="flex flex-col w-full h-[18rem] gap-2 overflow-auto">
-            {questions.length > 0 ? (
-              questions.map((questionData: Question, index) => (
-                <RevealQuestionCard
-                  key={index}
-                  id={questionData.id}
-                  question={questionData.question}
-                  date={questionData.revealAtDate}
-                  isSelected={selectedRevealQuestions.includes(index)}
-                  handleSelect={() => handleSelect(index)}
+          {activeTab === 0 ? (
+            <>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="select-all"
+                  checked={selectAll}
+                  onClick={handleSelectAll}
                 />
-              ))
-            ) : (
-              <p>No questions for reveal. Keep Chomping!</p>
-            )}
-          </div>
-          <Button
-            variant="purple"
-            size="normal"
-            className="gap-2 text-black font-medium mt-4"
-            isFullWidth
-          >
-            {selectedRevealQuestions.length > 0
-              ? "Reveal Cards"
-              : "Reveal Card"}
-          </Button>
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Select All
+                </label>
+              </div>
+              <div className="flex flex-col w-full h-[17rem] gap-2 overflow-auto">
+                {questions.length > 0 ? (
+                  questions.map((questionData: Question, index) => (
+                    <RevealQuestionCard
+                      key={index}
+                      question={questionData.question}
+                      date={questionData.revealAtDate}
+                      isSelected={selectedRevealQuestions.includes(
+                        questionData.id,
+                      )}
+                      handleSelect={() => handleSelect(questionData.id)}
+                    />
+                  ))
+                ) : (
+                  <p>No questions for reveal. Keep Chomping!</p>
+                )}
+              </div>
+              <Button
+                variant="purple"
+                size="normal"
+                className="gap-2 text-black font-medium mt-4"
+                isFullWidth
+              >
+                {selectedRevealQuestions.length > 1
+                  ? "Reveal Cards"
+                  : "Reveal Card"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="flex w-full h-[18rem]">
+                You full history and other features are available in the Chomp
+                web app.
+              </p>
+              <Button
+                variant="purple"
+                size="normal"
+                className="gap-2 text-black font-medium mt-4"
+                isFullWidth
+                onClick={() => {
+                  router.push("/");
+                }}
+              >
+                Go to Chomp Web App <RiShareBoxLine />
+              </Button>
+            </>
+          )}
         </div>
       ) : isLoggedIn && isVerificationSucceed ? (
         <div>
