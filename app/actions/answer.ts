@@ -68,7 +68,6 @@ export async function addTutorialPoints(
 }
 
 export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
-  console.log(request);
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";
   if (!userId) {
@@ -76,8 +75,6 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
   }
 
   const hasAnswered = await hasAnsweredDeck(deckId, userId, true);
-
-  console.log(hasAnswered);
 
   if (hasAnswered) {
     return;
