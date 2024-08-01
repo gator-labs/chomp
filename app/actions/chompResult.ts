@@ -150,7 +150,6 @@ export async function revealQuestions(
       Object.values(rewardsPerQuestionId!),
     );
 
-    console.log(revealPoints);
     const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
 
     await prisma.$transaction(async (tx) => {

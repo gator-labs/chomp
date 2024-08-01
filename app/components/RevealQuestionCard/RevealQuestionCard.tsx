@@ -5,7 +5,6 @@ import { Checkbox } from "../Checkbox/Checkbox";
 import { ClockIcon } from "../Icons/ClockIcon";
 
 type RevealQuestionCardProps = {
-  id: number,
   question: string;
   date: Date;
   isSelected: boolean;
@@ -13,7 +12,6 @@ type RevealQuestionCardProps = {
 };
 
 export default function RevealQuestionCard({
-  id,
   question,
   date,
   isSelected,

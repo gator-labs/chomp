@@ -53,7 +53,6 @@ export const getQuestionsReadyToReveal = async (userId: string) => {
     }
 
     const data = await response.json();
-    console.log(data);
   } catch (error: any) {
     console.error("Error fetching questions:", error);
   }
