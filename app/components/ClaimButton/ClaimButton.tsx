@@ -5,6 +5,7 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { CONNECTION } from "@/app/utils/solana";
+import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
@@ -30,6 +31,7 @@ const ClaimButton = ({
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
+  const queryClient = useQueryClient();
   const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClick = async () => {
@@ -51,6 +53,7 @@ const ClaimButton = ({
         error: "Failed to claim rewards. Please try again.",
       })
         .then(() => {
+          queryClient.resetQueries({ queryKey: ["questions-history"] });
           fire();
         })
         .finally(() => {

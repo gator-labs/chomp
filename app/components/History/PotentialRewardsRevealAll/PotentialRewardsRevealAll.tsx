@@ -28,7 +28,7 @@ export default function PotentialRewardsRevealAll({
         burnTx,
         nftAddress,
       );
-      queryClient.invalidateQueries({ queryKey: ["questions-history"] });
+      queryClient.resetQueries({ queryKey: ["questions-history"] });
       closeRevealModal();
       setIsLoading(false);
     },
