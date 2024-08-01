@@ -58,7 +58,6 @@ export async function POST(req: Request) {
 
   const data = await req.json();
   const { questionIds, burnTx } = data;
-  console.log(questionIds, userId);
 
   // const release = await acquireMutex({
   //   identifier: "REVEAL",
@@ -105,8 +104,6 @@ export async function POST(req: Request) {
       userId,
       revealableQuestionIds,
     );
-
-    // console.log(rewardsPerQuestionId);
 
     const revealPoints = await calculateRevealPoints(
       Object.values(rewardsPerQuestionId!),
@@ -220,8 +217,6 @@ export async function POST(req: Request) {
       },
     });
 
-    console.log(userWallet);
-
     if (!userWallet) {
       return;
     }
@@ -312,11 +307,11 @@ export async function POST(req: Request) {
         timeout: ONE_MINUTE_IN_MILLISECONDS,
       },
     );
-    return Response.json({ succesful: "transaction sent" });
+    return Response.json(chompResults);
     // release();
     // revalidatePath("/application");
   } catch (e) {
     // release();
-    return Response.json({ e });
+    return Response.json("Error at reveal", { status: 400 });
   }
 }

@@ -8,17 +8,22 @@ import { genBonkBurnTx } from "@/app/utils/solana";
 import { extractId } from "@/app/utils/telegramId";
 import {
   useConnectWithOtp,
-  useEmbeddedWallet,
   useIsLoggedIn,
   useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
+import { Checkbox } from "@radix-ui/react-checkbox";
 import { Connection, PublicKey } from "@solana/web3.js";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
+import { RiShareBoxLine, RiWallet3Fill } from "react-icons/ri";
 import { Button } from "../Button/Button";
+import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
+import Tabs from "../Tabs/Tabs";
 import { TextInput } from "../TextInput/TextInput";
+import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
@@ -43,61 +48,80 @@ export default function BotMiniApp() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
   const [questions, setQuestions] = useState([]);
+  const [processedQuestions, setProcessedQuestions] = useState([]);
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
   const [isVerificationSucceed, setIsVerificationSucceed] =
     useState<boolean>(false);
   const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
   const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
-
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
   >([]);
   const isLoggedIn = useIsLoggedIn();
-  const { sendOneTimeCode, createOrRestoreSession } = useEmbeddedWallet();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
   const userWallets = useUserWallets();
   const { errorToast } = useToast();
-
+  const router = useRouter();
   const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
 
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedRevealQuestions([]);
     } else {
-      setSelectedRevealQuestions(questions.map((_, index) => index));
+      setSelectedRevealQuestions(
+        questions.map((question: Question, index) => question.id),
+      );
     }
     setSelectAll(!selectAll);
   };
 
-  const handleSelect = (index: number) => {
-    if (selectedRevealQuestions.includes(index)) {
+  const handleSelect = (id: number) => {
+    if (selectedRevealQuestions.includes(id)) {
       setSelectedRevealQuestions(
-        selectedRevealQuestions.filter((i) => i !== index),
+        selectedRevealQuestions.filter((i) => i !== id),
       );
     } else {
-      setSelectedRevealQuestions([...selectedRevealQuestions, index]);
+      setSelectedRevealQuestions([...selectedRevealQuestions, id]);
     }
   };
 
   const processBurnAndClaim = async (signature: string) => {
+    setIsBurnInProgress(true); // Set loading state before making the API call
+
     try {
-      fetch(`/api/question/reveal/?userId=${userId}`, {
+      const response = await fetch(`/api/question/reveal/?userId=${userId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
         },
         body: JSON.stringify({
-          questionIds: questions.map((item: any) => item?.id),
+          questionIds: selectedRevealQuestions,
           burnTx: signature,
         }),
       });
+
+      if (!response.ok) {
+        // Handle HTTP errors
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+
+      const processedData = await response.json();
+
+      setProcessedQuestions(processedData);
+      setBurnSuccessfull(true);
     } catch (error: any) {
-      console.error("Error fetching questions:", error);
+      errorToast(error.message);
+      console.error("Error fetching questions:", error.message);
+      setBurnSuccessfull(false);
+    } finally {
+      setIsBurnInProgress(false); // Always unset loading state, regardless of success or failure
     }
   };
+
 
   const onBurn = async () => {
     try {
@@ -114,16 +138,16 @@ export default function BotMiniApp() {
         throw new Error("Insufficient balance for the transaction");
       }
 
-      const tx = await genBonkBurnTx(primaryWallet!.address, blockhash, 10);
+      const tx = await genBonkBurnTx(
+        primaryWallet!.address,
+        blockhash,
+        selectedRevealQuestions.length * 10,
+      );
 
       const burnTx = await signer.signAndSendTransaction(tx);
-      setIsBurnInProgress(true);
+
       await processBurnAndClaim(burnTx?.signature);
-      setBurnSuccessfull(true)
-      setIsBurnInProgress(false);
     } catch (err: any) {
-      setBurnSuccessfull(false)
-      setIsBurnInProgress(false);
       const errorMessage = err?.message ? err.message : "Failed to Burn";
       errorToast(errorMessage);
     }
@@ -206,7 +230,6 @@ export default function BotMiniApp() {
         options,
       );
       const data = await response.json();
-      console.log(data, "reveal questions");
       setQuestions(data);
     } catch (error) {
       errorToast("Failed to get reveal questions");
@@ -247,136 +270,93 @@ export default function BotMiniApp() {
   return (
     <>
       {isBurnInProgress && <LoadingScreen />}
-      {isLoggedIn && !isVerificationSucceed ? (
-        // <div className="space-y-6 flex flex-col p-5 items-start justify-center">
-        //   <span className="flex w-full items-center justify-between">
-        //     <Image
-        //       src="/images/gator-head-white.png"
-        //       width={50}
-        //       height={50}
-        //       alt="chomp-head"
-        //     />
-        //     <RiWallet3Fill size={20} />
-        //   </span>
-        //   <p className="text-2xl font-bold">Reveal and Claim</p>
-        //   <p>
-        //     You can view and reveal all cards that are ready to reveal below.
-        //     Only cards with correct answers will Claim tab.
-        //   </p>
-        //   <Tabs
-        //     tabs={["Reveal & Claim", "History"]}
-        //     activeTab={activeTab}
-        //     setActiveTab={setActiveTab}
-        //   />
-        //   <div className="flex items-center space-x-2">
-        //     <Checkbox
-        //       id="select-all"
-        //       checked={selectAll}
-        //       onClick={handleSelectAll}
-        //     />
-        //     <label
-        //       htmlFor="select-all"
-        //       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        //     >
-        //       Select All
-        //     </label>
-        //   </div>
-        //   <div className="flex flex-col w-full h-[18rem] gap-2 overflow-auto">
-        //     {questions.length > 0 ? (
-        //       questions.map((questionData: Question, index) => (
-        //         <RevealQuestionCard
-        //           key={index}
-        //           id={questionData.id}
-        //           question={questionData.question}
-        //           date={questionData.revealAtDate}
-        //           isSelected={selectedRevealQuestions.includes(index)}
-        //           handleSelect={() => handleSelect(index)}
-        //         />
-        //       ))
-        //     ) : (
-        //       <p>No questions for reveal. Keep Chomping!</p>
-        //     )}
-        //   </div>
-        //   <Button
-        //     variant="purple"
-        //     size="normal"
-        //     className="gap-2 text-black font-medium mt-4"
-        //     isFullWidth
-        //     onClick={onBurn}
-        //   >
-        //     {selectedRevealQuestions.length > 1
-        //       ? "Reveal Cards"
-        //       : "Reveal Card"}
-        //   </Button>
-        // </div>
-
-        <>
-          {" "}
-          {/* <LoadingScreen /> */}
-          {!burnSuccessfull ? <Button
-            variant="purple"
-            size="normal"
-            className="gap-2 text-black font-medium mt-4"
-            isFullWidth
-            onClick={onBurn}
-          >
-            Reveal Card
-          </Button> : <div>
+      {isLoggedIn && !burnSuccessfull ? (
+        <div className="space-y-6 flex flex-col p-5 items-start justify-center">
+          <span className="flex w-full items-center justify-between">
             <Image
-              src="/images/chomp-asset.png"
-              width={400}
-              height={400}
-              alt="Chomp Cover"
-              className="mt-5"
+              src="/images/gator-head-white.png"
+              width={50}
+              height={50}
+              alt="chomp-head"
             />
-            <p className="text-2xl font-bold text-center">
-              Let&apos;s Keep Chomping!{" "}
-            </p>
-            <p className="text-left">
-              You&apos;re all set. Click below or close this button to continue
-              with your Chomp journey.
-            </p>
-            <Button
-              variant="purple"
-              size="normal"
-              className="gap-2 text-black font-medium mt-4"
-              onClick={() => {
-                setIsVerificationSucceed(false);
-              }}
-              isFullWidth
-            >
-              Continue Chomping
-            </Button>
-          </div>}
-        </>
-      ) : isLoggedIn && isVerificationSucceed ? (
-        <div>
-          <Image
-            src="/images/chomp-asset.png"
-            width={400}
-            height={400}
-            alt="Chomp Cover"
-            className="mt-5"
+            <RiWallet3Fill size={20} />
+          </span>
+          <p className="text-2xl font-bold">Reveal and Claim</p>
+          <p>
+            You can view and reveal all cards that are ready to reveal below.
+            Only cards with correct answers will Claim tab.
+          </p>
+          <Tabs
+            tabs={["Reveal & Claim", "History"]}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
           />
-          <p className="text-2xl font-bold text-center">
-            Let&apos;s Keep Chomping!{" "}
-          </p>
-          <p className="text-left">
-            You&apos;re all set. Click below or close this button to continue
-            with your Chomp journey.
-          </p>
-          <Button
-            variant="purple"
-            size="normal"
-            className="gap-2 text-black font-medium mt-4"
-            onClick={() => {
-              setIsVerificationSucceed(false);
-            }}
-            isFullWidth
-          >
-            Continue Chomping
-          </Button>
+          {activeTab === 0 ? (
+            <>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="select-all"
+                  checked={selectAll}
+                  onClick={handleSelectAll}
+                />
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Select All
+                </label>
+              </div>
+              <div className="flex flex-col w-full h-[17rem] gap-2 overflow-auto">
+                {questions.length > 0 ? (
+                  questions.map((questionData: Question, index) => (
+                    <RevealQuestionCard
+                      key={index}
+                      question={questionData.question}
+                      date={questionData.revealAtDate}
+                      isSelected={selectedRevealQuestions.includes(
+                        questionData.id,
+                      )}
+                      handleSelect={() => handleSelect(questionData.id)}
+                    />
+                  ))
+                ) : (
+                  <p>No questions for reveal. Keep Chomping!</p>
+                )}
+              </div>
+              <Button
+                variant="purple"
+                size="normal"
+                className="gap-2 text-black font-medium mt-4"
+                isFullWidth
+                onClick={onBurn}
+              >
+                {selectedRevealQuestions.length > 1
+                  ? "Reveal Cards"
+                  : "Reveal Card"}
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="flex w-full h-[18rem]">
+                You full history and other features are available in the Chomp
+                web app.
+              </p>
+              <Button
+                variant="purple"
+                size="normal"
+                className="gap-2 text-black font-medium mt-4"
+                isFullWidth
+                onClick={() => {
+                  router.push("/");
+                }}
+              >
+                Go to Chomp Web App <RiShareBoxLine />
+              </Button>
+            </>
+          )}
         </div>
+      ) : isLoggedIn && burnSuccessfull ? (
+        <ClaimedQuestions questions={processedQuestions} />
       ) : isVerificationIsInProgress ? (
         <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
           <Image
@@ -386,6 +366,7 @@ export default function BotMiniApp() {
             alt="Chomp Cover"
             className="mt-5"
           />
+
           <form
             key="verifyOtp"
             className="flex flex-col justify-center space-y-4 w-full"
