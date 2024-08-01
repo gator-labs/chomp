@@ -114,6 +114,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           id: data.id,
         },
         data: {
+          isActive: validatedFields.data.isActive,
           deck: validatedFields.data.deck,
           imageUrl: validatedFields.data.imageUrl,
           revealAtDate: validatedFields.data.revealAtDate,
