@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { getUserId } from "@/app/actions/bot";
 import { useToast } from "@/app/providers/ToastProvider";
+import { getRevealQuestionsData, getUserId } from "@/app/queries/bot";
 import { genBonkBurnTx } from "@/app/utils/solana";
 import { extractId } from "@/app/utils/telegramId";
 import {
@@ -16,11 +16,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
-import { RiShareBoxLine, RiWallet3Fill } from "react-icons/ri";
+import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
 import { Button } from "../Button/Button";
-import { Checkbox } from "../Checkbox/Checkbox";
-import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
-import Tabs from "../Tabs/Tabs";
+import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
+import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
@@ -31,7 +30,7 @@ declare global {
   }
 }
 
-interface Question {
+export interface Question {
   id: number;
   question: string;
   revealAtDate: Date;
@@ -50,6 +49,7 @@ export default function BotMiniApp() {
     useState<boolean>(false);
   const [isVerificationSucceed, setIsVerificationSucceed] =
     useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
@@ -65,7 +65,9 @@ export default function BotMiniApp() {
     if (selectAll) {
       setSelectedRevealQuestions([]);
     } else {
-      setSelectedRevealQuestions(questions.map((question: Question, index) => question.id));
+      setSelectedRevealQuestions(
+        questions.map((question: Question, index) => question.id),
+      );
     }
     setSelectAll(!selectAll);
   };
@@ -142,6 +144,19 @@ export default function BotMiniApp() {
     }
   };
 
+  const handleUserId = async (telegramId: string) => {
+    if (telegramId) {
+      const response = await getUserId(telegramId);
+      if (response) {
+        setUserId(response?.id);
+      } else {
+        errorToast("No user found for this telegram ID");
+      }
+    } else {
+      errorToast("Invalid telegram ID");
+    }
+  };
+
   const dataVerification = async (initData: any) => {
     const options = {
       method: "POST",
@@ -150,40 +165,22 @@ export default function BotMiniApp() {
       },
       body: JSON.stringify({ initData }),
     };
-
-    fetch(`/api/validate`, options)
-      .then((response) => response.json())
-      .then(async (response) => {
-        const telegramId = extractId(response.message);
-        if (telegramId) {
-          const response = await getUserId(telegramId);
-          setUserId(response.id);
-        } else {
-          errorToast("Not an authorized request to access");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        errorToast("Not an authorized request to access");
-      });
+    try {
+      const response = await fetch(`/api/validate`, options);
+      const telegramRawData = await response.json();
+      const telegramId = extractId(telegramRawData.message);
+      await handleUserId(telegramId);
+    } catch (err) {
+      console.error(err);
+      errorToast("Not an authorized request to access");
+    }
   };
 
   const getRevealQuestions = async (userId: string) => {
-    const options = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
-      },
-    };
-    try {
-      const response = await fetch(
-        `/api/question/reveal?userId=${userId}`,
-        options,
-      );
-      const data = await response.json();
-      setQuestions(data);
-    } catch (error) {
+    const response = await getRevealQuestionsData(userId);
+    if (response) {
+      setQuestions(response);
+    } else {
       errorToast("Failed to get reveal questions");
     }
   };
@@ -219,92 +216,53 @@ export default function BotMiniApp() {
     }
   }, [selectedRevealQuestions, questions]);
 
+  useEffect(() => {
+    setIsLoading(false);
+  }, [isLoggedIn]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <svg
+          aria-hidden="true"
+          className="inline w-14 h-14 text-neutral-500 animate-spin fill-neutral-50"
+          viewBox="0 0 100 101"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+            fill="currentColor"
+          />
+          <path
+            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+            fill="currentFill"
+          />
+        </svg>
+      </div>
+    );
+  }
+
   return (
     <>
       {isLoggedIn && !isVerificationSucceed ? (
-        <div className="space-y-6 flex flex-col p-5 items-start justify-center">
-          <span className="flex w-full items-center justify-between">
-            <Image
-              src="/images/gator-head-white.png"
-              width={50}
-              height={50}
-              alt="chomp-head"
-            />
-            <RiWallet3Fill size={20} />
-          </span>
-          <p className="text-2xl font-bold">Reveal and Claim</p>
-          <p>
-            You can view and reveal all cards that are ready to reveal below.
-            Only cards with correct answers will Claim tab.
-          </p>
-          <Tabs
-            tabs={["Reveal & Claim", "History"]}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
+        <BotRevealClaim activeTab={activeTab} setActiveTab={setActiveTab}>
           {activeTab === 0 ? (
-            <>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="select-all"
-                  checked={selectAll}
-                  onClick={handleSelectAll}
-                />
-                <label
-                  htmlFor="select-all"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Select All
-                </label>
-              </div>
-              <div className="flex flex-col w-full h-[17rem] gap-2 overflow-auto">
-                {questions.length > 0 ? (
-                  questions.map((questionData: Question, index) => (
-                    <RevealQuestionCard
-                      key={index}
-                      question={questionData.question}
-                      date={questionData.revealAtDate}
-                      isSelected={selectedRevealQuestions.includes(
-                        questionData.id,
-                      )}
-                      handleSelect={() => handleSelect(questionData.id)}
-                    />
-                  ))
-                ) : (
-                  <p>No questions for reveal. Keep Chomping!</p>
-                )}
-              </div>
-              <Button
-                variant="purple"
-                size="normal"
-                className="gap-2 text-black font-medium mt-4"
-                isFullWidth
-              >
-                {selectedRevealQuestions.length > 1
-                  ? "Reveal Cards"
-                  : "Reveal Card"}
-              </Button>
-            </>
+            <RevealQuestionsFeed
+              selectAll={selectAll}
+              handleSelectAll={handleSelectAll}
+              questions={questions}
+              selectedRevealQuestions={selectedRevealQuestions}
+              handleSelect={handleSelect}
+            />
           ) : (
-            <>
-              <p className="flex w-full h-[18rem]">
-                You full history and other features are available in the Chomp
-                web app.
-              </p>
-              <Button
-                variant="purple"
-                size="normal"
-                className="gap-2 text-black font-medium mt-4"
-                isFullWidth
-                onClick={() => {
-                  router.push("/");
-                }}
-              >
-                Go to Chomp Web App <RiShareBoxLine />
-              </Button>
-            </>
+            <RevealHistoryInfo
+              onClick={() => {
+                router.push("/");
+              }}
+            />
           )}
-        </div>
+        </BotRevealClaim>
       ) : isLoggedIn && isVerificationSucceed ? (
         <div>
           <Image
