@@ -78,14 +78,15 @@ export async function GET(req: Request) {
     return Response.json({ question: getRandomElement(getDailyDeckQuestions) });
   } else {
     // Unanwsered Questions
-    const dailyDeckQuestions = await prisma.deckQuestion.findMany({
+    const regularDeckQuestions = await prisma.deckQuestion.findMany({
       where: {
         deck: {
-          date: {
-            gte: dayjs(new Date()).add(-3, "days").toDate(),
-            lte: dayjs(new Date()).endOf("day").toDate(),
+          revealAtDate: {
+            gte: new Date(),
+            lte: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
           },
-          revealAtDate: { gte: new Date() },
+          isActive: true,
+          date: null,
         },
         question: {
           question: { contains: "", mode: "insensitive" },
@@ -118,7 +119,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const questions = dailyDeckQuestions.map((dq) => dq.question);
+    const questions = regularDeckQuestions.map((dq) => dq.question);
 
     if (questions.length === 0)
       new Response(`No questions found to load`, {
