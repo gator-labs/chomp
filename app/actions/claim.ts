@@ -233,7 +233,7 @@ export async function handleSendBonk(
     sendTx = await sendBonk(
       treasuryWallet,
       new PublicKey(address),
-      Math.round((tokenAmount * 10 ** 5) / 100),
+      Math.round(tokenAmount * 10 ** 5),
     );
   }
   return sendTx;
