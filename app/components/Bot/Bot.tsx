@@ -44,6 +44,7 @@ export default function BotMiniApp() {
   const [otp, setOtp] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
+  const [walletAddress, setWalletAddress] = useState<string>("");
   const [questions, setQuestions] = useState([]);
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
@@ -149,6 +150,7 @@ export default function BotMiniApp() {
       const response = await getUserId(telegramId);
       if (response) {
         setUserId(response?.id);
+        setWalletAddress(response.wallets[0].address);
       } else {
         errorToast("No user found for this telegram ID");
       }
@@ -246,7 +248,7 @@ export default function BotMiniApp() {
   return (
     <>
       {isLoggedIn && !isVerificationSucceed ? (
-        <BotRevealClaim activeTab={activeTab} setActiveTab={setActiveTab}>
+        <BotRevealClaim activeTab={activeTab} setActiveTab={setActiveTab} wallet={walletAddress}>
           {activeTab === 0 ? (
             <RevealQuestionsFeed
               selectAll={selectAll}

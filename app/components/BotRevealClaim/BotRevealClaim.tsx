@@ -1,17 +1,19 @@
 import Image from "next/image";
-import { RiWallet3Fill } from "react-icons/ri";
 import Tabs from "../Tabs/Tabs";
+import { formatAddress } from "@/app/utils/wallet";
 
 type BotRevealClaimProps = {
   children: React.ReactNode;
   activeTab: number;
   setActiveTab: (tab: number) => void;
+  wallet: string
 };
 
 export default function BotRevealClaim({
   children,
   activeTab,
   setActiveTab,
+  wallet
 }: BotRevealClaimProps) {
   return (
     <div className="space-y-6 flex flex-col p-5 items-start justify-center">
@@ -22,7 +24,7 @@ export default function BotRevealClaim({
           height={50}
           alt="chomp-head"
         />
-        <RiWallet3Fill size={20} />
+        <p className="w-fit px-3 py-1 bg-neutral-700 border border-neutral-500 rounded-2xl">{formatAddress(wallet)}</p>
       </span>
       <p className="text-2xl font-bold">Reveal and Claim</p>
       <p>
