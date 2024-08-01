@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { cloneElement, MouseEventHandler, ReactElement } from "react";
 import { DeckIcon } from "../Icons/DeckIcon";
 import LeadToIcon from "../Icons/LeadToIcon";
@@ -7,6 +8,7 @@ type FeedQuestionCardProps = {
   question: string;
   revealAtDate?: Date;
   answerCount?: number;
+  image?: string;
   revealAtAnswerCount?: number;
   onTopCornerAction?: MouseEventHandler<HTMLButtonElement> | undefined;
   topCornerActionIcon?: ReactElement;
@@ -26,6 +28,7 @@ export function FeedQuestionCard({
   statusLabel,
   action,
   type,
+  image,
   onClick,
 }: FeedQuestionCardProps) {
   return (
@@ -41,7 +44,17 @@ export function FeedQuestionCard({
       <div className="flex flex-col gap-y-2 w-full justify-between">
         <div className="flex flex-col gap-y-2 w-full">
           <div className="flex gap-2 w-full justify-between">
-            <p className="text-white text-base font-sora font-semibold text-sm">
+            {!!image && (
+              <div className="relative w-6 h-6 flex-shrink-0">
+                <Image
+                  src={image}
+                  alt="campaign-image"
+                  fill
+                  className="rounded-full"
+                />
+              </div>
+            )}
+            <p className="text-white font-sora font-semibold text-sm mr-auto">
               {question}
             </p>
             {onTopCornerAction && topCornerActionIcon && (
