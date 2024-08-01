@@ -1,14 +1,16 @@
+"use server";
+
 export const getUserId = async (telegramId: string) => {
   const options = {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
+      "api-key": process.env.BOT_API_KEY!,
     },
   };
   try {
     const response = await fetch(
-      `/api/user/telegram?telegramId=${telegramId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user/telegram?telegramId=${telegramId}`,
       options,
     );
     const data = await response.json();
@@ -18,17 +20,17 @@ export const getUserId = async (telegramId: string) => {
   }
 };
 
-export const getRevealQuestions = async (userId: string) => {
+export const getRevealQuestionsData = async (userId: string) => {
   const options = {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
+      "api-key": process.env.BOT_API_KEY!,
     },
   };
   try {
     const response = await fetch(
-      `/api/question/reveal?userId=${userId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/question/reveal?userId=${userId}`,
       options,
     );
     const data = await response.json();

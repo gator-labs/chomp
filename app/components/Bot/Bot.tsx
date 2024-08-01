@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { getUserId } from "@/app/actions/bot";
 import { useToast } from "@/app/providers/ToastProvider";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
+import { getRevealQuestionsData, getUserId } from "@/app/queries/bot";
 import { genBonkBurnTx } from "@/app/utils/solana";
 import { extractId } from "@/app/utils/telegramId";
 import {
@@ -12,16 +12,15 @@ import {
   useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import { Connection, PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
-import { RiShareBoxLine, RiWallet3Fill } from "react-icons/ri";
+import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
 import { Button } from "../Button/Button";
-import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
-import Tabs from "../Tabs/Tabs";
+import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
+import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
 import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
 
@@ -33,7 +32,7 @@ declare global {
   }
 }
 
-interface Question {
+export interface Question {
   id: number;
   question: string;
   revealAtDate: Date;
@@ -47,6 +46,7 @@ export default function BotMiniApp() {
   const [otp, setOtp] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
+  const [walletAddress, setWalletAddress] = useState<string>("");
   const [questions, setQuestions] = useState([]);
   const [processedQuestions, setProcessedQuestions] = useState([]);
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
@@ -55,6 +55,7 @@ export default function BotMiniApp() {
     useState<boolean>(false);
   const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
   const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
@@ -190,6 +191,20 @@ export default function BotMiniApp() {
     }
   };
 
+  const handleUserId = async (telegramId: string) => {
+    if (telegramId) {
+      const response = await getUserId(telegramId);
+      if (response) {
+        setUserId(response?.id);
+        setWalletAddress(response.wallets[0].address);
+      } else {
+        errorToast("No user found for this telegram ID");
+      }
+    } else {
+      errorToast("Invalid telegram ID");
+    }
+  };
+
   const dataVerification = async (initData: any) => {
     const options = {
       method: "POST",
@@ -198,40 +213,22 @@ export default function BotMiniApp() {
       },
       body: JSON.stringify({ initData }),
     };
-
-    fetch(`/api/validate`, options)
-      .then((response) => response.json())
-      .then(async (response) => {
-        const telegramId = extractId(response.message);
-        if (telegramId) {
-          const response = await getUserId(telegramId);
-          setUserId(response.id);
-        } else {
-          errorToast("Not an authorized request to access");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        errorToast("Not an authorized request to access");
-      });
+    try {
+      const response = await fetch(`/api/validate`, options);
+      const telegramRawData = await response.json();
+      const telegramId = extractId(telegramRawData.message);
+      await handleUserId(telegramId);
+    } catch (err) {
+      console.error(err);
+      errorToast("Not an authorized request to access");
+    }
   };
 
   const getRevealQuestions = async (userId: string) => {
-    const options = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
-      },
-    };
-    try {
-      const response = await fetch(
-        `/api/question/reveal?userId=${userId}`,
-        options,
-      );
-      const data = await response.json();
-      setQuestions(data);
-    } catch (error) {
+    const response = await getRevealQuestionsData(userId);
+    if (response) {
+      setQuestions(response);
+    } else {
       errorToast("Failed to get reveal questions");
     }
   };
@@ -267,94 +264,38 @@ export default function BotMiniApp() {
     }
   }, [selectedRevealQuestions, questions]);
 
+  useEffect(() => {
+    setIsLoading(false);
+  }, [isLoggedIn]);
+
+  if (isLoading) {
+    return (
+      <LoadingScreen />
+    );
+  }
+
   return (
     <>
       {isBurnInProgress && <LoadingScreen />}
       {isLoggedIn && !burnSuccessfull ? (
-        <div className="space-y-6 flex flex-col p-5 items-start justify-center">
-          <span className="flex w-full items-center justify-between">
-            <Image
-              src="/images/gator-head-white.png"
-              width={50}
-              height={50}
-              alt="chomp-head"
-            />
-            <RiWallet3Fill size={20} />
-          </span>
-          <p className="text-2xl font-bold">Reveal and Claim</p>
-          <p>
-            You can view and reveal all cards that are ready to reveal below.
-            Only cards with correct answers will Claim tab.
-          </p>
-          <Tabs
-            tabs={["Reveal & Claim", "History"]}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
+        <BotRevealClaim activeTab={activeTab} setActiveTab={setActiveTab} wallet={walletAddress}>
           {activeTab === 0 ? (
-            <>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="select-all"
-                  checked={selectAll}
-                  onClick={handleSelectAll}
-                />
-                <label
-                  htmlFor="select-all"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Select All
-                </label>
-              </div>
-              <div className="flex flex-col w-full h-[17rem] gap-2 overflow-auto">
-                {questions.length > 0 ? (
-                  questions.map((questionData: Question, index) => (
-                    <RevealQuestionCard
-                      key={index}
-                      question={questionData.question}
-                      date={questionData.revealAtDate}
-                      isSelected={selectedRevealQuestions.includes(
-                        questionData.id,
-                      )}
-                      handleSelect={() => handleSelect(questionData.id)}
-                    />
-                  ))
-                ) : (
-                  <p>No questions for reveal. Keep Chomping!</p>
-                )}
-              </div>
-              <Button
-                variant="purple"
-                size="normal"
-                className="gap-2 text-black font-medium mt-4"
-                isFullWidth
-                onClick={onBurn}
-              >
-                {selectedRevealQuestions.length > 1
-                  ? "Reveal Cards"
-                  : "Reveal Card"}
-              </Button>
-            </>
+            <RevealQuestionsFeed
+              selectAll={selectAll}
+              handleSelectAll={handleSelectAll}
+              questions={questions}
+              selectedRevealQuestions={selectedRevealQuestions}
+              handleSelect={handleSelect}
+              onBurn={onBurn}
+            />
           ) : (
-            <>
-              <p className="flex w-full h-[18rem]">
-                You full history and other features are available in the Chomp
-                web app.
-              </p>
-              <Button
-                variant="purple"
-                size="normal"
-                className="gap-2 text-black font-medium mt-4"
-                isFullWidth
-                onClick={() => {
-                  router.push("/");
-                }}
-              >
-                Go to Chomp Web App <RiShareBoxLine />
-              </Button>
-            </>
+            <RevealHistoryInfo
+              onClick={() => {
+                router.push("/");
+              }}
+            />
           )}
-        </div>
+        </BotRevealClaim>
       ) : isLoggedIn && burnSuccessfull ? (
         <ClaimedQuestions questions={processedQuestions} />
       ) : isVerificationIsInProgress ? (
@@ -446,7 +387,8 @@ export default function BotMiniApp() {
             </div>
           </form>
         </div>
-      )}
+      )
+      }
     </>
   );
 }
