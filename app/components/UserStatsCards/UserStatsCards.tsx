@@ -38,7 +38,7 @@ export async function UserStatsCards() {
       <TotalPointsEarnedInfo>
         <StatsCard
           title="Total Points Earned"
-          value={stats.totalPointsEarned}
+          value={Number(stats.totalPointsEarned).toLocaleString("en-US")}
           icon={<TotalPercentageIcon height={38} width={38} fill="#A3A3EC" />}
         />
       </TotalPointsEarnedInfo>
