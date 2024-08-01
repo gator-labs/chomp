@@ -4,7 +4,7 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { deckSchema } from "@/app/schemas/deck";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Campaign, QuestionType, Tag as TagType, Token } from "@prisma/client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -54,6 +54,9 @@ export default function DeckForm({
     name: "questions",
   });
 
+  console.log(Object.values(errors).filter((error) => error.type === "custom"));
+  console.log(errors);
+
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
   const [selectedCampaignId, setSelectedCampaignId] = useState(
     deck?.campaignId || undefined,
@@ -70,6 +73,13 @@ export default function DeckForm({
       errorToast("Failed to save deck", result.errorMessage);
     }
   });
+
+  useEffect(() => {
+    if (!!errors.questions?.[0]?.root?.message) {
+      console.log("first");
+      errorToast(errors.questions?.[0]?.root?.message);
+    }
+  }, [errors]);
 
   return (
     <form onSubmit={onSubmit}>
@@ -195,12 +205,6 @@ export default function DeckForm({
                               `questions.${questionIndex}.questionOptions.${optionIndex}.isLeft`,
                             )}
                           />
-                          {!!errors?.questions?.[questionIndex]?.root
-                            ?.message && (
-                            <div className="text-red absolute -bottom-4 left-3 w-96">
-                              {errors.questions[questionIndex]?.root?.message}
-                            </div>
-                          )}
                         </div>
                       )}
                     </div>
