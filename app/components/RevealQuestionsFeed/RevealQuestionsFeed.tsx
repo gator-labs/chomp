@@ -1,5 +1,4 @@
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import { RiInformationLine } from "react-icons/ri";
 import { Question } from "../Bot/Bot";
 import { Button } from "../Button/Button";
@@ -9,8 +8,9 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
-} from "../Dialog/dialog";
+} from "../Dialog/Dialog";
 import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
 
 type RevealQuestionsFeedProps = {
