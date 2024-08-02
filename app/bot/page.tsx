@@ -1,5 +1,5 @@
-import BotSignIn from "../components/BotSignIn/BotSignIn";
+import BotMiniApp from "../components/Bot/Bot";
 
 export default function Bot() {
-  return <BotSignIn />;
+  return <BotMiniApp />;
 }
