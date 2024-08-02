@@ -1,10 +1,19 @@
 import { NextRequest } from "next/server";
 
 import crypto from "crypto";
+import { headers } from "next/headers";
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
 
 export async function POST(req: NextRequest) {
+  const headersList = headers();
+  const apiKey = headersList.get("api-key");
+
+  if (apiKey !== process.env.BOT_API_KEY) {
+    return new Response(`Invalid api-key`, {
+      status: 400,
+    });
+  }
   const data = await req.json();
 
   const initData = data?.initData;

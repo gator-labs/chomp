@@ -22,7 +22,7 @@ type RevealQuestionsFeedProps = {
   selectedRevealQuestions: number[];
   handleSelect: (id: number) => void;
   onBurn: () => void;
-  wallet: string;
+  bonkBalance: number;
 };
 export default function RevealQuestionsFeed({
   selectAll,
@@ -31,9 +31,9 @@ export default function RevealQuestionsFeed({
   selectedRevealQuestions,
   handleSelect,
   onBurn,
-  wallet,
+  bonkBalance,
 }: RevealQuestionsFeedProps) {
-  const [bonkBalance, setBonkBalance] = useState(0);
+
   const totalRevealTokenAmount = selectedRevealQuestions.reduce((acc, id) => {
     const question = questions.find((q) => q.id === id);
     if (question) {
@@ -41,15 +41,6 @@ export default function RevealQuestionsFeed({
     }
     return acc;
   }, 0);
-
-  const fetchBonkBalance = async () => {
-    const bonkBalance = await getBonkBalance(wallet);
-    setBonkBalance(bonkBalance);
-  };
-
-  useEffect(() => {
-    fetchBonkBalance();
-  }, []);
 
   return (
     <>

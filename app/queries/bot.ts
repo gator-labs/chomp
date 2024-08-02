@@ -1,6 +1,8 @@
 "use server";
 
-export const getUserId = async (telegramId: string) => {
+import { extractId } from "../utils/telegramId";
+
+export const getUserData = async (telegramId: string) => {
   const options = {
     method: "GET",
     headers: {
@@ -78,5 +80,29 @@ export const processBurnAndClaim = async (
     });
   } catch (error: any) {
     console.error("Error fetching questions:", error);
+  }
+};
+
+export const verifyPayload = async (initData: any) => {
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": process.env.BOT_API_KEY!,
+    },
+    body: JSON.stringify({ initData }),
+  };
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/validate`,
+      options,
+    );
+    const telegramRawData = await response.json();
+    const telegramId = extractId(telegramRawData.message);
+    const user = await getUserData(telegramId);
+    return user;
+  } catch (err) {
+    console.error(err);
+    return null;
   }
 };

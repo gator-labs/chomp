@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-
 import { useToast } from "@/app/providers/ToastProvider";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
-import { getRevealQuestionsData, getUserId } from "@/app/queries/bot";
-import { genBonkBurnTx } from "@/app/utils/solana";
-import { extractId } from "@/app/utils/telegramId";
+import {
+  getRevealQuestionsData,
+  verifyPayload,
+} from "@/app/queries/bot";
+import { genBonkBurnTx, getBonkBalance } from "@/app/utils/solana";
 import {
   useConnectWithOtp,
   useIsLoggedIn,
@@ -24,14 +25,13 @@ import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
 import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
 
-const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
+const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
   interface Window {
     Telegram: any;
   }
 }
-
 export interface Question {
   id: number;
   question: string;
@@ -60,6 +60,8 @@ export default function BotMiniApp() {
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
   >([]);
+  const [bonkBalance, setBonkBalance] = useState(0);
+
   const isLoggedIn = useIsLoggedIn();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
   const userWallets = useUserWallets();
@@ -149,7 +151,7 @@ export default function BotMiniApp() {
 
       await processBurnAndClaim(burnTx?.signature);
     } catch (err: any) {
-      const errorMessage = err?.message ? err.message : "Failed to Burn";
+      const errorMessage = "Failed to Burn";
       errorToast(errorMessage);
     }
   };
@@ -191,33 +193,15 @@ export default function BotMiniApp() {
     }
   };
 
-  const handleUserId = async (telegramId: string) => {
-    if (telegramId) {
-      const response = await getUserId(telegramId);
+  const dataVerification = async (initData: any) => {
+    try {
+      const response = await verifyPayload(initData);
       if (response) {
         setUserId(response?.id);
         setWalletAddress(response.wallets[0].address);
       } else {
         errorToast("No user found for this telegram ID");
       }
-    } else {
-      errorToast("Invalid telegram ID");
-    }
-  };
-
-  const dataVerification = async (initData: any) => {
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ initData }),
-    };
-    try {
-      const response = await fetch(`/api/validate`, options);
-      const telegramRawData = await response.json();
-      const telegramId = extractId(telegramRawData.message);
-      await handleUserId(telegramId);
     } catch (err) {
       console.error(err);
       errorToast("Not an authorized request to access");
@@ -233,11 +217,25 @@ export default function BotMiniApp() {
     }
   };
 
+  const fetchBonkBalance = async () => {
+    const bonkBalance = await getBonkBalance(primaryWallet!.address);
+    setBonkBalance(bonkBalance);
+    console.log(bonkBalance, primaryWallet!.address)
+  };
+
+
   useEffect(() => {
     if (userId) {
       getRevealQuestions(userId);
     }
-  }, [userId]);
+
+    // Ensure primaryWallet is defined before calling fetchBonkBalance
+    if (primaryWallet && primaryWallet.address) {
+      fetchBonkBalance();
+    }
+  }, [userId, primaryWallet]);
+
+
 
   useEffect(() => {
     // Ensure Telegram Web App API is available
@@ -287,7 +285,7 @@ export default function BotMiniApp() {
               selectedRevealQuestions={selectedRevealQuestions}
               handleSelect={handleSelect}
               onBurn={onBurn}
-              wallet={walletAddress}
+              bonkBalance={bonkBalance}
             />
           ) : (
             <RevealHistoryInfo
