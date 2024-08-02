@@ -2,9 +2,12 @@
 "use client";
 
 import { useToast } from "@/app/providers/ToastProvider";
-import { getRevealQuestionsData, getUserId } from "@/app/queries/bot";
+import {
+  getRevealQuestionsData,
+  getUserId,
+  verifyPayload,
+} from "@/app/queries/bot";
 import { genBonkBurnTx } from "@/app/utils/solana";
-import { extractId } from "@/app/utils/telegramId";
 import {
   useConnectWithOtp,
   useIsLoggedIn,
@@ -160,18 +163,13 @@ export default function BotMiniApp() {
   };
 
   const dataVerification = async (initData: any) => {
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ initData }),
-    };
     try {
-      const response = await fetch(`/api/validate`, options);
-      const telegramRawData = await response.json();
-      const telegramId = extractId(telegramRawData.message);
-      await handleUserId(telegramId);
+      const telegramId = await verifyPayload(initData);
+      if (telegramId) {
+        await handleUserId(telegramId);
+      } else {
+        errorToast("Failed to verify telegram data");
+      }
     } catch (err) {
       console.error(err);
       errorToast("Not an authorized request to access");
@@ -248,7 +246,11 @@ export default function BotMiniApp() {
   return (
     <>
       {isLoggedIn && !isVerificationSucceed ? (
-        <BotRevealClaim activeTab={activeTab} setActiveTab={setActiveTab} wallet={walletAddress}>
+        <BotRevealClaim
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          wallet={walletAddress}
+        >
           {activeTab === 0 ? (
             <RevealQuestionsFeed
               selectAll={selectAll}
