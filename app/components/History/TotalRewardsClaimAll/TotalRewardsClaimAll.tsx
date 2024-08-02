@@ -4,6 +4,7 @@ import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "../../Button/Button";
 
 type TotalRewardsClaimAllProps = {
@@ -15,6 +16,7 @@ export default function TotalRewardsClaimAll({
 }: TotalRewardsClaimAllProps) {
   const { promiseToast, successToast } = useToast();
   const { fire } = useConfetti();
+  const queryClient = useQueryClient();
   const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClaimAll = async () => {
@@ -25,6 +27,8 @@ export default function TotalRewardsClaimAll({
       error: "Issue transferring funds.",
       isChompLoader: true,
     });
+    queryClient.resetQueries({ queryKey: ["questions-history"] });
+
     fire();
     successToast(
       "Claimed!",

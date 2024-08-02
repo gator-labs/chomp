@@ -4,6 +4,7 @@ import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
@@ -19,6 +20,7 @@ interface RewardShowProps {
 
 const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
   const { isClaiming, setIsClaiming } = useClaiming();
+  const queryClient = useQueryClient();
 
   const { fire } = useConfetti();
   const { promiseToast } = useToast();
@@ -34,6 +36,7 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
       error: "Failed to claim rewards. Please try again.",
     })
       .then(() => {
+        queryClient.resetQueries({ queryKey: ["questions-history"] });
         fire();
       })
       .finally(() => {

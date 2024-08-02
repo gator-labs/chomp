@@ -237,6 +237,7 @@ export async function claimQuestions(questionIds: number[]) {
 
     release();
     revalidatePath("/application");
+    revalidatePath("/application/profile/history");
     return sendTx;
   } catch (e) {
     console.log("Error while claiming question", e);

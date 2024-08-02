@@ -51,7 +51,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           error: "Failed to claim rewards. Please try again.",
         })
           .then(() => {
-            queryClient.invalidateQueries({ queryKey: ["questions-history"] });
+            queryClient.resetQueries({ queryKey: ["questions-history"] });
             router.push("/application/answer/reveal/" + question.id);
             router.refresh();
             fire();
@@ -81,7 +81,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           nftType?: NftType,
         ) => {
           await revealQuestion(question.id, burnTx, nftAddress, nftType);
-          queryClient.invalidateQueries({ queryKey: ["questions-history"] });
+          queryClient.resetQueries({ queryKey: ["questions-history"] });
           router.push("/application/answer/reveal/" + question.id);
           router.refresh();
         },
