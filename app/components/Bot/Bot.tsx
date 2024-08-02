@@ -131,18 +131,18 @@ export default function BotMiniApp() {
       } = await CONNECTION.getLatestBlockhashAndContext();
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
 
-      const balance = await CONNECTION.getBalance(
-        new PublicKey(primaryWallet!.address),
-      );
-
-      if (balance < 1000) {
-        throw new Error("Insufficient balance for the transaction");
-      }
+      const totalRevealTokenAmount = selectedRevealQuestions.reduce((acc, id) => {
+        const question = questions.find((q: Question) => q.id === id);
+        if (question) {
+          return acc + question?.["revealTokenAmount"];
+        }
+        return acc;
+      }, 0);
 
       const tx = await genBonkBurnTx(
         primaryWallet!.address,
         blockhash,
-        selectedRevealQuestions.length * 10,
+        totalRevealTokenAmount,
       );
 
       const burnTx = await signer.signAndSendTransaction(tx);
@@ -287,6 +287,7 @@ export default function BotMiniApp() {
               selectedRevealQuestions={selectedRevealQuestions}
               handleSelect={handleSelect}
               onBurn={onBurn}
+              wallet={walletAddress}
             />
           ) : (
             <RevealHistoryInfo

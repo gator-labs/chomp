@@ -125,8 +125,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // console.log(prismaTransaction);
-
       await tx.chompResult.createMany({
         data: [
           ...revealableQuestionIds.map((questionId) => ({
@@ -208,8 +206,6 @@ export async function POST(req: Request) {
         result: ResultType.Revealed,
       },
     });
-
-    console.log(chompResults);
 
     const userWallet = await prisma.wallet.findFirst({
       where: {
