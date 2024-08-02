@@ -77,16 +77,30 @@ export async function GET(req: Request) {
   if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0) {
     return Response.json({ question: getRandomElement(getDailyDeckQuestions) });
   } else {
-    // Unanwsered Questions
-    const dailyDeckQuestions = await prisma.deckQuestion.findMany({
+    // Deck Questions includes questions from Regular Decks and unanwered Daily Decks
+    const deckQuestions = await prisma.deckQuestion.findMany({
       where: {
-        deck: {
-          date: {
-            gte: dayjs(new Date()).add(-3, "days").toDate(),
-            lte: dayjs(new Date()).endOf("day").toDate(),
+        OR: [
+          {
+            deck: {
+              revealAtDate: {
+                gte: new Date(),
+                lte: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
+              },
+              isActive: true,
+              date: null,
+            },
           },
-          revealAtDate: { gte: new Date() },
-        },
+          {
+            deck: {
+              date: {
+                gte: dayjs(new Date()).add(-3, "days").toDate(),
+                lte: dayjs(new Date()).endOf("day").toDate(),
+              },
+              revealAtDate: { gte: new Date() },
+            },
+          },
+        ],
         question: {
           question: { contains: "", mode: "insensitive" },
           questionOptions: {
@@ -118,7 +132,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const questions = dailyDeckQuestions.map((dq) => dq.question);
+    const questions = deckQuestions.map((dq) => dq.question);
 
     if (questions.length === 0)
       new Response(`No questions found to load`, {
