@@ -2,7 +2,7 @@
 
 import { extractId } from "../utils/telegramId";
 
-export const getUserId = async (telegramId: string) => {
+export const getUserData = async (telegramId: string) => {
   const options = {
     method: "GET",
     headers: {
@@ -55,7 +55,8 @@ export const verifyPayload = async (initData: any) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/validate`, options);
     const telegramRawData = await response.json();
     const telegramId = extractId(telegramRawData.message);
-    return telegramId;
+    const user = await getUserData(telegramId);
+    return user;
   } catch (err) {
     console.error(err);
     return null;

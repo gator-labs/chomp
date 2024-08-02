@@ -4,7 +4,6 @@
 import { useToast } from "@/app/providers/ToastProvider";
 import {
   getRevealQuestionsData,
-  getUserId,
   verifyPayload,
 } from "@/app/queries/bot";
 import { genBonkBurnTx } from "@/app/utils/solana";
@@ -148,27 +147,14 @@ export default function BotMiniApp() {
     }
   };
 
-  const handleUserId = async (telegramId: string) => {
-    if (telegramId) {
-      const response = await getUserId(telegramId);
+  const dataVerification = async (initData: any) => {
+    try {
+      const response = await verifyPayload(initData);
       if (response) {
         setUserId(response?.id);
         setWalletAddress(response.wallets[0].address);
       } else {
         errorToast("No user found for this telegram ID");
-      }
-    } else {
-      errorToast("Invalid telegram ID");
-    }
-  };
-
-  const dataVerification = async (initData: any) => {
-    try {
-      const telegramId = await verifyPayload(initData);
-      if (telegramId) {
-        await handleUserId(telegramId);
-      } else {
-        errorToast("Failed to verify telegram data");
       }
     } catch (err) {
       console.error(err);
