@@ -165,69 +165,69 @@ export async function claimQuestions(questionIds: number[]) {
           },
         });
 
-        const questionIdsClaimed = chompResults.map((cr) => cr.questionId ?? 0);
+        // const questionIdsClaimed = chompResults.map((cr) => cr.questionId ?? 0);
         // We're querying dirty data in transaction so we need claimed questions
-        const decks = await tx.deck.findMany({
-          where: {
-            deckQuestions: {
-              some: {
-                questionId: {
-                  in: questionIdsClaimed,
-                },
-              },
-              every: {
-                question: {
-                  chompResults: {
-                    every: {
-                      userId: payload.sub,
-                      result: ResultType.Claimed,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          include: {
-            chompResults: {
-              where: {
-                userId: payload.sub,
-              },
-            },
-          },
-        });
+        // const decks = await tx.deck.findMany({
+        //   where: {
+        //     deckQuestions: {
+        //       some: {
+        //         questionId: {
+        //           in: questionIdsClaimed,
+        //         },
+        //       },
+        //       every: {
+        //         question: {
+        //           chompResults: {
+        //             every: {
+        //               userId: payload.sub,
+        //               result: ResultType.Claimed,
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //   },
+        //   include: {
+        //     chompResults: {
+        //       where: {
+        //         userId: payload.sub,
+        //       },
+        //     },
+        //   },
+        // });
 
-        const deckRevealsToUpdate = decks
-          .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
-          .map((deck) => deck.id);
+        // const deckRevealsToUpdate = decks
+        //   .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
+        //   .map((deck) => deck.id);
 
-        if (deckRevealsToUpdate.length > 0) {
-          await tx.chompResult.updateMany({
-            where: {
-              deckId: { in: deckRevealsToUpdate },
-            },
-            data: {
-              result: ResultType.Claimed,
-              sendTransactionSignature: sendTx,
-            },
-          });
-        }
+        // if (deckRevealsToUpdate.length > 0) {
+        //   await tx.chompResult.updateMany({
+        //     where: {
+        //       deckId: { in: deckRevealsToUpdate },
+        //     },
+        //     data: {
+        //       result: ResultType.Claimed,
+        //       sendTransactionSignature: sendTx,
+        //     },
+        //   });
+        // }
 
-        const deckRevealsToCreate = decks
-          .filter(
-            (deck) => !deck.chompResults || deck.chompResults.length === 0,
-          )
-          .map((deck) => deck.id);
+        // const deckRevealsToCreate = decks
+        //   .filter(
+        //     (deck) => !deck.chompResults || deck.chompResults.length === 0,
+        //   )
+        //   .map((deck) => deck.id);
 
-        if (deckRevealsToCreate.length > 0) {
-          await tx.chompResult.createMany({
-            data: deckRevealsToCreate.map((deckId) => ({
-              deckId,
-              userId: payload.sub,
-              result: ResultType.Claimed,
-              sendTransactionSignature: sendTx,
-            })),
-          });
-        }
+        // if (deckRevealsToCreate.length > 0) {
+        //   await tx.chompResult.createMany({
+        //     data: deckRevealsToCreate.map((deckId) => ({
+        //       deckId,
+        //       userId: payload.sub,
+        //       result: ResultType.Claimed,
+        //       sendTransactionSignature: sendTx,
+        //     })),
+        //   });
+        // }
       },
       {
         isolationLevel: "Serializable",
