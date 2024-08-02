@@ -24,6 +24,7 @@ export type SaveQuestionRequest = {
   percentageGiven?: number;
   percentageGivenForAnswerId?: number;
   timeToAnswerInMiliseconds?: number;
+  hasViewedButNotSubmitted?: boolean;
 };
 
 export async function addTutorialPoints(
@@ -87,9 +88,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     return;
   }
 
-  const questionIds = request
-    .filter((dr) => dr.percentageGiven !== undefined && !!dr.questionOptionId)
-    .map((dr) => dr.questionId);
+  const questionIds = request.map((dr) => dr.questionId);
 
   const questionOptions = await prisma.questionOption.findMany({
     where: { questionId: { in: questionIds } },
@@ -104,7 +103,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
 
     const percentageForQuestionOption =
       answerForQuestion?.percentageGivenForAnswerId === qo.id
-        ? answerForQuestion.percentageGiven
+        ? answerForQuestion?.percentageGiven
         : undefined;
 
     const percentage =
@@ -116,6 +115,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     return {
       selected: isOptionSelected,
       percentage,
+      hasViewedButNotSubmitted: answerForQuestion?.hasViewedButNotSubmitted,
       questionOptionId: qo.id,
       timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
         ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)

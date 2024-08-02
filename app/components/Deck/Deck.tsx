@@ -121,7 +121,19 @@ export function Deck({
 
   const handleNoAnswer = useCallback(() => {
     setIsTimeOutPopUpVisible(false);
-    setDeckResponse((prev) => [...prev, { questionId: question.id }]);
+    setDeckResponse((prevRes) => {
+      const answeredQuestion = prevRes.find(
+        (item) => item.questionId === question.id,
+      );
+      const rest = prevRes.filter((item) => item.questionId !== question.id);
+
+      return [
+        ...rest,
+        answeredQuestion
+          ? { ...answeredQuestion, hasViewedButNotSubmitted: true }
+          : { questionId: question.id, hasViewedButNotSubmitted: true },
+      ];
+    });
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
 
