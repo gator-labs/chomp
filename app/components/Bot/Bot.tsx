@@ -153,6 +153,7 @@ export default function BotMiniApp() {
         errorToast("Invalid OTP");
       } else {
         await verifyOneTimePassword(otp);
+        setIsVerificationSucceed(true);
       }
     } catch (error) {
       errorToast("Error occurred while verifying otp");
@@ -182,9 +183,9 @@ export default function BotMiniApp() {
       primaryWallet?.address!,
       email,
     );
-    console.log("🚀 ~ storeDynamicUser ~ profile:", profile);
     if (profile) {
       setUser(profile);
+      setIsVerificationSucceed(false);
     } else {
       errorToast("Failed to store user");
     }
@@ -223,7 +224,10 @@ export default function BotMiniApp() {
   }, []);
 
   useEffect(() => {
-    if (selectedRevealQuestions.length === questions.length) {
+    if (
+      selectedRevealQuestions.length === questions.length &&
+      questions.length !== 0
+    ) {
       setSelectAll(true);
     } else {
       setSelectAll(false);
@@ -232,10 +236,18 @@ export default function BotMiniApp() {
 
   useEffect(() => {
     setIsLoading(false);
-    if (isLoggedIn && !user?.emails[0]?.address && !user?.wallets[0]?.address) {
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (
+      isVerificationSucceed &&
+      isLoggedIn &&
+      !user?.emails[0]?.address &&
+      !user?.wallets[0]?.address
+    ) {
       storeDynamicUser();
     }
-  }, [isLoggedIn]);
+  }, [isVerificationSucceed, isLoggedIn]);
 
   if (isLoading) {
     return (
