@@ -1,20 +1,23 @@
+import { useToast } from "@/app/providers/ToastProvider";
+import { copyTextToClipboard } from "@/app/utils/clipboard";
+import { formatAddress } from "@/app/utils/wallet";
 import Image from "next/image";
 import Tabs from "../Tabs/Tabs";
-import { formatAddress } from "@/app/utils/wallet";
 
 type BotRevealClaimProps = {
   children: React.ReactNode;
   activeTab: number;
   setActiveTab: (tab: number) => void;
-  wallet: string
+  wallet: string;
 };
 
 export default function BotRevealClaim({
   children,
   activeTab,
   setActiveTab,
-  wallet
+  wallet,
 }: BotRevealClaimProps) {
+  const { successToast } = useToast();
   return (
     <div className="space-y-6 flex flex-col p-5 items-start justify-center">
       <span className="flex w-full items-center justify-between">
@@ -24,7 +27,15 @@ export default function BotRevealClaim({
           height={50}
           alt="chomp-head"
         />
-        <p className="w-fit px-3 py-1 bg-neutral-700 border border-neutral-500 rounded-2xl">{formatAddress(wallet)}</p>
+        <button
+          className="w-fit px-3 py-1 text-sm bg-neutral-700 border border-neutral-500 rounded-2xl"
+          onClick={() => {
+            copyTextToClipboard(wallet);
+            successToast("Address copied successfully!");
+          }}
+        >
+          {formatAddress(wallet)}
+        </button>
       </span>
       <p className="text-2xl font-bold">Reveal and Claim</p>
       <p>
