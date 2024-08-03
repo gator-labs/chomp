@@ -78,7 +78,26 @@ export const deckSchema = z.object({
         }
         return true;
       },
-      { message: "Only one is left option is required in" },
+      { message: "Only one is left option is required in binary questions" },
+    )
+    .refine(
+      (q) => {
+        if (q.type === QuestionType.MultiChoice) {
+          const isCorrectCount = q.questionOptions.filter(
+            (option) => option.isCorrect === true,
+          ).length;
+
+          if (isCorrectCount === 0) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+        return true;
+      },
+      {
+        message: "One option must be correct in multi choice questions",
+      },
     )
     .array(),
 });
