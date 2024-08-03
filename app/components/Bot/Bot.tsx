@@ -153,7 +153,9 @@ export default function BotMiniApp() {
         errorToast("Invalid OTP");
       } else {
         await verifyOneTimePassword(otp);
-        setIsVerificationSucceed(true);
+        if (!user?.emails[0]?.address && !user?.wallets[0]?.address) {
+          setIsVerificationSucceed(true);
+        }
       }
     } catch (error) {
       errorToast("Error occurred while verifying otp");
