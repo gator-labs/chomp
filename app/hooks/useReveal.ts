@@ -3,11 +3,13 @@ import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
+import { useRouter } from "next-nprogress-bar";
 import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
   getUsersPendingChompResult,
+  revealQuestions,
 } from "../actions/chompResult";
 import {
   getUnusedChompyAndFriendsNft,
@@ -17,6 +19,8 @@ import {
 import { useToast } from "../providers/ToastProvider";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import { useCrossTabState } from "./useCrossTabState";
+import useSignAndSendTx from "./useSignAndSendTx";
 
 type UseRevealProps = {
   wallet: Wallet | null;
@@ -64,8 +68,14 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
 };
 
 export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
+  const router = useRouter();
   const { promiseToast, errorToast } = useToast();
+  const { execute, signature, setSignature } = useSignAndSendTx();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
+  const [lastRevealQuestionIds, setLastRevealQuestionIds] = useCrossTabState(
+    "last-reveal-question-id",
+    [] as number[],
+  );
   const [reveal, setReveal] = useState<RevealState>();
   const [revealNft, setRevealNft] = useState<{
     id: UmiPublicKey;
@@ -160,6 +170,33 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     };
   }, [reveal, address, reveal?.questionIds]);
 
+  useEffect(() => {
+    const revealInMobileBrowser = async (signature: string) => {
+      setBurnState("burning");
+
+      await createQuestionChompResults(
+        lastRevealQuestionIds.map((qid) => ({
+          burnTx: signature!,
+          questionId: qid,
+        })),
+      );
+
+      await createGetTransactionTask(signature);
+      await revealQuestions(lastRevealQuestionIds, signature);
+      if (lastRevealQuestionIds.length === 1) {
+        router.push("/application/answer/reveal/" + lastRevealQuestionIds[0]);
+        router.refresh();
+      }
+      setBurnState(INITIAL_BURN_STATE);
+    };
+
+    if (!!signature) revealInMobileBrowser(signature);
+
+    return () => {
+      setSignature(undefined);
+    };
+  }, [signature]);
+
   const onSetReveal = useCallback(
     ({ amount, questionId, questionIds, reveal }: RevealCallbackProps) => {
       setBurnState(INITIAL_BURN_STATE);
@@ -209,16 +246,15 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         setBurnState("burning");
 
         try {
-          const { signature: sn } = await promiseToast(
-            signer.signAndSendTransaction(tx),
-            {
-              loading: "Waiting for signature...",
-              success: "Bonk burn transaction signed!",
-              error: "You denied message signature.",
-            },
-          );
+          const res = await promiseToast(execute(tx), {
+            loading: "Waiting for signature...",
+            success: "Bonk burn transaction signed!",
+            error: "You denied message signature.",
+          });
 
-          signature = sn;
+          setLastRevealQuestionIds(reveal!.questionIds);
+
+          signature = res!.signature;
         } catch (error) {
           resetReveal();
           return;
