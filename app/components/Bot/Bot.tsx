@@ -51,6 +51,7 @@ export default function BotMiniApp() {
   const [userId, setUserId] = useState<string>();
   const [user, setUser] = useState<IChompUser>();
   const [questions, setQuestions] = useState([]);
+  const [address, setAddress] = useState("");
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
   const [isVerificationSucceed, setIsVerificationSucceed] =
@@ -238,6 +239,10 @@ export default function BotMiniApp() {
 
   useEffect(() => {
     setIsLoading(false);
+
+    if (primaryWallet) {
+      setAddress(primaryWallet.address);
+    }
   }, [isLoggedIn]);
 
   useEffect(() => {
@@ -280,7 +285,7 @@ export default function BotMiniApp() {
         <BotRevealClaim
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          wallet={primaryWallet?.address!}
+          wallet={address}
         >
           {activeTab === 0 ? (
             <RevealQuestionsFeed
