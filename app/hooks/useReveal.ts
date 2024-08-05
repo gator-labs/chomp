@@ -18,6 +18,7 @@ import {
 import { useToast } from "../providers/ToastProvider";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import { useCrossTabState } from "./useCrossTabState";
 import useSignAndSendTransaction from "./useSignAndSendTransaction";
 
 type UseRevealProps = {
@@ -69,6 +70,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const { execute, signature, setSignature } = useSignAndSendTransaction();
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
+  const [lastRevealQuestionIds, setLastRevealQuestionIds] = useCrossTabState(
+    "last-reveal-question-id",
+    [] as number[],
+  );
   const [reveal, setReveal] = useState<RevealState>();
   const [revealNft, setRevealNft] = useState<{
     id: UmiPublicKey;
@@ -145,13 +150,17 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       setBurnState("burning");
 
       alert(signature);
+      alert(lastRevealQuestionIds[0]);
 
-      await createQuestionChompResults([{ burnTx: signature, questionId: 15 }]);
+      await createQuestionChompResults([
+        { burnTx: signature, questionId: lastRevealQuestionIds[0] },
+      ]);
 
       await createGetTransactionTask(signature);
-      await revealQuestion(15, signature);
-      router.push("/application/answer/reveal/" + 15);
+      await revealQuestion(lastRevealQuestionIds[0], signature);
+      router.push("/application/answer/reveal/" + lastRevealQuestionIds[0]);
       router.refresh();
+      setBurnState(INITIAL_BURN_STATE);
     };
 
     if (!!signature) revealInMobileBrowser(signature);
@@ -216,6 +225,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             success: "Bonk burn transaction signed!",
             error: "You denied message signature.",
           });
+
+          setLastRevealQuestionIds(reveal!.questionIds);
 
           alert(res?.signature + " after promise");
 
