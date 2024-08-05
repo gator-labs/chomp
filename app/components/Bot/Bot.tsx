@@ -1,16 +1,20 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
+import { IChompUser, IChompUserResponse } from "@/app/interfaces/user";
 import { useToast } from "@/app/providers/ToastProvider";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import {
+  getProfileByEmail,
   getRevealQuestionsData,
+  handleCreateUser,
   verifyPayload,
+  processBurnAndClaim
 } from "@/app/queries/bot";
 import { genBonkBurnTx, getBonkBalance } from "@/app/utils/solana";
 import {
   useConnectWithOtp,
+  useDynamicContext,
   useIsLoggedIn,
-  useUserWallets,
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -46,7 +50,7 @@ export default function BotMiniApp() {
   const [otp, setOtp] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
-  const [walletAddress, setWalletAddress] = useState<string>("");
+  const [user, setUser] = useState<IChompUser>();
   const [questions, setQuestions] = useState([]);
   const [processedQuestions, setProcessedQuestions] = useState([]);
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
@@ -62,12 +66,11 @@ export default function BotMiniApp() {
   >([]);
   const [bonkBalance, setBonkBalance] = useState(0);
 
+  const { user: dynamicUser, primaryWallet } = useDynamicContext();
   const isLoggedIn = useIsLoggedIn();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
-  const userWallets = useUserWallets();
   const { errorToast } = useToast();
   const router = useRouter();
-  const primaryWallet = userWallets.length > 0 ? userWallets[0] : null;
 
   const handleSelectAll = () => {
     if (selectAll) {
@@ -90,31 +93,17 @@ export default function BotMiniApp() {
     }
   };
 
-  const processBurnAndClaim = async (signature: string) => {
-    setIsBurnInProgress(true); // Set loading state before making the API call
-
+  const handleBurnAndClaim = async (signature: string) => {
+    setIsBurnInProgress(true);
     try {
-      const response = await fetch(`/api/question/reveal/?userId=${userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": process.env.NEXT_PUBLIC_BOT_API_KEY!,
-        },
-        body: JSON.stringify({
-          questionIds: selectedRevealQuestions,
-          burnTx: signature,
-        }),
-      });
-
-      if (!response.ok) {
-        // Handle HTTP errors
-        const errorText = await response.text();
-        throw new Error(errorText);
+      if (userId) {
+        const processedData = await processBurnAndClaim(userId, signature, selectedRevealQuestions);
+        if (processedData) {
+          setProcessedQuestions(processedData);
+        } else {
+          errorToast("Failed to get reveal questions");
+        }
       }
-
-      const processedData = await response.json();
-
-      setProcessedQuestions(processedData);
       setBurnSuccessfull(true);
     } catch (error: any) {
       errorToast(error.message);
@@ -149,7 +138,7 @@ export default function BotMiniApp() {
 
       const burnTx = await signer.signAndSendTransaction(tx);
 
-      await processBurnAndClaim(burnTx?.signature);
+      await handleBurnAndClaim(burnTx?.signature);
     } catch (err: any) {
       const errorMessage = "Failed to Burn";
       errorToast(errorMessage);
@@ -163,12 +152,22 @@ export default function BotMiniApp() {
     try {
       const emailRegex =
         /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
-      const email = event.currentTarget.email.value;
       if (!emailRegex.test(email)) {
         errorToast("Invalid email");
       } else {
-        await connectWithEmail(email);
-        setIsVerificationIsInProgress(true);
+        const response: IChompUserResponse | null =
+          await getProfileByEmail(email);
+        if (
+          response?.profile &&
+          !response.profile.telegramId &&
+          response.profile.emails[0]?.address &&
+          response.profile.wallets[0]?.address
+        ) {
+          errorToast("Please contact support");
+        } else {
+          await connectWithEmail(email);
+          setIsVerificationIsInProgress(true);
+        }
       }
     } catch (error) {
       const errorMessage = (error as { message: string }).message;
@@ -187,6 +186,9 @@ export default function BotMiniApp() {
         errorToast("Invalid OTP");
       } else {
         await verifyOneTimePassword(otp);
+        if (!user?.emails[0]?.address && !user?.wallets[0]?.address) {
+          setIsVerificationSucceed(true);
+        }
       }
     } catch (error) {
       errorToast("Error occurred while verifying otp");
@@ -198,13 +200,29 @@ export default function BotMiniApp() {
       const response = await verifyPayload(initData);
       if (response) {
         setUserId(response?.id);
-        setWalletAddress(response.wallets[0].address);
+        setUser(response);
       } else {
         errorToast("No user found for this telegram ID");
       }
     } catch (err) {
       console.error(err);
       errorToast("Not an authorized request to access");
+    }
+  };
+
+  const storeDynamicUser = async () => {
+    const profile = await handleCreateUser(
+      userId!,
+      dynamicUser?.userId!,
+      user?.telegramId!,
+      primaryWallet?.address!,
+      email,
+    );
+    console.log("🚀 ~ storeDynamicUser ~ profile:", profile);
+    if (profile) {
+      setUser(profile);
+    } else {
+      errorToast("Failed to store user");
     }
   };
 
@@ -220,7 +238,6 @@ export default function BotMiniApp() {
   const fetchBonkBalance = async () => {
     const bonkBalance = await getBonkBalance(primaryWallet!.address);
     setBonkBalance(bonkBalance);
-    console.log(bonkBalance, primaryWallet!.address)
   };
 
 
@@ -255,7 +272,10 @@ export default function BotMiniApp() {
   }, []);
 
   useEffect(() => {
-    if (selectedRevealQuestions.length === questions.length) {
+    if (
+      selectedRevealQuestions.length === questions.length &&
+      questions.length !== 0
+    ) {
       setSelectAll(true);
     } else {
       setSelectAll(false);
@@ -264,7 +284,21 @@ export default function BotMiniApp() {
 
   useEffect(() => {
     setIsLoading(false);
+    if (isLoggedIn && !user?.emails[0]?.address && !user?.wallets[0]?.address) {
+      storeDynamicUser();
+    }
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (
+      isVerificationSucceed &&
+      isLoggedIn &&
+      !user?.emails[0]?.address &&
+      !user?.wallets[0]?.address
+    ) {
+      storeDynamicUser();
+    }
+  }, [isVerificationSucceed, isLoggedIn]);
 
   if (isLoading) {
     return (
@@ -276,7 +310,11 @@ export default function BotMiniApp() {
     <>
       {isBurnInProgress && <LoadingScreen />}
       {isLoggedIn && !burnSuccessfull ? (
-        <BotRevealClaim activeTab={activeTab} setActiveTab={setActiveTab} wallet={walletAddress}>
+        <BotRevealClaim
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          wallet={primaryWallet?.address!}
+        >
           {activeTab === 0 ? (
             <RevealQuestionsFeed
               selectAll={selectAll}

@@ -308,6 +308,7 @@ export async function POST(req: Request) {
     // revalidatePath("/application");
   } catch (e) {
     // release();
+    console.log(e);
     return Response.json("Error at reveal", { status: 400 });
   }
 }
