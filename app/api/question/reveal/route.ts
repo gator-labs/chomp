@@ -65,6 +65,16 @@ export async function POST(req: Request) {
   // });
 
   try {
+    const userWallet = await prisma.wallet.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!userWallet) {
+      return;
+    }
+
     await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
     const questionsFilteredForUser = await prisma.question.findMany({
       where: {
@@ -206,17 +216,6 @@ export async function POST(req: Request) {
         result: ResultType.Revealed,
       },
     });
-
-    const userWallet = await prisma.wallet.findFirst({
-      where: {
-        userId: userId,
-      },
-    });
-
-    if (!userWallet) {
-      return;
-    }
-
     const sendTx = await handleSendBonk(chompResults, userWallet.address);
 
     if (!sendTx) throw new Error("Send tx is missing");

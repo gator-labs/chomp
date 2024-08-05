@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { getRevealedAtString } from "../../../utils/dateUtils";
 import { Button } from "../../Button/Button";
 import { ClockIcon } from "../../Icons/ClockIcon";
@@ -11,10 +11,10 @@ type Question = {
     deckId: number | null;
     burnTransactionSignature: string;
     sendTransactionSignature: string | null;
-    rewardTokenAmount: number;
+    rewardTokenAmount: string;
     result: string;
     createdAt: Date;
-    updatedAt: Date;
+    updatedAt: string;
     transactionStatus: string;
 };
 
@@ -38,7 +38,6 @@ export default function ClaimedQuestions({
             window.Telegram.WebApp.close();
         }
     };
-
     const router = useRouter();
 
     const handleClick = (questionId: number) => {
