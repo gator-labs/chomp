@@ -284,10 +284,9 @@ export default function BotMiniApp() {
 
   useEffect(() => {
     setIsLoading(false);
-    if (isLoggedIn && !user?.emails[0]?.address && !user?.wallets[0]?.address) {
-      storeDynamicUser();
-    }
   }, [isLoggedIn]);
+
+
 
   useEffect(() => {
     if (
