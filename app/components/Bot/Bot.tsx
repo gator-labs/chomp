@@ -218,7 +218,6 @@ export default function BotMiniApp() {
       primaryWallet?.address!,
       email,
     );
-    console.log("🚀 ~ storeDynamicUser ~ profile:", profile);
     if (profile) {
       setUser(profile);
     } else {
@@ -245,13 +244,11 @@ export default function BotMiniApp() {
     if (userId) {
       getRevealQuestions(userId);
     }
-
     // Ensure primaryWallet is defined before calling fetchBonkBalance
     if (primaryWallet && primaryWallet.address) {
       fetchBonkBalance();
     }
-  }, [userId, primaryWallet]);
-
+  }, [userId]);
 
 
   useEffect(() => {
@@ -285,8 +282,6 @@ export default function BotMiniApp() {
   useEffect(() => {
     setIsLoading(false);
   }, [isLoggedIn]);
-
-
 
   useEffect(() => {
     if (
