@@ -21,12 +21,16 @@ export default function TotalRewardsClaimAll({
 
   const onClaimAll = async () => {
     setIsClaiming(true);
-    await promiseToast(claimAllAvailable(), {
-      loading: "Waiting for transaction...",
-      success: "Funds are transferred!",
-      error: "Issue transferring funds.",
-      isChompLoader: true,
-    });
+    await promiseToast(
+      claimAllAvailable(),
+      {
+        loading: "Claim in progress. Please wait...",
+        success: "Funds are transferred!",
+        error: "Issue transferring funds.",
+        isChompLoader: true,
+      },
+      { duration: Infinity },
+    );
     queryClient.resetQueries({ queryKey: ["questions-history"] });
 
     fire();
