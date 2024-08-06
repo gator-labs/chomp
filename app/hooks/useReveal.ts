@@ -15,7 +15,6 @@ import {
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
 import { useToast } from "../providers/ToastProvider";
-import { onlyUnique } from "../utils/array";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {
@@ -25,7 +24,12 @@ type UseRevealProps = {
 };
 
 interface RevealCallbackBaseProps {
-  reveal: (burnTx?: string, nftAddress?: string) => Promise<void>;
+  reveal: ({
+    burnTx,
+    nftAddress,
+    nftType,
+    revealQuestionIds,
+  }: RevealProps) => Promise<void>;
   amount: number;
 }
 
@@ -39,17 +43,21 @@ interface RevealCallbackSingleQuestion extends RevealCallbackBaseProps {
   questionIds?: never;
 }
 
+export interface RevealProps {
+  burnTx?: string;
+  nftAddress?: string;
+  nftType?: NftType;
+  revealQuestionIds?: number[];
+  pendingChompResults?: { id: number; burnTx: string }[];
+}
+
 export type RevealCallbackProps =
   | RevealCallbackSingleQuestion
   | RevealCallbackMultipleQuestions;
 
 type RevealState = {
   amount: number;
-  reveal: (
-    burnTx?: string,
-    nftAddress?: string,
-    nftType?: NftType,
-  ) => Promise<void>;
+  reveal: ({ burnTx, nftAddress, nftType }: RevealProps) => Promise<void>;
   questionIds: number[];
   genesisNft?: string;
 };
@@ -95,18 +103,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           reveal?.questionIds ?? [],
         );
         setPendingChompResults(chompResults);
-        if (chompResults.length > 0) {
-          const uniqueValues = chompResults
-            .map((cr) => cr.burnTransactionSignature)
-            .filter(onlyUnique);
-
-          if (uniqueValues.length > 1) {
-            resetReveal();
-            errorToast("Only one pending transaction is allowed.");
-          }
-
-          return;
-        }
 
         if (reveal?.questionIds?.length !== 1) return;
 
@@ -180,24 +176,27 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [setReveal, setIsRevealModalOpen, setBurnState]);
 
   const onReveal = useCallback(async () => {
-    await reveal?.reveal();
+    await reveal?.reveal({});
     setIsRevealModalOpen(false);
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
   const burnAndReveal = async (ignoreNft?: boolean) => {
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
-      (chr) => chr.questionId ?? 0,
+      (chr) => chr.questionId!,
+    );
+    const revealQuestionIds = reveal!.questionIds.filter(
+      (id) => !pendingChompResultIds.includes(id),
     );
 
     try {
-      if (hasPendingTransactions) {
+      if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
         signature = pendingChompResults[0].burnTransactionSignature!;
         setBurnState("burning");
         await createGetTransactionTask(signature);
       }
 
-      if ((!isRevealWithNftMode || ignoreNft) && !hasPendingTransactions) {
+      if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
         const blockhash = await CONNECTION.getLatestBlockhash();
         const signer = await wallet!.connector.getSigner<ISolana>();
 
@@ -225,7 +224,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         }
 
         const chompResults = await createQuestionChompResults(
-          reveal!.questionIds.map((qid) => ({
+          revealQuestionIds.map((qid) => ({
             burnTx: signature!,
             questionId: qid,
           })),
@@ -244,9 +243,20 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       }
 
       if (!isRevealWithNftMode) {
-        await reveal!.reveal(signature);
+        await reveal!.reveal({
+          burnTx: signature,
+          revealQuestionIds,
+          pendingChompResults: pendingChompResults.map((result) => ({
+            burnTx: result.burnTransactionSignature!,
+            id: result.questionId!,
+          })),
+        });
       } else {
-        await reveal!.reveal(signature, revealNft!.id, revealNft!.type);
+        await reveal!.reveal({
+          burnTx: signature,
+          nftAddress: revealNft!.id,
+          nftType: revealNft!.type,
+        });
       }
 
       if (revealNft && !isMultiple) {
@@ -263,13 +273,18 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     }
   };
 
+  const questionIds = (reveal?.questionIds || []).filter(
+    (questionId) =>
+      !pendingChompResults.map((r) => r.questionId).includes(questionId),
+  );
+
   return {
     burnState,
     isRevealModalOpen,
     insufficientFunds,
     isMultiple,
     revealPrice: reveal?.amount ?? 0,
-    hasPendingTransactions,
+    pendingTransactions: pendingChompResults.length,
     isRevealWithNftMode,
     nftType: revealNft?.type,
     burnAndReveal,
@@ -277,7 +292,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     onSetReveal,
     resetReveal,
     cancelReveal: resetReveal,
-    questionIds: reveal?.questionIds || [],
+    questionIds,
     isLoading,
   };
 }
