@@ -74,7 +74,6 @@ export async function POST(req: Request) {
     if (!userWallet) {
       return;
     }
-
     await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
     const questionsFilteredForUser = await prisma.question.findMany({
       where: {
@@ -217,8 +216,6 @@ export async function POST(req: Request) {
       },
     });
     const sendTx = await handleSendBonk(chompResults, userWallet.address);
-
-    if (!sendTx) throw new Error("Send tx is missing");
 
     await prisma.$transaction(
       async (tx) => {
