@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-
 import { IChompUser, IChompUserResponse } from "@/app/interfaces/user";
 import { useToast } from "@/app/providers/ToastProvider";
 import {
@@ -8,33 +7,34 @@ import {
   getRevealQuestionsData,
   handleCreateUser,
   verifyPayload,
+  processBurnAndClaim
 } from "@/app/queries/bot";
-import { genBonkBurnTx } from "@/app/utils/solana";
+import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
+import { genBonkBurnTx, getBonkBalance } from "@/app/utils/solana";
 import {
   useConnectWithOtp,
   useDynamicContext,
   useIsLoggedIn,
 } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from "@dynamic-labs/solana";
-import { Connection, PublicKey } from "@solana/web3.js";
+import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
+import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
+import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
+import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
 import Image from "next/image";
+import { ISolana } from "@dynamic-labs/solana";
+import { Connection } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
-import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
 import { Button } from "../Button/Button";
-import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
-import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
-
 declare global {
   interface Window {
     Telegram: any;
   }
 }
-
 export interface Question {
   id: number;
   question: string;
@@ -51,16 +51,21 @@ export default function BotMiniApp() {
   const [userId, setUserId] = useState<string>();
   const [user, setUser] = useState<IChompUser>();
   const [questions, setQuestions] = useState([]);
+  const [processedQuestions, setProcessedQuestions] = useState([]);
   const [address, setAddress] = useState("");
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
   const [isVerificationSucceed, setIsVerificationSucceed] =
     useState<boolean>(false);
+  const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
+  const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
   >([]);
+  const [bonkBalance, setBonkBalance] = useState(0);
+
   const { user: dynamicUser, primaryWallet } = useDynamicContext();
   const isLoggedIn = useIsLoggedIn();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
@@ -89,27 +94,50 @@ export default function BotMiniApp() {
   };
 
   const onBurn = async () => {
+
     try {
       const {
         value: { blockhash },
       } = await CONNECTION.getLatestBlockhashAndContext();
-
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
 
-      const balance = await CONNECTION.getBalance(
-        new PublicKey(primaryWallet!.address),
+      const totalRevealTokenAmount = selectedRevealQuestions.reduce(
+        (acc, id) => {
+          const question = questions.find((q: Question) => q.id === id);
+          if (question) {
+            return acc + question?.["revealTokenAmount"];
+          }
+          return acc;
+        },
+        0
       );
 
-      if (balance < 1000) {
-        throw new Error("Insufficient balance for the transaction");
+      const tx = await genBonkBurnTx(
+        primaryWallet!.address,
+        blockhash,
+        totalRevealTokenAmount
+      );
+
+      const burnTx = await signer.signAndSendTransaction(tx);
+
+      setIsBurnInProgress(true);
+      // Process Burn and Claim
+      const processedData = await processBurnAndClaim(
+        userId!, burnTx?.signature, selectedRevealQuestions,)
+
+      if (processedData) {
+        setProcessedQuestions(processedData);
+        setBurnSuccessfull(true);
+      } else {
+        throw new Error("Failed to Process");
       }
 
-      const tx = await genBonkBurnTx(primaryWallet!.address, blockhash, 10);
-
-      await signer.signAndSendTransaction(tx);
-    } catch (err: any) {
-      const errorMessage = err?.message ? err.message : "Failed to Burn";
+    } catch (error: any) {
+      const errorMessage = error.message || "Failed to Burn";
       errorToast(errorMessage);
+      setBurnSuccessfull(false);
+    } finally {
+      setIsBurnInProgress(false);
     }
   };
 
@@ -188,7 +216,6 @@ export default function BotMiniApp() {
     );
     if (profile) {
       setUser(profile);
-      setIsVerificationSucceed(false);
     } else {
       errorToast("Failed to store user");
     }
@@ -203,9 +230,18 @@ export default function BotMiniApp() {
     }
   };
 
+  const fetchBonkBalance = async () => {
+    const bonkBalance = await getBonkBalance(primaryWallet!.address);
+    setBonkBalance(bonkBalance);
+  };
+
   useEffect(() => {
     if (userId) {
       getRevealQuestions(userId);
+    }
+    // Ensure primaryWallet is defined before calling fetchBonkBalance
+    if (primaryWallet && primaryWallet.address) {
+      fetchBonkBalance();
     }
   }, [userId]);
 
@@ -256,32 +292,10 @@ export default function BotMiniApp() {
     }
   }, [isVerificationSucceed, isLoggedIn]);
 
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <svg
-          aria-hidden="true"
-          className="inline w-14 h-14 text-neutral-500 animate-spin fill-neutral-50"
-          viewBox="0 0 100 101"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-            fill="currentColor"
-          />
-          <path
-            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-            fill="currentFill"
-          />
-        </svg>
-      </div>
-    );
-  }
-
   return (
     <>
-      {isLoggedIn && !isVerificationSucceed ? (
+      {(isBurnInProgress && <LoadingScreen />) || (isLoading && <LoadingScreen />)}
+      {isLoggedIn && !burnSuccessfull ? (
         <BotRevealClaim
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -294,7 +308,10 @@ export default function BotMiniApp() {
               questions={questions}
               selectedRevealQuestions={selectedRevealQuestions}
               handleSelect={handleSelect}
+              onBurn={onBurn}
+              bonkBalance={bonkBalance}
             />
+
           ) : (
             <RevealHistoryInfo
               onClick={() => {
@@ -303,34 +320,10 @@ export default function BotMiniApp() {
             />
           )}
         </BotRevealClaim>
-      ) : isLoggedIn && isVerificationSucceed ? (
-        <div>
-          <Image
-            src="/images/chomp-asset.png"
-            width={400}
-            height={400}
-            alt="Chomp Cover"
-            className="mt-5"
-          />
-          <p className="text-2xl font-bold text-center">
-            Let&apos;s Keep Chomping!{" "}
-          </p>
-          <p className="text-left">
-            You&apos;re all set. Click below or close this button to continue
-            with your Chomp journey.
-          </p>
-          <Button
-            variant="purple"
-            size="normal"
-            className="gap-2 text-black font-medium mt-4"
-            onClick={() => {
-              setIsVerificationSucceed(false);
-            }}
-            isFullWidth
-          >
-            Continue Chomping
-          </Button>
-        </div>
+      ) : isLoggedIn && burnSuccessfull ? (
+        <ClaimedQuestions
+          questions={processedQuestions}
+        />
       ) : isVerificationIsInProgress ? (
         <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
           <Image
@@ -340,6 +333,7 @@ export default function BotMiniApp() {
             alt="Chomp Cover"
             className="mt-5"
           />
+
           <form
             key="verifyOtp"
             className="flex flex-col justify-center space-y-4 w-full"

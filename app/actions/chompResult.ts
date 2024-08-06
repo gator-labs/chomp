@@ -150,7 +150,6 @@ export async function revealQuestions(
       Object.values(rewardsPerQuestionId!),
     );
 
-    console.log(revealPoints);
     const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
 
     await prisma.$transaction(async (tx) => {
@@ -352,7 +351,7 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
   });
 }
 
-async function hasBonkBurnedCorrectly(
+export async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
   userId: string,
@@ -406,7 +405,7 @@ async function hasBonkBurnedCorrectly(
   return true;
 }
 
-async function getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
+export async function getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
   revealableQuestionIds: number[],
   userId: string,
 ) {
@@ -462,7 +461,7 @@ async function getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
   return decksToAddRevealFor;
 }
 
-async function handleFirstRevealToPopulateSubjectiveQuestion(
+export async function handleFirstRevealToPopulateSubjectiveQuestion(
   questionIds: number[],
 ) {
   const questions = await prisma.question.findMany({

@@ -43,6 +43,38 @@ export const getRevealQuestionsData = async (userId: string) => {
   }
 };
 
+export const processBurnAndClaim = async (
+  userId: string,
+  signature: string,
+  questionIds: number[],
+) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/question/reveal?userId=${userId}`;
+  const body = JSON.stringify({
+    questionIds: questionIds,
+    burnTx: signature,
+  });
+
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": process.env.BOT_API_KEY!,
+    },
+    body: body,
+  };
+
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    return null;
+  }
+};
+
 export const verifyPayload = async (initData: any) => {
   const options = {
     method: "POST",
