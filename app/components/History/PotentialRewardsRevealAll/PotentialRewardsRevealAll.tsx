@@ -22,7 +22,6 @@ export default function PotentialRewardsRevealAll({
     (_, optimisticValue: number) => optimisticValue,
   );
 
-  console.log({ revealQuestions, revealableQuestions });
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
