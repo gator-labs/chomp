@@ -1,5 +1,10 @@
 // Configuration options for Next.js
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
   reactStrictMode: false, // Enable React strict mode for improved error handling
   swcMinify: true, // Enable SWC minification for improved performance
   experimental: {

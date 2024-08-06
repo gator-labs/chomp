@@ -67,7 +67,7 @@ export function Deck({
   const [optionPercentage, setOptionPercentage] = useState(50);
   const min = 0;
   const max =
-    questions[currentQuestionIndex] &&
+    !!questions[currentQuestionIndex] &&
     questions[currentQuestionIndex].questionOptions.length > 0
       ? questions[currentQuestionIndex].questionOptions.length - 1
       : 0;
@@ -93,7 +93,13 @@ export function Deck({
     setRerenderAction(false);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
-    generateRandom();
+    const min = 0;
+    const max =
+      !!questions[currentQuestionIndex + 1] &&
+      questions[currentQuestionIndex + 1].questionOptions.length > 0
+        ? questions[currentQuestionIndex + 1].questionOptions.length - 1
+        : 0;
+    generateRandom({ min, max });
     reset();
     setTimeout(() => {
       setRerenderAction(true);
@@ -111,7 +117,7 @@ export function Deck({
     generateRandom,
     setCurrentOptionSelected,
     reset,
-    questionsRef.current,
+    questions,
   ]);
 
   const question = useMemo(
