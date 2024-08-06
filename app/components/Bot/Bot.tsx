@@ -2,7 +2,6 @@
 "use client";
 import { IChompUser, IChompUserResponse } from "@/app/interfaces/user";
 import { useToast } from "@/app/providers/ToastProvider";
-import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import {
   getProfileByEmail,
   getRevealQuestionsData,
@@ -10,25 +9,25 @@ import {
   verifyPayload,
   processBurnAndClaim
 } from "@/app/queries/bot";
+import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import { genBonkBurnTx, getBonkBalance } from "@/app/utils/solana";
 import {
   useConnectWithOtp,
   useDynamicContext,
   useIsLoggedIn,
 } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from "@dynamic-labs/solana";
-import { Connection, PublicKey } from "@solana/web3.js";
+import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
+import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
+import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
+import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
 import Image from "next/image";
+import { ISolana } from "@dynamic-labs/solana";
+import { Connection } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
-import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
 import { Button } from "../Button/Button";
-import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
-import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
-import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
-
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -53,6 +52,7 @@ export default function BotMiniApp() {
   const [user, setUser] = useState<IChompUser>();
   const [questions, setQuestions] = useState([]);
   const [processedQuestions, setProcessedQuestions] = useState([]);
+  const [address, setAddress] = useState("");
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
   const [isVerificationSucceed, setIsVerificationSucceed] =
@@ -93,55 +93,51 @@ export default function BotMiniApp() {
     }
   };
 
-  const handleBurnAndClaim = async (signature: string) => {
-    setIsBurnInProgress(true);
-    try {
-      if (userId) {
-        const processedData = await processBurnAndClaim(userId, signature, selectedRevealQuestions);
-        if (processedData) {
-          setProcessedQuestions(processedData);
-        } else {
-          errorToast("Failed to get reveal questions");
-        }
-      }
-      setBurnSuccessfull(true);
-    } catch (error: any) {
-      errorToast(error.message);
-      console.error("Error fetching questions:", error.message);
-      setBurnSuccessfull(false);
-    } finally {
-      setIsBurnInProgress(false); // Always unset loading state, regardless of success or failure
-    }
-  };
-
-
   const onBurn = async () => {
+
     try {
       const {
         value: { blockhash },
       } = await CONNECTION.getLatestBlockhashAndContext();
       const signer = await primaryWallet!.connector.getSigner<ISolana>();
 
-      const totalRevealTokenAmount = selectedRevealQuestions.reduce((acc, id) => {
-        const question = questions.find((q: Question) => q.id === id);
-        if (question) {
-          return acc + question?.["revealTokenAmount"];
-        }
-        return acc;
-      }, 0);
+      const totalRevealTokenAmount = selectedRevealQuestions.reduce(
+        (acc, id) => {
+          const question = questions.find((q: Question) => q.id === id);
+          if (question) {
+            return acc + question?.["revealTokenAmount"];
+          }
+          return acc;
+        },
+        0
+      );
 
       const tx = await genBonkBurnTx(
         primaryWallet!.address,
         blockhash,
-        totalRevealTokenAmount,
+        totalRevealTokenAmount
       );
 
       const burnTx = await signer.signAndSendTransaction(tx);
 
-      await handleBurnAndClaim(burnTx?.signature);
-    } catch (err: any) {
-      const errorMessage = "Failed to Burn";
+      setIsBurnInProgress(true);
+      // Process Burn and Claim
+      const processedData = await processBurnAndClaim(
+        userId!, burnTx?.signature, selectedRevealQuestions,)
+
+      if (processedData) {
+        setProcessedQuestions(processedData);
+        setBurnSuccessfull(true);
+      } else {
+        throw new Error("Failed to Process");
+      }
+
+    } catch (error: any) {
+      const errorMessage = error.message || "Failed to Burn";
       errorToast(errorMessage);
+      setBurnSuccessfull(false);
+    } finally {
+      setIsBurnInProgress(false);
     }
   };
 
@@ -239,7 +235,6 @@ export default function BotMiniApp() {
     setBonkBalance(bonkBalance);
   };
 
-
   useEffect(() => {
     if (userId) {
       getRevealQuestions(userId);
@@ -249,7 +244,6 @@ export default function BotMiniApp() {
       fetchBonkBalance();
     }
   }, [userId]);
-
 
   useEffect(() => {
     // Ensure Telegram Web App API is available
@@ -281,6 +275,10 @@ export default function BotMiniApp() {
 
   useEffect(() => {
     setIsLoading(false);
+
+    if (primaryWallet) {
+      setAddress(primaryWallet.address);
+    }
   }, [isLoggedIn]);
 
   useEffect(() => {
@@ -294,20 +292,14 @@ export default function BotMiniApp() {
     }
   }, [isVerificationSucceed, isLoggedIn]);
 
-  if (isLoading) {
-    return (
-      <LoadingScreen />
-    );
-  }
-
   return (
     <>
-      {isBurnInProgress && <LoadingScreen />}
+      {(isBurnInProgress && <LoadingScreen />) || (isLoading && <LoadingScreen />)}
       {isLoggedIn && !burnSuccessfull ? (
         <BotRevealClaim
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          wallet={primaryWallet?.address!}
+          wallet={address}
         >
           {activeTab === 0 ? (
             <RevealQuestionsFeed
@@ -319,6 +311,7 @@ export default function BotMiniApp() {
               onBurn={onBurn}
               bonkBalance={bonkBalance}
             />
+
           ) : (
             <RevealHistoryInfo
               onClick={() => {
@@ -328,7 +321,9 @@ export default function BotMiniApp() {
           )}
         </BotRevealClaim>
       ) : isLoggedIn && burnSuccessfull ? (
-        <ClaimedQuestions questions={processedQuestions} />
+        <ClaimedQuestions
+          questions={processedQuestions}
+        />
       ) : isVerificationIsInProgress ? (
         <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
           <Image
@@ -418,8 +413,7 @@ export default function BotMiniApp() {
             </div>
           </form>
         </div>
-      )
-      }
+      )}
     </>
   );
 }

@@ -43,55 +43,35 @@ export const getRevealQuestionsData = async (userId: string) => {
   }
 };
 
-// export const getQuestionsReadyToReveal = async (userId: string) => {
-//   try {
-//     const response = await fetch(`/api/question/reveal/?userId=${userId}`, {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "api-key": process.env.BOT_API_KEY!,
-//       },
-//     });
-
-//     if (!response.ok) {
-//       throw new Error(`HTTP error! Status: ${response.status}`);
-//     }
-
-//     const data = await response.json();
-//   } catch (error: any) {
-//     console.error("Error fetching questions:", error);
-//   }
-// };
-
 export const processBurnAndClaim = async (
   userId: string,
   signature: string,
   questionIds: number[],
 ) => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/question/reveal/?userId=${userId}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "api-key": process.env.BOT_API_KEY!,
-        },
-        body: JSON.stringify({
-          questionIds: questionIds,
-          burnTx: signature,
-        }),
-      },
-    );
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/question/reveal?userId=${userId}`;
+  const body = JSON.stringify({
+    questionIds: questionIds,
+    burnTx: signature,
+  });
 
+  const options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": process.env.BOT_API_KEY!,
+    },
+    body: body,
+  };
+
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      return null;
+    }
     const data = await response.json();
-    console.log(data);
     return data;
   } catch (error: any) {
-    console.error("Error fetching questions:", error);
-    return {
-      error: "An error occurred while burning. Please try again later.",
-    };
+    return null;
   }
 };
 
