@@ -46,7 +46,7 @@ export async function DashboardUserStats() {
         <TotalPointsEarnedInfo>
           <StatsChip
             title="Total Points Earned"
-            info={stats.totalPointsEarned}
+            info={Number(stats.totalPointsEarned).toLocaleString("en-US")}
             icon={<PercentageIcon />}
             className="basis-1/2"
           />

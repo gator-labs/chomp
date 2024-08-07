@@ -85,7 +85,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const insufficientFunds =
     !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions;
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
-  const isRevealWithNftMode = revealNft && !isMultiple;
+  const isRevealWithNftMode =
+    revealNft && !isMultiple && burnState !== "burning";
 
   useEffect(() => {
     async function effect(address: string, reveal: RevealState) {

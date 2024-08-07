@@ -238,6 +238,12 @@ export const calculateReward = async (
       (option) => option.calculatedIsCorrect,
     );
 
+    const questionOption = await prisma.questionOption.findFirst({
+      where: {
+        id: userAnswer.questionOptionId,
+      },
+    });
+
     if (question.type === QuestionType.BinaryQuestion) {
       const correctOption = question.questionOptions[correctOptionIndex];
 
@@ -260,7 +266,9 @@ export const calculateReward = async (
               : correctOptionIndex
           ],
         second_order_estimate: userAnswer.percentage!,
-        second_order_mean: getAverage(second_order_estimates),
+        second_order_mean:
+          questionOption?.calculatedAveragePercentage ??
+          getAverage(second_order_estimates),
         second_order_estimates,
       };
     }
@@ -292,7 +300,9 @@ export const calculateReward = async (
               : correctOptionIndex
           ],
         second_order_estimate: estimatedOption!.percentage!,
-        second_order_mean: getAverage(second_order_estimates),
+        second_order_mean:
+          questionOption?.calculatedAveragePercentage ??
+          getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
       };
     }

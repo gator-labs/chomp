@@ -27,16 +27,17 @@ const LeaderboardRanking = ({ label, loggedUserId, ranking }: Props) => {
       {!!ranking.length ? (
         <ul className="flex flex-col gap-2 overflow-y-auto">
           {ranking.map((rankItem) => {
+            const name = rankItem.user.username
+              ? `@${rankItem.user.username}`
+              : rankItem.user.wallets[0].address
+                ? formatAddress(rankItem.user.wallets[0].address)
+                : "mocked user";
             return (
               <RankingCard
                 key={rankItem.user.id}
                 value={rankItem.value}
                 rank={rankItem.rank}
-                name={
-                  rankItem.user.wallets[0]?.address
-                    ? formatAddress(rankItem.user.wallets[0].address)
-                    : "mocked user"
-                }
+                name={name}
                 loggedUserId={loggedUserId}
                 userId={rankItem.user.id}
                 imageSrc={rankItem.user!.profileSrc || AvatarPlaceholder.src}

@@ -102,7 +102,7 @@ export function QuestionCard({
               onClick={() => setIsViewImageOpen(true)}
               src={viewImageSrc}
               alt="preview-image"
-              className="rounded-lg cursor-pointer"
+              className="w-14 rounded-lg cursor-pointer"
               width={56}
               height={56}
             />
