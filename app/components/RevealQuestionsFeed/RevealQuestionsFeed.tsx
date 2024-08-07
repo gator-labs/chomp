@@ -24,6 +24,7 @@ type RevealQuestionsFeedProps = {
   handleSelect: (id: number) => void;
   onBurn: () => void;
   wallet: string;
+  isQuestionsLoading: boolean
 };
 export default function RevealQuestionsFeed({
   selectAll,
@@ -32,7 +33,8 @@ export default function RevealQuestionsFeed({
   selectedRevealQuestions,
   handleSelect,
   onBurn,
-  wallet
+  wallet,
+  isQuestionsLoading
 }: RevealQuestionsFeedProps) {
 
   const [bonkBalance, setBonkBalance] = useState(0);
@@ -72,7 +74,7 @@ export default function RevealQuestionsFeed({
         </label>
       </div>
       <div className="flex flex-col w-full h-[17rem] gap-2 overflow-auto">
-        {questions.length === 0 ? (
+        {isQuestionsLoading ? (
           // Show SkeletonCard components while loading
           <>
             <SkeletonCard />

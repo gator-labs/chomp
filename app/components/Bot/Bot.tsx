@@ -60,6 +60,7 @@ export default function BotMiniApp() {
   const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
   const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(true);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
@@ -223,7 +224,9 @@ export default function BotMiniApp() {
     const response = await getRevealQuestionsData(userId);
     if (response) {
       setQuestions(response);
+      setIsLoadingQuestions(false)
     } else {
+      setIsLoadingQuestions(false)
       errorToast("Failed to get reveal questions");
     }
   };
@@ -301,6 +304,7 @@ export default function BotMiniApp() {
               handleSelect={handleSelect}
               onBurn={onBurn}
               wallet={address}
+              isQuestionsLoading={isLoadingQuestions}
             />
           ) : (
             <RevealHistoryInfo
