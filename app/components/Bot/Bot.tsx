@@ -61,12 +61,11 @@ export default function BotMiniApp() {
   const [isEmailExist, setIsEmailExist] = useState<boolean>(false);
   const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(true);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
   >([]);
-  const [bonkBalance, setBonkBalance] = useState(0);
-
   const { user: dynamicUser, primaryWallet } = useDynamicContext();
   const isLoggedIn = useIsLoggedIn();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
@@ -232,23 +231,18 @@ export default function BotMiniApp() {
     const response = await getRevealQuestionsData(userId);
     if (response) {
       setQuestions(response);
+      setIsLoadingQuestions(false)
     } else {
+      setIsLoadingQuestions(false)
       errorToast("Failed to get reveal questions");
     }
   };
 
-  const fetchBonkBalance = async () => {
-    const bonkBalance = await getBonkBalance(primaryWallet!.address);
-    setBonkBalance(bonkBalance);
-  };
+
 
   useEffect(() => {
     if (userId) {
       getRevealQuestions(userId);
-    }
-    // Ensure primaryWallet is defined before calling fetchBonkBalance
-    if (primaryWallet && primaryWallet.address) {
-      fetchBonkBalance();
     }
   }, [userId]);
 
@@ -317,7 +311,8 @@ export default function BotMiniApp() {
               selectedRevealQuestions={selectedRevealQuestions}
               handleSelect={handleSelect}
               onBurn={onBurn}
-              bonkBalance={bonkBalance}
+              wallet={address}
+              isQuestionsLoading={isLoadingQuestions}
             />
           ) : (
             <RevealHistoryInfo

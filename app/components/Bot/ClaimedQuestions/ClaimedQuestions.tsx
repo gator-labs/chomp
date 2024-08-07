@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from 'next/navigation';
 import { getRevealedAtString } from "../../../utils/dateUtils";
 import { Button } from "../../Button/Button";
 import { ClockIcon } from "../../Icons/ClockIcon";
@@ -38,11 +37,11 @@ export default function ClaimedQuestions({
             window.Telegram.WebApp.close();
         }
     };
-    const router = useRouter();
+    // const router = useRouter();
 
-    const handleClick = (questionId: number) => {
-        router.push(`/application/answer/reveal/${questionId}`);
-    };
+    // const handleClick = (questionId: number) => {
+    //     router.push(`/application/answer/reveal/${questionId}`);
+    // };
 
     return (
         <div className="mx-4 mt-4">
@@ -61,8 +60,8 @@ export default function ClaimedQuestions({
                 questions.map((questionData, index) => (
                     <div
                         key={index} // Add key for list items
-                        className="flex flex-col bg-neutral-800 border border-neutral-600 rounded-2xl p-4 gap-2 my-2 cursor-pointer"
-                        onClick={() => handleClick(questionData.id)}
+                        className="flex flex-col bg-neutral-800 border border-neutral-600 rounded-2xl p-4 gap-2 my-2"
+                    // onClick={() => handleClick(questionData.id)}
                     >
                         <span className="flex gap-3 items-center">
                             <p>{questionData.result}</p>

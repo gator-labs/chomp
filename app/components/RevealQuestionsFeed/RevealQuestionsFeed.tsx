@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "../Dialog/Dialog";
 import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
+import SkeletonCard from "../SkeletonCard/SkeletonCard";
 
 type RevealQuestionsFeedProps = {
   selectAll: boolean;
@@ -22,7 +23,8 @@ type RevealQuestionsFeedProps = {
   selectedRevealQuestions: number[];
   handleSelect: (id: number) => void;
   onBurn: () => void;
-  bonkBalance: number;
+  wallet: string;
+  isQuestionsLoading: boolean
 };
 export default function RevealQuestionsFeed({
   selectAll,
@@ -31,8 +33,11 @@ export default function RevealQuestionsFeed({
   selectedRevealQuestions,
   handleSelect,
   onBurn,
-  bonkBalance,
+  wallet,
+  isQuestionsLoading
 }: RevealQuestionsFeedProps) {
+
+  const [bonkBalance, setBonkBalance] = useState(0);
 
   const totalRevealTokenAmount = selectedRevealQuestions.reduce((acc, id) => {
     const question = questions.find((q) => q.id === id);
@@ -41,6 +46,17 @@ export default function RevealQuestionsFeed({
     }
     return acc;
   }, 0);
+
+  useEffect(() => {
+    console.log(wallet)
+    const fetchBonkBalance = async () => {
+
+      const balance = await getBonkBalance(wallet);
+      setBonkBalance(balance);
+    };
+
+    fetchBonkBalance();
+  }, [wallet]);
 
   return (
     <>
@@ -58,7 +74,14 @@ export default function RevealQuestionsFeed({
         </label>
       </div>
       <div className="flex flex-col w-full h-[17rem] gap-2 overflow-auto">
-        {questions.length > 0 ? (
+        {isQuestionsLoading ? (
+          // Show SkeletonCard components while loading
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        ) : questions.length > 0 ? (
+          // Show questions if available
           questions.map((questionData: Question, index) => (
             <RevealQuestionCard
               key={index}
@@ -69,6 +92,7 @@ export default function RevealQuestionsFeed({
             />
           ))
         ) : (
+          // Show message if no questions are available
           <p>No questions for reveal. Keep Chomping!</p>
         )}
       </div>
