@@ -2,8 +2,10 @@
 
 import { useToast } from "@/app/providers/ToastProvider";
 import { deckSchema } from "@/app/schemas/deck";
+import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Campaign, QuestionType, Tag as TagType, Token } from "@prisma/client";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
@@ -45,6 +47,7 @@ export default function DeckForm({
         {
           type: QuestionType.MultiChoice,
           questionOptions: getDefaultOptions(QuestionType.MultiChoice),
+          file: [],
         },
       ],
     },
@@ -63,8 +66,25 @@ export default function DeckForm({
   );
 
   const onSubmit = handleSubmit(async (data) => {
+    const questions = await Promise.all(
+      data.questions.map(async (question) => {
+        let imageUrl = question.imageUrl;
+
+        if (question.file?.[0]) {
+          imageUrl = await uploadImageToS3Bucket(question.file[0]);
+        }
+
+        return {
+          ...question,
+          imageUrl,
+          file: undefined,
+        };
+      }),
+    );
+
     const result = await action({
       ...data,
+      questions,
       tagIds: selectedTagIds,
       campaignId: selectedCampaignId,
       id: deck?.id,
@@ -110,129 +130,146 @@ export default function DeckForm({
       </div>
 
       <div className="mb-3">
-        {fields.map((field, questionIndex) => (
-          <fieldset
-            name={`questions.${questionIndex}`}
-            key={`questions.${questionIndex}`}
-          >
-            <h2 className="text-xl mb-2">Question #{questionIndex + 1}</h2>
+        {fields.map((_, questionIndex) => {
+          {
+            const file = watch(`questions.${questionIndex}.file`)?.[0];
+            const image = watch(`questions.${questionIndex}.imageUrl`);
+            const previewUrl = !!file ? URL.createObjectURL(file!) : image;
 
-            <div className="text-red">
-              {errors.questions && errors.questions[questionIndex]?.message}
-            </div>
-
-            <div className="mb-3">
-              <label className="block mb-1">Question statement</label>
-              <TextInput
-                variant="secondary"
-                {...register(`questions.${questionIndex}.question`)}
-              />
-              <div className="text-red">
-                {errors.questions &&
-                  errors.questions[questionIndex]?.question?.message}
-              </div>
-            </div>
-
-            <div className="mb-3">
-              <label className="block mb-1">Type</label>
-              <select
-                className="text-black"
-                {...register(`questions.${questionIndex}.type`, {
-                  onChange: (e) => {
-                    setValue(
-                      `questions.${questionIndex}.questionOptions`,
-                      getDefaultOptions(e.target.value),
-                    );
-                  },
-                })}
+            return (
+              <fieldset
+                name={`questions.${questionIndex}`}
+                key={`questions.${questionIndex}`}
               >
-                {Object.values(QuestionType).map((type) => (
-                  <option value={type} key={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <h2 className="text-xl mb-2">Question #{questionIndex + 1}</h2>
 
-            <div className="mb-3">
-              <label className="block mb-1">Image URL (optional)</label>
-              <TextInput
-                variant="secondary"
-                {...register(`questions.${questionIndex}.imageUrl`)}
-              />
-              <div className="text-red">
-                {errors.questions &&
-                  errors.questions[questionIndex]?.imageUrl?.message}
-              </div>
-            </div>
+                <div className="text-red">
+                  {errors.questions && errors.questions[questionIndex]?.message}
+                </div>
 
-            <div className="mb-3 flex flex-col gap-2">
-              <label className="block">Options</label>
-              {Array(
-                watch(`questions.${questionIndex}.type`) ===
-                  QuestionType.MultiChoice
-                  ? 4
-                  : 2,
-              )
-                .fill(null)
-                .map((_, optionIndex) => (
-                  <div key={`${questionIndex}-${optionIndex}`}>
-                    <div className="flex gap-4">
-                      <div className="w-1/4">
-                        <TextInput
-                          variant="secondary"
-                          {...register(
-                            `questions.${questionIndex}.questionOptions.${optionIndex}.option`,
-                          )}
-                        />
-                      </div>
-                      <div className="w-28 flex justify-center items-center gap-2">
-                        <div>is correct?</div>
-                        <input
-                          type="checkbox"
-                          {...register(
-                            `questions.${questionIndex}.questionOptions.${optionIndex}.isCorrect`,
-                          )}
-                        />
-                      </div>
-                      {watch(`questions.${questionIndex}.type`) ===
-                        QuestionType.BinaryQuestion && (
-                        <div className="w-24 flex justify-center items-center gap-2 relative">
-                          <div>is left?</div>
-                          <input
-                            type="checkbox"
-                            {...register(
-                              `questions.${questionIndex}.questionOptions.${optionIndex}.isLeft`,
-                            )}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-red">
-                      {errors.questions &&
-                        errors.questions[questionIndex]?.questionOptions &&
-                        errors.questions[questionIndex]?.questionOptions![
-                          optionIndex
-                        ]?.option?.message}
-                    </div>
+                <div className="mb-3">
+                  <label className="block mb-1">Question statement</label>
+                  <TextInput
+                    variant="secondary"
+                    {...register(`questions.${questionIndex}.question`)}
+                  />
+                  <div className="text-red">
+                    {errors.questions &&
+                      errors.questions[questionIndex]?.question?.message}
                   </div>
-                ))}
-            </div>
+                </div>
 
-            {questionIndex !== 0 && (
-              <Button
-                variant="secondary"
-                type="button"
-                onClick={() => {
-                  remove(questionIndex);
-                }}
-                className="mb-3"
-              >
-                Remove
-              </Button>
-            )}
-          </fieldset>
-        ))}
+                <div className="mb-3">
+                  <label className="block mb-1">Type</label>
+                  <select
+                    className="text-black"
+                    {...register(`questions.${questionIndex}.type`, {
+                      onChange: (e) => {
+                        setValue(
+                          `questions.${questionIndex}.questionOptions`,
+                          getDefaultOptions(e.target.value),
+                        );
+                      },
+                    })}
+                  >
+                    {Object.values(QuestionType).map((type) => (
+                      <option value={type} key={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-3">
+                  <label className="block mb-1">Image URL (optional)</label>
+                  {!!previewUrl && (
+                    <div className="w-32 h-32 relative overflow-hidden rounded-full">
+                      <Image
+                        fill
+                        alt="preview-image-campaign"
+                        src={previewUrl}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/png, image/jpeg, image/webp"
+                    {...register(`questions.${questionIndex}.file`)}
+                  />
+                  <div className="text-red">
+                    {errors.questions &&
+                      errors.questions[questionIndex]?.file?.message}
+                  </div>{" "}
+                </div>
+
+                <div className="mb-3 flex flex-col gap-2">
+                  <label className="block">Options</label>
+                  {Array(
+                    watch(`questions.${questionIndex}.type`) ===
+                      QuestionType.MultiChoice
+                      ? 4
+                      : 2,
+                  )
+                    .fill(null)
+                    .map((_, optionIndex) => (
+                      <div key={`${questionIndex}-${optionIndex}`}>
+                        <div className="flex gap-4">
+                          <div className="w-1/4">
+                            <TextInput
+                              variant="secondary"
+                              {...register(
+                                `questions.${questionIndex}.questionOptions.${optionIndex}.option`,
+                              )}
+                            />
+                          </div>
+                          <div className="w-28 flex justify-center items-center gap-2">
+                            <div>is correct?</div>
+                            <input
+                              type="checkbox"
+                              {...register(
+                                `questions.${questionIndex}.questionOptions.${optionIndex}.isCorrect`,
+                              )}
+                            />
+                          </div>
+                          {watch(`questions.${questionIndex}.type`) ===
+                            QuestionType.BinaryQuestion && (
+                            <div className="w-24 flex justify-center items-center gap-2 relative">
+                              <div>is left?</div>
+                              <input
+                                type="checkbox"
+                                {...register(
+                                  `questions.${questionIndex}.questionOptions.${optionIndex}.isLeft`,
+                                )}
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-red">
+                          {errors.questions &&
+                            errors.questions[questionIndex]?.questionOptions &&
+                            errors.questions[questionIndex]?.questionOptions![
+                              optionIndex
+                            ]?.option?.message}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+
+                <Button
+                  variant="secondary"
+                  type="button"
+                  onClick={() => {
+                    remove(questionIndex);
+                  }}
+                  className="mb-3"
+                >
+                  Remove
+                </Button>
+              </fieldset>
+            );
+          }
+        })}
 
         {fields.length < 20 && (
           <Button
