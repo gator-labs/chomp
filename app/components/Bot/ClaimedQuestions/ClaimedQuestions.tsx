@@ -2,6 +2,7 @@
 import { getRevealedAtString } from "../../../utils/dateUtils";
 import { Button } from "../../Button/Button";
 import { ClockIcon } from "../../Icons/ClockIcon";
+import { numberToCurrencyFormatter } from "@/app/utils/currency";
 
 type Question = {
     id: number;
@@ -52,10 +53,9 @@ export default function ClaimedQuestions({
             <p className="text-left my-4">
                 You&apos;ve recieved reward for {numberOfQuestionsWithReward}{" "}
                 {numberOfQuestionsWithReward > 1 ? "cards" : "card"}, with the total
-                amount of {totalRewardAmount} BONK automatically transfered to your
+                amount of {numberToCurrencyFormatter.format(Math.floor(totalRewardAmount))} $BONK automatically transfered to your
                 wallet.
             </p>
-
             {questions.length > 0 ? (
                 questions.map((questionData, index) => (
                     <div
@@ -82,7 +82,8 @@ export default function ClaimedQuestions({
                                     "No rewards"
                                 ) : (
                                     <>
-                                        {Number(questionData?.rewardTokenAmount)?.toFixed(2)} $BONK
+                                        {numberToCurrencyFormatter.format(Math.floor(Number(questionData?.rewardTokenAmount))
+                                        )} $BONK
                                     </>
                                 )}
                             </p>

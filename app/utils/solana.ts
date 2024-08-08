@@ -32,7 +32,7 @@ export const genBonkBurnTx = async (
   const tx = new Transaction();
 
   const priorityFeeInstruction = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: 100000,
+    microLamports: 1000000,
   });
 
   tx.add(priorityFeeInstruction);
