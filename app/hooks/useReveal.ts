@@ -232,7 +232,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
         pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
 
-        await CONNECTION.confirmTransaction(
+        const res = await CONNECTION.confirmTransaction(
           {
             blockhash: blockhash.blockhash,
             lastValidBlockHeight: blockhash.lastValidBlockHeight,
@@ -240,6 +240,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           },
           "confirmed",
         );
+
+        if (!!res.value.err) {
+          errorToast(
+            "Error while confirming transaction. Bonk was not burned. Try again.",
+          );
+          await deleteQuestionChompResults(pendingChompResultIds);
+        }
       }
 
       if (!isRevealWithNftMode) {
