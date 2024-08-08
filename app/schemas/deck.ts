@@ -57,6 +57,7 @@ export const deckSchema = z.object({
       imageUrl: z
         .string()
         .optional()
+        .nullable()
         .refine(
           (value) => {
             if (!value) return true;

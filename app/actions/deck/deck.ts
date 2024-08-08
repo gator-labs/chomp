@@ -210,7 +210,10 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           (dq) => dq.questionId === question.id,
         );
 
-        if (question?.imageUrl !== validatedQuestion?.question?.imageUrl) {
+        if (
+          !!validatedQuestion?.question?.imageUrl &&
+          question?.imageUrl !== validatedQuestion?.question?.imageUrl
+        ) {
           const deleteObject = new DeleteObjectCommand({
             Bucket: process.env.AWS_S3_BUCKET_NAME!,
             Key: validatedQuestion?.question!.imageUrl!.split("/").pop(),
