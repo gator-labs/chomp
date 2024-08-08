@@ -232,6 +232,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
         pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
 
+        console.log({
+          signature,
+        });
+
         const res = await CONNECTION.confirmTransaction(
           {
             blockhash: blockhash.blockhash,
