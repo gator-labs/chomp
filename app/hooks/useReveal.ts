@@ -270,6 +270,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         setRevealNft(undefined);
       }
     } catch (error) {
+      console.log(error);
       if (pendingChompResultIds.length > 0) {
         await deleteQuestionChompResults(pendingChompResultIds);
       }
