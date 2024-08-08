@@ -297,7 +297,7 @@ export default function BotMiniApp() {
     <>
       {(isBurnInProgress && <LoadingScreen />) ||
         (isLoading && <LoadingScreen />)}
-      {isLoggedIn && !burnSuccessfull ? (
+      {isLoggedIn && !burnSuccessfull && !isLoading ? (
         <BotRevealClaim
           activeTab={activeTab}
           setActiveTab={setActiveTab}
