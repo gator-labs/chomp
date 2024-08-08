@@ -75,7 +75,9 @@ export const processBurnAndClaim = async (
   }
 };
 
-export const verifyPayload = async (initData: any) => {
+export const verifyPayload = async (
+  initData: any,
+): Promise<IChompUser | null> => {
   const options = {
     method: "POST",
     headers: {

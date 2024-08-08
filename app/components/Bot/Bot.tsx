@@ -6,8 +6,8 @@ import {
   getProfileByEmail,
   getRevealQuestionsData,
   handleCreateUser,
+  processBurnAndClaim,
   verifyPayload,
-  processBurnAndClaim
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import { genBonkBurnTx, getBonkBalance } from "@/app/utils/solana";
@@ -16,18 +16,18 @@ import {
   useDynamicContext,
   useIsLoggedIn,
 } from "@dynamic-labs/sdk-react-core";
-import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
-import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
-import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
-import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
-import Image from "next/image";
 import { ISolana } from "@dynamic-labs/solana";
 import { Connection } from "@solana/web3.js";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { FaChevronRight } from "react-icons/fa";
+import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
 import { Button } from "../Button/Button";
+import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
+import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
+import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -58,6 +58,7 @@ export default function BotMiniApp() {
   const [isVerificationSucceed, setIsVerificationSucceed] =
     useState<boolean>(false);
   const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
+  const [isEmailExist, setIsEmailExist] = useState<boolean>(false);
   const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(true);
@@ -93,7 +94,6 @@ export default function BotMiniApp() {
   };
 
   const onBurn = async () => {
-
     try {
       const {
         value: { blockhash },
@@ -108,13 +108,13 @@ export default function BotMiniApp() {
           }
           return acc;
         },
-        0
+        0,
       );
 
       const tx = await genBonkBurnTx(
         primaryWallet!.address,
         blockhash,
-        totalRevealTokenAmount
+        totalRevealTokenAmount,
       );
 
       const burnTx = await signer.signAndSendTransaction(tx);
@@ -122,7 +122,10 @@ export default function BotMiniApp() {
       setIsBurnInProgress(true);
       // Process Burn and Claim
       const processedData = await processBurnAndClaim(
-        userId!, burnTx?.signature, selectedRevealQuestions,)
+        userId!,
+        burnTx?.signature,
+        selectedRevealQuestions,
+      );
 
       if (processedData) {
         setProcessedQuestions(processedData);
@@ -130,7 +133,6 @@ export default function BotMiniApp() {
       } else {
         throw new Error("Failed to Process");
       }
-
     } catch (error: any) {
       const errorMessage = error.message || "Failed to Burn";
       errorToast(errorMessage);
@@ -192,16 +194,21 @@ export default function BotMiniApp() {
 
   const dataVerification = async (initData: any) => {
     try {
+      setIsLoading(true);
       const response = await verifyPayload(initData);
       if (response) {
-        setUserId(response?.id);
+        setUserId(response.id);
         setUser(response);
+        setEmail(response?.emails[0]?.address);
+        if (response?.emails[0]?.address) setIsEmailExist(true);
       } else {
         errorToast("No user found for this telegram ID");
       }
     } catch (err) {
       console.error(err);
       errorToast("Not an authorized request to access");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -268,7 +275,7 @@ export default function BotMiniApp() {
   }, [selectedRevealQuestions, questions]);
 
   useEffect(() => {
-    setIsLoading(false);
+    if (user) setIsLoading(false);
 
     if (primaryWallet) {
       setAddress(primaryWallet.address);
@@ -288,7 +295,8 @@ export default function BotMiniApp() {
 
   return (
     <>
-      {(isBurnInProgress && <LoadingScreen />) || (isLoading && <LoadingScreen />)}
+      {(isBurnInProgress && <LoadingScreen />) ||
+        (isLoading && <LoadingScreen />)}
       {isLoggedIn && !burnSuccessfull ? (
         <BotRevealClaim
           activeTab={activeTab}
@@ -315,9 +323,7 @@ export default function BotMiniApp() {
           )}
         </BotRevealClaim>
       ) : isLoggedIn && burnSuccessfull ? (
-        <ClaimedQuestions
-          questions={processedQuestions}
-        />
+        <ClaimedQuestions questions={processedQuestions} />
       ) : isVerificationIsInProgress ? (
         <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
           <Image
@@ -395,6 +401,7 @@ export default function BotMiniApp() {
                 }}
                 variant="primary"
                 required
+                readOnly={isEmailExist}
               />
               <Button
                 variant="purple"
