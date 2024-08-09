@@ -34,7 +34,7 @@ function NewUserScreen({ wallet, handleSetupComplete }: Props) {
                     Now proceed with playing, load up some <strong className="font-bold">SOL</strong> or <strong className="font-bold">BONK</strong> in your wallet first.
                 </span>
                 <span className="block">
-                    Once you're done, come back again and start Chomping!
+                    Once you&apos;re done, come back again and start Chomping!
                 </span>
             </p>
             <button
@@ -50,8 +50,6 @@ function NewUserScreen({ wallet, handleSetupComplete }: Props) {
             <button
                 onClick={() => {
                     handleSetupComplete()
-                    // copyTextToClipboard(wallet);
-                    // successToast("Address copied successfully!");
                 }}
                 className={`flex flex-row justify-center w-full py-2 px-5 rounded-sm bg-[#A3A3EC] text-[#0D0D0D]`}
             >
