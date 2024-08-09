@@ -7,7 +7,7 @@ export default function Page() {
   return (
     <div className="flex flex-col gap-4">
       <Suspense fallback={<Spinner />}>
-        <Profile editAllowed />
+        <Profile editAllowed avatarHref="/application" />
       </Suspense>
 
       <Suspense fallback={<Spinner />}>

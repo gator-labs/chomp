@@ -9,11 +9,13 @@ import { PenIcon } from "../Icons/PenIcon";
 type ProfileProps = {
   showLeaderboardButton?: boolean;
   editAllowed?: boolean;
+  avatarHref?: string;
 };
 
 export async function Profile({
   showLeaderboardButton = false,
   editAllowed = false,
+  avatarHref = "/application/profile",
 }: ProfileProps) {
   const user = await getCurrentUser();
   const username = user?.username || "";
@@ -22,11 +24,13 @@ export async function Profile({
 
   return (
     <div className="flex items-center py-4 rounded-2xl bg-[#0D0D0D] gap-4">
-      <Avatar
-        size="extralarge"
-        className="border-chomp-purple"
-        src={avatarSrc}
-      />
+      <Link href={avatarHref}>
+        <Avatar
+          size="extralarge"
+          className="border-chomp-purple"
+          src={avatarSrc}
+        />
+      </Link>
       <div className="flex flex-col font-sora text-white gap-y-4 flex-1">
         <div className="flex items-baseline">
           <span className="font-light text-sm">{`Welcome back`}</span>
