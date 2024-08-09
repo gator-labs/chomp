@@ -1,3 +1,4 @@
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import classNames from "classnames";
 import Image from "next/image";
 import { CSSProperties } from "react";
@@ -37,7 +38,7 @@ export function Avatar({ src, size, className, style }: AvatarProps) {
 
   return (
     <Image
-      src={src}
+      src={src || AvatarPlaceholder}
       alt="Avatar"
       width={resolveDimensions()}
       height={resolveDimensions()}
