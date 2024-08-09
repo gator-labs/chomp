@@ -15,6 +15,9 @@ import {
 } from "../Dialog/Dialog";
 import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
 import SkeletonCard from "../SkeletonCard/SkeletonCard";
+import { CopyIcon } from "../Icons/CopyIcon";
+import { copyTextToClipboard } from "@/app/utils/clipboard";
+import { useToast } from "@/app/providers/ToastProvider";
 
 type RevealQuestionsFeedProps = {
   selectAll: boolean;
@@ -36,8 +39,8 @@ export default function RevealQuestionsFeed({
   wallet,
   isQuestionsLoading
 }: RevealQuestionsFeedProps) {
-
   const [bonkBalance, setBonkBalance] = useState(0);
+  const { successToast } = useToast();
 
   const totalRevealTokenAmount = selectedRevealQuestions.reduce((acc, id) => {
     const question = questions.find((q) => q.id === id);
@@ -48,7 +51,6 @@ export default function RevealQuestionsFeed({
   }, 0);
 
   useEffect(() => {
-    console.log(wallet)
     const fetchBonkBalance = async () => {
 
       const balance = await getBonkBalance(wallet);
@@ -110,7 +112,7 @@ export default function RevealQuestionsFeed({
               : "Reveal Card"}
           </Button>
         </DialogTrigger>
-        {bonkBalance > totalRevealTokenAmount ? (
+        {bonkBalance >= totalRevealTokenAmount ? (
           <DialogContent className="top-[70%] border-0 max-w-full rounded-t-3xl">
             <DialogHeader>
               <DialogTitle className="text-left font-medium text-lg text-purple">
@@ -156,7 +158,7 @@ export default function RevealQuestionsFeed({
             </div>
           </DialogContent>
         ) : (
-          <DialogContent className="top-[70%] border-0 max-w-full rounded-t-3xl">
+          <DialogContent className="bottom-[-20%] border-0 max-w-full rounded-t-3xl">
             <DialogHeader>
               <DialogTitle className="text-left font-medium text-lg text-[#DD7944]">
                 Insufficient Funds
@@ -166,44 +168,29 @@ export default function RevealQuestionsFeed({
                 step. Please visit this link to learn how to fund your wallet.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col gap-4 w-full mb-4">
               <a
                 href="https://x.com/chompdotgames/status/1798664081102258304"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button
-                  variant="white"
-                  size="normal"
-                  className="rounded-3xl"
-                  isFullWidth
-                  onClick={onBurn}
+                <button
+                  className={`flex flex-row justify-center w-full py-2 px-5 rounded-3xl bg-white text-[#0D0D0D]`}
                 >
                   Learn More
-                </Button>
+                </button>
               </a>
-              <DialogPrimitive.Close>
-                <Button
-                  variant="black"
-                  size="normal"
-                  className="rounded-3xl"
-                  isFullWidth
-                >
-                  Cancel
-                </Button>
-              </DialogPrimitive.Close>
-            </div>
 
-            <div className="flex w-full gap-2 p-4 text-sm items-start justify-start bg-neutral-600 rounded-lg">
-              <RiInformationLine size={45} />{" "}
-              <p>
-                You would need to burn $BONK to reveal the answer, regardless of
-                whether you&apos;ve chomped on the question card earlier or not.
-                <br />
-                <br />
-                Rewards will be claimed automatically in this transaction, and
-                you will see a summary of the transaction on the next screen.
-              </p>
+              <button
+                onClick={() => {
+                  copyTextToClipboard(wallet);
+                  successToast("Address copied successfully!");
+                }}
+                className={`flex flex-row justify-center w-full py-2 px-5 rounded-3xl bg-[#A3A3EC] text-[#0D0D0D]`}
+              >
+                Copy Wallet Address
+                <CopyIcon fill="#0D0D0D" />
+              </button>
             </div>
           </DialogContent>
         )}

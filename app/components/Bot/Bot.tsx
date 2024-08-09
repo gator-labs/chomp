@@ -10,14 +10,14 @@ import {
   verifyPayload,
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
-import { genBonkBurnTx, getBonkBalance } from "@/app/utils/solana";
+import { genBonkBurnTx, getBonkBalance, getSolBalance } from "@/app/utils/solana";
 import {
   useConnectWithOtp,
   useDynamicContext,
   useIsLoggedIn,
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
-import { Connection } from "@solana/web3.js";
+import { Connection, PublicKey } from "@solana/web3.js";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
@@ -28,6 +28,7 @@ import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
 import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
 import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
+import NewUserScreen from "./NewUserScreen/NewUserScreen";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -66,6 +67,12 @@ export default function BotMiniApp() {
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
   >([]);
+
+  const [userBalance, setUserBalance] = useState({
+    solBalance: 0,
+    bonkBalance: 0
+  });
+
   const { user: dynamicUser, primaryWallet } = useDynamicContext();
   const isLoggedIn = useIsLoggedIn();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
@@ -238,6 +245,20 @@ export default function BotMiniApp() {
     }
   };
 
+  const getUserBalance = async () => {
+    try {
+      const solBalance = await getSolBalance(primaryWallet!.address)
+      const bonkBalance = await getBonkBalance(primaryWallet!.address);
+
+      setUserBalance({
+        solBalance: solBalance / 1e9, // Convert lamports to SOL
+        bonkBalance: bonkBalance
+      });
+    } catch (error) {
+      console.error('Error fetching balances:', error);
+    }
+  };
+
 
 
   useEffect(() => {
@@ -279,6 +300,7 @@ export default function BotMiniApp() {
 
     if (primaryWallet) {
       setAddress(primaryWallet.address);
+      getUserBalance()
     }
   }, [isLoggedIn]);
 
@@ -297,11 +319,15 @@ export default function BotMiniApp() {
     <>
       {(isBurnInProgress && <LoadingScreen />) ||
         (isLoading && <LoadingScreen />)}
-      {isLoggedIn && !burnSuccessfull ? (
+      {!isEmailExist && isVerificationSucceed &&
+        <NewUserScreen wallet={address} handleSetupComplete={() => { setIsEmailExist(true) }} />
+      }
+      {isLoggedIn && !burnSuccessfull && !isLoading && isEmailExist ? (
         <BotRevealClaim
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           wallet={address}
+          userBalance={userBalance}
         >
           {activeTab === 0 ? (
             <RevealQuestionsFeed
