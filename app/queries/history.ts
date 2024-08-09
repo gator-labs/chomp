@@ -91,7 +91,7 @@ export async function getQuestionsHistoryQuery(
       ELSE false 
     END AS "isClaimed",
     CASE 
-      WHEN COUNT(CASE WHEN (cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0) OR cr.result = 'Revealed' THEN 1 ELSE NULL END) > 0 THEN true
+      WHEN COUNT(CASE WHEN (cr.result = 'Claimed' AND cr."rewardTokenAmount" > 0) OR (cr.result = 'Revealed' AND cr."transactionStatus" = 'Completed') THEN 1 ELSE NULL END) > 0 THEN true
       ELSE false 
     END AS "isRevealed",
     CASE 
@@ -100,7 +100,7 @@ export async function getQuestionsHistoryQuery(
       ELSE false 
     END AS "isClaimable",
     CASE 
-      WHEN COUNT(CASE WHEN cr.result = 'Claimed' OR cr.result = 'Revealed' THEN 1 ELSE NULL END) = 0
+      WHEN COUNT(CASE WHEN cr.result = 'Claimed' OR (cr.result = 'Revealed' AND cr."transactionStatus" = 'Completed') THEN 1 ELSE NULL END) = 0
           AND q."revealAtDate" < NOW() THEN true
       ELSE false 
     END AS "isRevealable"
@@ -165,26 +165,38 @@ export async function getAllQuestionsReadyForReveal(): Promise<
     { id: number; revealTokenAmount: number; answerCount: number }[]
   >(
     `
-		SELECT q.id,                  
-      		   q."revealTokenAmount",
-		(	
-  		SELECT
-          	COUNT(distinct concat(qa."userId",qo."questionId"))
-	    FROM public."QuestionOption" qo
-	    JOIN public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	    WHERE qo."questionId" = q."id"
-  	) as "answerCount"
-		FROM public."Question" q
-         LEFT JOIN "ChompResult" cr ON cr."questionId" = q.id
-    		AND cr."userId" = '${userId}'
-    		AND cr."transactionStatus" IS NOT NULL
-         JOIN "QuestionOption" qo ON q.id = qo."questionId"
-         JOIN "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
-		WHERE cr."questionId" IS NULL
-  			AND q."revealAtDate" IS NOT NULL
-  			AND q."revealAtDate" < NOW()
- 			AND qa.selected = TRUE
-  			AND qa."userId" = '${userId}'
+		SELECT 
+    q.id,
+    CASE 
+        WHEN cr."transactionStatus" = 'Completed' OR cr."transactionStatus" = 'Pending' THEN 0
+        ELSE q."revealTokenAmount"
+    END AS "revealTokenAmount",
+    (
+        SELECT
+            COUNT(DISTINCT CONCAT(qa."userId", qo."questionId"))
+        FROM 
+            public."QuestionOption" qo
+        JOIN 
+            public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        WHERE 
+            qo."questionId" = q."id"
+    ) AS "answerCount"
+FROM 
+    public."Question" q
+LEFT JOIN 
+    "ChompResult" cr ON cr."questionId" = q.id
+    AND cr."userId" = '${userId}'
+    AND cr."transactionStatus" IN ('Completed', 'Pending')
+JOIN 
+    "QuestionOption" qo ON q.id = qo."questionId"
+JOIN 
+    "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+WHERE 
+    (cr."transactionStatus" IS NULL OR cr."transactionStatus" != 'Completed')
+    AND q."revealAtDate" IS NOT NULL
+    AND q."revealAtDate" < NOW()
+    AND qa.selected = TRUE
+    AND qa."userId" = '${userId}';
 	`,
   );
 

@@ -5,6 +5,7 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { useQueryClient } from "@tanstack/react-query";
+import { startTransition, useOptimistic } from "react";
 import { Button } from "../../Button/Button";
 
 type TotalRewardsClaimAllProps = {
@@ -14,6 +15,10 @@ type TotalRewardsClaimAllProps = {
 export default function TotalRewardsClaimAll({
   totalRevealedRewards,
 }: TotalRewardsClaimAllProps) {
+  const [optimisticAmount, claimOptimistic] = useOptimistic(
+    totalRevealedRewards,
+    (_, optimisticValue: number) => optimisticValue,
+  );
   const { promiseToast, successToast } = useToast();
   const { fire } = useConfetti();
   const queryClient = useQueryClient();
@@ -31,6 +36,9 @@ export default function TotalRewardsClaimAll({
       },
       { duration: Infinity },
     );
+    startTransition(() => {
+      claimOptimistic(0);
+    });
     queryClient.resetQueries({ queryKey: ["questions-history"] });
 
     fire();
@@ -46,10 +54,10 @@ export default function TotalRewardsClaimAll({
       <div className="flex flex-col justify-between gap-[10px]">
         <p className="text-xs text-white leading-[7px]">Claimable rewards</p>
         <p className="text-base text-white leading-[12px]">
-          {numberToCurrencyFormatter.format(totalRevealedRewards)} BONK
+          {numberToCurrencyFormatter.format(optimisticAmount)} BONK
         </p>
       </div>
-      {totalRevealedRewards !== 0 && (
+      {optimisticAmount !== 0 && (
         <Button
           onClick={onClaimAll}
           disabled={isClaiming}
