@@ -57,9 +57,6 @@ export default function DeckForm({
     name: "questions",
   });
 
-  console.log(Object.values(errors).filter((error) => error.type === "custom"));
-  console.log(errors);
-
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
   const [selectedCampaignId, setSelectedCampaignId] = useState(
     deck?.campaignId || undefined,
@@ -111,12 +108,6 @@ export default function DeckForm({
         <label className="block mb-1">Deck title</label>
         <TextInput variant="secondary" {...register("deck")} />
         <div className="text-red">{errors.deck?.message}</div>
-      </div>
-
-      <div className="mb-3">
-        <label className="block mb-1">Image URL (optional)</label>
-        <TextInput variant="secondary" {...register("imageUrl")} />
-        <div className="text-red">{errors.imageUrl?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -192,15 +183,34 @@ export default function DeckForm({
                       />
                     </div>
                   )}
-                  <input
-                    type="file"
-                    accept="image/png, image/jpeg, image/webp"
-                    {...register(`questions.${questionIndex}.file`)}
-                  />
-                  <div className="text-red">
-                    {errors.questions &&
-                      errors.questions[questionIndex]?.file?.message}
-                  </div>{" "}
+
+                  <div className="flex flex-col gap-2 mt-2">
+                    {!!previewUrl && (
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setValue(`questions.${questionIndex}.file`, []);
+                          setValue(
+                            `questions.${questionIndex}.imageUrl`,
+                            undefined,
+                          );
+                        }}
+                        variant="warning"
+                        className="!w-fit !h-[30px]"
+                      >
+                        Remove
+                      </Button>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/png, image/jpeg, image/webp"
+                      {...register(`questions.${questionIndex}.file`)}
+                    />
+                    <div className="text-red">
+                      {errors.questions &&
+                        errors.questions[questionIndex]?.file?.message}
+                    </div>{" "}
+                  </div>
                 </div>
 
                 <div className="mb-3 flex flex-col gap-2">
@@ -406,12 +416,3 @@ export default function DeckForm({
     </form>
   );
 }
-
-[
-  {
-    AllowedHeaders: ["*"],
-    AllowedMethods: ["PUT"],
-    AllowedOrigins: ["*"],
-    ExposeHeaders: [],
-  },
-];
