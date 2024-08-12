@@ -8,7 +8,6 @@ type Props = {
 const Marquee = ({ text }: Props) => {
   const firstText = useRef(null);
   const secondText = useRef(null);
-  const slider = useRef(null);
   let xPercent = 0;
   let direction = -1;
 
@@ -30,7 +29,7 @@ const Marquee = ({ text }: Props) => {
 
   return (
     <div className="overflow-hidden flex">
-      <div ref={slider} className="whitespace-nowrap relative">
+      <div className="whitespace-nowrap relative">
         <p
           ref={firstText}
           className="text-[20px] leading-6 pr-5 whitespace-nowrap"
