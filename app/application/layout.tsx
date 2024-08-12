@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { getTransactionHistory } from "../actions/fungible-asset";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 import { DailyDeckRedirect } from "../components/DailyDeckRedirect/DailyDeckRedirect";
+import Main from "../components/Main/Main";
 import { Navbar } from "../components/Navbar/Navbar";
 import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 import { ClaimingProvider } from "../providers/ClaimingProvider";
@@ -32,7 +33,7 @@ export default async function Layout({ children }: PageLayoutProps) {
       <ClaimingProvider>
         <RevealContextProvider bonkBalance={bonkBalance}>
           <div className="flex flex-col h-full">
-            <main className="flex-grow overflow-y-auto w-full max-w-lg mx-auto flex flex-col px-4 pt-12 overflow-x-hidden">
+            <Main>
               <Navbar
                 avatarSrc={user?.profileSrc || ""}
                 bonkBalance={bonkBalance}
@@ -46,7 +47,7 @@ export default async function Layout({ children }: PageLayoutProps) {
                 address={address}
               />
               {children}
-            </main>
+            </Main>
             <TabNavigation isAdmin={!!user?.isAdmin} />
             <AuthRedirect />
             <DailyDeckRedirect />
