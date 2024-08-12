@@ -59,7 +59,7 @@ const RevealScreen = ({
         </Suspense>{" "}
         <div className="pt-4 flex flex-col gap-2 overflow-hidden">
           <Tooltip
-            infoText="Click reveal to see the result"
+            infoText="Click reveal to see the answer."
             alwaysVisible={!isRevealModalOpen}
             disabledHover
             position="bottom"
@@ -128,13 +128,13 @@ const RevealScreen = ({
           <div className="fixed bottom-[0px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
             <h3 className="text-base">Reveal answer?</h3>
             <p className="text-sm">
-              You would need to burn <b>5,000 BONK.</b>{" "}
+              This action burns <b>5,000 BONK.</b>{" "}
             </p>
             <div className="flex flex-col gap-2">
               <Tooltip
-                infoText="By spending a small amount of BONK, you can reveal the answer, and a chance to win the reward!
+                infoText="Revealing requires a small amount of BONK—but gives you the chance to win BONK rewards!
 
-              (It will cost 0 this time for the tutorial 🤫)"
+              (Revealing is free for this tutorial)"
                 alwaysVisible
                 disabledHover
                 position="top"
@@ -165,7 +165,7 @@ const RevealScreen = ({
       <>
         <div className="px-4 w-full flex flex-col gap-4">
           <Tooltip
-            infoText="This is a TUTORIAL -  if this were a real question, and you answered Jupiter, you would have just won up to 10,000 BONK!  🎊"
+            infoText="If this were a real question (not a tutorial), you would have won up to 10,000 BONK for answering Jupiter! 🎊"
             alwaysVisible={activeClaimScreenStep === "congrats-step"}
             disabledHover
             position="bottom"
@@ -286,9 +286,7 @@ const RevealScreen = ({
         {activeClaimScreenStep === "final-step" && (
           <div className="fixed bottom-[0px] w-full p-6 bg-[#333333] flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
             <h3 className="text-base">Well done! 🎉</h3>
-            <p className="text-sm">
-              Now you&apos;re ready to get chompin&apos; for real!
-            </p>
+            <p className="text-sm">Now you’re ready to Chomp for real!</p>
             <Link href="/application">
               <Button variant="white" className="!rounded-[32px]">
                 Yes LFG!{" "}
