@@ -3,13 +3,14 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { getLeaderboard, getPreviousUserRank } from "@/app/actions/leaderboard";
+import useIsOverflowing from "@/app/hooks/useIsOverflowing";
 import { nthNumber } from "@/app/utils/number";
 import { cn } from "@/app/utils/tailwind";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
 import Chip from "../Chip/Chip";
@@ -18,6 +19,7 @@ import { HalfArrowLeftIcon } from "../Icons/HalfArrowLeftIcon";
 import { SpinnerIcon } from "../Icons/ToastIcons/SpinnerIcon";
 import UpIcon from "../Icons/UpIcon";
 import LeaderboardRanking from "../LeaderboardRanking/LeaderboardRanking";
+import Marquee from "../Marquee/Marquee";
 import { FILTERS } from "./constants";
 
 interface Props {
@@ -62,6 +64,8 @@ const Leaderboard = ({
 }: Props) => {
   const [activeFilter, setActiveFilter] = useState(FILTERS[0]);
   const [ranking, setRanking] = useState<Ranking[] | []>([]);
+  const leaderboardNameRef = useRef(null);
+  const isOverflowing = useIsOverflowing(leaderboardNameRef);
   const [loggedInUserScore, setLoggedInUserScore] = useState<
     | {
         loggedInUserRank: number | undefined;
@@ -120,7 +124,7 @@ const Leaderboard = ({
           <HalfArrowLeftIcon />
         </Link>
         {leaderboardImage && (
-          <div className="relative w-[38px] h-[38px]">
+          <div className="relative w-[38px] h-[38px] flex-shrink-0">
             <ActiveIndicator isActive={isLeaderboardActive} />
             <Image
               fill
@@ -130,7 +134,16 @@ const Leaderboard = ({
             />
           </div>
         )}
-        <p className="text-[20px] leading-6">{leaderboardName}</p>
+        {isOverflowing ? (
+          <Marquee text={leaderboardName} />
+        ) : (
+          <p
+            ref={leaderboardNameRef}
+            className="text-[20px] leading-6 text-nowrap overflow-hidden"
+          >
+            {leaderboardName}
+          </p>
+        )}
       </div>
 
       <div className="p-4 rounded-lg bg-[#333333] gap-4 flex">
