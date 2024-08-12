@@ -1,4 +1,5 @@
 import { getCurrentUser } from "@/app/queries/user";
+import { cn } from "@/app/utils/tailwind";
 import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
@@ -10,12 +11,14 @@ type ProfileProps = {
   showLeaderboardButton?: boolean;
   editAllowed?: boolean;
   avatarHref?: string;
+  className?: string;
 };
 
 export async function Profile({
   showLeaderboardButton = false,
   editAllowed = false,
   avatarHref = "/application/profile",
+  className,
 }: ProfileProps) {
   const user = await getCurrentUser();
   const username = user?.username || "";
@@ -23,7 +26,12 @@ export async function Profile({
   const avatarSrc = user?.profileSrc || AvatarPlaceholder.src;
 
   return (
-    <div className="flex items-center py-4 rounded-2xl bg-[#0D0D0D] gap-4">
+    <div
+      className={cn(
+        "flex items-center py-4 rounded-2xl bg-[#0D0D0D] gap-4",
+        className,
+      )}
+    >
       <Link href={avatarHref}>
         <Avatar
           size="extralarge"

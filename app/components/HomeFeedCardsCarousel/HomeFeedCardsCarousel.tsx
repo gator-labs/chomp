@@ -24,8 +24,8 @@ export function HomeFeedCardCarousel({
 
   return (
     <div className={className}>
-      <div className="mb-1.5">{title}</div>
-      <Swiper slidesPerView={1.05} spaceBetween={8} className="w-full">
+      <div className="mb-2 px-4">{title}</div>
+      <Swiper spaceBetween={8} className="w-full !px-4">
         {content}
       </Swiper>
     </div>

@@ -18,7 +18,7 @@ export default async function Page() {
   return (
     <>
       <Suspense fallback={<Spinner />}>
-        <Profile showLeaderboardButton />
+        <Profile showLeaderboardButton className="px-4" />
       </Suspense>
 
       {!!banners.length && <BannerSlider banners={banners} />}
