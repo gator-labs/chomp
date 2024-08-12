@@ -21,10 +21,12 @@ const Marquee = ({ text }: Props) => {
     } else if (xPercent > 0) {
       xPercent = -100;
     }
-    gsap.set(firstText.current, { xPercent: xPercent });
-    gsap.set(secondText.current, { xPercent: xPercent });
-    requestAnimationFrame(animate);
-    xPercent += 0.2 * direction;
+    if (!!firstText.current && !!secondText.current) {
+      gsap.set(firstText.current, { xPercent: xPercent });
+      gsap.set(secondText.current, { xPercent: xPercent });
+      requestAnimationFrame(animate);
+      xPercent += 0.2 * direction;
+    }
   };
 
   return (

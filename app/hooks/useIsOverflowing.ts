@@ -6,9 +6,7 @@ export default function useIsOverflowing(ref: RefObject<HTMLElement>): boolean {
   const checkOverflow = useCallback(() => {
     const { current } = ref;
     if (current) {
-      const hasOverflow =
-        current.scrollHeight > current.clientHeight ||
-        current.scrollWidth > current.clientWidth;
+      const hasOverflow = current.scrollWidth > current.clientWidth;
       setIsOverflowing(hasOverflow);
     }
   }, [ref]);
