@@ -28,7 +28,7 @@ export function TransactionProfile({
   className,
 }: ProfileProps) {
   const pathname = usePathname();
-  console.log({ pathname });
+
   return (
     <div
       className={classNames("flex p-6 rounded-2xl bg-black gap-4", className)}
