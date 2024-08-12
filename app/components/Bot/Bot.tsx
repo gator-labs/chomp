@@ -10,14 +10,18 @@ import {
   verifyPayload,
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
-import { genBonkBurnTx, getBonkBalance, getSolBalance } from "@/app/utils/solana";
+import {
+  genBonkBurnTx,
+  getBonkBalance,
+  getSolBalance,
+} from "@/app/utils/solana";
 import {
   useConnectWithOtp,
   useDynamicContext,
   useIsLoggedIn,
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
@@ -70,7 +74,7 @@ export default function BotMiniApp() {
 
   const [userBalance, setUserBalance] = useState({
     solBalance: 0,
-    bonkBalance: 0
+    bonkBalance: 0,
   });
 
   const { user: dynamicUser, primaryWallet } = useDynamicContext();
@@ -238,28 +242,26 @@ export default function BotMiniApp() {
     const response = await getRevealQuestionsData(userId);
     if (response) {
       setQuestions(response);
-      setIsLoadingQuestions(false)
+      setIsLoadingQuestions(false);
     } else {
-      setIsLoadingQuestions(false)
+      setIsLoadingQuestions(false);
       errorToast("Failed to get reveal questions");
     }
   };
 
   const getUserBalance = async () => {
     try {
-      const solBalance = await getSolBalance(primaryWallet!.address)
+      const solBalance = await getSolBalance(primaryWallet!.address);
       const bonkBalance = await getBonkBalance(primaryWallet!.address);
 
       setUserBalance({
         solBalance: solBalance, // Convert lamports to SOL
-        bonkBalance: bonkBalance
+        bonkBalance: bonkBalance,
       });
     } catch (error) {
-      console.error('Error fetching balances:', error);
+      console.error("Error fetching balances:", error);
     }
   };
-
-
 
   useEffect(() => {
     if (userId) {
@@ -300,7 +302,7 @@ export default function BotMiniApp() {
 
     if (primaryWallet) {
       setAddress(primaryWallet.address);
-      getUserBalance()
+      getUserBalance();
     }
   }, [isLoggedIn]);
 
@@ -319,9 +321,6 @@ export default function BotMiniApp() {
     <>
       {(isBurnInProgress && <LoadingScreen />) ||
         (isLoading && <LoadingScreen />)}
-      {!isEmailExist && isVerificationSucceed &&
-        <NewUserScreen wallet={address} handleSetupComplete={() => { setIsEmailExist(true) }} />
-      }
       {isLoggedIn && !burnSuccessfull && !isLoading && isEmailExist ? (
         <BotRevealClaim
           activeTab={activeTab}
@@ -350,6 +349,13 @@ export default function BotMiniApp() {
         </BotRevealClaim>
       ) : isLoggedIn && burnSuccessfull ? (
         <ClaimedQuestions questions={processedQuestions} />
+      ) : !isEmailExist && isLoggedIn ? (
+        <NewUserScreen
+          wallet={address}
+          handleSetupComplete={() => {
+            setIsEmailExist(true);
+          }}
+        />
       ) : isVerificationIsInProgress ? (
         <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
           <Image
