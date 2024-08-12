@@ -42,7 +42,7 @@ function NewUserScreen({ wallet, handleSetupComplete }: Props) {
                     copyTextToClipboard(wallet);
                     successToast("Address copied successfully!");
                 }}
-                className={`flex flex-row justify-center w-full py-2 px-5 rounded-sm bg-[#A3A3EC] text-[#0D0D0D]`}
+                className={`flex flex-row justify-center w-full py-2 px-5 rounded-sm bg-purple text-[#0D0D0D]`}
             >
                 Copy Wallet Address
                 <CopyIcon fill="#0D0D0D" />
@@ -51,7 +51,7 @@ function NewUserScreen({ wallet, handleSetupComplete }: Props) {
                 onClick={() => {
                     handleSetupComplete()
                 }}
-                className={`flex flex-row justify-center w-full py-2 px-5 rounded-sm bg-[#A3A3EC] text-[#0D0D0D]`}
+                className={`flex flex-row justify-center w-full py-2 px-5 rounded-sm bg-purple text-[#0D0D0D]`}
             >
                 Next
                 <HalfArrowRightIcon fill="#0D0D0D" />

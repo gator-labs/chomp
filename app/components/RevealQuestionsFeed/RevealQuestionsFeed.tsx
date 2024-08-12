@@ -186,7 +186,7 @@ export default function RevealQuestionsFeed({
                   copyTextToClipboard(wallet);
                   successToast("Address copied successfully!");
                 }}
-                className={`flex flex-row justify-center w-full py-2 px-5 rounded-3xl bg-[#A3A3EC] text-[#0D0D0D]`}
+                className={`flex flex-row justify-center w-full py-2 px-5 rounded-3xl bg-purple text-[#0D0D0D]`}
               >
                 Copy Wallet Address
                 <CopyIcon fill="#0D0D0D" />

@@ -251,7 +251,7 @@ export default function BotMiniApp() {
       const bonkBalance = await getBonkBalance(primaryWallet!.address);
 
       setUserBalance({
-        solBalance: solBalance / 1e9, // Convert lamports to SOL
+        solBalance: solBalance, // Convert lamports to SOL
         bonkBalance: bonkBalance
       });
     } catch (error) {
