@@ -9,8 +9,8 @@ export const SLIDESHOW = [
     icon: <BetaIcon />,
     title: "Welcome to Chomp's Beta!",
     description: [
-      "The fast-paced quiz/trivia game that distills best-in-class insights while you play and earn rewards!",
-      "All you need to do is to go through questions on each card, guess the answer and guess what others have guessed.",
+      "Chomp is the fast-paced quiz game that rewards you for your insights!",
+      "All you need to do is to answer each question — and guess what others have answered.",
     ],
   },
   {
