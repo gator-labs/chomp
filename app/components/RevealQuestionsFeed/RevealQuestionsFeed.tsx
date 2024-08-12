@@ -1,7 +1,6 @@
 import { getBonkBalance } from "@/app/utils/solana";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
-import { RiInformationLine } from "react-icons/ri";
 import { Question } from "../Bot/Bot";
 import { Button } from "../Button/Button";
 import { Checkbox } from "../Checkbox/Checkbox";
@@ -18,6 +17,7 @@ import SkeletonCard from "../SkeletonCard/SkeletonCard";
 import { CopyIcon } from "../Icons/CopyIcon";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { useToast } from "@/app/providers/ToastProvider";
+import { InfoIcon } from "../Icons/InfoIcon";
 
 type RevealQuestionsFeedProps = {
   selectAll: boolean;
@@ -144,7 +144,7 @@ export default function RevealQuestionsFeed({
                 </Button>
               </DialogPrimitive.Close>
               <div className="flex w-full gap-2 p-4 text-sm items-start justify-start bg-neutral-600 rounded-lg">
-                <RiInformationLine size={45} />{" "}
+                <InfoIcon width={40} height={20} /> {" "}
                 <p>
                   You would need to burn $BONK to reveal the answer, regardless
                   of whether you&apos;ve chomped on the question card earlier or

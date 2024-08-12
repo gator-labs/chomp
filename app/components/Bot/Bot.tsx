@@ -25,7 +25,6 @@ import { Connection } from "@solana/web3.js";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
-import { FaChevronRight } from "react-icons/fa";
 import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
 import { Button } from "../Button/Button";
 import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
@@ -33,6 +32,7 @@ import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
 import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
 import NewUserScreen from "./NewUserScreen/NewUserScreen";
+import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -441,7 +441,7 @@ export default function BotMiniApp() {
                 className="gap-2 text-black font-medium"
                 isFullWidth
               >
-                Send OTP <FaChevronRight />
+                Send OTP <HalfArrowRightIcon fill="#000" width={18} height={18} />
               </Button>
             </div>
           </form>
