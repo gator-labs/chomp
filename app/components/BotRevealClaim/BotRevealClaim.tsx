@@ -1,14 +1,21 @@
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { formatAddress } from "@/app/utils/wallet";
+import { WalletIcon } from "@/app/components/Icons/WalletIcon";
 import Image from "next/image";
 import Tabs from "../Tabs/Tabs";
+import WalletPopUp from "../Bot/WalletPopUp/WalletPopUp";
+import { useState } from "react";
 
 type BotRevealClaimProps = {
   children: React.ReactNode;
   activeTab: number;
   setActiveTab: (tab: number) => void;
   wallet: string;
+  userBalance: {
+    solBalance: number,
+    bonkBalance: number
+  }
 };
 
 export default function BotRevealClaim({
@@ -16,8 +23,18 @@ export default function BotRevealClaim({
   activeTab,
   setActiveTab,
   wallet,
+  userBalance
 }: BotRevealClaimProps) {
-  const { successToast } = useToast();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const closeQuickProfile = () => {
+    setIsOpen(false);
+  };
+
+  const openQuickProfile = () => {
+    setIsOpen(true);
+  };
+
   return (
     <div className="space-y-6 flex flex-col p-5 items-start justify-center">
       <span className="flex w-full items-center justify-between">
@@ -28,15 +45,16 @@ export default function BotRevealClaim({
           alt="chomp-head"
         />
         <button
-          className="w-fit px-3 py-1 text-sm bg-neutral-700 border border-neutral-500 rounded-2xl"
+          className="text-sm cursor-pointer"
           onClick={() => {
-            copyTextToClipboard(wallet);
-            successToast("Address copied successfully!");
+            openQuickProfile()
           }}
         >
-          {formatAddress(wallet)}
+          <WalletIcon />
         </button>
       </span>
+      <WalletPopUp isOpen={isOpen}
+        onClose={closeQuickProfile} wallet={wallet} userBalance={userBalance} />
       <p className="text-2xl font-bold">Reveal and Claim</p>
       <p>
         You can view and reveal all cards that are ready to reveal below. Only

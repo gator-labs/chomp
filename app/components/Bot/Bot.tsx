@@ -10,7 +10,11 @@ import {
   verifyPayload,
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
-import { genBonkBurnTx, getBonkBalance } from "@/app/utils/solana";
+import {
+  genBonkBurnTx,
+  getBonkBalance,
+  getSolBalance,
+} from "@/app/utils/solana";
 import {
   useConnectWithOtp,
   useDynamicContext,
@@ -28,6 +32,7 @@ import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
 import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
 import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
+import NewUserScreen from "./NewUserScreen/NewUserScreen";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -66,6 +71,12 @@ export default function BotMiniApp() {
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
   >([]);
+
+  const [userBalance, setUserBalance] = useState({
+    solBalance: 0,
+    bonkBalance: 0,
+  });
+
   const { user: dynamicUser, primaryWallet } = useDynamicContext();
   const isLoggedIn = useIsLoggedIn();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
@@ -231,14 +242,26 @@ export default function BotMiniApp() {
     const response = await getRevealQuestionsData(userId);
     if (response) {
       setQuestions(response);
-      setIsLoadingQuestions(false)
+      setIsLoadingQuestions(false);
     } else {
-      setIsLoadingQuestions(false)
+      setIsLoadingQuestions(false);
       errorToast("Failed to get reveal questions");
     }
   };
 
+  const getUserBalance = async () => {
+    try {
+      const solBalance = await getSolBalance(primaryWallet!.address);
+      const bonkBalance = await getBonkBalance(primaryWallet!.address);
 
+      setUserBalance({
+        solBalance: solBalance, // Convert lamports to SOL
+        bonkBalance: bonkBalance,
+      });
+    } catch (error) {
+      console.error("Error fetching balances:", error);
+    }
+  };
 
   useEffect(() => {
     if (userId) {
@@ -279,6 +302,7 @@ export default function BotMiniApp() {
 
     if (primaryWallet) {
       setAddress(primaryWallet.address);
+      getUserBalance();
     }
   }, [isLoggedIn]);
 
@@ -297,11 +321,12 @@ export default function BotMiniApp() {
     <>
       {(isBurnInProgress && <LoadingScreen />) ||
         (isLoading && <LoadingScreen />)}
-      {isLoggedIn && !burnSuccessfull && !isLoading ? (
+      {isLoggedIn && !burnSuccessfull && !isLoading && isEmailExist ? (
         <BotRevealClaim
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           wallet={address}
+          userBalance={userBalance}
         >
           {activeTab === 0 ? (
             <RevealQuestionsFeed
@@ -324,6 +349,13 @@ export default function BotMiniApp() {
         </BotRevealClaim>
       ) : isLoggedIn && burnSuccessfull ? (
         <ClaimedQuestions questions={processedQuestions} />
+      ) : !isEmailExist && isLoggedIn ? (
+        <NewUserScreen
+          wallet={address}
+          handleSetupComplete={() => {
+            setIsEmailExist(true);
+          }}
+        />
       ) : isVerificationIsInProgress ? (
         <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
           <Image
