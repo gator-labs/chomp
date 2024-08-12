@@ -213,59 +213,38 @@ async function queryRevealedQuestions(
   userId: string,
 ): Promise<RevealedQuestion[]> {
   const revealQuestions: RevealedQuestion[] = await prisma.$queryRaw`
-  select
-  	q."id",
-  	q."question",
-  	q."revealAtDate",
-  	(
-  		select
-          	count(distinct concat(qa."userId",qo."questionId"))
-	    from public."QuestionOption" qo
-	    join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	    where qo."questionId" = q."id"
-  	) as "answerCount",
-  	q."revealAtAnswerCount",
-  	q."revealTokenAmount",
+  SELECT DISTINCT
+    q."id",
+    q."question",
+    q."revealAtDate",
+    q."revealAtAnswerCount",
+    q."revealTokenAmount",
     c."image"
-  from public."Question" q 
-  left join "Campaign" c on c."id" = q."campaignId"
-  where
-  	(
-	      q."revealAtDate" is not null 
-	      and 
-	      q."revealAtDate" < now() 
-    )
-    and
-    	(
-    		q."id" not in
-	    	(
-	    		select
-	    			cr."questionId"
-	    		from public."ChompResult" cr
-	    		where cr."questionId" = q."id" and cr."userId" = ${userId} and cr."transactionStatus" = 'Completed'
-	    	)
-	    	and
-	    	q."id" not in
-	    	(
-	    		select
-	    			dq."questionId"
-	    		from public."DeckQuestion" dq
-	    		join public."Deck" d on d."id" = dq."deckId"
-	    		join public."ChompResult" cr on cr."deckId" = d."id"
-	    		where cr."userId" = ${userId} and dq."questionId" = q."id"
-	    	)
-	    )
-    and
-    	q."id" not in
-	    (
-	    	select 
-	    		qo."questionId"
-	    	from public."QuestionOption" qo
-          	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-          	where qa."userId" = ${userId} and qo."questionId" = q."id"
-	    )
-      ORDER BY  q."revealAtDate" DESC
-      LIMIT 5
+  FROM public."Question" q
+  LEFT JOIN "Campaign" c ON c."id" = q."campaignId"
+  LEFT JOIN public."ChompResult" cr1 
+      ON cr1."questionId" = q."id" 
+      AND cr1."userId" = ${userId} 
+      AND cr1."transactionStatus" = 'Completed'
+  LEFT JOIN public."DeckQuestion" dq 
+      ON dq."questionId" = q."id"
+  LEFT JOIN public."Deck" d 
+      ON d."id" = dq."deckId"
+  LEFT JOIN public."ChompResult" cr2 
+      ON cr2."deckId" = d."id" 
+      AND cr2."userId" = ${userId}
+  LEFT JOIN public."QuestionOption" qo 
+      ON qo."questionId" = q."id"
+  LEFT JOIN public."QuestionAnswer" qa 
+      ON qa."questionOptionId" = qo."id" 
+      AND qa."userId" = ${userId}
+  WHERE
+      cr1."questionId" IS NULL
+      AND cr2."id" IS NULL
+      AND qa."id" IS NULL
+      AND q."revealAtDate" IS NOT NULL 
+      AND q."revealAtDate" < now() 
+  ORDER BY q."revealAtDate" DESC
   `;
 
   return revealQuestions;
