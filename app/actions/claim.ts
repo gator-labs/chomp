@@ -49,9 +49,6 @@ export async function getClaimableQuestionIds(): Promise<number[]> {
     where: {
       userId: payload.sub,
       result: "Revealed",
-      burnTransactionSignature: {
-        not: null,
-      },
       questionId: { not: null },
       rewardTokenAmount: {
         gt: 0,
