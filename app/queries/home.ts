@@ -264,7 +264,8 @@ async function queryRevealedQuestions(
           	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
           	where qa."userId" = ${userId} and qo."questionId" = q."id"
 	    )
-      limit 5
+      ORDER BY  q."revealAtDate" DESC
+      LIMIT 5
   `;
 
   return revealQuestions;
@@ -317,6 +318,7 @@ async function queryQuestionsForReadyToReveal(
   q."revealAtDate" < now()
   AND
   qa.selected = true AND qa."userId" = ${userId}
+  ORDER BY  q."createdAt" DESC
   `;
 
   return revealQuestions;
