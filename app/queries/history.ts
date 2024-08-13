@@ -35,8 +35,7 @@ export type QuestionHistory = {
 export async function getDecksHistory(
   userId: string,
 ): Promise<HistoryResult[]> {
-  const decksHistory: HistoryResult[] = await prisma.$queryRawUnsafe(
-    `
+  const decksHistory: HistoryResult[] = await prisma.$queryRaw`
 		SELECT 
 			d.id,
 			c.image,
@@ -48,18 +47,17 @@ export async function getDecksHistory(
 			COUNT(DISTINCT CASE WHEN cr."result" = 'Revealed'::public."ResultType" OR cr."result" = 'Claimed'::public."ResultType" THEN cr."questionId" END) AS "revealedQuestions",
 			COUNT(DISTINCT CASE WHEN cr."result" = 'Revealed'::public."ResultType" AND cr."rewardTokenAmount" > 0 THEN cr."questionId" END) AS "claimableQuestions",
 			SUM(CASE WHEN cr."result" = 'Claimed'::public."ResultType" THEN cr."rewardTokenAmount" END) AS "claimedAmount"
-		FROM "DeckQuestion" dq 
-		JOIN "Deck" d ON d.id = dq."deckId" 
-		JOIN "Question" q ON q.id = dq."questionId"
-		JOIN "QuestionOption" qo ON qo."questionId" = q.id
-		LEFT JOIN "QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
-		LEFT JOIN "ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
-		LEFT JOIN "Campaign" c ON c.id = d."campaignId"
+		FROM public."DeckQuestion" dq 
+		JOIN public."Deck" d ON d.id = dq."deckId" 
+		JOIN public."Question" q ON q.id = dq."questionId"
+		JOIN public."QuestionOption" qo ON qo."questionId" = q.id
+		LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
+		LEFT JOIN public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
+		LEFT JOIN public."Campaign" c ON c.id = d."campaignId"
 		WHERE d."revealAtDate" IS NOT NULL 
 		GROUP BY d.deck, d.id, c.image, d."revealAtDate"
 		ORDER BY d."revealAtDate" DESC
-		`,
-  );
+		`;
 
   console.log(decksHistory);
 
