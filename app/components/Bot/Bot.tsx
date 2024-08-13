@@ -27,6 +27,8 @@ import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
 import { Button } from "../Button/Button";
+import { Checkbox } from "../Checkbox/Checkbox";
+import { ProfileIcon } from "../Icons/ProfileIcon";
 import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
 import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import { TextInput } from "../TextInput/TextInput";
@@ -64,6 +66,7 @@ export default function BotMiniApp() {
     useState<boolean>(false);
   const [isBurnInProgress, setIsBurnInProgress] = useState<boolean>(false);
   const [isEmailExist, setIsEmailExist] = useState<boolean>(false);
+  const [isTermAccepted, setIsTermAccepted] = useState<boolean>(false);
   const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(true);
@@ -374,6 +377,15 @@ export default function BotMiniApp() {
             <p className="text-[1.6rem] font-bold text-center">
               Chomp at its full potential!
             </p>
+            <div className="flex w-fit bg-[#575CDF] px-4 py-2 gap-2.5 items-center rounded-[2rem]">
+              <ProfileIcon width={50} height={50} />
+              <span className="flex flex-col">
+                <h2 className="uppercase text-sm">
+                  {isEmailExist ? "Linked Account" : "Linking To Telegram:"}
+                </h2>
+                <p className="font-medium">{email}</p>
+              </span>
+            </div>
             <p className="text-left">
               OTP sent to your email! Copy it and paste it here to access all of
               Chomp&apos;s features!
@@ -435,11 +447,28 @@ export default function BotMiniApp() {
                 required
                 readOnly={isEmailExist}
               />
+              {!isEmailExist && (
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="term"
+                    checked={isTermAccepted}
+                    onClick={() => setIsTermAccepted(!isTermAccepted)}
+                  />
+                  <label
+                    htmlFor="term"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    I understand this email will be permanantly linked to this
+                    Telegram account.
+                  </label>
+                </div>
+              )}
               <Button
                 variant="purple"
                 size="normal"
                 className="gap-2 text-black font-medium"
                 isFullWidth
+                disabled={!isEmailExist && !isTermAccepted}
               >
                 Send OTP <HalfArrowRightIcon fill="#000" width={18} height={18} />
               </Button>
