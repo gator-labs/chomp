@@ -1,5 +1,5 @@
-import { RiShareBoxLine } from "react-icons/ri";
 import { Button } from "../Button/Button";
+import { ShareBoxIcon } from "../Icons/ShareBoxIcon";
 
 type RevealHistoryInfoProps = {
   onClick: () => void;
@@ -8,17 +8,16 @@ type RevealHistoryInfoProps = {
 export default function RevealHistoryInfo({ onClick }: RevealHistoryInfoProps) {
   return (
     <>
-      <p className="flex w-full h-[19.5rem]">
+      <p className="flex w-full h-[17.5rem]">
         You full history and other features are available in the Chomp web app.
       </p>
       <Button
         variant="purple"
-        size="normal"
-        className="gap-2 text-black font-medium mt-4"
+        className="gap-2 text-black font-medium"
         isFullWidth
         onClick={onClick}
       >
-        Go to Chomp Web App <RiShareBoxLine />
+        Go to Chomp Web App <ShareBoxIcon fill="#000" />
       </Button>
     </>
   );
