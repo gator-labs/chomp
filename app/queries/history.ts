@@ -103,14 +103,14 @@ export async function getQuestionsHistoryQuery(
       ELSE false 
     END AS "isRevealable"
   FROM 
-    "Question" q 
+    public."Question" q 
   JOIN 
-    "QuestionOption" qo ON qo."questionId" = q.id 
+    public."QuestionOption" qo ON qo."questionId" = q.id 
   LEFT JOIN 
-    "QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
+    public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
   LEFT JOIN 
-    "ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
-  FULL JOIN "Campaign" c on c.id = q."campaignId"
+    public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
+  FULL JOIN public."Campaign" c on c.id = q."campaignId"
   WHERE 
     q."revealAtDate" IS NOT NULL
   GROUP BY 
