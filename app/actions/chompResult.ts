@@ -396,6 +396,9 @@ async function hasBonkBurnedCorrectly(
     where: {
       burnTransactionSignature: burnTx,
       transactionStatus: TransactionStatus.Completed,
+      questionId: {
+        not: null,
+      },
     },
   });
 
