@@ -253,7 +253,7 @@ export const calculateReward = async (
       const second_order_estimates = (
         correctOption || calculatedCorrectOption
       )?.questionAnswers
-        .filter((answer) => answer.selected)
+        .filter((answer) => answer.selected && answer.percentage !== null)
         .map((answer) => answer.percentage!);
 
       body = {
