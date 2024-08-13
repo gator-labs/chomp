@@ -8,7 +8,6 @@ import { QuestionHistory } from "@/app/queries/history";
 import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
 import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
-import { NftType } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
@@ -19,6 +18,7 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import { DollarIcon } from "../Icons/DollarIcon";
 import { EyeIcon } from "../Icons/EyeIcon";
 import LeadToIcon from "../Icons/LeadToIcon";
+import { RevealProps } from "@/app/hooks/useReveal";
 
 const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
   (question, ref) => {
@@ -75,11 +75,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
 
     const handleReveal = () => {
       openRevealModal({
-        reveal: async (
-          burnTx?: string,
-          nftAddress?: string,
-          nftType?: NftType,
-        ) => {
+        reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
           await revealQuestion(question.id, burnTx, nftAddress, nftType);
           queryClient.resetQueries({ queryKey: ["questions-history"] });
           router.push("/application/answer/reveal/" + question.id);

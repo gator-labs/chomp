@@ -41,7 +41,7 @@ export function RevealContextProvider({
     isRevealModalOpen,
     insufficientFunds,
     revealPrice,
-    hasPendingTransactions,
+    pendingTransactions,
     isRevealWithNftMode,
     questionIds,
     isLoading,
@@ -50,6 +50,8 @@ export function RevealContextProvider({
     address: primaryWallet?.address,
     wallet: primaryWallet,
   });
+
+  const hasPendingTransactions = pendingTransactions > 0;
 
   const revealButtons = () => {
     if (insufficientFunds && !isRevealWithNftMode) {
@@ -123,7 +125,7 @@ export function RevealContextProvider({
               onClick={() => burnAndReveal()}
               className="flex items-center h-10"
             >
-              {hasPendingTransactions
+              {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
                 : isRevealWithNftMode
                   ? "Reveal with Chomp Collectible"
@@ -171,11 +173,12 @@ export function RevealContextProvider({
   };
 
   const getDescriptionNode = () => {
-    if (hasPendingTransactions) {
+    if (hasPendingTransactions && !questionIds.length) {
       return (
         <p className="text-sm">
-          It looks like you have started revealing this question. Please click
-          Continue.
+          It looks like you have started revealing{" "}
+          {pendingTransactions > 1 ? "these questions" : "this question"}.
+          Please click Continue.
         </p>
       );
     }

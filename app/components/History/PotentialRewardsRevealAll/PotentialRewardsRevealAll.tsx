@@ -1,9 +1,10 @@
 "use client";
-import { revealQuestions } from "@/app/actions/chompResult";
+import { revealQuestion, revealQuestions } from "@/app/actions/chompResult";
+import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { startTransition, useCallback, useOptimistic, useState } from "react";
 import { Button } from "../../Button/Button";
 
 type PotentialRewardsRevealAllProps = {
@@ -16,18 +17,32 @@ type PotentialRewardsRevealAllProps = {
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
 }: PotentialRewardsRevealAllProps) {
+  const [optimisticRevealableQuestionsLength, revealOptimistic] = useOptimistic(
+    revealableQuestions.length,
+    (_, optimisticValue: number) => optimisticValue,
+  );
+
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
   const revealAll = useCallback(
-    async (burnTx?: string, nftAddress?: string) => {
+    async ({ burnTx, revealQuestionIds, pendingChompResults }: RevealProps) => {
       setIsLoading(true);
-      await revealQuestions(
-        revealableQuestions.map((q) => q.id),
-        burnTx,
-        nftAddress,
-      );
+
+      await Promise.all([
+        ...(revealQuestionIds
+          ? [revealQuestions(revealQuestionIds, burnTx)]
+          : []),
+        ...(pendingChompResults?.map((result) =>
+          revealQuestion(result.id, result.burnTx),
+        ) || []),
+      ]);
+
+      startTransition(() => {
+        revealOptimistic(0);
+      });
+
       queryClient.resetQueries({ queryKey: ["questions-history"] });
       closeRevealModal();
       setIsLoading(false);
@@ -55,11 +70,13 @@ export default function PotentialRewardsRevealAll({
           Potential Rewards
         </div>
         <div className="text-base text-white font-sora font-semibold leading-[12px]">
-          {numberToCurrencyFormatter.format(revealableQuestions.length * 10000)}{" "}
+          {numberToCurrencyFormatter.format(
+            optimisticRevealableQuestionsLength * 10000,
+          )}{" "}
           BONK
         </div>
       </div>
-      {revealableQuestions.length * 10000 !== 0 && (
+      {optimisticRevealableQuestionsLength * 10000 !== 0 && (
         <Button
           onClick={handleRevealAll}
           disabled={isLoading}

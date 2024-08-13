@@ -1,5 +1,6 @@
 "use client";
 import { revealDeck } from "@/app/actions/chompResult";
+import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import {
   DeckQuestionIncludes,
@@ -43,14 +44,11 @@ function DeckDetails({ deck }: DeckDetailsProps) {
   );
   const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
 
-  const revealAll = useCallback(
-    async (burnTx?: string, nftAddress?: string) => {
-      await revealDeck(deck.id, burnTx, nftAddress);
-      router.refresh();
-      closeRevealModal();
-    },
-    [],
-  );
+  const revealAll = useCallback(async ({ burnTx, nftAddress }: RevealProps) => {
+    await revealDeck(deck.id, burnTx, nftAddress);
+    router.refresh();
+    closeRevealModal();
+  }, []);
 
   const handleRevealAll = useCallback(
     () =>

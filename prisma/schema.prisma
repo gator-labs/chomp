@@ -168,7 +168,8 @@ model ChompResult {
   updatedAt                DateTime          @default(now()) @updatedAt
   transactionStatus        TransactionStatus @default(Completed)
 
-  @@unique([userId, questionId, deckId])
+  @@unique([userId, questionId])
+  @@unique([userId, deckId])
 }
 
 model FungibleAssetTransactionLog {

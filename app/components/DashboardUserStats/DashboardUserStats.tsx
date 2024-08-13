@@ -15,7 +15,7 @@ export async function DashboardUserStats() {
   const stats = await getUserStatistics();
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-2 px-4">
       <div className="grid grid-cols-2 gap-2">
         <TotalCardChompedInfo>
           <StatsChip
