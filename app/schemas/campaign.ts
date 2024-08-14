@@ -6,6 +6,7 @@ export const campaignSchema = z
     id: z.number().optional(),
     name: z.string().trim().min(1, "Name is required"),
     isActive: z.boolean(),
+    isVisible: z.boolean(),
     file: z
       .custom<File[]>()
       .optional()
