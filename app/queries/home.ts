@@ -245,6 +245,7 @@ async function queryRevealedQuestions(
       AND q."revealAtDate" IS NOT NULL 
       AND q."revealAtDate" < now() 
   ORDER BY q."revealAtDate" DESC
+  LIMIT 5
   `;
 
   return revealQuestions;
