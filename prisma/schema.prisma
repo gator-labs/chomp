@@ -218,6 +218,7 @@ model Campaign {
   id               Int                @id @default(autoincrement())
   name             String
   isActive         Boolean
+  isVisible        Boolean            @default(true)
   image            String
   questions        Question[]
   createdAt        DateTime           @default(now())

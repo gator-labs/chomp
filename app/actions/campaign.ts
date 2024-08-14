@@ -36,6 +36,7 @@ export async function createCampaign(data: z.infer<typeof campaignSchema>) {
     data: {
       name: validatedFields.data.name,
       isActive: validatedFields.data.isActive,
+      isVisible: validatedFields.data.isVisible,
       image: validatedFields.data.image,
     },
   });
@@ -92,6 +93,7 @@ export async function editCampaign(data: z.infer<typeof campaignSchema>) {
     data: {
       name: validatedFields.data.name,
       isActive: validatedFields.data.isActive,
+      isVisible: validatedFields.data.isVisible,
       image: validatedFields.data.image,
     },
   });
