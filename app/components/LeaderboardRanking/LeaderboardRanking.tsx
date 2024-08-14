@@ -40,7 +40,7 @@ const LeaderboardRanking = ({ label, loggedUserId, ranking }: Props) => {
                 name={name}
                 loggedUserId={loggedUserId}
                 userId={rankItem.user.id}
-                imageSrc={rankItem.user!.profileSrc || AvatarPlaceholder.src}
+                imageSrc={rankItem?.user?.profileSrc || AvatarPlaceholder.src}
               />
             );
           })}
