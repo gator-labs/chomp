@@ -114,7 +114,6 @@ model Deck {
   campaignId                  Int?
   deckQuestions               DeckQuestion[]
   userDeck                    UserDeck[]
-  chompResults                ChompResult[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
 }
 
@@ -158,18 +157,15 @@ model ChompResult {
   user                     User              @relation(fields: [userId], references: [id])
   questionId               Int?
   question                 Question?         @relation(fields: [questionId], references: [id])
-  deckId                   Int?
-  deck                     Deck?             @relation(fields: [deckId], references: [id])
   burnTransactionSignature String?
   sendTransactionSignature String?
   rewardTokenAmount        Decimal?
   result                   ResultType
   createdAt                DateTime          @default(now())
   updatedAt                DateTime          @default(now()) @updatedAt
-  transactionStatus        TransactionStatus @default(Completed)
+  transactionStatus        TransactionStatus
 
   @@unique([userId, questionId])
-  @@unique([userId, deckId])
 }
 
 model FungibleAssetTransactionLog {
