@@ -135,11 +135,6 @@ export async function revealQuestions(
     }
 
     const revealableQuestionIds = revealableQuestions.map((q) => q.id);
-    const decksToAddRevealFor =
-      await getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
-        revealableQuestionIds,
-        payload.sub,
-      );
 
     const questionRewards = await calculateReward(
       payload.sub,
@@ -173,12 +168,6 @@ export async function revealQuestions(
             burnTransactionSignature: burnTx,
             rewardTokenAmount: questionReward.rewardAmount,
             transactionStatus: TransactionStatus.Completed,
-          })),
-          ...decksToAddRevealFor.map((deck) => ({
-            deckId: deck.id,
-            userId: payload.sub,
-            result: ResultType.Revealed,
-            burnTransactionSignature: burnTx,
           })),
         ],
       });
