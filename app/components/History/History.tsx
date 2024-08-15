@@ -6,7 +6,7 @@ import QuestionRowCard from "../QuestionRowCard/QuestionRowCard";
 import Skeleton from "../Skeleton/Skeleton";
 
 export default function History() {
-  const { data, isFetchingNextPage, isFetching, lastElementRef, isLoading } =
+  const { data, isFetchingNextPage, lastElementRef, isLoading } =
     useInfiniteQuestionsHistory();
 
   if (isLoading) return <HistoryListSkeleton />;
@@ -21,7 +21,7 @@ export default function History() {
             ref={lastElementRef}
           />
         ))}
-        {(isFetchingNextPage || isFetching) && <Skeleton />}
+        {isFetchingNextPage && <Skeleton />}
       </ul>
     </div>
   );
