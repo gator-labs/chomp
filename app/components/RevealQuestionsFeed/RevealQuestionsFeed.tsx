@@ -1,3 +1,5 @@
+import { useToast } from "@/app/providers/ToastProvider";
+import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { getBonkBalance } from "@/app/utils/solana";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useEffect, useState } from "react";
@@ -12,12 +14,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../Dialog/Dialog";
+import { CopyIcon } from "../Icons/CopyIcon";
+import { InfoIcon } from "../Icons/InfoIcon";
 import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
 import SkeletonCard from "../SkeletonCard/SkeletonCard";
-import { CopyIcon } from "../Icons/CopyIcon";
-import { copyTextToClipboard } from "@/app/utils/clipboard";
-import { useToast } from "@/app/providers/ToastProvider";
-import { InfoIcon } from "../Icons/InfoIcon";
 
 type RevealQuestionsFeedProps = {
   selectAll: boolean;
@@ -27,7 +27,7 @@ type RevealQuestionsFeedProps = {
   handleSelect: (id: number) => void;
   onBurn: () => void;
   wallet: string;
-  isQuestionsLoading: boolean
+  isQuestionsLoading: boolean;
 };
 export default function RevealQuestionsFeed({
   selectAll,
@@ -37,7 +37,7 @@ export default function RevealQuestionsFeed({
   handleSelect,
   onBurn,
   wallet,
-  isQuestionsLoading
+  isQuestionsLoading,
 }: RevealQuestionsFeedProps) {
   const [bonkBalance, setBonkBalance] = useState(0);
   const { successToast } = useToast();
@@ -52,7 +52,6 @@ export default function RevealQuestionsFeed({
 
   useEffect(() => {
     const fetchBonkBalance = async () => {
-
       const balance = await getBonkBalance(wallet);
       setBonkBalance(balance);
     };
@@ -144,7 +143,7 @@ export default function RevealQuestionsFeed({
                 </Button>
               </DialogPrimitive.Close>
               <div className="flex w-full gap-2 p-4 text-sm items-start justify-start bg-neutral-600 rounded-lg">
-                <InfoIcon width={40} height={20} /> {" "}
+                <InfoIcon width={40} height={20} />{" "}
                 <p>
                   You would need to burn $BONK to reveal the answer, regardless
                   of whether you&apos;ve chomped on the question card earlier or

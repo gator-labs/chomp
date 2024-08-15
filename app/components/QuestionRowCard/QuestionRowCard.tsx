@@ -1,5 +1,6 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestions } from "@/app/actions/claim";
+import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
@@ -18,7 +19,6 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import { DollarIcon } from "../Icons/DollarIcon";
 import { EyeIcon } from "../Icons/EyeIcon";
 import LeadToIcon from "../Icons/LeadToIcon";
-import { RevealProps } from "@/app/hooks/useReveal";
 
 const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
   (question, ref) => {

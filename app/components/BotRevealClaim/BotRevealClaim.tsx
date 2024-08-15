@@ -1,11 +1,8 @@
-import { useToast } from "@/app/providers/ToastProvider";
-import { copyTextToClipboard } from "@/app/utils/clipboard";
-import { formatAddress } from "@/app/utils/wallet";
 import { WalletIcon } from "@/app/components/Icons/WalletIcon";
 import Image from "next/image";
-import Tabs from "../Tabs/Tabs";
-import WalletPopUp from "../Bot/WalletPopUp/WalletPopUp";
 import { useState } from "react";
+import WalletPopUp from "../Bot/WalletPopUp/WalletPopUp";
+import Tabs from "../Tabs/Tabs";
 
 type BotRevealClaimProps = {
   children: React.ReactNode;
@@ -13,9 +10,9 @@ type BotRevealClaimProps = {
   setActiveTab: (tab: number) => void;
   wallet: string;
   userBalance: {
-    solBalance: number,
-    bonkBalance: number
-  }
+    solBalance: number;
+    bonkBalance: number;
+  };
 };
 
 export default function BotRevealClaim({
@@ -23,7 +20,7 @@ export default function BotRevealClaim({
   activeTab,
   setActiveTab,
   wallet,
-  userBalance
+  userBalance,
 }: BotRevealClaimProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,14 +44,18 @@ export default function BotRevealClaim({
         <button
           className="text-sm cursor-pointer"
           onClick={() => {
-            openQuickProfile()
+            openQuickProfile();
           }}
         >
           <WalletIcon />
         </button>
       </span>
-      <WalletPopUp isOpen={isOpen}
-        onClose={closeQuickProfile} wallet={wallet} userBalance={userBalance} />
+      <WalletPopUp
+        isOpen={isOpen}
+        onClose={closeQuickProfile}
+        wallet={wallet}
+        userBalance={userBalance}
+      />
       <p className="text-2xl font-bold">Reveal and Claim</p>
       <p>
         You can view and reveal all cards that are ready to reveal below. Only
