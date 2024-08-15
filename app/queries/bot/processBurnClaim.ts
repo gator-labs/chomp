@@ -88,14 +88,19 @@ export async function revealAllSelected(
 
       await tx.chompResult.createMany({
         data: [
-          ...revealableQuestionIds.map((questionId) => ({
-            questionId,
-            userId: userId,
-            result: ResultType.Revealed,
-            burnTransactionSignature: burnTx,
-            rewardTokenAmount: rewardsPerQuestionId?.[questionId],
-            transactionStatus: TransactionStatus.Completed,
-          })),
+          ...revealableQuestionIds.map((questionId) => {
+            const reward = rewardsPerQuestionId.find(
+              (question) => question.questionId === questionId,
+            );
+            return {
+              questionId,
+              userId: userId,
+              result: ResultType.Revealed,
+              burnTransactionSignature: burnTx,
+              rewardTokenAmount: reward ? reward.rewardAmount : undefined,
+              transactionStatus: TransactionStatus.Completed,
+            };
+          }),
           ...decksToAddRevealFor.map((deck) => ({
             deckId: deck.id,
             userId: userId,
