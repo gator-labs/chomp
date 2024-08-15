@@ -4,14 +4,12 @@ import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
 import { WalletIcon } from "@/app/components/Icons/WalletIcon";
 import Stepper from "@/app/components/Stepper/Stepper";
-import { useWindowSize } from "@/app/hooks/useWindowSize";
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
 import { useState } from "react";
 import { SLIDESHOW } from "./constants";
 
 const SlideshowScreen = () => {
   const [activeSlide, setActiveSlide] = useState(0);
-  const { width } = useWindowSize();
 
   const isLastSlideActive = SLIDESHOW.length - 1 === activeSlide;
   const isFirstSlideActive = activeSlide === 0;
@@ -39,8 +37,6 @@ const SlideshowScreen = () => {
             >
               <HalfArrowLeftIcon
                 fill={isFirstSlideActive ? "#666666" : "#fff"}
-                width={width > 768 ? 32 : 24}
-                height={width > 768 ? 32 : 24}
               />
             </div>
             <div>
@@ -59,8 +55,6 @@ const SlideshowScreen = () => {
             >
               <HalfArrowRightIcon
                 fill={isLastSlideActive ? "#666666" : "#fff"}
-                width={width > 768 ? 32 : 24}
-                height={width > 768 ? 32 : 24}
               />
             </div>
           </div>

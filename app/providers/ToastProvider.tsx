@@ -178,8 +178,9 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     options?: ToastOptions,
   ) => {
     // Show the loading toast
-    const toastId = toast.custom(() =>
-      loadingToastLayout(msgs.loading, msgs.description),
+    const toastId = toast.custom(
+      () => loadingToastLayout(msgs.loading, msgs.description),
+      options,
     );
 
     // Handle the promise resolution or rejection

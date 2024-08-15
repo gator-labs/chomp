@@ -62,7 +62,6 @@ const meta = {
         questionTags: [],
       },
     ],
-    browseHomeUrl: "/application",
     deckVariant: "daily-deck",
   },
   decorators: (Story) => (

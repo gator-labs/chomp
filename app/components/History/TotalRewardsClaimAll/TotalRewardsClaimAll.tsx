@@ -1,61 +1,70 @@
 "use client";
 import { claimAllAvailable } from "@/app/actions/claim";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { ONE_SECOND_IN_MILLISECONDS } from "@/app/utils/dateUtils";
+import { useQueryClient } from "@tanstack/react-query";
+import { startTransition, useOptimistic } from "react";
 import { Button } from "../../Button/Button";
 
 type TotalRewardsClaimAllProps = {
   totalRevealedRewards: number;
-  onRefresh: () => void;
 };
 
 export default function TotalRewardsClaimAll({
   totalRevealedRewards,
-  onRefresh,
 }: TotalRewardsClaimAllProps) {
+  const [optimisticAmount, claimOptimistic] = useOptimistic(
+    totalRevealedRewards,
+    (_, optimisticValue: number) => optimisticValue,
+  );
   const { promiseToast, successToast } = useToast();
   const { fire } = useConfetti();
+  const queryClient = useQueryClient();
+  const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClaimAll = async () => {
-    try {
-      await promiseToast(claimAllAvailable(), {
-        loading: "Waiting for transaction...",
+    setIsClaiming(true);
+    await promiseToast(
+      claimAllAvailable(),
+      {
+        loading: "Claim in progress. Please wait...",
         success: "Funds are transferred!",
         error: "Issue transferring funds.",
         isChompLoader: true,
-      });
-      fire();
-      successToast(
-        "Claimed!",
-        `You have successfully claimed ${numberToCurrencyFormatter.format(totalRevealedRewards)} BONK!`,
-      );
-      setTimeout(() => {
-        onRefresh();
-      }, ONE_SECOND_IN_MILLISECONDS * 4);
-    } catch (error) {
-      return;
-    }
+      },
+      { duration: Infinity },
+    );
+    startTransition(() => {
+      claimOptimistic(0);
+    });
+    queryClient.resetQueries({ queryKey: ["questions-history"] });
+
+    fire();
+    successToast(
+      "Claimed!",
+      `You have successfully claimed ${numberToCurrencyFormatter.format(totalRevealedRewards)} BONK!`,
+    );
+    setIsClaiming(false);
   };
 
   return (
-    <div className="flex justify-between px-4 mt-4">
-      <div className="flex flex-col justify-between">
-        <div className="text-sm text-white font-sora">
-          Total Revealed Rewards
-        </div>
-        <div className="text-base text-white font-sora">
-          {numberToCurrencyFormatter.format(totalRevealedRewards)} BONK
-        </div>
+    <div className="flex justify-between">
+      <div className="flex flex-col justify-between gap-[10px]">
+        <p className="text-xs text-white leading-[7px]">Claimable rewards</p>
+        <p className="text-base text-white leading-[12px]">
+          {numberToCurrencyFormatter.format(optimisticAmount)} BONK
+        </p>
       </div>
-      {totalRevealedRewards !== 0 && (
+      {optimisticAmount !== 0 && (
         <Button
           onClick={onClaimAll}
+          disabled={isClaiming}
           variant="white"
           size="small"
           isPill
-          className="basis-24"
+          className="!w-fit h-[29px] px-4 text-xs"
         >
           Claim all
         </Button>

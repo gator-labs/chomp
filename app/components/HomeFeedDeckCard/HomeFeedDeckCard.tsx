@@ -1,5 +1,10 @@
+"use client";
+
 import classNames from "classnames";
+import Image from "next/image";
+import Link from "next/link";
 import { DeckGraphic } from "../Graphics/DeckGraphic";
+import CardsIcon from "../Icons/CardsIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
 
 type StatusUnion = "chomped" | "new" | "continue";
@@ -10,7 +15,7 @@ type HomeFeedDeckCardProps = {
   answerCount?: number;
   revealAtAnswerCount?: number;
   status?: StatusUnion;
-  onClick: () => void;
+  deckId: number;
 };
 
 const getStatusText = (status: StatusUnion) => {
@@ -33,17 +38,26 @@ export function HomeFeedDeckCard({
   answerCount,
   revealAtAnswerCount,
   status,
-  onClick,
+  deckId,
 }: HomeFeedDeckCardProps) {
   return (
-    <div
-      onClick={onClick}
+    <Link
+      href={`application/answer/deck/${deckId}`}
       className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
-      <div className="w-[90px] h-[90px] flex-shrink-0">
+      <div className="w-[90px] h-[90px] flex-shrink-0 relative">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} className="w-full h-full object-contain" alt="" />
+          <>
+            <CardsIcon className="absolute top-0 left-0 w-full h-full" />
+            <Image
+              src={imageUrl}
+              alt="logo"
+              width={36}
+              height={36}
+              className="z-10 absolute w-9 h-9 rounded-full top-1/2 left-1/2 translate-x-[-50%] -translate-y-1/2 object-cover"
+            />
+          </>
         ) : (
           <DeckGraphic className="w-full h-full" />
         )}
@@ -69,6 +83,6 @@ export function HomeFeedDeckCard({
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

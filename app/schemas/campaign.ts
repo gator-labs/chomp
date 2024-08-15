@@ -1,23 +1,12 @@
 import { z } from "zod";
 import { IMAGE_VALID_TYPES, MAX_IMAGE_UPLOAD_SIZE } from "../constants/images";
 
-const validateFile = (file: File) => {
-  if (file.size > MAX_IMAGE_UPLOAD_SIZE) {
-    return false;
-  }
-
-  if (!IMAGE_VALID_TYPES.includes(file.type)) {
-    return false;
-  }
-
-  return true;
-};
-
 export const campaignSchema = z
   .object({
     id: z.number().optional(),
     name: z.string().trim().min(1, "Name is required"),
     isActive: z.boolean(),
+    isVisible: z.boolean(),
     file: z
       .custom<File[]>()
       .optional()

@@ -9,21 +9,23 @@ import { TabNavigation } from "@/app/components/TabNavigation/TabNavigation";
 import { getAnsweredQuestionsStatus } from "@/app/utils/question";
 
 interface Props {
+  nextDeckId?: number;
   date?: Date | null;
   questions?: Question[];
   id?: number;
-  isAdmin: boolean;
   navBarData: NavbarProps;
+  isAdmin: boolean;
   percentOfAnsweredQuestions: number;
 }
 
 const DailyDeckScreen = ({
+  nextDeckId,
   date,
   questions,
   id,
-  isAdmin,
   navBarData,
   percentOfAnsweredQuestions,
+  isAdmin,
 }: Props) => {
   const deckVariant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
 
@@ -47,11 +49,11 @@ const DailyDeckScreen = ({
                 <Deck
                   questions={questions}
                   deckId={id!}
-                  browseHomeUrl="/application"
+                  nextDeckId={nextDeckId}
                 />
               ) : (
                 <NoQuestionsCard
-                  browseHomeUrl="/application"
+                  nextDeckId={nextDeckId}
                   variant={deckVariant}
                 />
               )}

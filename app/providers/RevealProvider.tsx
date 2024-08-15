@@ -6,6 +6,7 @@ import { Button } from "../components/Button/Button";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { InfoIcon } from "../components/Icons/InfoIcon";
 import Sheet from "../components/Sheet/Sheet";
+import Spinner from "../components/Spinner/Spinner";
 import { RevealCallbackProps, useReveal } from "../hooks/useReveal";
 import { numberToCurrencyFormatter } from "../utils/currency";
 
@@ -40,14 +41,17 @@ export function RevealContextProvider({
     isRevealModalOpen,
     insufficientFunds,
     revealPrice,
-    hasPendingTransactions,
+    pendingTransactions,
     isRevealWithNftMode,
-    nftType,
+    questionIds,
+    isLoading,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
     wallet: primaryWallet,
   });
+
+  const hasPendingTransactions = pendingTransactions > 0;
 
   const revealButtons = () => {
     if (insufficientFunds && !isRevealWithNftMode) {
@@ -121,10 +125,10 @@ export function RevealContextProvider({
               onClick={() => burnAndReveal()}
               className="flex items-center h-10"
             >
-              {hasPendingTransactions
+              {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
                 : isRevealWithNftMode
-                  ? `Reveal with ${nftType} NFT`
+                  ? "Reveal with Chomp Collectible"
                   : "Reveal"}
             </Button>
             <Button
@@ -132,7 +136,7 @@ export function RevealContextProvider({
               className="h-10"
               isPill
               onClick={() =>
-                isRevealWithNftMode ? burnAndReveal() : resetReveal()
+                isRevealWithNftMode ? burnAndReveal(true) : resetReveal()
               }
             >
               {isRevealWithNftMode
@@ -169,11 +173,12 @@ export function RevealContextProvider({
   };
 
   const getDescriptionNode = () => {
-    if (hasPendingTransactions) {
+    if (hasPendingTransactions && !questionIds.length) {
       return (
         <p className="text-sm">
-          It looks like you have started revealing this question. Please click
-          Continue.
+          It looks like you have started revealing{" "}
+          {pendingTransactions > 1 ? "these questions" : "this question"}.
+          Please click Continue.
         </p>
       );
     }
@@ -188,7 +193,9 @@ export function RevealContextProvider({
     }
 
     if (isRevealWithNftMode) {
-      return <p className="text-sm">{nftType} NFT will be used for reveal</p>;
+      return (
+        <p className="text-sm">Chomp Collectible will be used for reveal</p>
+      );
     }
 
     return (
@@ -216,22 +223,32 @@ export function RevealContextProvider({
         closeIconHeight={16}
         closeIconWidth={16}
       >
-        <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-row w-full items-center justify-between">
-              <h3
-                className={classNames("font-bold", {
-                  "text-[#DD7944]": insufficientFunds,
-                  "text-[#A3A3EC]": !insufficientFunds,
-                })}
-              >
-                {insufficientFunds ? "Insufficient Funds" : "Reveal answer?"}
-              </h3>
-            </div>
-            {getDescriptionNode()}
+        {isLoading ? (
+          <div className="h-[270px] flex items-center justify-center">
+            <Spinner />
           </div>
-          <div className="flex flex-col gap-2">{revealButtons()}</div>
-        </div>
+        ) : (
+          <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-row w-full items-center justify-between">
+                <h3
+                  className={classNames("font-bold", {
+                    "text-[#DD7944]": insufficientFunds,
+                    "text-[#A3A3EC]": !insufficientFunds,
+                  })}
+                >
+                  {insufficientFunds
+                    ? "Insufficient Funds"
+                    : questionIds.length > 1
+                      ? "Reveal all?"
+                      : "Reveal answer?"}
+                </h3>
+              </div>
+              {getDescriptionNode()}
+            </div>
+            <div className="flex flex-col gap-2">{revealButtons()}</div>
+          </div>
+        )}
       </Sheet>
 
       {children}

@@ -1,12 +1,12 @@
 "use client";
 
+import { RevealProps } from "@/app/hooks/useReveal";
 import { Button } from "../Button/Button";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
 
 import { revealQuestion } from "@/app/actions/chompResult";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { NftType } from "@prisma/client";
 import { useRouter } from "next-nprogress-bar";
 
 type RevealFeedQuestionCardProps = {
@@ -16,6 +16,7 @@ type RevealFeedQuestionCardProps = {
   answerCount?: number;
   revealAtAnswerCount?: number;
   revealTokenAmount?: number;
+  image?: string;
 };
 
 export function RevealFeedQuestionCard({
@@ -25,17 +26,14 @@ export function RevealFeedQuestionCard({
   answerCount,
   revealAtAnswerCount,
   revealTokenAmount,
+  image,
 }: RevealFeedQuestionCardProps) {
   const router = useRouter();
   const { openRevealModal } = useRevealedContext();
 
   const handleReveal = () => {
     openRevealModal({
-      reveal: async (
-        burnTx?: string,
-        nftAddress?: string,
-        nftType?: NftType,
-      ) => {
+      reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
         await revealQuestion(id, burnTx, nftAddress, nftType);
         router.push("/application/answer/reveal/" + id);
         router.refresh();
@@ -49,6 +47,7 @@ export function RevealFeedQuestionCard({
     <FeedQuestionCard
       question={question}
       answerCount={answerCount}
+      image={image}
       revealAtAnswerCount={revealAtAnswerCount}
       revealAtDate={revealAtDate}
       statusLabel={<span className="text-xs leading-6 text-aqua">Chomped</span>}

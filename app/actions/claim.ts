@@ -38,6 +38,32 @@ export async function claimDecks(deckIds: number[]) {
   return await claimQuestions(questions.map((q) => q.questionId));
 }
 
+export async function getClaimableQuestionIds(): Promise<number[]> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const claimableQuestions = await prisma.chompResult.findMany({
+    where: {
+      userId: payload.sub,
+      result: "Revealed",
+      questionId: { not: null },
+      rewardTokenAmount: {
+        gt: 0,
+      },
+    },
+    select: {
+      questionId: true,
+    },
+  });
+
+  return claimableQuestions.map(
+    (claimableQuestion) => claimableQuestion.questionId!,
+  );
+}
+
 export async function getAllRevealableQuestions() {
   const payload = await getJwtPayload();
 
@@ -68,10 +94,11 @@ export async function claimAllAvailable() {
     return null;
   }
 
-  const revealedChompResults = await getAllRevealableQuestions();
-  const questionIds = revealedChompResults!.map((rcp) => rcp.questionId ?? 0); // Nulls are filtered in query
+  const claimableQuestionIds = await getClaimableQuestionIds();
 
-  return await claimQuestions(questionIds);
+  if (!claimableQuestionIds.length) throw new Error("No claimable questions");
+
+  await claimQuestions(claimableQuestionIds);
 }
 
 export async function claimQuestions(questionIds: number[]) {
@@ -135,69 +162,69 @@ export async function claimQuestions(questionIds: number[]) {
           },
         });
 
-        const questionIdsClaimed = chompResults.map((cr) => cr.questionId ?? 0);
+        // const questionIdsClaimed = chompResults.map((cr) => cr.questionId ?? 0);
         // We're querying dirty data in transaction so we need claimed questions
-        const decks = await tx.deck.findMany({
-          where: {
-            deckQuestions: {
-              some: {
-                questionId: {
-                  in: questionIdsClaimed,
-                },
-              },
-              every: {
-                question: {
-                  chompResults: {
-                    every: {
-                      userId: payload.sub,
-                      result: ResultType.Claimed,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          include: {
-            chompResults: {
-              where: {
-                userId: payload.sub,
-              },
-            },
-          },
-        });
+        // const decks = await tx.deck.findMany({
+        //   where: {
+        //     deckQuestions: {
+        //       some: {
+        //         questionId: {
+        //           in: questionIdsClaimed,
+        //         },
+        //       },
+        //       every: {
+        //         question: {
+        //           chompResults: {
+        //             every: {
+        //               userId: payload.sub,
+        //               result: ResultType.Claimed,
+        //             },
+        //           },
+        //         },
+        //       },
+        //     },
+        //   },
+        //   include: {
+        //     chompResults: {
+        //       where: {
+        //         userId: payload.sub,
+        //       },
+        //     },
+        //   },
+        // });
 
-        const deckRevealsToUpdate = decks
-          .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
-          .map((deck) => deck.id);
+        // const deckRevealsToUpdate = decks
+        //   .filter((deck) => deck.chompResults && deck.chompResults.length > 0)
+        //   .map((deck) => deck.id);
 
-        if (deckRevealsToUpdate.length > 0) {
-          await tx.chompResult.updateMany({
-            where: {
-              deckId: { in: deckRevealsToUpdate },
-            },
-            data: {
-              result: ResultType.Claimed,
-              sendTransactionSignature: sendTx,
-            },
-          });
-        }
+        // if (deckRevealsToUpdate.length > 0) {
+        //   await tx.chompResult.updateMany({
+        //     where: {
+        //       deckId: { in: deckRevealsToUpdate },
+        //     },
+        //     data: {
+        //       result: ResultType.Claimed,
+        //       sendTransactionSignature: sendTx,
+        //     },
+        //   });
+        // }
 
-        const deckRevealsToCreate = decks
-          .filter(
-            (deck) => !deck.chompResults || deck.chompResults.length === 0,
-          )
-          .map((deck) => deck.id);
+        // const deckRevealsToCreate = decks
+        //   .filter(
+        //     (deck) => !deck.chompResults || deck.chompResults.length === 0,
+        //   )
+        //   .map((deck) => deck.id);
 
-        if (deckRevealsToCreate.length > 0) {
-          await tx.chompResult.createMany({
-            data: deckRevealsToCreate.map((deckId) => ({
-              deckId,
-              userId: payload.sub,
-              result: ResultType.Claimed,
-              sendTransactionSignature: sendTx,
-            })),
-          });
-        }
+        // if (deckRevealsToCreate.length > 0) {
+        //   await tx.chompResult.createMany({
+        //     data: deckRevealsToCreate.map((deckId) => ({
+        //       deckId,
+        //       userId: payload.sub,
+        //       result: ResultType.Claimed,
+        //       sendTransactionSignature: sendTx,
+        //     })),
+        //   });
+        // }
       },
       {
         isolationLevel: "Serializable",
@@ -207,6 +234,7 @@ export async function claimQuestions(questionIds: number[]) {
 
     release();
     revalidatePath("/application");
+    revalidatePath("/application/profile/history");
     return sendTx;
   } catch (e) {
     console.log("Error while claiming question", e);

@@ -25,6 +25,7 @@ export type Option = {
 };
 
 export type Question = {
+  deckRevealAtDate?: Date | null;
   id: number;
   durationMiliseconds: number;
   question: string;
@@ -36,8 +37,8 @@ export type Question = {
 
 type DeckProps = {
   questions: Question[];
-  browseHomeUrl?: string;
   deckId: number;
+  nextDeckId?: number;
   deckVariant?: "daily-deck" | "regular-deck";
 };
 
@@ -49,8 +50,8 @@ const getDueAt = (questions: Question[], index: number): Date => {
 
 export function Deck({
   questions,
-  browseHomeUrl,
   deckId,
+  nextDeckId,
   deckVariant,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
@@ -60,16 +61,20 @@ export function Deck({
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion,
   );
+
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const { random, generateRandom } = useRandom({
-    min: 0,
-    max:
-      questions[currentQuestionIndex] &&
-      questions[currentQuestionIndex].questionOptions.length > 0
-        ? questions[currentQuestionIndex].questionOptions.length - 1
-        : 0,
+  const min = 0;
+  const max =
+    !!questions[currentQuestionIndex] &&
+    questions[currentQuestionIndex].questionOptions.length > 0
+      ? questions[currentQuestionIndex].questionOptions.length - 1
+      : 0;
+
+  const { random, generateRandom, setRandom } = useRandom({
+    min,
+    max,
   });
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
   const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
@@ -88,7 +93,13 @@ export function Deck({
     setRerenderAction(false);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
-    generateRandom();
+    const min = 0;
+    const max =
+      !!questions[currentQuestionIndex + 1] &&
+      questions[currentQuestionIndex + 1].questionOptions.length > 0
+        ? questions[currentQuestionIndex + 1].questionOptions.length - 1
+        : 0;
+    generateRandom({ min, max });
     reset();
     setTimeout(() => {
       setRerenderAction(true);
@@ -106,7 +117,7 @@ export function Deck({
     generateRandom,
     setCurrentOptionSelected,
     reset,
-    questionsRef.current,
+    questions,
   ]);
 
   const question = useMemo(
@@ -116,7 +127,19 @@ export function Deck({
 
   const handleNoAnswer = useCallback(() => {
     setIsTimeOutPopUpVisible(false);
-    setDeckResponse((prev) => [...prev, { questionId: question.id }]);
+    setDeckResponse((prevRes) => {
+      const answeredQuestion = prevRes.find(
+        (item) => item.questionId === question.id,
+      );
+      const rest = prevRes.filter((item) => item.questionId !== question.id);
+
+      return [
+        ...rest,
+        answeredQuestion
+          ? { ...answeredQuestion, hasViewedButNotSubmitted: true }
+          : { questionId: question.id, hasViewedButNotSubmitted: true },
+      ];
+    });
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
 
@@ -126,6 +149,9 @@ export function Deck({
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setDeckResponse((prev) => [
           ...prev,
           { questionId: question.id, questionOptionId: number },
@@ -211,8 +237,9 @@ export function Deck({
     return (
       <div className="flex flex-col justify-evenly h-full pb-4">
         <NoQuestionsCard
-          browseHomeUrl={browseHomeUrl}
           variant={deckVariant || variant}
+          nextDeckId={nextDeckId}
+          deckRevealAtDate={questions[0].deckRevealAtDate}
         />
       </div>
     );

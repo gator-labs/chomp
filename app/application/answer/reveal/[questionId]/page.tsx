@@ -1,7 +1,7 @@
+import BackButton from "@/app/components/BackButton/BackButton";
 import BestAnswerBinary from "@/app/components/BestAnswerBinary/BestAnswerBinary";
 import BestAnswerMultipleChoice from "@/app/components/BestAnswerMultipleChoice/BestAnswerMultipleChoice";
 import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
-import { HalfArrowLeftIcon } from "@/app/components/Icons/HalfArrowLeftIcon";
 import LikeIcon from "@/app/components/Icons/LikeIcon";
 import { OpenLinkIcon } from "@/app/components/Icons/OpenLinkIcon";
 import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
@@ -13,15 +13,14 @@ import QuestionAnswerPreviewBinary from "@/app/components/QuestionAnswerPreviewB
 import QuestionAnswerPreviewMultipleChoice from "@/app/components/QuestionAnswerPreviewMultipleChoice/QuestionAnswerPreviewMultipleChoice";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
-import { getProfileImage } from "@/app/queries/profile";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
+import { getCurrentUser } from "@/app/queries/user";
 import {
   BINARY_QUESTION_OPTION_LABELS,
   BINARY_QUESTION_TRUE_LABELS,
   getAlphaIdentifier,
 } from "@/app/utils/question";
 import { QuestionType, ResultType, TransactionStatus } from "@prisma/client";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 interface Props {
@@ -33,11 +32,10 @@ interface Props {
 const BONK_REWARD_AMOUNT_FOR_FIRST_ORDER_CORRECT = 5000;
 
 const RevealAnswerPage = async ({ params }: Props) => {
-  const questionResponse = await getQuestionWithUserAnswer(
-    Number(params.questionId),
-  );
-
-  const profile = await getProfileImage();
+  const [questionResponse, user] = await Promise.all([
+    getQuestionWithUserAnswer(Number(params.questionId)),
+    getCurrentUser(),
+  ]);
 
   const sendTransactionSignature =
     questionResponse?.chompResults[0]?.sendTransactionSignature;
@@ -155,7 +153,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           optionSelected={answerSelected.questionOption.option ?? ""}
           percentageSelected={answerSelected.percentage ?? 0}
           isCorrect={isSecondOrderCorrect}
-          avatarSrc={profile}
+          avatarSrc={user?.profileSrc || ""}
         />
       </>
     );
@@ -196,7 +194,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           optionSelected={optionSelected?.questionOption.option ?? ""}
           percentageSelected={optionSelected?.percentage ?? 0}
           isCorrect={isSecondOrderCorrect}
-          avatarSrc={profile}
+          avatarSrc={user?.profileSrc || ""}
         />
       </>
     );
@@ -265,9 +263,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
     <div className="py-2 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 justify-start">
-          <Link href="/application">
-            <HalfArrowLeftIcon />
-          </Link>
+          <BackButton />
           <h4 className="text-[13px] font-normal leading-[13px] text-left">
             Viewing answer results
           </h4>

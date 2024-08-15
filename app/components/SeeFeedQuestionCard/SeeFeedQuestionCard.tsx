@@ -3,7 +3,6 @@
 import { useRouter } from "next-nprogress-bar";
 import { Button } from "../Button/Button";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
-import { OpenLinkIcon } from "../Icons/OpenLinkIcon";
 
 type ClaimFeedQuestionCardProps = {
   id: number;
@@ -43,11 +42,6 @@ export function SeeFeedQuestionCard({
             <div>See Answer</div>
           </div>
         </Button>
-      }
-      topCornerActionIcon={
-        <div>
-          <OpenLinkIcon />
-        </div>
       }
     />
   );

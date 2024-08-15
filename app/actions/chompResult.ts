@@ -141,14 +141,12 @@ export async function revealQuestions(
         payload.sub,
       );
 
-    const rewardsPerQuestionId = await calculateReward(
+    const questionRewards = await calculateReward(
       payload.sub,
       revealableQuestionIds,
     );
 
-    const revealPoints = await calculateRevealPoints(
-      Object.values(rewardsPerQuestionId!),
-    );
+    const revealPoints = await calculateRevealPoints(questionRewards);
 
     const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
 
@@ -168,12 +166,12 @@ export async function revealQuestions(
 
       await tx.chompResult.createMany({
         data: [
-          ...revealableQuestionIds.map((questionId) => ({
-            questionId,
+          ...questionRewards.map((questionReward) => ({
+            questionId: questionReward.questionId,
             userId: payload.sub,
             result: ResultType.Revealed,
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: rewardsPerQuestionId?.[questionId],
+            rewardTokenAmount: questionReward.rewardAmount,
             transactionStatus: TransactionStatus.Completed,
           })),
           ...decksToAddRevealFor.map((deck) => ({
@@ -204,29 +202,29 @@ export async function revealQuestions(
         },
       });
 
-      const campaignId = revealableQuestions[0].campaignId;
+      // const campaignId = revealableQuestions[0].campaignId;
 
-      if (!!campaignId) {
-        const currentDate = new Date();
+      // if (!!campaignId) {
+      //   const currentDate = new Date();
 
-        await tx.dailyLeaderboard.upsert({
-          where: {
-            user_campaign_date: {
-              userId: payload.sub,
-              campaignId: revealableQuestions[0].campaignId!,
-              date: currentDate,
-            },
-          },
-          create: {
-            userId: payload.sub,
-            campaignId: revealableQuestions[0].campaignId,
-            points: pointsAmount,
-          },
-          update: {
-            points: { increment: pointsAmount },
-          },
-        });
-      }
+      //   await tx.dailyLeaderboard.upsert({
+      //     where: {
+      //       user_campaign_date: {
+      //         userId: payload.sub,
+      //         campaignId: revealableQuestions[0].campaignId!,
+      //         date: currentDate,
+      //       },
+      //     },
+      //     create: {
+      //       userId: payload.sub,
+      //       campaignId: revealableQuestions[0].campaignId,
+      //       points: pointsAmount,
+      //     },
+      //     update: {
+      //       points: { increment: pointsAmount },
+      //     },
+      //   });
+      // }
 
       await tx.fungibleAssetTransactionLog.createMany({
         data: revealPoints.map((revealPointsTx) => ({
@@ -234,6 +232,7 @@ export async function revealQuestions(
           type: revealPointsTx.type,
           change: revealPointsTx.amount,
           userId: payload.sub,
+          questionId: revealPointsTx.questionId,
         })),
       });
     });
@@ -368,30 +367,46 @@ export async function hasBonkBurnedCorrectly(
     })
   ).map((wallet) => wallet.address);
 
-  const burnTransactionCount = await prisma.chompResult.count({
-    where: {
-      burnTransactionSignature: burnTx,
-      transactionStatus: TransactionStatus.Completed,
-    },
-  });
+  let transaction;
+  const interval = 1000;
+  const maxRetries = 5;
+  let attempts = 0;
 
-  if (burnTransactionCount > 0) {
-    return false;
+  while (!transaction && attempts < maxRetries) {
+    try {
+      transaction = await CONNECTION.getParsedTransaction(burnTx, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+    } catch (error) {
+      console.error("Error fetching transaction, retrying...", error);
+    }
+
+    if (!transaction) {
+      attempts++;
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
   }
-
-  const transaction = await CONNECTION.getParsedTransaction(burnTx, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
 
   if (!transaction || transaction.meta?.err) {
     return false;
   }
 
+  const burnTransactionCount = await prisma.chompResult.count({
+    where: {
+      burnTransactionSignature: burnTx,
+      transactionStatus: TransactionStatus.Completed,
+      questionId: {
+        not: null,
+      },
+    },
+  });
+
   const burnInstruction = transaction.transaction.message.instructions.find(
     (instruction) =>
       "parsed" in instruction &&
-      +instruction.parsed.info.tokenAmount.amount >= bonkToBurn * 10 ** 5 &&
+      +instruction.parsed.info.tokenAmount.amount >=
+        bonkToBurn * 10 ** 5 * (burnTransactionCount + 1) &&
       instruction.parsed.type === "burnChecked" &&
       wallets.includes(instruction.parsed.info.authority) &&
       instruction.parsed.info.mint ===
@@ -477,9 +492,9 @@ export async function handleFirstRevealToPopulateSubjectiveQuestion(
     },
   });
 
-  const revealableQuestions = questions.filter((question) =>
-    isEntityRevealable(question),
-  );
+  const revealableQuestionIds = questions
+    ?.filter((question) => isEntityRevealable(question))
+    ?.map((q) => q?.id);
 
   const uncalculatedQuestionOptionCount = await prisma.questionOption.count({
     where: {
@@ -488,12 +503,12 @@ export async function handleFirstRevealToPopulateSubjectiveQuestion(
         { calculatedAveragePercentage: null },
       ],
       questionId: {
-        in: questionIds,
+        in: revealableQuestionIds,
       },
     },
   });
 
   if (uncalculatedQuestionOptionCount > 0) {
-    await calculateCorrectAnswer(revealableQuestions.map((q) => q.id));
+    await calculateCorrectAnswer(revealableQuestionIds);
   }
 }

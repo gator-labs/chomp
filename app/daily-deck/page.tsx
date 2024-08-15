@@ -2,43 +2,44 @@ import { getDailyAnsweredQuestions, getDailyDeck } from "@/app/queries/deck";
 
 import { redirect } from "next/navigation";
 import { getTransactionHistory } from "../actions/fungible-asset";
-import { getJwtPayload } from "../actions/jwt";
-import { getProfileImage } from "../queries/profile";
-import { getIsUserAdmin } from "../queries/user";
+import { getNextDeckId } from "../queries/home";
+import { getCurrentUser } from "../queries/user";
 import DailyDeckScreen from "../screens/DailyDeckScreen/DailyDeckScreen";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
-import { getAddressFromVerifiedCredentials } from "../utils/wallet";
 
 export default async function Page() {
-  const dailyDeck = await getDailyDeck();
+  const [dailyDeck, nextDeckId, user, history, dailyAnsweredQuestions] =
+    await Promise.all([
+      getDailyDeck(),
+      getNextDeckId(),
+      getCurrentUser(),
+      getTransactionHistory(),
+      getDailyAnsweredQuestions(),
+    ]);
 
-  const isAdmin = await getIsUserAdmin();
+  const address = user?.wallets[0].address || "";
 
-  const payload = await getJwtPayload();
-  const history = await getTransactionHistory();
-  const profile = await getProfileImage();
-  const address = getAddressFromVerifiedCredentials(payload);
-
-  const bonkBalance = await getBonkBalance(address);
-  const solBalance = await getSolBalance(address);
-
-  const dailyAnsweredQuestions = await getDailyAnsweredQuestions();
+  const [bonkBalance, solBalance] = await Promise.all([
+    getBonkBalance(address),
+    getSolBalance(address),
+  ]);
 
   if (!dailyAnsweredQuestions?.questions?.length) redirect("/application");
 
   return (
     <DailyDeckScreen
+      nextDeckId={nextDeckId}
       date={dailyDeck?.date}
       id={dailyDeck?.id}
+      isAdmin={!!user?.isAdmin}
       questions={dailyDeck?.questions}
-      isAdmin={isAdmin}
       percentOfAnsweredQuestions={
         (dailyAnsweredQuestions.answers.length /
           dailyAnsweredQuestions.questions.length) *
         100
       }
       navBarData={{
-        avatarSrc: profile,
+        avatarSrc: user?.profileSrc || "",
         bonkBalance: bonkBalance,
         solBalance: solBalance,
         transactions: history.map((h) => ({

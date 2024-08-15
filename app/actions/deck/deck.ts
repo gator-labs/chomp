@@ -1,6 +1,9 @@
 "use server";
 
 import { DeckImportModel } from "@/app/schemas/deckImport";
+import s3Client from "@/app/services/s3Client";
+import { validateBucketImage } from "@/app/utils/file";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -23,6 +26,21 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
 
   if (!validatedFields.success) {
     return { errorMessage: "Validaiton failed" };
+  }
+
+  const images = data.questions
+    .map((question) => question.imageUrl)
+    .filter((image) => !!image);
+
+  for (let index = 0; index < images.length; index++) {
+    const image = images[index]!;
+
+    const isBucketImageValid = await validateBucketImage(
+      image.split("/").pop()!,
+      image,
+    );
+
+    if (!isBucketImageValid) throw new Error("Invalid image");
   }
 
   await prisma.$transaction(async (tx) => {
@@ -91,6 +109,21 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     return { errorMessage: "Deck id not specified" };
   }
 
+  const images = data.questions
+    .map((question) => question.imageUrl)
+    .filter((image) => !!image);
+
+  for (let index = 0; index < images.length; index++) {
+    const image = images[index]!;
+
+    const isBucketImageValid = await validateBucketImage(
+      image.split("/").pop()!,
+      image,
+    );
+
+    if (!isBucketImageValid) throw new Error("Invalid image");
+  }
+
   const existingQuestionId = (
     await prisma.deckQuestion.findFirst({
       where: {
@@ -114,11 +147,13 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           id: data.id,
         },
         data: {
+          isActive: validatedFields.data.isActive,
           deck: validatedFields.data.deck,
           imageUrl: validatedFields.data.imageUrl,
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
           date: validatedFields.data.date,
+          campaignId: validatedFields.data.campaignId,
         },
       });
 
@@ -135,6 +170,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealTokenAmount: validatedFields.data.revealTokenAmount,
             revealAtDate: validatedFields.data.revealAtDate,
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+            imageUrl: question.imageUrl,
             durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
             deckQuestions: {
               create: {
@@ -160,7 +196,32 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !!q.id,
       );
 
+      const currentDeckQuestions = await prisma.deckQuestion.findMany({
+        where: {
+          deckId: data.id,
+        },
+        include: {
+          question: true,
+        },
+      });
+
       for (const question of existingDeckQuestions) {
+        const validatedQuestion = currentDeckQuestions.find(
+          (dq) => dq.questionId === question.id,
+        );
+
+        if (
+          !!validatedQuestion?.question?.imageUrl &&
+          question?.imageUrl !== validatedQuestion?.question?.imageUrl
+        ) {
+          const deleteObject = new DeleteObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME!,
+            Key: validatedQuestion?.question!.imageUrl!.split("/").pop(),
+          });
+
+          await s3Client.send(deleteObject);
+        }
+
         await tx.question.update({
           where: {
             id: question.id,
@@ -168,6 +229,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           data: {
             question: question.question,
             type: question.type,
+            imageUrl: question.imageUrl,
             revealToken: validatedFields.data.revealToken,
             revealTokenAmount: validatedFields.data.revealTokenAmount,
             revealAtDate: validatedFields.data.revealAtDate,

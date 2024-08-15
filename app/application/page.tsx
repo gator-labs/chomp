@@ -1,32 +1,39 @@
+import { Suspense } from "react";
+import BannerSlider from "../components/BannerSlider/BannerSlider";
 import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUserStats";
 import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringSection/HomeFeedDeckExpiringSection";
 import { HomeFeedReadyToRevealSection } from "../components/HomeFeedReadyToRevealSection/HomeFeedReadyToRevealSection";
 import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealedQuestionsSection/HomeFeedRevealedQuestionsSection";
-import {
-  getDecksForExpiringSection,
-  getQuestionsForReadyToRevealSection,
-  getQuestionsForRevealedSection,
-  getUserStatistics,
-} from "../queries/home";
+import { Profile } from "../components/Profile/Profile";
+import Spinner from "../components/Spinner/Spinner";
+import { getActiveBanners } from "../queries/banner";
+import { getQuestionsForRevealedSection } from "../queries/home";
 
-type PageProps = {};
-
-export default async function Page({}: PageProps) {
-  const stats = await getUserStatistics();
-  const questionsRevealed = await getQuestionsForRevealedSection();
-  const questionsForReveal = await getQuestionsForReadyToRevealSection();
-  const decks = await getDecksForExpiringSection();
+export default async function Page() {
+  const [questionsRevealed, banners] = await Promise.all([
+    getQuestionsForRevealedSection(),
+    getActiveBanners(),
+  ]);
 
   return (
     <>
-      <DashboardUserStats
-        averageTimeToAnswer={stats.averageTimeToAnswer}
-        cardsChomped={stats.cardsChomped}
-        daysStreak={stats.daysStreak}
-        totalPointsEarned={stats.totalPointsEarned}
-      />
-      <HomeFeedDeckExpiringSection decks={decks} />
-      <HomeFeedReadyToRevealSection questions={questionsForReveal} />
+      <Suspense fallback={<Spinner />}>
+        <Profile showLeaderboardButton className="px-4" />
+      </Suspense>
+
+      {!!banners.length && <BannerSlider banners={banners} />}
+
+      <Suspense fallback={<Spinner />}>
+        <DashboardUserStats />
+      </Suspense>
+
+      <Suspense fallback={<Spinner />}>
+        <HomeFeedDeckExpiringSection />
+      </Suspense>
+
+      <Suspense fallback={<Spinner />}>
+        <HomeFeedReadyToRevealSection />
+      </Suspense>
       <HomeFeedRevealedQuestionsSection questions={questionsRevealed} />
     </>
   );

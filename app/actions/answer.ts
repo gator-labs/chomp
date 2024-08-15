@@ -24,6 +24,7 @@ export type SaveQuestionRequest = {
   percentageGiven?: number;
   percentageGivenForAnswerId?: number;
   timeToAnswerInMiliseconds?: number;
+  hasViewedButNotSubmitted?: boolean;
 };
 
 export async function addTutorialPoints(
@@ -32,31 +33,33 @@ export async function addTutorialPoints(
   const totalNumberOfTutorialQuestions = 2;
 
   const fungibleAssetRevealTasks = [
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      totalNumberOfTutorialQuestions *
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount:
+        totalNumberOfTutorialQuestions *
         pointsPerAction[TransactionLogType.AnswerQuestion],
-      TransactionLogType.AnswerQuestion,
-    ),
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.AnswerDeck],
-      TransactionLogType.AnswerDeck,
-    ),
-    incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.RevealAnswer],
-      TransactionLogType.RevealAnswer,
-    ),
+      transactionLogType: TransactionLogType.AnswerQuestion,
+    }),
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerDeck],
+      transactionLogType: TransactionLogType.AnswerDeck,
+    }),
+
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.RevealAnswer],
+      transactionLogType: TransactionLogType.RevealAnswer,
+    }),
   ];
 
   if (isCorrectFirstOrderMultipleQuestion)
     fungibleAssetRevealTasks.push(
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        pointsPerAction[TransactionLogType.CorrectFirstOrder],
-        TransactionLogType.CorrectFirstOrder,
-      ),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.CorrectFirstOrder],
+        transactionLogType: TransactionLogType.CorrectFirstOrder,
+      }),
     );
 
   await Promise.all(fungibleAssetRevealTasks);
@@ -85,9 +88,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     return;
   }
 
-  const questionIds = request
-    .filter((dr) => dr.percentageGiven !== undefined && !!dr.questionOptionId)
-    .map((dr) => dr.questionId);
+  const questionIds = request.map((dr) => dr.questionId);
 
   const questionOptions = await prisma.questionOption.findMany({
     where: { questionId: { in: questionIds } },
@@ -102,7 +103,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
 
     const percentageForQuestionOption =
       answerForQuestion?.percentageGivenForAnswerId === qo.id
-        ? answerForQuestion.percentageGiven
+        ? answerForQuestion?.percentageGiven
         : undefined;
 
     const percentage =
@@ -114,6 +115,7 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     return {
       selected: isOptionSelected,
       percentage,
+      hasViewedButNotSubmitted: answerForQuestion?.hasViewedButNotSubmitted,
       questionOptionId: qo.id,
       timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
         ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
@@ -135,20 +137,20 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
     });
 
     const fungibleAssetRevealTasks = [
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        questionIds.length * pointsPerAction[TransactionLogType.AnswerQuestion],
-        TransactionLogType.AnswerQuestion,
-        tx,
-        deck?.campaignId,
-      ),
-      incrementFungibleAssetBalance(
-        FungibleAsset.Point,
-        pointsPerAction[TransactionLogType.AnswerDeck],
-        TransactionLogType.AnswerDeck,
-        tx,
-        deck?.campaignId,
-      ),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+        transactionLogType: TransactionLogType.AnswerQuestion,
+        injectedPrisma: tx,
+        questionIds,
+      }),
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerDeck],
+        transactionLogType: TransactionLogType.AnswerDeck,
+        injectedPrisma: tx,
+        deckIds: [deckId],
+      }),
     ];
 
     await updateStreak(userId);
@@ -228,13 +230,13 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       data: questionAnswers,
     });
 
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction[TransactionLogType.AnswerQuestion],
-      TransactionLogType.AnswerQuestion,
-      tx,
-      question?.campaignId,
-    );
+    await incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+      transactionLogType: TransactionLogType.AnswerQuestion,
+      injectedPrisma: tx,
+      questionIds: [request.questionId],
+    });
 
     await updateStreak(userId);
   });

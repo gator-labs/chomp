@@ -14,13 +14,12 @@ const MobileChromeDetector = ({ children }: any) => {
     const isMobile =
       /android/i.test(userAgent) || /iPad|iPhone|iPod/.test(userAgent);
     const isChrome = /chrome|crios/i.test(userAgent);
+    const isPhantom = /phantom/i.test(userAgent);
 
-    if (isMobile && !isChrome && !pathname.includes("/bot")) {
-      setTimeout(() => {
-        infoToast(
-          "For best user experience with Dynamic login, please ensure you are using chrome browser.",
-        );
-      }, 500);
+    if (isMobile && !isChrome && !pathname.includes("/bot") && !isPhantom) {
+      infoToast(
+        "For best user experience with Dynamic login, please ensure you are using Chrome or Phantom browser.",
+      );
     }
   }, []);
 

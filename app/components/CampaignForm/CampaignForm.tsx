@@ -7,6 +7,7 @@ import { campaignSchema } from "@/app/schemas/campaign";
 import { createCampaign, editCampaign } from "@/app/actions/campaign";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
@@ -28,6 +29,7 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
       id: campaign?.id,
       name: campaign?.name || "",
       isActive: !!campaign?.isActive,
+      isVisible: !!campaign?.isVisible,
       file: [],
       image: campaign?.image || "",
     },
@@ -46,6 +48,7 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
         if (action === "create") {
           await createCampaign({
             isActive: data.isActive,
+            isVisible: data.isVisible,
             name: data.name,
             image: imageUrl,
           });
@@ -55,6 +58,7 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
           await editCampaign({
             id: data.id,
             isActive: data.isActive,
+            isVisible: data.isVisible,
             name: data.name,
             image: imageUrl,
           });
@@ -79,10 +83,24 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
         <div className="text-red">{errors.isActive?.message}</div>
       </div>
       <div className="mb-3">
+        <label className="mr-3">Is visible</label>
+        <input
+          type="checkbox"
+          className="mt-1"
+          {...register("isVisible", { value: true })}
+        />
+        <div className="text-red">{errors.isVisible?.message}</div>
+      </div>
+      <div className="mb-3">
         <label className="block mb-1">Image</label>
         {!!previewUrl && (
           <div className="w-32 h-32 relative overflow-hidden rounded-full">
-            <img src={previewUrl} className="object-cover w-full h-full" />
+            <Image
+              fill
+              alt="preview-image-campaign"
+              src={previewUrl}
+              className="object-cover w-full h-full"
+            />
           </div>
         )}
         <input

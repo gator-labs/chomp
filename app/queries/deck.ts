@@ -155,7 +155,7 @@ const mapQuestionFromDeck = (
 
 export async function getDecks() {
   const decks = await prisma.deck.findMany({
-    orderBy: [{ createdAt: "desc" }, { deck: "asc" }],
+    orderBy: [{ revealAtDate: "desc" }, { deck: "asc" }],
     include: {
       deckQuestions: {
         take: 1,
@@ -267,7 +267,6 @@ export async function getDeckSchema(id: number) {
     revealTokenAmount: deck.deckQuestions[0].question.revealTokenAmount,
     tagIds: deck.deckQuestions[0].question.questionTags.map((qt) => qt.tag.id),
     deckQuestions: undefined,
-    campaignId: deck.deckQuestions[0].question.campaignId,
     questions: deck.deckQuestions.map((dq) => ({
       ...dq.question,
       revealToken: undefined,

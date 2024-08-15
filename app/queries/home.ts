@@ -31,6 +31,7 @@ export type RevealedQuestion = {
   answerCount?: number;
   revealAtAnswerCount?: number;
   revealTokenAmount?: number;
+  image?: string;
 };
 
 export type DeckExpiringSoon = {
@@ -39,7 +40,7 @@ export type DeckExpiringSoon = {
   revealAtDate?: Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
-  imageUrl?: string;
+  image?: string;
 };
 
 export type QuestionsForReveal = {
@@ -49,6 +50,7 @@ export type QuestionsForReveal = {
   answerCount?: number;
   revealAtAnswerCount?: number;
   revealTokenAmount?: number;
+  image?: string;
 };
 
 export async function getDecksForExpiringSection(): Promise<
@@ -63,6 +65,72 @@ export async function getDecksForExpiringSection(): Promise<
   const decks = await queryExpiringDecks(payload.sub);
 
   return decks;
+}
+
+export async function getNextDeckId(): Promise<number | undefined> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const nextDeckId = await getNextDeckIdQuery(payload.sub);
+
+  return nextDeckId;
+}
+
+async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
+  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
+    select
+    d."id",
+    d."deck",
+    d."revealAtDate",
+    d."revealAtAnswerCount",
+    c."image"
+    from public."Deck" d
+    full join "Campaign" c on c."id" = d."campaignId"
+    where
+      (
+        (
+      		d."revealAtDate" > now() and d."revealAtDate" < now() + interval '3' day
+  		  )
+        and 
+        (
+      		d."date" is null
+  		  )
+        and 
+        (
+          d."revealAtAnswerCount" is null
+          or
+          d."revealAtAnswerCount" >
+            (
+              select
+                count(distinct concat(dq."deckId", qa."userId"))
+              from public."QuestionOption" qo
+              join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+              join public."Question" q on qo."questionId" = q."id"
+              join public."DeckQuestion" dq on dq."questionId" = q."id"
+              where dq."deckId" = d."id"
+            )
+        )
+      )
+      and	
+      d."id" not in
+        (
+          select
+            dq."deckId"
+          from public."QuestionOption" qo
+            join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+            join public."Question" q on qo."questionId" = q."id"
+            join public."DeckQuestion" dq on dq."questionId" = q."id"
+            where dq."deckId" = d."id" and qa."userId" = ${userId}
+        )
+      and
+      d."isActive" = true
+      limit 1
+  `;
+
+  return deckExpiringSoon?.[0]?.id;
 }
 
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
@@ -81,8 +149,9 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
         where dq."deckId" = d."id"
       ) as "answerCount",
       d."revealAtAnswerCount",
-      d."imageUrl"
+      c."image"
   from public."Deck" d
+  full join "Campaign" c on c."id" = d."campaignId"
   where
       (
         (
@@ -144,70 +213,39 @@ async function queryRevealedQuestions(
   userId: string,
 ): Promise<RevealedQuestion[]> {
   const revealQuestions: RevealedQuestion[] = await prisma.$queryRaw`
-  select
-  	q."id",
-  	q."question",
-  	q."revealAtDate",
-  	(
-  		select
-          	count(distinct concat(qa."userId",qo."questionId"))
-	    from public."QuestionOption" qo
-	    join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	    where qo."questionId" = q."id"
-  	) as "answerCount",
-  	q."revealAtAnswerCount",
-  	q."revealTokenAmount"
-  from public."Question" q 
-  where
-  	(
-	    (
-	      q."revealAtDate" is not null 
-	      and 
-	      q."revealAtDate" < now() 
-	    )
-	    or 
-	    (
-	      q."revealAtAnswerCount" is not null
-	      and
-	      q."revealAtAnswerCount" >=
-	        (
-	          select
-	          	count(distinct concat(qa."userId",qo."questionId"))
-	          from public."QuestionOption" qo
-	          join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	          where qo."questionId" = q."id"
-	        )
-	    )
-    )
-    and
-    	(
-    		q."id" not in
-	    	(
-	    		select
-	    			cr."questionId"
-	    		from public."ChompResult" cr
-	    		where cr."questionId" = q."id" and cr."userId" = ${userId} and cr."transactionStatus" = 'Completed'
-	    	)
-	    	and
-	    	q."id" not in
-	    	(
-	    		select
-	    			dq."questionId"
-	    		from public."DeckQuestion" dq
-	    		join public."Deck" d on d."id" = dq."deckId"
-	    		join public."ChompResult" cr on cr."deckId" = d."id"
-	    		where cr."userId" = ${userId} and dq."questionId" = q."id"
-	    	)
-	    )
-    and
-    	q."id" not in
-	    (
-	    	select 
-	    		qo."questionId"
-	    	from public."QuestionOption" qo
-          	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-          	where qa."userId" = ${userId} and qo."questionId" = q."id"
-	    )
+  SELECT DISTINCT
+    q."id",
+    q."question",
+    q."revealAtDate",
+    q."revealAtAnswerCount",
+    q."revealTokenAmount",
+    c."image"
+  FROM public."Question" q
+  LEFT JOIN "Campaign" c ON c."id" = q."campaignId"
+  LEFT JOIN public."ChompResult" cr1 
+      ON cr1."questionId" = q."id" 
+      AND cr1."userId" = ${userId} 
+      AND cr1."transactionStatus" = 'Completed'
+  LEFT JOIN public."DeckQuestion" dq 
+      ON dq."questionId" = q."id"
+  LEFT JOIN public."Deck" d 
+      ON d."id" = dq."deckId"
+  LEFT JOIN public."ChompResult" cr2 
+      ON cr2."deckId" = d."id" 
+      AND cr2."userId" = ${userId}
+  LEFT JOIN public."QuestionOption" qo 
+      ON qo."questionId" = q."id"
+  LEFT JOIN public."QuestionAnswer" qa 
+      ON qa."questionOptionId" = qo."id" 
+      AND qa."userId" = ${userId}
+  WHERE
+      cr1."questionId" IS NULL
+      AND cr2."id" IS NULL
+      AND qa."id" IS NULL
+      AND q."revealAtDate" IS NOT NULL 
+      AND q."revealAtDate" < now() 
+  ORDER BY q."revealAtDate" DESC
+  LIMIT 5
   `;
 
   return revealQuestions;
@@ -234,71 +272,33 @@ export async function queryQuestionsForReadyToReveal(
   userId: string,
 ): Promise<QuestionsForReveal[]> {
   const revealQuestions: QuestionsForReveal[] = await prisma.$queryRaw`
-  select
-  	q."id",
-  	q."question",
-  	q."revealAtDate",
-  	(
-  		select
-          	count(distinct concat(qa."userId",qo."questionId"))
-	    from public."QuestionOption" qo
-	    join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	    where qo."questionId" = q."id"
+  SELECT
+  q."id",
+  q."question",
+  q."revealAtDate",
+  (
+  		SELECT
+          	COUNT(DISTINCT CONCAT(qa."userId",qo."questionId"))
+	    FROM public."QuestionOption" qo
+	    JOIN public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
+	    WHERE qo."questionId" = q."id"
   	) as "answerCount",
-  	q."revealAtAnswerCount",
-  	q."revealTokenAmount"
-  from public."Question" q 
-  where
-  	(
-	    (
-	      q."revealAtDate" is not null 
-	      and 
-	      q."revealAtDate" < now() 
-	    )
-	    or 
-	    (
-	      q."revealAtAnswerCount" is not null
-	      and
-	      q."revealAtAnswerCount" >=
-	        (
-	          select
-	          	count(distinct concat(qa."userId",qo."questionId"))
-	          from public."QuestionOption" qo
-	          join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	          where qo."questionId" = q."id"
-	        )
-	    )
-    )
-    and
-    	(
-    		q."id" not in
-	    	(
-	    		select
-	    			cr."questionId"
-	    		from public."ChompResult" cr
-	    		where cr."questionId" = q."id" and cr."userId" = ${userId} and cr."transactionStatus" = 'Completed'
-	    	)
-	    	and
-	    	q."id" not in
-	    	(
-	    		select
-	    			dq."questionId"
-	    		from public."DeckQuestion" dq
-	    		join public."Deck" d on d."id" = dq."deckId"
-	    		join public."ChompResult" cr on cr."deckId" = d."id"
-	    		where cr."userId" = ${userId} and dq."questionId" = q."id"
-	    	)
-	    )
-    and
-    	q."id" in
-	    (
-	    	select 
-	    		qo."questionId"
-	    	from public."QuestionOption" qo
-          	join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-          	where qa."userId" = ${userId} and qo."questionId" = q."id"
-            and qa."selected" = true
-	    )
+  q."revealTokenAmount"
+  FROM public."Question" q
+  LEFT JOIN "ChompResult" cr on cr."questionId" = q.id
+  AND cr."userId" = ${userId}
+  AND cr."transactionStatus" = 'Completed'
+  JOIN "QuestionOption" qo ON q.id = qo."questionId"
+  JOIN "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+  WHERE
+  cr."questionId" is null
+  AND
+  q."revealAtDate" is not null
+  AND
+  q."revealAtDate" < now()
+  AND
+  qa.selected = true AND qa."userId" = ${userId}
+  ORDER BY  q."createdAt" DESC
   `;
 
   return revealQuestions;

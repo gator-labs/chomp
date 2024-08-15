@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Profile } from "../app/components/Profile/Profile";
-import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {
   title: "Profile",
@@ -8,10 +7,7 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  args: {
-    address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-    avatarSrc: AvatarSample.src,
-  },
+  args: {},
   tags: ["autodocs"],
   decorators: (Story) => (
     <div className="w-96">
