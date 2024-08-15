@@ -150,6 +150,8 @@ model QuestionAnswer {
   timeToAnswer             BigInt?
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @default(now()) @updatedAt
+
+  @@unique([questionOptionId, userId], name: "question_option_user")
 }
 
 model ChompResult {
