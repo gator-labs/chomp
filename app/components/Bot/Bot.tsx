@@ -131,7 +131,6 @@ export default function BotMiniApp() {
       const burnTx = await signer.signAndSendTransaction(tx);
 
       setIsBurnInProgress(true);
-      // Process Burn and Claim
       const processedData = await processBurnAndClaim(
         userId!,
         burnTx?.signature,
