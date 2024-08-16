@@ -15,7 +15,7 @@ const NewUserScreen = () => {
 
           <div className="flex gap-[10px] items-center w-full justify-center">
             <p className="text-sm text-center">
-              New to Chomp? Why not take 30 seconds to learn how it all works?
+              New to Chomp? Why not take 30 seconds to learn how everything works?
             </p>
           </div>
         </div>

@@ -132,7 +132,7 @@ const RevealScreen = ({
             </p>
             <div className="flex flex-col gap-2">
               <Tooltip
-                infoText="Revealing requires a small amount of BONK—but gives you the chance to win BONK rewards!
+                infoText="Revealing burns a small amount of BONK—but gives you the chance to win BONK rewards!
 
               (Revealing is free for this tutorial)"
                 alwaysVisible
@@ -165,7 +165,7 @@ const RevealScreen = ({
       <>
         <div className="px-4 w-full flex flex-col gap-4">
           <Tooltip
-            infoText="If this were a real question (not a tutorial), you would have won up to 10,000 BONK for answering Jupiter! 🎊"
+            infoText="If this were a real question (not a tutorial), you would have won up to 10,000 BONK for answering 'Jupiter'! 🎊"
             alwaysVisible={activeClaimScreenStep === "congrats-step"}
             disabledHover
             position="bottom"
