@@ -27,9 +27,22 @@ export const genBonkBurnTx = async (
 
   let ata = await getAssociatedTokenAddress(bonkPublic, burnFromPublic);
 
-  const estimateFee = await getRecentPrioritizationFees();
-
   const tx = new Transaction();
+
+  const burnTxInstruction = createBurnCheckedInstruction(
+    ata,
+    bonkPublic,
+    burnFromPublic,
+    tokenAmount * 10 ** DECIMALS,
+    DECIMALS,
+  );
+
+  tx.add(burnTxInstruction);
+
+  tx.recentBlockhash = blockhash;
+  tx.feePayer = burnFromPublic;
+
+  const estimateFee = await getRecentPrioritizationFees(tx);
 
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
     units: 10000,
@@ -41,19 +54,6 @@ export const genBonkBurnTx = async (
 
   tx.add(modifyComputeUnits);
   tx.add(addPriorityFee);
-
-  tx.add(
-    createBurnCheckedInstruction(
-      ata,
-      bonkPublic,
-      burnFromPublic,
-      tokenAmount * 10 ** DECIMALS,
-      DECIMALS,
-    ),
-  );
-
-  tx.recentBlockhash = blockhash;
-  tx.feePayer = burnFromPublic;
 
   return tx;
 };
