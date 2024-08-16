@@ -51,7 +51,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         revealAtDate: validatedFields.data.revealAtDate,
         revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
         date: validatedFields.data.date,
-        isActive: validatedFields.data.isActive,
+        activeFromDate: validatedFields.data.activeFromDate,
         campaignId: validatedFields.data.campaignId,
       },
     });
@@ -147,7 +147,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           id: data.id,
         },
         data: {
-          isActive: validatedFields.data.isActive,
+          activeFromDate: validatedFields.data.activeFromDate,
           deck: validatedFields.data.deck,
           imageUrl: validatedFields.data.imageUrl,
           revealAtDate: validatedFields.data.revealAtDate,

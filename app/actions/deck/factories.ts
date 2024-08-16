@@ -19,7 +19,6 @@ export const deckInputFactory = (
 
     const deckMapped = {
       deck: deck,
-      isActive: true,
       date: deckInfo.dailyDate,
       revealAtAnswerCount: deckInfo.revealAtAnswerCount,
       revealAtDate: parseDateToDateDefaultUtc(deckInfo.revealAtDate),

@@ -98,6 +98,10 @@ async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
         (
       		d."date" is null
   		  )
+        and
+        (
+          d."activeFromDate" <= now()
+        )
         and 
         (
           d."revealAtAnswerCount" is null
@@ -125,8 +129,6 @@ async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
             join public."DeckQuestion" dq on dq."questionId" = q."id"
             where dq."deckId" = d."id" and qa."userId" = ${userId}
         )
-      and
-      d."isActive" = true
       limit 1
   `;
 
@@ -161,6 +163,10 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
         (
       		d."date" is null
   		  )
+        and
+        (
+          d."activeFromDate" <= now()
+        )
         and 
         (
           d."revealAtAnswerCount" is null
@@ -188,8 +194,6 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
             join public."DeckQuestion" dq on dq."questionId" = q."id"
             where dq."deckId" = d."id" and qa."userId" = ${userId}
         )
-      and
-      d."isActive" = true
   `;
 
   return deckExpiringSoon;
