@@ -9,14 +9,16 @@ test("rewards for single subjective question", async () => {
 
   const secondOrderResponses = await prisma.questionAnswer.findMany({
     where: {
-      selected: true,
+      // selected: true,
       questionOption: {
-        questionId, 
-        calculatedIsCorrect: true
+        // questionId, 
+        id: 573
+        // calculatedIsCorrect: true
       }
     },
     select: {
       id: true,
+      questionOptionId: true,
       selected: true,
       percentage: true
     }
