@@ -1,4 +1,6 @@
-export const getRecentPrioritizationFees = async () => {
+import { Transaction } from "@solana/web3.js";
+
+export const getRecentPrioritizationFees = async (tx: Transaction) => {
   const response = await fetch(process.env.NEXT_PUBLIC_RPC_URL!, {
     method: "POST",
     headers: {
@@ -10,8 +12,8 @@ export const getRecentPrioritizationFees = async () => {
       method: "getPriorityFeeEstimate",
       params: [
         {
-          accountKeys: ["JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4"],
           options: {
+            transaction: tx,
             includeAllPriorityFeeLevels: true,
           },
         },
