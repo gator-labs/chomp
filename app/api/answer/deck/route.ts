@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   const hasAnswered = await hasAnsweredDeck(deckId, userId, true);
 
   if (hasAnswered) {
-    return;
+    return new Response("Already answered", { status: 400 });
   }
 
   const deck = await prisma.deck.findFirst({
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   });
 
   if (deck?.revealAtDate && dayjs(deck?.revealAtDate).isBefore(new Date())) {
-    return;
+    return new Response("Reveal date is before today", { status: 400 });
   }
 
   const questionIds = request

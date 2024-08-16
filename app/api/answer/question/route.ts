@@ -30,7 +30,7 @@ export async function POST(req: Request) {
   );
 
   if (hasAnswered) {
-    return;
+    return new Response("Already answered", { status: 400 });
   }
 
   const question = await prisma.question.findFirst({
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     question?.revealAtDate &&
     dayjs(question?.revealAtDate).isBefore(new Date())
   ) {
-    return;
+    return new Response("Reveal date is before today", { status: 400 });
   }
 
   const questionOptions = await prisma.questionOption.findMany({
