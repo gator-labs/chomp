@@ -1,8 +1,8 @@
 "use client";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import { getRevealedAtString } from "../../../utils/dateUtils";
-import { Button } from "../../Button/Button";
-import { ClockIcon } from "../../Icons/ClockIcon";
+import { getRevealedAtString } from "../../utils/dateUtils";
+import { Button } from "../Button/Button";
+import { ClockIcon } from "../Icons/ClockIcon";
 
 type Question = {
   id: number;
@@ -94,7 +94,7 @@ export default function ClaimedQuestions({
           </div>
         ))
       ) : (
-        <p>No claimed Question found. Keep Chomping!</p>
+        <p>No claimed question found. Keep chomping!</p>
       )}
       <Button
         variant="purple"
