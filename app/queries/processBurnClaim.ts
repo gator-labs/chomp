@@ -13,7 +13,7 @@ import { calculateRevealPoints } from "@/app/utils/points";
 import { isEntityRevealable } from "@/app/utils/question";
 import { FungibleAsset, ResultType, TransactionStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
-import { questionAnswerCountQuery } from "../questionAnswerCountQuery";
+import { questionAnswerCountQuery } from "./questionAnswerCountQuery";
 
 export async function revealAllSelected(
   questionIds: number[],
@@ -206,7 +206,7 @@ export async function claimAllSelected(
         });
 
         const questionIdsClaimed = chompResults.map((cr) => cr.questionId ?? 0);
-        // We're querying dirty data in transaction so we need claimed questions
+        // We're querying all data in transaction so we need claimed questions
         const decks = await tx.deck.findMany({
           where: {
             deckQuestions: {

@@ -1,3 +1,7 @@
+/* 
+  FUNCTION PARSE THE RAW STRING AND RETURN TELEGRAMID FROM THE OBJECT
+*/
+
 export function extractId(jsonString: string): string {
   try {
     const parsedObject = JSON.parse(jsonString);
