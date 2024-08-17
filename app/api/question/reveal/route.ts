@@ -6,7 +6,7 @@ import { MINIMAL_ANSWER_COUNT } from "@/app/constants/answers";
 import {
   claimAllSelected,
   revealAllSelected,
-} from "@/app/queries/bot/processBurnClaim";
+} from "@/app/queries/processBurnClaim";
 import { queryQuestionsForReadyToReveal } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { headers } from "next/headers";
