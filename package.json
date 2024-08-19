@@ -72,6 +72,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@playwright/test": "@phantom/synpress",
     "@storybook/addon-essentials": "^8.0.0",
     "@storybook/addon-interactions": "^8.0.0",
     "@storybook/addon-links": "^8.0.0",

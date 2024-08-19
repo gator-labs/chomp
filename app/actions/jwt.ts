@@ -8,18 +8,17 @@ import { getRandomAvatarPath } from "../utils/avatar";
 import { resetAccountData } from "./demo";
 
 export const getJwtPayload = async () => {
+  const shouldOverrideUserId = process.env.OVERRIDE_USER_ID && process.env.OVERRIDE_USER_ID.length > 0;
+  if (shouldOverrideUserId) {
+    return {sub: process.env.OVERRIDE_USER_ID || ""}  as DynamicJwtPayload
+  }
   const token = cookies().get("token");
 
   if (!token) {
     return null;
   }
 
-  const shouldOverrideUserId = process.env.OVERRIDE_USER_ID && process.env.OVERRIDE_USER_ID.length > 0;
-  if (shouldOverrideUserId) {
-    return {sub: process.env.OVERRIDE_USER_ID || ""}  as DynamicJwtPayload
-  } else {
-    return await decodeJwtPayload(token.value)
-  }
+  return await decodeJwtPayload(token.value)
 };
 
 export const setJwt = async (token: string, nextPath?: string | null) => {
