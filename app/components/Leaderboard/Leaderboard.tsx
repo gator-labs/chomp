@@ -149,7 +149,7 @@ const Leaderboard = ({
       <div className="p-4 rounded-lg bg-[#333333] gap-4 flex">
         <div className="h-10">
           <Avatar
-            src={loggedUser.profileSrc || AvatarPlaceholder.src}
+            src={loggedUser?.profileSrc || AvatarPlaceholder.src}
             size="medium"
           />
         </div>
