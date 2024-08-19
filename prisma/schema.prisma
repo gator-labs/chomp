@@ -104,12 +104,12 @@ model Deck {
   id                          Int                           @id @default(autoincrement())
   deck                        String
   date                        DateTime?
+  activeFromDate              DateTime?
   revealAtDate                DateTime?
   revealAtAnswerCount         Int?
   imageUrl                    String?
   createdAt                   DateTime                      @default(now())
   updatedAt                   DateTime                      @default(now()) @updatedAt
-  isActive                    Boolean                       @default(true)
   campaign                    Campaign?                     @relation(fields: [campaignId], references: [id])
   campaignId                  Int?
   deckQuestions               DeckQuestion[]

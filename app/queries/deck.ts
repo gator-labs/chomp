@@ -41,7 +41,6 @@ export async function getDailyDeck() {
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
-      isActive: true,
       deckQuestions: {
         every: {
           question: {
@@ -109,7 +108,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   }
 
   const deck = await prisma.deck.findFirst({
-    where: { id: { equals: deckId }, isActive: true },
+    where: { id: { equals: deckId } },
     include: questionDeckToRunInclude,
   });
 
@@ -187,7 +186,6 @@ export async function getDailyAnsweredQuestions() {
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
-      isActive: true,
       deckQuestions: {
         every: {
           question: {

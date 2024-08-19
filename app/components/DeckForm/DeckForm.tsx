@@ -92,9 +92,20 @@ export default function DeckForm({
   });
 
   useEffect(() => {
-    if (!!errors.questions?.[0]?.root?.message) {
-      console.log("first");
-      errorToast(errors.questions?.[0]?.root?.message);
+    const errorMessages = Object.values(errors)
+      .map((error) => error.message!)
+      .filter((val) => !!val);
+
+    const questionErrors = errors.questions?.map!(
+      (q) => q?.root?.message!,
+    ).filter((val) => !!val);
+
+    if (!!questionErrors?.length) {
+      questionErrors.forEach((message) => errorToast(message));
+    }
+
+    if (!!errorMessages.length) {
+      errorMessages.forEach((message) => errorToast(message));
     }
   }, [errors]);
 
@@ -108,16 +119,6 @@ export default function DeckForm({
         <label className="block mb-1">Deck title</label>
         <TextInput variant="secondary" {...register("deck")} />
         <div className="text-red">{errors.deck?.message}</div>
-      </div>
-
-      <div className="mb-3">
-        <label className="mr-3">Is active</label>
-        <input
-          type="checkbox"
-          className="mt-1"
-          {...register("isActive", { value: true })}
-        />
-        <div className="text-red">{errors.isActive?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -326,6 +327,9 @@ export default function DeckForm({
 
       <div className="mb-3">
         <label className="block mb-1">Reveal at date (optional)</label>
+        <span className="block mb-1">
+          In UTC: <b>{watch("revealAtDate")?.toISOString()}</b>
+        </span>
         <Controller
           name="revealAtDate"
           control={control}
@@ -345,7 +349,35 @@ export default function DeckForm({
       </div>
 
       <div className="mb-3">
+        <label className="block mb-1">
+          Active from date (for non daily decks)
+        </label>
+        <span className="block mb-1">
+          In UTC: <b>{watch("activeFromDate")?.toISOString()}</b>
+        </span>
+        <Controller
+          name="activeFromDate"
+          control={control}
+          render={({ field }) => (
+            <DatePicker
+              showIcon
+              selected={field.value}
+              onChange={field.onChange}
+              placeholderText="Active from date"
+              showTimeInput
+              dateFormat="Pp"
+              isClearable
+            />
+          )}
+        />
+        <div className="text-red">{errors.activeFromDate?.message}</div>
+      </div>
+
+      <div className="mb-3">
         <label className="block mb-1">Daily deck date (optional)</label>
+        <span className="block mb-1">
+          In UTC: <b>{watch("date")?.toISOString()}</b>
+        </span>
         <Controller
           name="date"
           control={control}
