@@ -1,16 +1,18 @@
-import { copyTextToClipboard } from "@/app/utils/clipboard";
-
 import { useToast } from "@/app/providers/ToastProvider";
+import { copyTextToClipboard } from "@/app/utils/clipboard";
 import Image from "next/image";
-import { CopyIcon } from "../../Icons/CopyIcon";
-import { HalfArrowRightIcon } from "../../Icons/HalfArrowRightIcon";
+import { CopyIcon } from "../Icons/CopyIcon";
+import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 
-type Props = {
+type WalletCreatedInfoProps = {
   wallet: string;
   handleSetupComplete: () => void;
 };
 
-function NewUserScreen({ wallet, handleSetupComplete }: Props) {
+export default function WalletCreatedInfo({
+  wallet,
+  handleSetupComplete,
+}: WalletCreatedInfoProps) {
   const { successToast } = useToast();
   return (
     <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
@@ -57,5 +59,3 @@ function NewUserScreen({ wallet, handleSetupComplete }: Props) {
     </div>
   );
 }
-
-export default NewUserScreen;

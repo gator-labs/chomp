@@ -1,8 +1,12 @@
+/*
+  THIS API PROCESS THE BURN AND CLAIM OF SELECTED QUESTIONS
+*/
+
 import { MINIMAL_ANSWER_COUNT } from "@/app/constants/answers";
 import {
   claimAllSelected,
   revealAllSelected,
-} from "@/app/queries/bot/processBurnClaim";
+} from "@/app/queries/processBurnClaim";
 import { queryQuestionsForReadyToReveal } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { headers } from "next/headers";
@@ -35,7 +39,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-  if (apiKey !== process.env.BOT_API_KEY) {
+  if (apiKey !== process.env.BOT_API_KEY) {                       // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });

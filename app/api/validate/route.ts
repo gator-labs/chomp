@@ -1,28 +1,30 @@
-import { NextRequest } from "next/server";
+/*
+  THIS ROUTE CONTAINS POST METHOD: IT VALIDATES THE TELEGRAM PAYLOAD AND RETURNS USER DATA
+*/
 
 import { getUserByTelegram } from "@/app/queries/user";
 import crypto from "crypto";
 import { headers } from "next/headers";
+import { NextRequest } from "next/server";
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
 
 export async function POST(req: NextRequest) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-
   if (apiKey !== process.env.BOT_API_KEY) {
+    // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
   }
+
   const data = await req.json();
-
   const initData = data?.initData;
-
   const queryString = new URLSearchParams(initData);
   const dataEnteries = Object.fromEntries(queryString.entries());
-
   const hash = dataEnteries?.hash;
+
   delete dataEnteries?.hash;
 
   const dataCheckString = Object.keys(dataEnteries)

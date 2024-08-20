@@ -1,3 +1,7 @@
+/*
+  THIS API STORES ANSWER OF A QUESTION
+*/
+
 import {
   SaveQuestionRequest,
   removePlaceholderAnswerByQuestion,
@@ -12,8 +16,7 @@ import { headers } from "next/headers";
 export async function POST(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-
-  if (apiKey !== process.env.BOT_API_KEY) {
+  if (apiKey !== process.env.BOT_API_KEY) {                // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
@@ -39,7 +42,7 @@ export async function POST(req: Request) {
 
   if (
     question?.revealAtDate &&
-    dayjs(question?.revealAtDate).isBefore(new Date())
+    dayjs(question?.revealAtDate).isBefore(new Date())                 // Question reveal date must be after CURRENT_DATETIME
   ) {
     return new Response("Reveal date is before today", { status: 400 });
   }

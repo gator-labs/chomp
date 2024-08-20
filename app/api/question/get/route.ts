@@ -1,3 +1,10 @@
+/*
+  THIS API RETURNS A RANDOM QUESTION FROM A DAILY DECK / REGULAR DECK / UNANSWERED QUESTION
+  ➤ DAILY DECK: Have a deck date greater than CurrentDayStart and reveal date before CurrentDayEnds
+  ➤ REGULAR DECK: Have a deck reveal date in upcoming three days but no date
+  ➤ UNANSWERED QUESTION: Have a deck date between last three days & today and reveal date in future
+*/
+
 import prisma from "@/app/services/prisma";
 import { getRandomElement } from "@/app/utils/randomUtils";
 import { Prisma } from "@prisma/client";
@@ -24,7 +31,7 @@ const questionDeckToRunInclude = {
 export async function GET(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-  if (apiKey !== process.env.BOT_API_KEY) {
+  if (apiKey !== process.env.BOT_API_KEY) {             // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
@@ -42,7 +49,6 @@ export async function GET(req: Request) {
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
-      isActive: true,
       deckQuestions: {
         every: {
           question: {
@@ -73,12 +79,10 @@ export async function GET(req: Request) {
     deckRevealAtDate: dailyDeck.revealAtDate,
   }));
 
-  // Daily Deck
-  if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0) {
+  if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0) {                 // Priority 1: Daily deck
     return Response.json({ question: getRandomElement(getDailyDeckQuestions) });
   } else {
-    // Deck Questions includes questions from Regular Decks and unanwered Daily Decks
-    const deckQuestions = await prisma.deckQuestion.findMany({
+    const deckQuestions = await prisma.deckQuestion.findMany({                     // Priority 2: Regular deck / Unanswered Question
       where: {
         OR: [
           {
@@ -87,7 +91,6 @@ export async function GET(req: Request) {
                 gte: new Date(),
                 lte: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
               },
-              isActive: true,
               date: null,
             },
           },

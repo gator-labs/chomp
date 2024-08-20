@@ -4,17 +4,16 @@ import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import classNames from "classnames";
-import { MouseEventHandler, ReactNode, useRef } from "react";
-import { Avatar } from "../../Avatar/Avatar";
-import { Button } from "../../Button/Button";
-import { CloseIcon } from "../../Icons/CloseIcon";
-import { CopyIcon } from "../../Icons/CopyIcon";
-import { ReactPortal } from "../../ReactPortal/ReactPortal";
+import { MouseEventHandler, useRef } from "react";
+import { Avatar } from "../Avatar/Avatar";
+import { Button } from "../Button/Button";
+import { CloseIcon } from "../Icons/CloseIcon";
+import { CopyIcon } from "../Icons/CopyIcon";
+import { ReactPortal } from "../ReactPortal/ReactPortal";
 
-type Props = {
+type WalletMenuProps = {
   isOpen: boolean;
   onClose: () => void;
-  children?: ReactNode;
   wallet: string;
   userBalance: {
     solBalance: number;
@@ -22,13 +21,12 @@ type Props = {
   };
 };
 
-function WalletPopUp({
+export default function WalletMenu({
   isOpen,
-  children,
   onClose,
   wallet,
   userBalance,
-}: Props) {
+}: WalletMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const { successToast } = useToast();
@@ -57,7 +55,6 @@ function WalletPopUp({
               <div className="whitespace-nowrap opacity-80">
                 {numberToCurrencyFormatter.format(userBalance?.solBalance)} SOL
               </div>
-
               <div className="whitespace-nowrap opacity-80">
                 {numberToCurrencyFormatter.format(
                   Math.floor(userBalance?.bonkBalance),
@@ -91,5 +88,3 @@ function WalletPopUp({
     </ReactPortal>
   );
 }
-
-export default WalletPopUp;

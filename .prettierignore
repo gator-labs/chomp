@@ -1,4 +1,4 @@
-# Ignore specific files and directories
+# Ignore Specific Files and Directories for Prettier
 
 # Dependency directories
 node_modules/

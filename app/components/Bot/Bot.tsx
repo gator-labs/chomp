@@ -22,19 +22,15 @@ import {
 } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { Connection } from "@solana/web3.js";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
+import BotLogin from "../BotLogin/BotLogin";
+import BotOtpAuth from "../BotOtpAuth/BotOtpAuth";
 import BotRevealClaim from "../BotRevealClaim/BotRevealClaim";
-import { Button } from "../Button/Button";
-import { Checkbox } from "../Checkbox/Checkbox";
-import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
-import { ProfileIcon } from "../Icons/ProfileIcon";
+import ClaimedQuestions from "../ClaimedQuestions/ClaimedQuestions";
 import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
 import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
-import { TextInput } from "../TextInput/TextInput";
-import ClaimedQuestions from "./ClaimedQuestions/ClaimedQuestions";
-import NewUserScreen from "./NewUserScreen/NewUserScreen";
+import WalletCreatedInfo from "../WalletCreatedInfo/WalletCreatedInfo";
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -42,6 +38,7 @@ declare global {
     Telegram: any;
   }
 }
+
 export interface Question {
   id: number;
   question: string;
@@ -74,7 +71,6 @@ export default function BotMiniApp() {
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
   >([]);
-
   const [userBalance, setUserBalance] = useState({
     solBalance: 0,
     bonkBalance: 0,
@@ -257,7 +253,7 @@ export default function BotMiniApp() {
       const bonkBalance = await getBonkBalance(primaryWallet!.address);
 
       setUserBalance({
-        solBalance: solBalance, // Convert lamports to SOL
+        solBalance: solBalance,
         bonkBalance: bonkBalance,
       });
     } catch (error) {
@@ -352,129 +348,29 @@ export default function BotMiniApp() {
       ) : isLoggedIn && burnSuccessfull ? (
         <ClaimedQuestions questions={processedQuestions} />
       ) : !isEmailExist && isLoggedIn ? (
-        <NewUserScreen
+        <WalletCreatedInfo
           wallet={address}
           handleSetupComplete={() => {
             setIsEmailExist(true);
           }}
         />
       ) : isVerificationIsInProgress ? (
-        <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
-          <Image
-            src="/images/chomp-asset.png"
-            width={400}
-            height={400}
-            alt="Chomp Cover"
-            className="mt-5"
-          />
-
-          <form
-            key="verifyOtp"
-            className="flex flex-col justify-center space-y-4 w-full"
-            onSubmit={onSubmitOtpHandler}
-          >
-            <p className="text-[1.6rem] font-bold text-center">
-              Chomp at its full potential!
-            </p>
-            <div className="flex w-fit bg-[#575CDF] px-4 py-2 gap-2.5 items-center rounded-[2rem]">
-              <ProfileIcon width={50} height={50} />
-              <span className="flex flex-col">
-                <h2 className="uppercase text-sm">
-                  {isEmailExist ? "Linked Account" : "Linking To Telegram:"}
-                </h2>
-                <p className="font-medium">{email}</p>
-              </span>
-            </div>
-            <p className="text-left">
-              OTP sent to your email! Copy it and paste it here to access all of
-              Chomp&apos;s features!
-            </p>
-            <div className="flex flex-col gap-4">
-              <TextInput
-                name="otp"
-                placeholder="OTP"
-                type="number"
-                value={otp !== 0 ? otp : ""}
-                onChange={(event) => {
-                  setOtp(parseInt(event.target.value));
-                }}
-                variant="primary"
-                required
-              />
-              <Button
-                variant="purple"
-                size="normal"
-                className="gap-2 text-black font-medium"
-                isFullWidth
-              >
-                Next
-              </Button>
-            </div>
-          </form>
-        </div>
+        <BotOtpAuth
+          email={email}
+          isEmailExist={isEmailExist}
+          otp={otp}
+          setOtp={setOtp}
+          onSubmitOtpHandler={onSubmitOtpHandler}
+        />
       ) : (
-        <div className="space-y-6 flex flex-col w-3/3 p-4 items-center justify-center">
-          <Image
-            src="/images/chomp-asset.png"
-            width={400}
-            height={400}
-            alt="Chomp Cover"
-            className="mt-5"
-          />
-          <form
-            key="emailVerification"
-            onSubmit={onSubmitEmailHandler}
-            className="flex flex-col justify-center space-y-4 w-full"
-          >
-            <p className="text-[1.6rem] font-bold text-center">
-              Chomp at its full potential!
-            </p>
-            <p className="text-left">
-              To access all features of Chomp (i.e revealing answer, viewing
-              results, earning BONK), you can register by entering your e-mail
-              below.
-            </p>
-            <div className="flex flex-col gap-4">
-              <TextInput
-                name="email"
-                placeholder="ENTER YOUR EMAIL HERE"
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                }}
-                variant="primary"
-                required
-                readOnly={isEmailExist}
-              />
-              {!isEmailExist && (
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="term"
-                    checked={isTermAccepted}
-                    onClick={() => setIsTermAccepted(!isTermAccepted)}
-                  />
-                  <label
-                    htmlFor="term"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    I understand this email will be permanantly linked to this
-                    Telegram account.
-                  </label>
-                </div>
-              )}
-              <Button
-                variant="purple"
-                size="normal"
-                className="gap-2 text-black font-medium"
-                isFullWidth
-                disabled={!isEmailExist && !isTermAccepted}
-              >
-                Send OTP{" "}
-                <HalfArrowRightIcon fill="#000" width={18} height={18} />
-              </Button>
-            </div>
-          </form>
-        </div>
+        <BotLogin
+          email={email}
+          setEmail={setEmail}
+          isEmailExist={isEmailExist}
+          isTermAccepted={isTermAccepted}
+          setIsTermAccepted={setIsTermAccepted}
+          onSubmitEmailHandler={onSubmitEmailHandler}
+        />
       )}
     </>
   );

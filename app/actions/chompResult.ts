@@ -135,11 +135,6 @@ export async function revealQuestions(
     }
 
     const revealableQuestionIds = revealableQuestions.map((q) => q.id);
-    const decksToAddRevealFor =
-      await getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
-        revealableQuestionIds,
-        payload.sub,
-      );
 
     const questionRewards = await calculateReward(
       payload.sub,
@@ -174,12 +169,6 @@ export async function revealQuestions(
             rewardTokenAmount: questionReward.rewardAmount,
             transactionStatus: TransactionStatus.Completed,
           })),
-          ...decksToAddRevealFor.map((deck) => ({
-            deckId: deck.id,
-            userId: payload.sub,
-            result: ResultType.Revealed,
-            burnTransactionSignature: burnTx,
-          })),
         ],
       });
 
@@ -202,37 +191,12 @@ export async function revealQuestions(
         },
       });
 
-      // const campaignId = revealableQuestions[0].campaignId;
-
-      // if (!!campaignId) {
-      //   const currentDate = new Date();
-
-      //   await tx.dailyLeaderboard.upsert({
-      //     where: {
-      //       user_campaign_date: {
-      //         userId: payload.sub,
-      //         campaignId: revealableQuestions[0].campaignId!,
-      //         date: currentDate,
-      //       },
-      //     },
-      //     create: {
-      //       userId: payload.sub,
-      //       campaignId: revealableQuestions[0].campaignId,
-      //       points: pointsAmount,
-      //     },
-      //     update: {
-      //       points: { increment: pointsAmount },
-      //     },
-      //   });
-      // }
-
       await tx.fungibleAssetTransactionLog.createMany({
         data: revealPoints.map((revealPointsTx) => ({
           asset: FungibleAsset.Point,
           type: revealPointsTx.type,
           change: revealPointsTx.amount,
           userId: payload.sub,
-          questionId: revealPointsTx.questionId,
         })),
       });
     });
@@ -264,6 +228,7 @@ export async function dismissQuestion(questionId: number) {
       result: ResultType.Dismissed,
       userId: payload.sub,
       questionId: questionId,
+      transactionStatus: TransactionStatus.Completed,
     },
     update: {
       result: ResultType.Dismissed,
