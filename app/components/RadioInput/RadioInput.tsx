@@ -56,7 +56,7 @@ export function RadioInput({
                 {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
               </p>
             </div>
-            <div className="text-sm font-sora font-light text-white h-full px-4 border-[#666666] border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden">
+            <div data-testid={o.id.toString()} className="text-sm font-sora font-light text-white h-full px-4 border-[#666666] border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden">
               {randomOptionId === o.id && (
                 <div
                   className="absolute bg-purple h-full left-0 -z-10"

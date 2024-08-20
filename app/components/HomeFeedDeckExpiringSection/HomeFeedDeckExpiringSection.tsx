@@ -31,7 +31,7 @@ export async function HomeFeedDeckExpiringSection() {
     <HomeFeedCardCarousel
       className="mt-6"
       title={
-        <span className="text-base text-chomp-purple">Expiring soon!</span>
+        <span className="text-base text-chomp-purple" id="expiring">Expiring soon!</span>
       }
       slides={deckSlides}
     />
