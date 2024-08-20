@@ -3,11 +3,11 @@
 import { IChompUser, IChompUserResponse } from "@/app/interfaces/user";
 import { useToast } from "@/app/providers/ToastProvider";
 import {
-  getProfileByEmail,
+  verifyProfileByEmail,
   getRevealQuestionsData,
   handleCreateUser,
   processBurnAndClaim,
-  verifyPayload,
+  getVerifiedUser,
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import {
@@ -80,7 +80,7 @@ export default function BotMiniApp() {
     bonkBalance: 0,
   });
 
-  const { user: dynamicUser, primaryWallet } = useDynamicContext();
+  const { primaryWallet, authToken } = useDynamicContext();
   const isLoggedIn = useIsLoggedIn();
   const { verifyOneTimePassword, connectWithEmail } = useConnectWithOtp();
   const { errorToast } = useToast();
@@ -135,15 +135,16 @@ export default function BotMiniApp() {
 
       setIsBurnInProgress(true);
       // Process Burn and Claim
-      const processedData = await processBurnAndClaim(
-        userId!,
-        burnTx?.signature,
-        selectedRevealQuestions,
-      );
-
-      if (processedData) {
-        setProcessedQuestions(processedData);
-        setBurnSuccessfull(true);
+      if (authToken) {
+        const processedData = await processBurnAndClaim(
+          authToken,
+          burnTx?.signature,
+          selectedRevealQuestions,
+        );
+        if (processedData) {
+          setProcessedQuestions(processedData);
+          setBurnSuccessfull(true);
+        }
       } else {
         throw new Error("Failed to Process");
       }
@@ -166,13 +167,10 @@ export default function BotMiniApp() {
       if (!emailRegex.test(email)) {
         errorToast("Invalid email");
       } else {
-        const response: IChompUserResponse | null =
-          await getProfileByEmail(email);
+        const isChompAppUser: IChompUserResponse | null =
+          await verifyProfileByEmail(email);
         if (
-          response?.profile &&
-          !response.profile.telegramId &&
-          response.profile.emails[0]?.address &&
-          response.profile.wallets[0]?.address
+          isChompAppUser
         ) {
           errorToast("Please contact support");
         } else {
@@ -209,7 +207,7 @@ export default function BotMiniApp() {
   const dataVerification = async (initData: any) => {
     try {
       setIsLoading(true);
-      const response = await verifyPayload(initData);
+      const response = await getVerifiedUser(initData);
       if (response) {
         setUserId(response.id);
         setUser(response);
@@ -227,22 +225,23 @@ export default function BotMiniApp() {
   };
 
   const storeDynamicUser = async () => {
-    const profile = await handleCreateUser(
-      userId!,
-      dynamicUser?.userId!,
-      user?.telegramId!,
-      primaryWallet?.address!,
-      email,
-    );
-    if (profile) {
-      setUser(profile);
-    } else {
+    if (authToken) {
+      const profile = await handleCreateUser(
+        userId!,
+        user?.telegramId!,
+        authToken
+      );
+      if (profile) {
+        setUser(profile);
+      }
+    }
+    else {
       errorToast("Failed to store user");
     }
   };
 
-  const getRevealQuestions = async (userId: string) => {
-    const response = await getRevealQuestionsData(userId);
+  const getRevealQuestions = async (authToken: string) => {
+    const response = await getRevealQuestionsData(authToken);
     if (response) {
       setQuestions(response);
       setIsLoadingQuestions(false);
@@ -267,10 +266,10 @@ export default function BotMiniApp() {
   };
 
   useEffect(() => {
-    if (userId) {
-      getRevealQuestions(userId);
+    if (authToken) {
+      getRevealQuestions(authToken);
     }
-  }, [userId]);
+  }, [authToken]);
 
   useEffect(() => {
     // Ensure Telegram Web App API is available

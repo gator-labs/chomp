@@ -28,8 +28,13 @@ export async function GET(req: Request) {
   if (!profile) {
     return Response.json("No data found", { status: 404 });
   }
+  const isChompAppUser =
+    profile &&
+    !profile.telegramId &&
+    profile.emails[0]?.address &&
+    profile.wallets[0]?.address;
 
-  return Response.json({ profile });
+  return Response.json({ isChompAppUser });
 }
 
 export async function POST(req: Request) {

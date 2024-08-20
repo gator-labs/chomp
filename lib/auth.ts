@@ -9,11 +9,13 @@ export interface VerifiedWallet {
 export interface VerifiedEmail {
   format: "email";
   email: string;
+  address?: string;
 }
 
 export interface DynamicJwtPayload {
   sub: string;
   exp: number;
+  email?: string;
   verified_credentials: (VerifiedWallet | VerifiedEmail)[];
   new_user: boolean;
 }

@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 
+import { getUserByTelegram } from "@/app/queries/user";
 import crypto from "crypto";
 import { headers } from "next/headers";
 
@@ -53,6 +54,10 @@ export async function POST(req: NextRequest) {
       status: 400,
     });
   }
-
-  return Response.json({ message: dataEnteries?.user }, { status: 200 });
+  const telegramId = JSON.parse(dataEnteries?.user);
+  const profile = await getUserByTelegram(String(telegramId?.id));
+  return Response.json(
+    { profile: profile, verifiedData: dataEnteries },
+    { status: 200 },
+  );
 }
