@@ -19,7 +19,7 @@ type TrueFalseScaleProps = {
   onPointerDown?: PointerEventHandler<HTMLSpanElement> | undefined;
   onTouchStart?: TouchEventHandler<HTMLSpanElement> | undefined;
   onClick?: MouseEventHandler<HTMLDivElement> | undefined;
-
+  rangeClassName?: string;
   isSliderTouched?: boolean;
 };
 
@@ -28,6 +28,7 @@ export function TrueFalseScale({
   handleRatioChange,
   sliderClassName,
   trackClassName,
+  rangeClassName,
   labelLeft = "True",
   labelRight = "False",
   progressColor,
@@ -47,6 +48,7 @@ export function TrueFalseScale({
         backgroundColor={bgColor}
         className={sliderClassName}
         trackClassName={trackClassName}
+        rangeClassName={rangeClassName}
         hideThumb={hideThumb}
         onPointerDown={onPointerDown}
         onTouchStart={onTouchStart}

@@ -58,7 +58,7 @@ export async function createQuestion() {
   
     console.log(`Created deck with ID: ${deck.id}`);
   
-    const users = await generateUsers(50);
+    const users = await generateUsers(1);
   
     await prisma.user.createMany({
       data: users,

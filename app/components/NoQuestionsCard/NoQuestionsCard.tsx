@@ -34,7 +34,7 @@ export function NoQuestionsCard({
         }}
       >
         <div className="flex items-center justify-start text-left flex-col h-full gap-5">
-          <div className="text-2xl font-bold mb-2 w-full">
+          <div className="text-2xl font-bold mb-2 w-full" id="post-answer-title">
             {QUESTION_CARD_CONTENT[variant].title}
           </div>
           <div className="text-base relative z-10">

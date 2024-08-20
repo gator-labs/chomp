@@ -145,6 +145,8 @@ export function QuestionAction({
               onPointerDown={activateSlider}
               onTouchStart={activateSlider}
               onClick={activateSlider}
+              trackClassName="test-id-track-class-name"
+              rangeClassName="test-id-range-class-name"
             />
           </div>
           <Button
@@ -153,6 +155,7 @@ export function QuestionAction({
             variant="purple"
             size="normal"
             className="w-max py-6 !rounded-2xl self-stretch"
+            dataTestId="multi-second-order-next"
           >
             Confirm
           </Button>
