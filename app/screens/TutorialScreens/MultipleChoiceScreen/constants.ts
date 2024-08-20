@@ -2,7 +2,7 @@ import { QuestionStep } from "@/app/components/Question/Question";
 
 export const STEPS = [
   {
-    text: "Pick the answer you agree with the most.",
+    text: "Pick the answer you agree with most.",
     style: {
       bottom: "65px",
       left: "0%",
@@ -13,7 +13,7 @@ export const STEPS = [
     isTooltip: true,
   },
   {
-    text: "How many people do you think chose this B choice?",
+    text: "How many people do you think chose this answer?",
     style: {},
     position: "top-start",
     isQuestionCardTooltip: false,

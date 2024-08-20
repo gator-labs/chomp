@@ -1,5 +1,6 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestions } from "@/app/actions/claim";
+import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
@@ -17,8 +18,6 @@ import { Button } from "../Button/Button";
 import { ClockIcon } from "../Icons/ClockIcon";
 import { DollarIcon } from "../Icons/DollarIcon";
 import { EyeIcon } from "../Icons/EyeIcon";
-import LeadToIcon from "../Icons/LeadToIcon";
-import { RevealProps } from "@/app/hooks/useReveal";
 
 const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
   (question, ref) => {
@@ -104,9 +103,6 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
             </div>
           )}
           <p className="text-sm text-white mr-auto">{question.question}</p>
-          <div>
-            <LeadToIcon width={16} height={13} />
-          </div>
         </div>
 
         <div className="flex items-center justify-between">
