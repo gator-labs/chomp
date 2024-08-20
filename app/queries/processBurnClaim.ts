@@ -66,9 +66,7 @@ export async function revealAllSelected(
       revealableQuestionIds,
     );
 
-    const revealPoints = await calculateRevealPoints(
-      Object.values(rewardsPerQuestionId!),
-    );
+    const revealPoints = await calculateRevealPoints(rewardsPerQuestionId);
 
     const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
 
@@ -88,16 +86,13 @@ export async function revealAllSelected(
 
       await tx.chompResult.createMany({
         data: [
-          ...revealableQuestionIds.map((questionId) => {
-            const reward = rewardsPerQuestionId.find(
-              (question) => question.questionId === questionId,
-            );
+          ...rewardsPerQuestionId.map((questionReward) => {
             return {
-              questionId,
+              questionId: questionReward.questionId,
               userId: userId,
               result: ResultType.Revealed,
               burnTransactionSignature: burnTx,
-              rewardTokenAmount: reward ? reward.rewardAmount : undefined,
+              rewardTokenAmount: questionReward.rewardAmount,
               transactionStatus: TransactionStatus.Completed,
             };
           }),
@@ -159,12 +154,14 @@ export async function revealAllSelected(
           type: revealPointsTx.type,
           change: revealPointsTx.amount,
           userId: userId,
+          questionId: revealPointsTx.questionId,
         })),
       });
     });
 
     release();
   } catch (e) {
+    console.log("ERROR", e);
     release();
     throw e;
   }

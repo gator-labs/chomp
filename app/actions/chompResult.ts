@@ -13,7 +13,7 @@ import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
 import { calculateRevealPoints } from "../utils/points";
-import { getQuestionState, isEntityRevealable } from "../utils/question";
+import { isEntityRevealable } from "../utils/question";
 import { CONNECTION } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 import { checkNft } from "./revealNft";
@@ -135,11 +135,6 @@ export async function revealQuestions(
     }
 
     const revealableQuestionIds = revealableQuestions.map((q) => q.id);
-    const decksToAddRevealFor =
-      await getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
-        revealableQuestionIds,
-        payload.sub,
-      );
 
     const questionRewards = await calculateReward(
       payload.sub,
@@ -174,12 +169,6 @@ export async function revealQuestions(
             rewardTokenAmount: questionReward.rewardAmount,
             transactionStatus: TransactionStatus.Completed,
           })),
-          ...decksToAddRevealFor.map((deck) => ({
-            deckId: deck.id,
-            userId: payload.sub,
-            result: ResultType.Revealed,
-            burnTransactionSignature: burnTx,
-          })),
         ],
       });
 
@@ -201,30 +190,6 @@ export async function revealQuestions(
           amount: pointsAmount,
         },
       });
-
-      // const campaignId = revealableQuestions[0].campaignId;
-
-      // if (!!campaignId) {
-      //   const currentDate = new Date();
-
-      //   await tx.dailyLeaderboard.upsert({
-      //     where: {
-      //       user_campaign_date: {
-      //         userId: payload.sub,
-      //         campaignId: revealableQuestions[0].campaignId!,
-      //         date: currentDate,
-      //       },
-      //     },
-      //     create: {
-      //       userId: payload.sub,
-      //       campaignId: revealableQuestions[0].campaignId,
-      //       points: pointsAmount,
-      //     },
-      //     update: {
-      //       points: { increment: pointsAmount },
-      //     },
-      //   });
-      // }
 
       await tx.fungibleAssetTransactionLog.createMany({
         data: revealPoints.map((revealPointsTx) => ({
@@ -264,6 +229,7 @@ export async function dismissQuestion(questionId: number) {
       result: ResultType.Dismissed,
       userId: payload.sub,
       questionId: questionId,
+      transactionStatus: TransactionStatus.Completed,
     },
     update: {
       result: ResultType.Dismissed,

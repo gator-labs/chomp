@@ -13,8 +13,6 @@ import { addSeconds } from "date-fns";
 import dayjs from "dayjs";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
-import { mapPercentages, populateAnswerCount } from "../utils/question";
-import { answerPercentageQuery } from "./answerPercentageQuery";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -43,7 +41,6 @@ export async function getDailyDeck() {
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
-      isActive: true,
       deckQuestions: {
         every: {
           question: {
@@ -111,7 +108,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   }
 
   const deck = await prisma.deck.findFirst({
-    where: { id: { equals: deckId }, isActive: true },
+    where: { id: { equals: deckId } },
     include: questionDeckToRunInclude,
   });
 
@@ -189,7 +186,6 @@ export async function getDailyAnsweredQuestions() {
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
-      isActive: true,
       deckQuestions: {
         every: {
           question: {
@@ -276,59 +272,6 @@ export async function getDeckSchema(id: number) {
       questionTags: undefined,
     })),
   };
-}
-
-export async function getDeckDetails(id: number) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  const deck = await prisma.deck.findFirst({
-    where: {
-      id: {
-        equals: id,
-      },
-    },
-    include: {
-      chompResults: {
-        where: { userId: payload.sub },
-      },
-      deckQuestions: {
-        include: {
-          question: {
-            include: {
-              questionOptions: {
-                include: {
-                  questionAnswers: true,
-                },
-              },
-              chompResults: {
-                where: { userId: payload.sub },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  if (!deck) {
-    return null;
-  }
-
-  const questions = deck?.deckQuestions.flatMap((dq) => dq.question);
-  const questionOptionIds = questions.flatMap((q) =>
-    q.questionOptions?.map((qo) => qo.id),
-  );
-  const questionOptionPercentages =
-    await answerPercentageQuery(questionOptionIds);
-
-  const populated = populateAnswerCount(deck);
-  mapPercentages(questions, questionOptionPercentages);
-
-  return { ...deck, answerCount: populated.answerCount ?? 0 };
 }
 
 export async function hasAnsweredDeck(

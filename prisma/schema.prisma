@@ -105,17 +105,16 @@ model Deck {
   id                          Int                           @id @default(autoincrement())
   deck                        String
   date                        DateTime?
+  activeFromDate              DateTime?
   revealAtDate                DateTime?
   revealAtAnswerCount         Int?
   imageUrl                    String?
   createdAt                   DateTime                      @default(now())
   updatedAt                   DateTime                      @default(now()) @updatedAt
-  isActive                    Boolean                       @default(true)
   campaign                    Campaign?                     @relation(fields: [campaignId], references: [id])
   campaignId                  Int?
   deckQuestions               DeckQuestion[]
   userDeck                    UserDeck[]
-  chompResults                ChompResult[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
 }
 
@@ -151,6 +150,8 @@ model QuestionAnswer {
   timeToAnswer             BigInt?
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @default(now()) @updatedAt
+
+  @@unique([questionOptionId, userId], name: "question_option_user")
 }
 
 model ChompResult {
@@ -159,18 +160,15 @@ model ChompResult {
   user                     User              @relation(fields: [userId], references: [id])
   questionId               Int?
   question                 Question?         @relation(fields: [questionId], references: [id])
-  deckId                   Int?
-  deck                     Deck?             @relation(fields: [deckId], references: [id])
   burnTransactionSignature String?
   sendTransactionSignature String?
   rewardTokenAmount        Decimal?
   result                   ResultType
   createdAt                DateTime          @default(now())
   updatedAt                DateTime          @default(now()) @updatedAt
-  transactionStatus        TransactionStatus @default(Completed)
+  transactionStatus        TransactionStatus
 
   @@unique([userId, questionId])
-  @@unique([userId, deckId])
 }
 
 model FungibleAssetTransactionLog {

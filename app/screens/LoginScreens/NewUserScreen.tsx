@@ -15,15 +15,14 @@ const NewUserScreen = () => {
 
           <div className="flex gap-[10px] items-center w-full justify-center">
             <p className="text-sm text-center">
-              We see that you&apos;re new here. Why not take a 30 second
-              tutorial to learn your way around the app?
+              New to Chomp? Why not take 30 seconds to learn how everything works?
             </p>
           </div>
         </div>
         <div className="flex flex-col gap-[14px] items-center w-full py-4">
           <Link href="/tutorial" className="w-full">
             <Button variant="purple" className="gap-1">
-              Start <HalfArrowRightIcon fill="#0D0D0D" />
+              Let’s go <HalfArrowRightIcon fill="#0D0D0D" />
             </Button>
           </Link>
           <Link href="/application">

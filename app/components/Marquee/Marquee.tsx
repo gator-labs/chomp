@@ -6,31 +6,37 @@ type Props = {
 };
 
 const Marquee = ({ text }: Props) => {
-  const firstText = useRef(null);
-  const secondText = useRef(null);
+  const firstText = useRef<HTMLParagraphElement>(null);
+  const secondText = useRef<HTMLParagraphElement>(null);
+  const container = useRef<HTMLDivElement>(null);
   let xPercent = 0;
-  let direction = -1;
+  let speed = 0.2;
+  let textWidth = 0;
 
   useEffect(() => {
-    requestAnimationFrame(animate);
+    if (firstText.current && container.current) {
+      textWidth = firstText.current.getBoundingClientRect().width;
+      const containerWidth = container.current.getBoundingClientRect().width;
+      const relativeSpeed = textWidth / containerWidth;
+      speed = speed / relativeSpeed;
+      requestAnimationFrame(animate);
+    }
   }, []);
 
   const animate = () => {
-    if (xPercent < -100) {
+    if (xPercent <= -100) {
       xPercent = 0;
-    } else if (xPercent > 0) {
-      xPercent = -100;
     }
     if (!!firstText.current && !!secondText.current) {
-      gsap.set(firstText.current, { xPercent: xPercent });
-      gsap.set(secondText.current, { xPercent: xPercent });
+      gsap.set(firstText.current, { xPercent });
+      gsap.set(secondText.current, { xPercent });
+      xPercent -= speed;
       requestAnimationFrame(animate);
-      xPercent += 0.2 * direction;
     }
   };
 
   return (
-    <div className="overflow-hidden flex">
+    <div ref={container} className="overflow-hidden flex">
       <div className="whitespace-nowrap relative">
         <p
           ref={firstText}

@@ -20,6 +20,7 @@ export default function useInfiniteQuestionsHistory() {
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length ? allPages.length + 1 : undefined;
     },
+    staleTime: Infinity,
   });
 
   const formattedData = useMemo(() => {
