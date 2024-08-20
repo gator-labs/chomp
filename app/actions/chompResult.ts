@@ -13,7 +13,7 @@ import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
 import { calculateRevealPoints } from "../utils/points";
-import { isEntityRevealable } from "../utils/question";
+import { getQuestionState, isEntityRevealable } from "../utils/question";
 import { CONNECTION } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 import { checkNft } from "./revealNft";
