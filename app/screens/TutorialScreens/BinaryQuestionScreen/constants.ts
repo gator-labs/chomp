@@ -2,7 +2,7 @@ import { QuestionStep } from "@/app/components/Question/Question";
 
 export const STEPS = [
   {
-    text: "Every card is a question. For each question, you will be asked to give two answers.",
+    text: "Every card poses a question. This one has two possible responses.",
     style: {
       bottom: "unset",
       top: "12%",
@@ -14,7 +14,7 @@ export const STEPS = [
     isTooltip: true,
   },
   {
-    text: "You have 1 minute to give each answer, clock's ticking!",
+    text: "You only have 1 minute to answer, clock’s ticking!",
     style: {
       bottom: "5%",
       top: "unset",
@@ -26,7 +26,7 @@ export const STEPS = [
     isTooltip: true,
   },
   {
-    text: "Select the answer you agree with the most.",
+    text: "Select the answer you agree with most.",
     style: {},
     position: "top",
     isQuestionCardTooltip: false,
@@ -34,7 +34,7 @@ export const STEPS = [
     isTooltip: true,
   },
   {
-    text: "Use the slider to share your best estimate of how the crowd would choose their answer.",
+    text: "Use the slider to share how you think others answered this question.",
     style: {
       bottom: "70%",
       top: "unset",

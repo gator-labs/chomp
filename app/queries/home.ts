@@ -98,6 +98,10 @@ async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
         (
       		d."date" is null
   		  )
+        and
+        (
+          d."activeFromDate" <= now()
+        )
         and 
         (
           d."revealAtAnswerCount" is null
@@ -125,8 +129,6 @@ async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
             join public."DeckQuestion" dq on dq."questionId" = q."id"
             where dq."deckId" = d."id" and qa."userId" = ${userId}
         )
-      and
-      d."isActive" = true
       limit 1
   `;
 
@@ -161,6 +163,10 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
         (
       		d."date" is null
   		  )
+        and
+        (
+          d."activeFromDate" <= now()
+        )
         and 
         (
           d."revealAtAnswerCount" is null
@@ -188,8 +194,6 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
             join public."DeckQuestion" dq on dq."questionId" = q."id"
             where dq."deckId" = d."id" and qa."userId" = ${userId}
         )
-      and
-      d."isActive" = true
   `;
 
   return deckExpiringSoon;
@@ -228,11 +232,6 @@ async function queryRevealedQuestions(
       AND cr1."transactionStatus" = 'Completed'
   LEFT JOIN public."DeckQuestion" dq 
       ON dq."questionId" = q."id"
-  LEFT JOIN public."Deck" d 
-      ON d."id" = dq."deckId"
-  LEFT JOIN public."ChompResult" cr2 
-      ON cr2."deckId" = d."id" 
-      AND cr2."userId" = ${userId}
   LEFT JOIN public."QuestionOption" qo 
       ON qo."questionId" = q."id"
   LEFT JOIN public."QuestionAnswer" qa 
@@ -240,7 +239,6 @@ async function queryRevealedQuestions(
       AND qa."userId" = ${userId}
   WHERE
       cr1."questionId" IS NULL
-      AND cr2."id" IS NULL
       AND qa."id" IS NULL
       AND q."revealAtDate" IS NOT NULL 
       AND q."revealAtDate" < now() 
