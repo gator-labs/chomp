@@ -37,23 +37,24 @@ export const genBonkBurnTx = async (
     DECIMALS,
   );
 
-  tx.add(burnTxInstruction);
-
   tx.recentBlockhash = blockhash;
   tx.feePayer = burnFromPublic;
 
   const estimateFee = await getRecentPrioritizationFees(tx);
 
+  const computeUnitFix = 5000;
+
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-    units: 10000,
+    units: computeUnitFix * 1.25,
   });
 
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: estimateFee?.result?.priorityFeeLevels?.medium,
+    microLamports: estimateFee?.result?.priorityFeeLevels?.high,
   });
 
   tx.add(modifyComputeUnits);
   tx.add(addPriorityFee);
+  tx.add(burnTxInstruction);
 
   return tx;
 };
