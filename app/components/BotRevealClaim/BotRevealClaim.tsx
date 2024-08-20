@@ -1,8 +1,8 @@
 import { WalletIcon } from "@/app/components/Icons/WalletIcon";
 import Image from "next/image";
 import { useState } from "react";
-import WalletPopUp from "../Bot/WalletPopUp/WalletPopUp";
 import Tabs from "../Tabs/Tabs";
+import WalletMenu from "../WalletMenu/WalletMenu";
 
 type BotRevealClaimProps = {
   children: React.ReactNode;
@@ -50,7 +50,7 @@ export default function BotRevealClaim({
           <WalletIcon />
         </button>
       </span>
-      <WalletPopUp
+      <WalletMenu
         isOpen={isOpen}
         onClose={closeQuickProfile}
         wallet={wallet}

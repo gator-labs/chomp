@@ -1,9 +1,9 @@
 "use server";
 
-import { IChompUser } from "../interfaces/user";
-import { extractId } from "../utils/telegramId";
+import { IChompUser } from "@/app/interfaces/user";
+import { extractId } from "@/app/utils/telegramId";
 
-export const getUserData = async (telegramId: string) => {
+const getUserData = async (telegramId: string) => {
   const options = {
     method: "GET",
     headers: {

@@ -1,3 +1,7 @@
+/*
+  THIS API STORES ANSWERS OF MULTIPLE QUESTIONS IN A DECK 
+*/
+
 import { SaveQuestionRequest } from "@/app/actions/answer";
 import { updateStreak } from "@/app/actions/streak";
 import { hasAnsweredDeck } from "@/app/queries/deck";
@@ -9,8 +13,7 @@ import { headers } from "next/headers";
 export async function POST(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-
-  if (apiKey !== process.env.BOT_API_KEY) {
+  if (apiKey !== process.env.BOT_API_KEY) {                    // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
@@ -30,7 +33,7 @@ export async function POST(req: Request) {
     where: { id: { equals: deckId } },
   });
 
-  if (deck?.revealAtDate && dayjs(deck?.revealAtDate).isBefore(new Date())) {
+  if (deck?.revealAtDate && dayjs(deck?.revealAtDate).isBefore(new Date())) {     // Deck reveal date must be after CURRENT_DATETIME
     return new Response("Reveal date is before today", { status: 400 });
   }
 

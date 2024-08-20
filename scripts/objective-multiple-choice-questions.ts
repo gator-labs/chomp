@@ -23,7 +23,6 @@ async function main() {
     data: {
       deck: `${tag}: Deck ${format(currentDate, "MM/dd/yyyy")}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      isActive: true,
       deckQuestions: {
         create: {
           question: {
