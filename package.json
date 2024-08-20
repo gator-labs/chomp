@@ -25,6 +25,8 @@
     "build-storybook": "storybook build",
     "test": "jest --watch",
     "gh-test": "jest",
+    "play": "dotenv -c --  playwright test",
+    "play:webkit": "dotenv -c --  playwright test --project webkit",
     "knip": "knip"
   },
   "dependencies": {

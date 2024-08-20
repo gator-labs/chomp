@@ -115,7 +115,7 @@ export function QuestionAction({
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">Choose the option you agree with</div>
         <div>
-          <Button onClick={() => onButtonClick()} variant="pink" size="big">
+          <Button onClick={() => onButtonClick()} variant="pink" size="big" dataTestId="multi-first-order-next">
             Next <HalfArrowRightIcon fill="#0D0D0D" />
           </Button>
         </div>
@@ -126,7 +126,7 @@ export function QuestionAction({
   if (type === "MultiChoice" && step === QuestionStep.PickPercentage) {
     return (
       <div className="text-center text-white font-semibold">
-        <div className="text-sm font-normal mb-4 flex gap-1 items-center justify-center">
+        <div id="multi-second-order-title" className="text-sm font-normal mb-4 flex gap-1 items-center justify-center">
           How many people do you think picked{" "}
           <span className="px-2 py-1 bg-white rounded-2xl text-[10px] leading-[12px] text-[#0D0D0D]">
             {randomQuestionMarker}

@@ -19,6 +19,7 @@ type ButtonProps = {
   isFullWidth?: boolean;
   isPill?: boolean;
   className?: string;
+  dataTestId?: string;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 export function Button({
@@ -28,6 +29,7 @@ export function Button({
   children,
   isFullWidth = true,
   isPill = false,
+  dataTestId = 'button-test-id',
   className,
   ...props
 }: ButtonProps) {
@@ -71,7 +73,7 @@ export function Button({
   );
 
   return (
-    <button {...props} disabled={disabled} className={classNameResult}>
+    <button {...props} disabled={disabled} className={classNameResult} data-testid={dataTestId}>
       {children}
     </button>
   );
