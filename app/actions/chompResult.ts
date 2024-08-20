@@ -197,7 +197,6 @@ export async function revealQuestions(
           type: revealPointsTx.type,
           change: revealPointsTx.amount,
           userId: payload.sub,
-          questionId: revealPointsTx.questionId,
         })),
       });
     });

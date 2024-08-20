@@ -49,7 +49,6 @@ export async function GET(req: Request) {
   const dailyDeck = await prisma.deck.findFirst({
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
-      isActive: true,
       deckQuestions: {
         every: {
           question: {
@@ -92,7 +91,6 @@ export async function GET(req: Request) {
                 gte: new Date(),
                 lte: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
               },
-              isActive: true,
               date: null,
             },
           },
