@@ -9,6 +9,7 @@ import {
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
+import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
@@ -21,34 +22,39 @@ export const genBonkBurnTx = async (
   blockhash: string,
   tokenAmount: number,
 ) => {
-  const burnFromPublic = new PublicKey(ownerAddress);
+  const burnFromPublic = new PublicKey(ownerAddress); // user address
+  const bonkPublic = new PublicKey(BONK_PUBLIC_ADDRESS); // bonk public address
 
-  const bonkPublic = new PublicKey(BONK_PUBLIC_ADDRESS);
-  let ata = await getAssociatedTokenAddress(
-    bonkPublic, // mint
-    burnFromPublic, // owner
-  );
+  let ata = await getAssociatedTokenAddress(bonkPublic, burnFromPublic);
 
   const tx = new Transaction();
 
-  const priorityFeeInstruction = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: 1000000,
-  });
-
-  tx.add(priorityFeeInstruction);
-
-  tx.add(
-    createBurnCheckedInstruction(
-      ata,
-      bonkPublic,
-      burnFromPublic,
-      tokenAmount * 10 ** DECIMALS,
-      DECIMALS,
-    ),
+  const burnTxInstruction = createBurnCheckedInstruction(
+    ata,
+    bonkPublic,
+    burnFromPublic,
+    tokenAmount * 10 ** DECIMALS,
+    DECIMALS,
   );
 
   tx.recentBlockhash = blockhash;
   tx.feePayer = burnFromPublic;
+
+  const estimateFee = await getRecentPrioritizationFees(tx);
+
+  const computeUnitFix = 5000;
+
+  const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+    units: computeUnitFix * 1.25,
+  });
+
+  const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports: estimateFee?.result?.priorityFeeLevels?.high,
+  });
+
+  tx.add(modifyComputeUnits);
+  tx.add(addPriorityFee);
+  tx.add(burnTxInstruction);
 
   return tx;
 };
