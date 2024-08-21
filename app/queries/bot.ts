@@ -109,7 +109,7 @@ export const handleCreateUser = async (
   };
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/use`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user`,
       options,
     );
     const user = await response.json();
@@ -146,7 +146,9 @@ export const getVerifiedUser = async (
 };
 
 // does user already have an account in pwa
-export const verifyProfileByEmail = async (email: string) => {
+export const isUserExistByEmail = async (
+  email: string,
+): Promise<boolean | null> => {
   const options = {
     method: "GET",
     headers: {

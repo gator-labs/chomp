@@ -1,13 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { IChompUser, IChompUserResponse } from "@/app/interfaces/user";
+import { IChompUser } from "@/app/interfaces/user";
 import { useToast } from "@/app/providers/ToastProvider";
 import {
-  verifyProfileByEmail,
   getRevealQuestionsData,
-  handleCreateUser,
-  processBurnAndClaim,
   getVerifiedUser,
+  handleCreateUser,
+  isUserExistByEmail,
+  processBurnAndClaim,
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import {
@@ -163,11 +163,8 @@ export default function BotMiniApp() {
       if (!emailRegex.test(email)) {
         errorToast("Invalid email");
       } else {
-        const isChompAppUser: IChompUserResponse | null =
-          await verifyProfileByEmail(email);
-        if (
-          isChompAppUser
-        ) {
+        const isUserExist: boolean | null = await isUserExistByEmail(email);
+        if (isUserExist) {
           errorToast("Please contact support");
         } else {
           await connectWithEmail(email);
@@ -225,13 +222,12 @@ export default function BotMiniApp() {
       const profile = await handleCreateUser(
         userId!,
         user?.telegramId!,
-        authToken
+        authToken,
       );
       if (profile) {
         setUser(profile);
       }
-    }
-    else {
+    } else {
       errorToast("Failed to store user");
     }
   };
