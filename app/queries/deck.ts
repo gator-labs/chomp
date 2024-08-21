@@ -259,9 +259,9 @@ export async function getDeckSchema(id: number) {
 
   return {
     ...deck,
-    revealToken: deck.deckQuestions[0].question.revealToken,
-    revealTokenAmount: deck.deckQuestions[0].question.revealTokenAmount,
-    tagIds: deck.deckQuestions[0].question.questionTags.map((qt) => qt.tag.id),
+    revealToken: deck.deckQuestions[0]?.question.revealToken,
+    revealTokenAmount: deck.deckQuestions[0]?.question.revealTokenAmount,
+    tagIds: deck.deckQuestions[0]?.question.questionTags.map((qt) => qt.tag.id),
     deckQuestions: undefined,
     questions: deck.deckQuestions.map((dq) => ({
       ...dq.question,
