@@ -15,6 +15,154 @@ import { formatErrorsToString } from "../../utils/zod";
 import { handleUpsertingQuestionOptionsConcurrently } from "../question/question";
 import { deckInputFactory } from "./factories";
 
+export async function deleteQuestions(questionIds: number[]) {
+  const isAdmin = await getIsUserAdmin();
+
+  if (!isAdmin) {
+    redirect("/application");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const questions = await tx.question.findMany({
+      where: {
+        id: {
+          in: questionIds,
+        },
+      },
+      include: {
+        questionOptions: true,
+        deckQuestions: true,
+      },
+    });
+
+    if (!questions.length) return;
+
+    const qIds = questions.map((q) => q.id);
+
+    const questionOptionsIds = questions.flatMap((q) =>
+      q.questionOptions.map((qo) => qo.id),
+    );
+
+    await tx.chompResult.deleteMany({
+      where: {
+        questionId: {
+          in: qIds,
+        },
+      },
+    });
+
+    await tx.questionAnswer.deleteMany({
+      where: {
+        questionOptionId: {
+          in: questionOptionsIds,
+        },
+      },
+    });
+
+    await tx.questionOption.deleteMany({
+      where: {
+        id: {
+          in: questionOptionsIds,
+        },
+      },
+    });
+
+    await tx.deckQuestion.deleteMany({
+      where: {
+        questionId: {
+          in: qIds,
+        },
+      },
+    });
+
+    await tx.question.deleteMany({
+      where: {
+        id: {
+          in: qIds,
+        },
+      },
+    });
+  });
+
+  revalidatePath("/admin/questions");
+}
+
+export async function deleteDeck(deckId: number) {
+  const isAdmin = await getIsUserAdmin();
+
+  if (!isAdmin) {
+    redirect("/application");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const deckQuestions = await tx.deckQuestion.findMany({
+      where: {
+        deckId,
+      },
+      include: {
+        question: {
+          include: {
+            questionOptions: true,
+          },
+        },
+      },
+    });
+
+    const questionOptionsIds = deckQuestions.flatMap((q) =>
+      q.question.questionOptions.map((qo) => qo.id),
+    );
+    const questionIds = deckQuestions.map((dq) => dq.questionId);
+
+    await tx.chompResult.deleteMany({
+      where: {
+        questionId: {
+          in: questionIds,
+        },
+      },
+    });
+
+    await tx.questionAnswer.deleteMany({
+      where: {
+        questionOptionId: {
+          in: questionOptionsIds,
+        },
+      },
+    });
+
+    await tx.questionOption.deleteMany({
+      where: {
+        id: {
+          in: questionOptionsIds,
+        },
+      },
+    });
+
+    await tx.deckQuestion.deleteMany({
+      where: {
+        deckId,
+      },
+    });
+
+    await tx.userDeck.deleteMany({
+      where: {
+        deckId,
+      },
+    });
+
+    await tx.deck.delete({ where: { id: deckId } });
+
+    await tx.question.deleteMany({
+      where: {
+        id: {
+          in: questionIds,
+        },
+      },
+    });
+  });
+
+  revalidatePath("/admin/decks");
+}
+
 export async function createDeck(data: z.infer<typeof deckSchema>) {
   const isAdmin = await getIsUserAdmin();
 
@@ -310,4 +458,33 @@ export async function handleInsertDecks(decksToAdd: DeckImportModel[]) {
 
   revalidatePath("/admin/decks");
   redirect("/admin/decks");
+}
+
+export async function getTotalNumberOfAnswersInDeck(
+  deckId: number,
+): Promise<number | null> {
+  const res = await prisma.$queryRaw<{ totalNumberOfAnswers: number }[]>`
+    SELECT COUNT(DISTINCT CONCAT(qa."userId", '-', q.id)) AS "totalNumberOfAnswers"
+    FROM "DeckQuestion" dq
+    JOIN "Question" q ON q.id = dq."questionId"
+    JOIN "QuestionOption" qo ON qo."questionId" = q.id
+    JOIN "QuestionAnswer" qa ON qa."questionOptionId" = qo.id
+    WHERE dq."deckId" = ${deckId};
+  `;
+
+  return res?.[0]?.totalNumberOfAnswers || 0;
+}
+
+export async function getTotalNumberOfAnswersInQuestions(
+  questionId: number,
+): Promise<number | null> {
+  const res = await prisma.$queryRaw<{ totalNumberOfAnswers: number }[]>`
+    SELECT COUNT(DISTINCT CONCAT(qa."userId", '-', q.id)) AS "totalNumberOfAnswers"
+    FROM "Question" q
+    JOIN "QuestionOption" qo ON qo."questionId" = q.id
+    JOIN "QuestionAnswer" qa ON qa."questionOptionId" = qo.id
+    WHERE q."id" = ${questionId};
+  `;
+
+  return res?.[0]?.totalNumberOfAnswers || 0;
 }
