@@ -1,9 +1,8 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import Link from "next/link";
-import { Button } from "../Button/Button";
 import { Tag } from "../Tag/Tag";
+import Action from "./Action";
 import { DeckRowType } from "./DeckList";
 
 export const columns: ColumnDef<DeckRowType>[] = [
@@ -49,13 +48,7 @@ export const columns: ColumnDef<DeckRowType>[] = [
   {
     header: "Actions",
     cell: ({ row }) => {
-      return (
-        <Link href={`/admin/decks/${row.original.id}`}>
-          <Button variant="primary" isFullWidth={false}>
-            Edit
-          </Button>
-        </Link>
-      );
+      return <Action row={row} />;
     },
   },
 ];
