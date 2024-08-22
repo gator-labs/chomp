@@ -7,15 +7,16 @@ import {
   Connection,
   LAMPORTS_PER_SOL,
   PublicKey,
-  Transaction,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
-import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;
-const AMOUNT_TO_SEND = 1;
+const COMPUTE_UNIT_FIX = 5000;
 const DECIMALS = 5;
+const PRIORITY_RATE = 25000;
 
 export const genBonkBurnTx = async (
   ownerAddress: string,
@@ -27,7 +28,7 @@ export const genBonkBurnTx = async (
 
   let ata = await getAssociatedTokenAddress(bonkPublic, burnFromPublic);
 
-  const tx = new Transaction();
+  const instructions = [];
 
   const burnTxInstruction = createBurnCheckedInstruction(
     ata,
@@ -37,26 +38,27 @@ export const genBonkBurnTx = async (
     DECIMALS,
   );
 
-  tx.recentBlockhash = blockhash;
-  tx.feePayer = burnFromPublic;
-
-  const estimateFee = await getRecentPrioritizationFees(tx);
-
-  const computeUnitFix = 5000;
-
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-    units: computeUnitFix * 1.25,
+    units: COMPUTE_UNIT_FIX * 1.25,
   });
 
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: estimateFee?.result?.priorityFeeLevels?.high,
+    microLamports: PRIORITY_RATE,
   });
 
-  tx.add(modifyComputeUnits);
-  tx.add(addPriorityFee);
-  tx.add(burnTxInstruction);
+  instructions.push(modifyComputeUnits);
+  instructions.push(addPriorityFee);
+  instructions.push(burnTxInstruction);
 
-  return tx;
+  const message = new TransactionMessage({
+    payerKey: burnFromPublic,
+    recentBlockhash: blockhash,
+    instructions,
+  }).compileToV0Message();
+
+  const transaction = new VersionedTransaction(message);
+
+  return transaction;
 };
 
 export const getBonkBalance = async (address: string): Promise<number> => {
