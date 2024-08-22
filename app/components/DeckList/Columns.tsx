@@ -11,13 +11,13 @@ export const columns: ColumnDef<DeckRowType>[] = [
   {
     header: "Token",
     cell: ({ row }) => (
-      <div>{row.original.deckQuestions[0].question.revealToken}</div>
+      <div>{row.original.deckQuestions[0]?.question.revealToken}</div>
     ),
   },
   {
     header: "Reveal Token Amount",
     cell: ({ row }) => (
-      <div>{row.original.deckQuestions[0].question.revealTokenAmount}</div>
+      <div>{row.original.deckQuestions[0]?.question.revealTokenAmount}</div>
     ),
   },
   {
@@ -39,7 +39,7 @@ export const columns: ColumnDef<DeckRowType>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex gap-2">
-          {row.original.deckQuestions[0].question.questionTags.map((t) => (
+          {row.original.deckQuestions[0]?.question.questionTags.map((t) => (
             <Tag tag={t.tag.tag} key={t.id} />
           ))}
         </div>
