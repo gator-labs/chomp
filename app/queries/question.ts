@@ -1,4 +1,5 @@
 import {
+  AnswerStatus,
   Deck,
   DeckQuestion,
   Prisma,
@@ -205,7 +206,7 @@ export async function hasAnsweredQuestion(
   }
 
   const questionAnswerWhereInput: Prisma.QuestionAnswerWhereInput =
-    ignorePlaceholder ? { hasViewedButNotSubmitted: false } : {};
+    ignorePlaceholder ? { status: AnswerStatus.Submitted } : {};
 
   const answeredCount = await prisma.questionAnswer.count({
     where: {

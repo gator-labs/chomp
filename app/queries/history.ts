@@ -59,8 +59,6 @@ export async function getDecksHistory(
 		ORDER BY d."revealAtDate" DESC
 		`;
 
-  console.log(decksHistory);
-
   return decksHistory;
 }
 
@@ -134,7 +132,7 @@ export async function getQuestionsHistoryQuery(
 
   let finalQuery = baseQuery;
   if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging") {
-    finalQuery += havingClause;
+    // finalQuery += havingClause;
   }
   finalQuery += endQuery;
 
