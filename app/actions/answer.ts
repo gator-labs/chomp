@@ -147,8 +147,6 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
     );
 
-    console.log(allQuestionOptions.length, allQuestionAnswers.length);
-
     const fungibleAssetRevealTasks = [
       incrementFungibleAssetBalance({
         asset: FungibleAsset.Point,
