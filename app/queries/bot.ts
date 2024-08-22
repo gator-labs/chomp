@@ -1,8 +1,20 @@
 "use server";
-import { decodeJwtPayload } from "@/lib/auth";
-import { IChompUser } from "../interfaces/user";
-import { getUserByEmail } from "./user";
+import { decodeJwtPayload, DynamicJwtPayload } from "@/lib/auth";
 
+import { IClaimedQuestion } from "../interfaces/question";
+import { IChompUser } from "../interfaces/user";
+import prisma from "../services/prisma";
+import { claimAllSelected, revealAllSelected } from "./processBurnClaim";
+import {
+  getUserByEmail,
+  getUserByTelegram,
+  setEmail,
+  setWallet,
+  updateUser,
+} from "./user";
+import { validateTelegramData } from "./validateTelegramData";
+
+// THIS API RETURNS THE QUESTION WHICH ARE READY TO REVEAL.
 export const getRevealQuestionsData = async (authToken: string) => {
   try {
     const decodedData = await decodeJwtPayload(authToken);
@@ -40,129 +52,135 @@ export const getRevealQuestionsData = async (authToken: string) => {
   }
 };
 
+// PROCESS THE BURN AND CLAIM OF SELECTED QUESTIONS
 export const processBurnAndClaim = async (
   authToken: string,
   signature: string,
   questionIds: number[],
-) => {
-  const body = JSON.stringify({
-    questionIds: questionIds,
-    burnTx: signature,
-  });
-
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-    body: body,
-  };
-
+): Promise<IClaimedQuestion[] | null> => {
   try {
-    // Decode the JWT payload
     const decodedData = await decodeJwtPayload(authToken);
     if (!decodedData?.email) {
       throw new Error("Failed to decode JWT or email is missing.");
     }
 
-    // Fetch user data by email
     const userEmail = decodedData.email;
     const userData = await getUserByEmail(userEmail);
+
     if (!userData?.id) {
       throw new Error("User data not found or user ID is missing.");
     }
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/question/reveal?userId=${userData.id}`,
-      options,
+
+    const userId = userData.id;
+
+    const userWallet = await prisma.wallet.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!userWallet) {
+      throw new Error("No wallet found for the user");
+    }
+
+    await revealAllSelected(questionIds, userId, signature);
+    const results = await claimAllSelected(
+      questionIds,
+      userId,
+      userWallet?.address,
     );
-    if (!response.ok) {
+    if (!results?.chompResults) {
       return null;
     }
-    const data = await response.json();
-    return data;
+    return results?.chompResults;
   } catch (error: any) {
     return null;
   }
 };
 
-// With dynamic payload
+// UPDATES USER PROFILE BY EMAIL INCLUDING STORING NEW WALLET AND EMAIL
 export const handleCreateUser = async (
   id: string,
   tgId: string,
   authToken: string,
 ): Promise<IChompUser | null> => {
   const decodedData = await decodeJwtPayload(authToken);
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-    body: JSON.stringify({
-      existingId: id,
-      telegramId: tgId,
-      newId: decodedData?.sub,
-      email: decodedData?.email,
-      address: decodedData?.verified_credentials[0]?.address,
-    }),
-  };
+  const { email, sub, verified_credentials } = decodedData as DynamicJwtPayload;
+  const address = verified_credentials[0]?.address || "";
+
+  if (!(email && sub && address)) {
+    throw new Error("Failed to create user");
+  }
+
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user`,
-      options,
+    await updateUser(
+      {
+        id: sub,
+        telegramId: tgId,
+      },
+      id,
     );
-    const user = await response.json();
-    return user;
+
+    await setWallet({
+      userId: sub,
+      address,
+    });
+
+    await setEmail({
+      userId: sub,
+      address: email,
+    });
+
+    const profile = await getUserByEmail(email);
+    return profile;
   } catch {
     return null;
   }
 };
 
-// get user with verified telegram data
+/*
+  IT VALIDATES THE TELEGRAM PAYLOAD AND RETURNS USER DATA
+*/
 export const getVerifiedUser = async (
-  initData: any,
+  initData: string,
 ): Promise<IChompUser | null> => {
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-    body: JSON.stringify({ initData }),
-  };
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/validate`,
-      options,
-    );
-    const telegramRawData = await response.json();
-    const user = telegramRawData.profile;
-    return user;
+    const telegramId = validateTelegramData(initData);
+    const profile = await getUserByTelegram(String(telegramId?.id));
+    if (!profile) {
+      throw new Error("No profile found");
+    } else {
+      return profile;
+    }
   } catch (err) {
     console.error(err);
     return null;
   }
 };
 
-// does user already have an account in pwa
-export const isUserExistByEmail = async (
+// GET METHOD: FETCHES USER PROFILE BY EMAIL (Add telegram payload)
+export const doesUserExistByEmail = async (
   email: string,
 ): Promise<boolean | null> => {
-  const options = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-  };
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user?email=${email}`,
-      options,
+    if (!email || Array.isArray(email)) {
+      throw new Error("Email parameter is required");
+    }
+
+    const profile = await getUserByEmail(email);
+
+    if (!profile) {
+      throw new Error("No data found");
+    }
+
+    const isChompAppUser = !!(
+      profile &&
+      !profile.telegramId &&
+      profile.emails[0]?.address &&
+      profile.wallets[0]?.address
     );
-    const isChompAppUser = await response.json();
-    return isChompAppUser?.isChompAppUser;
+
+    return isChompAppUser;
   } catch {
     return null;
   }

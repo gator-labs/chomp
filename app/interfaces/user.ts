@@ -1,36 +1,36 @@
 interface EmailOrWallet {
   address: string;
   userId: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface QuestionAnswer {
-  id: string;
+  id: number;
   questionOptionId: number;
   userId: string;
-  percentage: number;
-  hasViewedButNotSubmitted: boolean | null;
+  percentage: number | null;
+  hasViewedButNotSubmitted: boolean;
   selected: boolean;
-  timeToAnswer: string | null;
-  createdAt: string;
-  updatedAt: string;
+  timeToAnswer: bigint | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface IChompUser {
   id: string;
   isAdmin: boolean;
-  createdAt: string;
-  updatedAt: string;
-  telegramId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  telegramId: string | null;
   firstName: string | null;
   lastName: string | null;
   username: string | null;
   profileSrc: string | null;
-  tutorialCompletedAt: string | null;
+  tutorialCompletedAt: Date | null;
   emails: EmailOrWallet[];
   wallets: EmailOrWallet[];
-  questionAnswers: QuestionAnswer[] | [];
+  questionAnswers: QuestionAnswer[];
 }
 
 export interface IChompUserResponse {

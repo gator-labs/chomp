@@ -6,7 +6,7 @@ import {
   getRevealQuestionsData,
   getVerifiedUser,
   handleCreateUser,
-  isUserExistByEmail,
+  doesUserExistByEmail,
   processBurnAndClaim,
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
@@ -31,6 +31,8 @@ import ClaimedQuestions from "../ClaimedQuestions/ClaimedQuestions";
 import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
 import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import WalletCreatedInfo from "../WalletCreatedInfo/WalletCreatedInfo";
+import { IClaimedQuestion } from "@/app/interfaces/question";
+
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -53,9 +55,9 @@ export default function BotMiniApp() {
   const [otp, setOtp] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [userId, setUserId] = useState<string>();
-  const [user, setUser] = useState<IChompUser>();
+  const [user, setUser] = useState<IChompUser | null>();
   const [questions, setQuestions] = useState([]);
-  const [processedQuestions, setProcessedQuestions] = useState([]);
+  const [processedQuestions, setProcessedQuestions] = useState<IClaimedQuestion[]>([]);
   const [address, setAddress] = useState("");
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
@@ -163,7 +165,7 @@ export default function BotMiniApp() {
       if (!emailRegex.test(email)) {
         errorToast("Invalid email");
       } else {
-        const isUserExist: boolean | null = await isUserExistByEmail(email);
+        const isUserExist: boolean | null = await doesUserExistByEmail(email);
         if (isUserExist) {
           errorToast("Please contact support");
         } else {
