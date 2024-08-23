@@ -24,7 +24,8 @@ export default async function Page() {
     getSolBalance(address),
   ]);
 
-  if (!dailyAnsweredQuestions?.questions?.length) redirect("/application");
+  if (!dailyAnsweredQuestions?.questions?.length || !dailyDeck)
+    redirect("/application");
 
   return (
     <DailyDeckScreen
