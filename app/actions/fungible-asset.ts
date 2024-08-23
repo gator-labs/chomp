@@ -55,6 +55,7 @@ interface IncrementFungibleAssetBalanceProps {
   injectedPrisma?: PrismaTransactionClient | undefined;
   questionIds?: number[];
   deckIds?: number[];
+  userId?: string;
 }
 
 export const incrementFungibleAssetBalance = async ({
@@ -64,9 +65,10 @@ export const incrementFungibleAssetBalance = async ({
   injectedPrisma = prisma,
   questionIds,
   deckIds,
+  userId,
 }: IncrementFungibleAssetBalanceProps): Promise<FungibleAssetBalance> => {
   const payload = await getJwtPayload();
-  const userId = payload?.sub ?? "";
+  if (!userId) userId = payload?.sub ?? "";
 
   const upsertTask = injectedPrisma.fungibleAssetBalance.upsert({
     where: {

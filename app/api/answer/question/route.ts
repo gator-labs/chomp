@@ -3,10 +3,17 @@
 */
 
 import { SaveQuestionRequest } from "@/app/actions/answer";
+import { incrementFungibleAssetBalance } from "@/app/actions/fungible-asset";
 import { updateStreak } from "@/app/actions/streak";
+import { pointsPerAction } from "@/app/constants/points";
 import { hasAnsweredQuestion } from "@/app/queries/question";
 import prisma from "@/app/services/prisma";
-import { QuestionAnswer, QuestionType } from "@prisma/client";
+import {
+  FungibleAsset,
+  QuestionAnswer,
+  QuestionType,
+  TransactionLogType,
+} from "@prisma/client";
 import dayjs from "dayjs";
 import { headers } from "next/headers";
 
@@ -45,43 +52,56 @@ export async function POST(req: Request) {
     return new Response("Reveal date is before today", { status: 400 });
   }
 
-  const questionOptions = await prisma.questionOption.findMany({
-    where: { questionId: request.questionId },
-    include: { question: true },
-  });
-
-  const questionAnswers = questionOptions.map((qo) => {
-    const isOptionSelected = qo.id === request?.questionOptionId;
-
-    const percentageForQuestionOption =
-      request?.percentageGivenForAnswerId === qo.id
-        ? request.percentageGiven
-        : undefined;
-
-    const percentage =
-      qo.question.type === QuestionType.BinaryQuestion &&
-      !percentageForQuestionOption
-        ? 100 - request!.percentageGiven!
-        : percentageForQuestionOption;
-
-    return {
-      selected: isOptionSelected,
-      percentage,
-      questionOptionId: qo.id,
-      timeToAnswer: request?.timeToAnswerInMiliseconds
-        ? BigInt(request?.timeToAnswerInMiliseconds)
-        : null,
-      userId,
-    } as QuestionAnswer;
-  });
-
-  await prisma.$transaction(async (tx) => {
-    await tx.questionAnswer.createMany({
-      data: questionAnswers,
+  try {
+    const questionOptions = await prisma.questionOption.findMany({
+      where: { questionId: request.questionId },
+      include: { question: true },
     });
 
-    await updateStreak(userId);
-  });
+    const questionAnswers = questionOptions.map((qo) => {
+      const isOptionSelected = qo.id === request?.questionOptionId;
 
-  return Response.json({ message: "Answer saved successfully" });
+      const percentageForQuestionOption =
+        request?.percentageGivenForAnswerId === qo.id
+          ? request.percentageGiven
+          : undefined;
+
+      const percentage =
+        qo.question.type === QuestionType.BinaryQuestion &&
+        !percentageForQuestionOption
+          ? 100 - request!.percentageGiven!
+          : percentageForQuestionOption;
+
+      return {
+        selected: isOptionSelected,
+        percentage,
+        questionOptionId: qo.id,
+        timeToAnswer: request?.timeToAnswerInMiliseconds
+          ? BigInt(request?.timeToAnswerInMiliseconds)
+          : null,
+        userId,
+      } as QuestionAnswer;
+    });
+
+    await prisma.$transaction(async (tx) => {
+      await tx.questionAnswer.createMany({
+        data: questionAnswers,
+      });
+
+      await incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+        transactionLogType: TransactionLogType.AnswerQuestion,
+        injectedPrisma: tx,
+        questionIds: [request.questionId],
+        userId,
+      });
+
+      await updateStreak(userId);
+    });
+
+    return Response.json({ message: "Answer saved successfully" });
+  } catch (error) {
+    return new Response("Failed to save answer!", { status: 400 });
+  }
 }

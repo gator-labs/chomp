@@ -3,91 +3,142 @@
 */
 
 import { SaveQuestionRequest } from "@/app/actions/answer";
+import { incrementFungibleAssetBalance } from "@/app/actions/fungible-asset";
 import { updateStreak } from "@/app/actions/streak";
-import { hasAnsweredDeck } from "@/app/queries/deck";
+import { pointsPerAction } from "@/app/constants/points";
 import prisma from "@/app/services/prisma";
-import { QuestionAnswer, QuestionType } from "@prisma/client";
-import dayjs from "dayjs";
+import {
+  AnswerStatus,
+  FungibleAsset,
+  QuestionAnswer,
+  QuestionType,
+  TransactionLogType,
+} from "@prisma/client";
 import { headers } from "next/headers";
 
 export async function POST(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-  if (apiKey !== process.env.BOT_API_KEY) {                    // Validates API key for authentication
+  if (apiKey !== process.env.BOT_API_KEY) {
+    // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
   }
 
   const data = await req.json();
-  const { deckId, userId, answers } = data;
-  const request: SaveQuestionRequest[] = answers;
+  const { userId, answers } = data;
+  const request: SaveQuestionRequest = answers;
 
-  const hasAnswered = await hasAnsweredDeck(deckId, userId, true);
-
-  if (hasAnswered) {
-    return new Response("Already answered", { status: 400 });
-  }
-
-  const deck = await prisma.deck.findFirst({
-    where: { id: { equals: deckId } },
-  });
-
-  if (deck?.revealAtDate && dayjs(deck?.revealAtDate).isBefore(new Date())) {     // Deck reveal date must be after CURRENT_DATETIME
-    return new Response("Reveal date is before today", { status: 400 });
-  }
-
-  const questionIds = request
-    .filter((dr) => dr.percentageGiven !== undefined && !!dr.questionOptionId)
-    .map((dr) => dr.questionId);
-
-  const questionOptions = await prisma.questionOption.findMany({
-    where: { questionId: { in: questionIds } },
-    include: { question: true },
-  });
-
-  const questionAnswers = questionOptions.map((qo) => {
-    const answerForQuestion = request.find(
-      (r) => r.questionId === qo.questionId,
-    );
-    const isOptionSelected = qo.id === answerForQuestion?.questionOptionId;
-
-    const percentageForQuestionOption =
-      answerForQuestion?.percentageGivenForAnswerId === qo.id
-        ? answerForQuestion.percentageGiven
-        : undefined;
-
-    const percentage =
-      qo.question.type === QuestionType.BinaryQuestion &&
-      !percentageForQuestionOption
-        ? 100 - answerForQuestion!.percentageGiven!
-        : percentageForQuestionOption;
-
-    return {
-      selected: isOptionSelected,
-      percentage,
-      questionOptionId: qo.id,
-      timeToAnswer: answerForQuestion?.timeToAnswerInMiliseconds
-        ? BigInt(answerForQuestion?.timeToAnswerInMiliseconds)
-        : null,
-      userId,
-    } as QuestionAnswer;
-  });
-
-  await prisma.$transaction(async (tx) => {
-    await tx.userDeck.create({
-      data: {
-        deckId: deckId,
-        userId: userId,
-      },
+  try {
+    const questionOptions = await prisma.questionOption.findMany({
+      where: { questionId: request.questionId },
+      include: { question: true },
     });
 
-    await tx.questionAnswer.createMany({
-      data: questionAnswers,
+    const questionAnswers = questionOptions.map((qo) => {
+      const isOptionSelected = qo.id === request?.questionOptionId;
+
+      const percentageForQuestionOption =
+        request?.percentageGivenForAnswerId === qo.id
+          ? request?.percentageGiven
+          : undefined;
+
+      const percentage =
+        qo.question.type === QuestionType.BinaryQuestion &&
+        !percentageForQuestionOption
+          ? 100 - request!.percentageGiven!
+          : percentageForQuestionOption;
+
+      return {
+        selected: isOptionSelected,
+        percentage,
+        questionOptionId: qo.id,
+        timeToAnswer: request?.timeToAnswerInMiliseconds
+          ? BigInt(request?.timeToAnswerInMiliseconds)
+          : null,
+        userId,
+        status: AnswerStatus.Submitted,
+      } as QuestionAnswer;
     });
 
-    await updateStreak(userId);
-  });
+    await prisma.$transaction(async (tx) => {
+      await tx.questionAnswer.deleteMany({
+        where: {
+          questionOption: {
+            questionId: request.questionId,
+          },
+          userId,
+        },
+      });
 
-  return Response.json({ message: "Answers saved successfully" });
+      await tx.questionAnswer.createMany({
+        data: questionAnswers,
+      });
+
+      const deckQuestions = await tx.deckQuestion.findMany({
+        where: {
+          deckId: request.deckId,
+        },
+        include: {
+          deck: true,
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: {
+                    where: {
+                      userId,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const allQuestionOptions = deckQuestions.flatMap((dq) =>
+        dq.question.questionOptions.map((qo) => qo),
+      );
+
+      const allQuestionAnswers = allQuestionOptions.flatMap((qo) =>
+        qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
+      );
+
+      const fungibleAssetRevealTasks = [
+        incrementFungibleAssetBalance({
+          asset: FungibleAsset.Point,
+          amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+          transactionLogType: TransactionLogType.AnswerQuestion,
+          injectedPrisma: tx,
+          questionIds: [request.questionId],
+          userId
+        }),
+      ];
+
+      if (allQuestionOptions.length === allQuestionAnswers.length) {
+        fungibleAssetRevealTasks.push(
+          incrementFungibleAssetBalance({
+            asset: FungibleAsset.Point,
+            amount: pointsPerAction[TransactionLogType.AnswerDeck],
+            transactionLogType: TransactionLogType.AnswerDeck,
+            injectedPrisma: tx,
+            deckIds: [request.deckId!],
+            userId
+          }),
+        );
+
+        if (!!deckQuestions[0].deck.date) await updateStreak(userId);
+      }
+
+      await Promise.all(fungibleAssetRevealTasks);
+    });
+
+    return Response.json({ message: "Answers saved successfully" });
+  } catch (error) {
+    return new Response("Failed to store answer!", {
+      status: 400,
+    });
+  }
 }
