@@ -63,8 +63,6 @@ export async function updateBanner(formData: FormData) {
 
   const { data } = result;
 
-  console.log(data.id);
-
   const banner = await prisma.banner.findUnique({
     where: {
       id: data.id,

@@ -1,9 +1,8 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import Link from "next/link";
-import { Button } from "../Button/Button";
 import { Tag } from "../Tag/Tag";
+import Action from "./Action";
 import { DeckRowType } from "./DeckList";
 
 export const columns: ColumnDef<DeckRowType>[] = [
@@ -11,13 +10,13 @@ export const columns: ColumnDef<DeckRowType>[] = [
   {
     header: "Token",
     cell: ({ row }) => (
-      <div>{row.original.deckQuestions[0].question.revealToken}</div>
+      <div>{row.original.deckQuestions[0]?.question.revealToken}</div>
     ),
   },
   {
     header: "Reveal Token Amount",
     cell: ({ row }) => (
-      <div>{row.original.deckQuestions[0].question.revealTokenAmount}</div>
+      <div>{row.original.deckQuestions[0]?.question.revealTokenAmount}</div>
     ),
   },
   {
@@ -39,7 +38,7 @@ export const columns: ColumnDef<DeckRowType>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex gap-2">
-          {row.original.deckQuestions[0].question.questionTags.map((t) => (
+          {row.original.deckQuestions[0]?.question.questionTags.map((t) => (
             <Tag tag={t.tag.tag} key={t.id} />
           ))}
         </div>
@@ -49,13 +48,7 @@ export const columns: ColumnDef<DeckRowType>[] = [
   {
     header: "Actions",
     cell: ({ row }) => {
-      return (
-        <Link href={`/admin/decks/${row.original.id}`}>
-          <Button variant="primary" isFullWidth={false}>
-            Edit
-          </Button>
-        </Link>
-      );
+      return <Action row={row} />;
     },
   },
 ];

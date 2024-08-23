@@ -12,7 +12,6 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
-import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
 
@@ -36,7 +35,7 @@ export default function DeckForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting, isDirty, isSubmitSuccessful },
     watch,
     setValue,
     control,
@@ -114,13 +113,11 @@ export default function DeckForm({
       <h1 className="text-3xl mb-3">
         {deck ? `Edit deck #${deck.id}` : "Create deck"}
       </h1>
-
       <div className="mb-3">
         <label className="block mb-1">Deck title</label>
         <TextInput variant="secondary" {...register("deck")} />
         <div className="text-red">{errors.deck?.message}</div>
       </div>
-
       <div className="mb-3">
         {fields.map((_, questionIndex) => {
           {
@@ -300,7 +297,6 @@ export default function DeckForm({
           </Button>
         )}
       </div>
-
       <div className="mb-3">
         <label className="block mb-1">Reveal token</label>
         <select className="text-black" {...register("revealToken")}>
@@ -312,7 +308,6 @@ export default function DeckForm({
         </select>
         <div className="text-red">{errors.revealToken?.message}</div>
       </div>
-
       <div className="mb-3">
         <label className="block mb-1">Reveal token amount</label>
         <TextInput
@@ -324,7 +319,6 @@ export default function DeckForm({
         />
         <div className="text-red">{errors.revealTokenAmount?.message}</div>
       </div>
-
       <div className="mb-3">
         <label className="block mb-1">Reveal at date (optional)</label>
         <span className="block mb-1">
@@ -347,7 +341,6 @@ export default function DeckForm({
         />
         <div className="text-red">{errors.revealAtDate?.message}</div>
       </div>
-
       <div className="mb-3">
         <label className="block mb-1">
           Active from date (for non daily decks)
@@ -372,7 +365,6 @@ export default function DeckForm({
         />
         <div className="text-red">{errors.activeFromDate?.message}</div>
       </div>
-
       <div className="mb-3">
         <label className="block mb-1">Daily deck date (optional)</label>
         <span className="block mb-1">
@@ -394,7 +386,6 @@ export default function DeckForm({
         />
         <div className="text-red">{errors.date?.message}</div>
       </div>
-
       <div className="mb-3">
         <label className="block mb-1">Reveal at answer count (optional)</label>
         <TextInput
@@ -405,7 +396,6 @@ export default function DeckForm({
         />
         <div className="text-red">{errors.revealAtAnswerCount?.message}</div>
       </div>
-
       <div className="mb-4">
         <label className="block mb-1">Tags (optional)</label>
         <div className="flex gap-2">
@@ -425,7 +415,6 @@ export default function DeckForm({
           ))}
         </div>
       </div>
-
       <div className="mb-4">
         <label className="block mb-1">Campaign (optional)</label>
         <div className="flex gap-2">
@@ -443,8 +432,13 @@ export default function DeckForm({
           ))}
         </div>
       </div>
-
-      <SubmitButton />
+      <Button
+        variant="primary"
+        type="submit"
+        disabled={isSubmitting || !isDirty || isSubmitSuccessful}
+      >
+        {isSubmitting ? "Submitting" : "Submit"}
+      </Button>{" "}
     </form>
   );
 }

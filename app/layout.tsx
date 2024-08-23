@@ -21,7 +21,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "Chomp",
-  description: "Chomp description",
+  description:
+    "Chomp is a quiz game that leverages social consensus to get you the best answers to questions! Play, burn, and earn on Chomp today!",
   generator: "Next.js",
   manifest: "/manifest.json",
   icons: [
