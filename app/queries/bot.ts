@@ -100,15 +100,21 @@ export const processBurnAndClaim = async (
 
 // UPDATES USER PROFILE BY EMAIL INCLUDING STORING NEW WALLET AND EMAIL
 export const handleCreateUser = async (
-  id: string,
-  tgId: string,
   authToken: string,
+  initData: string,
 ): Promise<IChompUser | null> => {
   const decodedData = await decodeJwtPayload(authToken);
+  const validatedInitData = await validateTelegramData(initData);
   const { email, sub, verified_credentials } = decodedData as DynamicJwtPayload;
   const address = verified_credentials[0]?.address || "";
 
-  if (!(email && sub && address)) {
+  const tempUserDetails = await getUserByTelegram(
+    String(validatedInitData?.id),
+  );
+
+  const temUserId = tempUserDetails?.id;
+
+  if (!(email && sub && address && temUserId)) {
     throw new Error("Failed to create user");
   }
 
@@ -116,9 +122,9 @@ export const handleCreateUser = async (
     await updateUser(
       {
         id: sub,
-        telegramId: tgId,
+        telegramId: String(validatedInitData?.id),
       },
-      id,
+      temUserId,
     );
 
     await setWallet({

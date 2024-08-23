@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
+import { IClaimedQuestion } from "@/app/interfaces/question";
 import { IChompUser } from "@/app/interfaces/user";
 import { useToast } from "@/app/providers/ToastProvider";
 import {
+  doesUserExistByEmail,
   getRevealQuestionsData,
   getVerifiedUser,
   handleCreateUser,
-  doesUserExistByEmail,
   processBurnAndClaim,
 } from "@/app/queries/bot";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
@@ -31,8 +32,6 @@ import ClaimedQuestions from "../ClaimedQuestions/ClaimedQuestions";
 import RevealHistoryInfo from "../RevealHistoryInfo/RevealHistoryInfo";
 import RevealQuestionsFeed from "../RevealQuestionsFeed/RevealQuestionsFeed";
 import WalletCreatedInfo from "../WalletCreatedInfo/WalletCreatedInfo";
-import { IClaimedQuestion } from "@/app/interfaces/question";
-
 
 const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 declare global {
@@ -57,7 +56,9 @@ export default function BotMiniApp() {
   const [userId, setUserId] = useState<string>();
   const [user, setUser] = useState<IChompUser | null>();
   const [questions, setQuestions] = useState([]);
-  const [processedQuestions, setProcessedQuestions] = useState<IClaimedQuestion[]>([]);
+  const [processedQuestions, setProcessedQuestions] = useState<
+    IClaimedQuestion[]
+  >([]);
   const [address, setAddress] = useState("");
   const [isVerificationIsInProgress, setIsVerificationIsInProgress] =
     useState<boolean>(false);
@@ -221,13 +222,16 @@ export default function BotMiniApp() {
 
   const storeDynamicUser = async () => {
     if (authToken) {
-      const profile = await handleCreateUser(
-        userId!,
-        user?.telegramId!,
-        authToken,
-      );
-      if (profile) {
-        setUser(profile);
+      try {
+        const profile = await handleCreateUser(
+          authToken,
+          window.Telegram.WebApp.initData,
+        );
+        if (profile) {
+          setUser(profile);
+        }
+      } catch (error) {
+        errorToast("Failed to store user");
       }
     } else {
       errorToast("Failed to store user");
@@ -277,9 +281,6 @@ export default function BotMiniApp() {
       dataVerification(window.Telegram.WebApp.initData);
     };
 
-    return () => {
-      document.body.removeChild(script);
-    };
   }, []);
 
   useEffect(() => {
