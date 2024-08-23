@@ -31,7 +31,8 @@ const questionDeckToRunInclude = {
 export async function GET(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-  if (apiKey !== process.env.BOT_API_KEY) {             // Validates API key for authentication
+  if (apiKey !== process.env.BOT_API_KEY) {
+    // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
@@ -79,10 +80,12 @@ export async function GET(req: Request) {
     deckRevealAtDate: dailyDeck.revealAtDate,
   }));
 
-  if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0) {                 // Priority 1: Daily deck
+  if (getDailyDeckQuestions && getDailyDeckQuestions.length > 0) {
+    // Priority 1: Daily deck
     return Response.json({ question: getRandomElement(getDailyDeckQuestions) });
   } else {
-    const deckQuestions = await prisma.deckQuestion.findMany({                     // Priority 2: Regular deck / Unanswered Question
+    const deckQuestions = await prisma.deckQuestion.findMany({
+      // Priority 2: Regular deck / Unanswered Question
       where: {
         OR: [
           {

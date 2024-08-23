@@ -280,7 +280,6 @@ export default function BotMiniApp() {
       window.Telegram.WebApp.ready();
       dataVerification(window.Telegram.WebApp.initData);
     };
-
   }, []);
 
   useEffect(() => {

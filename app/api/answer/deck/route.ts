@@ -113,7 +113,7 @@ export async function POST(req: Request) {
           transactionLogType: TransactionLogType.AnswerQuestion,
           injectedPrisma: tx,
           questionIds: [request.questionId],
-          userId
+          userId,
         }),
       ];
 
@@ -125,7 +125,7 @@ export async function POST(req: Request) {
             transactionLogType: TransactionLogType.AnswerDeck,
             injectedPrisma: tx,
             deckIds: [request.deckId!],
-            userId
+            userId,
           }),
         );
 

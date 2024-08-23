@@ -1,11 +1,9 @@
 "use client";
+import { IClaimedQuestion } from "@/app/interfaces/question";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { getRevealedAtString } from "../../utils/dateUtils";
 import { Button } from "../Button/Button";
 import { ClockIcon } from "../Icons/ClockIcon";
-import { IClaimedQuestion } from "@/app/interfaces/question";
-
-
 
 type RevealQuestionCardProps = {
   questions: IClaimedQuestion[];
@@ -51,7 +49,7 @@ export default function ClaimedQuestions({
           <div
             key={index} // Add key for list items
             className="flex flex-col bg-neutral-800 border border-neutral-600 rounded-2xl p-4 gap-2 my-2"
-          // onClick={() => handleClick(questionData.id)}
+            // onClick={() => handleClick(questionData.id)}
           >
             <span className="flex gap-3 items-center">
               <p>{questionData.result}</p>

@@ -10,7 +10,8 @@ import { headers } from "next/headers";
 export async function GET(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-  if (apiKey !== process.env.BOT_API_KEY) {                                 // Validates API key for authentication
+  if (apiKey !== process.env.BOT_API_KEY) {
+    // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
@@ -35,7 +36,8 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-  if (apiKey !== process.env.BOT_API_KEY) {                                   // Validates API key for authentication
+  if (apiKey !== process.env.BOT_API_KEY) {
+    // Validates API key for authentication
     return new Response(`Invalid api-key`, {
       status: 400,
     });
