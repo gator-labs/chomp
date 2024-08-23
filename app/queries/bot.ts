@@ -1,41 +1,50 @@
 "use server";
+import { decodeJwtPayload, DynamicJwtPayload } from "@/lib/auth";
 
-import { IChompUser } from "@/app/interfaces/user";
-import { extractId } from "@/app/utils/telegramId";
+import { IClaimedQuestion } from "../interfaces/question";
+import { IChompUser } from "../interfaces/user";
+import prisma from "../services/prisma";
+import { claimAllSelected, revealAllSelected } from "./processBurnClaim";
+import {
+  getUserByEmail,
+  getUserByTelegram,
+  setEmail,
+  setWallet,
+  updateUser,
+} from "./user";
+import { validateTelegramData } from "./validateTelegramData";
 
-const getUserData = async (telegramId: string) => {
-  const options = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-  };
+// THIS API RETURNS THE QUESTION WHICH ARE READY TO REVEAL.
+export const getRevealQuestionsData = async (authToken: string) => {
   try {
+    const decodedData = await decodeJwtPayload(authToken);
+    if (!decodedData?.email) {
+      throw new Error("Failed to decode JWT or email is missing.");
+    }
+
+    const userEmail = decodedData.email;
+    const userData = await getUserByEmail(userEmail);
+    if (!userData?.id) {
+      throw new Error("User data not found or user ID is missing.");
+    }
+
+    const options = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BOT_API_KEY!,
+      },
+    };
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user/telegram?telegramId=${telegramId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/question/reveal?userId=${userData.id}`,
       options,
     );
-    const data = await response.json();
-    return data.profile;
-  } catch (error) {
-    return null;
-  }
-};
 
-export const getRevealQuestionsData = async (userId: string) => {
-  const options = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-  };
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/question/reveal?userId=${userId}`,
-      options,
-    );
+    if (!response.ok) {
+      throw new Error(`Fetch failed with status: ${response.status}`);
+    }
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -43,112 +52,141 @@ export const getRevealQuestionsData = async (userId: string) => {
   }
 };
 
+// PROCESS THE BURN AND CLAIM OF SELECTED QUESTIONS
 export const processBurnAndClaim = async (
-  userId: string,
+  authToken: string,
   signature: string,
   questionIds: number[],
-) => {
-  const url = `${process.env.NEXT_PUBLIC_API_URL}/question/reveal?userId=${userId}`;
-  const body = JSON.stringify({
-    questionIds: questionIds,
-    burnTx: signature,
-  });
-
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-    body: body,
-  };
-
+): Promise<IClaimedQuestion[] | null> => {
   try {
-    const response = await fetch(url, options);
-    if (!response.ok) {
+    const decodedData = await decodeJwtPayload(authToken);
+    if (!decodedData?.email) {
+      throw new Error("Failed to decode JWT or email is missing.");
+    }
+
+    const userEmail = decodedData.email;
+    const userData = await getUserByEmail(userEmail);
+
+    if (!userData?.id) {
+      throw new Error("User data not found or user ID is missing.");
+    }
+
+    const userId = userData.id;
+
+    const userWallet = await prisma.wallet.findFirst({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!userWallet) {
+      throw new Error("No wallet found for the user");
+    }
+
+    await revealAllSelected(questionIds, userId, signature);
+    const results = await claimAllSelected(
+      questionIds,
+      userId,
+      userWallet?.address,
+    );
+    if (!results?.chompResults) {
       return null;
     }
-    const data = await response.json();
-    return data;
+    return results?.chompResults;
   } catch (error: any) {
     return null;
   }
 };
 
-export const verifyPayload = async (
-  initData: any,
+// UPDATES USER PROFILE BY EMAIL INCLUDING STORING NEW WALLET AND EMAIL
+export const handleCreateUser = async (
+  authToken: string,
+  initData: string,
 ): Promise<IChompUser | null> => {
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-    body: JSON.stringify({ initData }),
-  };
+  const decodedData = await decodeJwtPayload(authToken);
+  const validatedInitData = await validateTelegramData(initData);
+  const { email, sub, verified_credentials } = decodedData as DynamicJwtPayload;
+  const address = verified_credentials[0]?.address || "";
+
+  const tempUserDetails = await getUserByTelegram(
+    String(validatedInitData?.id),
+  );
+
+  const temUserId = tempUserDetails?.id;
+
+  if (!(email && sub && address && temUserId)) {
+    throw new Error("Failed to create user");
+  }
+
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/validate`,
-      options,
+    await updateUser(
+      {
+        id: sub,
+        telegramId: String(validatedInitData?.id),
+      },
+      temUserId,
     );
-    const telegramRawData = await response.json();
-    const telegramId = extractId(telegramRawData.message);
-    const user = await getUserData(telegramId);
-    return user;
+
+    await setWallet({
+      userId: sub,
+      address,
+    });
+
+    await setEmail({
+      userId: sub,
+      address: email,
+    });
+
+    const profile = await getUserByEmail(email);
+    return profile;
+  } catch {
+    return null;
+  }
+};
+
+/*
+  IT VALIDATES THE TELEGRAM PAYLOAD AND RETURNS USER DATA
+*/
+export const getVerifiedUser = async (
+  initData: string,
+): Promise<IChompUser | null> => {
+  try {
+    const telegramId = validateTelegramData(initData);
+    const profile = await getUserByTelegram(String(telegramId?.id));
+    if (!profile) {
+      throw new Error("No profile found");
+    } else {
+      return profile;
+    }
   } catch (err) {
     console.error(err);
     return null;
   }
 };
 
-export const getProfileByEmail = async (email: string) => {
-  const options = {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-  };
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user?email=${email}`,
-      options,
-    );
-    const user = await response.json();
-    return user;
-  } catch {
-    return null;
-  }
-};
-
-export const handleCreateUser = async (
-  id: string,
-  newId: string,
-  tgId: string,
-  address: string,
+// GET METHOD: FETCHES USER PROFILE BY EMAIL (Add telegram payload)
+export const doesUserExistByEmail = async (
   email: string,
-): Promise<IChompUser | null> => {
-  const options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "api-key": process.env.BOT_API_KEY!,
-    },
-    body: JSON.stringify({
-      existingId: id,
-      newId,
-      telegramId: tgId,
-      email,
-      address,
-    }),
-  };
+): Promise<boolean | null> => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/user`,
-      options,
+    if (!email || Array.isArray(email)) {
+      throw new Error("Email parameter is required");
+    }
+
+    const profile = await getUserByEmail(email);
+
+    if (!profile) {
+      throw new Error("No data found");
+    }
+
+    const isChompAppUser = !!(
+      profile &&
+      !profile.telegramId &&
+      profile.emails[0]?.address &&
+      profile.wallets[0]?.address
     );
-    const user = await response.json();
-    return user;
+
+    return isChompAppUser;
   } catch {
     return null;
   }
