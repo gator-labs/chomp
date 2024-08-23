@@ -93,9 +93,7 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onPointerDown={activateSlider}
-              onTouchStart={activateSlider}
-              onClick={activateSlider}
+              activateSlider={activateSlider}
             />
           </div>
           <Button
@@ -144,9 +142,7 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onPointerDown={activateSlider}
-              onTouchStart={activateSlider}
-              onClick={activateSlider}
+              activateSlider={activateSlider}
             />
           </div>
           <Button
