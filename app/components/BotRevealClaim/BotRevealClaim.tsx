@@ -33,8 +33,8 @@ export default function BotRevealClaim({
   };
 
   return (
-    <div className="space-y-6 flex flex-col p-5 items-start justify-center">
-      <span className="flex w-full items-center justify-between">
+    <>
+      <span className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-[#0D0D0D] z-10 max-w-lg">
         <Image
           src="/images/gator-head-white.png"
           width={50}
@@ -47,26 +47,28 @@ export default function BotRevealClaim({
             openQuickProfile();
           }}
         >
-          <WalletIcon />
+          <WalletIcon width={30} height={30} />
         </button>
+        <WalletMenu
+          isOpen={isOpen}
+          onClose={closeQuickProfile}
+          wallet={wallet}
+          userBalance={userBalance}
+        />
       </span>
-      <WalletMenu
-        isOpen={isOpen}
-        onClose={closeQuickProfile}
-        wallet={wallet}
-        userBalance={userBalance}
-      />
-      <p className="text-2xl font-bold">Reveal and Claim</p>
-      <p>
-        You can view and reveal all cards that are ready to reveal below. Only
-        cards with correct answers will Claim tab.
-      </p>
-      <Tabs
-        tabs={["Reveal & Claim", "History"]}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-      {children}
-    </div>
+      <div className="space-y-6 flex flex-col p-5 pt-[4.5rem] items-start justify-center">
+        <p className="text-2xl font-bold">Reveal and Claim</p>
+        <p>
+          You can view and reveal all cards that are ready to reveal below. Only
+          cards with correct answers will Claim tab.
+        </p>
+        <Tabs
+          tabs={["Reveal & Claim", "History"]}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+        {children}
+      </div>
+    </>
   );
 }

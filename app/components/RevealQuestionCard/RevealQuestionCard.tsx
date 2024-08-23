@@ -28,7 +28,7 @@ export default function RevealQuestionCard({
       </span>
       <div className="flex items-center justify-between">
         <span className="flex gap-1 items-center">
-          <ClockIcon /> {getRevealedAtString(date)}
+          <ClockIcon width={18} height={18} /> {getRevealedAtString(date)}
         </span>
         <p className="text-emerald-400">Chomped</p>
       </div>

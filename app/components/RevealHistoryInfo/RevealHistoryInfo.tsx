@@ -8,7 +8,7 @@ type RevealHistoryInfoProps = {
 export default function RevealHistoryInfo({ onClick }: RevealHistoryInfoProps) {
   return (
     <>
-      <p className="flex w-full h-[17.5rem]">
+      <p className="flex w-full h-[14.5rem]">
         You full history and other features are available in the Chomp web app.
       </p>
       <Button

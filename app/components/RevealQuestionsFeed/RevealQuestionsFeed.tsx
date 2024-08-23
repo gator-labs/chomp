@@ -74,7 +74,7 @@ export default function RevealQuestionsFeed({
           Select All
         </label>
       </div>
-      <div className="flex flex-col w-full h-[17rem] gap-2 overflow-auto">
+      <div className="flex flex-col w-full min-h-[13.5rem] max-h-[17rem] gap-2 overflow-auto">
         {isQuestionsLoading ? (
           // Show SkeletonCard components while loading
           <>
