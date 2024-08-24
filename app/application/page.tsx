@@ -5,7 +5,9 @@ import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringS
 import { HomeFeedReadyToRevealSection } from "../components/HomeFeedReadyToRevealSection/HomeFeedReadyToRevealSection";
 import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealedQuestionsSection/HomeFeedRevealedQuestionsSection";
 import { Profile } from "../components/Profile/Profile";
+import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import Spinner from "../components/Spinner/Spinner";
+import { UserStatsCards } from "../components/UserStatsCards/UserStatsCards";
 import { getActiveBanners } from "../queries/banner";
 import { getQuestionsForRevealedSection } from "../queries/home";
 
@@ -17,9 +19,16 @@ export default async function Page() {
 
   return (
     <>
-      <Suspense fallback={<Spinner />}>
-        <Profile showLeaderboardButton className="px-4" />
-      </Suspense>
+      <ProfileNavigation />
+      <div className="flex flex-col gap-4 px-4">
+        <Suspense fallback={<Spinner />}>
+          <Profile editAllowed avatarHref="/application" />
+        </Suspense>
+
+        <Suspense fallback={<Spinner />}>
+          <UserStatsCards />
+        </Suspense>
+      </div>
 
       {!!banners.length && <BannerSlider banners={banners} />}
 

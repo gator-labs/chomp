@@ -4,6 +4,7 @@ import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 import { DailyDeckRedirect } from "../components/DailyDeckRedirect/DailyDeckRedirect";
 import Main from "../components/Main/Main";
 import { Navbar } from "../components/Navbar/Navbar";
+import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 import { ClaimingProvider } from "../providers/ClaimingProvider";
 import ConfettiProvider from "../providers/ConfettiProvider";
