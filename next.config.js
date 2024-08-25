@@ -45,6 +45,11 @@ const nextConfig = {
         destination: "/application/history",
         permanent: true,
       },
+      {
+        source: "/application/profile/settings",
+        destination: "/application/settings",
+        permanent: true,
+      },
     ];
   },
 };

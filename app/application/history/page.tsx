@@ -12,8 +12,8 @@ export default async function Page() {
 
   return (
     <>
-      <ProfileNavigation />
-      <div className="flex flex-col gap-4 overflow-hidden">
+      <div className="flex flex-col gap-4 overflow-hidden px-4">
+        <ProfileNavigation />
         <HistoryHeader
           totalClaimableRewards={totalClaimableRewards}
           revealableQuestions={revealableQuestions}

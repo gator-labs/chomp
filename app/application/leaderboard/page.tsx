@@ -9,8 +9,8 @@ const LeaderboardPage = async () => {
 
   return (
     <>
-      <ProfileNavigation />
       <div>
+        <ProfileNavigation />
         <BannerSlider banners={banners} />
         <div className="flex flex-col gap-4 pb-4">
           <ChompLeaderboard />

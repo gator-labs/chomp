@@ -7,7 +7,6 @@ import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealed
 import { Profile } from "../components/Profile/Profile";
 import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import Spinner from "../components/Spinner/Spinner";
-import { UserStatsCards } from "../components/UserStatsCards/UserStatsCards";
 import { getActiveBanners } from "../queries/banner";
 import { getQuestionsForRevealedSection } from "../queries/home";
 
@@ -19,22 +18,18 @@ export default async function Page() {
 
   return (
     <>
-      <ProfileNavigation />
       <div className="flex flex-col gap-4 px-4">
+        <ProfileNavigation />
         <Suspense fallback={<Spinner />}>
-          <Profile editAllowed avatarHref="/application" />
+          <Profile />
         </Suspense>
 
         <Suspense fallback={<Spinner />}>
-          <UserStatsCards />
+          <DashboardUserStats />
         </Suspense>
       </div>
 
       {!!banners.length && <BannerSlider banners={banners} />}
-
-      <Suspense fallback={<Spinner />}>
-        <DashboardUserStats />
-      </Suspense>
 
       <Suspense fallback={<Spinner />}>
         <HomeFeedDeckExpiringSection />
