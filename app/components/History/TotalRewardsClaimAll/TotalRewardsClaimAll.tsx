@@ -64,6 +64,9 @@ export default function TotalRewardsClaimAll({
       Sentry.captureException(
         `User with id: test is having trouble with claiming questions with next ids: test`,
       );
+      Sentry.captureMessage(
+        `User with id: test is having trouble with claiming questions with next ids: test`,
+      );
     }
   };
 
