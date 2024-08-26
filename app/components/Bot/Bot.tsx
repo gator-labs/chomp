@@ -53,7 +53,6 @@ export default function BotMiniApp() {
   const [email, setEmail] = useState<string>("");
   const [otp, setOtp] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<number>(0);
-  const [userId, setUserId] = useState<string>();
   const [user, setUser] = useState<IChompUser | null>();
   const [questions, setQuestions] = useState([]);
   const [processedQuestions, setProcessedQuestions] = useState<
@@ -205,7 +204,6 @@ export default function BotMiniApp() {
       setIsLoading(true);
       const response = await getVerifiedUser(initData);
       if (response) {
-        setUserId(response.id);
         setUser(response);
         setEmail(response?.emails[0]?.address);
         if (response?.emails[0]?.address) setIsEmailExist(true);
@@ -264,10 +262,10 @@ export default function BotMiniApp() {
   };
 
   useEffect(() => {
-    if (authToken) {
+    if (authToken && isEmailExist) {
       getRevealQuestions(authToken);
     }
-  }, [authToken]);
+  }, [authToken, isEmailExist]);
 
   useEffect(() => {
     // Ensure Telegram Web App API is available
