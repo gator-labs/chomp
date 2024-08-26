@@ -4,6 +4,7 @@ import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import * as Sentry from "@sentry/nextjs";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic } from "react";
 import { Button } from "../../Button/Button";
@@ -25,28 +26,43 @@ export default function TotalRewardsClaimAll({
   const { isClaiming, setIsClaiming } = useClaiming();
 
   const onClaimAll = async () => {
-    setIsClaiming(true);
-    await promiseToast(
-      claimAllAvailable(),
-      {
-        loading: "Claim in progress. Please wait...",
-        success: "Funds are transferred!",
-        error: "Issue transferring funds.",
-        isChompLoader: true,
-      },
-      { duration: Infinity },
-    );
-    startTransition(() => {
-      claimOptimistic(0);
-    });
-    queryClient.resetQueries({ queryKey: ["questions-history"] });
+    try {
+      setIsClaiming(true);
+      await promiseToast(
+        claimAllAvailable(),
+        {
+          loading: "Claim in progress. Please wait...",
+          success: "Funds are transferred!",
+          error: "Issue transferring funds.",
+          isChompLoader: true,
+        },
+        { duration: Infinity },
+      );
+      startTransition(() => {
+        claimOptimistic(0);
+      });
+      queryClient.resetQueries({ queryKey: ["questions-history"] });
 
-    fire();
-    successToast(
-      "Claimed!",
-      `You have successfully claimed ${numberToCurrencyFormatter.format(totalRevealedRewards)} BONK!`,
-    );
-    setIsClaiming(false);
+      fire();
+      successToast(
+        "Claimed!",
+        `You have successfully claimed ${numberToCurrencyFormatter.format(totalRevealedRewards)} BONK!`,
+      );
+      setIsClaiming(false);
+    } catch (error) {
+      console.log({ error });
+      Sentry.captureException(error);
+      Sentry.captureMessage("Danijel test");
+    }
+  };
+
+  const throwError = async () => {
+    try {
+      throw new Error("Error thrown from fake api");
+    } catch (error) {
+      console.log(error);
+      Sentry.captureException(error);
+    }
   };
 
   return (
@@ -59,14 +75,14 @@ export default function TotalRewardsClaimAll({
       </div>
       {optimisticAmount !== 0 && (
         <Button
-          onClick={onClaimAll}
+          onClick={throwError}
           disabled={isClaiming}
           variant="white"
           size="small"
           isPill
           className="!w-fit h-[29px] px-4 text-xs"
         >
-          Claim all
+          Throw error
         </Button>
       )}
     </div>
