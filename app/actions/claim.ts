@@ -1,6 +1,7 @@
 "use server";
 
 import { ChompResult, ResultType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import { revalidatePath } from "next/cache";
@@ -152,7 +153,13 @@ export async function claimQuestions(questionIds: number[]) {
     revalidatePath("/application/profile/history");
     return sendTx;
   } catch (e) {
-    console.log("Error while claiming question", e);
+    Sentry.captureException(
+      `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
+      (scope) => {
+        scope.setTransactionName("CLAIM ERROR");
+        return scope;
+      },
+    );
     release();
     throw e;
   }
