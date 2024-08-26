@@ -73,18 +73,16 @@ export default function TotalRewardsClaimAll({
           {numberToCurrencyFormatter.format(optimisticAmount)} BONK
         </p>
       </div>
-      {optimisticAmount !== 0 && (
-        <Button
-          onClick={throwError}
-          disabled={isClaiming}
-          variant="white"
-          size="small"
-          isPill
-          className="!w-fit h-[29px] px-4 text-xs"
-        >
-          Throw error
-        </Button>
-      )}
+      <Button
+        onClick={throwError}
+        disabled={isClaiming}
+        variant="white"
+        size="small"
+        isPill
+        className="!w-fit h-[29px] px-4 text-xs"
+      >
+        Throw error
+      </Button>
     </div>
   );
 }
