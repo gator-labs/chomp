@@ -3,6 +3,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+import { ignoreErrors } from "./app/utils/sentry";
 
 Sentry.init({
   dsn: "https://64a866556aabef2a9c47334ab3618680@o4507686426968064.ingest.us.sentry.io/4507686429130752",
@@ -28,10 +29,5 @@ Sentry.init({
     }),
   ],
 
-  ignoreErrors: [
-    "No injected ethereum object.",
-    "Object captured as promise rejection with keys: code, data, message",
-    "[PhantomRedirect] getSession called, but required input 'encryptionSecretKey' not found in local storage",
-    "User rejected the request.",
-  ],
+  ignoreErrors: ignoreErrors,
 });
