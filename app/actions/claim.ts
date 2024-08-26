@@ -154,11 +154,9 @@ export async function claimQuestions(questionIds: number[]) {
     return sendTx;
   } catch (e) {
     Sentry.captureException(
-      `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
-      (scope) => {
-        scope.setTransactionName("CLAIM ERROR");
-        return scope;
-      },
+      new Error(
+        `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
+      ),
     );
     release();
     throw e;
