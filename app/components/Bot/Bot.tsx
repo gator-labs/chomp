@@ -70,6 +70,7 @@ export default function BotMiniApp() {
   const [burnSuccessfull, setBurnSuccessfull] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoadingQuestions, setIsLoadingQuestions] = useState<boolean>(true);
+  const [isFetchingBalance, setIsFetchingBalance] = useState<boolean>(false);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedRevealQuestions, setSelectedRevealQuestions] = useState<
     number[]
@@ -250,6 +251,7 @@ export default function BotMiniApp() {
   };
 
   const getUserBalance = async () => {
+    setIsFetchingBalance(true);
     try {
       const solBalance = await getSolBalance(primaryWallet!.address);
       const bonkBalance = await getBonkBalance(primaryWallet!.address);
@@ -258,8 +260,10 @@ export default function BotMiniApp() {
         solBalance: solBalance,
         bonkBalance: bonkBalance,
       });
+      setIsFetchingBalance(false);
     } catch (error) {
       console.error("Error fetching balances:", error);
+      setIsFetchingBalance(false);
     }
   };
 
@@ -323,6 +327,7 @@ export default function BotMiniApp() {
           setActiveTab={setActiveTab}
           wallet={address}
           userBalance={userBalance}
+          isFetchingBalance={isFetchingBalance}
         >
           {activeTab === 0 ? (
             <RevealQuestionsFeed

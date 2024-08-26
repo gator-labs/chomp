@@ -19,6 +19,7 @@ type WalletMenuProps = {
     solBalance: number;
     bonkBalance: number;
   };
+  isFetchingBalance: boolean;
 };
 
 export default function WalletMenu({
@@ -26,6 +27,7 @@ export default function WalletMenu({
   onClose,
   wallet,
   userBalance,
+  isFetchingBalance,
 }: WalletMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -53,13 +55,26 @@ export default function WalletMenu({
             <Avatar size="large" src={AvatarPlaceholder.src} />
             <div className="flex flex-col font-sora text-white text-base self-center flex-grow">
               <div className="whitespace-nowrap opacity-80">
-                {numberToCurrencyFormatter.format(userBalance?.solBalance)} SOL
+                {isFetchingBalance ? (
+                  <span className="flex items-center gap-2">
+                    <div className="animate-pulse w-10 h-5 rounded bg-neutral-400" />{" "}
+                    SOL
+                  </span>
+                ) : (
+                  `${numberToCurrencyFormatter.format(userBalance?.solBalance)} SOL`
+                )}
               </div>
               <div className="whitespace-nowrap opacity-80">
-                {numberToCurrencyFormatter.format(
-                  Math.floor(userBalance?.bonkBalance),
-                )}{" "}
-                BONK
+                {isFetchingBalance ? (
+                  <span className="flex items-center gap-2">
+                    <div className="animate-pulse w-10 h-5 rounded bg-neutral-400" />{" "}
+                    BONK
+                  </span>
+                ) : (
+                  `${numberToCurrencyFormatter.format(
+                    Math.floor(userBalance?.bonkBalance),
+                  )} BONK`
+                )}
               </div>
             </div>
             <button className="self-start" onClick={onClose}>

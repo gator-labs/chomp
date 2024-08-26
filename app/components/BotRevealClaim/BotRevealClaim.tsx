@@ -13,6 +13,7 @@ type BotRevealClaimProps = {
     solBalance: number;
     bonkBalance: number;
   };
+  isFetchingBalance: boolean;
 };
 
 export default function BotRevealClaim({
@@ -21,6 +22,7 @@ export default function BotRevealClaim({
   setActiveTab,
   wallet,
   userBalance,
+  isFetchingBalance
 }: BotRevealClaimProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -54,6 +56,7 @@ export default function BotRevealClaim({
           onClose={closeQuickProfile}
           wallet={wallet}
           userBalance={userBalance}
+          isFetchingBalance={isFetchingBalance}
         />
       </span>
       <div className="space-y-6 flex flex-col p-5 pt-[4.5rem] items-start justify-center">
