@@ -61,7 +61,9 @@ export default function TotalRewardsClaimAll({
       throw new Error("Error thrown from fake api");
     } catch (error) {
       console.log(error);
-      Sentry.captureException(error);
+      Sentry.captureException(
+        `User with id: test is having trouble with claiming questions with next ids: test`,
+      );
     }
   };
 
@@ -82,6 +84,16 @@ export default function TotalRewardsClaimAll({
         className="!w-fit h-[29px] px-4 text-xs"
       >
         Throw error
+      </Button>
+      <Button
+        onClick={claimAllAvailable}
+        disabled={isClaiming}
+        variant="white"
+        size="small"
+        isPill
+        className="!w-fit h-[29px] px-4 text-xs"
+      >
+        Claim all
       </Button>
     </div>
   );
