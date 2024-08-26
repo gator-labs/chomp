@@ -62,10 +62,11 @@ export default function TotalRewardsClaimAll({
     } catch (error) {
       console.log(error);
       Sentry.captureException(
-        `User with id: test is having trouble with claiming questions with next ids: test`,
-      );
-      Sentry.captureMessage(
-        `User with id: test is having trouble with claiming questions with next ids: test`,
+        `User with id: 'test' is having trouble with claiming questions with next ids: []`,
+        (scope) => {
+          scope.setTransactionName("CLAIM ERROR");
+          return scope;
+        },
       );
     }
   };
