@@ -15,5 +15,10 @@ Sentry.init({
 
   // Uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: process.env.NODE_ENV === 'development',
-  
+  ignoreErrors: [
+    "No injected ethereum object.",
+    "Object captured as promise rejection with keys: code, data, message",
+    "[PhantomRedirect] getSession called, but required input 'encryptionSecretKey' not found in local storage",
+    "User rejected the request.",
+  ],
 });
