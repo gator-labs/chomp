@@ -94,7 +94,7 @@ export const checkNft = async (nftAddress: string, nftType: NftType) => {
     return false;
   }
 
-  const asset = await dasUmi.rpc.getAsset(publicKey(nftAddress));
+  const asset = await (dasUmi.rpc as any).getAsset(publicKey(nftAddress));
 
   const isEligible = checkIsNftEligible(asset, nftType);
 

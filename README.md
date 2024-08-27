@@ -12,6 +12,7 @@ Chomp is the first mini-game product created by Gator Labs. We intend to build o
 - [Frame API](https://chomp-frame.vercel.app/api)
 - [Frame Demo](https://warpcast.com/~/developers/frames?url=https%3A%2F%2Fchomp-frame.vercel.app%2Fapi) (Warpcast login required)
 - [Frame Code](https://github.com/gator-labs/chomp-frame)
+- [ChompBot](https://github.com/gator-labs/chomp-bot)
 
 ## Getting started
 

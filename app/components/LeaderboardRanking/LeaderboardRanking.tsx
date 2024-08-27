@@ -2,19 +2,13 @@
 
 import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import { User, Wallet } from "@prisma/client";
+import { Ranking } from "../Leaderboard/Leaderboard";
 import RankingCard from "../RankingCard/RankingCard";
 
 interface Props {
   label: string;
   loggedUserId: string;
-  ranking: {
-    user: {
-      wallets: Wallet[];
-    } & User;
-    value: number;
-    rank: number;
-  }[];
+  ranking: Ranking[] | [];
 }
 
 const LeaderboardRanking = ({ label, loggedUserId, ranking }: Props) => {

@@ -13,7 +13,7 @@ import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
 import { calculateRevealPoints } from "../utils/points";
-import { isEntityRevealable } from "../utils/question";
+import { getQuestionState, isEntityRevealable } from "../utils/question";
 import { CONNECTION } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 import { checkNft } from "./revealNft";
@@ -197,7 +197,6 @@ export async function revealQuestions(
           type: revealPointsTx.type,
           change: revealPointsTx.amount,
           userId: payload.sub,
-          questionId: revealPointsTx.questionId,
         })),
       });
     });
@@ -316,7 +315,7 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
   });
 }
 
-async function hasBonkBurnedCorrectly(
+export async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
   userId: string,
@@ -386,7 +385,63 @@ async function hasBonkBurnedCorrectly(
   return true;
 }
 
-async function handleFirstRevealToPopulateSubjectiveQuestion(
+export async function getDeckThatNeedChompResultBasedOnRevealedQuestionIds(
+  revealableQuestionIds: number[],
+  userId: string,
+) {
+  const decksWithQuestions = await prisma.deck.findMany({
+    where: {
+      deckQuestions: { some: { questionId: { in: revealableQuestionIds } } },
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: { where: { userId: userId } },
+                },
+              },
+              chompResults: { where: { userId: userId } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const decksToAddRevealFor = decksWithQuestions.filter((deck) => {
+    const questionStates = deck.deckQuestions.map((dq) => ({
+      questionId: dq.questionId,
+      state: getQuestionState(dq.question),
+    }));
+
+    const alreadyRevealed = questionStates
+      .filter((qs) => qs.state.isRevealed)
+      .map((qs) => qs.questionId);
+
+    const newlyRevealed = questionStates
+      .filter(
+        (qs) =>
+          revealableQuestionIds.includes(qs.questionId) && !qs.state.isRevealed,
+      )
+      .map((qs) => qs.questionId);
+
+    const revealedQuestions = [...alreadyRevealed, ...newlyRevealed];
+    const allQuestionIds = deck.deckQuestions.map((dq) => dq.questionId);
+
+    const remainingQuestions = allQuestionIds.filter(
+      (qId) => !revealedQuestions.includes(qId),
+    );
+
+    return remainingQuestions.length === 0;
+  });
+
+  return decksToAddRevealFor;
+}
+
+export async function handleFirstRevealToPopulateSubjectiveQuestion(
   questionIds: number[],
 ) {
   const questions = await prisma.question.findMany({

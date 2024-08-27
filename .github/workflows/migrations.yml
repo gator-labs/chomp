@@ -9,6 +9,10 @@ on:
     paths:
       - "**/*.sql" # Adjust this to include files whose changes should trigger the workflow
 
+  push:
+    branches:
+      - feat/refactoring-dynamic
+
 jobs:
   migrate_staging:
     if: github.base_ref == 'main' && github.event.pull_request.merged == true

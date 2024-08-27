@@ -37,7 +37,6 @@ async function main(
     data: {
       deck: `${tag}: Sample Deck ${new Date(Date.now())}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Reveal 24 hours later
-      isActive: true,
       deckQuestions: {
         create: {
           question: {

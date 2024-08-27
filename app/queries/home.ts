@@ -234,7 +234,7 @@ export async function getQuestionsForReadyToRevealSection(): Promise<
   );
 }
 
-async function queryQuestionsForReadyToReveal(
+export async function queryQuestionsForReadyToReveal(
   userId: string,
 ): Promise<QuestionsForReveal[]> {
   const revealQuestions: QuestionsForReveal[] = await prisma.$queryRaw`

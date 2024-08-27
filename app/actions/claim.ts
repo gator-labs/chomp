@@ -164,7 +164,10 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(chompResults: ChompResult[], address: string) {
+export async function handleSendBonk(
+  chompResults: ChompResult[],
+  address: string,
+) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -173,7 +176,6 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
     (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
     0,
   );
-
   let sendTx: string | null = null;
   if (tokenAmount > 0) {
     sendTx = await sendBonk(
@@ -182,6 +184,5 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
       Math.round(tokenAmount * 10 ** 5),
     );
   }
-
   return sendTx;
 }
