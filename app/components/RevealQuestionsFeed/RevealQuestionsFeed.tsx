@@ -18,6 +18,7 @@ import { CopyIcon } from "../Icons/CopyIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import RevealQuestionCard from "../RevealQuestionCard/RevealQuestionCard";
 import SkeletonCard from "../SkeletonCard/SkeletonCard";
+import Spinner from "../Spinner/Spinner";
 
 type RevealQuestionsFeedProps = {
   selectAll: boolean;
@@ -28,6 +29,7 @@ type RevealQuestionsFeedProps = {
   onBurn: () => void;
   wallet: string;
   isQuestionsLoading: boolean;
+  isBurnInProgress: boolean;
 };
 export default function RevealQuestionsFeed({
   selectAll,
@@ -38,6 +40,7 @@ export default function RevealQuestionsFeed({
   onBurn,
   wallet,
   isQuestionsLoading,
+  isBurnInProgress,
 }: RevealQuestionsFeedProps) {
   const [bonkBalance, setBonkBalance] = useState(0);
   const { successToast } = useToast();
@@ -123,25 +126,33 @@ export default function RevealQuestionsFeed({
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-4 w-full">
-              <Button
-                variant="white"
-                size="normal"
-                className="rounded-3xl"
-                isFullWidth
-                onClick={onBurn}
-              >
-                Reveal
-              </Button>
-              <DialogPrimitive.Close>
-                <Button
-                  variant="black"
-                  size="normal"
-                  className="rounded-3xl"
-                  isFullWidth
-                >
-                  Cancel
-                </Button>
-              </DialogPrimitive.Close>
+              {isBurnInProgress ? (
+                <div className="h-[6.7rem] flex items-center justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                <>
+                  <Button
+                    variant="white"
+                    size="normal"
+                    className="rounded-3xl"
+                    isFullWidth
+                    onClick={onBurn}
+                  >
+                    Reveal
+                  </Button>
+                  <DialogPrimitive.Close>
+                    <Button
+                      variant="black"
+                      size="normal"
+                      className="rounded-3xl"
+                      isFullWidth
+                    >
+                      Cancel
+                    </Button>
+                  </DialogPrimitive.Close>
+                </>
+              )}
               <div className="flex w-full gap-2 p-4 text-sm items-start justify-start bg-neutral-600 rounded-lg">
                 <InfoIcon width={40} height={20} />{" "}
                 <p>

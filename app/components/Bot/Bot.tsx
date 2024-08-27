@@ -107,6 +107,7 @@ export default function BotMiniApp() {
   };
 
   const onBurn = async () => {
+    setIsBurnInProgress(true);
     try {
       const {
         value: { blockhash },
@@ -132,7 +133,6 @@ export default function BotMiniApp() {
 
       const burnTx = await signer.signAndSendTransaction(tx);
 
-      setIsBurnInProgress(true);
       // Process Burn and Claim
       if (authToken) {
         const processedData = await processBurnAndClaim(
@@ -317,8 +317,7 @@ export default function BotMiniApp() {
 
   return (
     <>
-      {(isBurnInProgress && <LoadingScreen />) ||
-        (isLoading && <LoadingScreen />)}
+      {isLoading && <LoadingScreen />}
       {isLoggedIn && !burnSuccessfull && !isLoading && isEmailExist ? (
         <BotRevealClaim
           activeTab={activeTab}
@@ -337,6 +336,7 @@ export default function BotMiniApp() {
               onBurn={onBurn}
               wallet={address}
               isQuestionsLoading={isLoadingQuestions}
+              isBurnInProgress={isBurnInProgress}
             />
           ) : (
             <RevealHistoryInfo

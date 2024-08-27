@@ -57,7 +57,7 @@ export default function WalletMenu({
               <div className="whitespace-nowrap opacity-80">
                 {isFetchingBalance ? (
                   <span className="flex items-center gap-2">
-                    <div className="animate-pulse w-10 h-5 rounded bg-neutral-400" />{" "}
+                    <div className="animate-pulse w-10 h-4 rounded bg-neutral-400" />{" "}
                     SOL
                   </span>
                 ) : (
@@ -67,7 +67,7 @@ export default function WalletMenu({
               <div className="whitespace-nowrap opacity-80">
                 {isFetchingBalance ? (
                   <span className="flex items-center gap-2">
-                    <div className="animate-pulse w-10 h-5 rounded bg-neutral-400" />{" "}
+                    <div className="animate-pulse w-10 h-4 rounded bg-neutral-400" />{" "}
                     BONK
                   </span>
                 ) : (
