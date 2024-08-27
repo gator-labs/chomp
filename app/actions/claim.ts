@@ -153,11 +153,12 @@ export async function claimQuestions(questionIds: number[]) {
     revalidatePath("/application/profile/history");
     return sendTx;
   } catch (e) {
-    Sentry.captureException(
-      new Error(
-        `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
-      ),
+    class ClaimError extends Error {}
+    const claimError = new ClaimError(
+      `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
+      { cause: e },
     );
+    Sentry.captureException(claimError);
     release();
     throw e;
   }
