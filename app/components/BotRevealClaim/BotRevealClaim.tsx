@@ -22,7 +22,7 @@ export default function BotRevealClaim({
   setActiveTab,
   wallet,
   userBalance,
-  isFetchingBalance
+  isFetchingBalance,
 }: BotRevealClaimProps) {
   const [isOpen, setIsOpen] = useState(false);
 
