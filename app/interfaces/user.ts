@@ -5,17 +5,11 @@ interface EmailOrWallet {
   updatedAt: Date;
 }
 
-// enum AnswerStatus {
-//   Viewed,
-//   Submitted,
-// }
-
 interface QuestionAnswer {
   id: number;
   questionOptionId: number;
   userId: string;
   percentage: number | null;
-  // status: AnswerStatus;
   selected: boolean;
   timeToAnswer: bigint | null;
   createdAt: Date;

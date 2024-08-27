@@ -55,24 +55,3 @@ jobs:
         env:
           DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_PROD }}
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_PROD }}
-
-  migrate_demo:
-    if: github.ref == 'refs/heads/feat/refactoring-dynamic'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18" # Use Node.js version 18
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Run migrations
-        run: yarn prisma:migrate:prod
-        env:
-          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_DEMO }}
-          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_DEMO }}
