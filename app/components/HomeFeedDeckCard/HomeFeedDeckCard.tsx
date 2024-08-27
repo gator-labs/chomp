@@ -2,7 +2,6 @@
 
 import classNames from "classnames";
 import Image from "next/image";
-import Link from "next/link";
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import CardsIcon from "../Icons/CardsIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
@@ -41,7 +40,7 @@ export function HomeFeedDeckCard({
   deckId,
 }: HomeFeedDeckCardProps) {
   return (
-    <Link
+    <a
       href={`application/answer/deck/${deckId}`}
       className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
@@ -83,6 +82,6 @@ export function HomeFeedDeckCard({
           </div>
         </div>
       </div>
-    </Link>
+    </a>
   );
 }

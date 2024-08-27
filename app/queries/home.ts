@@ -1,5 +1,6 @@
 "use server";
 
+import { AnswerStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
@@ -137,63 +138,30 @@ async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
 
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
-  select
+  SELECT
     d."id",
     d."deck",
     d."revealAtDate",
-    (
-        select
-              count(distinct concat(dq."deckId", qa."userId"))
-        from public."QuestionOption" qo
-        join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-        join public."Question" q on qo."questionId" = q."id"
-        join public."DeckQuestion" dq on dq."questionId" = q."id"
-        where dq."deckId" = d."id"
-      ) as "answerCount",
-      d."revealAtAnswerCount",
-      c."image"
-  from public."Deck" d
-  full join "Campaign" c on c."id" = d."campaignId"
-  where
-      (
-        (
-      		d."revealAtDate" > now() and d."revealAtDate" < now() + interval '3' day
-  		  )
-        and 
-        (
-      		d."date" is null
-  		  )
-        and
-        (
-          d."activeFromDate" <= now()
-        )
-        and 
-        (
-          d."revealAtAnswerCount" is null
-          or
-          d."revealAtAnswerCount" >
-            (
-              select
-                count(distinct concat(dq."deckId", qa."userId"))
-              from public."QuestionOption" qo
-              join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-              join public."Question" q on qo."questionId" = q."id"
-              join public."DeckQuestion" dq on dq."questionId" = q."id"
-              where dq."deckId" = d."id"
-            )
-        )
-      )
-      and	
-      d."id" not in
-        (
-          select
-            dq."deckId"
-          from public."QuestionOption" qo
-            join public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-            join public."Question" q on qo."questionId" = q."id"
-            join public."DeckQuestion" dq on dq."questionId" = q."id"
-            where dq."deckId" = d."id" and qa."userId" = ${userId}
-        )
+    c."image"
+FROM
+    public."Deck" d
+FULL JOIN
+    "Campaign" c ON c."id" = d."campaignId"
+WHERE
+    d."revealAtDate" > NOW()
+    AND d."date" IS NULL
+    AND d."activeFromDate" <= NOW()
+    AND EXISTS (
+        SELECT 1
+        FROM public."DeckQuestion" dq
+        JOIN public."Question" q ON dq."questionId" = q."id"
+        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id" 
+        AND qa."userId" = ${userId}
+        WHERE dq."deckId" = d."id"
+        GROUP BY dq."deckId"
+        HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
+    );
   `;
 
   return deckExpiringSoon;
@@ -236,7 +204,7 @@ async function queryRevealedQuestions(
       ON qo."questionId" = q."id"
   LEFT JOIN public."QuestionAnswer" qa 
       ON qa."questionOptionId" = qo."id" 
-      AND qa."userId" = ${userId}
+      AND qa."userId" = ${userId} AND qa."status" = ${AnswerStatus.Submitted}::"AnswerStatus"
   WHERE
       cr1."questionId" IS NULL
       AND qa."id" IS NULL
@@ -321,7 +289,7 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
     (
       select count(distinct qo."questionId") from "QuestionAnswer" qa
       inner join "QuestionOption" qo ON qo.id = qa."questionOptionId" 
-      where qa.selected = true and qa."hasViewedButNotSubmitted" = false and qa."userId" = u."id"
+      where qa.selected = true and qa."status" = 'Submitted' and qa."userId" = u."id"
     ) as "cardsChomped",
     (
       select avg(qa."timeToAnswer") from public."QuestionAnswer" qa 

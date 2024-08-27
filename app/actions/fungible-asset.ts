@@ -111,30 +111,6 @@ export const incrementFungibleAssetBalance = async ({
       })),
     });
 
-  // let dailyLeaderboardTask;
-
-  // if (!!campaignId) {
-  //   const currentDate = new Date();
-
-  //   dailyLeaderboardTask = await injectedPrisma.dailyLeaderboard.upsert({
-  //     where: {
-  //       user_campaign_date: {
-  //         userId,
-  //         campaignId,
-  //         date: currentDate,
-  //       },
-  //     },
-  //     create: {
-  //       userId,
-  //       campaignId,
-  //       points: amount,
-  //     },
-  //     update: {
-  //       points: { increment: amount },
-  //     },
-  //   });
-  // }
-
   const result = await Promise.all([upsertTask, transactionLogTask]);
 
   return result[0];

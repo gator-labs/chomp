@@ -35,7 +35,7 @@ export default function DeckForm({
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, isDirty, isSubmitSuccessful },
     watch,
     setValue,
     control,
@@ -435,7 +435,7 @@ export default function DeckForm({
       <Button
         variant="primary"
         type="submit"
-        disabled={isSubmitting || !isDirty}
+        disabled={isSubmitting || !isDirty || isSubmitSuccessful}
       >
         {isSubmitting ? "Submitting" : "Submit"}
       </Button>{" "}

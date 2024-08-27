@@ -21,6 +21,7 @@ type QuestionActionProps = {
   step: QuestionStep;
   percentage?: number;
   setPercentage?: Dispatch<SetStateAction<number>>;
+  disabled?: boolean;
 };
 
 export function QuestionAction({
@@ -31,6 +32,7 @@ export function QuestionAction({
   randomQuestionMarker,
   percentage = 50,
   setPercentage,
+  disabled,
 }: QuestionActionProps) {
   const [isSliderTouched, setIsSliderTouched] = useState(false);
 
@@ -91,14 +93,12 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onPointerDown={activateSlider}
-              onTouchStart={activateSlider}
-              onClick={activateSlider}
+              activateSlider={activateSlider}
             />
           </div>
           <Button
             onClick={() => onButtonClick(percentage)}
-            disabled={!isSliderTouched}
+            disabled={!isSliderTouched || disabled}
             variant="purple"
             size="normal"
             className="w-max py-6 !rounded-2xl self-stretch"
@@ -142,9 +142,7 @@ export function QuestionAction({
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
-              onPointerDown={activateSlider}
-              onTouchStart={activateSlider}
-              onClick={activateSlider}
+              activateSlider={activateSlider}
             />
           </div>
           <Button

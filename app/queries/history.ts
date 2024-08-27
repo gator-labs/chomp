@@ -59,8 +59,6 @@ export async function getDecksHistory(
 		ORDER BY d."revealAtDate" DESC
 		`;
 
-  console.log(decksHistory);
-
   return decksHistory;
 }
 

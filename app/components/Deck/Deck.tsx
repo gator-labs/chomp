@@ -1,12 +1,16 @@
 "use client";
-import { SaveQuestionRequest, saveDeck } from "@/app/actions/answer";
+import {
+  answerQuestion,
+  markQuestionAsSeenButNotAnswered,
+  SaveQuestionRequest,
+} from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
 } from "@/app/utils/question";
-import { QuestionTag, QuestionType, Tag } from "@prisma/client";
+import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../Button/Button";
@@ -33,6 +37,8 @@ export type Question = {
   imageUrl?: string;
   questionOptions: Option[];
   questionTags: (QuestionTag & { tag: Tag })[];
+  status?: AnswerStatus;
+  createdAt?: Date;
 };
 
 type DeckProps = {
@@ -50,19 +56,21 @@ const getDueAt = (questions: Question[], index: number): Date => {
 
 export function Deck({
   questions,
-  deckId,
   nextDeckId,
   deckVariant,
+  deckId,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
-  const [rerenderAction, setRerenderAction] = useState(true);
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion,
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(
+    questions.findIndex((q) => q.status === undefined),
+  );
 
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
   const min = 0;
@@ -84,13 +92,13 @@ export function Deck({
     start();
   }, [start]);
 
-  const handleNextIndex = useCallback(() => {
+  const handleNextIndex = useCallback(async () => {
     if (currentQuestionIndex + 1 < questions.length) {
       setDueAt(getDueAt(questions, currentQuestionIndex + 1));
     }
+    setDeckResponse([]);
     setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
-    setRerenderAction(false);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
     const min = 0;
@@ -101,19 +109,11 @@ export function Deck({
         : 0;
     generateRandom({ min, max });
     reset();
-    setTimeout(() => {
-      setRerenderAction(true);
-    });
-    setTimeout(() => {
-      if (questionsRef.current) {
-        questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;
-      }
-    }, 200);
+    setIsSubmitting(false);
   }, [
     currentQuestionIndex,
     setCurrentQuestionIndex,
     setCurrentQuestionStep,
-    setRerenderAction,
     generateRandom,
     setCurrentOptionSelected,
     reset,
@@ -125,26 +125,26 @@ export function Deck({
     [questions, currentQuestionIndex],
   );
 
+  useEffect(() => {
+    const run = async () => {
+      const res = await markQuestionAsSeenButNotAnswered(question.id);
+      if (!!res?.hasError) {
+        handleNextIndex();
+        return;
+      }
+    };
+
+    if (!!question?.id) run();
+  }, [question?.id]);
+
   const handleNoAnswer = useCallback(() => {
     setIsTimeOutPopUpVisible(false);
-    setDeckResponse((prevRes) => {
-      const answeredQuestion = prevRes.find(
-        (item) => item.questionId === question.id,
-      );
-      const rest = prevRes.filter((item) => item.questionId !== question.id);
 
-      return [
-        ...rest,
-        answeredQuestion
-          ? { ...answeredQuestion, hasViewedButNotSubmitted: true }
-          : { questionId: question.id, hasViewedButNotSubmitted: true },
-      ];
-    });
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
 
   const onQuestionActionClick = useCallback(
-    (number: number | undefined) => {
+    async (number: number | undefined) => {
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
@@ -198,6 +198,10 @@ export function Deck({
       }
       setNumberOfAnsweredQuestions((prev) => prev + 1);
 
+      setIsSubmitting(true);
+
+      await answerQuestion({ ...deckResponse[0], deckId });
+
       handleNextIndex();
     },
     [
@@ -215,12 +219,6 @@ export function Deck({
     () => currentQuestionIndex >= questions.length,
     [currentQuestionIndex],
   );
-
-  useEffect(() => {
-    if (hasReachedEnd) {
-      saveDeck(deckResponse, deckId);
-    }
-  }, [hasReachedEnd, deckResponse]);
 
   useEffect(() => {
     if (questionsRef.current) {
@@ -280,17 +278,16 @@ export function Deck({
         </div>
       </div>
 
-      {rerenderAction && (
-        <QuestionAction
-          onButtonClick={onQuestionActionClick}
-          type={question.type}
-          step={currentQuestionStep}
-          questionOptions={question.questionOptions}
-          randomQuestionMarker={randomQuestionMarker}
-          percentage={optionPercentage}
-          setPercentage={setOptionPercentage}
-        />
-      )}
+      <QuestionAction
+        onButtonClick={onQuestionActionClick}
+        type={question.type}
+        step={currentQuestionStep}
+        questionOptions={question.questionOptions}
+        randomQuestionMarker={randomQuestionMarker}
+        percentage={optionPercentage}
+        setPercentage={setOptionPercentage}
+        disabled={isSubmitting}
+      />
 
       <Sheet
         disableClose
