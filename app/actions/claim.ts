@@ -9,7 +9,11 @@ import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 
 import { sendBonk } from "../utils/bonk";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
+
+import * as Sentry from "@sentry/nextjs";
+
 
 export async function claimDeck(deckId: number) {
   console.log("claim deck fired with id ", deckId);
@@ -243,10 +247,32 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(chompResults: ChompResult[], address: string) {
+async function handleSendBonk(
+  chompResults: ChompResult[],
+  address: string,
+) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
+
+  const treasuryAddress = treasuryWallet.publicKey.toString();
+
+  const treasurySolBalance = await getSolBalance(treasuryAddress);
+  const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
+
+  if (treasurySolBalance < 0.1 || treasuryBonkBalance < 1000000) {
+    Sentry.captureMessage(
+      `Wallet balance dropped below threshold (0.1 SOL, 1M BONK) Current Balance: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK.`,
+      {
+        level: "fatal",
+        extra: {
+          treasurySolBalance,
+          treasuryBonkBalance,
+          recipientWallet: address,
+        },
+      },
+    );
+  }
 
   const tokenAmount = chompResults.reduce(
     (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
