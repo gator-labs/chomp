@@ -12,7 +12,6 @@ import { acquireMutex } from "../utils/mutex";
 import { sendBonk } from "../utils/bonk";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
-import * as Sentry from "@sentry/nextjs";
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
