@@ -5,4 +5,6 @@ export const IMAGE_VALID_TYPES = [
   "image/webp",
   "image/svg+xml",
 ];
-  
+export const IMAGE_ACTION = {
+  REMOVE_IMAGE: "Remove Image", 
+}
