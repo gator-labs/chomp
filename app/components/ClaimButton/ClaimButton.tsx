@@ -11,6 +11,8 @@ import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
+import sendToMixpanel from "@/lib/mixpanel";
+import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
@@ -52,7 +54,12 @@ const ClaimButton = ({
         success: "You have successfully claimed your rewards!",
         error: "Failed to claim rewards. Please try again.",
       })
-        .then(() => {
+        .then((res) => {
+          sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_REWARD_CLAIMED, {
+            questionIds: res?.questionIds,
+            claimedAmount: res?.claimedAmount,
+            transactionSignature: res?.transactionSignature,
+          });
           queryClient.resetQueries({ queryKey: ["questions-history"] });
           fire();
         })

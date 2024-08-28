@@ -1,5 +1,6 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestions } from "@/app/actions/claim";
+import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -9,6 +10,7 @@ import { QuestionHistory } from "@/app/queries/history";
 import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
 import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
+import sendToMixpanel from "@/lib/mixpanel";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
@@ -49,7 +51,12 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           success: "You have successfully claimed your rewards!",
           error: "Failed to claim rewards. Please try again.",
         })
-          .then(() => {
+          .then((res) => {
+            sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_REWARD_CLAIMED, {
+              questionIds: res?.questionIds,
+              claimedAmount: res?.claimedAmount,
+              transactionSignature: res?.transactionSignature,
+            });
             queryClient.resetQueries({ queryKey: ["questions-history"] });
             router.push("/application/answer/reveal/" + question.id);
             router.refresh();

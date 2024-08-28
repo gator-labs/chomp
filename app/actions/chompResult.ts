@@ -9,6 +9,8 @@ import {
 import { revalidatePath } from "next/cache";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 
+import sendToMixpanel from "@/lib/mixpanel";
+import { MIX_PANEL_EVENTS } from "../constants/mixpanel";
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
@@ -200,6 +202,13 @@ export async function revealQuestions(
           questionId: revealPointsTx.questionId,
         })),
       });
+    });
+
+    sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWER_REVEALED, {
+      questionIds,
+      transactionSignature: burnTx,
+      nftAddress,
+      nftType,
     });
 
     release();

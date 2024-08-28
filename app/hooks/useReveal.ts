@@ -1,3 +1,4 @@
+import sendToMixpanel from "@/lib/mixpanel";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
@@ -14,6 +15,7 @@ import {
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
+import { MIX_PANEL_EVENTS } from "../constants/mixpanel";
 import { useToast } from "../providers/ToastProvider";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
@@ -265,6 +267,14 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           nftType: revealNft!.type,
         });
       }
+
+      sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWER_REVEALED, {
+        questionsIds: revealQuestionIds,
+        transactionSignature: signature,
+        nftAddress: revealNft?.id,
+        nftType: revealNft?.type,
+        burnedAmount: reveal?.amount,
+      });
 
       if (revealNft && !isMultiple) {
         setRevealNft(undefined);
