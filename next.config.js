@@ -30,26 +30,6 @@ const nextConfig = {
         destination: "/application/profile/dashboard",
         permanent: true,
       },
-      {
-        source: "/application/profile/dashboard",
-        destination: "/application",
-        permanent: true,
-      },
-      {
-        source: "/application/profile/leaderboard",
-        destination: "/application/leaderboard",
-        permanent: true,
-      },
-      {
-        source: "/application/profile/history",
-        destination: "/application/history",
-        permanent: true,
-      },
-      {
-        source: "/application/profile/settings",
-        destination: "/application/settings",
-        permanent: true,
-      },
     ];
   },
 };
