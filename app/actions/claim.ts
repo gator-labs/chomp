@@ -14,7 +14,6 @@ import { getJwtPayload } from "./jwt";
 
 import * as Sentry from "@sentry/nextjs";
 
-
 export async function claimDeck(deckId: number) {
   console.log("claim deck fired with id ", deckId);
 
@@ -247,10 +246,7 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(
-  chompResults: ChompResult[],
-  address: string,
-) {
+async function handleSendBonk(chompResults: ChompResult[], address: string) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -260,15 +256,20 @@ async function handleSendBonk(
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
 
-  if (treasurySolBalance < 0.1 || treasuryBonkBalance < 1000000) {
+
+
+  if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
     Sentry.captureMessage(
-      `Wallet balance dropped below threshold (0.1 SOL, 1M BONK) Current Balance: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK.`,
+      `Wallet balance dropped below threshold Refill here: ${treasuryAddress}, Current Balance: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK.`,
       {
         level: "fatal",
+        tags: {
+          category: "feedback", // Custom tag to categorize as feedback
+        },
         extra: {
           treasurySolBalance,
           treasuryBonkBalance,
-          recipientWallet: address,
+          Refill: treasuryAddress,
         },
       },
     );
