@@ -42,6 +42,7 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
           questionIds: res?.questionIds,
           claimedAmount: res?.claimedAmount,
           transactionSignature: res?.transactionSignature,
+          questions: res?.questions,
         });
         queryClient.resetQueries({ queryKey: ["questions-history"] });
         fire();

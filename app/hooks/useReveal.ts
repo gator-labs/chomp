@@ -38,11 +38,13 @@ interface RevealCallbackBaseProps {
 interface RevealCallbackMultipleQuestions extends RevealCallbackBaseProps {
   questionIds: number[];
   questionId?: never;
+  questions: string[];
 }
 
 interface RevealCallbackSingleQuestion extends RevealCallbackBaseProps {
   questionId: number;
   questionIds?: never;
+  questions: string[];
 }
 
 export interface RevealProps {
@@ -61,6 +63,7 @@ type RevealState = {
   amount: number;
   reveal: ({ burnTx, nftAddress, nftType }: RevealProps) => Promise<void>;
   questionIds: number[];
+  questions: string[];
   genesisNft?: string;
 };
 
@@ -159,12 +162,19 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal, address, reveal?.questionIds]);
 
   const onSetReveal = useCallback(
-    ({ amount, questionId, questionIds, reveal }: RevealCallbackProps) => {
+    ({
+      amount,
+      questionId,
+      questionIds,
+      reveal,
+      questions,
+    }: RevealCallbackProps) => {
       setBurnState(INITIAL_BURN_STATE);
       setReveal({
         reveal,
         amount,
         questionIds: questionIds ?? [questionId],
+        questions,
       });
       setIsRevealModalOpen(true);
     },
@@ -274,6 +284,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         nftAddress: revealNft?.id,
         nftType: revealNft?.type,
         burnedAmount: reveal?.amount,
+        questions: reveal?.questions,
       });
 
       if (revealNft && !isMultiple) {

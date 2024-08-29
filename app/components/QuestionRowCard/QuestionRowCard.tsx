@@ -56,6 +56,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
               questionIds: res?.questionIds,
               claimedAmount: res?.claimedAmount,
               transactionSignature: res?.transactionSignature,
+              questions: res?.questions,
             });
             queryClient.resetQueries({ queryKey: ["questions-history"] });
             router.push("/application/answer/reveal/" + question.id);
@@ -89,6 +90,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
         },
         amount: question.revealTokenAmount || 0,
         questionId: question.id,
+        questions: [question.question],
       });
     };
 

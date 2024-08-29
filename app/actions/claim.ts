@@ -102,6 +102,9 @@ export async function claimQuestions(questionIds: number[]) {
         },
         result: ResultType.Revealed,
       },
+      include: {
+        question: true,
+      },
     });
 
     const userWallet = await prisma.wallet.findFirst({
@@ -158,6 +161,7 @@ export async function claimQuestions(questionIds: number[]) {
         0,
       ),
       transactionSignature: sendTx,
+      questions: chompResults.map((cr) => cr.question),
     };
   } catch (e) {
     class ClaimError extends Error {}

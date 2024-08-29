@@ -43,6 +43,7 @@ export default function TotalRewardsClaimAll({
       questionIds: res?.questionIds,
       claimedAmount: res?.claimedAmount,
       transactionSignature: res?.transactionSignature,
+      questions: res?.questions,
     });
 
     startTransition(() => {

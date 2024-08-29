@@ -40,6 +40,7 @@ export function RevealFeedQuestionCard({
       },
       amount: revealTokenAmount ?? 0,
       questionId: id,
+      questions: [question],
     });
   };
 

@@ -1,18 +1,18 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { CONNECTION } from "@/app/utils/solana";
+import sendToMixpanel from "@/lib/mixpanel";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
-import sendToMixpanel from "@/lib/mixpanel";
-import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
@@ -59,6 +59,7 @@ const ClaimButton = ({
             questionIds: res?.questionIds,
             claimedAmount: res?.claimedAmount,
             transactionSignature: res?.transactionSignature,
+            questions: res?.questions,
           });
           queryClient.resetQueries({ queryKey: ["questions-history"] });
           fire();
