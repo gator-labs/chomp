@@ -3,6 +3,7 @@
 import { setJwt } from "@/app/actions/jwt";
 import { DynamicJwtPayload } from "@/lib/auth";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ExistingUserScreen from "./ExistingUserScreen";
 import LoadingScreen from "./LoadingScreen";
@@ -17,17 +18,25 @@ interface Props {
 const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
   const { authToken, isAuthenticated, awaitingSignatureState } =
     useDynamicContext();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const params = useSearchParams();
+
+  console.log(awaitingSignatureState);
 
   useEffect(() => {
-    if (awaitingSignatureState === "linking_new_wallet") {
-      setIsLoading(true);
-    }
+    setIsLoading(true);
 
     if (authToken) setJwt(authToken);
 
-    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle")
-      setIsLoading(false);
+    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
+      const destination = params.get("next");
+      if (!!destination) {
+        redirect(destination);
+      } else {
+        setIsLoading(false);
+      }
+    }
 
     if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
       setIsLoading(false);

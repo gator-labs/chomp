@@ -51,7 +51,7 @@ export function NoQuestionsCard({
           size="big"
           className="gap-1"
           onClick={() => {
-            router.replace(`/application/answer/deck/${nextDeckId}`);
+            router.replace(`/application/deck/${nextDeckId}`);
             router.refresh();
           }}
         >

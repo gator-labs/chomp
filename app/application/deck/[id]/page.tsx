@@ -1,21 +1,30 @@
+import { Deck } from "@/app/components/Deck/Deck";
+import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
+import { getDecksForExpiringSection } from "@/app/queries/home";
 import { notFound } from "next/navigation";
 
 type PageProps = {
   params: { id: string };
-  searchParams: { returnUrl?: string };
 };
 
-export default async function Page({
-  params: { id },
-  searchParams: { returnUrl },
-}: PageProps) {
-  return notFound();
+export default async function Page({ params: { id } }: PageProps) {
+  const currentDeckId = Number(id);
 
-  // const deck = await getDeckDetails(+id);
+  const deck = await getDeckQuestionsForAnswerById(currentDeckId);
 
-  // if (!deck) {
-  //   return redirect(returnUrl ?? "/application");
-  // }
+  if (!deck?.questions.length) notFound();
 
-  // return <DeckDetails deck={deck} />;
+  const decks = await getDecksForExpiringSection();
+  const nextDeck = decks.filter((deck) => deck.id !== currentDeckId)?.[0];
+
+  return (
+    <div className="h-full py-2">
+      <Deck
+        questions={deck.questions}
+        deckId={currentDeckId}
+        nextDeckId={nextDeck?.id}
+        deckVariant="regular-deck"
+      />
+    </div>
+  );
 }

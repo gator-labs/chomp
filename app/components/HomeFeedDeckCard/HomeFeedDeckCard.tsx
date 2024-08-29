@@ -41,7 +41,7 @@ export function HomeFeedDeckCard({
 }: HomeFeedDeckCardProps) {
   return (
     <a
-      href={`application/answer/deck/${deckId}`}
+      href={`application/deck/${deckId}`}
       className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
       <div className="w-[90px] h-[90px] flex-shrink-0 relative">
