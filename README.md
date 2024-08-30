@@ -159,3 +159,14 @@ Demo environment is accessible on [app-demo.chomp.games](https://app-demo.chomp.
 - [ ] Enable workflow migrations in `.github/workflows/migrations.yml`
 - [ ] Create DB in Vercel Storage
 - [ ] Add `DATABASE_PRISMA_URL_{ENVIRONMENT}` and `DATABASE_URL_NON_POOLING_{ENVIRONMENT}` to Github
+
+## Restoring database
+
+To restore the database from the backup file, follow the below steps:
+
+First add a backup file in the scripts folder and change the filename in `scripts/restore-database.ts` file at line 17
+
+```sh
+# run restore script
+yarn dev:restore-db
+```
