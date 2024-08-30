@@ -4,6 +4,7 @@ import { Button } from "@/app/components/Button/Button";
 import { Deck, Question } from "@/app/components/Deck/Deck";
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
+import { useRouter } from "next-nprogress-bar";
 import { useState } from "react";
 
 type DeckScreenProps = {
@@ -29,6 +30,7 @@ const DeckScreen = ({
 }: DeckScreenProps) => {
   console.log(numberOfUserAnswers);
   const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers !== 0);
+  const router = useRouter();
 
   return (
     <>
@@ -53,7 +55,12 @@ const DeckScreen = ({
             >
               Begin deck
             </Button>
-            <Button className="h-50 w-full">Back to homepage</Button>
+            <Button
+              className="h-50 w-full"
+              onClick={() => router.push("/application")}
+            >
+              Back to homepage
+            </Button>
           </div>
         </div>
       ) : (
