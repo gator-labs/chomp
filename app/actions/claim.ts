@@ -177,8 +177,6 @@ async function handleSendBonk(
 
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
-
-
   
   if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
     Sentry.captureMessage(
@@ -193,7 +191,7 @@ async function handleSendBonk(
           treasuryBonkBalance,
           Refill: treasuryAddress,
           Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
-          Solscan: `https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers `,
+          Solscan: `https://solscan.io/account/${treasuryAddress}#transfers `,
         },
       },
     );
