@@ -201,6 +201,9 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         date: validatedFields.data.date,
         activeFromDate: validatedFields.data.activeFromDate,
         campaignId: validatedFields.data.campaignId,
+        description: validatedFields.data.description,
+        footer: validatedFields.data.footer,
+        heading: validatedFields.data.heading,
       },
     });
 
@@ -241,6 +244,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
 }
 
 export async function editDeck(data: z.infer<typeof deckSchema>) {
+  console.log("IN");
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
@@ -253,11 +257,11 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     return { errorMessage: formatErrorsToString(validatedFields) };
   }
 
-  if (!data.id) {
+  if (!validatedFields.data.id) {
     return { errorMessage: "Deck id not specified" };
   }
 
-  const images = data.questions
+  const images = validatedFields.data.questions
     .map((question) => question.imageUrl)
     .filter((image) => !!image);
 
@@ -267,6 +271,15 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     const isBucketImageValid = await validateBucketImage(
       image.split("/").pop()!,
       image,
+    );
+
+    if (!isBucketImageValid) throw new Error("Invalid image");
+  }
+
+  if (validatedFields.data.imageUrl) {
+    const isBucketImageValid = await validateBucketImage(
+      validatedFields.data.imageUrl.split("/").pop()!,
+      validatedFields.data.imageUrl,
     );
 
     if (!isBucketImageValid) throw new Error("Invalid image");
@@ -288,6 +301,8 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     })
   ).map((qt) => qt.tagId);
 
+  // ADD DELETE IMAGE
+
   await prisma.$transaction(
     async (tx) => {
       const deck = await tx.deck.update({
@@ -302,6 +317,9 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
           date: validatedFields.data.date,
           campaignId: validatedFields.data.campaignId,
+          footer: validatedFields.data.footer,
+          description: validatedFields.data.description,
+          heading: validatedFields.data.heading,
         },
       });
 
@@ -309,8 +327,11 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !q.id,
       );
 
+      console.log(newDeckQuestions);
+
       for (const question of newDeckQuestions) {
-        await tx.question.create({
+        console.log(question);
+        const res = await tx.question.create({
           data: {
             question: question.question,
             type: question.type,
@@ -320,11 +341,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
             imageUrl: question.imageUrl,
             durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
-            deckQuestions: {
-              create: {
-                deckId: deck.id,
-              },
-            },
             questionOptions: {
               createMany: {
                 data: question.questionOptions,
@@ -336,6 +352,13 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
               },
             },
             campaignId: validatedFields.data.campaignId,
+          },
+        });
+
+        await prisma.deckQuestion.create({
+          data: {
+            deckId: deck.id,
+            questionId: res.id,
           },
         });
       }
@@ -422,7 +445,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   );
 
   revalidatePath("/admin/decks");
-  redirect("/admin/decks");
+  // redirect("/admin/decks");
 }
 
 export async function handleInsertDecks(decksToAdd: DeckImportModel[]) {

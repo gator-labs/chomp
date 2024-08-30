@@ -1,6 +1,6 @@
-import { Deck } from "@/app/components/Deck/Deck";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
 import { getDecksForExpiringSection } from "@/app/queries/home";
+import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 import { redirect } from "next/navigation";
 
 type PageProps = {
@@ -18,12 +18,16 @@ export default async function Page({ params: { id } }: PageProps) {
   const nextDeck = decks.filter((deck) => deck.id !== currentDeckId)?.[0];
 
   return (
-    <div className="h-full py-2">
-      <Deck
-        questions={deck.questions}
-        deckId={currentDeckId}
+    <div className="h-full pt-3 pb-4">
+      <DeckScreen
+        currentDeckId={deck.id}
         nextDeckId={nextDeck?.id}
-        deckVariant="regular-deck"
+        questions={deck.questions}
+        deckInfo={{
+          ...deck.deckInfo,
+          totalNumberOfQuestions: deck.questions.length,
+        }}
+        numberOfUserAnswers={deck.numberOfUserAnswers}
       />
     </div>
   );
