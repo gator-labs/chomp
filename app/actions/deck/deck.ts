@@ -445,7 +445,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   );
 
   revalidatePath("/admin/decks");
-  // redirect("/admin/decks");
+  redirect("/admin/decks");
 }
 
 export async function handleInsertDecks(decksToAdd: DeckImportModel[]) {
