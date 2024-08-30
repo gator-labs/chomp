@@ -22,6 +22,7 @@
     "dev:campaign-leaderboard": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/campaign-leaderboard.ts",
     "dev:obj-question": "dotenv -c -- ts-node scripts/CreateObjectiveWithAnswers.ts",
     "dev:philippines-deck": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/philippines-deck.ts",
+    "dev:restore-db": "dotenv -c -- ts-node scripts/restore-database.ts",
     "build-storybook": "storybook build",
     "test": "jest --watch",
     "gh-test": "jest",
