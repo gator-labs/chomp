@@ -204,7 +204,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 className="!rounded-[32px]"
                 onClick={() => {
                   setIsConfirmModalOpen(false);
-                  router.push("/application/profile");
+                  router.push("/application");
                 }}
               >
                 Go home
