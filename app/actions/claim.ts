@@ -165,7 +165,10 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(chompResults: ChompResult[], address: string) {
+async function handleSendBonk(
+  chompResults: ChompResult[],
+  address: string,
+) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -176,10 +179,10 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
 
 
-
+  
   if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
     Sentry.captureMessage(
-      `Wallet balance dropped below threshold Refill here: ${treasuryAddress}, Current Balance: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK.`,
+      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers`,
       {
         level: "fatal",
         tags: {
@@ -189,6 +192,8 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
           treasurySolBalance,
           treasuryBonkBalance,
           Refill: treasuryAddress,
+          Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
+          Solscan: `https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers `,
         },
       },
     );
