@@ -17,7 +17,6 @@ type ProfileProps = {
 export async function Profile({
   showLeaderboardButton = false,
   editAllowed = false,
-  avatarHref = "/application/profile",
   className,
 }: ProfileProps) {
   const user = await getCurrentUser();
@@ -32,27 +31,28 @@ export async function Profile({
         className,
       )}
     >
-      <Link href={avatarHref}>
+      <div>
         <Avatar
           size="extralarge"
           className="border-chomp-purple"
           src={avatarSrc}
         />
-      </Link>
+      </div>
       <div className="flex flex-col font-sora text-white gap-y-4 flex-1">
         <div className="flex items-baseline">
-          <span className="font-light text-sm">{`Welcome back`}</span>
           {username.length > 0 && (
-            <>
-              <span className="font-bold text-sm text-[#A3A3EC] ml-1">
-                {"@" + username}
-              </span>
-              <span className="font-light text-sm">{"!"}</span>
-            </>
+            <span className="font-bold text-sm text-white mr-1">
+              {"@" + username}
+            </span>
           )}
+          <Link href="/application/settings">
+            <span className="font-normal text-sm text-[#A3A3EC]">
+              {"Edit profile"}
+            </span>
+          </Link>
         </div>
         <div className="flex gap-2">
-          <Link href={editAllowed ? "/application/profile/settings" : "#"}>
+          <div>
             <Button
               className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-[#333] !w-fit"
               isPill
@@ -67,8 +67,7 @@ export async function Profile({
                 </div>
               )}
             </Button>
-          </Link>
-
+          </div>
           {showLeaderboardButton && (
             <Link href="/application/profile/leaderboard" className="contents">
               <Button

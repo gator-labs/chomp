@@ -6,6 +6,7 @@ interface Props {
   revealableQuestions: {
     id: number;
     revealTokenAmount: number;
+    question: string;
   }[];
 }
 
