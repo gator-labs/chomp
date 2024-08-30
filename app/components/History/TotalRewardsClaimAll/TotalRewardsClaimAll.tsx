@@ -1,9 +1,11 @@
 "use client";
 import { claimAllAvailable } from "@/app/actions/claim";
+import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import sendToMixpanel from "@/lib/mixpanel";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic } from "react";
 import { Button } from "../../Button/Button";
@@ -26,7 +28,7 @@ export default function TotalRewardsClaimAll({
 
   const onClaimAll = async () => {
     setIsClaiming(true);
-    await promiseToast(
+    const res = await promiseToast(
       claimAllAvailable(),
       {
         loading: "Claim in progress. Please wait...",
@@ -36,6 +38,14 @@ export default function TotalRewardsClaimAll({
       },
       { duration: Infinity },
     );
+
+    sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_REWARD_CLAIMED, {
+      questionIds: res?.questionIds,
+      claimedAmount: res?.claimedAmount,
+      transactionSignature: res?.transactionSignature,
+      questions: res?.questions,
+    });
+
     startTransition(() => {
       claimOptimistic(0);
     });

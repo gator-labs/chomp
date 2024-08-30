@@ -147,7 +147,7 @@ export async function getQuestionsHistoryQuery(
 }
 
 export async function getAllQuestionsReadyForReveal(): Promise<
-  { id: number; revealTokenAmount: number }[]
+  { id: number; revealTokenAmount: number; question: string }[]
 > {
   const payload = await getJwtPayload();
 
@@ -158,11 +158,17 @@ export async function getAllQuestionsReadyForReveal(): Promise<
   const userId = payload.sub;
 
   const questions = await prisma.$queryRawUnsafe<
-    { id: number; revealTokenAmount: number; answerCount: number }[]
+    {
+      id: number;
+      revealTokenAmount: number;
+      answerCount: number;
+      question: string;
+    }[]
   >(
     `
 		SELECT 
     q.id,
+    q.question,
     CASE 
         WHEN cr."transactionStatus" = 'Completed' OR cr."transactionStatus" = 'Pending' THEN 0
         ELSE q."revealTokenAmount"
