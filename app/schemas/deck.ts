@@ -6,22 +6,43 @@ export const deckSchema = z
   .object({
     id: z.number().optional(),
     deck: z.string().min(5),
+    heading: z.string().min(5).optional().nullish(),
+    file: z
+      .custom<File[]>()
+      .optional()
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return files[0].size <= MAX_IMAGE_UPLOAD_SIZE;
+        }
+        return true;
+      }, "Max image size is 1MB.")
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return IMAGE_VALID_TYPES.includes(files[0].type);
+        }
+        return true;
+      }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
     imageUrl: z
       .string()
       .optional()
       .nullable()
       .refine(
-        (val) => {
-          if (!val) return true;
+        (value) => {
+          if (!value) return true;
+
           try {
-            new URL(val);
+            new URL(value);
             return true;
           } catch {
             return false;
           }
         },
-        { message: "Invalid URL" },
+        {
+          message: "Invalid image source",
+        },
       ),
+    description: z.string().min(5).optional().nullish(),
+    footer: z.string().min(5).max(50).optional().nullish(),
     tagIds: z.number().array().default([]),
     campaignId: z.number().optional().nullish(),
     revealToken: z.nativeEnum(Token),
