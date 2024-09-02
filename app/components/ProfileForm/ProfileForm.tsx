@@ -114,7 +114,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           <div
             className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center bottom-[88px] right-[180px] cursor-pointer"
             onClick={async () => {
-              if (profile.profileSrc === previewUrl) return;
+              if (profile.profileSrc === AvatarPlaceholder.src) return;
               setIsImageRemoved(true);
             }}
           >
