@@ -33,8 +33,6 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     watch,
     reset,
     getValues,
-    setValue,
-    trigger,
     formState: { errors, isDirty, isSubmitting, isSubmitSuccessful },
   } = useForm({
     resolver: zodResolver(profileSchemaClient),
@@ -116,9 +114,8 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           <div
             className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center bottom-[88px] right-[180px] cursor-pointer"
             onClick={async () => {
+              if (profile.profileSrc === previewUrl) return;
               setIsImageRemoved(true);
-              setValue("image", [], { shouldDirty: true });
-              await trigger("image");
             }}
           >
             <CloseIcon width={8} height={8} fill="#999999" />
@@ -158,7 +155,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           variant="white"
           type="submit"
           className="flex items-center !rounded-[32px]"
-          disabled={isSubmitting || !isDirty}
+          disabled={isSubmitting || (!isDirty && !isImageRemoved)}
         >
           Save changes
         </Button>
