@@ -112,16 +112,16 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             <div className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center right-3.5 bottom-6">
               <PencilEditIcon width={8} height={8} />
             </div>
-            <div
-              className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center -right-0.5 bottom-[88px]"
-              onClick={async () => {
-                setIsImageRemoved(true);
-                setValue("image", [], { shouldDirty: true });
-                await trigger("image");
-              }}
-            >
-              <CloseIcon width={8} height={8} fill="#999999" />
-            </div>
+          </div>
+          <div
+            className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center bottom-[88px] right-[180px] cursor-pointer"
+            onClick={async () => {
+              setIsImageRemoved(true);
+              setValue("image", [], { shouldDirty: true });
+              await trigger("image");
+            }}
+          >
+            <CloseIcon width={8} height={8} fill="#999999" />
           </div>
         </div>
         <div>
