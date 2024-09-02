@@ -1,6 +1,10 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestions } from "@/app/actions/claim";
-import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
+import {
+  MIX_PANEL_EVENTS,
+  MIX_PANEL_METADATA,
+  REVEAL_TYPE,
+} from "@/app/constants/mixpanel";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -39,6 +43,12 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
 
         setIsClaiming(true);
 
+        sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
+          [MIX_PANEL_METADATA.QUESTION_ID]: [question.id],
+          [MIX_PANEL_METADATA.QUESTION_TEXT]: [question.question],
+          [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+        });
+
         const tx = await CONNECTION.getTransaction(transactionHash, {
           commitment: "confirmed",
           maxSupportedTransactionVersion: 0,
@@ -52,11 +62,13 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           error: "Failed to claim rewards. Please try again.",
         })
           .then((res) => {
-            sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_REWARD_CLAIMED, {
-              questionIds: res?.questionIds,
-              claimedAmount: res?.claimedAmount,
-              transactionSignature: res?.transactionSignature,
-              questions: res?.questions,
+            sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
+              [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
+              [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+              [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]:
+                res?.transactionSignature,
+              [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
+              [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
             });
             queryClient.resetQueries({ queryKey: ["questions-history"] });
             router.push("/application/answer/reveal/" + question.id);
@@ -67,6 +79,11 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
             setIsClaiming(false);
           });
       } catch (error) {
+        sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
+          [MIX_PANEL_METADATA.QUESTION_ID]: [question.id],
+          [MIX_PANEL_METADATA.QUESTION_TEXT]: [question.question],
+          [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+        });
         errorToast("Failed to claim rewards. Please try again.");
       }
     };

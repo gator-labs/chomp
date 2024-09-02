@@ -1,17 +1,11 @@
-import { getJwtPayload } from "@/app/actions/jwt";
+import { v4 } from "uuid";
 
 const sendToMixpanel = async (
   eventName: string,
   eventProperties?: Record<string, any>,
 ) => {
-  const payload = await getJwtPayload();
-  if (!payload) return;
-
-  const userUUID = payload.sub;
-
   const additionalProperties = {
-    distinct_id: userUUID,
-    $user_id: userUUID,
+    distinct_id: v4(),
     $browser: navigator.userAgent,
     $current_url: window.location.href,
     $device_id: navigator.userAgent,
