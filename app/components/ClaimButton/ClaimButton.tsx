@@ -1,10 +1,12 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { CONNECTION } from "@/app/utils/solana";
+import sendToMixpanel from "@/lib/mixpanel";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import { Button } from "../Button/Button";
@@ -52,7 +54,13 @@ const ClaimButton = ({
         success: "You have successfully claimed your rewards!",
         error: "Failed to claim rewards. Please try again.",
       })
-        .then(() => {
+        .then((res) => {
+          sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_REWARD_CLAIMED, {
+            questionIds: res?.questionIds,
+            claimedAmount: res?.claimedAmount,
+            transactionSignature: res?.transactionSignature,
+            questions: res?.questions,
+          });
           queryClient.resetQueries({ queryKey: ["questions-history"] });
           fire();
         })

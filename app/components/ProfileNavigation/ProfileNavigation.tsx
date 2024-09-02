@@ -13,7 +13,7 @@ const ProfileNavigation = () => {
       {PROFILE_LINKS.map(({ href, label }) => (
         <li
           className={cn("rounded-[32px] text-[#999999]", {
-            "bg-white text-[#0D0D0D] font-semibold": pathname.includes(href),
+            "bg-white text-[#0D0D0D] font-semibold": pathname === href,
           })}
           key={href}
         >
