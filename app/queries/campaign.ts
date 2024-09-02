@@ -6,6 +6,7 @@ export async function getCampaigns() {
   return prisma.campaign.findMany({
     where: {
       isVisible: true,
+      isActive: true,
     },
     orderBy: [{ name: "asc" }],
   });
