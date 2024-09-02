@@ -16,6 +16,7 @@ export async function getCampaign(id: number) {
     where: {
       id,
       isVisible: true,
+      isActive: true,
     },
     include: {
       deck: true,
