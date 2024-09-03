@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  IMAGE_ACTION,
   IMAGE_VALID_TYPES,
   MAX_IMAGE_UPLOAD_SIZE,
 } from "../../constants/images";
@@ -20,17 +21,17 @@ export const imageSchemaServerOptional = z
   .any()
   .optional()
   .refine((file) => {
-    if (file === "undefined") return true;
+    if (file === "undefined" || file === IMAGE_ACTION.REMOVE_IMAGE) return true;
 
     return file.size !== 0;
   }, "File is required.")
   .refine((file) => {
-    if (file === "undefined") return true;
+    if (file === "undefined" || file === IMAGE_ACTION.REMOVE_IMAGE) return true;
 
     return IMAGE_VALID_TYPES.includes(file?.type);
   }, "Invalid file. Choose either JPEG or PNG image.")
   .refine((file) => {
-    if (file === "undefined") return true;
+    if (file === "undefined" || file === IMAGE_ACTION.REMOVE_IMAGE) return true;
 
     return file?.size <= MAX_IMAGE_UPLOAD_SIZE;
   }, "Max file size allowed is 1MB.");
@@ -52,7 +53,7 @@ export const imageSchemaClientOptional = z
   .optional()
   .refine(
     (file) => {
-      if (file === undefined || file.length === 0) {
+      if (file === undefined || file === null || file.length === 0) {
         return true;
       }
       return file.length === 1;
@@ -61,7 +62,7 @@ export const imageSchemaClientOptional = z
   )
   .refine(
     (file) => {
-      if (file === undefined || file.length === 0) {
+      if (file === undefined || file === null || file.length === 0) {
         return true;
       }
       return IMAGE_VALID_TYPES.includes(file[0]?.type);
@@ -70,7 +71,7 @@ export const imageSchemaClientOptional = z
   )
   .refine(
     (file) => {
-      if (file === undefined || file.length === 0) {
+      if (file === undefined || file === null || file.length === 0) {
         return true;
       }
       return file[0]?.size <= MAX_IMAGE_UPLOAD_SIZE;

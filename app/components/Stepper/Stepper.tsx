@@ -1,3 +1,4 @@
+import { cn } from "@/app/utils/tailwind";
 import classNames from "classnames";
 
 interface Props {
@@ -14,7 +15,7 @@ const Stepper = ({
   className,
 }: Props) => {
   return (
-    <ul className={classNames("py-10 flex gap-2 w-full px-1 pb-0", className)}>
+    <ul className={cn("py-10 flex gap-2 w-full px-1 pb-0", className)}>
       {new Array(numberOfSteps).fill(null).map((_, index) => (
         <li
           key={index}

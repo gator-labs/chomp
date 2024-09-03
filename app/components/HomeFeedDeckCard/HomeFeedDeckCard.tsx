@@ -10,7 +10,7 @@ type StatusUnion = "chomped" | "new" | "continue";
 type HomeFeedDeckCardProps = {
   deck: string;
   imageUrl?: string | null;
-  revealAtDate?: Date;
+  revealAtDate?: Date | null;
   answerCount?: number;
   revealAtAnswerCount?: number;
   status?: StatusUnion;

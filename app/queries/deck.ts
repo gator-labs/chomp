@@ -181,6 +181,15 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     questions,
     id: deck.id,
     date: deck.date,
+    numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
+      dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
+    ).length,
+    deckInfo: {
+      heading: deck.heading || deck.deck,
+      description: deck.description,
+      imageUrl: deck.imageUrl,
+      footer: deck.footer,
+    },
   };
 }
 
