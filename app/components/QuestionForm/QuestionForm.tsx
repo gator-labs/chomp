@@ -90,7 +90,7 @@ export default function QuestionForm({
       <div className="mb-3">
         <label className="block mb-1">Type</label>
         <select
-          className="text-black"
+          className="text-grey-850"
           {...register("type", {
             onChange: (e) => {
               setValue("questionOptions", getDefaultOptions(e.target.value));
@@ -146,7 +146,7 @@ export default function QuestionForm({
 
       <div className="mb-3">
         <label className="block mb-1">Reveal token</label>
-        <select className="text-black" {...register("revealToken")}>
+        <select className="text-grey-850" {...register("revealToken")}>
           {Object.values(Token).map((token) => (
             <option value={token} key={token}>
               {token}

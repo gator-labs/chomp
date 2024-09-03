@@ -13,10 +13,10 @@ export function Tag({ onSelected, tag, isSelected, className }: TagProps) {
       className={classNames(
         "font-sora font-normal text-sm border-[0.5px] rounded-md border-gray px-4 py-2",
         {
-          "text-btn-text-primary": isSelected,
-          "bg-[#e6e6e6]": isSelected,
-          "text-search-gray": !isSelected,
-          "bg-black": !isSelected,
+          "text-grey-950": isSelected,
+          "bg-grey-100": isSelected,
+          "text-grey-700": !isSelected,
+          "bg-grey-850": !isSelected,
         },
         className,
       )}

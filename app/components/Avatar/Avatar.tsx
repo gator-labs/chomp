@@ -43,7 +43,7 @@ export function Avatar({ src, size, className, style }: AvatarProps) {
       width={resolveDimensions()}
       height={resolveDimensions()}
       className={classNames(
-        "rounded-full border-2 border-white object-cover object-center",
+        "rounded-full border-2 border-grey-0 object-cover object-center",
         className,
       )}
       style={{

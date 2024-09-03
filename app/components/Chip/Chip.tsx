@@ -10,10 +10,9 @@ const Chip = ({ label, onClick, isActive }: Props) => {
   return (
     <li
       className={cn(
-        "h-[29px] bg-[#1B1B1B] px-4 flex items-center justify-center rounded-[4px] text-[#4D4D4D] text-nowrap text-xs cursor-pointer",
+        "h-[29px] bg-grey-850 px-4 flex items-center justify-center rounded-[4px] text-grey-700 text-nowrap text-xs cursor-pointer",
         {
-          "bg-[#E6E6E6] text-[#0D0D0D] border-[0.5px] border-[#999999]":
-            isActive,
+          "bg-grey-100 text-grey-950 border-[0.5px] border-grey-400": isActive,
         },
       )}
       onClick={onClick}

@@ -21,7 +21,7 @@ const TutorialPage = async () => {
       <div className="flex flex-col h-full relative">
         <AuthRedirect />
 
-        <div className="absolute top-0 left-0 w-full h-full bg-black opacity-85" />
+        <div className="absolute top-0 left-0 w-full h-full bg-grey-850 opacity-85" />
 
         <main
           id="tutorial-container"

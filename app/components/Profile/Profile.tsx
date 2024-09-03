@@ -27,26 +27,26 @@ export async function Profile({
   return (
     <div
       className={cn(
-        "flex items-center py-4 rounded-2xl bg-[#0D0D0D] gap-4",
+        "flex items-center py-4 rounded-2xl bg-grey-950 gap-4",
         className,
       )}
     >
       <div>
         <Avatar
           size="extralarge"
-          className="border-chomp-purple"
+          className="border-purple-500"
           src={avatarSrc}
         />
       </div>
-      <div className="flex flex-col font-sora text-white gap-y-4 flex-1">
+      <div className="flex flex-col font-sora text-grey-0 gap-y-4 flex-1">
         <div className="flex items-baseline">
           {username.length > 0 && (
-            <span className="font-bold text-sm text-white mr-1">
+            <span className="font-bold text-sm text-grey-0 mr-1">
               {"@" + username}
             </span>
           )}
           <Link href="/application/settings">
-            <span className="font-normal text-sm text-[#A3A3EC]">
+            <span className="font-normal text-sm text-purple-500">
               {"Edit profile"}
             </span>
           </Link>
@@ -54,7 +54,7 @@ export async function Profile({
         <div className="flex gap-2">
           <div>
             <Button
-              className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-[#333] !w-fit"
+              className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-grey-800 !w-fit"
               isPill
               size="small"
             >

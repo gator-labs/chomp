@@ -38,7 +38,7 @@ export function SeeFeedQuestionCard({
       onTopCornerAction={handleSeeAnswer}
       action={
         <Button onClick={handleSeeAnswer} variant="grayish">
-          <div className="flex justify-center gap-1 items-center text-white">
+          <div className="flex justify-center gap-1 items-center text-grey-0">
             <div>See Answer</div>
           </div>
         </Button>

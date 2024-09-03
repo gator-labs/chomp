@@ -21,7 +21,7 @@ export default function BestAnswerMultipleChoice({
         </div>
         <MultipleChoiceResult
           text={
-            <div className="text-sm font-sora font-light text-white">
+            <div className="text-sm font-sora font-light text-grey-0">
               {optionLabel}
             </div>
           }

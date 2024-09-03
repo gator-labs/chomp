@@ -42,7 +42,7 @@ export function HomeFeedDeckCard({
   return (
     <a
       href={`application/decks/${deckId}`}
-      className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
+      className="bg-grey-800 border-grey-600 rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
       <div className="w-[90px] h-[90px] flex-shrink-0 relative">
         {imageUrl ? (
@@ -62,7 +62,7 @@ export function HomeFeedDeckCard({
         )}
       </div>
       <div className="flex flex-col justify-between w-full">
-        <div className="text-white font-sora font-semibold text-base">
+        <div className="text-grey-0 font-sora font-semibold text-base">
           {deck}
         </div>
         <div className="flex items-center justify-between -ml-1">

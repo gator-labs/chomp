@@ -58,7 +58,7 @@ export function HomeFeedRevealedQuestionsSection({
       statusLabel={
         <button
           onClick={() => handleView(q)}
-          className="text-xs leading-6 text-white font-bold cursor-pointer"
+          className="text-xs leading-6 text-grey-0 font-bold cursor-pointer"
         >
           Reveal
         </button>
@@ -79,7 +79,7 @@ export function HomeFeedRevealedQuestionsSection({
     <HomeFeedCardCarousel
       className="mt-6 mb-2"
       title={
-        <span className="text-base text-white">
+        <span className="text-base text-grey-0">
           Reveal answers to more Chomps
         </span>
       }

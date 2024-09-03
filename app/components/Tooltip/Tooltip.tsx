@@ -54,7 +54,7 @@ const Tooltip = ({
         style={style}
       >
         <p
-          className={classNames("text-sm text-white", {
+          className={classNames("text-sm text-grey-0", {
             "text-start": position.includes("start"),
             "text-center":
               !position.includes("start") && !position.includes("end"),

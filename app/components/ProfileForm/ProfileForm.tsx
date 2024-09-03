@@ -93,7 +93,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   return (
     <form className="pt-4" onSubmit={onSubmit}>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-center bg-[#A3A3EC] h-[112px] rounded-lg p-1 relative">
+        <div className="flex justify-center bg-purple-500 h-[112px] rounded-lg p-1 relative">
           <div className="absolute inset-0 z-0 rounded-lg w-full h-full [&>*]:w-full overflow-hidden">
             <ChompBackgroundProfileIcon width={358} height={112} />
           </div>
@@ -107,12 +107,12 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               className="opacity-0 w-full h-full absolute top-0 left-0 cursor-pointer z-50"
               {...register("image")}
             />
-            <div className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center right-3.5 bottom-6">
+            <div className="absolute w-4 h-4 bg-grey-0 rounded-full flex items-center justify-center right-3.5 bottom-6">
               <PencilEditIcon width={8} height={8} />
             </div>
           </div>
           <div
-            className="absolute w-4 h-4 bg-white rounded-full flex items-center justify-center bottom-[88px] right-[180px] cursor-pointer"
+            className="absolute w-4 h-4 bg-grey-0 rounded-full flex items-center justify-center bottom-[88px] right-[180px] cursor-pointer"
             onClick={async () => {
               if (profile.profileSrc === AvatarPlaceholder.src) return;
               setIsImageRemoved(true);
@@ -122,7 +122,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
         </div>
         <div>
-          <div className="text-white font-sora text-sm font-normal mb-2">
+          <div className="text-grey-0 font-sora text-sm font-normal mb-2">
             Name
           </div>
           <div className="flex gap-2">
@@ -141,7 +141,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
         </div>
         <div>
-          <div className="text-white font-sora text-sm font-normal mb-2">
+          <div className="text-grey-0 font-sora text-sm font-normal mb-2">
             Username
           </div>
           <TextInput
@@ -175,7 +175,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         closeIconWidth={16}
       >
         <div className="p-6 rounded-3xl">
-          <div className="font-sora text-base font-bold text-[#CFC5F7] mb-6">
+          <div className="font-sora text-base font-bold text-pink mb-6">
             You have unsaved changes
           </div>
           <div className="flex flex-col gap-6">

@@ -80,12 +80,12 @@ const RewardShow = ({
 
   if (rewardAmount > 0) {
     return (
-      <div className="flex bg-[#333333] p-4 rounded-lg justify-between">
+      <div className="flex bg-grey-800 p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold leading-[27px] text-left">
             {rewardAmount === 5000 ? "Well done!" : "Congrats, you won!"}
           </span>
-          <div className="h-[1px] w-full bg-[#666666]" />
+          <div className="h-[1px] w-full bg-grey-600" />
           <div className="flex items-center gap-1 justify-between">
             <p className="text-[13px] font-normal leading-[17.55px] text-left">
               Claim reward:
@@ -115,12 +115,12 @@ const RewardShow = ({
   }
 
   return (
-    <div className="p-4 flex bg-[#333333] rounded-md justify-between">
+    <div className="p-4 flex bg-grey-800 rounded-md justify-between">
       <div className="flex flex-col gap-4 w-max justify-between">
         <span className="text-xl font-bold leading-[27px] text-left">
           Better luck next time!
         </span>
-        <div className="h-[1px] w-full bg-[#666666]" />
+        <div className="h-[1px] w-full bg-grey-600" />
         <div className="flex items-center gap-1 justify-start">
           <p className="text-[13px] font-normal leading-[17.55px] text-left">
             Claim reward:

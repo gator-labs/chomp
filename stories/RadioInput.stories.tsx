@@ -20,7 +20,7 @@ const meta = {
     name: "Radio",
   },
   decorators: (Story) => (
-    <div className="bg-[#333] p-6">
+    <div className="bg-grey-800 p-6">
       <Story />
     </div>
   ),

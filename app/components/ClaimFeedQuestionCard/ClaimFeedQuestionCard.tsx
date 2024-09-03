@@ -40,7 +40,7 @@ export function ClaimFeedQuestionCard({
       onTopCornerAction={handleClaim}
       action={
         <Button onClick={handleClaim} variant="grayish">
-          <div className="flex justify-center gap-1 items-center text-white">
+          <div className="flex justify-center gap-1 items-center text-grey-0">
             <div>Claim</div>
             <MoneyIcon />
           </div>

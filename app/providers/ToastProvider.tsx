@@ -79,7 +79,7 @@ const toastLayout = (
       <div className="flex flex-col">
         <h4 className="text-sm font-bold text-left">{message}</h4>
         {description && (
-          <p className="text-xs text-left text-[#999]">{description}</p>
+          <p className="text-xs text-left text-grey-400">{description}</p>
         )}
       </div>
     </div>
@@ -110,7 +110,7 @@ const loadingToastLayout = (message: string, description?: string) => (
       <div className="flex flex-col">
         <h4 className="text-sm font-bold text-left">{message}</h4>
         {description && (
-          <p className="text-xs text-left text-[#999]">{description}</p>
+          <p className="text-xs text-left text-grey-400">{description}</p>
         )}
       </div>
     </div>

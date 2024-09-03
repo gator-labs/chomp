@@ -8,15 +8,15 @@ const meta = {
   parameters: {
     layout: "centered",
     controls: {
-        exclude: ["children"]
-    }
+      exclude: ["children"],
+    },
   },
   args: {
     children: <InfoIcon height={24} width={24} fill="#fff" />,
   },
   tags: ["autodocs"],
   decorators: (Story) => (
-    <div className="bg-black">
+    <div className="bg-grey-850">
       <Story />
     </div>
   ),

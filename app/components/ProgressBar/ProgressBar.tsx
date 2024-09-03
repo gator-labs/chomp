@@ -47,7 +47,7 @@ export function ProgressBar({
     <div
       ref={wrapperRef}
       className={classNames(
-        "relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-10",
+        "relative rounded-full h-3.5 bg-grey-700 w-full overflow-hidden z-10",
         className,
       )}
       style={{ backgroundColor: bgColor }}
@@ -79,10 +79,13 @@ export function ProgressBar({
         )}
       </div>
       <div
-        className={classNames("h-full bg-purple absolute top-0 l-0 w-full", {
-          "transition-width delay-[2s] duration-[4s] ease-in-out w-0":
-            percentage === undefined,
-        })}
+        className={classNames(
+          "h-full bg-purple-500 absolute top-0 l-0 w-full",
+          {
+            "transition-width delay-[2s] duration-[4s] ease-in-out w-0":
+              percentage === undefined,
+          },
+        )}
         style={{
           width: percentageCapped ? `${percentageCapped}%` : 0,
           backgroundColor: progressColor,

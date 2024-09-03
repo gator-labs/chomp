@@ -21,7 +21,7 @@ export function TransactionRow({
   transactionType,
 }: TransactionRowProps) {
   return (
-    <div className="font-sora text-sm text-white my-4">
+    <div className="font-sora text-sm text-grey-0 my-4">
       <div className="flex justify-between gap-x-2 mb-4">
         <div>
           {numberToCurrencyFormatter.format(amount)} {amountLabel}

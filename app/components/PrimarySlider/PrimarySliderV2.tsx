@@ -62,7 +62,7 @@ const PrimarySliderV2 = ({
         >
           <Slider.Range
             className={classNames(
-              "rounded-l-lg h-[2px] mx-auto w-full bg-[#FFFFFF] bg-opacity-50",
+              "rounded-l-lg h-[2px] mx-auto w-full bg-grey-0 bg-opacity-50",
               rangeClassName,
             )}
             style={{
@@ -74,7 +74,7 @@ const PrimarySliderV2 = ({
           <Slider.Thumb
             onPointerDown={activateSlider}
             onTouchStart={activateSlider}
-            className="block w-[30px] h-[19px] bg-white rounded-2xl focus:outline-none px-[2px] cursor-pointer p-[2px] shadow-[0px_4px_4px_0px_#00000040]"
+            className="block w-[30px] h-[19px] bg-grey-0 rounded-2xl focus:outline-none px-[2px] cursor-pointer p-[2px] shadow-[0px_4px_4px_0px_#00000040]"
             aria-label="Volume"
           >
             <div

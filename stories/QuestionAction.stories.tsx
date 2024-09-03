@@ -16,7 +16,7 @@ const meta = {
     onButtonClick: fn(),
   },
   decorators: (Story) => (
-    <div className="bg-black w-96 p-5">
+    <div className="bg-grey-850 w-96 p-5">
       <Story />
     </div>
   ),

@@ -22,7 +22,7 @@ const PreviewDeckCard = ({
   return (
     <div
       className={cn(
-        "w-full py-6 px-4 bg-[#333333] rounded-lg relative h-full flex flex-col justify-between",
+        "w-full py-6 px-4 bg-grey-800 rounded-lg relative h-full flex flex-col justify-between",
         className,
       )}
     >

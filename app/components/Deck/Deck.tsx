@@ -297,10 +297,10 @@ export function Deck({
         closeIconWidth={16}
       >
         <div className="p-6 pt-2 flex flex-col gap-6">
-          <p className="text-base text-purple font-bold">
+          <p className="text-base text-purple-500 font-bold">
             Are you still there?
           </p>
-          <p className="text-sm text-white">
+          <p className="text-sm text-grey-0">
             Your time&apos;s up! To prevent you from missing out on the next
             question, click proceed to continue.
           </p>

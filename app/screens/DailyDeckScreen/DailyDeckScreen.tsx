@@ -61,7 +61,7 @@ const DailyDeckScreen = ({
           </div>
         </main>
         <Disabled
-          className="after:opacity-90 after:bg-[#1B1B1B]"
+          className="after:opacity-90 after:bg-grey-850"
           disabled={!!questions?.length}
           toastMessage="Please complete this Daily Deck first ✨"
         >
