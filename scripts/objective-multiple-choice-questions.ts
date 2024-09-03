@@ -23,7 +23,7 @@ async function main() {
     data: {
       deck: `${tag}: Deck ${format(currentDate, "MM/dd/yyyy")}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      isActive: true,
+      activeFromDate: new Date(),
       deckQuestions: {
         create: {
           question: {
@@ -87,14 +87,12 @@ async function main() {
     },
   });
 
-  let secondOrderOptionIndex = 0;
-
   console.log(questionOptions);
-  for (const user of users) {
+  await Promise.all(users.map(async (user) => {
     const selectedOption = questionOptions[Math.floor(Math.random() * 4)];
-    const secondOrderOption = questionOptions[secondOrderOptionIndex];
+    const secondOrderOption = questionOptions[Math.floor(Math.random() * 4)];
 
-    for (const option of questionOptions) {
+    await Promise.all(questionOptions.map(async (option) => {
       const isSelectedOption = option.id === selectedOption.id;
       const percentage =
         secondOrderOption.id === option.id
@@ -110,10 +108,8 @@ async function main() {
           timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
         },
       });
-    }
-    secondOrderOptionIndex =
-      secondOrderOptionIndex === 3 ? 0 : secondOrderOptionIndex + 1;
-  }
+    }));
+  }));
 }
 
 main()

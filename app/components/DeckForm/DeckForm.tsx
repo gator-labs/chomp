@@ -35,7 +35,7 @@ export default function DeckForm({
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isDirty, isSubmitSuccessful },
+    formState: { errors, isSubmitting, isSubmitSuccessful },
     watch,
     setValue,
     control,
@@ -61,10 +61,14 @@ export default function DeckForm({
     deck?.campaignId || undefined,
   );
 
+  const file = watch("file")?.[0];
+  const deckImage = watch("imageUrl");
+  const deckPreviewUrl = !!file ? URL.createObjectURL(file!) : deckImage;
+
   const onSubmit = handleSubmit(async (data) => {
     const questions = await Promise.all(
       data.questions.map(async (question) => {
-        let imageUrl = question.imageUrl;
+        let imageUrl = question.imageUrl || "";
 
         if (question.file?.[0]) {
           imageUrl = await uploadImageToS3Bucket(question.file[0]);
@@ -78,13 +82,24 @@ export default function DeckForm({
       }),
     );
 
+    let imageUrl = deckPreviewUrl || "";
+
+    if (data.file?.[0]) {
+      imageUrl = await uploadImageToS3Bucket(data.file[0]);
+    }
+
+    console.log({ imageUrl });
+
     const result = await action({
       ...data,
       questions,
       tagIds: selectedTagIds,
       campaignId: selectedCampaignId,
       id: deck?.id,
+      imageUrl,
+      file: undefined,
     });
+
     if (result?.errorMessage) {
       errorToast("Failed to save deck", result.errorMessage);
     }
@@ -117,6 +132,69 @@ export default function DeckForm({
         <label className="block mb-1">Deck title</label>
         <TextInput variant="secondary" {...register("deck")} />
         <div className="text-red">{errors.deck?.message}</div>
+      </div>
+      <div className="my-10">
+        <h3 className="text-xl mb-3 font-bold">
+          Deck Info (DO NOT USE IN PRODUCTION)
+        </h3>
+        <div className="mb-3">
+          <label className="block mb-1">Heading (optional)</label>
+          <TextInput variant="secondary" {...register("heading")} />
+          <div className="text-red">{errors.heading?.message}</div>
+        </div>
+        <div className="mb-3">
+          <label className="block mb-1">Image URL (optional)</label>
+          {!!deckPreviewUrl && (
+            <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg">
+              <Image
+                fill
+                alt="preview-image-campaign"
+                src={deckPreviewUrl}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2 mt-2">
+            {!!deckPreviewUrl && (
+              <Button
+                type="button"
+                onClick={() => {
+                  setValue("file", []);
+                  setValue("imageUrl", undefined);
+                }}
+                variant="warning"
+                className="!w-fit !h-[30px]"
+              >
+                Remove
+              </Button>
+            )}
+            <input
+              type="file"
+              accept="image/png, image/jpeg, image/webp"
+              {...register("file")}
+            />
+            <div className="text-red">
+              {errors.questions && errors.file?.message}
+            </div>{" "}
+          </div>
+        </div>
+        <div className="mb-3">
+          <label className="block mb-1">Description (optional)</label>
+          <textarea
+            className="border-[1px] py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray border-gray min-h-20"
+            {...register("description")}
+          />
+          <div className="text-red">{errors.description?.message}</div>
+        </div>
+        <div className="mb-3">
+          <label className="block mb-1">Footer (optional)</label>
+          <textarea
+            className="border-[1px] py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray border-gray min-h-20"
+            {...register("footer")}
+          />{" "}
+          <div className="text-red">{errors.footer?.message}</div>
+        </div>
       </div>
       <div className="mb-3">
         {fields.map((_, questionIndex) => {
@@ -435,7 +513,7 @@ export default function DeckForm({
       <Button
         variant="primary"
         type="submit"
-        disabled={isSubmitting || !isDirty || isSubmitSuccessful}
+        disabled={isSubmitting || isSubmitSuccessful}
       >
         {isSubmitting ? "Submitting" : "Submit"}
       </Button>{" "}

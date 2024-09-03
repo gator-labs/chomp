@@ -59,6 +59,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
           0,
         ),
         questionIds: revealableQuestions.map((q) => q.question.id),
+        questions: revealableQuestions.map((q) => q.question.question),
       }),
     [],
   );

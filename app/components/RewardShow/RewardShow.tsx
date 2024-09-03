@@ -1,9 +1,15 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
+import {
+  MIX_PANEL_EVENTS,
+  MIX_PANEL_METADATA,
+  REVEAL_TYPE,
+} from "@/app/constants/mixpanel";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import sendToMixpanel from "@/lib/mixpanel";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import BulkIcon from "../Icons/BulkIcon";
@@ -16,9 +22,15 @@ interface RewardShowProps {
   rewardAmount: number;
   questionIds: number[];
   status: "claimable" | "claimed";
+  questions: string[];
 }
 
-const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
+const RewardShow = ({
+  rewardAmount,
+  questionIds,
+  status,
+  questions,
+}: RewardShowProps) => {
   const { isClaiming, setIsClaiming } = useClaiming();
   const queryClient = useQueryClient();
 
@@ -26,22 +38,44 @@ const RewardShow = ({ rewardAmount, questionIds, status }: RewardShowProps) => {
   const { promiseToast } = useToast();
 
   const onClaim = async () => {
-    if (isClaiming) return;
+    try {
+      if (isClaiming) return;
 
-    setIsClaiming(true);
+      setIsClaiming(true);
 
-    promiseToast(claimQuestions(questionIds), {
-      loading: "Claiming your rewards...",
-      success: "You have successfully claimed your rewards!",
-      error: "Failed to claim rewards. Please try again.",
-    })
-      .then(() => {
-        queryClient.resetQueries({ queryKey: ["questions-history"] });
-        fire();
-      })
-      .finally(() => {
-        setIsClaiming(false);
+      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
+        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
+
+      promiseToast(claimQuestions(questionIds), {
+        loading: "Claiming your rewards...",
+        success: "You have successfully claimed your rewards!",
+        error: "Failed to claim rewards. Please try again.",
+      })
+        .then((res) => {
+          sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
+            [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
+            [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+            [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]:
+              res?.transactionSignature,
+            [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
+            [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+          });
+          queryClient.resetQueries({ queryKey: ["questions-history"] });
+          fire();
+        })
+        .finally(() => {
+          setIsClaiming(false);
+        });
+    } catch (error) {
+      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
+        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+      });
+    }
   };
 
   if (rewardAmount > 0) {

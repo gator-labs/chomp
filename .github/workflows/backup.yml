@@ -1,0 +1,46 @@
+name: Database Backup and Upload
+
+on:
+  pull_request:
+    branches:
+      - prod
+  schedule:
+    - cron: "33 8,20 * * *" # Run at 8:33 AM and 8:33 PM UTC every day
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  backup-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt install -y postgresql-common
+          yes '' | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+          sudo apt-get install -y postgresql-client-16
+
+      - name: Set Timestamp
+        run: echo "TIMESTAMP=$(date -u +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+
+      - name: Dump database
+        run: |
+          /usr/lib/postgresql/16/bin/pg_dump ${{ secrets.DATABASE_PRISMA_URL_PROD }} | gzip > "${TIMESTAMP}.sql.gz"
+
+      - name: Configure AWS credentials from Action OIDC
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-north-1
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: GitHubActionSession
+
+      - name: Upload backup to S3
+        run: |
+          YEAR_MONTH=$(date -u +"%Y/%m")
+          aws s3 cp "${TIMESTAMP}.sql.gz" s3://backup.chomp.prod/${YEAR_MONTH}/

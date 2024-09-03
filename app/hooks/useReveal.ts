@@ -1,3 +1,4 @@
+import sendToMixpanel from "@/lib/mixpanel";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
@@ -14,6 +15,7 @@ import {
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
+import { MIX_PANEL_EVENTS } from "../constants/mixpanel";
 import { useToast } from "../providers/ToastProvider";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
@@ -36,11 +38,13 @@ interface RevealCallbackBaseProps {
 interface RevealCallbackMultipleQuestions extends RevealCallbackBaseProps {
   questionIds: number[];
   questionId?: never;
+  questions: string[];
 }
 
 interface RevealCallbackSingleQuestion extends RevealCallbackBaseProps {
   questionId: number;
   questionIds?: never;
+  questions: string[];
 }
 
 export interface RevealProps {
@@ -59,6 +63,7 @@ type RevealState = {
   amount: number;
   reveal: ({ burnTx, nftAddress, nftType }: RevealProps) => Promise<void>;
   questionIds: number[];
+  questions: string[];
   genesisNft?: string;
 };
 
@@ -157,12 +162,19 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal, address, reveal?.questionIds]);
 
   const onSetReveal = useCallback(
-    ({ amount, questionId, questionIds, reveal }: RevealCallbackProps) => {
+    ({
+      amount,
+      questionId,
+      questionIds,
+      reveal,
+      questions,
+    }: RevealCallbackProps) => {
       setBurnState(INITIAL_BURN_STATE);
       setReveal({
         reveal,
         amount,
         questionIds: questionIds ?? [questionId],
+        questions,
       });
       setIsRevealModalOpen(true);
     },
@@ -265,6 +277,15 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           nftType: revealNft!.type,
         });
       }
+
+      sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWER_REVEALED, {
+        questionsIds: revealQuestionIds,
+        transactionSignature: signature,
+        nftAddress: revealNft?.id,
+        nftType: revealNft?.type,
+        burnedAmount: reveal?.amount,
+        questions: reveal?.questions,
+      });
 
       if (revealNft && !isMultiple) {
         setRevealNft(undefined);
