@@ -68,7 +68,7 @@ export function QuestionCard({
         src={gatorHeadImage}
         alt="gator-head"
         className="absolute bottom-0 left-0 w-full"
-        style={{ zIndex: 1 }} // Ensure the image has a proper z-index
+        style={{ zIndex: 1 }}
       />
       <p
         className={classNames(

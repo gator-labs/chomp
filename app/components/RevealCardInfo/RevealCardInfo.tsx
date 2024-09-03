@@ -2,7 +2,7 @@ import { getRevealedAtString } from "@/app/utils/dateUtils";
 import { ClockIcon } from "../Icons/ClockIcon";
 
 type RevealCardInfoProps = {
-  revealAtDate?: Date;
+  revealAtDate?: Date | null;
   answerCount?: number;
   revealAtAnswerCount?: number;
 };

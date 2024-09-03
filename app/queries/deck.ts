@@ -174,19 +174,21 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
 
   const questions = mapQuestionFromDeck(dailyDeck);
 
-  if (
-    !questions.filter(
-      (q) =>
-        // (!!q.createdAt && isWithinOneMinute(q.createdAt)) ||
-        q.status === undefined,
-    ).length
-  )
-    return null;
+  if (!questions.filter((q) => q.status === undefined).length) return null;
 
   return {
     questions,
     id: dailyDeck.id,
     date: dailyDeck.date,
+    numberOfUserAnswers: dailyDeck.deckQuestions.flatMap((dq) =>
+      dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
+    ).length,
+    deckInfo: {
+      heading: dailyDeck.heading || dailyDeck.deck,
+      description: dailyDeck.description,
+      imageUrl: dailyDeck.imageUrl,
+      footer: dailyDeck.footer,
+    },
   };
 }
 

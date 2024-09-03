@@ -7,6 +7,8 @@ import prisma from "../services/prisma";
 import s3Client from "../services/s3Client";
 import { uploadImageToS3Bucket, validateBucketImage } from "../utils/file";
 import { getJwtPayload } from "./jwt";
+import { IMAGE_ACTION } from '../constants/images';
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 
 export async function updateProfile(formData: FormData) {
   const payload = await getJwtPayload();
@@ -43,7 +45,7 @@ export async function updateProfile(formData: FormData) {
 
   let imageUrl = user!.profileSrc;
 
-  if (result.data.image !== "undefined") {
+  if (result.data.image !== "undefined" && result.data.image !== IMAGE_ACTION.REMOVE_IMAGE) {
     imageUrl = await uploadImageToS3Bucket(result.data.image);
 
     const isBucketImageValid = await validateBucketImage(
@@ -61,6 +63,10 @@ export async function updateProfile(formData: FormData) {
 
       await s3Client.send(deleteObject);
     }
+  }
+
+  if(result.data.image === IMAGE_ACTION.REMOVE_IMAGE) {
+    imageUrl = AvatarPlaceholder.src;
   }
 
   await prisma.user.update({
