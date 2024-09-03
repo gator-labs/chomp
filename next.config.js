@@ -10,6 +10,7 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
+  experimental: { serverComponentsExternalPackages: ["@aws-sdk"] },
   images: {
     remotePatterns: [
       {
