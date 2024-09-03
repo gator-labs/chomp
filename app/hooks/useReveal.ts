@@ -1,3 +1,4 @@
+import sendToMixpanel from "@/lib/mixpanel";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
@@ -14,6 +15,12 @@ import {
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
+import {
+  MIX_PANEL_EVENTS,
+  MIX_PANEL_METADATA,
+  REVEAL_DIALOG_TYPE,
+  REVEAL_TYPE,
+} from "../constants/mixpanel";
 import { useToast } from "../providers/ToastProvider";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
@@ -36,11 +43,13 @@ interface RevealCallbackBaseProps {
 interface RevealCallbackMultipleQuestions extends RevealCallbackBaseProps {
   questionIds: number[];
   questionId?: never;
+  questions: string[];
 }
 
 interface RevealCallbackSingleQuestion extends RevealCallbackBaseProps {
   questionId: number;
   questionIds?: never;
+  questions: string[];
 }
 
 export interface RevealProps {
@@ -59,6 +68,7 @@ type RevealState = {
   amount: number;
   reveal: ({ burnTx, nftAddress, nftType }: RevealProps) => Promise<void>;
   questionIds: number[];
+  questions: string[];
   genesisNft?: string;
 };
 
@@ -137,6 +147,17 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       } catch (error) {
         console.error(error);
       } finally {
+        sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_LOADED, {
+          [MIX_PANEL_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
+            ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
+            : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
+          [MIX_PANEL_METADATA.QUESTION_ID]: reveal.questionIds,
+          [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal.questions,
+          [MIX_PANEL_METADATA.REVEAL_TYPE]:
+            reveal.questionIds.length > 1
+              ? REVEAL_TYPE.ALL
+              : REVEAL_TYPE.SINGLE,
+        });
         setIsLoading(false);
       }
     }
@@ -157,14 +178,29 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal, address, reveal?.questionIds]);
 
   const onSetReveal = useCallback(
-    ({ amount, questionId, questionIds, reveal }: RevealCallbackProps) => {
+    ({
+      amount,
+      questionId,
+      questionIds,
+      reveal,
+      questions,
+    }: RevealCallbackProps) => {
       setBurnState(INITIAL_BURN_STATE);
       setReveal({
         reveal,
         amount,
         questionIds: questionIds ?? [questionId],
+        questions,
       });
       setIsRevealModalOpen(true);
+      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_OPENED, {
+        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          (questionIds ?? [questionId])?.length > 1
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
+        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds ?? [questionId],
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+      });
     },
     [setReveal, setIsRevealModalOpen, setBurnState],
   );
@@ -217,8 +253,28 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             },
           );
 
+          sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_SIGNED, {
+            [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: sn,
+            [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+            [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+            [MIX_PANEL_METADATA.REVEAL_TYPE]:
+              revealQuestionIds.length > 1
+                ? REVEAL_TYPE.ALL
+                : REVEAL_TYPE.SINGLE,
+          });
+
           signature = sn;
         } catch (error) {
+          if ((error as any)?.message === "User rejected the request.")
+            sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
+              [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                revealQuestionIds.length > 1
+                  ? REVEAL_TYPE.ALL
+                  : REVEAL_TYPE.SINGLE,
+              [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+              [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+            });
+
           resetReveal();
           return;
         }
@@ -266,6 +322,17 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         });
       }
 
+      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_SUCCEEDED, {
+        transactionSignature: signature,
+        nftAddress: revealNft?.id,
+        nftType: revealNft?.type,
+        burnedAmount: reveal?.amount,
+        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+      });
+
       if (revealNft && !isMultiple) {
         setRevealNft(undefined);
       }
@@ -273,6 +340,14 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       if (pendingChompResultIds.length > 0) {
         await deleteQuestionChompResults(pendingChompResultIds);
       }
+
+      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_FAILED, {
+        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+        error,
+      });
 
       errorToast("Error happened while revealing question. Try again.");
     } finally {
@@ -300,6 +375,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     resetReveal,
     cancelReveal: resetReveal,
     questionIds,
+    questions: reveal?.questions,
     isLoading,
   };
 }

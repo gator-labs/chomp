@@ -2,6 +2,7 @@
 import {
   answerQuestion,
   markQuestionAsSeenButNotAnswered,
+  markQuestionAsTimedOut,
   SaveQuestionRequest,
 } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
@@ -137,8 +138,10 @@ export function Deck({
     if (!!question?.id) run();
   }, [question?.id]);
 
-  const handleNoAnswer = useCallback(() => {
+  const handleNoAnswer = useCallback(async () => {
     setIsTimeOutPopUpVisible(false);
+
+    await markQuestionAsTimedOut(question.id);
 
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
@@ -226,7 +229,7 @@ export function Deck({
     }
   }, [questionsRef.current]);
 
-  if (questions.length === 0 || hasReachedEnd) {
+  if (questions.length === 0 || hasReachedEnd || currentQuestionIndex === -1) {
     const percentOfAnsweredQuestions =
       (numberOfAnsweredQuestions / questions.length) * 100;
 

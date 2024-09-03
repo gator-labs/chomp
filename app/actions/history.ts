@@ -34,14 +34,14 @@ export const getQuestionsHistory = async ({
   return getQuestionsHistoryQuery(payload.sub, PAGE_SIZE, pageParam);
 };
 
-export async function getTotalClaimableRewards(): Promise<number> {
+export async function getTotalClaimableRewards() {
   const payload = await getJwtPayload();
 
   if (!payload) {
-    return 0;
+    return;
   }
 
-  const res = await prisma.chompResult.aggregate({
+  const res = await prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
       result: "Revealed",
@@ -50,10 +50,16 @@ export async function getTotalClaimableRewards(): Promise<number> {
         gt: 0,
       },
     },
-    _sum: {
-      rewardTokenAmount: true,
+    include: {
+      question: true,
     },
   });
 
-  return Math.trunc(Number(res._sum.rewardTokenAmount));
+  return {
+    questions: res.map((q) => q.question),
+    totalClaimableRewards: res.reduce(
+      (acc, curr) => acc + (curr?.rewardTokenAmount?.toNumber() ?? 0),
+      0,
+    ),
+  };
 }

@@ -11,6 +11,7 @@ type PotentialRewardsRevealAllProps = {
   revealableQuestions: {
     id: number;
     revealTokenAmount: number;
+    question: string;
   }[];
 };
 
@@ -59,6 +60,7 @@ export default function PotentialRewardsRevealAll({
           0,
         ),
         questionIds: revealableQuestions.map((q) => q.id),
+        questions: revealableQuestions.map((q) => q.question),
       }),
     [],
   );

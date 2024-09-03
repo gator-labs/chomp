@@ -29,6 +29,7 @@ export const Default: Story = {
   args: {
     status: "claimable",
     questionIds: [1],
+    questions: ["1"],
     rewardAmount: 10000,
   },
 };

@@ -32,6 +32,7 @@ export function HomeFeedRevealedQuestionsSection({
       },
       amount: q.revealTokenAmount ?? 0,
       questionId: q.id,
+      questions: [q.question],
     });
   };
 

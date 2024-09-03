@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
-import { getJwtPayload } from "../actions/jwt";
 import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
+import { authGuard } from "../utils/auth";
 
 export type HistoryResult = {
   id: number;
@@ -147,22 +146,24 @@ export async function getQuestionsHistoryQuery(
 }
 
 export async function getAllQuestionsReadyForReveal(): Promise<
-  { id: number; revealTokenAmount: number }[]
+  { id: number; revealTokenAmount: number; question: string }[]
 > {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
+  const payload = await authGuard();
 
   const userId = payload.sub;
 
   const questions = await prisma.$queryRawUnsafe<
-    { id: number; revealTokenAmount: number; answerCount: number }[]
+    {
+      id: number;
+      revealTokenAmount: number;
+      answerCount: number;
+      question: string;
+    }[]
   >(
     `
 		SELECT 
     q.id,
+    q.question,
     CASE 
         WHEN cr."transactionStatus" = 'Completed' OR cr."transactionStatus" = 'Pending' THEN 0
         ELSE q."revealTokenAmount"

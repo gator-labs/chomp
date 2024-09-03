@@ -115,6 +115,9 @@ model Deck {
   deckQuestions               DeckQuestion[]
   userDeck                    UserDeck[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
+  description                 String?
+  heading                     String?
+  footer                      String?                       @db.VarChar(50)
 }
 
 model UserDeck {
@@ -291,4 +294,5 @@ enum NftType {
 enum AnswerStatus {
   Viewed
   Submitted
+  TimedOut
 }

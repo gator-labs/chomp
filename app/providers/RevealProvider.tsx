@@ -1,4 +1,5 @@
 "use client";
+import sendToMixpanel from "@/lib/mixpanel";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import { ReactNode, createContext, useContext } from "react";
@@ -7,6 +8,11 @@ import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFull
 import { InfoIcon } from "../components/Icons/InfoIcon";
 import Sheet from "../components/Sheet/Sheet";
 import Spinner from "../components/Spinner/Spinner";
+import {
+  MIX_PANEL_EVENTS,
+  MIX_PANEL_METADATA,
+  REVEAL_TYPE,
+} from "../constants/mixpanel";
 import { RevealCallbackProps, useReveal } from "../hooks/useReveal";
 import { numberToCurrencyFormatter } from "../utils/currency";
 
@@ -44,6 +50,7 @@ export function RevealContextProvider({
     pendingTransactions,
     isRevealWithNftMode,
     questionIds,
+    questions,
     isLoading,
   } = useReveal({
     bonkBalance,
@@ -70,7 +77,15 @@ export function RevealContextProvider({
             variant="black"
             className="h-10"
             isPill
-            onClick={cancelReveal}
+            onClick={() => {
+              sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
+                [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+                [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+                [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                  questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+              });
+              cancelReveal();
+            }}
           >
             Cancel
           </Button>
@@ -94,7 +109,17 @@ export function RevealContextProvider({
               variant="black"
               isPill
               className="h-10"
-              onClick={cancelReveal}
+              onClick={() => {
+                sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
+                  [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+                  [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+                  [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                    questionIds.length > 1
+                      ? REVEAL_TYPE.ALL
+                      : REVEAL_TYPE.SINGLE,
+                });
+                cancelReveal();
+              }}
             >
               Cancel
             </Button>
@@ -122,7 +147,23 @@ export function RevealContextProvider({
             <Button
               variant="white"
               isPill
-              onClick={() => burnAndReveal()}
+              onClick={() => {
+                if (
+                  !hasPendingTransactions &&
+                  questionIds?.length &&
+                  !isRevealWithNftMode
+                )
+                  sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_STARTED, {
+                    [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+                    [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+                    [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                      questionIds.length > 1
+                        ? REVEAL_TYPE.ALL
+                        : REVEAL_TYPE.SINGLE,
+                  });
+
+                burnAndReveal();
+              }}
               className="flex items-center h-10"
             >
               {hasPendingTransactions && !questionIds?.length
@@ -135,9 +176,19 @@ export function RevealContextProvider({
               variant="black"
               className="h-10"
               isPill
-              onClick={() =>
-                isRevealWithNftMode ? burnAndReveal(true) : resetReveal()
-              }
+              onClick={() => {
+                if (isRevealWithNftMode) return burnAndReveal(true);
+
+                resetReveal();
+                sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
+                  [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+                  [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+                  [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                    questionIds.length > 1
+                      ? REVEAL_TYPE.ALL
+                      : REVEAL_TYPE.SINGLE,
+                });
+              }}
             >
               {isRevealWithNftMode
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
@@ -219,7 +270,15 @@ export function RevealContextProvider({
       <Sheet
         disableClose={burnState === "burning"}
         isOpen={isRevealModalOpen}
-        setIsOpen={cancelReveal}
+        setIsOpen={() => {
+          sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
+            [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+            [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+            [MIX_PANEL_METADATA.REVEAL_TYPE]:
+              questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+          });
+          cancelReveal();
+        }}
         closeIconHeight={16}
         closeIconWidth={16}
       >

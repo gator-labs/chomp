@@ -10,12 +10,13 @@ import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 
 import { sendBonk } from "../utils/bonk";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
   const questions = await claimQuestions([questionId]);
-  return questions ? questions[0] : null;
+  return questions ? questions : null;
 }
 
 export async function getClaimableQuestionIds(): Promise<number[]> {
@@ -78,7 +79,7 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  await claimQuestions(claimableQuestionIds);
+  return claimQuestions(claimableQuestionIds);
 }
 
 export async function claimQuestions(questionIds: number[]) {
@@ -101,6 +102,9 @@ export async function claimQuestions(questionIds: number[]) {
           in: questionIds,
         },
         result: ResultType.Revealed,
+      },
+      include: {
+        question: true,
       },
     });
 
@@ -151,7 +155,15 @@ export async function claimQuestions(questionIds: number[]) {
     release();
     revalidatePath("/application");
     revalidatePath("/application/profile/history");
-    return sendTx;
+    return {
+      questionIds,
+      claimedAmount: chompResults.reduce(
+        (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
+        0,
+      ),
+      transactionSignature: sendTx,
+      questions: chompResults.map((cr) => cr.question),
+    };
   } catch (e) {
     class ClaimError extends Error {}
     const claimError = new ClaimError(
@@ -164,10 +176,37 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(chompResults: ChompResult[], address: string) {
+async function handleSendBonk(
+  chompResults: ChompResult[],
+  address: string,
+) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
+
+  const treasuryAddress = treasuryWallet.publicKey.toString();
+
+  const treasurySolBalance = await getSolBalance(treasuryAddress);
+  const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
+  
+  if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
+    Sentry.captureMessage(
+      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers`,
+      {
+        level: "fatal",
+        tags: {
+          category: "feedback", // Custom tag to categorize as feedback
+        },
+        extra: {
+          treasurySolBalance,
+          treasuryBonkBalance,
+          Refill: treasuryAddress,
+          Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
+          Solscan: `https://solscan.io/account/${treasuryAddress}#transfers `,
+        },
+      },
+    );
+  }
 
   const tokenAmount = chompResults.reduce(
     (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),

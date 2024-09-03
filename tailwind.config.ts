@@ -32,6 +32,7 @@ const colors = {
 };
 
 module.exports = {
+  darkMode: ["class"],
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./stories/**/*.{js,ts,jsx,tsx,mdx}",
@@ -40,9 +41,15 @@ module.exports = {
     extend: {
       keyframes: {
         purplePulse: {
-          "0%": { backgroundColor: "#8872A5" },
-          "50%": { backgroundColor: "#575CDF" },
-          "100%": { backgroundColor: "#8872A5" },
+          "0%": {
+            backgroundColor: "#8872A5",
+          },
+          "50%": {
+            backgroundColor: "#575CDF",
+          },
+          "100%": {
+            backgroundColor: "#8872A5",
+          },
         },
       },
       animation: {
@@ -55,6 +62,7 @@ module.exports = {
         xs: ["10px", "12.6px"],
         sm: ["13px", "16.38px"],
         base: ["16px", "20px"],
+        l: ["24px", "27.6px"],
       },
       boxShadow: {
         input: "0 0 4px 0",
@@ -66,6 +74,11 @@ module.exports = {
         "pink-gradient": "linear-gradient(90deg, #A3A3EC 0%, #CFC5F7 100%)",
       },
       colors: colors,
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
     },
     plugins: [],
     safelist: [
@@ -77,4 +90,5 @@ module.exports = {
       "text-white",
     ],
   },
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
