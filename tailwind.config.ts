@@ -7,13 +7,12 @@ const colors = {
   "input-gray": "#929292",
   "dark-purple": "#8872A5",
   pink: "#CFC5F7",
-  "btn-text-pink-border": "#E3DCFF",
 
   // HARDCODED COLORS IN APP
   // #6DECAFCC
   // #8C96ED
   // #575CDF
-  // #FFF294
+  // #FFF294§
   // #DFDFDF
   // #E2956C
   // #171616
