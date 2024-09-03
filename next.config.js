@@ -30,6 +30,11 @@ const nextConfig = {
         destination: "/application/profile/dashboard",
         permanent: true,
       },
+      {
+        source: "/application/decks",
+        destination: "/application",
+        permanent: true,
+      },
     ];
   },
 };
