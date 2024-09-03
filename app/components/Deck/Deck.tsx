@@ -1,26 +1,35 @@
 "use client";
-import { SaveQuestionRequest, saveDeck } from "@/app/actions/answer";
+import {
+  answerQuestion,
+  markQuestionAsSeenButNotAnswered,
+  SaveQuestionRequest,
+} from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
-import { getAlphaIdentifier } from "@/app/utils/question";
-import { QuestionTag, QuestionType, Tag } from "@prisma/client";
+import { useStopwatch } from "@/app/hooks/useStopwatch";
+import {
+  getAlphaIdentifier,
+  getAnsweredQuestionsStatus,
+} from "@/app/utils/question";
+import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
+import { Button } from "../Button/Button";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
-import {
-  NUMBER_OF_STEPS_PER_QUESTION,
-  QuestionStep,
-} from "../Question/Question";
+import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
+import Sheet from "../Sheet/Sheet";
+import Stepper from "../Stepper/Stepper";
 
 export type Option = {
   id: number;
   option: string;
+  isLeft: boolean;
 };
 
 export type Question = {
+  deckRevealAtDate?: Date | null;
   id: number;
   durationMiliseconds: number;
   question: string;
@@ -28,12 +37,15 @@ export type Question = {
   imageUrl?: string;
   questionOptions: Option[];
   questionTags: (QuestionTag & { tag: Tag })[];
+  status?: AnswerStatus;
+  createdAt?: Date;
 };
 
 type DeckProps = {
   questions: Question[];
-  browseHomeUrl?: string;
   deckId: number;
+  nextDeckId?: number;
+  deckVariant?: "daily-deck" | "regular-deck";
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -42,52 +54,70 @@ const getDueAt = (questions: Question[], index: number): Date => {
     .toDate();
 };
 
-export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
+export function Deck({
+  questions,
+  nextDeckId,
+  deckVariant,
+  deckId,
+}: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
-  const [rerenderAction, setRerednerAction] = useState(true);
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion,
   );
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(
+    questions.findIndex((q) => q.status === undefined),
+  );
+
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const { random, generateRandom } = useRandom({
-    min: 0,
-    max:
-      questions[currentQuestionIndex] &&
-      questions[currentQuestionIndex].questionOptions.length > 0
-        ? questions[currentQuestionIndex].questionOptions.length - 1
-        : 0,
-  });
+  const min = 0;
+  const max =
+    !!questions[currentQuestionIndex] &&
+    questions[currentQuestionIndex].questionOptions.length > 0
+      ? questions[currentQuestionIndex].questionOptions.length - 1
+      : 0;
 
-  const handleNextIndex = useCallback(() => {
+  const { random, generateRandom, setRandom } = useRandom({
+    min,
+    max,
+  });
+  const { start, reset, getTimePassedSinceStart } = useStopwatch();
+  const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
+  const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
+
+  useEffect(() => {
+    start();
+  }, [start]);
+
+  const handleNextIndex = useCallback(async () => {
     if (currentQuestionIndex + 1 < questions.length) {
       setDueAt(getDueAt(questions, currentQuestionIndex + 1));
     }
+    setDeckResponse([]);
     setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
-    setRerednerAction(false);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
-    generateRandom();
-    setTimeout(() => {
-      setRerednerAction(true);
-    });
-    setTimeout(() => {
-      if (questionsRef.current) {
-        questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;
-      }
-    }, 200);
+    const min = 0;
+    const max =
+      !!questions[currentQuestionIndex + 1] &&
+      questions[currentQuestionIndex + 1].questionOptions.length > 0
+        ? questions[currentQuestionIndex + 1].questionOptions.length - 1
+        : 0;
+    generateRandom({ min, max });
+    reset();
+    setIsSubmitting(false);
   }, [
     currentQuestionIndex,
     setCurrentQuestionIndex,
     setCurrentQuestionStep,
-    setRerednerAction,
     generateRandom,
     setCurrentOptionSelected,
-    questionsRef.current,
+    reset,
+    questions,
   ]);
 
   const question = useMemo(
@@ -95,17 +125,33 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
     [questions, currentQuestionIndex],
   );
 
+  useEffect(() => {
+    const run = async () => {
+      const res = await markQuestionAsSeenButNotAnswered(question.id);
+      if (!!res?.hasError) {
+        handleNextIndex();
+        return;
+      }
+    };
+
+    if (!!question?.id) run();
+  }, [question?.id]);
+
   const handleNoAnswer = useCallback(() => {
-    setDeckResponse((prev) => [...prev, { questionId: question.id }]);
+    setIsTimeOutPopUpVisible(false);
+
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
 
-  const onQuesitonActionClick = useCallback(
-    (number: number | undefined) => {
+  const onQuestionActionClick = useCallback(
+    async (number: number | undefined) => {
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
+        question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setDeckResponse((prev) => [
           ...prev,
           { questionId: question.id, questionOptionId: number },
@@ -135,39 +181,26 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
         return;
       }
 
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
-      ) {
+      if (currentQuestionStep === QuestionStep.PickPercentage) {
         setDeckResponse((prev) => {
-          const newResposnes = [...prev];
-          const response = newResposnes.pop();
-          if (response) {
-            response.percentageGiven = number ?? 0;
-            newResposnes.push(response);
-          }
-
-          return newResposnes;
-        });
-      }
-
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "MultiChoice"
-      ) {
-        setDeckResponse((prev) => {
-          const newResposnes = [...prev];
-          const response = newResposnes.pop();
+          const newResponses = [...prev];
+          const response = newResponses.pop();
           if (response) {
             response.percentageGiven = optionPercentage;
             response.percentageGivenForAnswerId =
               question.questionOptions[random]?.id;
-            newResposnes.push(response);
+            response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
+            newResponses.push(response);
           }
 
-          return newResposnes;
+          return newResponses;
         });
       }
+      setNumberOfAnsweredQuestions((prev) => prev + 1);
+
+      setIsSubmitting(true);
+
+      await answerQuestion({ ...deckResponse[0], deckId });
 
       handleNextIndex();
     },
@@ -188,62 +221,49 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
   );
 
   useEffect(() => {
-    if (hasReachedEnd) {
-      saveDeck(deckResponse, deckId);
-    }
-  }, [hasReachedEnd, deckResponse]);
-
-  useEffect(() => {
     if (questionsRef.current) {
       questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;
     }
   }, [questionsRef.current]);
 
-  if (questions.length === 0 || hasReachedEnd) {
-    return <NoQuestionsCard browseHomeUrl={browseHomeUrl} />;
+  if (questions.length === 0 || hasReachedEnd || currentQuestionIndex === -1) {
+    const percentOfAnsweredQuestions =
+      (numberOfAnsweredQuestions / questions.length) * 100;
+
+    const variant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
+
+    return (
+      <div className="flex flex-col justify-evenly h-full pb-4">
+        <NoQuestionsCard
+          variant={deckVariant || variant}
+          nextDeckId={nextDeckId}
+          deckRevealAtDate={questions[0].deckRevealAtDate}
+        />
+      </div>
+    );
   }
 
-  const questionOffset = 70 * (questions.length - currentQuestionIndex - 1);
+  const randomQuestionMarker =
+    question.type === QuestionType.MultiChoice
+      ? getAlphaIdentifier(random)
+      : question.questionOptions[random].option;
 
   return (
-    <div className="flex flex-col justify-between h-full">
-      <AnswerHeader questionTags={question.questionTags} />
-      <div
-        ref={questionsRef}
-        className="overflow-y-auto max-h-[calc(100%-30px-100px)]"
-      >
-        <div
-          className="relative"
-          style={{ marginBottom: questionOffset + "px" }}
-        >
-          {Array.from(
-            Array(questions.length - (currentQuestionIndex + 1)).keys(),
-          ).map((index) => (
-            <QuestionCard
-              key={index}
-              numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
-              question={questions[index].question}
-              step={1}
-              className="absolute drop-shadow-question-card border-opacity-40"
-              style={{
-                zIndex: 10 + questions.length + index,
-                top: 70 * index + "px",
-              }}
-              isBlurred
-            />
-          ))}
-
+    <div className="flex flex-col justify-start h-full pb-4">
+      <Stepper
+        numberOfSteps={questions.length}
+        activeStep={currentQuestionIndex}
+        color="green"
+        className="!p-0 mb-5"
+      />
+      <div ref={questionsRef} className="mb-4 h-full">
+        <div className="relative h-full">
           <QuestionCard
             dueAt={dueAt}
-            numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
             question={question.question}
+            type={question.type}
             viewImageSrc={question.imageUrl}
-            step={currentQuestionStep}
-            onDurationRanOut={handleNoAnswer}
-            className="z-50 relative drop-shadow-question-card border-opacity-40"
-            style={{
-              transform: `translateY(${questionOffset}px)`,
-            }}
+            onDurationRanOut={() => setIsTimeOutPopUpVisible(true)}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -253,23 +273,47 @@ export function Deck({ questions, browseHomeUrl, deckId }: DeckProps) {
               questionOptions={question.questionOptions}
               randomOptionId={question.questionOptions[random]?.id}
               percentage={optionPercentage}
-              onPercentageChanged={setOptionPercentage}
             />
           </QuestionCard>
         </div>
       </div>
 
-      <div className="pt-2">
-        {rerenderAction && (
-          <QuestionAction
-            onButtonClick={onQuesitonActionClick}
-            type={question.type}
-            step={currentQuestionStep}
-            questionOptions={question.questionOptions}
-            randomQuestionMarker={getAlphaIdentifier(random)}
-          />
-        )}
-      </div>
+      <QuestionAction
+        onButtonClick={onQuestionActionClick}
+        type={question.type}
+        step={currentQuestionStep}
+        questionOptions={question.questionOptions}
+        randomQuestionMarker={randomQuestionMarker}
+        percentage={optionPercentage}
+        setPercentage={setOptionPercentage}
+        disabled={isSubmitting}
+      />
+
+      <Sheet
+        disableClose
+        isOpen={isTimeOutPopUpVisible}
+        setIsOpen={setIsTimeOutPopUpVisible}
+        closeIconHeight={16}
+        closeIconWidth={16}
+      >
+        <div className="p-6 pt-2 flex flex-col gap-6">
+          <p className="text-base text-purple font-bold">
+            Are you still there?
+          </p>
+          <p className="text-sm text-white">
+            Your time&apos;s up! To prevent you from missing out on the next
+            question, click proceed to continue.
+          </p>
+          <Button
+            variant="white"
+            isPill
+            className="!h-10"
+            onClick={handleNoAnswer}
+          >
+            Proceed
+          </Button>
+        </div>
+      </Sheet>
     </div>
   );
 }

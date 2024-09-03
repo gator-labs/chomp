@@ -1,27 +1,57 @@
-import { Deck } from "@/app/components/Deck/Deck";
-import { getDailyDeck } from "@/app/queries/deck";
-import { DailyDeckTitle } from "../components/DailyDeckTitle/DailyDeckTitle";
-import { NoQuestionsCard } from "../components/NoQuestionsCard/NoQuestionsCard";
+import { getDailyAnsweredQuestions, getDailyDeck } from "@/app/queries/deck";
+
+import { redirect } from "next/navigation";
+import { getTransactionHistory } from "../actions/fungible-asset";
+import { getNextDeckId } from "../queries/home";
+import { getCurrentUser } from "../queries/user";
+import DailyDeckScreen from "../screens/DailyDeckScreen/DailyDeckScreen";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 
 export default async function Page() {
-  const dailyDeck = await getDailyDeck();
+  const [dailyDeck, nextDeckId, user, history, dailyAnsweredQuestions] =
+    await Promise.all([
+      getDailyDeck(),
+      getNextDeckId(),
+      getCurrentUser(),
+      getTransactionHistory(),
+      getDailyAnsweredQuestions(),
+    ]);
+
+  const address = user?.wallets[0].address || "";
+
+  const [bonkBalance, solBalance] = await Promise.all([
+    getBonkBalance(address),
+    getSolBalance(address),
+  ]);
+
+  if (!dailyAnsweredQuestions?.questions?.length || !dailyDeck)
+    redirect("/application");
 
   return (
-    <div className="flex flex-col h-full p-2">
-      <div className="px-4 py-5">
-        <DailyDeckTitle date={dailyDeck?.date ?? new Date()} />
-      </div>
-      <div className="px-4 h-[calc(100%-57px)]">
-        {dailyDeck?.questions ? (
-          <Deck
-            questions={dailyDeck.questions}
-            deckId={dailyDeck.id}
-            browseHomeUrl="/application"
-          />
-        ) : (
-          <NoQuestionsCard browseHomeUrl="/application" />
-        )}
-      </div>
-    </div>
+    <DailyDeckScreen
+      nextDeckId={nextDeckId}
+      date={dailyDeck?.date}
+      id={dailyDeck?.id}
+      isAdmin={!!user?.isAdmin}
+      questions={dailyDeck?.questions}
+      percentOfAnsweredQuestions={
+        (dailyAnsweredQuestions.answers.length /
+          dailyAnsweredQuestions.questions.length) *
+        100
+      }
+      navBarData={{
+        avatarSrc: user?.profileSrc || "",
+        bonkBalance: bonkBalance,
+        solBalance: solBalance,
+        transactions: history.map((h) => ({
+          amount: h.change.toNumber(),
+          amountLabel: h.asset,
+          transactionType: h.type,
+          date: h.createdAt,
+          dollarAmount: 0,
+        })),
+        address: address,
+      }}
+    />
   );
 }

@@ -1,70 +1,44 @@
-"use client";
-import { Navbar } from "@/app/components/Navbar/Navbar";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import { HomeFeed, HomeFeedProps } from "../components/HomeFeed/HomeFeed";
-const SearchFilters = dynamic(
-  () => import("../components/SearchFilters/SearchFilters"),
-  { ssr: false },
-);
+import { Suspense } from "react";
+import BannerSlider from "../components/BannerSlider/BannerSlider";
+import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUserStats";
+import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringSection/HomeFeedDeckExpiringSection";
+import { HomeFeedReadyToRevealSection } from "../components/HomeFeedReadyToRevealSection/HomeFeedReadyToRevealSection";
+import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealedQuestionsSection/HomeFeedRevealedQuestionsSection";
+import { Profile } from "../components/Profile/Profile";
+import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
+import Spinner from "../components/Spinner/Spinner";
+import { getActiveBanners } from "../queries/banner";
+import { getQuestionsForRevealedSection } from "../queries/home";
 
-import { useIsomorphicLayoutEffect } from "../hooks/useIsomorphicLayoutEffect";
-
-type PageProps = {
-  searchParams: { query: string };
-};
-
-let lastQuery: string | undefined = "";
-
-export default function Page({ searchParams }: PageProps) {
-  const [response, setResponse] = useState<any>();
-  const [scrollToId, setScrollToId] = useState(0);
-  const getData = async (query: string | undefined, scrollId?: number) => {
-    lastQuery = query;
-    const searchParams = new URLSearchParams();
-    if (query) {
-      searchParams.set("query", query);
-    }
-    const params = searchParams.toString() ? `?${searchParams}` : "";
-    const data = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/home-feed${params}`,
-    );
-    const json = await data.json();
-    setResponse(json.homeFeed);
-
-    if (scrollId) {
-      setScrollToId(scrollId);
-    }
-  };
-  useIsomorphicLayoutEffect(() => {
-    getData(searchParams.query);
-  }, []);
-
-  const onRefreshCards = (revealedId: number) => {
-    getData(lastQuery, revealedId);
-  };
+export default async function Page() {
+  const [questionsRevealed, banners] = await Promise.all([
+    getQuestionsForRevealedSection(),
+    getActiveBanners(),
+  ]);
 
   return (
     <>
-      <Navbar
-        avatarSrc={AvatarPlaceholder.src}
-        avatarLink="/application/profile"
-        walletLink=""
-      />
-      <SearchFilters
-        initialQuery={searchParams.query}
-        onQueryChange={(query) => {
-          getData(query);
-        }}
-      />
-      {response && (
-        <HomeFeed
-          {...(response as HomeFeedProps)}
-          onRefreshCards={onRefreshCards}
-          elementToScrollToId={scrollToId}
-        />
-      )}
+      <div className="flex flex-col gap-4 px-4">
+        <ProfileNavigation />
+        <Suspense fallback={<Spinner />}>
+          <Profile />
+        </Suspense>
+
+        <Suspense fallback={<Spinner />}>
+          <DashboardUserStats />
+        </Suspense>
+      </div>
+
+      {!!banners.length && <BannerSlider banners={banners} />}
+
+      <Suspense fallback={<Spinner />}>
+        <HomeFeedDeckExpiringSection />
+      </Suspense>
+
+      <Suspense fallback={<Spinner />}>
+        <HomeFeedReadyToRevealSection />
+      </Suspense>
+      <HomeFeedRevealedQuestionsSection questions={questionsRevealed} />
     </>
   );
 }

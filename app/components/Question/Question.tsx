@@ -1,10 +1,11 @@
 "use client";
 import { saveQuestion, SaveQuestionRequest } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
+import { useStopwatch } from "@/app/hooks/useStopwatch";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next-nprogress-bar";
 import { useCallback, useEffect, useState } from "react";
 import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
@@ -16,11 +17,10 @@ export enum QuestionStep {
   PickPercentage = 2,
 }
 
-export const NUMBER_OF_STEPS_PER_QUESTION = 2;
-
 type Option = {
   id: number;
   option: string;
+  isLeft: boolean;
 };
 
 type Question = {
@@ -49,7 +49,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
   );
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const { random } = useRandom({
+  const { random, setRandom } = useRandom({
     min: 0,
     max:
       question.questionOptions.length > 0
@@ -59,6 +59,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
   const [currentQuestionStep, setCurrentQuestionStep] = useState<
     QuestionStep | undefined
   >(QuestionStep.AnswerQuestion);
+  const { start, getTimePassedSinceStart } = useStopwatch();
 
   useEffect(() => {
     if (!currentQuestionStep) {
@@ -66,6 +67,10 @@ export function Question({ question, returnUrl }: QuestionProps) {
       router.refresh();
     }
   }, [currentQuestionStep]);
+
+  useEffect(() => {
+    start();
+  }, []);
 
   const handleSaveQuestion = useCallback(
     (answer: SaveQuestionRequest | undefined = undefined) => {
@@ -75,12 +80,15 @@ export function Question({ question, returnUrl }: QuestionProps) {
     [setCurrentQuestionStep, answerState],
   );
 
-  const onQuesitonActionClick = useCallback(
+  const onQuestionActionClick = useCallback(
     (number: number | undefined) => {
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
+        question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setAnswerState({ questionId: question.id, questionOptionId: number });
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
@@ -104,24 +112,12 @@ export function Question({ question, returnUrl }: QuestionProps) {
         return;
       }
 
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        (question.type === "TrueFalse" || question.type === "YesNo")
-      ) {
-        handleSaveQuestion({
-          ...answerState,
-          percentageGiven: number ?? 0,
-        });
-      }
-
-      if (
-        currentQuestionStep === QuestionStep.PickPercentage &&
-        question.type === "MultiChoice"
-      ) {
+      if (currentQuestionStep === QuestionStep.PickPercentage) {
         handleSaveQuestion({
           ...answerState,
           percentageGiven: optionPercentage,
           percentageGivenForAnswerId: question.questionOptions[random]?.id,
+          timeToAnswerInMiliseconds: getTimePassedSinceStart(),
         });
       }
     },
@@ -137,40 +133,43 @@ export function Question({ question, returnUrl }: QuestionProps) {
     ],
   );
 
+  const randomQuestionMarker =
+    question.type === QuestionType.MultiChoice
+      ? getAlphaIdentifier(random)
+      : question.questionOptions[random].option;
+
   return (
     <div className="flex flex-col justify-between h-full">
-      <div>
-        <AnswerHeader questionTags={question.questionTags} />
+      <AnswerHeader questionTags={question.questionTags} />
 
-        <QuestionCard
-          dueAt={getDueAt(question.durationMiliseconds)}
-          numberOfSteps={NUMBER_OF_STEPS_PER_QUESTION}
-          question={question.question}
-          viewImageSrc={question.imageUrl}
-          step={currentQuestionStep || QuestionStep.PickPercentage}
-          onDurationRanOut={handleSaveQuestion}
-          className="z-50 relative drop-shadow-question-card border-opacity-40"
-        >
-          <QuestionCardContent
-            optionSelectedId={currentOptionSelected}
-            onOptionSelected={setCurrentOptionSelected}
-            type={question.type}
-            step={currentQuestionStep || QuestionStep.PickPercentage}
-            questionOptions={question.questionOptions}
-            randomOptionId={question.questionOptions[random]?.id}
-            percentage={optionPercentage}
-            onPercentageChanged={setOptionPercentage}
-          />
-        </QuestionCard>
-      </div>
-
-      <div className="pt-2">
-        <QuestionAction
-          onButtonClick={onQuesitonActionClick}
+      <QuestionCard
+        dueAt={getDueAt(question.durationMiliseconds)}
+        question={question.question}
+        type={question.type}
+        viewImageSrc={question.imageUrl}
+        onDurationRanOut={handleSaveQuestion}
+        className="z-50 relative drop-shadow-question-card border-opacity-40"
+      >
+        <QuestionCardContent
+          optionSelectedId={currentOptionSelected}
+          onOptionSelected={setCurrentOptionSelected}
           type={question.type}
           step={currentQuestionStep || QuestionStep.PickPercentage}
           questionOptions={question.questionOptions}
-          randomQuestionMarker={getAlphaIdentifier(random)}
+          randomOptionId={question.questionOptions[random]?.id}
+          percentage={optionPercentage}
+        />
+      </QuestionCard>
+
+      <div className="pt-2 pb-[53px]">
+        <QuestionAction
+          onButtonClick={onQuestionActionClick}
+          type={question.type}
+          step={currentQuestionStep || QuestionStep.PickPercentage}
+          questionOptions={question.questionOptions}
+          randomQuestionMarker={randomQuestionMarker}
+          percentage={optionPercentage}
+          setPercentage={setOptionPercentage}
         />
       </div>
     </div>

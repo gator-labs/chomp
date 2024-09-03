@@ -2,9 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 @layer base {
   body {
     margin: 0;
+  }
+
+  .home-feed-swiper-slide {
+    @apply !h-auto;
+  }
+  :root {
+    --radius: 0.5rem;
   }
 }
 
@@ -29,4 +47,29 @@
   input {
     @apply rounded;
   }
+}
+
+:root {
+  --rsbs-max-w: 30rem;
+}
+
+[data-rsbs-overlay],
+[data-rsbs-state] {
+  @apply !mx-auto !bg-btn-border-black;
+}
+[data-rsbs-state]::after {
+  @apply !mx-auto !bg-btn-border-black;
+}
+
+.reveal-page-content > * > * > * {
+  cursor: default;
+}
+
+.bulleted-list {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.bulleted-list li {
+  margin-bottom: 5px;
 }

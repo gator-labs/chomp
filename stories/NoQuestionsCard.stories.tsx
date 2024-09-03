@@ -16,6 +16,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    browseHomeUrl: "/application",
+    variant: "regular-deck",
+  },
+};
+
+export const IsAnswerPage: Story = {
+  args: {
+    variant: "answer-page",
   },
 };

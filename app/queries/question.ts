@@ -1,4 +1,5 @@
 import {
+  AnswerStatus,
   Deck,
   DeckQuestion,
   Prisma,
@@ -9,17 +10,15 @@ import {
 } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
-import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
-import { HistorySortOptions } from "../api/history/route";
 import { questionSchema } from "../schemas/question";
 import prisma from "../services/prisma";
 import {
-  handleQuestionMappingForFeed,
+  isEntityRevealable,
+  mapPercentages,
   populateAnswerCount,
 } from "../utils/question";
 import { answerPercentageQuery } from "./answerPercentageQuery";
-import { getHomeFeedDecks } from "./deck";
 
 export enum ElementType {
   Question = "Question",
@@ -50,7 +49,6 @@ export async function getQuestionForAnswerById(questionId: number) {
   }
 
   const mappedQuestion = mapToViewModelQuestion(question);
-  await addPlaceholderAnswers(question.questionOptions, payload.sub);
   return mappedQuestion;
 }
 
@@ -67,6 +65,7 @@ const mapToViewModelQuestion = (
   questionOptions: question.questionOptions.map((qo) => ({
     id: qo.id,
     option: qo.option,
+    isLeft: qo.isLeft,
   })),
   questionTags: question.questionTags,
   type: question.type,
@@ -95,6 +94,22 @@ export async function getQuestions() {
   return questions;
 }
 
+export async function getQuestion(id: number) {
+  const question = await prisma.question.findUnique({
+    where: {
+      id,
+    },
+    include: {
+      questionOptions: {
+        include: {
+          questionAnswers: true,
+        },
+      },
+    },
+  });
+
+  return question;
+}
 export async function getQuestionSchema(
   id: number,
 ): Promise<z.infer<typeof questionSchema> | null> {
@@ -125,157 +140,6 @@ export async function getQuestionSchema(
   return questionData;
 }
 
-export async function getHomeFeed(query: string = "") {
-  const promiseArray = [
-    getUnansweredDailyQuestions(query),
-    getHomeFeedQuestions({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: false, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: false, query }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: true, query }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: true, query }),
-  ];
-
-  const sortRevealedComparerFn = (a: any, b: any) => {
-    const aNewestClaimTime = a.reveals[0]?.createdAt;
-    const bNewestClaimTime = b.reveals[0]?.createdAt;
-
-    if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
-      return 1;
-    }
-
-    if (dayjs(bNewestClaimTime).isAfter(aNewestClaimTime)) {
-      return -1;
-    }
-
-    return 0;
-  };
-  const [
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  ] = await Promise.all(promiseArray);
-
-  answeredRevealedQuestions.sort(sortRevealedComparerFn);
-  answeredRevealedDecks.sort(sortRevealedComparerFn);
-
-  return {
-    unansweredDailyQuestions,
-    unansweredUnrevealedQuestions,
-    unansweredUnrevealedDecks,
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  };
-}
-
-export async function getHistory(
-  query: string = "",
-  sort: HistorySortOptions = HistorySortOptions.Revealed,
-) {
-  const promiseArray = [
-    getHomeFeedQuestions({
-      areAnswered: true,
-      areRevealed: false,
-      query,
-      sort,
-    }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: false, query, sort }),
-    getHomeFeedQuestions({ areAnswered: true, areRevealed: true, query, sort }),
-    getHomeFeedDecks({ areAnswered: true, areRevealed: true, query, sort }),
-  ];
-
-  const [
-    answeredUnrevealedQuestions,
-    answeredUnrevealedDecks,
-    answeredRevealedQuestions,
-    answeredRevealedDecks,
-  ] = await Promise.all(promiseArray);
-
-  let response = [
-    ...answeredUnrevealedQuestions.map((e) => ({
-      ...e,
-      elementType: ElementType[ElementType.Question],
-    })),
-    ...answeredUnrevealedDecks.map((e) => ({
-      ...e,
-      elementType: ElementType[ElementType.Deck],
-    })),
-    ...answeredRevealedQuestions.map((e) => ({
-      ...e,
-      elementType: ElementType[ElementType.Question],
-    })),
-    ...answeredRevealedDecks.map((e) => ({
-      ...e,
-      elementType: ElementType[ElementType.Deck],
-    })),
-  ];
-
-  if (sort === HistorySortOptions.Date) {
-    response.sort((a: any, b: any) => {
-      if (dayjs(a.answerDate).isAfter(b.answerDate)) {
-        return -1;
-      }
-
-      if (dayjs(b.answerDate).isAfter(a.answerDate)) {
-        return 1;
-      }
-
-      return 0;
-    });
-  }
-
-  if (sort === HistorySortOptions.Revealed) {
-    response.sort((a, b) => {
-      if (dayjs(a.revealAtDate).isAfter(b.revealAtDate)) {
-        return 1;
-      }
-
-      if (dayjs(b.revealAtDate).isAfter(a.revealAtDate)) {
-        return -1;
-      }
-
-      return 0;
-    });
-  }
-
-  if (sort === HistorySortOptions.Claimable) {
-    response.sort((a, b) => {
-      if (a.reveals.length > 0 && b.reveals.length > 0) {
-        const aNewestClaimTime = a.reveals[0]?.createdAt;
-        const bNewestClaimTime = b.reveals[0]?.createdAt;
-
-        if (dayjs(aNewestClaimTime).isAfter(bNewestClaimTime)) {
-          return -1;
-        }
-
-        if (dayjs(bNewestClaimTime).isAfter(aNewestClaimTime)) {
-          return 1;
-        }
-
-        return 0;
-      }
-
-      if (a.reveals.length > 0) {
-        return -1;
-      }
-
-      if (b.reveals.length > 0) {
-        return 1;
-      }
-
-      return 0;
-    });
-  }
-
-  return response;
-}
-
 export async function getUnansweredDailyQuestions(query = "") {
   const payload = await getJwtPayload();
 
@@ -287,7 +151,8 @@ export async function getUnansweredDailyQuestions(query = "") {
     where: {
       deck: {
         date: {
-          not: null,
+          gte: dayjs(new Date()).add(-3, "days").toDate(),
+          lte: dayjs(new Date()).endOf("day").toDate(),
         },
         revealAtDate: { gte: new Date() },
       },
@@ -302,216 +167,28 @@ export async function getUnansweredDailyQuestions(query = "") {
             },
           },
         },
-        OR: [{ revealAtDate: { lte: new Date() } }, { revealAtDate: null }],
+        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
       },
     },
     include: {
       question: true,
+    },
+    orderBy: {
+      deck: { date: "desc" },
     },
   });
 
   return dailyDeckQuestions.map((dq) => dq.question);
 }
 
-export async function getHomeFeedQuestions({
-  areAnswered,
-  areRevealed,
-  query,
-  sort = HistorySortOptions.Revealed,
-}: {
-  areAnswered: boolean;
-  areRevealed: boolean;
-  query: string;
-  sort?: HistorySortOptions;
-}) {
-  const payload = await getJwtPayload();
+export async function getFirstUnansweredQuestion() {
+  const questions = await getUnansweredDailyQuestions();
 
-  if (!payload) {
-    return [];
+  if (questions.length === 0) {
+    return null;
   }
 
-  let sortInput: Prisma.QuestionOrderByWithRelationInput = {
-    revealAtDate: { sort: "desc" },
-  };
-
-  if (sort === HistorySortOptions.Claimable) {
-    sortInput = {
-      reveals: { _count: "desc" },
-    };
-  }
-
-  if (sort === HistorySortOptions.Revealed) {
-    sortInput = {
-      revealAtDate: { sort: "desc" },
-    };
-  }
-
-  const revealedAtFilter: Prisma.QuestionWhereInput = areRevealed
-    ? {
-        reveals: {
-          some: {
-            userId: {
-              equals: payload.sub,
-            },
-          },
-        },
-      }
-    : {
-        reveals: {
-          none: {
-            userId: {
-              equals: payload.sub,
-            },
-          },
-        },
-      };
-
-  const areAnsweredFilter: Prisma.QuestionWhereInput = areAnswered
-    ? {
-        questionOptions: {
-          some: {
-            AND: [
-              {
-                questionAnswers: {
-                  some: {
-                    userId: payload.sub,
-                  },
-                },
-              },
-              {
-                questionAnswers: {
-                  none: {
-                    hasViewedButNotSubmitted: true,
-                  },
-                },
-              },
-            ],
-          },
-        },
-      }
-    : {
-        questionOptions: {
-          none: {
-            questionAnswers: {
-              some: {
-                userId: payload.sub,
-              },
-            },
-          },
-        },
-        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
-      };
-
-  const questionInclude: Prisma.QuestionInclude = areAnswered
-    ? {
-        questionOptions: {
-          include: {
-            questionAnswers: {
-              orderBy: { createdAt: "desc" },
-            },
-          },
-        },
-        reveals: {
-          where: {
-            userId: { equals: payload.sub },
-          },
-          orderBy: { createdAt: "desc" },
-        },
-      }
-    : {
-        reveals: {
-          where: { userId: { equals: payload.sub } },
-          orderBy: { createdAt: "desc" },
-        },
-      };
-
-  let questions = await prisma.question.findMany({
-    where: {
-      question: { contains: query, mode: "insensitive" },
-      // this AND is hack because we already have OR in areAnsweredFilter
-      AND: [
-        {
-          OR: [
-            {
-              deckQuestions: {
-                none: {},
-              },
-            },
-            {
-              deckQuestions: {
-                some: {
-                  deck: {
-                    date: {
-                      not: null,
-                    },
-                  },
-                },
-              },
-            },
-          ],
-        },
-      ],
-      ...areAnsweredFilter,
-      ...revealedAtFilter,
-    },
-    include: questionInclude,
-    orderBy: { ...sortInput },
-  });
-
-  const questionOptionIds = questions.flatMap((q) =>
-    q.questionOptions?.map((qo) => qo.id),
-  );
-  const questionOptionPercentages =
-    await answerPercentageQuery(questionOptionIds);
-
-  if (areAnswered) {
-    questions = questions.map((q) => {
-      const answerDate = q.questionOptions
-        .map((qo: any) => qo.questionAnswers[0].createdAt)
-        .sort((left: Date, right: Date) => {
-          if (dayjs(left).isAfter(right)) {
-            return 1;
-          }
-
-          if (dayjs(right).isAfter(left)) {
-            return -1;
-          }
-
-          return 0;
-        })[0];
-
-      return { ...q, answerDate };
-    });
-  }
-
-  if (sort === HistorySortOptions.Date) {
-    questions.sort((a: any, b: any) => {
-      if (!areAnswered) {
-        return 0;
-      }
-
-      if (dayjs(a.answerDate).isAfter(b.answerDate)) {
-        return -1;
-      }
-
-      if (dayjs(b.answerDate).isAfter(a.answerDate)) {
-        return 1;
-      }
-
-      return 0;
-    });
-  }
-
-  questions.forEach((q) => populateAnswerCount(q as any));
-
-  handleQuestionMappingForFeed(
-    questions as any,
-    questionOptionPercentages,
-    payload.sub,
-    areRevealed,
-  );
-
-  return questions;
+  return questions[0];
 }
 
 export async function hasAnsweredQuestion(
@@ -529,7 +206,7 @@ export async function hasAnsweredQuestion(
   }
 
   const questionAnswerWhereInput: Prisma.QuestionAnswerWhereInput =
-    ignorePlaceholder ? { hasViewedButNotSubmitted: false } : {};
+    ignorePlaceholder ? { status: AnswerStatus.Submitted } : {};
 
   const answeredCount = await prisma.questionAnswer.count({
     where: {
@@ -542,4 +219,93 @@ export async function hasAnsweredQuestion(
   });
 
   return answeredCount > 0;
+}
+
+export async function getQuestionWithUserAnswer(questionId: number) {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub ?? "";
+  if (!userId) {
+    return;
+  }
+  const question = await prisma.question.findUnique({
+    where: {
+      id: questionId,
+    },
+    include: {
+      questionOptions: {
+        include: {
+          questionAnswers: {
+            where: {
+              userId: userId,
+            },
+          },
+        },
+      },
+      chompResults: {
+        where: {
+          userId,
+        },
+      },
+    },
+  });
+
+  if (!question) {
+    return null;
+  }
+
+  const questionOptionIds = question.questionOptions.map((qo) => qo.id);
+  const questionOptionPercentages =
+    await answerPercentageQuery(questionOptionIds);
+
+  const populated = populateAnswerCount(question);
+
+  mapPercentages([question] as any, questionOptionPercentages);
+
+  const userAnswers = question.questionOptions
+    .flatMap((option) =>
+      option.questionAnswers.map((answer) => ({
+        ...answer,
+        questionOption: {
+          id: option.id,
+          option: option.option,
+          isLeft: option.isLeft,
+          createdAt: option.createdAt,
+          updatedAt: option.updatedAt,
+          questionId: option.questionId,
+        },
+      })),
+    )
+    .filter((answer) => answer.userId === userId);
+
+  let correctAnswer = question.questionOptions.find(
+    (option) => option.isCorrect,
+  );
+
+  if (!correctAnswer) {
+    correctAnswer = question.questionOptions.find(
+      (option) => option.calculatedIsCorrect,
+    );
+  }
+
+  const isQuestionRevealable = isEntityRevealable({
+    revealAtAnswerCount: question.revealAtAnswerCount,
+    revealAtDate: question.revealAtDate,
+    answerCount: question.questionOptions[0].questionAnswers.length,
+  });
+
+  return {
+    ...question,
+    chompResults: question.chompResults.map((chompResult) => ({
+      ...chompResult,
+      rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
+    })),
+    userAnswers: userAnswers || null,
+    answerCount: populated.answerCount ?? 0,
+    correctAnswer,
+    questionOptionPercentages: questionOptionPercentages.map((qop) => ({
+      ...qop,
+      ...question.questionOptions.find((qo) => qo.id === qop.id),
+    })),
+    isQuestionRevealable,
+  };
 }

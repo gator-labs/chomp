@@ -1,17 +1,18 @@
+import { QuestionType } from "@prisma/client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Deck } from "../app/components/Deck/Deck";
-import { ONE_MINUTE_IN_MILISECONDS } from "../app/utils/dateUtils";
-import { QuestionType } from "@prisma/client";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../app/utils/dateUtils";
 
 const questionBase = {
-  type: QuestionType.TrueFalse,
-  durationMiliseconds: ONE_MINUTE_IN_MILISECONDS / 4,
+  type: QuestionType.BinaryQuestion,
+  durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS / 4,
   questionOptions: [
     {
       id: 1,
       option: "False",
+      isLeft: false,
     },
-    { id: 2, option: "True" },
+    { id: 2, option: "True", isLeft: true },
   ],
   questionTags: [
     { id: 1, tag: "Defi" },
@@ -43,10 +44,10 @@ const meta = {
         ...questionBase,
         type: QuestionType.MultiChoice,
         questionOptions: [
-          { id: 1, option: "Answer" },
-          { id: 2, option: "Answer" },
-          { id: 3, option: "Answer" },
-          { id: 4, option: "Answer" },
+          { id: 1, option: "Answer", isLeft: false },
+          { id: 2, option: "Answer", isLeft: false },
+          { id: 3, option: "Answer", isLeft: false },
+          { id: 4, option: "Answer", isLeft: false },
         ],
         id: 2,
         question:
@@ -61,7 +62,7 @@ const meta = {
         questionTags: [],
       },
     ],
-    browseHomeUrl: "/application",
+    deckVariant: "daily-deck",
   },
   decorators: (Story) => (
     <div className="bg-black p-10">

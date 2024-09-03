@@ -1,28 +1,27 @@
 
 ```sql
--- Insert a Deck and return its ID
 WITH inserted_deck AS (
-  INSERT INTO "Deck" ("deck", "date")
-  VALUES ('Sample Deck', NOW() + (random() * 4) * INTERVAL '1 hour')
+  INSERT INTO "Deck" ("deck", "date", "revealAtDate")
+  VALUES ('Sample Deck', NOW() + (random() * 4) * INTERVAL '1 hour', NOW() + INTERVAL '1 days')
   RETURNING id
 ), inserted_questions AS (
   -- Insert Questions and return their IDs
-  INSERT INTO "Question" ("question", "type", "revealToken", "revealTokenAmount")
+  INSERT INTO "Question" ("question", "type", "revealToken", "revealTokenAmount", "revealAtDate", "durationMiliseconds")
   VALUES 
-    ('Is the sky blue?', 'TrueFalse', 'Bonk', 0),
-    ('Do fish fly?', 'TrueFalse', 'Bonk', 0),
-    ('Is water wet?', 'TrueFalse', 'Bonk', 0),
-    ('Can dogs speak English?', 'TrueFalse', 'Bonk', 0)
+    ('Is the sky blue?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),
+    ('Do fish fly?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),
+    ('Is water wet?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),
+    ('Can dogs speak English?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000)
   RETURNING id AS question_id
 ), inserted_options AS (
   -- For each inserted question, insert two options
-  INSERT INTO "QuestionOption" ("option", "isTrue", "questionId")
-  SELECT opt.option, opt.isTrue, iq.question_id
+  INSERT INTO "QuestionOption" ("option", "isCorrect", "isLeft", "questionId")
+  SELECT opt.option, opt.isCorrect, opt.isLeft, iq.question_id
   FROM inserted_questions iq
   CROSS JOIN LATERAL (VALUES 
-    ('True', TRUE), 
-    ('False', FALSE)
-  ) AS opt(option, isTrue)
+    ('True', true, true), 
+    ('False', false, false)
+  ) AS opt(option, isCorrect, isLeft)
 ), cross_join AS (
   -- Cross join to prepare rows for the DeckQuestion table
   SELECT d.id AS deck_id, q.question_id

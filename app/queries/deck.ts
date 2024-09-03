@@ -5,22 +5,15 @@ import {
   Deck,
   DeckQuestion,
   Question,
+  QuestionAnswer,
   QuestionOption,
   QuestionTag,
   Tag,
 } from "@prisma/client";
+import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
-import { addPlaceholderAnswers } from "../actions/answer";
 import { getJwtPayload } from "../actions/jwt";
-import { HistorySortOptions } from "../api/history/route";
 import prisma from "../services/prisma";
-import {
-  getDeckState,
-  handleQuestionMappingForFeed,
-  populateAnswerCount,
-} from "../utils/question";
-import { answerPercentageQuery } from "./answerPercentageQuery";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -40,19 +33,15 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
-  // const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  // const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
-  if (!payload) {
-    return redirect("/login");
-  }
+
+  if (!payload?.sub) return null;
 
   const dailyDeck = await prisma.deck.findFirst({
     where: {
-      date: { not: null /* gte: currentDayStart, lte: currentDayEnd */ },
-      isActive: true,
-      userDeck: { none: { userId: payload?.sub ?? "" } },
-      // this should be just handled by currentDayStart and currentDayEnd
+      date: { gte: currentDayStart, lte: currentDayEnd },
       deckQuestions: {
         every: {
           question: {
@@ -63,7 +52,30 @@ export async function getDailyDeck() {
         },
       },
     },
-    include: questionDeckToRunInclude,
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: {
+                    where: {
+                      userId: payload.sub,
+                    },
+                  },
+                },
+              },
+              questionTags: {
+                include: {
+                  tag: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!dailyDeck) {
@@ -71,6 +83,8 @@ export async function getDailyDeck() {
   }
 
   const questions = mapQuestionFromDeck(dailyDeck);
+
+  if (!questions.filter((q) => q.status === undefined).length) return null;
 
   return {
     questions,
@@ -112,25 +126,71 @@ export async function getDailyDeckForFrame() {
 
 export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
-  if (!payload) {
-    return null;
-  }
+
+  if (!payload?.sub) return null;
 
   const deck = await prisma.deck.findFirst({
-    where: { id: { equals: deckId }, isActive: true },
-    include: questionDeckToRunInclude,
+    where: {
+      id: deckId,
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: {
+                    where: {
+                      userId: payload.sub,
+                    },
+                  },
+                },
+              },
+              questionTags: {
+                include: {
+                  tag: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!deck) {
     return null;
   }
 
+  if (
+    (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) ||
+    deck.deckQuestions.some((dq) =>
+      isBefore(dq.question.revealAtDate!, new Date()),
+    )
+  )
+    return {
+      questions: [],
+      id: deck.id,
+      date: deck.date,
+    };
+
   const questions = mapQuestionFromDeck(deck);
-  await addPlaceholderAnswers(
-    deck.deckQuestions.flatMap((dq) => dq.question.questionOptions),
-    payload.sub,
-  );
-  return questions;
+
+  return {
+    questions,
+    id: deck.id,
+    date: deck.date,
+    numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
+      dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
+    ).length,
+    deckInfo: {
+      heading: deck.heading || deck.deck,
+      description: deck.description,
+      imageUrl: deck.imageUrl,
+      footer: deck.footer,
+    },
+  };
 }
 
 const mapQuestionFromDeck = (
@@ -138,7 +198,9 @@ const mapQuestionFromDeck = (
     deckQuestions: Array<
       DeckQuestion & {
         question: Question & {
-          questionOptions: QuestionOption[];
+          questionOptions: (QuestionOption & {
+            questionAnswers?: QuestionAnswer[];
+          })[];
           questionTags: (QuestionTag & { tag: Tag })[];
         };
       }
@@ -154,9 +216,12 @@ const mapQuestionFromDeck = (
     questionOptions: dq.question.questionOptions.map((qo) => ({
       id: qo.id,
       option: qo.option,
+      isLeft: qo.isLeft,
     })),
     questionTags: dq.question.questionTags,
     deckRevealAtDate: deck.revealAtDate,
+    status: dq.question.questionOptions[0].questionAnswers?.[0]?.status,
+    createdAt: dq.question.questionOptions[0].questionAnswers?.[0]?.createdAt,
   }));
 
   return questions;
@@ -164,6 +229,7 @@ const mapQuestionFromDeck = (
 
 export async function getDecks() {
   const decks = await prisma.deck.findMany({
+    orderBy: [{ revealAtDate: "desc" }, { deck: "asc" }],
     include: {
       deckQuestions: {
         take: 1,
@@ -183,6 +249,62 @@ export async function getDecks() {
   });
 
   return decks;
+}
+
+export async function getDailyAnsweredQuestions() {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const dailyDeck = await prisma.deck.findFirst({
+    where: {
+      date: { gte: currentDayStart, lte: currentDayEnd },
+      deckQuestions: {
+        every: {
+          question: {
+            revealAtDate: {
+              gte: new Date(),
+            },
+          },
+        },
+      },
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!dailyDeck) {
+    return { answers: [], questions: [] };
+  }
+
+  const questionOptionIds = dailyDeck?.deckQuestions.flatMap((questions) =>
+    questions.question.questionOptions.map((q) => q.id),
+  );
+
+  const answers = await prisma.questionAnswer.findMany({
+    where: {
+      userId: payload.sub,
+      questionOptionId: {
+        in: questionOptionIds,
+      },
+      selected: true,
+    },
+  });
+
+  return { answers, questions: dailyDeck?.deckQuestions };
 }
 
 export async function getDeckSchema(id: number) {
@@ -214,9 +336,9 @@ export async function getDeckSchema(id: number) {
 
   return {
     ...deck,
-    revealToken: deck.deckQuestions[0].question.revealToken,
-    revealTokenAmount: deck.deckQuestions[0].question.revealTokenAmount,
-    tagIds: deck.deckQuestions[0].question.questionTags.map((qt) => qt.tag.id),
+    revealToken: deck.deckQuestions[0]?.question.revealToken,
+    revealTokenAmount: deck.deckQuestions[0]?.question.revealTokenAmount,
+    tagIds: deck.deckQuestions[0]?.question.questionTags.map((qt) => qt.tag.id),
     deckQuestions: undefined,
     questions: deck.deckQuestions.map((dq) => ({
       ...dq.question,
@@ -227,285 +349,4 @@ export async function getDeckSchema(id: number) {
       questionTags: undefined,
     })),
   };
-}
-
-export async function getDeckDetails(id: number) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  const deck = await prisma.deck.findFirst({
-    where: {
-      id: {
-        equals: id,
-      },
-    },
-    include: {
-      reveals: {
-        where: { userId: payload.sub },
-      },
-      deckQuestions: {
-        include: {
-          question: {
-            include: {
-              questionOptions: {
-                include: {
-                  questionAnswers: true,
-                },
-              },
-              reveals: {
-                where: { userId: payload.sub },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  if (!deck) {
-    return null;
-  }
-
-  const questions = deck?.deckQuestions.flatMap((dq) => dq.question);
-  const questionOptionIds = questions.flatMap((q) =>
-    q.questionOptions?.map((qo) => qo.id),
-  );
-  const questionOptionPercentages =
-    await answerPercentageQuery(questionOptionIds);
-
-  const populated = populateAnswerCount(deck);
-  const { isRevealable } = getDeckState(deck);
-  handleQuestionMappingForFeed(
-    questions as any,
-    questionOptionPercentages,
-    payload.sub,
-    isRevealable,
-  );
-
-  return { ...deck, answerCount: populated.answerCount ?? 0 };
-}
-
-export async function getHomeFeedDecks({
-  areAnswered,
-  areRevealed,
-  query,
-  sort = HistorySortOptions.Revealed,
-}: {
-  areAnswered: boolean;
-  areRevealed: boolean;
-  query: string;
-  sort?: HistorySortOptions;
-}) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return [];
-  }
-
-  let sortInput: Prisma.DeckOrderByWithRelationInput = {
-    revealAtDate: { sort: "desc" },
-  };
-
-  if (sort === HistorySortOptions.Claimable) {
-    sortInput = {
-      reveals: { _count: "desc" },
-    };
-  }
-
-  if (sort === HistorySortOptions.Revealed) {
-    sortInput = {
-      revealAtDate: { sort: "desc" },
-    };
-  }
-
-  const revealedAtFilter: Prisma.DeckWhereInput = areRevealed
-    ? {
-        reveals: {
-          some: {
-            userId: {
-              equals: payload.sub,
-            },
-          },
-        },
-      }
-    : {
-        reveals: {
-          none: {
-            userId: {
-              equals: payload.sub,
-            },
-          },
-        },
-      };
-
-  const areAnsweredFilter: Prisma.DeckWhereInput = areAnswered
-    ? {
-        deckQuestions: {
-          every: {
-            question: {
-              questionOptions: {
-                some: {
-                  questionAnswers: {
-                    some: {
-                      userId: payload.sub,
-                      hasViewedButNotSubmitted: false,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      }
-    : {
-        deckQuestions: {
-          some: {
-            question: {
-              questionOptions: {
-                none: {
-                  questionAnswers: {
-                    some: {
-                      userId: payload.sub,
-                      hasViewedButNotSubmitted: false,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        OR: [{ revealAtDate: { gte: new Date() } }, { revealAtDate: null }],
-        isActive: true,
-      };
-
-  let decks = await prisma.deck.findMany({
-    where: {
-      deck: { contains: query, mode: "insensitive" },
-      date: {
-        equals: null,
-      },
-      ...areAnsweredFilter,
-      ...revealedAtFilter,
-    },
-    include: {
-      deckQuestions: {
-        include: {
-          question: {
-            include: {
-              questionOptions: {
-                include: {
-                  questionAnswers: true,
-                },
-                orderBy: {
-                  createdAt: "desc",
-                },
-              },
-            },
-          },
-        },
-      },
-      reveals: {
-        where: { userId: { equals: payload.sub } },
-        orderBy: { createdAt: "desc" },
-      },
-    },
-    orderBy: { ...sortInput },
-  });
-
-  if (areAnswered) {
-    decks = decks.map((d) => {
-      const answerDate = d.deckQuestions
-        .flatMap((dq) => dq.question.questionOptions)
-        .map((qo) => qo.questionAnswers[0]?.createdAt)
-        .filter((date) => !!date)
-        .sort((left: Date, right: Date) => {
-          if (dayjs(left).isAfter(right)) {
-            return 1;
-          }
-
-          if (dayjs(right).isAfter(left)) {
-            return -1;
-          }
-
-          return 0;
-        })[0];
-
-      return { ...d, answerDate };
-    });
-  }
-
-  if (sort === HistorySortOptions.Date) {
-    decks.sort((a: any, b: any) => {
-      if (!areAnswered) {
-        return 0;
-      }
-
-      if (dayjs(a.answerDate).isAfter(b.answerDate)) {
-        return -1;
-      }
-
-      if (dayjs(b.answerDate).isAfter(a.answerDate)) {
-        return 1;
-      }
-
-      return 0;
-    });
-  }
-
-  decks.forEach((d) => populateAnswerCount(d as any));
-  if (!areRevealed) {
-    decks?.forEach((d) => {
-      d.deckQuestions?.forEach((dq) => {
-        dq.question?.questionOptions?.forEach((qo: { isTrue?: boolean }) => {
-          delete qo.isTrue;
-        });
-      });
-    });
-  }
-
-  decks.forEach((deck) =>
-    deck.deckQuestions.forEach((dq) =>
-      dq.question.questionOptions.forEach((qo: any) => {
-        if (qo.questionAnswers) {
-          qo.questionAnswers = qo.questionAnswers.filter(
-            (qa: any) => qa.userId === payload.sub,
-          );
-        }
-      }),
-    ),
-  );
-  return decks;
-}
-
-export async function hasAnsweredDeck(
-  deckId: number,
-  userId: string | null = null,
-  ignorePlaceholder = false,
-) {
-  if (!userId) {
-    const payload = await getJwtPayload();
-    if (!payload) {
-      return true;
-    }
-
-    userId = payload?.sub;
-  }
-
-  const questionAnswerWhereInput: Prisma.QuestionAnswerWhereInput =
-    ignorePlaceholder ? { hasViewedButNotSubmitted: false } : {};
-
-  const answeredCount = await prisma.questionAnswer.count({
-    where: {
-      userId: { equals: userId },
-      questionOption: {
-        question: { deckQuestions: { some: { deckId: { equals: deckId } } } },
-      },
-      ...questionAnswerWhereInput,
-    },
-  });
-
-  return answeredCount > 0;
 }

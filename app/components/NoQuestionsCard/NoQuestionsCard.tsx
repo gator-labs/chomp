@@ -1,84 +1,74 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Button } from "../Button/Button";
-import { ChompGraphic } from "../Graphics/ChompGraphic";
-import { TelegramIcon } from "../Icons/TelegramIcon";
-import { TwitterIcon } from "../Icons/TwitterIcon";
+import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
+import { QUESTION_CARD_CONTENT } from "./constants";
+
+import { useRouter } from "next-nprogress-bar";
 
 type NoQuestionsCardProps = {
-  browseHomeUrl?: string;
+  variant:
+    | "daily-deck"
+    | "regular-deck"
+    | "answer-page"
+    | "answered-none"
+    | "answered-some";
+  nextDeckId?: number;
+  deckRevealAtDate?: Date | null;
 };
 
-export function NoQuestionsCard({ browseHomeUrl }: NoQuestionsCardProps) {
-  const isDailyDeck = !!browseHomeUrl;
-
+export function NoQuestionsCard({
+  variant,
+  nextDeckId,
+  deckRevealAtDate,
+}: NoQuestionsCardProps) {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-between h-full">
-      <div className="questions-card text-white font-sora relative">
-        <div>
-          <div className="text-xl font-semibold mb-2">Fantastic!</div>
-          <div className="text-sm max-w-72">
-            {isDailyDeck ? (
-              <>
-                You chomped through your Daily Deck. Now you can browse other
-                questions on your homepage!
-              </>
-            ) : (
-              <>
-                Thanks for chomping through our closed Alpha!
-                <br />
-                <br />
-                Waddle over to our Telegram or Twitter to get notified when
-                Chomp is ready for you to play again :)
-              </>
-            )}
+    <div className="flex flex-col justify-between h-full w-full">
+      <div
+        className="questions-card text-white font-sora relative"
+        style={{
+          aspectRatio: 0.92,
+          height: variant === "answer-page" ? "100%" : "auto",
+        }}
+      >
+        <div className="flex items-center justify-start text-left flex-col h-full gap-5">
+          <div className="text-2xl font-bold mb-2 w-full">
+            {QUESTION_CARD_CONTENT[variant].title}
+          </div>
+          <div className="text-base relative z-10">
+            {QUESTION_CARD_CONTENT[variant].body(deckRevealAtDate)}
           </div>
         </div>
-        <div className="flex justify-between items-end">
-          <div className="text-sm max-w-44">
-            Free questions unlocks every 24 hours!
-          </div>
-          <div>
-            <ChompGraphic className="absolute bottom-0 right-0" />
-          </div>
+        <div className="absolute bottom-2.5 right-4">
+          {QUESTION_CARD_CONTENT[variant].backgroundIcon}
         </div>
       </div>
-      {isDailyDeck ? (
+      {nextDeckId ? (
         <Button
           variant="pink"
           size="big"
-          className="mt-2"
+          className="gap-1"
           onClick={() => {
-            router.replace(browseHomeUrl);
+            router.replace(`/application/decks/${nextDeckId}`);
             router.refresh();
           }}
         >
-          Browse Home
+          Next Deck <HalfArrowRightIcon fill="#0D0D0D" />
         </Button>
       ) : (
-        <div className="flex gap-4 mt-2">
-          <Button
-            variant="pink"
-            size="big"
-            onClick={() => {
-              window.open("https://twitter.com/chompdotgames", "_blank");
-            }}
-          >
-            <TwitterIcon width={18} height={18} fill="#000" />
-          </Button>
-          <Button
-            variant="pink"
-            size="big"
-            onClick={() => {
-              window.open("https://t.me/+3Ava3bLuNd85MGVl", "_blank");
-            }}
-          >
-            <TelegramIcon width={21} height={21} fill="#000" />
-          </Button>
-        </div>
+        <Button
+          variant="pink"
+          size="big"
+          className="gap-1"
+          onClick={() => {
+            router.replace("/application");
+            router.refresh();
+          }}
+        >
+          Home <HalfArrowRightIcon fill="#0D0D0D" />
+        </Button>
       )}
     </div>
   );

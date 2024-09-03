@@ -1,10 +1,17 @@
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import classNames from "classnames";
 import Image from "next/image";
 import { CSSProperties } from "react";
 
 type AvatarProps = {
   src: string;
-  size: "extrasmall" | "small" | "medium" | "large";
+  size:
+    | "extrasmall"
+    | "small"
+    | "medium"
+    | "large"
+    | "extralarge"
+    | "oversized";
   className?: string;
   style?: CSSProperties;
 };
@@ -20,6 +27,10 @@ export function Avatar({ src, size, className, style }: AvatarProps) {
         return 40;
       case "large":
         return 64;
+      case "extralarge":
+        return 80;
+      case "oversized":
+        return 103;
       default:
         return 0;
     }
@@ -27,12 +38,19 @@ export function Avatar({ src, size, className, style }: AvatarProps) {
 
   return (
     <Image
-      src={src}
+      src={src || AvatarPlaceholder}
       alt="Avatar"
       width={resolveDimensions()}
       height={resolveDimensions()}
-      className={classNames("rounded-full border-2 border-white", className)}
-      style={style}
+      className={classNames(
+        "rounded-full border-2 border-white object-cover object-center",
+        className,
+      )}
+      style={{
+        width: resolveDimensions(),
+        height: resolveDimensions(),
+        ...style,
+      }}
     />
   );
 }

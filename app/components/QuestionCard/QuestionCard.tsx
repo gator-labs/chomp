@@ -1,40 +1,42 @@
 "use client";
+import { QuestionType } from "@prisma/client";
 import classNames from "classnames";
 import dayjs from "dayjs";
+import Image from "next/image";
 import { CSSProperties, ReactNode, useCallback, useState } from "react";
+import gatorHeadImage from "../../../public/images/gator-head.png";
 import { useInterval } from "../../hooks/useInterval";
 import {
-  ONE_SECOND_IN_MILISECONDS,
+  ONE_SECOND_IN_MILLISECONDS,
   getDueAtString,
 } from "../../utils/dateUtils";
 import { CountdownIcon } from "../Icons/CountdownIcon";
-import { ImageIcon } from "../Icons/ImageIcon";
 import { Modal } from "../Modal/Modal";
 
 type QuestionCardProps = {
   question: string;
+  type: QuestionType;
   dueAt?: Date;
   onDurationRanOut?: () => void;
-  step: number;
-  numberOfSteps: number;
   viewImageSrc?: string;
   className?: string;
   children?: ReactNode;
   style?: CSSProperties;
   isBlurred?: boolean;
+  answer?: string;
 };
 
 export function QuestionCard({
   question,
   children,
   viewImageSrc,
-  numberOfSteps,
-  step,
+  type,
   dueAt,
   className,
   onDurationRanOut,
   style,
   isBlurred,
+  answer,
 }: QuestionCardProps) {
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
@@ -49,40 +51,41 @@ export function QuestionCard({
     }
   }, [setDueAtFormatted, dueAt, onDurationRanOut]);
 
-  useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILISECONDS);
+  useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILLISECONDS);
 
   return (
-    <div className={classNames("questions-card", className)} style={style}>
-      <div
-        className={classNames("text-white font-sora font-semibold text-base", {
-          "blur-sm": isBlurred,
-          "opacity-30": isBlurred,
-        })}
+    <div
+      className={classNames(
+        "questions-card p-4 pt-6 rounded-lg z-0 flex-grow h-full",
+        className,
+      )}
+      style={{
+        ...style,
+        position: "relative",
+      }}
+    >
+      <Image
+        src={gatorHeadImage}
+        alt="gator-head"
+        className="absolute bottom-0 left-0 w-full"
+        style={{ zIndex: 1 }}
+      />
+      <p
+        className={classNames(
+          "text-white font-sora text-[24px] leading-[30px] max-w-[330px] z-10",
+          {
+            "blur-sm": isBlurred,
+            "opacity-30": isBlurred,
+            "!text-base": type === QuestionType.MultiChoice,
+          },
+        )}
       >
         {question}
-      </div>
-      <div>{children}</div>
-      <div>
-        {viewImageSrc && (
-          <div className="flex items-center gap-[6px] mb-1">
-            <ImageIcon />
-            <button
-              onClick={() => setIsViewImageOpen(true)}
-              className="underline text-white font-sora font-light text-sm"
-            >
-              View Image
-            </button>
-            <Modal
-              isOpen={isViewImageOpen}
-              onClose={() => setIsViewImageOpen(false)}
-              title=""
-            >
-              <img src={viewImageSrc} />
-            </Modal>
-          </div>
-        )}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+      </p>
+      <div className="z-10">{children}</div>
+      <div className="relative z-50 flex justify-between items-end">
+        <div className="flex items-center justify-between z-10">
+          <div className="flex justify-start items-center gap-x-1 w-full z-10">
             {!!dueAt && (
               <>
                 <CountdownIcon fill="#999" />
@@ -92,18 +95,28 @@ export function QuestionCard({
               </>
             )}
           </div>
-          <div className="flex gap-x-[10px]">
-            {Array.from(Array(numberOfSteps).keys()).map((_, index) => (
-              <div
-                key={index}
-                className={classNames("rounded-full w-2 h-2", {
-                  "bg-[#CFC5F7]": index + 1 <= step,
-                  "bg-white": index + 1 > step,
-                })}
-              ></div>
-            ))}
-          </div>
         </div>
+        {viewImageSrc && (
+          <div className="flex z-10">
+            <Image
+              onClick={() => setIsViewImageOpen(true)}
+              src={viewImageSrc}
+              alt="preview-image"
+              className="w-14 rounded-lg cursor-pointer"
+              width={56}
+              height={56}
+            />
+
+            <Modal
+              isOpen={isViewImageOpen}
+              onClose={() => setIsViewImageOpen(false)}
+              title=""
+              variant="image-only"
+            >
+              <img alt="preview-image" src={viewImageSrc} />
+            </Modal>
+          </div>
+        )}
       </div>
     </div>
   );

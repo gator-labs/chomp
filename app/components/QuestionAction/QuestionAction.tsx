@@ -1,13 +1,16 @@
 "use client";
 import { QuestionType } from "@prisma/client";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../Button/Button";
+import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 import { QuestionStep } from "../Question/Question";
 import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
+import { BINARY_QUESTION_ICON } from "./constants";
 
 type QuestionOption = {
   id: number;
   option: string;
+  isLeft: boolean;
 };
 
 type QuestionActionProps = {
@@ -16,6 +19,9 @@ type QuestionActionProps = {
   onButtonClick: (answer?: number) => void;
   randomQuestionMarker?: string;
   step: QuestionStep;
+  percentage?: number;
+  setPercentage?: Dispatch<SetStateAction<number>>;
+  disabled?: boolean;
 };
 
 export function QuestionAction({
@@ -24,13 +30,19 @@ export function QuestionAction({
   onButtonClick,
   step,
   randomQuestionMarker,
+  percentage = 50,
+  setPercentage,
+  disabled,
 }: QuestionActionProps) {
-  const [scale, setScale] = useState(50);
+  const [isSliderTouched, setIsSliderTouched] = useState(false);
 
-  if (
-    (type === "TrueFalse" || type === "YesNo") &&
-    step === QuestionStep.AnswerQuestion
-  ) {
+  const activateSlider = () => {
+    if (!isSliderTouched) {
+      setIsSliderTouched(true);
+    }
+  };
+
+  if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
         <div className="text-md mb-4">
@@ -40,11 +52,17 @@ export function QuestionAction({
           {questionOptions?.map((qo) => (
             <Button
               onClick={() => onButtonClick(qo.id)}
-              variant="pink"
+              variant="purple"
               key={qo.id}
               size="big"
+              className="!px-0 flex-1 items-center gap-1 capitalize !h-[50px]"
             >
               {qo.option}
+              {
+                BINARY_QUESTION_ICON[
+                  qo.option.toUpperCase() as keyof typeof BINARY_QUESTION_ICON
+                ]
+              }
             </Button>
           ))}
         </div>
@@ -53,29 +71,37 @@ export function QuestionAction({
   }
 
   if (
-    (type === "TrueFalse" || type === "YesNo") &&
-    step === QuestionStep.PickPercentage
+    type === "BinaryQuestion" &&
+    step === QuestionStep.PickPercentage &&
+    questionOptions
   ) {
     return (
-      <div className="text-white font-semibold">
-        <div className="text-center  text-md mb-4">
-          How do you think others will respond?
+      <div className="text-white font-semibold pb-7">
+        <div className="text-center text-md mb-4 text-[13px] font-normal leading-[16.38px]">
+          How many people do you think picked{" "}
+          <span className="px-2 py-1 bg-white rounded-2xl text-[10px] leading-[12px] text-[#0D0D0D]">
+            {randomQuestionMarker}
+          </span>
         </div>
-        <div className="flex gap-2 items-center">
-          <div className="!w-[85%]">
+        <div className="flex gap-3 items-center justify-between">
+          <div className="w-full h-full">
             <TrueFalseScale
-              ratioTrue={scale}
-              progressBarClassName="h-[36px] rounded-md"
-              handleRatioChange={setScale}
-              labelTrue={type === "YesNo" ? "Yes" : undefined}
-              labelFalse={type === "YesNo" ? "No" : undefined}
+              ratioLeft={percentage}
+              handleRatioChange={(value) =>
+                setPercentage && setPercentage(value)
+              }
+              labelLeft="No one"
+              labelRight="Everyone"
+              isSliderTouched={isSliderTouched}
+              activateSlider={activateSlider}
             />
           </div>
           <Button
-            onClick={() => onButtonClick(scale)}
-            variant="pink"
-            size="big"
-            className="!w-[15%]"
+            onClick={() => onButtonClick(percentage)}
+            disabled={!isSliderTouched || disabled}
+            variant="purple"
+            size="normal"
+            className="w-max py-6 !rounded-2xl self-stretch"
           >
             Chomp
           </Button>
@@ -87,10 +113,10 @@ export function QuestionAction({
   if (type === "MultiChoice" && step === QuestionStep.AnswerQuestion) {
     return (
       <div className="text-center text-white font-semibold">
-        <div className="text-md mb-4">Choose your answer</div>
+        <div className="text-md mb-4">Choose the option you agree with</div>
         <div>
           <Button onClick={() => onButtonClick()} variant="pink" size="big">
-            Chomp
+            Next <HalfArrowRightIcon fill="#0D0D0D" />
           </Button>
         </div>
       </div>
@@ -100,12 +126,33 @@ export function QuestionAction({
   if (type === "MultiChoice" && step === QuestionStep.PickPercentage) {
     return (
       <div className="text-center text-white font-semibold">
-        <div className="text-md mb-4">
-          How many people do you think picked {randomQuestionMarker}?
+        <div className="text-sm font-normal mb-4 flex gap-1 items-center justify-center">
+          How many people do you think picked{" "}
+          <span className="px-2 py-1 bg-white rounded-2xl text-[10px] leading-[12px] text-[#0D0D0D]">
+            {randomQuestionMarker}
+          </span>
         </div>
-        <div>
-          <Button onClick={() => onButtonClick()} variant="pink" size="big">
-            Chomp
+        <div className="flex gap-3 items-center justify-between">
+          <div className="w-full h-full">
+            <TrueFalseScale
+              ratioLeft={percentage}
+              handleRatioChange={(value) =>
+                setPercentage && setPercentage(value)
+              }
+              labelLeft="No one"
+              labelRight="Everyone"
+              isSliderTouched={isSliderTouched}
+              activateSlider={activateSlider}
+            />
+          </div>
+          <Button
+            onClick={() => onButtonClick(percentage)}
+            disabled={!isSliderTouched}
+            variant="purple"
+            size="normal"
+            className="w-max py-6 !rounded-2xl self-stretch"
+          >
+            Confirm
           </Button>
         </div>
       </div>

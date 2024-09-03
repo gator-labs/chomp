@@ -1,101 +1,115 @@
 "use server";
 
 import {
+  AnswerStatus,
   FungibleAsset,
   QuestionAnswer,
-  QuestionOption,
   QuestionType,
+  TransactionLogType,
 } from "@prisma/client";
 import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { pointsPerAction } from "../constants/points";
-import { hasAnsweredDeck } from "../queries/deck";
 import { hasAnsweredQuestion } from "../queries/question";
+import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
+import { updateStreak } from "./streak";
 
 export type SaveQuestionRequest = {
   questionId: number;
   questionOptionId?: number;
   percentageGiven?: number;
   percentageGivenForAnswerId?: number;
+  timeToAnswerInMiliseconds?: number;
+  deckId?: number;
 };
 
-export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
+export async function addTutorialPoints(
+  isCorrectFirstOrderMultipleQuestion: boolean,
+) {
+  const totalNumberOfTutorialQuestions = 2;
+
+  const fungibleAssetRevealTasks = [
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount:
+        totalNumberOfTutorialQuestions *
+        pointsPerAction[TransactionLogType.AnswerQuestion],
+      transactionLogType: TransactionLogType.AnswerQuestion,
+    }),
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerDeck],
+      transactionLogType: TransactionLogType.AnswerDeck,
+    }),
+
+    incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.RevealAnswer],
+      transactionLogType: TransactionLogType.RevealAnswer,
+    }),
+  ];
+
+  if (isCorrectFirstOrderMultipleQuestion)
+    fungibleAssetRevealTasks.push(
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.CorrectFirstOrder],
+        transactionLogType: TransactionLogType.CorrectFirstOrder,
+      }),
+    );
+
+  await Promise.all(fungibleAssetRevealTasks);
+  await addUserTutorialTimestamp();
+  revalidatePath("/tutorial");
+}
+
+export async function answerQuestion(request: SaveQuestionRequest) {
   const payload = await getJwtPayload();
   const userId = payload?.sub ?? "";
-  if (!userId) {
-    return;
-  }
 
-  const hasAnswered = await hasAnsweredDeck(deckId, userId, true);
-
-  if (hasAnswered) {
-    return;
-  }
-
-  const revealAtDateObject = await prisma.deck.findFirst({
-    where: { id: { equals: deckId } },
-    select: { revealAtDate: true },
-  });
-
-  if (
-    revealAtDateObject?.revealAtDate &&
-    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
-  ) {
-    return;
-  }
-
-  const questionIds = request
-    .filter((dr) => dr.percentageGiven !== undefined && !!dr.questionOptionId)
-    .map((dr) => dr.questionId);
+  if (!userId) return;
 
   const questionOptions = await prisma.questionOption.findMany({
-    where: { questionId: { in: questionIds } },
+    where: { questionId: request.questionId },
     include: { question: true },
   });
 
   const questionAnswers = questionOptions.map((qo) => {
-    const answerForQuestion = request.find(
-      (r) => r.questionId === qo.questionId,
-    );
-    const isOptionSelected = qo.id === answerForQuestion?.questionOptionId;
-
-    if (
-      qo.question.type === QuestionType.TrueFalse ||
-      qo.question.type === QuestionType.YesNo
-    ) {
-      const isYesOrTrueOption = qo.option === "Yes" || qo.option === "True";
-      return {
-        percentage: isYesOrTrueOption
-          ? answerForQuestion?.percentageGiven
-          : 100 - (answerForQuestion?.percentageGiven ?? 0),
-        questionOptionId: qo.id,
-        selected: isOptionSelected,
-        userId,
-      } as QuestionAnswer;
-    }
+    const isOptionSelected = qo.id === request?.questionOptionId;
 
     const percentageForQuestionOption =
-      answerForQuestion?.percentageGivenForAnswerId === qo.id
-        ? answerForQuestion.percentageGiven
+      request?.percentageGivenForAnswerId === qo.id
+        ? request?.percentageGiven
         : undefined;
+
+    const percentage =
+      qo.question.type === QuestionType.BinaryQuestion &&
+      !percentageForQuestionOption
+        ? 100 - request!.percentageGiven!
+        : percentageForQuestionOption;
 
     return {
       selected: isOptionSelected,
-      percentage: percentageForQuestionOption,
+      percentage,
       questionOptionId: qo.id,
+      timeToAnswer: request?.timeToAnswerInMiliseconds
+        ? BigInt(request?.timeToAnswerInMiliseconds)
+        : null,
       userId,
+      status: AnswerStatus.Submitted,
     } as QuestionAnswer;
   });
 
-  await removePlaceholderAnswerByDeck(deckId, userId);
   await prisma.$transaction(async (tx) => {
-    await tx.userDeck.create({
-      data: {
-        deckId: deckId,
-        userId: payload?.sub ?? "",
+    await tx.questionAnswer.deleteMany({
+      where: {
+        questionOption: {
+          questionId: request.questionId,
+        },
+        userId,
       },
     });
 
@@ -103,12 +117,61 @@ export async function saveDeck(request: SaveQuestionRequest[], deckId: number) {
       data: questionAnswers,
     });
 
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      questionIds.length * pointsPerAction["answer-question"] +
-        pointsPerAction["answer-deck"],
-      tx,
+    const deckQuestions = await tx.deckQuestion.findMany({
+      where: {
+        deckId: request.deckId,
+      },
+      include: {
+        deck: true,
+        question: {
+          include: {
+            questionOptions: {
+              include: {
+                questionAnswers: {
+                  where: {
+                    userId,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const allQuestionOptions = deckQuestions.flatMap((dq) =>
+      dq.question.questionOptions.map((qo) => qo),
     );
+
+    const allQuestionAnswers = allQuestionOptions.flatMap((qo) =>
+      qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
+    );
+
+    const fungibleAssetRevealTasks = [
+      incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+        transactionLogType: TransactionLogType.AnswerQuestion,
+        injectedPrisma: tx,
+        questionIds: [request.questionId],
+      }),
+    ];
+
+    if (allQuestionOptions.length === allQuestionAnswers.length) {
+      fungibleAssetRevealTasks.push(
+        incrementFungibleAssetBalance({
+          asset: FungibleAsset.Point,
+          amount: pointsPerAction[TransactionLogType.AnswerDeck],
+          transactionLogType: TransactionLogType.AnswerDeck,
+          injectedPrisma: tx,
+          deckIds: [request.deckId!],
+        }),
+      );
+
+      if (!!deckQuestions[0].deck.date) await updateStreak(userId);
+    }
+
+    await Promise.all(fungibleAssetRevealTasks);
   });
 }
 
@@ -135,14 +198,13 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     return;
   }
 
-  const revealAtDateObject = await prisma.question.findFirst({
+  const question = await prisma.question.findFirst({
     where: { id: { equals: request.questionId } },
-    select: { revealAtDate: true },
   });
 
   if (
-    revealAtDateObject?.revealAtDate &&
-    dayjs(revealAtDateObject?.revealAtDate).isBefore(new Date())
+    question?.revealAtDate &&
+    dayjs(question?.revealAtDate).isBefore(new Date())
   ) {
     return;
   }
@@ -155,88 +217,68 @@ export async function saveQuestion(request: SaveQuestionRequest) {
   const questionAnswers = questionOptions.map((qo) => {
     const isOptionSelected = qo.id === request?.questionOptionId;
 
-    if (
-      qo.question.type === QuestionType.TrueFalse ||
-      qo.question.type === QuestionType.YesNo
-    ) {
-      const isYesOrTrueOption = qo.option === "Yes" || qo.option === "True";
-      return {
-        percentage: isYesOrTrueOption
-          ? request?.percentageGiven
-          : 100 - (request?.percentageGiven ?? 0),
-        questionOptionId: qo.id,
-        selected: isOptionSelected,
-        userId,
-      } as QuestionAnswer;
-    }
-
     const percentageForQuestionOption =
       request?.percentageGivenForAnswerId === qo.id
         ? request.percentageGiven
         : undefined;
 
+    const percentage =
+      qo.question.type === QuestionType.BinaryQuestion &&
+      !percentageForQuestionOption
+        ? 100 - request!.percentageGiven!
+        : percentageForQuestionOption;
+
     return {
       selected: isOptionSelected,
-      percentage: percentageForQuestionOption,
+      percentage,
       questionOptionId: qo.id,
+      timeToAnswer: request?.timeToAnswerInMiliseconds
+        ? BigInt(request?.timeToAnswerInMiliseconds)
+        : null,
       userId,
     } as QuestionAnswer;
   });
 
-  await removePlaceholderAnswerByQuestion(request.questionId, userId);
   await prisma.$transaction(async (tx) => {
     await tx.questionAnswer.createMany({
       data: questionAnswers,
     });
 
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      pointsPerAction["answer-question"],
-      tx,
-    );
+    await incrementFungibleAssetBalance({
+      asset: FungibleAsset.Point,
+      amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+      transactionLogType: TransactionLogType.AnswerQuestion,
+      injectedPrisma: tx,
+      questionIds: [request.questionId],
+    });
+
+    await updateStreak(userId);
   });
-}
 
-export async function removePlaceholderAnswerByQuestion(
-  questionId: number,
-  userId: string,
-) {
-  await prisma.questionAnswer.deleteMany({
-    where: {
-      questionOption: { questionId },
-      userId,
-      hasViewedButNotSubmitted: true,
-    },
-  });
-}
-
-export async function removePlaceholderAnswerByDeck(
-  deckId: number,
-  userId: string,
-) {
-  await prisma.questionAnswer.deleteMany({
-    where: {
-      questionOption: { question: { deckQuestions: { some: { deckId } } } },
-      userId,
-      hasViewedButNotSubmitted: true,
-    },
-  });
-}
-
-export async function addPlaceholderAnswers(
-  questionOptions: QuestionOption[],
-  userId: string,
-) {
-  const placeholderQuestionAnswers = questionOptions.map(
-    (qo) =>
-      ({
-        userId: userId,
-        hasViewedButNotSubmitted: true,
-        questionOptionId: qo.id,
-        selected: false,
-      }) as QuestionAnswer,
-  );
-
-  await prisma.questionAnswer.createMany({ data: placeholderQuestionAnswers });
   revalidatePath("/application");
+}
+
+export async function markQuestionAsSeenButNotAnswered(questionId: number) {
+  const payload = await getJwtPayload();
+
+  if (!payload) return;
+
+  const userId = payload.sub;
+
+  const questionOptions = await prisma.questionOption.findMany({
+    where: { questionId },
+  });
+
+  try {
+    await prisma.questionAnswer.createMany({
+      data: questionOptions.map((qo) => ({
+        questionOptionId: qo.id,
+        userId,
+        status: AnswerStatus.Viewed,
+        selected: false,
+      })),
+    });
+  } catch (error) {
+    return { hasError: true };
+  }
 }

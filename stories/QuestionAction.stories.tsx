@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { QuestionAction } from "../app/components/QuestionAction/QuestionAction";
 
+import { QuestionStep } from "@/app/components/Question/Question";
 import { QuestionType } from "@prisma/client";
 import { fn } from "@storybook/test";
-import { QuestionStep } from "@/app/components/Question/Question";
 
 const meta = {
   title: "Cards/Question Action",
@@ -27,10 +27,10 @@ type Story = StoryObj<typeof meta>;
 
 export const TrueFalse: Story = {
   args: {
-    type: QuestionType.TrueFalse,
+    type: QuestionType.BinaryQuestion,
     questionOptions: [
-      { id: 1, option: "False" },
-      { id: 2, option: "True" },
+      { id: 1, option: "False", isLeft: false },
+      { id: 2, option: "True", isLeft: true },
     ],
     step: QuestionStep.AnswerQuestion,
   },
@@ -45,10 +45,10 @@ export const MultipleChoice: Story = {
 
 export const TrueFalsePercentage: Story = {
   args: {
-    type: QuestionType.TrueFalse,
+    type: QuestionType.BinaryQuestion,
     questionOptions: [
-      { id: 1, option: "False" },
-      { id: 2, option: "True" },
+      { id: 1, option: "False", isLeft: false },
+      { id: 2, option: "True", isLeft: true },
     ],
     step: QuestionStep.PickPercentage,
   },

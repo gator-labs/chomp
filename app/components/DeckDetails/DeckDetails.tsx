@@ -1,25 +1,24 @@
 "use client";
-import { revealDeck } from "@/app/actions/reveal";
-import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
-import { useWindowSize } from "@/app/hooks/useWindowSize";
-import { useCollapsedContext } from "@/app/providers/CollapsedProvider";
+import { revealDeck } from "@/app/actions/chompResult";
+import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import {
   DeckQuestionIncludes,
   getDeckState,
   getQuestionState,
 } from "@/app/utils/question";
-import { getAppendedNewSearchParams } from "@/app/utils/searchParams";
-import { Deck, Reveal } from "@prisma/client";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useRef } from "react";
-import { Virtuoso, VirtuosoHandle } from "react-virtuoso";
+import { ChompResult, Deck } from "@prisma/client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 import { Button } from "../Button/Button";
-import { QuestionRowCard } from "../QuestionRowCard/QuestionRowCard";
+import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
+import { HalfArrowLeftIcon } from "../Icons/HalfArrowLeftIcon";
+import Stepper from "../Stepper/Stepper";
 
 type DeckProp = Deck & {
   answerCount: number;
-  reveals: Reveal[];
+  chompResults: ChompResult[];
   deckQuestions: {
     question: DeckQuestionIncludes;
   }[];
@@ -27,93 +26,96 @@ type DeckProp = Deck & {
 
 type DeckDetailsProps = {
   deck: DeckProp;
-  openIds?: string[];
 };
 
-const SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN = 175;
-
-function DeckDetails({ deck, openIds }: DeckDetailsProps) {
-  const pathname = usePathname();
+function DeckDetails({ deck }: DeckDetailsProps) {
   const router = useRouter();
-  const { height } = useWindowSize();
-  const virtuosoRef = useRef<VirtuosoHandle>(null);
-  const { setOpen } = useCollapsedContext();
+
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
   const deckState = getDeckState(deck);
-  const revealableQuestions = deck.deckQuestions
-    .map((dq) => getQuestionState(dq.question))
-    .filter((state) => state.isAnswered && !state.isRevealed);
+  const questionStates = deck.deckQuestions.map((dq) => ({
+    ...dq,
+    ...getQuestionState(dq.question),
+  }));
+
+  const revealableQuestions = questionStates.filter(
+    (state) => state.isAnswered && !state.isRevealed,
+  );
   const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
 
-  useIsomorphicLayoutEffect(() => {
-    if (openIds) {
-      openIds.forEach((questionId) => setOpen(+questionId));
-    }
-  }, [openIds, setOpen]);
-
-  const revealAll = useCallback(async () => {
-    await revealDeck(deck.id);
-    const newParams = getAppendedNewSearchParams({
-      openIds: encodeURIComponent(
-        JSON.stringify(deck.deckQuestions.map((dq) => dq.question.id)),
-      ),
-    });
-    router.push(`${pathname}${newParams}`);
+  const revealAll = useCallback(async ({ burnTx, nftAddress }: RevealProps) => {
+    await revealDeck(deck.id, burnTx, nftAddress);
     router.refresh();
     closeRevealModal();
   }, []);
 
+  const handleRevealAll = useCallback(
+    () =>
+      openRevealModal({
+        reveal: revealAll,
+        amount: revealableQuestions.reduce(
+          (curr, acc) => curr + acc.question.revealTokenAmount,
+          0,
+        ),
+        questionIds: revealableQuestions.map((q) => q.question.id),
+        questions: revealableQuestions.map((q) => q.question.question),
+      }),
+    [],
+  );
+
+  const hasChomped = !questionStates.some((qs) => !qs.isAnswered);
+
   return (
-    <div>
-      <div className="text-sm color-[#F1F1F1] flex justify-between px-4">
+    <div className="overflow-hidden flex flex-col gap-4">
+      <div className="text-sm color-[#F1F1F1] flex gap-2 items-center">
+        <Link href="/application/profile/history">
+          <HalfArrowLeftIcon />
+        </Link>
         <span>{deck.deck}</span>
-        <span>
-          {deck.deckQuestions.length} card
-          {deck.deckQuestions.length > 1 ? "s" : ""}
-        </span>
       </div>
-      {hasReveal && (
-        <div className="pt-4 px-4">
-          <Button
-            variant="white"
-            isPill
-            onClick={() => openRevealModal(revealAll)}
-          >
-            Reveal all
-          </Button>
+      <Stepper
+        numberOfSteps={deck.deckQuestions.length}
+        activeStep={questionStates.filter((qs) => qs.isAnswered).length}
+        color="green"
+        className="!p-0"
+      />
+      {(hasChomped || hasReveal) && (
+        <div className="flex justify-between items-center">
+          <div>
+            {hasChomped && (
+              <div className="bg-aqua rounded-full text-center px-4 py-2">
+                <div className="text-btn-text-primary text-xs font-bold">
+                  Chomped
+                </div>
+              </div>
+            )}
+          </div>
+          <div>
+            {hasReveal && (
+              <Button
+                size="small"
+                variant="white"
+                isPill
+                isFullWidth={false}
+                className="!text-xs"
+                onClick={handleRevealAll}
+              >
+                Reveal all
+              </Button>
+            )}
+          </div>
         </div>
       )}
-      <Virtuoso
-        ref={virtuosoRef}
-        style={{
-          height:
-            height -
-            SIZE_OF_OTHER_ELEMENTS_ON_HOME_SCREEN -
-            (hasReveal ? 80 : 0),
-        }}
-        data={deck.deckQuestions.map((dq) => dq.question)}
-        className="mx-4 mt-4"
-        itemContent={(_, element) => (
-          <div className="pb-4">
-            <QuestionRowCard
-              question={element}
-              onRefreshCards={(revealedId) => {
-                router.refresh();
-                const elementToScroll = deck.deckQuestions.find(
-                  (q) => q.question.id === revealedId,
-                );
-
-                if (elementToScroll) {
-                  virtuosoRef.current?.scrollToIndex({
-                    index: deck.deckQuestions.indexOf(elementToScroll),
-                  });
-                }
-              }}
-            />
-          </div>
-        )}
-      />
+      <ul className="overflow-y-auto">
+        {deck.deckQuestions
+          .map((dq) => dq.question)
+          .map((element) => (
+            <div key={element.id} className="pb-4">
+              <DeckDetailsFeedRowCard element={element} />
+            </div>
+          ))}
+      </ul>
     </div>
   );
 }

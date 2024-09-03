@@ -1,9 +1,10 @@
 "use server";
 
-import { VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@/lib/auth";
+import { DynamicJwtPayload, VerifiedEmail, VerifiedWallet, decodeJwtPayload } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import prisma from "../services/prisma";
+import { getRandomAvatarPath } from "../utils/avatar";
 import { resetAccountData } from "./demo";
 
 export const getJwtPayload = async () => {
@@ -13,7 +14,12 @@ export const getJwtPayload = async () => {
     return null;
   }
 
-  return await decodeJwtPayload(token.value);
+  const shouldOverrideUserId = process.env.OVERRIDE_USER_ID && process.env.OVERRIDE_USER_ID.length > 0;
+  if (shouldOverrideUserId) {
+    return {sub: process.env.OVERRIDE_USER_ID || ""}  as DynamicJwtPayload
+  } else {
+    return await decodeJwtPayload(token.value)
+  }
 };
 
 export const setJwt = async (token: string, nextPath?: string | null) => {
@@ -35,6 +41,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     },
     create: {
       id: payload.sub,
+      profileSrc: getRandomAvatarPath(),
     },
     update: {},
     include: {
@@ -120,13 +127,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     await resetAccountData();
   }
 
-  if (payload.new_user) {
-    redirect(
-      nextPath ? `/tutorial?next=${encodeURIComponent(nextPath)}` : "/tutorial",
-    );
-  }
-
-  redirect(nextPath ?? "/application");
+  if (!!nextPath) redirect(nextPath);
 };
 
 export const clearJwt = () => {

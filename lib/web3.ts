@@ -4,9 +4,15 @@ import {
 } from "@solana/spl-token";
 import { Connection, PublicKey } from "@solana/web3.js";
 
+import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
+import { publicKey } from "@metaplex-foundation/umi";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+
+export const dasUmi = createUmi(process.env.NEXT_PUBLIC_RPC_URL!).use(dasApi());
+
 export const findSplTokenPda = (
   pubKey: PublicKey,
-  tokenMintAddress: PublicKey
+  tokenMintAddress: PublicKey,
 ): PublicKey => {
   return PublicKey.findProgramAddressSync(
     [
@@ -14,7 +20,7 @@ export const findSplTokenPda = (
       TOKEN_PROGRAM_ID.toBuffer(),
       tokenMintAddress.toBuffer(),
     ],
-    ASSOCIATED_TOKEN_PROGRAM_ID
+    ASSOCIATED_TOKEN_PROGRAM_ID,
   )[0];
 };
 
@@ -35,7 +41,7 @@ export const getTokenBalances = async (addr: string | string[]) => {
       try {
         const tokenAccount = findSplTokenPda(
           new PublicKey(walletAddress),
-          new PublicKey(tokenAddress)
+          new PublicKey(tokenAddress),
         );
 
         const tokenAccountBalance =
@@ -48,4 +54,10 @@ export const getTokenBalances = async (addr: string | string[]) => {
   }
 
   return tokenBalances;
+};
+
+export const getUserAssets = async (address: string) => {
+  return (dasUmi.rpc as any).getAssetsByOwner({
+    owner: publicKey(address),
+  });
 };

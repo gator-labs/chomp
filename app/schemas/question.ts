@@ -12,14 +12,15 @@ export const questionSchema = z.object({
   type: z.nativeEnum(QuestionType),
   revealToken: z.nativeEnum(Token),
   revealTokenAmount: z.number().min(0),
-  revealAtDate: z.date().nullable(),
-  revealAtAnswerCount: z.number().min(0).nullable(),
+  revealAtDate: z.date().nullish(),
+  revealAtAnswerCount: z.number().min(0).nullish(),
   tagIds: z.number().array().default([]),
   questionOptions: z
     .object({
       id: z.number().optional(),
       option: z.string().min(1),
-      isTrue: z.boolean().optional(),
+      isCorrect: z.boolean().optional(),
+      isLeft: z.boolean(),
     })
     .array(),
 });

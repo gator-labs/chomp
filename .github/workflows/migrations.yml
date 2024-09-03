@@ -1,0 +1,53 @@
+name: Database Migrations
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - prod
+    paths:
+      - "**/*.sql" # Adjust this to include files whose changes should trigger the workflow
+
+jobs:
+  migrate_staging:
+    if: github.base_ref == 'main' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Use Node.js version 18
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run migrations
+        run: yarn prisma:migrate:prod
+        env:
+          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_STAGING }}
+          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_STAGING }}
+
+  migrate_prod:
+    if: github.base_ref == 'prod' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Use Node.js version 18
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run migrations
+        run: yarn prisma:migrate:prod
+        env:
+          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_PROD }}
+          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_PROD }}

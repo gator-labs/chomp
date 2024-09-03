@@ -1,32 +1,85 @@
 "use server";
 
-import { FungibleAsset } from "@prisma/client";
+import { ChompResult, ResultType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
+import { Keypair, PublicKey } from "@solana/web3.js";
+import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { calculateRevealPoints } from "../utils/points";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
+import { acquireMutex } from "../utils/mutex";
+
+import { sendBonk } from "../utils/bonk";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 
-export async function claimDeck(deckId: number) {
-  const decks = await claimDecks([deckId]);
-  return decks ? decks[0] : null;
-}
-
 export async function claimQuestion(questionId: number) {
+  console.log("claim questions fired");
   const questions = await claimQuestions([questionId]);
-  return questions ? questions[0] : null;
+  return questions ? questions : null;
 }
 
-export async function claimDecks(deckIds: number[]) {
-  const questions = await prisma.deckQuestion.findMany({
+export async function getClaimableQuestionIds(): Promise<number[]> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const claimableQuestions = await prisma.chompResult.findMany({
     where: {
-      deckId: {
-        in: deckIds,
+      userId: payload.sub,
+      result: "Revealed",
+      questionId: { not: null },
+      rewardTokenAmount: {
+        gt: 0,
       },
+    },
+    select: {
+      questionId: true,
     },
   });
 
-  return await claimQuestions(questions.map((q) => q.questionId));
+  return claimableQuestions.map(
+    (claimableQuestion) => claimableQuestion.questionId!,
+  );
+}
+
+export async function getAllRevealableQuestions() {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const revealableQuestionsAndAmount = await prisma.chompResult.findMany({
+    where: {
+      userId: payload.sub,
+      result: "Revealed",
+      questionId: { not: null },
+    },
+    select: {
+      questionId: true,
+      rewardTokenAmount: true,
+      burnTransactionSignature: true,
+    },
+  });
+
+  return revealableQuestionsAndAmount;
+}
+
+export async function claimAllAvailable() {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const claimableQuestionIds = await getClaimableQuestionIds();
+
+  if (!claimableQuestionIds.length) throw new Error("No claimable questions");
+
+  return claimQuestions(claimableQuestionIds);
 }
 
 export async function claimQuestions(questionIds: number[]) {
@@ -36,92 +89,138 @@ export async function claimQuestions(questionIds: number[]) {
     return null;
   }
 
-  const reveals = await prisma.reveal.findMany({
-    where: {
-      userId: payload.sub,
-      questionId: {
-        in: questionIds,
-      },
-      isRewardClaimed: false,
-    },
+  const release = await acquireMutex({
+    identifier: "CLAIM",
+    data: { userId: payload.sub },
   });
 
-  await prisma.$transaction(async (tx) => {
-    await tx.reveal.updateMany({
+  try {
+    const chompResults = await prisma.chompResult.findMany({
+      where: {
+        userId: payload.sub,
+        questionId: {
+          in: questionIds,
+        },
+        result: ResultType.Revealed,
+      },
+      include: {
+        question: true,
+      },
+    });
+
+    const userWallet = await prisma.wallet.findFirst({
+      where: {
+        userId: payload.sub,
+      },
+    });
+
+    if (!userWallet) {
+      return;
+    }
+
+    await prisma.chompResult.updateMany({
       where: {
         id: {
-          in: reveals.map((r) => r.id),
+          in: chompResults.map((r) => r.id),
         },
       },
       data: {
-        isRewardClaimed: true,
+        result: ResultType.Claimed,
       },
     });
 
-    const decks = await tx.deck.findMany({
-      where: {
-        deckQuestions: {
-          every: {
-            question: {
-              reveals: {
-                some: {
-                  userId: payload.sub,
-                  isRewardClaimed: true,
-                },
-              },
+    const sendTx = await handleSendBonk(chompResults, userWallet.address);
+
+    if (!sendTx) throw new Error("Send tx is missing");
+
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.chompResult.updateMany({
+          where: {
+            id: {
+              in: chompResults.map((r) => r.id),
             },
           },
-        },
-      },
-      include: {
-        reveals: {
-          where: {
-            userId: payload.sub,
+          data: {
+            sendTransactionSignature: sendTx,
           },
+        });
+      },
+      {
+        isolationLevel: "Serializable",
+        timeout: ONE_MINUTE_IN_MILLISECONDS,
+      },
+    );
+
+    release();
+    revalidatePath("/application");
+    revalidatePath("/application/profile/history");
+    return {
+      questionIds,
+      claimedAmount: chompResults.reduce(
+        (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
+        0,
+      ),
+      transactionSignature: sendTx,
+      questions: chompResults.map((cr) => cr.question),
+    };
+  } catch (e) {
+    class ClaimError extends Error {}
+    const claimError = new ClaimError(
+      `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
+      { cause: e },
+    );
+    Sentry.captureException(claimError);
+    release();
+    throw e;
+  }
+}
+
+async function handleSendBonk(
+  chompResults: ChompResult[],
+  address: string,
+) {
+  const treasuryWallet = Keypair.fromSecretKey(
+    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
+  );
+
+  const treasuryAddress = treasuryWallet.publicKey.toString();
+
+  const treasurySolBalance = await getSolBalance(treasuryAddress);
+  const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
+  
+  if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
+    Sentry.captureMessage(
+      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers`,
+      {
+        level: "fatal",
+        tags: {
+          category: "feedback", // Custom tag to categorize as feedback
+        },
+        extra: {
+          treasurySolBalance,
+          treasuryBonkBalance,
+          Refill: treasuryAddress,
+          Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
+          Solscan: `https://solscan.io/account/${treasuryAddress}#transfers `,
         },
       },
-    });
-
-    const deckRevealsToUpdate = decks
-      .filter((deck) => deck.reveals && deck.reveals.length > 0)
-      .map((deck) => deck.id);
-
-    if (deckRevealsToUpdate.length > 0) {
-      await tx.reveal.updateMany({
-        where: {
-          deckId: { in: deckRevealsToUpdate },
-        },
-        data: {
-          isRewardClaimed: true,
-        },
-      });
-    }
-
-    const deckRevealsToCreate = decks
-      .filter((deck) => !deck.reveals || deck.reveals.length === 0)
-      .map((deck) => deck.id);
-
-    if (deckRevealsToCreate.length > 0) {
-      await tx.reveal.createMany({
-        data: deckRevealsToCreate.map((deckId) => ({
-          deckId,
-          userId: payload.sub,
-          isRewardClaimed: true,
-        })),
-      });
-    }
-
-    await incrementFungibleAssetBalance(
-      FungibleAsset.Point,
-      await calculateRevealPoints(
-        payload.sub,
-        reveals
-          .map((r) => r.questionId)
-          .filter((questionId) => questionId !== null) as number[],
-      ),
-      tx,
     );
-  });
+  }
 
-  revalidatePath("/application");
+  const tokenAmount = chompResults.reduce(
+    (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
+    0,
+  );
+
+  let sendTx: string | null = null;
+  if (tokenAmount > 0) {
+    sendTx = await sendBonk(
+      treasuryWallet,
+      new PublicKey(address),
+      Math.round(tokenAmount * 10 ** 5),
+    );
+  }
+
+  return sendTx;
 }

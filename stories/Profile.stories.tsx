@@ -1,7 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Profile } from "../app/components/Profile/Profile";
-import AvatarSample from "./assets/avatar_sample.png";
-import { fn } from "@storybook/test";
 
 const meta = {
   title: "Profile",
@@ -9,13 +7,13 @@ const meta = {
   parameters: {
     layout: "centered",
   },
-  args: {
-    fullName: "Alex Smith",
-    handle: "Curious.mind88",
-    joinDate: new Date(2023, 3, 23),
-    avatarSrc: AvatarSample.src,
-  },
+  args: {},
   tags: ["autodocs"],
+  decorators: (Story) => (
+    <div className="w-96">
+      <Story />
+    </div>
+  ),
 } satisfies Meta<typeof Profile>;
 
 export default meta;

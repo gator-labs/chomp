@@ -1,31 +1,55 @@
+"use client";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { useState } from "react";
 import { Avatar } from "../Avatar/Avatar";
-import { WalletIcon } from "../Icons/WalletIcon";
+import { ChompFlatIcon } from "../Icons/ChompFlatIcon";
+import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
+import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
 
-type NavbarProps = {
-  children?: ReactNode;
+export type NavbarProps = {
   avatarSrc: string;
-  walletLink: string;
-  avatarLink: string;
+  address: string;
+  transactions: TransactionData[];
+  bonkBalance: number;
+  solBalance: number;
 };
 
 export function Navbar({
-  children,
   avatarSrc,
-  walletLink,
-  avatarLink,
+  transactions,
+  address,
+  bonkBalance,
+  solBalance,
 }: NavbarProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const closeQuickProfile = () => {
+    setIsOpen(false);
+  };
+
+  const openQuickProfile = () => {
+    setIsOpen(true);
+  };
+
   return (
-    <nav className="bg-btn-text-primary flex justify-between w-full px-4 py-3 items-center">
-      <div>{children}</div>
-      <div className="flex gap-2 items-center">
-        <Link href={walletLink}>
-          <WalletIcon />
-        </Link>
-        <Link href={avatarLink}>
-          <Avatar src={avatarSrc} size="small" />
-        </Link>
+    <nav className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-[#0D0D0D] z-10 max-w-lg">
+      <Link href="/application">
+        <ChompFlatIcon fill="#fff" />
+      </Link>
+      <div className="flex gap-6 items-center">
+        <button onClick={openQuickProfile}>
+          <Avatar src={avatarSrc || AvatarPlaceholder.src} size="small" />
+        </button>
+        <QuickViewProfile
+          isOpen={isOpen}
+          onClose={closeQuickProfile}
+          transactions={transactions}
+          avatarSrc={avatarSrc}
+          address={address}
+          bonkAmount={bonkBalance}
+          solAmount={solBalance}
+        />
       </div>
     </nav>
   );

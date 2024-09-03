@@ -1,12 +1,12 @@
 "use client";
 
+import { useToast } from "@/app/providers/ToastProvider";
 import { questionSchema } from "@/app/schemas/question";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType, Tag as TagType, Token } from "@prisma/client";
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useForm } from "react-hook-form";
-import { ToastContainer, toast } from "react-toastify";
 import { z } from "zod";
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { Tag } from "../Tag/Tag";
@@ -22,22 +22,17 @@ type QuestionFormProps = {
 
 export const getDefaultOptions = (type: QuestionType) => {
   switch (type) {
-    case QuestionType.YesNo:
+    case QuestionType.BinaryQuestion:
       return [
-        { option: "Yes", isTrue: false },
-        { option: "No", isTrue: false },
-      ];
-    case QuestionType.TrueFalse:
-      return [
-        { option: "True", isTrue: false },
-        { option: "False", isTrue: false },
+        { option: "", isCorrect: false, isLeft: true },
+        { option: "", isCorrect: false, isLeft: false },
       ];
     default:
       return [
-        { option: "", isTrue: false },
-        { option: "", isTrue: false },
-        { option: "", isTrue: false },
-        { option: "", isTrue: false },
+        { option: "", isCorrect: false, isLeft: false },
+        { option: "", isCorrect: false, isLeft: false },
+        { option: "", isCorrect: false, isLeft: false },
+        { option: "", isCorrect: false, isLeft: false },
       ];
   }
 };
@@ -64,6 +59,8 @@ export default function QuestionForm({
 
   const [selectedTagIds, setSelectedTagIds] = useState(question?.tagIds ?? []);
 
+  const { errorToast } = useToast();
+
   const questionType = watch("type");
 
   const onSubmit = handleSubmit(async (data) => {
@@ -74,7 +71,7 @@ export default function QuestionForm({
     });
 
     if (result?.errorMessage) {
-      toast.error(result.errorMessage);
+      errorToast("An error occurred", result.errorMessage);
     }
   });
 
@@ -120,19 +117,24 @@ export default function QuestionForm({
                   <TextInput
                     variant="secondary"
                     {...register(`questionOptions.${index}.option`)}
-                    disabled={
-                      questionType === QuestionType.YesNo ||
-                      questionType === QuestionType.TrueFalse
-                    }
                   />
                 </div>
-                <div className="w-24 flex justify-center items-center gap-2">
-                  <div>is true?</div>
+                <div className="w-28 flex justify-center items-center gap-2">
+                  <div>is correct?</div>
                   <input
                     type="checkbox"
-                    {...register(`questionOptions.${index}.isTrue`)}
+                    {...register(`questionOptions.${index}.isCorrect`)}
                   />
                 </div>
+                {watch("type") === QuestionType.BinaryQuestion && (
+                  <div className="w-24 flex justify-center items-center gap-2">
+                    <div>is left?</div>
+                    <input
+                      type="checkbox"
+                      {...register(`questionOptions.${index}.isLeft`)}
+                    />
+                  </div>
+                )}
               </div>
               <div className="text-red">
                 {errors.questionOptions &&
@@ -160,6 +162,7 @@ export default function QuestionForm({
           variant="secondary"
           {...register("revealTokenAmount", {
             setValueAs: (v) => (!v ? 0 : parseInt(v)),
+            value: 5000,
           })}
         />
         <div className="text-red">{errors.revealTokenAmount?.message}</div>
@@ -217,7 +220,6 @@ export default function QuestionForm({
       </div>
 
       <SubmitButton />
-      <ToastContainer position="bottom-center" />
     </form>
   );
 }

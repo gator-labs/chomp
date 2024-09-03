@@ -1,18 +1,32 @@
-import { Deck, Question, QuestionAnswer, Reveal } from "@prisma/client";
+import {
+  ChompResult,
+  Deck,
+  Question,
+  QuestionAnswer,
+  ResultType,
+  TransactionStatus,
+} from "@prisma/client";
 import dayjs from "dayjs";
+
+export const BINARY_QUESTION_TRUE_LABELS = ["Yes", "YES", "True", "TRUE"];
+
+export const BINARY_QUESTION_FALSE_LABELS = ["No", "NO", "False", "FALSE"];
+
+export const BINARY_QUESTION_OPTION_LABELS = [
+  ...BINARY_QUESTION_TRUE_LABELS,
+  ...BINARY_QUESTION_FALSE_LABELS,
+];
 
 export type DeckQuestionIncludes = Question & {
   answerCount?: number;
   questionOptions: {
     id: number;
-    isTrue: boolean;
-    questionAnswers: Array<
-      QuestionAnswer & {
-        percentageResult?: number | null;
-      }
-    >;
+    isCorrect: boolean;
+    isLeft: boolean;
+    calculatedIsCorrect: boolean | null;
+    questionAnswers: QuestionAnswer[];
   }[];
-  reveals: Reveal[];
+  chompResults: ChompResult[];
 };
 
 const CHAR_CODE_A_ASCII = 65;
@@ -26,18 +40,27 @@ export function getQuestionState(question: DeckQuestionIncludes): {
   isRevealed: boolean;
   isRevealable: boolean;
   isClaimed: boolean;
+  isClaimable: boolean;
 } {
   const isAnswered = question.questionOptions?.some(
     (qo) => qo.questionAnswers.length !== 0,
   );
-  const isRevealed = question.reveals?.length !== 0;
-  const isRevealable = isEntityRevealable(question);
+  const isRevealed =
+    question.chompResults.filter(
+      (cr) => cr.transactionStatus === TransactionStatus.Completed,
+    )?.length !== 0;
+  const isRevealable = isEntityRevealable(question) && !isRevealed;
   const isClaimed =
-    question.reveals && question.reveals.length > 0
-      ? question.reveals[0].isRewardClaimed
-      : false;
+    question.chompResults &&
+    question.chompResults.length > 0 &&
+    question.chompResults[0].result === ResultType.Claimed;
 
-  return { isAnswered, isRevealed, isRevealable, isClaimed };
+  const isClaimable =
+    (Number(question.chompResults?.[0]?.rewardTokenAmount) ?? 0) > 0 &&
+    isRevealed &&
+    !isClaimed;
+
+  return { isAnswered, isRevealed, isRevealable, isClaimed, isClaimable };
 }
 
 export function getDeckState(
@@ -46,7 +69,7 @@ export function getDeckState(
     deckQuestions: {
       question: DeckQuestionIncludes;
     }[];
-    reveals: Reveal[];
+    chompResults: ChompResult[];
   },
 ): {
   isAnswered: boolean;
@@ -56,83 +79,13 @@ export function getDeckState(
   const isAnswered = deck.deckQuestions?.some((dq) =>
     dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0),
   );
-  const isRevealed = deck.reveals?.length !== 0;
+  const isRevealed =
+    deck.chompResults.filter(
+      (cr) => cr.transactionStatus === TransactionStatus.Completed,
+    )?.length !== 0;
   const isRevealable = isEntityRevealable(deck);
 
   return { isAnswered, isRevealed, isRevealable };
-}
-
-type BinaryQuestionAnswer = {
-  optionId: number;
-  calculatedPercentage: number;
-  selectedPercentage: number;
-  selected: boolean;
-};
-
-export function isBinaryQuestionCorrectAnswer(
-  a: BinaryQuestionAnswer,
-  b: BinaryQuestionAnswer,
-) {
-  const correctQuestion = getCorrectBinaryQuestion(a, b);
-  return correctQuestion?.selected ?? true;
-}
-
-export function getCorrectBinaryQuestion(
-  a: BinaryQuestionAnswer,
-  b: BinaryQuestionAnswer,
-) {
-  const aPercentage = a.calculatedPercentage - a.selectedPercentage;
-  const bPercentage = b.calculatedPercentage - b.selectedPercentage;
-
-  if (aPercentage > bPercentage) {
-    return a;
-  }
-
-  if (bPercentage > aPercentage) {
-    return b;
-  }
-
-  return null;
-}
-
-export function mapQuestionToBinaryQuestionAnswer(
-  question: DeckQuestionIncludes,
-): BinaryQuestionAnswer[] | null {
-  const answers = question.questionOptions.flatMap((qo) => qo.questionAnswers);
-
-  if (answers.length === 2) {
-    if (answers[0].percentage === null || answers[1].percentage === null) {
-      return null;
-    }
-
-    const aCalculatedPercentage = answers[0].percentageResult;
-    const bCalculatedPercentage = answers[1].percentageResult;
-    if (
-      aCalculatedPercentage === undefined ||
-      aCalculatedPercentage === null ||
-      bCalculatedPercentage === undefined ||
-      bCalculatedPercentage === null
-    ) {
-      return null;
-    }
-
-    return [
-      {
-        optionId: answers[0].questionOptionId,
-        calculatedPercentage: aCalculatedPercentage,
-        selectedPercentage: answers[0].percentage,
-        selected: answers[0].selected,
-      },
-      {
-        optionId: answers[1].questionOptionId,
-        calculatedPercentage: bCalculatedPercentage,
-        selectedPercentage: answers[1].percentage,
-        selected: answers[1].selected,
-      },
-    ];
-  }
-
-  return null;
 }
 
 export const populateAnswerCount = (
@@ -157,7 +110,12 @@ export const populateAnswerCount = (
   }
 
   questions.forEach((q) => {
-    q.answerCount = q.questionOptions[0].questionAnswers.length;
+    if (q.questionOptions && q.questionOptions.length > 0) {
+      q.answerCount = q.questionOptions[0].questionAnswers.length;
+      return;
+    }
+
+    q.answerCount = 0;
   });
 
   if ((element as Deck).deck) {
@@ -186,59 +144,37 @@ export const isEntityRevealable = (entity: RevealableEntityData) => {
   );
 };
 
-export const handleQuestionMappingForFeed = (
+export const mapPercentages = (
   questions: DeckQuestionIncludes[],
   questionOptionPercentages: {
     id: number;
-    percentageResult: number;
+    firstOrderSelectedAnswerPercentage: number | null;
+    secondOrderAveragePercentagePicked: number | null;
   }[],
-  userId: string,
-  areRevealed: boolean,
 ) => {
   questions.forEach((q) => {
     q.questionOptions?.forEach((qo: any) => {
       qo.questionAnswers?.forEach((qa: any) => {
-        qa.percentageResult =
-          questionOptionPercentages.find(
-            (qop) => qop.id === qa.questionOptionId,
-          )?.percentageResult ?? 0;
+        const optionPercentages = questionOptionPercentages.find(
+          (qop) => qop.id === qa.questionOptionId,
+        );
+        qa.firstOrderSelectedAnswerPercentage =
+          optionPercentages?.firstOrderSelectedAnswerPercentage ?? 0;
+        qa.secondOrderAveragePercentagePicked =
+          optionPercentages?.secondOrderAveragePercentagePicked ?? 0;
       });
     });
   });
+};
 
-  if (!areRevealed) {
-    questions?.forEach((q) => {
-      q.questionOptions?.forEach((qo: { isTrue?: boolean }) => {
-        delete qo.isTrue;
-      });
-    });
-  }
-
-  if (areRevealed) {
-    questions?.forEach((q) => {
-      if (q.questionOptions.length === 2) {
-        const binaryArgs = mapQuestionToBinaryQuestionAnswer(q as any);
-        if (binaryArgs) {
-          const [a, b] = binaryArgs;
-          const correctQuestion = getCorrectBinaryQuestion(a, b);
-          q.questionOptions.forEach((qo) => {
-            if (qo.id === correctQuestion?.optionId) {
-              qo.isTrue = true;
-              return;
-            }
-
-            qo.isTrue = false;
-          });
-        }
-      }
-
-      q.questionOptions.forEach((qo: any) => {
-        if (qo.questionAnswers) {
-          qo.questionAnswers = qo.questionAnswers.filter(
-            (qa: any) => qa.userId === userId,
-          );
-        }
-      });
-    });
+export const getAnsweredQuestionsStatus = (
+  percentOfAnsweredQuestions: number,
+) => {
+  if (percentOfAnsweredQuestions === 100) {
+    return "daily-deck";
+  } else if (percentOfAnsweredQuestions === 0) {
+    return "answered-none";
+  } else {
+    return "answered-some";
   }
 };

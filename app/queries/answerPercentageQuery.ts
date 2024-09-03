@@ -1,9 +1,10 @@
-import { Prisma } from "@prisma/client";
+import { AnswerStatus, Prisma } from "@prisma/client";
 import prisma from "../services/prisma";
 
 type QuestionOptionPercentage = {
   id: number;
-  percentageResult: number | null;
+  firstOrderSelectedAnswerPercentage: number | null;
+  secondOrderAveragePercentagePicked: number | null;
 };
 
 export async function answerPercentageQuery(questionOptionIds: number[]) {
@@ -20,23 +21,33 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                   (
                     select count(*)
                     from public."QuestionAnswer" subQa
-                    where subQa.selected = true and subQa."questionOptionId" = qo."id" and subQa."hasViewedButNotSubmitted" = false
+                    where subQa.selected = true and subQa."questionOptionId" = qo."id" and subQa."status" = ${AnswerStatus.Submitted}::"AnswerStatus"
                   ) 
                   /
                   NULLIF(
                     (
                       select count(*)
                       from public."QuestionAnswer" subQa
-                      where subQa."questionOptionId" = qo."id" and subQa."hasViewedButNotSubmitted" = false
+                      where subQa."questionOptionId" = qo."id" and subQa."status" = ${AnswerStatus.Submitted}::"AnswerStatus"
                     )
                   , 0)
-                  * 100) as "percentageResult"
+                  * 100) as "firstOrderSelectedAnswerPercentage",
+                (
+                  select round(avg(percentage))
+                  from public."QuestionAnswer"
+                  where "questionOptionId" = qo."id" and "status" = ${AnswerStatus.Submitted}::"AnswerStatus"
+                ) as "secondOrderAveragePercentagePicked"
               from public."QuestionOption" qo
               where qo."id" in (${Prisma.join(questionOptionIds)})
             `;
 
   return questionOptionPercentages.map((qo) => ({
     id: qo.id,
-    percentageResult: Number(qo.percentageResult),
+    firstOrderSelectedAnswerPercentage: Number(
+      qo.firstOrderSelectedAnswerPercentage ?? 0,
+    ),
+    secondOrderAveragePercentagePicked: Number(
+      qo.secondOrderAveragePercentagePicked ?? 0,
+    ),
   }));
 }

@@ -7,9 +7,16 @@ type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
   children?: ReactNode;
+  variant?: "image-only" | "normal";
 };
 
-export function Modal({ title, isOpen, children, onClose }: ModalProps) {
+export function Modal({
+  title,
+  isOpen,
+  children,
+  onClose,
+  variant = "normal",
+}: ModalProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   if (!isOpen) {
@@ -21,6 +28,31 @@ export function Modal({ title, isOpen, children, onClose }: ModalProps) {
       onClose();
     }
   };
+
+  if (variant === "image-only") {
+    return (
+      <ReactPortal>
+        <div
+          ref={ref}
+          onClick={handleClickoutside}
+          className="fixed top-0 h-full w-full flex justify-center items-center bg-black bg-opacity-95"
+        >
+          <div className="m-4 w-full max-w-md">
+            <div className="flex justify-end items-center mb-2">
+              <div className="flex items-center">
+                <button onClick={onClose}>
+                  <CloseIcon width={24} height={24} />
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center border-[#666] rounded-md border-[1px] overflow-hidden">
+              {children}
+            </div>
+          </div>
+        </div>
+      </ReactPortal>
+    );
+  }
 
   return (
     <ReactPortal>
@@ -40,7 +72,7 @@ export function Modal({ title, isOpen, children, onClose }: ModalProps) {
               </button>
             </div>
           </div>
-          <div>{children}</div>
+          <div className="flex items-center justify-center">{children}</div>
         </div>
       </div>
     </ReactPortal>
