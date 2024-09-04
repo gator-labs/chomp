@@ -24,7 +24,7 @@ const TotalCardChompedInfo = ({ children }: TotalCardChompedInfoProps) => {
       >
         <div className="flex flex-col gap-5 px-5 pb-5">
           <div className="flex flex-col gap-5">
-            <h3 className="text-purple text-base font-bold leading-[20.16px] text-left">
+            <h3 className="text-purple-500 text-base font-bold leading-[20.16px] text-left">
               Total Cards Chomped
             </h3>
             <p className="text-left flex flex-col gap-4">
@@ -33,7 +33,7 @@ const TotalCardChompedInfo = ({ children }: TotalCardChompedInfoProps) => {
               </p>
               <p className="text-[13px] font-light leading-[16.38px] text-left">
                 This stat measures how many{" "}
-                <span className="text-purple font-bold">cards</span> (AKA
+                <span className="text-purple-500 font-bold">cards</span> (AKA
                 questions) you&apos;ve chomped through since the launch of
                 Chomp&apos;s beta.
               </p>

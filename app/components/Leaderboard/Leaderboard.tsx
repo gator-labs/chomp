@@ -146,7 +146,7 @@ const Leaderboard = ({
         )}
       </div>
 
-      <div className="p-4 rounded-lg bg-[#333333] gap-4 flex">
+      <div className="p-4 rounded-lg bg-gray-800 gap-4 flex">
         <div className="h-10">
           <Avatar
             src={loggedUser.profileSrc || AvatarPlaceholder.src}
@@ -154,7 +154,7 @@ const Leaderboard = ({
           />
         </div>
         <div className="flex flex-col gap-2 flex-1 justify-center">
-          <span className="text-xs leading-[7px] text-[#999999]">
+          <span className="text-xs leading-[7px] text-gray-400">
             {variant === "campaign"
               ? "All time ranking"
               : variant === "daily"
@@ -170,8 +170,8 @@ const Leaderboard = ({
               )}
               <p
                 className={cn("text-[15px] leading-[11px] font-bold", {
-                  "text-[#6DECAF]": rankDifference > 0,
-                  "text-[#ED6A5A]": rankDifference < 0,
+                  "text-aqua": rankDifference > 0,
+                  "text-red": rankDifference < 0,
                 })}
               >
                 {Math.abs(rankDifference)}

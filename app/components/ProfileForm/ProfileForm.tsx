@@ -93,7 +93,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   return (
     <form className="pt-4" onSubmit={onSubmit}>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-center bg-[#A3A3EC] h-[112px] rounded-lg p-1 relative">
+        <div className="flex justify-center bg-purple-500 h-[112px] rounded-lg p-1 relative">
           <div className="absolute inset-0 z-0 rounded-lg w-full h-full [&>*]:w-full overflow-hidden">
             <ChompBackgroundProfileIcon width={358} height={112} />
           </div>
@@ -175,7 +175,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         closeIconWidth={16}
       >
         <div className="p-6 rounded-3xl">
-          <div className="font-sora text-base font-bold text-[#CFC5F7] mb-6">
+          <div className="font-sora text-base font-bold text-pink mb-6">
             You have unsaved changes
           </div>
           <div className="flex flex-col gap-6">

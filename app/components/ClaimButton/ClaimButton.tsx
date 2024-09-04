@@ -94,13 +94,13 @@ const ClaimButton = ({
   if (!didAnswer) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="text-sm text-[#666666]">
+        <p className="text-sm text-gray-600">
           You did not participate in this Chomp
         </p>
         <div className="flex flex-col gap-4 w-full">
           <Button
             variant="grayish"
-            className="items-center gap-1 h-[50px] !bg-[#999999] !text-[#666666] cursor-auto"
+            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-600 cursor-auto"
             disabled
           >
             Claim <DollarIcon fill="#666666" />
@@ -163,11 +163,11 @@ const ClaimButton = ({
           <Button
             disabled
             className={classNames(
-              "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+              "!bg-gray-400 text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
               className,
             )}
           >
-            <span className="text-[#666666]">Claimed</span>
+            <span className="text-gray-600">Claimed</span>
             <DollarIcon height={24} width={24} fill="#666666" />
           </Button>
         </div>
@@ -192,11 +192,11 @@ const ClaimButton = ({
         <Button
           disabled
           className={classNames(
-            "!bg-[#999999] text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+            "!bg-gray-400 text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
             className,
           )}
         >
-          <span className="text-[#666666]">Unclaimable</span>
+          <span className="text-gray-600">Unclaimable</span>
           <DollarIcon height={24} width={24} fill="#666666" />
         </Button>
       </div>

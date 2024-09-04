@@ -18,7 +18,7 @@ export default function PollResultMultipleChoice(
       <div className="flex gap-2 flex-col">
         {options.map((o, index) => (
           <div key={index} className="flex gap-3.5">
-            <div className="bg-[#4d4d4d] min-w-10 h-10 flex items-center justify-center text-white text-sm font-sora font-bold rounded-lg">
+            <div className="bg-gray-700 min-w-10 h-10 flex items-center justify-center text-white text-sm font-sora font-bold rounded-lg">
               {o.label}
             </div>
             <MultipleChoiceResult
