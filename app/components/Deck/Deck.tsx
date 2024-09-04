@@ -2,6 +2,7 @@
 import {
   answerQuestion,
   markQuestionAsSeenButNotAnswered,
+  markQuestionAsTimedOut,
   SaveQuestionRequest,
 } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
@@ -137,8 +138,10 @@ export function Deck({
     if (!!question?.id) run();
   }, [question?.id]);
 
-  const handleNoAnswer = useCallback(() => {
+  const handleNoAnswer = useCallback(async () => {
     setIsTimeOutPopUpVisible(false);
+
+    await markQuestionAsTimedOut(question.id);
 
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
