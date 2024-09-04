@@ -68,7 +68,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
 
   return (
     <div className="overflow-hidden flex flex-col gap-4">
-      <div className="text-sm color-[#F1F1F1] flex gap-2 items-center">
+      <div className="text-sm color-gray-50 flex gap-2 items-center">
         <Link href="/application/profile/history">
           <HalfArrowLeftIcon />
         </Link>
@@ -85,9 +85,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
           <div>
             {hasChomped && (
               <div className="bg-aqua rounded-full text-center px-4 py-2">
-                <div className="text-btn-text-primary text-xs font-bold">
-                  Chomped
-                </div>
+                <div className="text-gray-950 text-xs font-bold">Chomped</div>
               </div>
             )}
           </div>

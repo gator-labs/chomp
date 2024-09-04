@@ -40,9 +40,9 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={classNames(sora.variable, "h-full")}>
-      <body className="font-sora bg-[#0D0D0D] text-white h-full">
+      <body className="font-sora bg-gray-950 text-white h-full">
         {isDemo && (
-          <div className="fixed top-0 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-btn-text-primary rounded-b-lg">
+          <div className="fixed top-0 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-gray-950 rounded-b-lg">
             Demo mode
           </div>
         )}

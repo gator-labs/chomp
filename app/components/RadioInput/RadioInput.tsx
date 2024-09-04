@@ -41,25 +41,25 @@ export function RadioInput({
           >
             <div
               className={classNames(
-                "h-full w-10 bg-[#4D4D4D] rounded-lg flex items-center justify-center",
+                "h-full w-10 bg-gray-700 rounded-lg flex items-center justify-center",
                 {
-                  "!bg-purple": !showRevealData && value === o.value,
+                  "!bg-purple-500": !showRevealData && value === o.value,
                   "!bg-aqua": showRevealData && value === o.value,
                 },
               )}
             >
               <p
                 className={classNames("text-sm font-bold text-white", {
-                  "!text-btn-text-primary": value === o.value,
+                  "!text-gray-950": value === o.value,
                 })}
               >
                 {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
               </p>
             </div>
-            <div className="text-sm font-sora font-light text-white h-full px-4 border-[#666666] border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden">
+            <div className="text-sm font-sora font-light text-white h-full px-4 border-gray-600 border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden">
               {randomOptionId === o.id && (
                 <div
-                  className="absolute bg-purple h-full left-0 -z-10"
+                  className="absolute bg-purple-500 h-full left-0 -z-10"
                   style={{ width: `${randomOptionPercentage}%` }}
                 />
               )}
@@ -67,12 +67,12 @@ export function RadioInput({
               {showRevealData && (
                 <>
                   <div
-                    className="absolute bg-[#4D4D4D] h-full left-0 -z-10"
+                    className="absolute bg-gray-700 h-full left-0 -z-10"
                     style={{
                       width: `${(o.questionAnswers.length / totalNumberOfAnswers) * 100 || 0}%`,
                     }}
                   />
-                  <p className="absolute right-4 text-sm text-[#4D4D4D] font-bold">
+                  <p className="absolute right-4 text-sm text-gray-700 font-bold">
                     {(o.questionAnswers.length / totalNumberOfAnswers) * 100 ||
                       0}
                     %

@@ -33,7 +33,7 @@ export function Navbar({
   };
 
   return (
-    <nav className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-[#0D0D0D] z-10 max-w-lg">
+    <nav className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-950 z-10 max-w-lg">
       <Link href="/application">
         <ChompFlatIcon fill="#fff" />
       </Link>

@@ -69,7 +69,7 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button variant="white" isPill className="text-black h-10">
+            <Button variant="white" isPill className="text-gray-850 h-10">
               Learn how
             </Button>
           </a>
@@ -101,7 +101,7 @@ export function RevealContextProvider({
               variant="white"
               isPill
               onClick={onReveal}
-              className="text-black h-10"
+              className="text-gray-850 h-10"
             >
               Reveal
             </Button>
@@ -123,7 +123,7 @@ export function RevealContextProvider({
             >
               Cancel
             </Button>
-            <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
+            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
               </div>
@@ -194,7 +194,7 @@ export function RevealContextProvider({
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
-            <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
+            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
               </div>
@@ -293,7 +293,7 @@ export function RevealContextProvider({
                 <h3
                   className={classNames("font-bold", {
                     "text-[#DD7944]": insufficientFunds,
-                    "text-[#A3A3EC]": !insufficientFunds,
+                    "text-purple-500": !insufficientFunds,
                   })}
                 >
                   {insufficientFunds

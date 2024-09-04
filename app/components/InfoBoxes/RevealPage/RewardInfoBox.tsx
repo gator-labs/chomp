@@ -37,7 +37,9 @@ const RewardInfoBox = () => {
               </p>
               <p>
                 When your{" "}
-                <span className="font-bold text-purple">1st-order-answer</span>{" "}
+                <span className="font-bold text-purple-500">
+                  1st-order-answer
+                </span>{" "}
                 is the same as the best answer to the question (as calculated
                 using Chomp&apos;s mechanism), you will be rewarded with{" "}
                 <span className="font-bold text-aqua">5K $BONK</span>, meaning
@@ -45,7 +47,9 @@ const RewardInfoBox = () => {
               </p>
               <p>
                 Then, depending on the distance between your{" "}
-                <span className="font-bold text-purple">2nd-order-answer</span>{" "}
+                <span className="font-bold text-purple-500">
+                  2nd-order-answer
+                </span>{" "}
                 and the actual revealed percentage of how everyone selected
                 their 1st-order-answer, your reward will vary and be between{" "}
                 <span className="font-bold text-aqua">0-5k $BONK.</span>

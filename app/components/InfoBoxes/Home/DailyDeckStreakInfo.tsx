@@ -24,7 +24,7 @@ const DailyDeckStreakInfo = ({ children }: DailyDeckStreakProps) => {
       >
         <div className="flex flex-col gap-5 px-5 pb-5">
           <div className="flex flex-col gap-5">
-            <h3 className="text-purple text-base font-bold leading-[20.16px] text-left">
+            <h3 className="text-purple-500 text-base font-bold leading-[20.16px] text-left">
               Longest Daily Deck Streak
             </h3>
             <p className="text-left flex flex-col gap-4">

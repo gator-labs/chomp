@@ -48,7 +48,7 @@ const PrimarySlider = ({
       >
         <Slider.Range
           className={classNames(
-            "absolute rounded-l-lg h-[36px] bg-dark-purple",
+            "absolute rounded-l-lg h-[36px] bg-dark-purple-500",
             rangeClassName,
           )}
           style={{
