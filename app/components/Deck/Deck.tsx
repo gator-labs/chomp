@@ -76,7 +76,7 @@ export function Deck({
   const min = 0;
   const max =
     !!questions[currentQuestionIndex] &&
-    questions[currentQuestionIndex].questionOptions.length > 0
+      questions[currentQuestionIndex].questionOptions.length > 0
       ? questions[currentQuestionIndex].questionOptions.length - 1
       : 0;
 
@@ -104,7 +104,7 @@ export function Deck({
     const min = 0;
     const max =
       !!questions[currentQuestionIndex + 1] &&
-      questions[currentQuestionIndex + 1].questionOptions.length > 0
+        questions[currentQuestionIndex + 1].questionOptions.length > 0
         ? questions[currentQuestionIndex + 1].questionOptions.length - 1
         : 0;
     generateRandom({ min, max });
@@ -243,8 +243,9 @@ export function Deck({
     );
   }
 
+  // get random option for 2nd order question.
   const randomQuestionMarker =
-    question.type === QuestionType.MultiChoice
+    question?.type === QuestionType.MultiChoice
       ? getAlphaIdentifier(random)
       : question.questionOptions[random].option;
 

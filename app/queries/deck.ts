@@ -13,6 +13,7 @@ import {
 import dayjs from "dayjs";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { isAfter, isBefore } from "date-fns";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -32,6 +33,8 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
+  // const viewed = typeof type === "string" && type === "Viewed";
+
   const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
   const payload = await getJwtPayload();
@@ -128,19 +131,9 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
 
   if (!payload?.sub) return null;
 
-  const dailyDeck = await prisma.deck.findFirst({
+  const deck = await prisma.deck.findFirst({
     where: {
       id: deckId,
-      activeFromDate: { lte: new Date() },
-      deckQuestions: {
-        every: {
-          question: {
-            revealAtDate: {
-              gte: new Date(),
-            },
-          },
-        },
-      },
     },
     include: {
       deckQuestions: {
@@ -168,26 +161,36 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     },
   });
 
-  if (!dailyDeck) {
+  if (!deck) {
     return null;
   }
 
-  const questions = mapQuestionFromDeck(dailyDeck);
+  if (
+    (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) ||
+    deck.deckQuestions.some((dq) =>
+      isBefore(dq.question.revealAtDate!, new Date()),
+    )
+  )
+    return {
+      questions: [],
+      id: deck.id,
+      date: deck.date,
+    };
 
-  if (!questions.filter((q) => q.status === undefined).length) return null;
+  const questions = mapQuestionFromDeck(deck);
 
   return {
     questions,
-    id: dailyDeck.id,
-    date: dailyDeck.date,
-    numberOfUserAnswers: dailyDeck.deckQuestions.flatMap((dq) =>
+    id: deck.id,
+    date: deck.date,
+    numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
     deckInfo: {
-      heading: dailyDeck.heading || dailyDeck.deck,
-      description: dailyDeck.description,
-      imageUrl: dailyDeck.imageUrl,
-      footer: dailyDeck.footer,
+      heading: deck.heading || deck.deck,
+      description: deck.description,
+      imageUrl: deck.imageUrl,
+      footer: deck.footer,
     },
   };
 }

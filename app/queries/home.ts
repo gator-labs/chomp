@@ -39,6 +39,7 @@ export type DeckExpiringSoon = {
   id: number;
   deck: string;
   revealAtDate?: Date;
+  date?:Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
   image?: string;
@@ -64,6 +65,19 @@ export async function getDecksForExpiringSection(): Promise<
   }
 
   const decks = await queryExpiringDecks(payload.sub);
+
+  return decks;
+}
+export async function getDailyDecksForExpiringSection(): Promise<
+  DeckExpiringSoon[]
+> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const decks = await queryExpiringDailyDecks(payload.sub);
 
   return decks;
 }
@@ -148,8 +162,8 @@ FROM
 FULL JOIN
     "Campaign" c ON c."id" = d."campaignId"
 WHERE
-    d."revealAtDate" > NOW()
-    AND d."date" IS NULL
+    d."revealAtDate" > NOW() 
+    AND d."date" IS NULL 
     AND d."activeFromDate" <= NOW()
     AND EXISTS (
         SELECT 1
@@ -159,6 +173,44 @@ WHERE
         LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id" 
         AND qa."userId" = ${userId}
         WHERE dq."deckId" = d."id"
+        GROUP BY dq."deckId"
+        HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
+    );
+  `;
+
+  return deckExpiringSoon;
+}
+
+async function queryExpiringDailyDecks(
+  userId: string,
+): Promise<DeckExpiringSoon[]> {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
+  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
+  SELECT
+    d."id",
+    d."deck",
+    d."revealAtDate",
+    d."date",
+    c."image"
+FROM
+    public."Deck" d
+FULL JOIN
+    "Campaign" c ON c."id" = d."campaignId"
+WHERE
+    d."activeFromDate" IS NULL
+    AND d."date" >= ${currentDayStart}
+    AND d."date" <= ${currentDayEnd}
+    AND EXISTS (
+        SELECT 1
+        FROM public."DeckQuestion" dq
+        JOIN public."Question" q ON dq."questionId" = q."id"
+        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        AND qa."userId" = ${userId}
+        WHERE dq."deckId" = d."id"
+        AND qa."status" = 'Viewed'
         GROUP BY dq."deckId"
         HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
     );

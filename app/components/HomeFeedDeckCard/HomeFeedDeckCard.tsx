@@ -12,6 +12,7 @@ type HomeFeedDeckCardProps = {
   imageUrl?: string | null;
   revealAtDate?: Date | null;
   answerCount?: number;
+  date?: Date;
   revealAtAnswerCount?: number;
   status?: StatusUnion;
   deckId: number;
@@ -37,11 +38,12 @@ export function HomeFeedDeckCard({
   answerCount,
   revealAtAnswerCount,
   status,
+  date,
   deckId,
 }: HomeFeedDeckCardProps) {
   return (
     <a
-      href={`application/answer/deck/${deckId}`}
+      href={date ? `/daily-deck?type=Viewed` : `application/answer/deck/${deckId}`}
       className="bg-[#333] border-[#666] rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
       <div className="w-[90px] h-[90px] flex-shrink-0 relative">
