@@ -1,10 +1,22 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, userAgent } from "next/server";
 
 import { MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import { getCurrentUser } from "@/app/queries/user";
 import Mixpanel from "mixpanel";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 const mixpanel = Mixpanel.init(process.env.MIX_PANEL_TOKEN!);
+
+function getIPAddress(headersList: ReadonlyHeaders) {
+  const FALLBACK_IP_ADDRESS = "0.0.0.0";
+  const forwardedFor = headersList.get("x-forwarded-for");
+
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0] ?? FALLBACK_IP_ADDRESS;
+  }
+
+  return headersList.get("x-real-ip") ?? FALLBACK_IP_ADDRESS;
+}
 
 export async function POST(request: NextRequest) {
   const data = await request.json();
@@ -14,14 +26,22 @@ export async function POST(request: NextRequest) {
 
     if (!currentUser) return;
 
+    const ip = getIPAddress(request.headers);
+    const { device, browser, os } = userAgent({ headers: request.headers });
+
     const { event, properties } = data;
 
     mixpanel.track(event, {
       ...properties,
+      $device: device.model,
+      $browser: browser.name,
+      $os: os.name,
+      $os_version: os.version,
+      $browser_version: browser.version,
       [MIX_PANEL_METADATA.USER_ID]: currentUser.id,
       [MIX_PANEL_METADATA.USERNAME]: currentUser.username,
       [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: currentUser.wallets[0].address,
-      ip: request.ip,
+      ip,
     });
 
     return NextResponse.json({ status: "Event tracked successfully" });
