@@ -306,3 +306,31 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
     return { hasError: true };
   }
 }
+
+export async function markQuestionAsTimedOut(questionId: number) {
+  const payload = await getJwtPayload();
+
+  if (!payload) return;
+
+  const userId = payload.sub;
+
+  const questionOptions = await prisma.questionOption.findMany({
+    where: { questionId },
+  });
+
+  try {
+    await prisma.questionAnswer.updateMany({
+      where: {
+        userId,
+        questionOptionId: {
+          in: questionOptions.map((qo) => qo.id),
+        },
+      },
+      data: {
+        status: AnswerStatus.TimedOut,
+      },
+    });
+  } catch (error) {
+    return { hasError: true };
+  }
+}
