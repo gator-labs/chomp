@@ -26,7 +26,7 @@ export const QUESTION_CARD_CONTENT = {
           <>
             The deck will be revealed in{" "}
             <span className="text-[#A3A3EC]">
-              ${formatDistanceToNowStrict(date)}
+              {formatDistanceToNowStrict(date)}
             </span>
             .
           </>

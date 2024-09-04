@@ -120,7 +120,7 @@ const Leaderboard = ({
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center gap-4 py-[5px]">
-        <Link href="/application/profile/leaderboard">
+        <Link href="/application/leaderboard">
           <HalfArrowLeftIcon />
         </Link>
         {leaderboardImage && (
@@ -149,7 +149,7 @@ const Leaderboard = ({
       <div className="p-4 rounded-lg bg-[#333333] gap-4 flex">
         <div className="h-10">
           <Avatar
-            src={loggedUser.profileSrc || AvatarPlaceholder.src}
+            src={loggedUser?.profileSrc || AvatarPlaceholder.src}
             size="medium"
           />
         </div>

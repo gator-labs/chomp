@@ -69,7 +69,7 @@ export async function Profile({
             </Button>
           </div>
           {showLeaderboardButton && (
-            <Link href="/application/profile/leaderboard" className="contents">
+            <Link href="/application/leaderboard" className="contents">
               <Button
                 className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-[#575CDF] !w-fit"
                 isPill
