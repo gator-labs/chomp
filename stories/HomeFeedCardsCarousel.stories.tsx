@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     title: (
-      <h2 className="text-grey-850 text-base">
+      <h2 className="text-gray-850 text-base">
         Check out others' revealed questions
       </h2>
     ),
@@ -41,7 +41,7 @@ export const Default: Story = {
         statusLabel={
           <button
             onClick={() => {}}
-            className="text-xs leading-6 text-grey-0 font-bold cursor-pointer"
+            className="text-xs leading-6 text-white font-bold cursor-pointer"
           >
             View
           </button>
@@ -54,7 +54,7 @@ export const Default: Story = {
         statusLabel={
           <button
             onClick={() => {}}
-            className="text-xs leading-6 text-grey-0 font-bold cursor-pointer"
+            className="text-xs leading-6 text-white font-bold cursor-pointer"
           >
             View
           </button>
@@ -67,7 +67,7 @@ export const Default: Story = {
         statusLabel={
           <button
             onClick={() => {}}
-            className="text-xs leading-6 text-grey-0 font-bold cursor-pointer"
+            className="text-xs leading-6 text-white font-bold cursor-pointer"
           >
             View
           </button>

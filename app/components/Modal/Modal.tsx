@@ -35,7 +35,7 @@ export function Modal({
         <div
           ref={ref}
           onClick={handleClickoutside}
-          className="fixed top-0 h-full w-full flex justify-center items-center bg-grey-850 bg-opacity-95"
+          className="fixed top-0 h-full w-full flex justify-center items-center bg-gray-850 bg-opacity-95"
         >
           <div className="m-4 w-full max-w-md">
             <div className="flex justify-end items-center mb-2">
@@ -45,7 +45,7 @@ export function Modal({
                 </button>
               </div>
             </div>
-            <div className="flex items-center justify-center border-grey-600 rounded-md border-[1px] overflow-hidden">
+            <div className="flex items-center justify-center border-gray-600 rounded-md border-[1px] overflow-hidden">
               {children}
             </div>
           </div>
@@ -59,11 +59,11 @@ export function Modal({
       <div
         ref={ref}
         onClick={handleClickoutside}
-        className="fixed top-0 h-full w-full flex justify-center items-center bg-grey-850 bg-opacity-80"
+        className="fixed top-0 h-full w-full flex justify-center items-center bg-gray-850 bg-opacity-80"
       >
-        <div className="bg-grey-800 m-4 w-full max-w-md p-4 rounded-md border-[1px] border-grey-600">
+        <div className="bg-gray-800 m-4 w-full max-w-md p-4 rounded-md border-[1px] border-gray-600">
           <div className="flex justify-between items-center mb-4">
-            <div className="text-base font-bold font-sora text-grey-0">
+            <div className="text-base font-bold font-sora text-white">
               {title}
             </div>
             <div className="flex items-center">

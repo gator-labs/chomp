@@ -70,7 +70,7 @@ export function RevealFeedQuestionCard({
         }
         action={
           <Button onClick={handleReveal} variant="grayish">
-            <div className="flex justify-center gap-1 items-center text-grey-0">
+            <div className="flex justify-center gap-1 items-center text-white">
               <div>Reveal</div>
               <ViewsIcon />
             </div>

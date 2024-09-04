@@ -21,9 +21,9 @@ const RankingCard = ({
   return (
     <li
       className={cn(
-        "p-4 bg-grey-850 rounded-lg justify-between items-center flex",
+        "p-4 bg-gray-850 rounded-lg justify-between items-center flex",
         {
-          "bg-grey-800": loggedUserId === userId,
+          "bg-gray-800": loggedUserId === userId,
         },
       )}
     >
@@ -35,7 +35,7 @@ const RankingCard = ({
               "bg-[#FFF294]": rank === 1,
               "bg-[#DFDFDF]": rank === 2,
               "bg-[#E2956C]": rank === 3,
-              "text-grey-950": rank < 4,
+              "text-gray-950": rank < 4,
             },
           )}
         >

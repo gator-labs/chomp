@@ -15,7 +15,7 @@ const SlideshowScreen = () => {
   const isFirstSlideActive = activeSlide === 0;
 
   return (
-    <main className="h-dvh bg-grey-850">
+    <main className="h-dvh bg-gray-850">
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 justify-between h-full">
         <Stepper activeStep={activeSlide} numberOfSteps={SLIDESHOW.length} />
 
@@ -62,7 +62,7 @@ const SlideshowScreen = () => {
         <div className="flex flex-col gap-[14px] items-center w-full py-4">
           <DynamicConnectButton
             buttonContainerClassName="w-full"
-            buttonClassName="bg-purple-500 text-grey-950 rounded-lg inline-flex justify-center py-3 px-16 rounded-2xl font-bold text-base w-full text-sm font-semibold flex [&>*]:flex [&>*]:items-center [&>*]:gap-1"
+            buttonClassName="bg-purple-500 text-gray-950 rounded-lg inline-flex justify-center py-3 px-16 rounded-2xl font-bold text-base w-full text-sm font-semibold flex [&>*]:flex [&>*]:items-center [&>*]:gap-1"
           >
             Connect Wallet
             <WalletIcon fill="#0D0D0D" />

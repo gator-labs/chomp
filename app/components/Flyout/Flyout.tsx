@@ -25,9 +25,9 @@ export function Flyout({ isOpen, children, onClose }: FlyoutProps) {
       <div
         ref={ref}
         onClick={handleClickoutside}
-        className="fixed top-0 h-full w-full flex justify-end bg-grey-850 bg-opacity-80"
+        className="fixed top-0 h-full w-full flex justify-end bg-gray-850 bg-opacity-80"
       >
-        <div className="bg-grey-700 w-[338px] h-full">{children}</div>
+        <div className="bg-gray-700 w-[338px] h-full">{children}</div>
       </div>
     </ReactPortal>
   );

@@ -94,8 +94,8 @@ export default function TotalRewardsClaimAll({
   return (
     <div className="flex justify-between">
       <div className="flex flex-col justify-between gap-[10px]">
-        <p className="text-xs text-grey-0 leading-[7px]">Claimable rewards</p>
-        <p className="text-base text-grey-0 leading-[12px]">
+        <p className="text-xs text-white leading-[7px]">Claimable rewards</p>
+        <p className="text-base text-white leading-[12px]">
           {numberToCurrencyFormatter.format(optimisticAmount)} BONK
         </p>
       </div>

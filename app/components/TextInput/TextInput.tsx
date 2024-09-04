@@ -12,10 +12,10 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         ref={ref}
         {...props}
         className={classNames(
-          "border-[1px] border-grey-0 py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray",
+          "border-[1px] border-white py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray",
           {
             "border-gray": variant === "secondary",
-            "border-grey-0": variant === "primary",
+            "border-white": variant === "primary",
           },
         )}
       />

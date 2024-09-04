@@ -16,7 +16,7 @@ const meta = {
   },
   tags: ["autodocs"],
   decorators: (Story) => (
-    <div className="bg-grey-850">
+    <div className="bg-gray-850">
       <Story />
     </div>
   ),
@@ -27,7 +27,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: <div className="text-grey-0 text-center p-4">Sample</div>,
+    children: <div className="text-white text-center p-4">Sample</div>,
     isOpen: true,
   },
 };

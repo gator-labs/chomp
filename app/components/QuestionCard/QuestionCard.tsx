@@ -72,7 +72,7 @@ export function QuestionCard({
       />
       <p
         className={classNames(
-          "text-grey-0 font-sora text-[24px] leading-[30px] max-w-[330px] z-10",
+          "text-white font-sora text-[24px] leading-[30px] max-w-[330px] z-10",
           {
             "blur-sm": isBlurred,
             "opacity-30": isBlurred,
@@ -89,7 +89,7 @@ export function QuestionCard({
             {!!dueAt && (
               <>
                 <CountdownIcon fill="#999" />
-                <span className="text-grey-0 font-sora text-sm !leading-[14px] font-light">
+                <span className="text-white font-sora text-sm !leading-[14px] font-light">
                   {dueAtFormatted}
                 </span>
               </>

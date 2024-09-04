@@ -13,7 +13,7 @@ export function StatsChip({ title, icon, info, className }: StatsChipProps) {
     <div
       className={classNames(
         className,
-        "flex font-sora flex-wrap gap-y-4 text-grey-0 rounded-lg p-4 bg-grey-800 border-[1px] border-grey-600 h-full",
+        "flex font-sora flex-wrap gap-y-4 text-white rounded-lg p-4 bg-gray-800 border-[1px] border-gray-600 h-full",
       )}
     >
       <div className="flex justify-between items-center basis-full">

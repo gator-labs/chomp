@@ -58,7 +58,7 @@ const PrimarySlider = ({
       </Slider.Track>
       {!hideThumb && (
         <Slider.Thumb
-          className="block w-5 h-5 bg-grey-0 rounded-md focus:outline-none px-[2px] cursor-pointer"
+          className="block w-5 h-5 bg-white rounded-md focus:outline-none px-[2px] cursor-pointer"
           aria-label="Volume"
         >
           <div className="flex justify-around w-full h-full items-center">

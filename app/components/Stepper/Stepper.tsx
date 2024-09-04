@@ -19,7 +19,7 @@ const Stepper = ({
       {new Array(numberOfSteps).fill(null).map((_, index) => (
         <li
           key={index}
-          className="h-2 flex-1 rounded-[40px] bg-grey-600 overflow-hidden"
+          className="h-2 flex-1 rounded-[40px] bg-gray-600 overflow-hidden"
         >
           <div
             className={classNames(

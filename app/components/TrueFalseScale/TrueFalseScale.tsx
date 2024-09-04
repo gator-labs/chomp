@@ -42,9 +42,9 @@ export function TrueFalseScale({
         activateSlider={activateSlider}
       />
 
-      <div className="flex justify-between text-grey-0 font-sora text-base font-semibold z-30 relative items-center">
+      <div className="flex justify-between text-white font-sora text-base font-semibold z-30 relative items-center">
         <span className="text-sm pl-2">{labelLeft}</span>
-        <span className="absolute left-1/2 -translate-x-1/2 bg-grey-0 py-1 px-2 rounded-2xl text-grey-950 text-xs font-bold">
+        <span className="absolute left-1/2 -translate-x-1/2 bg-white py-1 px-2 rounded-2xl text-gray-950 text-xs font-bold">
           <p
             className={classNames(
               isSliderTouched ? "opacity-100" : "opacity-0",

@@ -57,14 +57,14 @@ export function QuickViewProfile({
           <Button
             size="small"
             variant="black"
-            className="flex justify-between text-grey-0 text-base"
+            className="flex justify-between text-white text-base"
           >
             View tutorial <HalfArrowRightIcon />
           </Button>
         </Link>
         <TransactionsTable transactions={transactions} />
         <div className="flex gap-2 items-center mt-auto">
-          <div className="p-2 rounded-lg bg-grey-600 flex gap-2">
+          <div className="p-2 rounded-lg bg-gray-600 flex gap-2">
             <a
               href="https://t.me/+BN0ZDiUhTUkxNzZl"
               target="_blank"

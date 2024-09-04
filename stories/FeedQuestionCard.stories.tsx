@@ -23,7 +23,7 @@ const meta = {
     statusLabel: (
       <button
         onClick={fn()}
-        className="text-xs leading-6 text-grey-0 font-bold cursor-pointer"
+        className="text-xs leading-6 text-white font-bold cursor-pointer"
       >
         View
       </button>

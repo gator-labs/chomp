@@ -31,7 +31,7 @@ export async function HomeFeedReadyToRevealSection() {
     <HomeFeedCardCarousel
       className="mt-6"
       title={
-        <span className="text-base text-grey-0">
+        <span className="text-base text-white">
           Your Chomps ready to reveal
         </span>
       }

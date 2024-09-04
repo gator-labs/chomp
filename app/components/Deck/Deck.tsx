@@ -300,7 +300,7 @@ export function Deck({
           <p className="text-base text-purple-500 font-bold">
             Are you still there?
           </p>
-          <p className="text-sm text-grey-0">
+          <p className="text-sm text-white">
             Your time&apos;s up! To prevent you from missing out on the next
             question, click proceed to continue.
           </p>

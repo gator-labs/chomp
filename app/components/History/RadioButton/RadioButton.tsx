@@ -17,7 +17,7 @@ export default function RadioButton({
         type="radio"
         name="default-radio"
         className={cn(
-          "appearance-none w-6 h-6 border-2 rounded-[40px] border-grey-400 bg-grey-0",
+          "appearance-none w-6 h-6 border-2 rounded-[40px] border-gray-400 bg-white",
           {
             "border-pink": checked,
           },
@@ -28,7 +28,7 @@ export default function RadioButton({
       {checked && (
         <div className="absolute w-4 h-4 rounded-full bg-purple-500 ml-1" />
       )}
-      <label className="ms-2 text-sm font-sora font-light text-grey-0">
+      <label className="ms-2 text-sm font-sora font-light text-white">
         {text}
       </label>
     </div>

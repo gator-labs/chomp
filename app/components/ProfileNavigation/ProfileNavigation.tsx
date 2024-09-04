@@ -9,11 +9,11 @@ const ProfileNavigation = () => {
   const pathname = usePathname();
 
   return (
-    <ul className="p-1 gap-2 bg-grey-800 rounded-[48px] grid grid-cols-3 my-4">
+    <ul className="p-1 gap-2 bg-gray-800 rounded-[48px] grid grid-cols-3 my-4">
       {PROFILE_LINKS.map(({ href, label }) => (
         <li
-          className={cn("rounded-[32px] text-grey-400", {
-            "bg-grey-0 text-grey-950 font-semibold": pathname === href,
+          className={cn("rounded-[32px] text-gray-400", {
+            "bg-white text-gray-950 font-semibold": pathname === href,
           })}
           key={href}
         >

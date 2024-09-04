@@ -27,7 +27,7 @@ export function NoQuestionsCard({
   return (
     <div className="flex flex-col justify-between h-full w-full">
       <div
-        className="questions-card text-grey-0 font-sora relative"
+        className="questions-card text-white font-sora relative"
         style={{
           aspectRatio: 0.92,
           height: variant === "answer-page" ? "100%" : "auto",

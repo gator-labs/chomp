@@ -42,14 +42,14 @@ const DeckCardRow = ({
   return (
     <Link
       href={`/application/decks/${deckId}`}
-      className="bg-grey-800 border-[0.5px] border-grey-600 rounded-lg p-4 py-[15px] flex gap-4 h-full"
+      className="bg-gray-800 border-[0.5px] border-gray-600 rounded-lg p-4 py-[15px] flex gap-4 h-full"
     >
       <DeckIcon width={77.2} height={87.84} />
 
       <div className="flex flex-col gap-y-2 w-full justify-between">
         <div className="flex flex-col gap-y-2 w-full">
           <div className="flex gap-2 w-full justify-between">
-            <p className="text-grey-0 font-sora font-semibold text-sm">
+            <p className="text-white font-sora font-semibold text-sm">
               {deckName}
             </p>
 
@@ -60,7 +60,7 @@ const DeckCardRow = ({
         </div>
 
         <div className="flex justify-between items-center">
-          <div className="flex text-xs text-grey-0 leading-6 items-center gap-1">
+          <div className="flex text-xs text-white leading-6 items-center gap-1">
             <ClockIcon />
             <div>
               {!!revealMessage && (

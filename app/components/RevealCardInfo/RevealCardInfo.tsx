@@ -17,7 +17,7 @@ export function RevealCardInfo({
     revealAtAnswerCount !== undefined &&
     revealAtAnswerCount !== null;
   return (
-    <div className="flex text-xs text-grey-0 leading-6 items-center gap-1">
+    <div className="flex text-xs text-white leading-6 items-center gap-1">
       <ClockIcon />
       <div>
         {revealAtDate && (

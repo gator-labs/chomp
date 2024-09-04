@@ -8,11 +8,11 @@ const Skeleton = ({ className }: Props) => {
   return (
     <div
       className={cn(
-        "border-grey-600 border-[0.5px] rounded-lg w-full animate-pulse h-[120px] shrink-0 overflow-hidden",
+        "border-gray-600 border-[0.5px] rounded-lg w-full animate-pulse h-[120px] shrink-0 overflow-hidden",
         className,
       )}
     >
-      <div className="bg-grey-800 flex space-x-4 h-full"></div>
+      <div className="bg-gray-800 flex space-x-4 h-full"></div>
     </div>
   );
 };

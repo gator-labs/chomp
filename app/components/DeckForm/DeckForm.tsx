@@ -229,7 +229,7 @@ export default function DeckForm({
                 <div className="mb-3">
                   <label className="block mb-1">Type</label>
                   <select
-                    className="text-grey-850"
+                    className="text-gray-850"
                     {...register(`questions.${questionIndex}.type`, {
                       onChange: (e) => {
                         setValue(
@@ -377,7 +377,7 @@ export default function DeckForm({
       </div>
       <div className="mb-3">
         <label className="block mb-1">Reveal token</label>
-        <select className="text-grey-850" {...register("revealToken")}>
+        <select className="text-gray-850" {...register("revealToken")}>
           {Object.values(Token).map((token) => (
             <option value={token} key={token}>
               {token}

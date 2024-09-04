@@ -21,8 +21,8 @@ const colors = {
   // FIGMA NEW COLORS
   green: "#1ED3B3",
   red: "#ED6A5A",
-  grey: {
-    0: "#FFFFFF",
+  white: "#FFFFFF",
+  gray: {
     50: "#F1F1F1",
     100: "#E6E6E6",
     200: "#CCCCCC",

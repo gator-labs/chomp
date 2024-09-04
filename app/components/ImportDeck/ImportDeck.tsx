@@ -72,7 +72,7 @@ export function ImportDeck({ action }: ImportDeckProps) {
         </div>
         <div className="basis-1/3">
           <label
-            className="cursor-pointer block w-full text-center bg-primary text-grey-950 rounded-lg py-3"
+            className="cursor-pointer block w-full text-center bg-primary text-gray-950 rounded-lg py-3"
             htmlFor="fileInput"
           >
             Import

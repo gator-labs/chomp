@@ -113,7 +113,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
 
     return (
       <li
-        className="px-4 py-[15px] rounded-lg bg-grey-800 border-[0.5px] border-grey-600 flex flex-col gap-2"
+        className="px-4 py-[15px] rounded-lg bg-gray-800 border-[0.5px] border-gray-600 flex flex-col gap-2"
         key={question.id}
         ref={ref}
       >
@@ -128,11 +128,11 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
               />
             </div>
           )}
-          <p className="text-sm text-grey-0 mr-auto">{question.question}</p>
+          <p className="text-sm text-white mr-auto">{question.question}</p>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex text-xs text-grey-0 items-center gap-1">
+          <div className="flex text-xs text-white items-center gap-1">
             <ClockIcon width={15} height={15} />
             <p className="text-xs font-light -mb-0.5">{revealAtText}</p>
           </div>

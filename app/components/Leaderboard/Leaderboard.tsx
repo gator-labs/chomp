@@ -146,7 +146,7 @@ const Leaderboard = ({
         )}
       </div>
 
-      <div className="p-4 rounded-lg bg-grey-800 gap-4 flex">
+      <div className="p-4 rounded-lg bg-gray-800 gap-4 flex">
         <div className="h-10">
           <Avatar
             src={loggedUser.profileSrc || AvatarPlaceholder.src}
@@ -154,7 +154,7 @@ const Leaderboard = ({
           />
         </div>
         <div className="flex flex-col gap-2 flex-1 justify-center">
-          <span className="text-xs leading-[7px] text-grey-400">
+          <span className="text-xs leading-[7px] text-gray-400">
             {variant === "campaign"
               ? "All time ranking"
               : variant === "daily"
