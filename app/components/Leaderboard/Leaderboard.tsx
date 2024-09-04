@@ -120,7 +120,7 @@ const Leaderboard = ({
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center gap-4 py-[5px]">
-        <Link href="/application/profile/leaderboard">
+        <Link href="/application/leaderboard">
           <HalfArrowLeftIcon />
         </Link>
         {leaderboardImage && (
