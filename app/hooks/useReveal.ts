@@ -4,12 +4,14 @@ import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
+import { getJwtPayload } from "../actions/jwt";
 import {
   getUnusedChompyAndFriendsNft,
   getUnusedGenesisNft,
@@ -225,6 +227,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       (id) => !pendingChompResultIds.includes(id),
     );
 
+    const payload = await getJwtPayload();
+
     try {
       if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
         signature = pendingChompResults[0].burnTransactionSignature!;
@@ -301,6 +305,12 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           errorToast(
             "Error while confirming transaction. Bonk was not burned. Try again.",
           );
+          class BurnError extends Error {}
+          const burnError = new BurnError(
+            `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+            { cause: res.value.err },
+          );
+          Sentry.captureException(burnError);
           await deleteQuestionChompResults(pendingChompResultIds);
         }
       }

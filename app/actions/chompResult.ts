@@ -6,9 +6,9 @@ import {
   ResultType,
   TransactionStatus,
 } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
-
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
@@ -205,8 +205,13 @@ export async function revealQuestions(
     release();
     revalidatePath("/application");
   } catch (e) {
+    class RevealError extends Error {}
+    const revealError = new RevealError(
+      `User with id: ${payload.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+      { cause: e },
+    );
+    Sentry.captureException(revealError);
     release();
-    throw e;
   }
 }
 

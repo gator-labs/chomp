@@ -2,6 +2,7 @@
 
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { SolanaWalletConnectors } from "@dynamic-labs/solana";
+import * as Sentry from "@sentry/nextjs";
 import { clearJwt } from "../actions/jwt";
 
 export default function DynamicProvider({
@@ -18,6 +19,14 @@ export default function DynamicProvider({
         eventsCallbacks: {
           onLogout: () => {
             clearJwt();
+          },
+          onAuthFailure: (method, reason) => {
+            class LoginError extends Error {}
+            const loginError = new LoginError(
+              `User is having trouble logging in: ${method}`,
+              { cause: reason },
+            );
+            Sentry.captureException(loginError);
           },
         },
         mobileExperience: "redirect",
