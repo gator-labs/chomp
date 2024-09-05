@@ -17,7 +17,7 @@ export async function GET(request: Request) {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundImage: `url(${process.env.VERCEL_URL}/images/share-template.png)`,
+          backgroundImage: `url(https://${process.env.VERCEL_URL}/images/share-template.png)`,
           backgroundRepeat: 'no-repeat',
           backgroundSize: '100% 100%',
           backgroundPosition: "center center"
