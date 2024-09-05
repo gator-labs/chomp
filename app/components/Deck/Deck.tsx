@@ -2,6 +2,7 @@
 import {
   answerQuestion,
   markQuestionAsSeenButNotAnswered,
+  markQuestionAsSkipped,
   markQuestionAsTimedOut,
   SaveQuestionRequest,
 } from "@/app/actions/answer";
@@ -140,11 +141,13 @@ export function Deck({
 
   const handleNoAnswer = useCallback(async () => {
     setIsTimeOutPopUpVisible(false);
-
-    await markQuestionAsTimedOut(question.id);
-
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
+
+  const handleOnDurationRanOut = async () => {
+    await markQuestionAsTimedOut(question.id);
+    setIsTimeOutPopUpVisible(true);
+  };
 
   const onQuestionActionClick = useCallback(
     async (number: number | undefined) => {
@@ -266,7 +269,7 @@ export function Deck({
             question={question.question}
             type={question.type}
             viewImageSrc={question.imageUrl}
-            onDurationRanOut={() => setIsTimeOutPopUpVisible(true)}
+            onDurationRanOut={() => handleOnDurationRanOut()}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -291,6 +294,16 @@ export function Deck({
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
       />
+
+      <div
+        className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
+        onClick={async () => {
+          await markQuestionAsSkipped(question.id);
+          handleNextIndex();
+        }}
+      >
+        Skip question
+      </div>
 
       <Sheet
         disableClose
