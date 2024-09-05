@@ -11,19 +11,24 @@ export async function POST(request: NextRequest) {
 
   try {
     const currentUser = await getCurrentUser();
-
-    if (!currentUser) return;
-
+  
     const { event, properties } = data;
 
-    mixpanel.track(event, {
-      ...properties,
-      [MIX_PANEL_METADATA.USER_ID]: currentUser.id,
-      [MIX_PANEL_METADATA.USERNAME]: currentUser.username,
-      [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: currentUser.wallets[0].address,
-      ip: request.ip,
-    });
-
+    if (!currentUser) {
+      mixpanel.track(event, {
+        ...properties,
+        ip: request.ip,
+      });
+    } else {
+      mixpanel.track(event, {
+        ...properties,
+        [MIX_PANEL_METADATA.USER_ID]: currentUser.id,
+        [MIX_PANEL_METADATA.USERNAME]: currentUser.username,
+        [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]:
+          currentUser.wallets[0].address,
+        ip: request.ip,
+      });
+    }
     return NextResponse.json({ status: "Event tracked successfully" });
   } catch (error) {
     console.log(error);
