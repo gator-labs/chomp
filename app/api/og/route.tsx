@@ -1,8 +1,5 @@
 import { ImageResponse } from 'next/og';
-// import shareTemplate from "../../../public/images/share-template.png";
 
-// App router includes @vercel/og.
-// No need to install it.
  
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
