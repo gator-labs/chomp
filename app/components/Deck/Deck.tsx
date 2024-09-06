@@ -149,6 +149,11 @@ export function Deck({
     setIsTimeOutPopUpVisible(true);
   };
 
+  const handleSkipQuestion = async () => {
+    await markQuestionAsSkipped(question.id);
+    handleNextIndex();
+  };
+
   const onQuestionActionClick = useCallback(
     async (number: number | undefined) => {
       if (
@@ -297,10 +302,7 @@ export function Deck({
 
       <div
         className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
-        onClick={async () => {
-          await markQuestionAsSkipped(question.id);
-          handleNextIndex();
-        }}
+        onClick={() => handleSkipQuestion()}
       >
         Skip question
       </div>
