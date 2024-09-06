@@ -31,7 +31,7 @@ const CampaignCard = ({
         alt={name}
         className="rounded-full"
       />
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 flex-1">
         <h3 className="text-white text-[14px] leading-[18.9px] font-[700]">
           {name}
         </h3>
