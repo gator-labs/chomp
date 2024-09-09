@@ -2,7 +2,6 @@ import type { Config } from "tailwindcss";
 
 const colors = {
   // OLD COLORS
-  primary: "#DBFC8D",
   aqua: "#6DECAF",
   "input-gray": "#929292",
   "dark-purple": "#8872A5",
@@ -19,6 +18,9 @@ const colors = {
   // #DD7944
 
   // FIGMA NEW COLORS
+  primary: "#A3A3EC",
+  "primary-muted": "#2C28A4",
+  destructive: "#ED6A5A",
   green: "#1ED3B3",
   red: "#ED6A5A",
   white: "#FFFFFF",
