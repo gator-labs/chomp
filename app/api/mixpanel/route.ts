@@ -23,26 +23,37 @@ export async function POST(request: NextRequest) {
 
   try {
     const currentUser = await getCurrentUser();
-
-    if (!currentUser) return;
-
+    
+    const { event, properties } = data;
     const ip = getIPAddress(request.headers);
     const { device, browser, os } = userAgent({ headers: request.headers });
 
-    const { event, properties } = data;
+    if (!currentUser) {
+      mixpanel.track(event, {
+        ...properties,
+        $device: device.model,
+        $browser: browser.name,
+        $os: os.name,
+        $os_version: os.version,
+        $browser_version: browser.version,
+        ip,
+      });
+    } else {
+      mixpanel.track(event, {
+        ...properties,
+        $device: device.model,
+        $browser: browser.name,
+        $os: os.name,
+        $os_version: os.version,
+        $browser_version: browser.version,
+        [MIX_PANEL_METADATA.USER_ID]: currentUser.id,
+        [MIX_PANEL_METADATA.USERNAME]: currentUser.username,
+        [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]:
+          currentUser.wallets[0].address,
+        ip,
+      });
+    }
 
-    mixpanel.track(event, {
-      ...properties,
-      $device: device.model,
-      $browser: browser.name,
-      $os: os.name,
-      $os_version: os.version,
-      $browser_version: browser.version,
-      [MIX_PANEL_METADATA.USER_ID]: currentUser.id,
-      [MIX_PANEL_METADATA.USERNAME]: currentUser.username,
-      [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: currentUser.wallets[0].address,
-      ip,
-    });
 
     return NextResponse.json({ status: "Event tracked successfully" });
   } catch (error) {
