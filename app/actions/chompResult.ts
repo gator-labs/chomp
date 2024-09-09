@@ -8,7 +8,6 @@ import {
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
-
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
@@ -87,127 +86,122 @@ export async function revealQuestions(
     data: { userId: payload.sub },
   });
 
-  try {
-    await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
-    const questionsFilteredForUser = await prisma.question.findMany({
-      where: {
-        id: { in: questionIds },
-      },
-      include: {
-        chompResults: {
-          where: {
-            userId: payload.sub,
-          },
+  await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
+  const questionsFilteredForUser = await prisma.question.findMany({
+    where: {
+      id: { in: questionIds },
+    },
+    include: {
+      chompResults: {
+        where: {
+          userId: payload.sub,
         },
       },
-    });
-    const questionAnswersCount = await questionAnswerCountQuery(questionIds);
+    },
+  });
+  const questionAnswersCount = await questionAnswerCountQuery(questionIds);
 
-    const revealableQuestions = questionsFilteredForUser.filter((question) =>
-      isEntityRevealable({
-        revealAtAnswerCount: question.revealAtAnswerCount,
-        revealAtDate: question.revealAtDate,
-        answerCount:
-          questionAnswersCount.find((qa) => qa.id === question.id)?.count ?? 0,
-      }),
-    );
+  const revealableQuestions = questionsFilteredForUser.filter((question) =>
+    isEntityRevealable({
+      revealAtAnswerCount: question.revealAtAnswerCount,
+      revealAtDate: question.revealAtDate,
+      answerCount:
+        questionAnswersCount.find((qa) => qa.id === question.id)?.count ?? 0,
+    }),
+  );
 
-    if (!revealableQuestions.length) {
-      throw new Error("No revealable questions available");
-    }
-
-    const bonkToBurn = revealableQuestions
-      .slice(
-        nftAddress && nftType && (await checkNft(nftAddress, nftType)) ? 1 : 0,
-      ) // skip bonk burn for first question if nft is supplied
-      .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
-
-    if (bonkToBurn > 0) {
-      const isSuccessful = await hasBonkBurnedCorrectly(
-        burnTx,
-        bonkToBurn,
-        payload.sub,
-      );
-
-      if (!isSuccessful) {
-        return null;
-      }
-    }
-
-    const revealableQuestionIds = revealableQuestions.map((q) => q.id);
-
-    const questionRewards = await calculateReward(
-      payload.sub,
-      revealableQuestionIds,
-    );
-
-    const revealPoints = await calculateRevealPoints(questionRewards);
-
-    const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
-
-    await prisma.$transaction(async (tx) => {
-      await tx.chompResult.deleteMany({
-        where: {
-          AND: {
-            userId: payload.sub,
-            questionId: {
-              in: revealableQuestionIds,
-            },
-            burnTransactionSignature: burnTx,
-            transactionStatus: TransactionStatus.Pending,
-          },
-        },
-      });
-
-      await tx.chompResult.createMany({
-        data: [
-          ...questionRewards.map((questionReward) => ({
-            questionId: questionReward.questionId,
-            userId: payload.sub,
-            result: ResultType.Revealed,
-            burnTransactionSignature: burnTx,
-            rewardTokenAmount: questionReward.rewardAmount,
-            transactionStatus: TransactionStatus.Completed,
-          })),
-        ],
-      });
-
-      await tx.fungibleAssetBalance.upsert({
-        where: {
-          asset_userId: {
-            asset: FungibleAsset.Point,
-            userId: payload.sub,
-          },
-        },
-        update: {
-          amount: {
-            increment: pointsAmount,
-          },
-        },
-        create: {
-          userId: payload.sub,
-          asset: FungibleAsset.Point,
-          amount: pointsAmount,
-        },
-      });
-
-      await tx.fungibleAssetTransactionLog.createMany({
-        data: revealPoints.map((revealPointsTx) => ({
-          asset: FungibleAsset.Point,
-          type: revealPointsTx.type,
-          change: revealPointsTx.amount,
-          userId: payload.sub,
-          questionId: revealPointsTx.questionId,
-        })),
-      });
-    });
-
-    release();
-    revalidatePath("/application");
-  } catch (e) {
-    release();
-    throw e;
+  if (!revealableQuestions.length) {
+    throw new Error("No revealable questions available");
   }
+
+  const bonkToBurn = revealableQuestions
+    .slice(
+      nftAddress && nftType && (await checkNft(nftAddress, nftType)) ? 1 : 0,
+    ) // skip bonk burn for first question if nft is supplied
+    .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
+
+  if (bonkToBurn > 0) {
+    const isSuccessful = await hasBonkBurnedCorrectly(
+      burnTx,
+      bonkToBurn,
+      payload.sub,
+    );
+
+    if (!isSuccessful) {
+      return null;
+    }
+  }
+
+  const revealableQuestionIds = revealableQuestions.map((q) => q.id);
+
+  const questionRewards = await calculateReward(
+    payload.sub,
+    revealableQuestionIds,
+  );
+
+  const revealPoints = await calculateRevealPoints(questionRewards);
+
+  const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.chompResult.deleteMany({
+      where: {
+        AND: {
+          userId: payload.sub,
+          questionId: {
+            in: revealableQuestionIds,
+          },
+          burnTransactionSignature: burnTx,
+          transactionStatus: TransactionStatus.Pending,
+        },
+      },
+    });
+
+    await tx.chompResult.createMany({
+      data: [
+        ...questionRewards.map((questionReward) => ({
+          questionId: questionReward.questionId,
+          userId: payload.sub,
+          result: ResultType.Revealed,
+          burnTransactionSignature: burnTx,
+          rewardTokenAmount: questionReward.rewardAmount,
+          transactionStatus: TransactionStatus.Completed,
+        })),
+      ],
+    });
+
+    await tx.fungibleAssetBalance.upsert({
+      where: {
+        asset_userId: {
+          asset: FungibleAsset.Point,
+          userId: payload.sub,
+        },
+      },
+      update: {
+        amount: {
+          increment: pointsAmount,
+        },
+      },
+      create: {
+        userId: payload.sub,
+        asset: FungibleAsset.Point,
+        amount: pointsAmount,
+      },
+    });
+
+    await tx.fungibleAssetTransactionLog.createMany({
+      data: revealPoints.map((revealPointsTx) => ({
+        asset: FungibleAsset.Point,
+        type: revealPointsTx.type,
+        change: revealPointsTx.amount,
+        userId: payload.sub,
+        questionId: revealPointsTx.questionId,
+      })),
+    });
+  });
+
+  release();
+  revalidatePath("/application");
 }
 
 export async function dismissQuestion(questionId: number) {

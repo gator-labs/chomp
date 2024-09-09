@@ -7,12 +7,15 @@ import {
   QuestionType,
   TransactionLogType,
 } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
+import { release } from "os";
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredQuestion } from "../queries/question";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
+import { AnswerError } from "../utils/error";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 import { updateStreak } from "./streak";
@@ -72,107 +75,117 @@ export async function answerQuestion(request: SaveQuestionRequest) {
 
   if (!userId) return;
 
-  const questionOptions = await prisma.questionOption.findMany({
-    where: { questionId: request.questionId },
-    include: { question: true },
-  });
+  try {
+    const questionOptions = await prisma.questionOption.findMany({
+      where: { questionId: request.questionId },
+      include: { question: true },
+    });
 
-  const questionAnswers = questionOptions.map((qo) => {
-    const isOptionSelected = qo.id === request?.questionOptionId;
+    const questionAnswers = questionOptions.map((qo) => {
+      const isOptionSelected = qo.id === request?.questionOptionId;
 
-    const percentageForQuestionOption =
-      request?.percentageGivenForAnswerId === qo.id
-        ? request?.percentageGiven
-        : undefined;
+      const percentageForQuestionOption =
+        request?.percentageGivenForAnswerId === qo.id
+          ? request?.percentageGiven
+          : undefined;
 
-    const percentage =
-      qo.question.type === QuestionType.BinaryQuestion &&
-      !percentageForQuestionOption
-        ? 100 - request!.percentageGiven!
-        : percentageForQuestionOption;
+      const percentage =
+        qo.question.type === QuestionType.BinaryQuestion &&
+        !percentageForQuestionOption
+          ? 100 - request!.percentageGiven!
+          : percentageForQuestionOption;
 
-    return {
-      selected: isOptionSelected,
-      percentage,
-      questionOptionId: qo.id,
-      timeToAnswer: request?.timeToAnswerInMiliseconds
-        ? BigInt(request?.timeToAnswerInMiliseconds)
-        : null,
-      userId,
-      status: AnswerStatus.Submitted,
-    } as QuestionAnswer;
-  });
-
-  await prisma.$transaction(async (tx) => {
-    await tx.questionAnswer.deleteMany({
-      where: {
-        questionOption: {
-          questionId: request.questionId,
-        },
+      return {
+        selected: isOptionSelected,
+        percentage,
+        questionOptionId: qo.id,
+        timeToAnswer: request?.timeToAnswerInMiliseconds
+          ? BigInt(request?.timeToAnswerInMiliseconds)
+          : null,
         userId,
-      },
+        status: AnswerStatus.Submitted,
+      } as QuestionAnswer;
     });
 
-    await tx.questionAnswer.createMany({
-      data: questionAnswers,
-    });
+    await prisma.$transaction(async (tx) => {
+      await tx.questionAnswer.deleteMany({
+        where: {
+          questionOption: {
+            questionId: request.questionId,
+          },
+          userId,
+        },
+      });
 
-    const deckQuestions = await tx.deckQuestion.findMany({
-      where: {
-        deckId: request.deckId,
-      },
-      include: {
-        deck: true,
-        question: {
-          include: {
-            questionOptions: {
-              include: {
-                questionAnswers: {
-                  where: {
-                    userId,
+      await tx.questionAnswer.createMany({
+        data: questionAnswers,
+      });
+
+      const deckQuestions = await tx.deckQuestion.findMany({
+        where: {
+          deckId: request.deckId,
+        },
+        include: {
+          deck: true,
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: {
+                    where: {
+                      userId,
+                    },
                   },
                 },
               },
             },
           },
         },
-      },
-    });
+      });
 
-    const allQuestionOptions = deckQuestions.flatMap((dq) =>
-      dq.question.questionOptions.map((qo) => qo),
-    );
-
-    const allQuestionAnswers = allQuestionOptions.flatMap((qo) =>
-      qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
-    );
-
-    const fungibleAssetRevealTasks = [
-      incrementFungibleAssetBalance({
-        asset: FungibleAsset.Point,
-        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
-        transactionLogType: TransactionLogType.AnswerQuestion,
-        injectedPrisma: tx,
-        questionIds: [request.questionId],
-      }),
-    ];
-
-    if (allQuestionOptions.length === allQuestionAnswers.length) {
-      fungibleAssetRevealTasks.push(
-        incrementFungibleAssetBalance({
-          asset: FungibleAsset.Point,
-          amount: pointsPerAction[TransactionLogType.AnswerDeck],
-          transactionLogType: TransactionLogType.AnswerDeck,
-          injectedPrisma: tx,
-          deckIds: [request.deckId!],
-        }),
+      const allQuestionOptions = deckQuestions.flatMap((dq) =>
+        dq.question.questionOptions.map((qo) => qo),
       );
 
-      if (!!deckQuestions[0].deck.date) await updateStreak(userId);
-    }
+      const allQuestionAnswers = allQuestionOptions.flatMap((qo) =>
+        qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
+      );
 
-    await Promise.all(fungibleAssetRevealTasks);
-  });
+      const fungibleAssetRevealTasks = [
+        incrementFungibleAssetBalance({
+          asset: FungibleAsset.Point,
+          amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+          transactionLogType: TransactionLogType.AnswerQuestion,
+          injectedPrisma: tx,
+          questionIds: [request.questionId],
+        }),
+      ];
+
+      if (allQuestionOptions.length === allQuestionAnswers.length) {
+        fungibleAssetRevealTasks.push(
+          incrementFungibleAssetBalance({
+            asset: FungibleAsset.Point,
+            amount: pointsPerAction[TransactionLogType.AnswerDeck],
+            transactionLogType: TransactionLogType.AnswerDeck,
+            injectedPrisma: tx,
+            deckIds: [request.deckId!],
+          }),
+        );
+
+        if (!!deckQuestions[0].deck.date) await updateStreak(userId);
+      }
+
+      await Promise.all(fungibleAssetRevealTasks);
+    });
+  } catch (error) {
+    const answerError = new AnswerError(
+      `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,
+      { cause: error },
+    );
+    Sentry.captureException(answerError);
+    release();
+    throw error;
+  }
 }
 
 export async function saveQuestion(request: SaveQuestionRequest) {
@@ -186,76 +199,86 @@ export async function saveQuestion(request: SaveQuestionRequest) {
     return;
   }
 
-  const userId = payload?.sub ?? "";
+  try {
+    const userId = payload?.sub ?? "";
 
-  const hasAnswered = await hasAnsweredQuestion(
-    request.questionId,
-    userId,
-    true,
-  );
-
-  if (hasAnswered) {
-    return;
-  }
-
-  const question = await prisma.question.findFirst({
-    where: { id: { equals: request.questionId } },
-  });
-
-  if (
-    question?.revealAtDate &&
-    dayjs(question?.revealAtDate).isBefore(new Date())
-  ) {
-    return;
-  }
-
-  const questionOptions = await prisma.questionOption.findMany({
-    where: { questionId: request.questionId },
-    include: { question: true },
-  });
-
-  const questionAnswers = questionOptions.map((qo) => {
-    const isOptionSelected = qo.id === request?.questionOptionId;
-
-    const percentageForQuestionOption =
-      request?.percentageGivenForAnswerId === qo.id
-        ? request.percentageGiven
-        : undefined;
-
-    const percentage =
-      qo.question.type === QuestionType.BinaryQuestion &&
-      !percentageForQuestionOption
-        ? 100 - request!.percentageGiven!
-        : percentageForQuestionOption;
-
-    return {
-      selected: isOptionSelected,
-      percentage,
-      questionOptionId: qo.id,
-      timeToAnswer: request?.timeToAnswerInMiliseconds
-        ? BigInt(request?.timeToAnswerInMiliseconds)
-        : null,
+    const hasAnswered = await hasAnsweredQuestion(
+      request.questionId,
       userId,
-    } as QuestionAnswer;
-  });
+      true,
+    );
 
-  await prisma.$transaction(async (tx) => {
-    await tx.questionAnswer.createMany({
-      data: questionAnswers,
+    if (hasAnswered) {
+      return;
+    }
+
+    const question = await prisma.question.findFirst({
+      where: { id: { equals: request.questionId } },
     });
 
-    await incrementFungibleAssetBalance({
-      asset: FungibleAsset.Point,
-      amount: pointsPerAction[TransactionLogType.AnswerQuestion],
-      transactionLogType: TransactionLogType.AnswerQuestion,
-      injectedPrisma: tx,
-      questionIds: [request.questionId],
+    if (
+      question?.revealAtDate &&
+      dayjs(question?.revealAtDate).isBefore(new Date())
+    ) {
+      return;
+    }
+
+    const questionOptions = await prisma.questionOption.findMany({
+      where: { questionId: request.questionId },
+      include: { question: true },
     });
 
-    await updateStreak(userId);
-  });
+    const questionAnswers = questionOptions.map((qo) => {
+      const isOptionSelected = qo.id === request?.questionOptionId;
 
-  revalidatePath("/application");
+      const percentageForQuestionOption =
+        request?.percentageGivenForAnswerId === qo.id
+          ? request.percentageGiven
+          : undefined;
+
+      const percentage =
+        qo.question.type === QuestionType.BinaryQuestion &&
+        !percentageForQuestionOption
+          ? 100 - request!.percentageGiven!
+          : percentageForQuestionOption;
+
+      return {
+        selected: isOptionSelected,
+        percentage,
+        questionOptionId: qo.id,
+        timeToAnswer: request?.timeToAnswerInMiliseconds
+          ? BigInt(request?.timeToAnswerInMiliseconds)
+          : null,
+        userId,
+      } as QuestionAnswer;
+    });
+
+    await prisma.$transaction(async (tx) => {
+      await tx.questionAnswer.createMany({
+        data: questionAnswers,
+      });
+
+      await incrementFungibleAssetBalance({
+        asset: FungibleAsset.Point,
+        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+        transactionLogType: TransactionLogType.AnswerQuestion,
+        injectedPrisma: tx,
+        questionIds: [request.questionId],
+      });
+
+      await updateStreak(userId);
+    });
+
+    revalidatePath("/application");
+  } catch (error) {
+    const answerError = new AnswerError(
+      `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,
+      { cause: error },
+    );
+    Sentry.captureException(answerError);
+    release();
+    throw error;
+  }
 }
 
 export async function markQuestionAsSeenButNotAnswered(questionId: number) {

@@ -4,12 +4,15 @@ import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
+import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
+import { getJwtPayload } from "../actions/jwt";
 import {
   getUnusedChompyAndFriendsNft,
   getUnusedGenesisNft,
@@ -22,6 +25,7 @@ import {
   REVEAL_TYPE,
 } from "../constants/mixpanel";
 import { useToast } from "../providers/ToastProvider";
+import { BurnError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {
@@ -90,7 +94,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     type: NftType;
   }>();
   const [isLoading, setIsLoading] = useState(false);
-
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
   );
@@ -225,6 +228,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       (id) => !pendingChompResultIds.includes(id),
     );
 
+    const payload = await getJwtPayload();
+
     try {
       if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
         signature = pendingChompResults[0].burnTransactionSignature!;
@@ -301,6 +306,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           errorToast(
             "Error while confirming transaction. Bonk was not burned. Try again.",
           );
+          const burnError = new BurnError(
+            `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+            { cause: res.value.err },
+          );
+          Sentry.captureException(burnError);
           await deleteQuestionChompResults(pendingChompResultIds);
         }
       }
@@ -348,8 +358,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
         error,
       });
-
       errorToast("Error happened while revealing question. Try again.");
+      const revealError = new RevealError(
+        `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+        { cause: error },
+      );
+      Sentry.captureException(revealError);
+      release();
     } finally {
       resetReveal();
     }
