@@ -8,8 +8,8 @@ type CampaignCardProps = {
   id: number;
   imageSrc: string;
   name: string;
-  decksToAnswer: number;
-  decksToReveal: number;
+  decksToAnswer?: number;
+  decksToReveal?: number;
 };
 
 const CampaignCard = ({
@@ -35,13 +35,15 @@ const CampaignCard = ({
         <h3 className="text-white text-[14px] leading-[18.9px] font-[700]">
           {name}
         </h3>
-        <p className="text-xs font-[500] text-gray-400">
-          <span className="text-white">{decksToAnswer}</span> deck
-          {decksToAnswer === 1 ? "" : "s"} to answer{" "}
-          <span className="text-white">•</span>{" "}
-          <span className="text-white">{decksToReveal}</span> deck
-          {decksToReveal === 1 ? "" : "s"} to reveal
-        </p>
+        {decksToAnswer !== undefined && decksToReveal !== undefined && (
+          <p className="text-xs font-[500] text-gray-400">
+            <span className="text-white">{decksToAnswer}</span> deck
+            {decksToAnswer === 1 ? "" : "s"} to answer{" "}
+            <span className="text-white">•</span>{" "}
+            <span className="text-white">{decksToReveal}</span> deck
+            {decksToReveal === 1 ? "" : "s"} to reveal
+          </p>
+        )}
       </div>
       <div className="flex-shrink-0">
         <ArrowRightCircle />

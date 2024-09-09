@@ -9,8 +9,8 @@ import {
   QuestionOption,
 } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
+import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
-import { authGuard } from "../utils/auth";
 
 export async function getCampaigns() {
   return prisma.campaign.findMany({
@@ -36,7 +36,9 @@ export async function getCampaign(id: number) {
 }
 
 export async function getAllCampaigns() {
-  const payload = await authGuard();
+  const payload = await getJwtPayload();
+
+  const userId = payload?.sub;
 
   const campaigns = await prisma.campaign.findMany({
     include: {
@@ -48,14 +50,14 @@ export async function getAllCampaigns() {
                 include: {
                   chompResults: {
                     where: {
-                      userId: payload.sub,
+                      userId,
                     },
                   },
                   questionOptions: {
                     include: {
                       questionAnswers: {
                         where: {
-                          userId: payload.sub,
+                          userId,
                         },
                       },
                     },
@@ -71,8 +73,8 @@ export async function getAllCampaigns() {
 
   return campaigns.map((campaign) => ({
     ...campaign,
-    decksToAnswer: getDecksToAnswer(campaign.deck),
-    decksToReveal: getDecksToReveal(campaign.deck),
+    decksToAnswer: !!userId ? getDecksToAnswer(campaign.deck) : undefined,
+    decksToReveal: !!userId ? getDecksToReveal(campaign.deck) : undefined,
   }));
 }
 
