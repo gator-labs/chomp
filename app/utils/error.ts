@@ -1,3 +1,9 @@
+"use client";
+
+/**
+ * Custom errors classes for the app
+ */
+
 export class BurnError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
