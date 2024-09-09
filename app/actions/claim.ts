@@ -11,6 +11,7 @@ import { acquireMutex } from "../utils/mutex";
 import { sendBonk } from "../utils/bonk";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
+import { ClaimError } from "../utils/error";
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
@@ -164,7 +165,6 @@ export async function claimQuestions(questionIds: number[]) {
       questions: chompResults.map((cr) => cr.question),
     };
   } catch (e) {
-    class ClaimError extends Error {}
     const claimError = new ClaimError(
       `User with id: ${payload.sub} is having trouble claiming for questions ids: ${questionIds}`,
       { cause: e },
