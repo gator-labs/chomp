@@ -14,7 +14,6 @@ import {
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "../Button/Button";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
@@ -22,6 +21,14 @@ import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
 import Sheet from "../Sheet/Sheet";
 import Stepper from "../Stepper/Stepper";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import { Button } from "../ui/button"
 
 export type Option = {
   id: number;
@@ -77,7 +84,7 @@ export function Deck({
   const min = 0;
   const max =
     !!questions[currentQuestionIndex] &&
-    questions[currentQuestionIndex].questionOptions.length > 0
+      questions[currentQuestionIndex].questionOptions.length > 0
       ? questions[currentQuestionIndex].questionOptions.length - 1
       : 0;
 
@@ -105,7 +112,7 @@ export function Deck({
     const min = 0;
     const max =
       !!questions[currentQuestionIndex + 1] &&
-      questions[currentQuestionIndex + 1].questionOptions.length > 0
+        questions[currentQuestionIndex + 1].questionOptions.length > 0
         ? questions[currentQuestionIndex + 1].questionOptions.length - 1
         : 0;
     generateRandom({ min, max });
@@ -292,31 +299,20 @@ export function Deck({
         disabled={isSubmitting}
       />
 
-      <Sheet
-        disableClose
-        isOpen={isTimeOutPopUpVisible}
-        setIsOpen={setIsTimeOutPopUpVisible}
-        closeIconHeight={16}
-        closeIconWidth={16}
-      >
-        <div className="p-6 pt-2 flex flex-col gap-6">
-          <p className="text-base text-purple-500 font-bold">
-            Are you still there?
-          </p>
-          <p className="text-sm text-white">
-            Your time&apos;s up! To prevent you from missing out on the next
-            question, click proceed to continue.
-          </p>
-          <Button
-            variant="white"
-            isPill
-            className="!h-10"
-            onClick={handleNoAnswer}
-          >
+      <AlertDialog open={isTimeOutPopUpVisible}>
+        <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-purple-500">Are you still there?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white">
+              Your time&apos;s up! To prevent you from missing out on the next
+              question, click proceed to continue.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <Button onClick={handleNoAnswer} size="lg">
             Proceed
           </Button>
-        </div>
-      </Sheet>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
