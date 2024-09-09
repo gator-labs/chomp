@@ -48,6 +48,7 @@ const colors = {
     800: "#161452",
     900: "#0B0A29",
   },
+  indigo: "#5955D6",
 };
 
 module.exports = {
