@@ -24,13 +24,14 @@ const CampaignCard = ({
       href={`/campaigns/${id}`}
       className="p-4 rounded-[8px] bg-gray-850 border-[0.5px] border-solid border-gray-600 flex items-center justify-between gap-4"
     >
-      <Image
-        src={imageSrc}
-        width={52}
-        height={52}
-        alt={name}
-        className="rounded-full"
-      />
+      <div className="relative w-[52px] h-[52px]">
+        <Image
+          src={imageSrc}
+          fill
+          alt={name}
+          className="rounded-full object-cover"
+        />
+      </div>
       <div className="flex flex-col gap-3 flex-1">
         <h3 className="text-white text-[14px] leading-[18.9px] font-[700]">
           {name}

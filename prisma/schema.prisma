@@ -295,4 +295,5 @@ enum AnswerStatus {
   Viewed
   Submitted
   TimedOut
+  Skipped
 }
