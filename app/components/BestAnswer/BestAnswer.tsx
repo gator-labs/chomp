@@ -14,7 +14,7 @@ export function BestAnswer({
 }: BestAnswerProps) {
   return (
     <div className="bg-gray-800 p-4 rounded">
-      <div className="font-sora text-base text-white mb-2">Best Answer</div>
+      <div className=" text-base text-white mb-2">Best Answer</div>
       {children}
       {optionSelected && (
         <div className="text-gray font-bold text-sm flex items-center gap-1 mt-2">

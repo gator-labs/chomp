@@ -264,7 +264,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 justify-start">
           <BackButton />
-          <h4 className="text-[13px] font-normal leading-[13px] text-left">
+          <h4 className="text-sm font-normal text-left">
             Viewing answer results
           </h4>
         </div>

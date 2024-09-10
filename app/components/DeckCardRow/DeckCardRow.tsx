@@ -49,9 +49,7 @@ const DeckCardRow = ({
       <div className="flex flex-col gap-y-2 w-full justify-between">
         <div className="flex flex-col gap-y-2 w-full">
           <div className="flex gap-2 w-full justify-between">
-            <p className="text-white font-sora font-semibold text-sm">
-              {deckName}
-            </p>
+            <p className="text-white  font-semibold text-sm">{deckName}</p>
 
             <div>
               <LeadToIcon width={16} height={13} />
