@@ -48,7 +48,9 @@ export default async function Layout({ children }: PageLayoutProps) {
               />
               {children}
             </Main>
-            <TabNavigation isAdmin={!!user?.isAdmin} />
+            <div className="fixed bottom-0 left-0 right-0 z-50">
+              <TabNavigation isAdmin={!!user?.isAdmin} />
+            </div>
             <AuthRedirect />
             <DailyDeckRedirect />
           </div>
