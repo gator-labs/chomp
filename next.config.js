@@ -10,6 +10,7 @@ const nextConfig = {
   experimental: {
     missingSuspenseWithCSRBailout: false,
   },
+  experimental: { serverComponentsExternalPackages: ["@aws-sdk"] },
   images: {
     remotePatterns: [
       {
@@ -28,6 +29,11 @@ const nextConfig = {
       {
         source: "/application/profile",
         destination: "/application/profile/dashboard",
+        permanent: true,
+      },
+      {
+        source: "/application/decks",
+        destination: "/application",
         permanent: true,
       },
     ];

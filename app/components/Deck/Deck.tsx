@@ -2,6 +2,8 @@
 import {
   answerQuestion,
   markQuestionAsSeenButNotAnswered,
+  markQuestionAsSkipped,
+  markQuestionAsTimedOut,
   SaveQuestionRequest,
 } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
@@ -137,11 +139,20 @@ export function Deck({
     if (!!question?.id) run();
   }, [question?.id]);
 
-  const handleNoAnswer = useCallback(() => {
+  const handleNoAnswer = useCallback(async () => {
     setIsTimeOutPopUpVisible(false);
-
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
+
+  const handleOnDurationRanOut = async () => {
+    await markQuestionAsTimedOut(question.id);
+    setIsTimeOutPopUpVisible(true);
+  };
+
+  const handleSkipQuestion = async () => {
+    await markQuestionAsSkipped(question.id);
+    handleNextIndex();
+  };
 
   const onQuestionActionClick = useCallback(
     async (number: number | undefined) => {
@@ -226,7 +237,7 @@ export function Deck({
     }
   }, [questionsRef.current]);
 
-  if (questions.length === 0 || hasReachedEnd) {
+  if (questions.length === 0 || hasReachedEnd || currentQuestionIndex === -1) {
     const percentOfAnsweredQuestions =
       (numberOfAnsweredQuestions / questions.length) * 100;
 
@@ -264,7 +275,7 @@ export function Deck({
             question={question.question}
             type={question.type}
             viewImageSrc={question.imageUrl}
-            onDurationRanOut={() => setIsTimeOutPopUpVisible(true)}
+            onDurationRanOut={() => handleOnDurationRanOut()}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -290,6 +301,13 @@ export function Deck({
         disabled={isSubmitting}
       />
 
+      <div
+        className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
+        onClick={() => handleSkipQuestion()}
+      >
+        Skip question
+      </div>
+
       <Sheet
         disableClose
         isOpen={isTimeOutPopUpVisible}
@@ -298,7 +316,7 @@ export function Deck({
         closeIconWidth={16}
       >
         <div className="p-6 pt-2 flex flex-col gap-6">
-          <p className="text-base text-purple font-bold">
+          <p className="text-base text-purple-500 font-bold">
             Are you still there?
           </p>
           <p className="text-sm text-white">

@@ -65,7 +65,7 @@ const meta = {
     deckVariant: "daily-deck",
   },
   decorators: (Story) => (
-    <div className="bg-black p-10">
+    <div className="bg-gray-850 p-10">
       <Story />
     </div>
   ),

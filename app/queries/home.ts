@@ -3,10 +3,9 @@
 import { AnswerStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
-import { getJwtPayload } from "../actions/jwt";
 import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
+import { authGuard } from "../utils/auth";
 
 const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
@@ -58,11 +57,7 @@ export type QuestionsForReveal = {
 export async function getDecksForExpiringSection(): Promise<
   DeckExpiringSoon[]
 > {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
+  const payload = await authGuard();
 
   const decks = await queryExpiringDecks(payload.sub);
 
@@ -83,11 +78,7 @@ export async function getDailyDecksForExpiringSection(): Promise<
 }
 
 export async function getNextDeckId(): Promise<number | undefined> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
+  const payload = await authGuard();
 
   const nextDeckId = await getNextDeckIdQuery(payload.sub);
 
@@ -222,11 +213,7 @@ WHERE
 export async function getQuestionsForRevealedSection(): Promise<
   RevealedQuestion[]
 > {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
+  const payload = await authGuard();
 
   const questions = await queryRevealedQuestions(payload.sub);
 
@@ -272,11 +259,7 @@ async function queryRevealedQuestions(
 export async function getQuestionsForReadyToRevealSection(): Promise<
   QuestionsForReveal[]
 > {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
+  const payload = await authGuard();
 
   const questions = await queryQuestionsForReadyToReveal(payload.sub);
 
@@ -323,11 +306,7 @@ async function queryQuestionsForReadyToReveal(
 }
 
 export async function getUserStatistics(): Promise<UserStatistics> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
+  const payload = await authGuard();
 
   const stats = await queryUserStatistics(payload.sub);
 

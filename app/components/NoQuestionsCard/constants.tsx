@@ -21,11 +21,16 @@ export const QUESTION_CARD_CONTENT = {
     title: "Nice!",
     body: (date?: Date | null) => (
       <>
-        You just chomped through that deck! The deck will be revealed in{" "}
-        <span className="text-[#A3A3EC]">
-          {formatDistanceToNowStrict(date!)}
-        </span>
-        .
+        You just chomped through that deck!{" "}
+        {!!date && (
+          <>
+            The deck will be revealed in
+            <span className="text-purple-500">
+              {formatDistanceToNowStrict(date)}
+            </span>
+            .
+          </>
+        )}
         <br />
         <br /> Meanwhile, go check out some more chomps in{" "}
         <b>

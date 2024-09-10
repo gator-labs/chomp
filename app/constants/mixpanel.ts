@@ -1,9 +1,21 @@
 export const MIX_PANEL_EVENTS = {
-  WALLET_CONNECTED: "WalletConnected",
-  QUESTION_ANSWER_REVEALED: "QuestionAnswerRevealed",
+  WALLET_CONNECTED: "LoginWalletConnected",
   CLAIM_STARTED: "ClaimStarted",
   CLAIM_FAILED: "ClaimFailed",
   CLAIM_SUCCEEDED: "ClaimSucceeded",
+  REVEAL_SUCCEEDED: "RevealSucceeded",
+  REVEAL_DIALOG_CLOSED: "RevealDialogClosed",
+  REVEAL_DIALOG_OPENED: "RevealDialogOpened",
+  REVEAL_DIALOG_LOADED: "RevealDialogLoaded",
+  REVEAL_STARTED: "RevealStarted",
+  REVEAL_TRANSACTION_SIGNED: "RevealTransactionSigned",
+  REVEAL_TRANSACTION_CANCELLED: "RevealTransactionCancelled",
+  REVEAL_FAILED: "RevealFailed",
+  LOGIN_STARTED: "LoginStarted",
+  Login_Wallet_Selected: "LoginWalletSelected",
+  Login_Email_Submitted: "LoginEmailSubmitted",
+  LOGIN_FAILED: "LoginFailed",
+  LOGIN_SUCCEED: "LoginSucceed"
 } as const;
 
 export const MIX_PANEL_METADATA = {
@@ -16,11 +28,19 @@ export const MIX_PANEL_METADATA = {
   QUESTION_TEXT: "QuestionText",
   TRANSACTION_SIGNATURE: "TransactionSignature",
   CLAIMED_AMOUNT: "ClaimedAmount",
+  REVEAL_DIALOG_TYPE: "RevealDialogType",
+  LOGIN_FAILED_REASON: "LoginFailed",
+  CONNECTOR_NAME: "ConnectorName",
 };
 
 export const REVEAL_TYPE = {
   SINGLE: "Single",
   ALL: "All",
+};
+
+export const REVEAL_DIALOG_TYPE = {
+  REVEAL_OR_CLOSE: "RevealOrClose",
+  INSUFFICIENT_FUNDS: "InsufficientFunds",
 };
 
 export type MixPanelEventType = keyof typeof MIX_PANEL_EVENTS;

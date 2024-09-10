@@ -5,6 +5,7 @@ import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
 import { DynamicJwtPayload } from "@/lib/auth";
 import sendToMixpanel from "@/lib/mixpanel";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ExistingUserScreen from "./ExistingUserScreen";
 import LoadingScreen from "./LoadingScreen";
@@ -23,12 +24,12 @@ const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
     awaitingSignatureState,
     walletConnector,
   } = useDynamicContext();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const params = useSearchParams();
 
   useEffect(() => {
-    if (awaitingSignatureState === "linking_new_wallet") {
-      setIsLoading(true);
-    }
+    setIsLoading(true);
 
     if (authToken) setJwt(authToken);
 
@@ -39,6 +40,14 @@ const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
         });
 
       setIsLoading(false);
+    }
+    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
+      const destination = params.get("next");
+      if (!!destination) {
+        redirect(destination);
+      } else {
+        setIsLoading(false);
+      }
     }
 
     if (!payload?.sub && !authToken && awaitingSignatureState === "idle")

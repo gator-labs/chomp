@@ -64,7 +64,7 @@ export function QuickViewProfile({
         </Link>
         <TransactionsTable transactions={transactions} />
         <div className="flex gap-2 items-center mt-auto">
-          <div className="p-2 rounded-lg bg-[#666666] flex gap-2">
+          <div className="p-2 rounded-lg bg-gray-600 flex gap-2">
             <a
               href="https://t.me/+BN0ZDiUhTUkxNzZl"
               target="_blank"

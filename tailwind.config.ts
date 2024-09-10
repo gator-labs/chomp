@@ -1,37 +1,57 @@
 import type { Config } from "tailwindcss";
 
 const colors = {
-  primary: "#DBFC8D",
-  "btn-text-primary": "#0D0D0D",
-  "btn-text-secondary": "#FFFFFF",
-  "btn-text-grayish": "#FFFFFF",
-  "btn-text-purple": "#0D0D0D",
-  white: "#FFFFFF",
-  "btn-text-white": "#0D0D0D",
-  black: "#1B1B1B",
-  "btn-text-black": "#FFFFFF",
-  "btn-border-black": "#333333",
-  warning: "#ED6A5A",
-  "btn-text-warning": "#0D0D0D",
-  disabled: "#999999",
-  "btn-text-disabled": "#666666",
-  "border-white": "#E9E9E9",
+  // OLD COLORS
   aqua: "#6DECAF",
-  gray: "#999999",
   "input-gray": "#929292",
-  "search-gray": "#4D4D4D",
-  grayish: "#4D4D4D",
-  purple: "#A3A3EC",
   "dark-purple": "#8872A5",
   pink: "#CFC5F7",
-  "btn-text-pink": "#0D0D0D",
-  "btn-text-pink-border": "#E3DCFF",
-  "bg-pink-border": "#0D0D0D",
-  red: "rgb(239 68 68)",
-  "chomp-purple": "#A3A3EC",
+
+  // HARDCODED COLORS IN APP
+  // #6DECAFCC
+  // #8C96ED
+  // #575CDF
+  // #FFF294§
+  // #DFDFDF
+  // #E2956C
+  // #171616
+  // #DD7944
+
+  // FIGMA NEW COLORS
+  primary: "#A3A3EC",
+  "primary-muted": "#2C28A4",
+  destructive: "#ED6A5A",
+  green: "#1ED3B3",
+  red: "#ED6A5A",
+  white: "#FFFFFF",
+  gray: {
+    50: "#F1F1F1",
+    100: "#E6E6E6",
+    200: "#CCCCCC",
+    300: "#B3B3B3",
+    400: "#999999",
+    600: "#666666",
+    700: "#4D4D4D",
+    800: "#333333",
+    850: "#1B1B1B",
+    950: "#0D0D0D",
+  },
+  purple: {
+    50: "#EBEAFA",
+    100: "#D7D6F5",
+    200: "#AFADEB",
+    300: "#8784E1",
+    400: "#5F5BD7",
+    500: "#A3A3EC",
+    600: "#2C28A4",
+    700: "#211E7B",
+    800: "#161452",
+    900: "#0B0A29",
+  },
 };
 
 module.exports = {
+  darkMode: ["class"],
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./stories/**/*.{js,ts,jsx,tsx,mdx}",
@@ -40,9 +60,15 @@ module.exports = {
     extend: {
       keyframes: {
         purplePulse: {
-          "0%": { backgroundColor: "#8872A5" },
-          "50%": { backgroundColor: "#575CDF" },
-          "100%": { backgroundColor: "#8872A5" },
+          "0%": {
+            backgroundColor: "#8872A5",
+          },
+          "50%": {
+            backgroundColor: "#575CDF",
+          },
+          "100%": {
+            backgroundColor: "#8872A5",
+          },
         },
       },
       animation: {
@@ -67,15 +93,13 @@ module.exports = {
         "pink-gradient": "linear-gradient(90deg, #A3A3EC 0%, #CFC5F7 100%)",
       },
       colors: colors,
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
     },
     plugins: [],
-    safelist: [
-      "z-50",
-      ...Object.keys(colors).map((color) => `text-${color}`),
-      ...Object.keys(colors).map((color) => `bg-${color}`),
-      "text-sm",
-      "font-light",
-      "text-white",
-    ],
   },
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;

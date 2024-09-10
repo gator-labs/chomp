@@ -28,7 +28,10 @@ export function TransactionProfile({
 }: ProfileProps) {
   return (
     <div
-      className={classNames("flex p-6 rounded-2xl bg-black gap-4", className)}
+      className={classNames(
+        "flex p-6 rounded-2xl bg-gray-850 gap-4",
+        className,
+      )}
     >
       <Link href="/application">
         <Avatar size="large" src={avatarSrc || AvatarPlaceholder.src} />

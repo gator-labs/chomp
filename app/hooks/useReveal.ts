@@ -4,19 +4,28 @@ import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
+import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
+import { getJwtPayload } from "../actions/jwt";
 import {
   getUnusedChompyAndFriendsNft,
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
-import { MIX_PANEL_EVENTS } from "../constants/mixpanel";
+import {
+  MIX_PANEL_EVENTS,
+  MIX_PANEL_METADATA,
+  REVEAL_DIALOG_TYPE,
+  REVEAL_TYPE,
+} from "../constants/mixpanel";
 import { useToast } from "../providers/ToastProvider";
+import { BurnError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {
@@ -85,7 +94,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     type: NftType;
   }>();
   const [isLoading, setIsLoading] = useState(false);
-
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
   );
@@ -142,6 +150,17 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       } catch (error) {
         console.error(error);
       } finally {
+        sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_LOADED, {
+          [MIX_PANEL_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
+            ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
+            : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
+          [MIX_PANEL_METADATA.QUESTION_ID]: reveal.questionIds,
+          [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal.questions,
+          [MIX_PANEL_METADATA.REVEAL_TYPE]:
+            reveal.questionIds.length > 1
+              ? REVEAL_TYPE.ALL
+              : REVEAL_TYPE.SINGLE,
+        });
         setIsLoading(false);
       }
     }
@@ -177,6 +196,14 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         questions,
       });
       setIsRevealModalOpen(true);
+      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_OPENED, {
+        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          (questionIds ?? [questionId])?.length > 1
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
+        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds ?? [questionId],
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+      });
     },
     [setReveal, setIsRevealModalOpen, setBurnState],
   );
@@ -200,6 +227,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     const revealQuestionIds = reveal!.questionIds.filter(
       (id) => !pendingChompResultIds.includes(id),
     );
+
+    const payload = await getJwtPayload();
 
     try {
       if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
@@ -229,8 +258,28 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             },
           );
 
+          sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_SIGNED, {
+            [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: sn,
+            [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+            [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+            [MIX_PANEL_METADATA.REVEAL_TYPE]:
+              revealQuestionIds.length > 1
+                ? REVEAL_TYPE.ALL
+                : REVEAL_TYPE.SINGLE,
+          });
+
           signature = sn;
         } catch (error) {
+          if ((error as any)?.message === "User rejected the request.")
+            sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
+              [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                revealQuestionIds.length > 1
+                  ? REVEAL_TYPE.ALL
+                  : REVEAL_TYPE.SINGLE,
+              [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+              [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+            });
+
           resetReveal();
           return;
         }
@@ -257,6 +306,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           errorToast(
             "Error while confirming transaction. Bonk was not burned. Try again.",
           );
+          const burnError = new BurnError(
+            `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+            { cause: res.value.err },
+          );
+          Sentry.captureException(burnError);
           await deleteQuestionChompResults(pendingChompResultIds);
         }
       }
@@ -278,13 +332,15 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         });
       }
 
-      sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWER_REVEALED, {
-        questionsIds: revealQuestionIds,
+      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_SUCCEEDED, {
         transactionSignature: signature,
         nftAddress: revealNft?.id,
         nftType: revealNft?.type,
         burnedAmount: reveal?.amount,
-        questions: reveal?.questions,
+        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
       });
 
       if (revealNft && !isMultiple) {
@@ -295,7 +351,20 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await deleteQuestionChompResults(pendingChompResultIds);
       }
 
+      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_FAILED, {
+        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+        error,
+      });
       errorToast("Error happened while revealing question. Try again.");
+      const revealError = new RevealError(
+        `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+        { cause: error },
+      );
+      Sentry.captureException(revealError);
+      release();
     } finally {
       resetReveal();
     }
@@ -321,6 +390,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     resetReveal,
     cancelReveal: resetReveal,
     questionIds,
+    questions: reveal?.questions,
     isLoading,
   };
 }
