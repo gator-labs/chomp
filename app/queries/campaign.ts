@@ -11,6 +11,21 @@ import {
 import { isAfter, isBefore } from "date-fns";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { authGuard } from "../utils/auth";
+
+export async function getActiveAndInactiveCampaigns() {
+  return prisma.campaign.findMany({
+    orderBy: [{ name: "asc" }],
+  });
+}
+
+export async function getActiveAndInactiveCampaign(campaignId: number) {
+  return prisma.campaign.findUnique({
+    where: {
+      id: campaignId,
+    },
+  });
+}
 
 export async function getCampaigns() {
   return prisma.campaign.findMany({
@@ -23,6 +38,10 @@ export async function getCampaigns() {
 }
 
 export async function getCampaign(id: number) {
+  const payload = await authGuard();
+
+  const userId = payload.sub;
+
   return prisma.campaign.findUnique({
     where: {
       id,
@@ -30,7 +49,32 @@ export async function getCampaign(id: number) {
       isActive: true,
     },
     include: {
-      deck: true,
+      deck: {
+        include: {
+          deckQuestions: {
+            include: {
+              question: {
+                include: {
+                  chompResults: {
+                    where: {
+                      userId,
+                    },
+                  },
+                  questionOptions: {
+                    include: {
+                      questionAnswers: {
+                        where: {
+                          userId,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }
@@ -41,6 +85,10 @@ export async function getAllCampaigns() {
   const userId = payload?.sub;
 
   const campaigns = await prisma.campaign.findMany({
+    where: {
+      isVisible: true,
+      isActive: true,
+    },
     include: {
       deck: {
         include: {

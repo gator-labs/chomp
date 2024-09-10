@@ -1,10 +1,10 @@
 import { Button } from "@/app/components/Button/Button";
 import CampaignList from "@/app/components/CampaignList/CampaignList";
-import { getCampaigns } from "@/app/queries/campaign";
+import { getActiveAndInactiveCampaigns } from "@/app/queries/campaign";
 import Link from "next/link";
 
 const CampaignsPage = async () => {
-  const campaigns = await getCampaigns();
+  const campaigns = await getActiveAndInactiveCampaigns();
 
   return (
     <div className="flex flex-col gap-2">

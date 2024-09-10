@@ -6,9 +6,10 @@ import { ReactNode } from "react";
 
 type Props = {
   children: ReactNode;
+  className?: string;
 };
 
-const Main = ({ children }: Props) => {
+const Main = ({ children, className }: Props) => {
   const pathname = usePathname();
   return (
     <main
@@ -17,6 +18,7 @@ const Main = ({ children }: Props) => {
         {
           "px-4": !pathname.endsWith("application"),
         },
+        className,
       )}
     >
       {children}

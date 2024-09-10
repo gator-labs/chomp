@@ -7,7 +7,7 @@ const CampaignsHeader = () => {
   const router = useRouter();
   return (
     <header className="flex items-center gap-2">
-      <div onClick={() => router.back()}>
+      <div className="cursor-pointer" onClick={() => router.back()}>
         <ArrowLeftIcon />
       </div>
       <h2 className="text-[20px] leading-[21.7px] font-[700] text-white">
