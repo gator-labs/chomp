@@ -6,6 +6,8 @@ import dayjs from "dayjs";
 import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
+import { getJwtPayload } from "../actions/jwt";
+import { redirect } from "next/navigation";
 
 const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
