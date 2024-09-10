@@ -55,7 +55,7 @@ export function FeedQuestionCard({
                 />
               </div>
             )}
-            <p className="text-white font-sora font-semibold text-sm mr-auto">
+            <p className="text-white  font-semibold text-sm mr-auto">
               {question}
             </p>
             {onTopCornerAction && topCornerActionIcon && (

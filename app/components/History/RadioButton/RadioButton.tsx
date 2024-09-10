@@ -28,9 +28,7 @@ export default function RadioButton({
       {checked && (
         <div className="absolute w-4 h-4 rounded-full bg-purple-500 ml-1" />
       )}
-      <label className="ms-2 text-sm font-sora font-light text-white">
-        {text}
-      </label>
+      <label className="ms-2 text-sm  font-light text-white">{text}</label>
     </div>
   );
 }

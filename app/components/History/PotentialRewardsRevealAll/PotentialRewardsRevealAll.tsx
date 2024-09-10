@@ -68,10 +68,10 @@ export default function PotentialRewardsRevealAll({
   return (
     <div className="flex justify-between ">
       <div className="flex flex-col justify-between gap-[10px]">
-        <div className="text-xs text-white font-sora leading-[7px]">
+        <div className="text-xs text-white  leading-[7px]">
           Potential Rewards
         </div>
-        <div className="text-base text-white font-sora font-semibold leading-[12px]">
+        <div className="text-base text-white  font-semibold leading-[12px]">
           {numberToCurrencyFormatter.format(
             optimisticRevealableQuestionsLength * 10000,
           )}{" "}

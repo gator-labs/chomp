@@ -21,7 +21,7 @@ export default function PollResultBinary(props: PollResultBinaryProps) {
       <div className="flex gap-2 flex-col">
         <div className="flex gap-3.5">
           {BINARY_QUESTION_OPTION_LABELS.includes(leftOption.option) && (
-            <div className="bg-gray-700 min-w-10 h-10 flex items-center justify-center text-white text-sm font-sora font-bold rounded-lg">
+            <div className="bg-gray-700 min-w-10 h-10 flex items-center justify-center text-white text-sm  font-bold rounded-lg">
               <LikeIcon fill="#fff" />
             </div>
           )}
@@ -32,7 +32,7 @@ export default function PollResultBinary(props: PollResultBinaryProps) {
         </div>
         <div className="flex gap-3.5">
           {BINARY_QUESTION_OPTION_LABELS.includes(leftOption.option) && (
-            <div className="bg-gray-700 min-w-10 h-10 flex items-center justify-center text-white text-sm font-sora font-bold rounded-lg">
+            <div className="bg-gray-700 min-w-10 h-10 flex items-center justify-center text-white text-sm  font-bold rounded-lg">
               <UnlikeIcon fill="#fff" />
             </div>
           )}
