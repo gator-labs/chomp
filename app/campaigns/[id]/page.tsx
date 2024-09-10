@@ -2,6 +2,7 @@ import BackButton from "@/app/components/BackButton/BackButton";
 import CampaignDeckCard from "@/app/components/CampaignDeckCard/CampaignDeckCard";
 import TrophyOutlineIcon from "@/app/components/Icons/TrophyOutlinedIcon";
 import { getCampaign } from "@/app/queries/campaign";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -22,12 +23,14 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
         <BackButton />
       </div>
       <div className="p-4 bg-gray-850 flex gap-4">
-        <img
-          src={campaign.image}
-          width={100.5}
-          height={100.5}
-          alt={campaign.name}
-        />
+        <div className="relative w-[100.5px] h-[100.5px]">
+          <Image
+            src={campaign.image}
+            fill
+            alt={campaign.name}
+            className="object-cover"
+          />
+        </div>
         <div className="flex flex-col">
           <h1 className="text-base mb-3">{campaign.name}</h1>
           <p className="text-xs">
