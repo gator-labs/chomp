@@ -144,4 +144,7 @@ export const deckSchema = z
   })
   .refine((data) => !(data.date && data.activeFromDate), {
     message: "Only one of 'date' or 'activeFromDate' can be selected",
+  })
+  .refine((data) => data.date || data.activeFromDate, {
+    message: "'date' or 'activeFromDate' must be set",
   });
