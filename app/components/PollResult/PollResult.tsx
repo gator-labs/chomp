@@ -22,7 +22,7 @@ export default function PollResult({
 }: PollResultProps) {
   return (
     <div className="bg-gray-800 p-4 rounded">
-      <div className="font-sora text-base text-white mb-2">
+      <div className="text-base text-white mb-2">
         What other people predicted
       </div>
       {children}
@@ -30,11 +30,9 @@ export default function PollResult({
         percentageSelected !== undefined &&
         resultProgressComponent && (
           <>
-            <div className="font-sora text-base text-white my-2">
-              What you predicted
-            </div>
+            <div className="text-base text-white my-2">What you predicted</div>
             <div className="flex gap-3.5">
-              <div className="bg-purple-500 min-w-10 h-10 flex justify-center items-center text-sm font-sora font-bold rounded-lg">
+              <div className="bg-purple-500 min-w-10 h-10 flex justify-center items-center text-sm  font-bold rounded-lg">
                 <Avatar src={avatarSrc || AvatarPlaceholder.src} size="small" />
               </div>
               {cloneElement(resultProgressComponent, {

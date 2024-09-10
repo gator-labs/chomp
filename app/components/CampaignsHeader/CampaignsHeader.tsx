@@ -10,9 +10,7 @@ const CampaignsHeader = () => {
       <div className="cursor-pointer" onClick={() => router.back()}>
         <ArrowLeftIcon />
       </div>
-      <h2 className="text-[20px] leading-[21.7px] font-[700] text-white">
-        Campaigns
-      </h2>
+      <h2 className="text-xl font-bold text-white">Campaigns</h2>
     </header>
   );
 };

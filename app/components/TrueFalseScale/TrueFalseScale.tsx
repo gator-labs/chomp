@@ -42,7 +42,7 @@ export function TrueFalseScale({
         activateSlider={activateSlider}
       />
 
-      <div className="flex justify-between text-white font-sora text-base font-semibold z-30 relative items-center">
+      <div className="flex justify-between text-white  text-base font-semibold z-30 relative items-center">
         <span className="text-sm pl-2">{labelLeft}</span>
         <span className="absolute left-1/2 -translate-x-1/2 bg-white py-1 px-2 rounded-2xl text-gray-950 text-xs font-bold">
           <p

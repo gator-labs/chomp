@@ -114,11 +114,11 @@ const ClaimButton = ({
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
-          <p className="text-[13px] font-normal leading-[17.55px] text-left">
+          <p className="text-sm font-normal text-left">
             Your claimable reward:
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
-            <span className="text-[10px] font-bold leading-[12.6px] text-left">
+            <span className="text-xs font-bold text-left">
               {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
               BONK
             </span>
@@ -128,7 +128,7 @@ const ClaimButton = ({
         <div className="flex flex-col gap-4 w-full">
           <Button
             className={classNames(
-              "text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
+              "text-sm font-semibold text-left flex items-center justify-center",
               className,
               { "cursor-not-allowed opacity-50": isClaiming },
             )}
@@ -148,11 +148,9 @@ const ClaimButton = ({
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
-          <p className="text-[13px] font-normal leading-[17.55px] text-left">
-            You have claimed:
-          </p>
+          <p className="text-sm font-normal  text-left">You have claimed:</p>
           <Pill variant="white" className="!cursor-auto">
-            <span className="text-[10px] font-bold leading-[12.6px] text-left">
+            <span className="text-xs font-bold  text-left">
               {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
               BONK
             </span>
@@ -163,7 +161,7 @@ const ClaimButton = ({
           <Button
             disabled
             className={classNames(
-              "!bg-gray-400 text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+              "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
               className,
             )}
           >
@@ -178,13 +176,9 @@ const ClaimButton = ({
   return (
     <div className="flex flex-col gap-4 items-center justify-center">
       <div className="flex items-center justify-center gap-1">
-        <p className="text-[13px] font-normal leading-[17.55px] text-left">
-          Your claimable reward:
-        </p>
+        <p className="text-sm font-normal  text-left">Your claimable reward:</p>
         <Pill variant="white" className="!cursor-auto">
-          <span className="text-[10px] font-bold leading-[12.6px] text-left">
-            0 BONK
-          </span>
+          <span className="text-xs font-bold  text-left">0 BONK</span>
         </Pill>
         <RewardInfoBox />
       </div>
@@ -192,7 +186,7 @@ const ClaimButton = ({
         <Button
           disabled
           className={classNames(
-            "!bg-gray-400 text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+            "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
             className,
           )}
         >

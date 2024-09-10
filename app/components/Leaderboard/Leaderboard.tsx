@@ -120,7 +120,7 @@ const Leaderboard = ({
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center gap-4 py-[5px]">
-        <Link href="/application/profile/leaderboard">
+        <Link href="/application/leaderboard">
           <HalfArrowLeftIcon />
         </Link>
         {leaderboardImage && (
@@ -139,7 +139,7 @@ const Leaderboard = ({
         ) : (
           <p
             ref={leaderboardNameRef}
-            className="text-[20px] leading-6 text-nowrap overflow-hidden"
+            className="text-xl leading-6 text-nowrap overflow-hidden"
           >
             {leaderboardName}
           </p>
@@ -154,7 +154,7 @@ const Leaderboard = ({
           />
         </div>
         <div className="flex flex-col gap-2 flex-1 justify-center">
-          <span className="text-xs leading-[7px] text-gray-400">
+          <span className="text-xs  text-gray-400">
             {variant === "campaign"
               ? "All time ranking"
               : variant === "daily"
@@ -169,7 +169,7 @@ const Leaderboard = ({
                 <DownIcon fill="#ED6A5A" />
               )}
               <p
-                className={cn("text-[15px] leading-[11px] font-bold", {
+                className={cn("text-sm  font-bold", {
                   "text-aqua": rankDifference > 0,
                   "text-red": rankDifference < 0,
                 })}
@@ -182,8 +182,8 @@ const Leaderboard = ({
           <div className="flex justify-between">
             <div className="flex flex-col gap-2">
               <p
-                className={cn("text-xs leading-[7px]", {
-                  "text-[15px] leading-[11px] font-bold": !rankDifference,
+                className={cn("text-xs ", {
+                  "text-sm  font-bold": !rankDifference,
                 })}
               >
                 {!!loggedInUserScore?.loggedInUserRank
@@ -191,7 +191,7 @@ const Leaderboard = ({
                   : "- No Ranking Yet"}
               </p>
               {!loggedInUserScore?.loggedInUserRank && (
-                <p className="text-xs leading-[7px]">
+                <p className="text-xs ">
                   Your ranking will be displayed once ready!
                 </p>
               )}

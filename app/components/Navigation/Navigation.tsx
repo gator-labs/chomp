@@ -37,7 +37,7 @@ export function Navigation({ items }: NavigationProps) {
           >
             {item.icon}
           </span>
-          <span className="text-[13px] text-gray-200">{item.label}</span>
+          <span className="text-sm text-gray-200">{item.label}</span>
         </Link>
       ))}
     </div>

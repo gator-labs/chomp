@@ -63,9 +63,7 @@ export function Modal({
       >
         <div className="bg-gray-800 m-4 w-full max-w-md p-4 rounded-md border-[1px] border-gray-600">
           <div className="flex justify-between items-center mb-4">
-            <div className="text-base font-bold font-sora text-white">
-              {title}
-            </div>
+            <div className="text-base font-bold  text-white">{title}</div>
             <div className="flex items-center">
               <button onClick={onClose}>
                 <CloseIcon width={18} height={18} />

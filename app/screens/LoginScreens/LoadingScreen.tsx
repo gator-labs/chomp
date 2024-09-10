@@ -14,9 +14,7 @@ const LoadingScreen = () => {
           />
         </div>
         <ProgressBar className="mt-4" />
-        <div className="text-center font-sora text-sm mt-4">
-          Loading your chomps...
-        </div>
+        <div className="text-center  text-sm mt-4">Loading your chomps...</div>
       </div>
     </main>
   );

@@ -14,7 +14,7 @@ const CampaignLeaderboard = async () => {
           <LeaderboardCard
             key={campaign.id}
             name={campaign.name}
-            href={`/application/profile/leaderboard/campaign/${campaign.id}`}
+            href={`/application/leaderboard/campaign/${campaign.id}`}
             imageSrc={campaign.image}
             isActive={campaign.isActive}
             showActiveIndicator
