@@ -3,11 +3,11 @@
 import { AnswerStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
+import { redirect } from "next/navigation";
+import { getJwtPayload } from "../actions/jwt";
 import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
-import { getJwtPayload } from "../actions/jwt";
-import { redirect } from "next/navigation";
 
 const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
@@ -40,7 +40,7 @@ export type DeckExpiringSoon = {
   id: number;
   deck: string;
   revealAtDate?: Date;
-  date?:Date;
+  date?: Date;
   answerCount?: number;
   revealAtAnswerCount?: number;
   image?: string;
@@ -202,13 +202,12 @@ WHERE
         LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
         LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
         AND qa."userId" = ${userId}
+        AND qa."id" > 0
         WHERE dq."deckId" = d."id"
-        AND qa."status" = 'Viewed'
         GROUP BY dq."deckId"
-        HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
+        HAVING COUNT(DISTINCT qa."id") < COUNT(DISTINCT qo."id")
     );
   `;
-
   return deckExpiringSoon;
 }
 
