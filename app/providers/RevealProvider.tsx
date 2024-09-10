@@ -3,11 +3,11 @@ import sendToMixpanel from "@/lib/mixpanel";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import { ReactNode, createContext, useContext } from "react";
-import { Button } from "../components/Button/Button";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { InfoIcon } from "../components/Icons/InfoIcon";
 import Sheet from "../components/Sheet/Sheet";
 import Spinner from "../components/Spinner/Spinner";
+import { Button } from "../components/ui/button";
 import {
   MIX_PANEL_EVENTS,
   MIX_PANEL_METADATA,
@@ -69,14 +69,13 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button variant="white" isPill className="text-gray-850 h-10">
+            <Button className="text-gray-850 h-10">
               Learn how
             </Button>
           </a>
           <Button
-            variant="black"
+            variant="outline"
             className="h-10"
-            isPill
             onClick={() => {
               sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
                 [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
@@ -98,17 +97,12 @@ export function RevealContextProvider({
         return (
           <>
             <Button
-              variant="white"
-              isPill
               onClick={onReveal}
-              className="text-gray-850 h-10"
             >
               Reveal
             </Button>
             <Button
-              variant="black"
-              isPill
-              className="h-10"
+              variant="outline"
               onClick={() => {
                 sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
@@ -145,8 +139,6 @@ export function RevealContextProvider({
         return (
           <>
             <Button
-              variant="white"
-              isPill
               onClick={() => {
                 if (
                   !hasPendingTransactions &&
@@ -164,7 +156,6 @@ export function RevealContextProvider({
 
                 burnAndReveal();
               }}
-              className="flex items-center h-10"
             >
               {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
@@ -173,9 +164,7 @@ export function RevealContextProvider({
                   : "Reveal"}
             </Button>
             <Button
-              variant="black"
-              className="h-10"
-              isPill
+              variant="outline"
               onClick={() => {
                 if (isRevealWithNftMode) return burnAndReveal(true);
 
@@ -214,7 +203,7 @@ export function RevealContextProvider({
         );
       case "burning":
         return (
-          <Button variant="white" className="h-10" isPill disabled>
+          <Button disabled>
             Burning $BONK...
           </Button>
         );
