@@ -49,6 +49,7 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
       <ul className="flex flex-col gap-2 px-4 overflow-auto">
         {campaign.deck.map((deck) => (
           <CampaignDeckCard
+            key={deck.id}
             deckId={deck.id}
             chompResults={deck.deckQuestions.flatMap(
               (dq) => dq.question.chompResults,
