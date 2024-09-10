@@ -69,7 +69,7 @@ function DeckDetails({ deck }: DeckDetailsProps) {
   return (
     <div className="overflow-hidden flex flex-col gap-4">
       <div className="text-sm color-gray-50 flex gap-2 items-center">
-        <Link href="/application/profile/history">
+        <Link href="/application/history">
           <HalfArrowLeftIcon />
         </Link>
         <span>{deck.deck}</span>
