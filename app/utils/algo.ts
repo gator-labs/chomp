@@ -320,7 +320,7 @@ export const calculateReward = async (
 
     questionRewards.push({
       questionId: question.id,
-      rewardAmount: rewards * 1 ?? 0,
+      rewardAmount: Number(rewards) || 0,
     });
 
     console.log(

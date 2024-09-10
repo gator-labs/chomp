@@ -22,13 +22,15 @@ export default function PollResult({
 }: PollResultProps) {
   return (
     <div className="bg-gray-800 p-4 rounded">
-      <div className=" text-base text-white mb-2">Poll Results</div>
+      <div className="text-base text-white mb-2">
+        What other people predicted
+      </div>
       {children}
       {optionSelected &&
         percentageSelected !== undefined &&
         resultProgressComponent && (
           <>
-            <div className="w-full h-[1px] bg-gray-600 my-2"></div>
+            <div className="text-base text-white my-2">What you predicted</div>
             <div className="flex gap-3.5">
               <div className="bg-purple-500 min-w-10 h-10 flex justify-center items-center text-sm  font-bold rounded-lg">
                 <Avatar src={avatarSrc || AvatarPlaceholder.src} size="small" />
