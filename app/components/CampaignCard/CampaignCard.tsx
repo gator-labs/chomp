@@ -33,11 +33,9 @@ const CampaignCard = ({
         />
       </div>
       <div className="flex flex-col gap-3 flex-1">
-        <h3 className="text-white text-[14px] leading-[18.9px] font-[700]">
-          {name}
-        </h3>
+        <h3 className="text-white text-sm font-bold">{name}</h3>
         {decksToAnswer !== undefined && decksToReveal !== undefined && (
-          <p className="text-xs font-[500] text-gray-400">
+          <p className="text-xs font-medium text-gray-400">
             <span className="text-white">{decksToAnswer}</span> deck
             {decksToAnswer === 1 ? "" : "s"} to answer{" "}
             <span className="text-white">•</span>{" "}

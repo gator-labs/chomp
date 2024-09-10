@@ -14,9 +14,7 @@ export function StatsCard({ title, icon, value }: StatsCardProps) {
         <div>{icon}</div>
         <div className="flex flex-col gap-1">
           <div className="text-xs  font-light">{title}</div>
-          <div className="text-[20px] leading-[25.2px] font-semibold">
-            {value}
-          </div>
+          <div className="text-xl font-semibold">{value}</div>
         </div>
       </div>
       <div>

@@ -14,7 +14,7 @@ const ExistingUserScreen = ({ hasDailyDeck }: Props) => {
         <div className="relative w-full flex [&>*]:w-full">
           <ChompHeadIcon />
         </div>
-        <div className="flex flex-col gap-8 items-center text-[20px] leading-6">
+        <div className="flex flex-col gap-8 items-center text-xl leading-6">
           <h3 className="text-center">Welcome back!</h3>
 
           <div className="flex gap-[10px] items-center w-full justify-center">

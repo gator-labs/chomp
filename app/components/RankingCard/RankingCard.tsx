@@ -39,7 +39,7 @@ const RankingCard = ({
             },
           )}
         >
-          <p className="text-[20px] leading-[15px]">{rank}</p>
+          <p className="text-xl">{rank}</p>
         </div>
         <Avatar src={imageSrc} size="medium" />
         <p className="ml-6 text-sm">{name}</p>
