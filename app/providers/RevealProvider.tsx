@@ -275,13 +275,15 @@ export function RevealContextProvider({
             ) : (
               <>
                 <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={(e) => {
                     if (isRevealModalOpen) {
                       e.stopPropagation();
                       closeRevealModal();
                     }
                   }}
-                  className="absolute top-5 right-6 border-none w-max !p-0 z-50"
+                  className="absolute top-0 right-6 border-none w-max !p-0 z-50"
                 >
                   <CloseIcon width={16} height={16} />
                 </Button>
