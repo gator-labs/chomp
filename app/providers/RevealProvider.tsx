@@ -70,11 +70,10 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button className="text-gray-850 h-10">Learn how</Button>
+            <Button>Learn how</Button>
           </a>
           <Button
             variant="outline"
-            className="h-10"
             onClick={() => {
               sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
                 [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
@@ -269,7 +268,7 @@ export function RevealContextProvider({
         <DrawerContent>
           <div className="relative">
             {isLoading ? (
-              <div className="h-[270px] flex items-center justify-center">
+              <div className="h-[330px] flex items-center justify-center">
                 <Spinner />
               </div>
             ) : (
@@ -283,11 +282,11 @@ export function RevealContextProvider({
                       closeRevealModal();
                     }
                   }}
-                  className="absolute top-0 right-6 border-none w-max !p-0 z-50"
+                  className="absolute top-5 right-6 border-none w-max !p-0 z-50"
                 >
                   <CloseIcon width={16} height={16} />
                 </Button>
-                <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
+                <div className="flex flex-col gap-6 pt-6 px-6 pb-6">
                   <div className="flex flex-col gap-6">
                     <div className="flex flex-row w-full items-center justify-between">
                       <h3
