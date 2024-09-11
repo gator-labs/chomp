@@ -67,7 +67,7 @@ const RevealScreen = ({
           >
             <div
               className={classNames(
-                "p-4 flex flex-col gap-2 relative bg-gray-800 border-gray-600 border-[0.5px] rounded-lg w-full",
+                "p-4 flex flex-col gap-2 relative bg-gray-700 border-gray-500 border-[0.5px] rounded-lg w-full",
                 {
                   "z-10 pointer-events-auto": !isRevealModalOpen,
                   "-z-10": isRevealModalOpen,
@@ -95,7 +95,7 @@ const RevealScreen = ({
             </div>
           </Tooltip>
 
-          <div className="p-4 flex flex-col gap-2 relative -z-10 bg-gray-800 border-gray-600 border-[0.5px] rounded-lg">
+          <div className="p-4 flex flex-col gap-2 relative -z-10 bg-gray-700 border-gray-500 border-[0.5px] rounded-lg">
             <p className="text-sm font-normal">
               The best way to secure your assets is to use a hardware wallet
             </p>
@@ -111,7 +111,7 @@ const RevealScreen = ({
               <EyeIcon />
             </Button>
           </div>
-          <div className="p-4 flex flex-col gap-2 relative -z-10 bg-gray-800 border-gray-600 border-[0.5px] rounded-lg">
+          <div className="p-4 flex flex-col gap-2 relative -z-10 bg-gray-700 border-gray-500 border-[0.5px] rounded-lg">
             <p className="text-sm font-normal">
               The best way to secure your assets is to use a hardware wallet
             </p>
@@ -125,7 +125,7 @@ const RevealScreen = ({
           </div>
         </div>
         {isRevealModalOpen && (
-          <div className="fixed bottom-[0px] w-full p-6 bg-gray-800 flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
+          <div className="fixed bottom-[0px] w-full p-6 bg-gray-700 flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
             <h3 className="text-base">Reveal answer?</h3>
             <p className="text-sm">
               This action burns <b>5,000 BONK.</b>{" "}
@@ -173,7 +173,7 @@ const RevealScreen = ({
           >
             <div
               className={classNames(
-                "p-4 flex bg-gray-800 rounded-md justify-between w-full",
+                "p-4 flex bg-gray-700 rounded-md justify-between w-full",
                 {
                   "z-10 pointer-events-auto":
                     activeClaimScreenStep === "congrats-step",
@@ -183,11 +183,11 @@ const RevealScreen = ({
             >
               <div className="flex flex-col gap-4 max-w-[210px] w-full justify-between">
                 <p>Congrats, you won!</p>
-                <div className="h-[1px] w-full bg-gray-600" />
+                <div className="h-[1px] w-full bg-gray-500" />
                 <div className="flex items-center gap-1 justify-between">
                   <p className="text-sm">Claim reward:</p>
                   <div className="px-4 py-2 bg-white flex items-center justify-center rounded-3xl">
-                    <p className="text-xs text-gray-950 font-bold">
+                    <p className="text-xs text-gray-900 font-bold">
                       10,000 BONK
                     </p>
                   </div>
@@ -231,7 +231,7 @@ const RevealScreen = ({
               <div className="flex items-center gap-1 justify-between">
                 <p className="text-sm">Your claimable reward:</p>
                 <div className="px-4 py-2 bg-white flex items-center justify-center rounded-3xl">
-                  <p className="text-xs text-gray-950 font-bold">10,000 BONK</p>
+                  <p className="text-xs text-gray-900 font-bold">10,000 BONK</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2 w-full">
@@ -282,7 +282,7 @@ const RevealScreen = ({
         )}
 
         {activeClaimScreenStep === "final-step" && (
-          <div className="fixed bottom-[0px] w-full p-6 bg-gray-800 flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
+          <div className="fixed bottom-[0px] w-full p-6 bg-gray-700 flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
             <h3 className="text-base">Well done! 🎉</h3>
             <p className="text-sm">Now you’re ready to Chomp for real!</p>
             <Link href="/application">

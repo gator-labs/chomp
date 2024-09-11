@@ -24,7 +24,7 @@ const TotalPointsEarnedInfo = ({ children }: TotalPointsEarnedInfoProps) => {
       >
         <div className="flex flex-col gap-5 px-5 pb-5">
           <div className="flex flex-col gap-5">
-            <h3 className="text-purple-500 text-base font-bold  text-left">
+            <h3 className="text-secondary text-base font-bold  text-left">
               Total Points Earned
             </h3>
             <p className="text-left flex flex-col gap-4">
@@ -41,31 +41,31 @@ const TotalPointsEarnedInfo = ({ children }: TotalPointsEarnedInfoProps) => {
               <ul className="text-sm font-light  text-left bulleted-list">
                 <li>
                   A question you ask gets vetted and accepted:&nbsp;{" "}
-                  <span className="text-purple-500 font-bold">69</span> points
+                  <span className="text-secondary font-bold">69</span> points
                 </li>
                 <li>
                   Answer a full deck:&nbsp;
-                  <span className="text-purple-500 font-bold">20</span>
+                  <span className="text-secondary font-bold">20</span>
                   &nbsp;points
                 </li>
                 <li>
                   Answer a question:&nbsp;
-                  <span className="text-purple-500 font-bold">10</span>
+                  <span className="text-secondary font-bold">10</span>
                   &nbsp;points
                 </li>
                 <li>
                   Reveal an answer:&nbsp;
-                  <span className="text-purple-500 font-bold">42</span>
+                  <span className="text-secondary font-bold">42</span>
                   &nbsp;points
                 </li>
                 <li>
                   Get 1st order question exactly right:&nbsp;
-                  <span className="text-purple-500 font-bold">6.9</span>
+                  <span className="text-secondary font-bold">6.9</span>
                   &nbsp;points
                 </li>
                 <li>
                   Get 2nd order question exactly right:&nbsp;
-                  <span className="text-purple-500 font-bold">15</span>
+                  <span className="text-secondary font-bold">15</span>
                   &nbsp;points
                 </li>
               </ul>

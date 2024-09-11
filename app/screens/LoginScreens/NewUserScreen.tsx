@@ -5,7 +5,7 @@ import Link from "next/link";
 
 const NewUserScreen = () => {
   return (
-    <main className="h-dvh bg-gray-850 pt-16">
+    <main className="h-dvh bg-gray-800 pt-16">
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 justify-between h-full">
         <div className="relative w-full flex [&>*]:w-full">
           <NewIcon />
@@ -23,11 +23,11 @@ const NewUserScreen = () => {
         <div className="flex flex-col gap-[14px] items-center w-full py-4">
           <Link href="/tutorial" className="w-full">
             <Button variant="purple" className="gap-1">
-              Let’s go <HalfArrowRightIcon fill="#0D0D0D" />
+              Let’s go <HalfArrowRightIcon fill="#FFFFFF" />
             </Button>
           </Link>
           <Link href="/application">
-            <p className="text-sm text-gray-600 underline">Skip tutorial</p>
+            <p className="text-sm text-gray-500 underline">Skip tutorial</p>
           </Link>
         </div>
       </div>

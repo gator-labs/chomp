@@ -70,7 +70,7 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button className="text-gray-850 h-10">Learn how</Button>
+            <Button className="text-gray-800 h-10">Learn how</Button>
           </a>
           <Button
             variant="outline"
@@ -112,7 +112,7 @@ export function RevealContextProvider({
             >
               Cancel
             </Button>
-            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
+            <div className="bg-gray-600 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
               </div>
@@ -178,7 +178,7 @@ export function RevealContextProvider({
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
-            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
+            <div className="bg-gray-600 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
               </div>
@@ -293,7 +293,7 @@ export function RevealContextProvider({
                       <h3
                         className={classNames("font-bold", {
                           "text-[#DD7944]": insufficientFunds,
-                          "text-purple-500": !insufficientFunds,
+                          "text-secondary": !insufficientFunds,
                         })}
                       >
                         {insufficientFunds

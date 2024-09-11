@@ -32,16 +32,16 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variantStyles = {
-    primary: "bg-primary text-gray-950",
-    secondary: "bg-secondary text-gray-100",
-    warning: "bg-red text-gray-950",
-    white: "bg-white text-gray-950",
-    black: "bg-gray-850 text-text-gray-100",
-    pink: "bg-pink text-gray-950",
-    "pink-border": "bg-gray-950 text-gray-950-border",
-    purple: "bg-purple-500 text-gray-950",
-    grayish: "bg-gray-700",
-    aqua: "bg-aqua text-gray-950",
+    primary: "bg-primary text-gray-900",
+    secondary: "bg-secondary text-gray-900",
+    warning: "bg-red text-gray-900",
+    white: "bg-white text-gray-900",
+    black: "bg-gray-800 text-text-gray-100",
+    pink: "bg-pink text-gray-900",
+    "pink-border": "bg-gray-900 text-gray-900-border",
+    purple: "bg-purple-500 text-white",
+    grayish: "bg-gray-600",
+    aqua: "bg-aqua text-gray-900",
   };
 
   const variantClasses = variantStyles[variant] || variantStyles.primary;
@@ -53,7 +53,7 @@ export function Button({
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
       "border-purple-500 border-[1px]": variant === "pink-border",
       "!bg-gray-400": disabled,
-      "text-gray-600": disabled,
+      "text-gray-500": disabled,
       "cursor-default": disabled,
       "py-2 px-4": size === "small",
       "py-4 px-8": size === "normal",
@@ -65,7 +65,7 @@ export function Button({
       "text-base": size === "big",
       "w-full": isFullWidth,
       "!rounded-full": isPill,
-      "text-gray-950": variant === "white",
+      "text-gray-900": variant === "white",
     },
     className,
   );
