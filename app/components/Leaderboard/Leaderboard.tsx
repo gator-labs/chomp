@@ -9,7 +9,7 @@ import { cn } from "@/app/utils/tailwind";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { User } from "@prisma/client";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
@@ -66,6 +66,7 @@ const Leaderboard = ({
   const [ranking, setRanking] = useState<Ranking[] | []>([]);
   const leaderboardNameRef = useRef(null);
   const isOverflowing = useIsOverflowing(leaderboardNameRef);
+  const router = useRouter();
   const [loggedInUserScore, setLoggedInUserScore] = useState<
     | {
         loggedInUserRank: number | undefined;
@@ -120,9 +121,9 @@ const Leaderboard = ({
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center gap-4 py-[5px]">
-        <Link href="/application/leaderboard">
+        <div onClick={() => router.back()}>
           <HalfArrowLeftIcon />
-        </Link>
+        </div>
         {leaderboardImage && (
           <div className="relative w-[38px] h-[38px] flex-shrink-0">
             <ActiveIndicator isActive={isLeaderboardActive} />
