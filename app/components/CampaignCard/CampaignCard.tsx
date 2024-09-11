@@ -21,7 +21,7 @@ const CampaignCard = ({
 }: CampaignCardProps) => {
   return (
     <Link
-      href={`/application/campaigns/${id}`}
+      href={`/campaigns/${id}`}
       className="p-4 rounded-[8px] bg-gray-850 border-[0.5px] border-solid border-gray-600 flex items-center justify-between gap-4"
     >
       <div className="relative w-[52px] h-[52px]">
