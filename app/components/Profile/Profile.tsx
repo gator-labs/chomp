@@ -38,7 +38,7 @@ export async function Profile({
           src={avatarSrc}
         />
       </div>
-      <div className="flex flex-col font-sora text-white gap-y-4 flex-1">
+      <div className="flex flex-col  text-white gap-y-4 flex-1">
         <div className="flex items-baseline">
           {username.length > 0 && (
             <span className="font-bold text-sm text-white mr-1">
@@ -58,9 +58,7 @@ export async function Profile({
               isPill
               size="small"
             >
-              <span className="font-normal font-sora">
-                {formatAddress(address)}
-              </span>
+              <span className="font-normal ">{formatAddress(address)}</span>
               {editAllowed && (
                 <div className="p-[3.5px]">
                   <PenIcon width={12} height={12} fill="#999999" />

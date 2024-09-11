@@ -62,9 +62,7 @@ export function HomeFeedDeckCard({
         )}
       </div>
       <div className="flex flex-col justify-between w-full">
-        <div className="text-white font-sora font-semibold text-base">
-          {deck}
-        </div>
+        <div className="text-white  font-semibold text-base">{deck}</div>
         <div className="flex items-center justify-between -ml-1">
           <RevealCardInfo
             answerCount={answerCount}

@@ -80,7 +80,7 @@ export function QuickViewProfile({
               <XIcon />
             </a>
           </div>
-          <p className="text-sm font-normal !text-[10px]">
+          <p className="text-sm font-normal !text-xs">
             Follow our socials for the latest news and special announcements!
           </p>
         </div>

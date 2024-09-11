@@ -23,7 +23,7 @@ const SlideshowScreen = () => {
           {SLIDESHOW[activeSlide].icon}
         </div>
         <div className="flex flex-col gap-8 items-center ">
-          <h3 className="text-center text-[20px] leading-6 font-bold">
+          <h3 className="text-center text-xl leading-6 font-bold">
             {SLIDESHOW[activeSlide].title}
           </h3>
 

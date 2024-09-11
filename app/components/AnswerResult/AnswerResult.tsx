@@ -50,7 +50,7 @@ export function AnswerResult({
       </div>
       <div
         className={
-          "text-sm font-sora font-light text-white h-full border-gray-600 border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden"
+          "text-sm  font-light text-white h-full border-gray-600 border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden"
         }
       >
         <PrimarySlider
@@ -75,7 +75,7 @@ export function AnswerResult({
           />
         )}
         <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center py-1 gap-2">
-          <span className="text-white text-sm font-sora">{answerText}</span>
+          <span className="text-white text-sm ">{answerText}</span>
         </div>
       </div>
     </div>
