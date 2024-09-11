@@ -17,7 +17,7 @@ const meta = {
     transactionType: "RevealAnswer",
   },
   decorators: (Story) => (
-    <div className="w-96 bg-[#4D4D4D] p-4">
+    <div className="w-96 bg-gray-700 p-4">
       <Story />
     </div>
   ),

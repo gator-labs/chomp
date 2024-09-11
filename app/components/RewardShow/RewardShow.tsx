@@ -80,16 +80,14 @@ const RewardShow = ({
 
   if (rewardAmount > 0) {
     return (
-      <div className="flex bg-[#333333] p-4 rounded-lg justify-between">
+      <div className="flex bg-gray-800 p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
-          <span className="text-xl font-bold leading-[27px] text-left">
+          <span className="text-xl font-bold text-left">
             {rewardAmount === 5000 ? "Well done!" : "Congrats, you won!"}
           </span>
-          <div className="h-[1px] w-full bg-[#666666]" />
+          <div className="h-[1px] w-full bg-gray-600" />
           <div className="flex items-center gap-1 justify-between">
-            <p className="text-[13px] font-normal leading-[17.55px] text-left">
-              Claim reward:
-            </p>
+            <p className="text-sm font-normal  text-left">Claim reward:</p>
             <Pill
               onClick={async () =>
                 status === "claimable" && !isClaiming && onClaim()
@@ -101,7 +99,7 @@ const RewardShow = ({
                 "!cursor-pointer": status === "claimable",
               })}
             >
-              <p className="text-[10px] font-bold leading-[12.6px] text-center ">
+              <p className="text-xs font-bold  text-center ">
                 {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
                 BONK
               </p>
@@ -115,20 +113,16 @@ const RewardShow = ({
   }
 
   return (
-    <div className="p-4 flex bg-[#333333] rounded-md justify-between">
+    <div className="p-4 flex bg-gray-800 rounded-md justify-between">
       <div className="flex flex-col gap-4 w-max justify-between">
-        <span className="text-xl font-bold leading-[27px] text-left">
+        <span className="text-xl font-bold text-left">
           Better luck next time!
         </span>
-        <div className="h-[1px] w-full bg-[#666666]" />
+        <div className="h-[1px] w-full bg-gray-600" />
         <div className="flex items-center gap-1 justify-start">
-          <p className="text-[13px] font-normal leading-[17.55px] text-left">
-            Claim reward:
-          </p>
+          <p className="text-sm font-normal  text-left">Claim reward:</p>
           <Pill variant="white" className="!cursor-auto">
-            <p className="text-[10px] font-bold leading-[12.6px] text-center ">
-              0 BONK
-            </p>
+            <p className="text-xs font-bold  text-center ">0 BONK</p>
           </Pill>
           <InfoIcon height={24} width={24} className="ml-1" />
         </div>

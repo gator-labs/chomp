@@ -22,7 +22,7 @@ const PreviewDeckCard = ({
   return (
     <div
       className={cn(
-        "w-full py-6 px-4 bg-[#333333] rounded-lg relative h-full flex flex-col justify-between",
+        "w-full py-6 px-4 bg-gray-800 rounded-lg relative h-full flex flex-col justify-between",
         className,
       )}
     >
@@ -31,8 +31,8 @@ const PreviewDeckCard = ({
         {!!description && <p className="text-sm">{description}</p>}
       </header>
       <footer className="flex items-center gap-4">
-        <div className="relative w-[77px] h-[77px]">
-          {!!imageUrl && (
+        {!!imageUrl && (
+          <div className="relative w-[77px] h-[77px]">
             <Image
               src={imageUrl}
               alt=""
@@ -40,8 +40,8 @@ const PreviewDeckCard = ({
               objectFit="cover"
               className="rounded-lg overflow-hidden"
             />
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-2">
           {!!footer && <p className="text-sm">{footer}</p>}

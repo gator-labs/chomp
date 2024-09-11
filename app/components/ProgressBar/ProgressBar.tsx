@@ -27,7 +27,7 @@ export function ProgressBar({
   onTouchEnd,
 }: ProgressBarProps) {
   const [percentageCapped, setPercentageCapped] = useState(
-    percentage && percentage > 100 ? 100 : percentage ?? 0,
+    percentage && percentage > 100 ? 100 : (percentage ?? 0),
   );
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const { handleChangePosition, endDrag, startDrag, isDragging } =
@@ -38,7 +38,7 @@ export function ProgressBar({
       setPercentageCapped(100);
     } else {
       setPercentageCapped(
-        percentage && percentage > 100 ? 100 : percentage ?? 0,
+        percentage && percentage > 100 ? 100 : (percentage ?? 0),
       );
     }
   }, [percentage]);
@@ -47,7 +47,7 @@ export function ProgressBar({
     <div
       ref={wrapperRef}
       className={classNames(
-        "relative rounded-full h-3.5 bg-search-gray w-full overflow-hidden z-10",
+        "relative rounded-full h-3.5 bg-gray-700 w-full overflow-hidden z-10",
         className,
       )}
       style={{ backgroundColor: bgColor }}
@@ -79,10 +79,13 @@ export function ProgressBar({
         )}
       </div>
       <div
-        className={classNames("h-full bg-purple absolute top-0 l-0 w-full", {
-          "transition-width delay-[2s] duration-[4s] ease-in-out w-0":
-            percentage === undefined,
-        })}
+        className={classNames(
+          "h-full bg-purple-500 absolute top-0 l-0 w-full",
+          {
+            "transition-width delay-[2s] duration-[4s] ease-in-out w-0":
+              percentage === undefined,
+          },
+        )}
         style={{
           width: percentageCapped ? `${percentageCapped}%` : 0,
           backgroundColor: progressColor,

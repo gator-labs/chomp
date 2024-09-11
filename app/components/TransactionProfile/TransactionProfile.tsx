@@ -28,12 +28,15 @@ export function TransactionProfile({
 }: ProfileProps) {
   return (
     <div
-      className={classNames("flex p-6 rounded-2xl bg-black gap-4", className)}
+      className={classNames(
+        "flex p-6 rounded-2xl bg-gray-850 gap-4",
+        className,
+      )}
     >
       <Link href="/application">
         <Avatar size="large" src={avatarSrc || AvatarPlaceholder.src} />
       </Link>
-      <div className="flex flex-col font-sora text-white text-base gap-y-3 self-center flex-grow">
+      <div className="flex flex-col  text-white text-base gap-y-3 self-center flex-grow">
         {typeof pointAmount === "number" && (
           <div className="whitespace-nowrap">
             {numberToCurrencyFormatter.format(pointAmount)} POINTS

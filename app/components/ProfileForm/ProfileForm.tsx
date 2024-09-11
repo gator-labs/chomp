@@ -93,7 +93,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
   return (
     <form className="pt-4" onSubmit={onSubmit}>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-center bg-[#A3A3EC] h-[112px] rounded-lg p-1 relative">
+        <div className="flex justify-center bg-purple-500 h-[112px] rounded-lg p-1 relative">
           <div className="absolute inset-0 z-0 rounded-lg w-full h-full [&>*]:w-full overflow-hidden">
             <ChompBackgroundProfileIcon width={358} height={112} />
           </div>
@@ -122,9 +122,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
         </div>
         <div>
-          <div className="text-white font-sora text-sm font-normal mb-2">
-            Name
-          </div>
+          <div className="text-white  text-sm font-normal mb-2">Name</div>
           <div className="flex gap-2">
             <TextInput
               className="basis-1/2 rounded-lg pl-4 text-sm font-normal"
@@ -141,9 +139,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           </div>
         </div>
         <div>
-          <div className="text-white font-sora text-sm font-normal mb-2">
-            Username
-          </div>
+          <div className="text-white  text-sm font-normal mb-2">Username</div>
           <TextInput
             variant="primary"
             placeholder="Username"
@@ -175,11 +171,11 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         closeIconWidth={16}
       >
         <div className="p-6 rounded-3xl">
-          <div className="font-sora text-base font-bold text-[#CFC5F7] mb-6">
+          <div className=" text-base font-bold text-pink mb-6">
             You have unsaved changes
           </div>
           <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-6 font-sora text-sm">
+            <div className="flex flex-col gap-6  text-sm">
               <div>
                 Would you like to continue editing your profile or discard your
                 changes and go home?

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { revealQuestion } from "@/app/actions/chompResult";
 import { RevealProps } from "@/app/hooks/useReveal";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
+import { isSameURL } from "@/app/utils/isSameUrl";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "../Button/Button";
+import ChompFullScreenLoader from "../ChompFullScreenLoader/ChompFullScreenLoader";
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
 import { ViewsIcon } from "../Icons/ViewsIcon";
-import { revealQuestion } from "@/app/actions/chompResult";
-import { useRevealedContext } from "@/app/providers/RevealProvider";
-import { useRouter } from "next/navigation"; import Spinner from "../Spinner/Spinner";
-import ChompFullScreenLoader from "../ChompFullScreenLoader/ChompFullScreenLoader";
-import { isSameURL } from "@/app/utils/isSameUrl";
 
 type RevealFeedQuestionCardProps = {
   id: number;
@@ -34,28 +34,27 @@ export function RevealFeedQuestionCard({
   const { openRevealModal } = useRevealedContext();
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleReveal = () => {
     openRevealModal({
       reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
-
         await revealQuestion(id, burnTx, nftAddress, nftType);
         setIsLoading(true);
         const currentUrl = new URL(location.href);
-        const targetUrl = new URL("/application/answer/reveal/" + id, location.href);
-        const sameUrl = isSameURL(targetUrl, currentUrl)
+        const targetUrl = new URL(
+          "/application/answer/reveal/" + id,
+          location.href,
+        );
+        const sameUrl = isSameURL(targetUrl, currentUrl);
         router.push("/application/answer/reveal/" + id);
         if (sameUrl) {
-          setIsLoading(false)
+          setIsLoading(false);
         }
         router.refresh();
-
       },
       amount: revealTokenAmount ?? 0,
       questionId: id,
       questions: [question],
     });
-
   };
 
   return (
@@ -66,7 +65,9 @@ export function RevealFeedQuestionCard({
         image={image}
         revealAtAnswerCount={revealAtAnswerCount}
         revealAtDate={revealAtDate}
-        statusLabel={<span className="text-xs leading-6 text-aqua">Chomped</span>}
+        statusLabel={
+          <span className="text-xs leading-6 text-aqua">Chomped</span>
+        }
         action={
           <Button onClick={handleReveal} variant="grayish">
             <div className="flex justify-center gap-1 items-center text-white">
