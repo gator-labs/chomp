@@ -2,6 +2,7 @@ import BackButton from "@/app/components/BackButton/BackButton";
 import CampaignDeckCard from "@/app/components/CampaignDeckCard/CampaignDeckCard";
 import TrophyOutlineIcon from "@/app/components/Icons/TrophyOutlinedIcon";
 import { getCampaign } from "@/app/queries/campaign";
+import { ChompResult, Question } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -54,9 +55,11 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
           <CampaignDeckCard
             key={deck.id}
             deckId={deck.id}
-            chompResults={deck.deckQuestions.flatMap(
-              (dq) => dq.question.chompResults,
-            )}
+            chompResults={
+              deck.deckQuestions.flatMap(
+                (dq) => dq.question.chompResults,
+              ) as (ChompResult & { question: Question })[]
+            }
             deckQuestions={deck.deckQuestions.map((dq) => dq.question)}
             deckName={deck.deck}
             imageUrl={campaign.image}
