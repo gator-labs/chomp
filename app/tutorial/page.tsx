@@ -5,6 +5,7 @@ import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 import { Navbar } from "../components/Navbar/Navbar";
 import { TabNavigation } from "../components/TabNavigation/TabNavigation";
 
+import { redirect } from "next/navigation";
 import ConfettiProvider from "../providers/ConfettiProvider";
 import { getCurrentUser } from "../queries/user";
 import TutorialFlowScreens from "../screens/TutorialScreens/TutorialFlowScreens/TutorialFlowScreens";
@@ -14,7 +15,11 @@ const TutorialPage = async () => {
 
   const formattedDate = format(currentDate, "MMMM do EEEE", { locale: enUS });
 
-  const currentUser = (await getCurrentUser())!;
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/login");
+  }
 
   return (
     <ConfettiProvider>

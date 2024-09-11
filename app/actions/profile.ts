@@ -14,7 +14,7 @@ export async function updateProfile(formData: FormData) {
   const payload = await getJwtPayload();
 
   if (!payload) {
-    return redirect("/application/profile");
+    return redirect("/application");
   }
 
   const result = profileSchemaServer.safeParse(
