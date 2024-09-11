@@ -5,11 +5,11 @@ export const CHOMP_LEADERBOARD = [
   {
     icon: <CalendarIcon />,
     label: "Weekly Leaderboard",
-    href: "/application/profile/leaderboard/weekly",
+    href: "/application/leaderboard/weekly",
   },
   {
     icon: <ChartIcon />,
     label: "Daily Leaderboard",
-    href: "/application/profile/leaderboard/daily",
+    href: "/application/leaderboard/daily",
   },
 ];

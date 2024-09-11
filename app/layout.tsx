@@ -1,8 +1,7 @@
-import classNames from "classnames";
 import type { Metadata, Viewport } from "next";
 import DynamicProvider from "./providers/DynamicProvider";
 
-import { sora } from "@/lib/fonts";
+import { satoshi } from "@/lib/fonts";
 import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
@@ -39,8 +38,8 @@ export default function RootLayout({
   const isDemo = process.env.ENVIRONMENT === "demo";
 
   return (
-    <html lang="en" className={classNames(sora.variable, "h-full")}>
-      <body className="font-sora bg-gray-950 text-white h-full">
+    <html lang="en" className={`${satoshi.variable} h-full`}>
+      <body className="bg-gray-950 text-white h-full">
         {isDemo && (
           <div className="fixed top-0 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-gray-950 rounded-b-lg">
             Demo mode

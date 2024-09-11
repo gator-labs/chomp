@@ -71,14 +71,11 @@ export function QuestionCard({
         style={{ zIndex: 1 }}
       />
       <p
-        className={classNames(
-          "text-white font-sora text-[24px] leading-[30px] max-w-[330px] z-10",
-          {
-            "blur-sm": isBlurred,
-            "opacity-30": isBlurred,
-            "!text-base": type === QuestionType.MultiChoice,
-          },
-        )}
+        className={classNames("text-white  text-2xl max-w-[330px] z-10", {
+          "blur-sm": isBlurred,
+          "opacity-30": isBlurred,
+          "!text-base": type === QuestionType.MultiChoice,
+        })}
       >
         {question}
       </p>
@@ -89,7 +86,7 @@ export function QuestionCard({
             {!!dueAt && (
               <>
                 <CountdownIcon fill="#999" />
-                <span className="text-white font-sora text-sm !leading-[14px] font-light">
+                <span className="text-white  text-sm font-light">
                   {dueAtFormatted}
                 </span>
               </>

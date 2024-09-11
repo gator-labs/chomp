@@ -21,10 +21,10 @@ const RewardInfoBox = () => {
       >
         <div className="flex flex-col gap-5 px-5 pb-5">
           <div className="flex flex-col gap-5">
-            <h3 className="text-pink text-base font-bold leading-[20.16px] text-left">
+            <h3 className="text-pink text-base font-bold  text-left">
               Your Rewards Explained
             </h3>
-            <div className="text-[13px] font-light leading-[16.38px] text-left flex flex-col gap-4">
+            <div className="text-sm font-light  text-left flex flex-col gap-4">
               <p>
                 You have just burned <span className="font-bold">5K $BONK</span>{" "}
                 to reveal the answer to a question.

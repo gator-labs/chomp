@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 const colors = {
   // OLD COLORS
@@ -42,7 +43,7 @@ const colors = {
     200: "#AFADEB",
     300: "#8784E1",
     400: "#5F5BD7",
-    500: "#A3A3EC",
+    500: "#5955D6",
     600: "#2C28A4",
     700: "#211E7B",
     800: "#161452",
@@ -75,13 +76,7 @@ module.exports = {
         purplePulse: "purplePulse 2s infinite",
       },
       fontFamily: {
-        sora: ["var(--font-sora)"],
-      },
-      fontSize: {
-        xs: ["10px", "12.6px"],
-        sm: ["13px", "16.38px"],
-        base: ["16px", "20px"],
-        l: ["24px", "27.6px"],
+        sans: ["var(--font-satoshi)", ...defaultTheme.fontFamily.sans],
       },
       boxShadow: {
         input: "0 0 4px 0",

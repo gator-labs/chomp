@@ -1,14 +1,14 @@
 "use server";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { IMAGE_ACTION } from "../constants/images";
 import { profileSchemaServer } from "../schemas/profile";
 import prisma from "../services/prisma";
 import s3Client from "../services/s3Client";
 import { uploadImageToS3Bucket, validateBucketImage } from "../utils/file";
 import { getJwtPayload } from "./jwt";
-import { IMAGE_ACTION } from '../constants/images';
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 
 export async function updateProfile(formData: FormData) {
   const payload = await getJwtPayload();
@@ -45,7 +45,10 @@ export async function updateProfile(formData: FormData) {
 
   let imageUrl = user!.profileSrc;
 
-  if (result.data.image !== "undefined" && result.data.image !== IMAGE_ACTION.REMOVE_IMAGE) {
+  if (
+    result.data.image !== "undefined" &&
+    result.data.image !== IMAGE_ACTION.REMOVE_IMAGE
+  ) {
     imageUrl = await uploadImageToS3Bucket(result.data.image);
 
     const isBucketImageValid = await validateBucketImage(
@@ -65,7 +68,7 @@ export async function updateProfile(formData: FormData) {
     }
   }
 
-  if(result.data.image === IMAGE_ACTION.REMOVE_IMAGE) {
+  if (result.data.image === IMAGE_ACTION.REMOVE_IMAGE) {
     imageUrl = AvatarPlaceholder.src;
   }
 
@@ -81,5 +84,5 @@ export async function updateProfile(formData: FormData) {
     },
   });
 
-  revalidatePath("/application/profile/settings");
+  revalidatePath("/application/settings");
 }

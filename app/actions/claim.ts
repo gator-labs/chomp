@@ -6,10 +6,10 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
-import { acquireMutex } from "../utils/mutex";
-
 import { sendBonk } from "../utils/bonk";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
+import { ClaimError } from "../utils/error";
+import { acquireMutex } from "../utils/mutex";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 
@@ -154,7 +154,7 @@ export async function claimQuestions(questionIds: number[]) {
 
     release();
     revalidatePath("/application");
-    revalidatePath("/application/profile/history");
+    revalidatePath("/application/history");
     return {
       questionIds,
       claimedAmount: chompResults.reduce(
@@ -165,9 +165,8 @@ export async function claimQuestions(questionIds: number[]) {
       questions: chompResults.map((cr) => cr.question),
     };
   } catch (e) {
-    class ClaimError extends Error {}
     const claimError = new ClaimError(
-      `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
+      `User with id: ${payload.sub} is having trouble claiming for questions ids: ${questionIds}`,
       { cause: e },
     );
     Sentry.captureException(claimError);
@@ -176,10 +175,7 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(
-  chompResults: ChompResult[],
-  address: string,
-) {
+async function handleSendBonk(chompResults: ChompResult[], address: string) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -188,7 +184,7 @@ async function handleSendBonk(
 
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
-  
+
   if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
     Sentry.captureMessage(
       `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers`,

@@ -11,7 +11,7 @@ export function Tag({ onSelected, tag, isSelected, className }: TagProps) {
   return (
     <button
       className={classNames(
-        "font-sora font-normal text-sm border-[0.5px] rounded-md border-gray px-4 py-2",
+        " font-normal text-sm border-[0.5px] rounded-md border-gray px-4 py-2",
         {
           "text-gray-950": isSelected,
           "bg-gray-100": isSelected,

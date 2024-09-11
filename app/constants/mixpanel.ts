@@ -1,5 +1,5 @@
 export const MIX_PANEL_EVENTS = {
-  WALLET_CONNECTED: "WalletConnected",
+  WALLET_CONNECTED: "LoginWalletConnected",
   CLAIM_STARTED: "ClaimStarted",
   CLAIM_FAILED: "ClaimFailed",
   CLAIM_SUCCEEDED: "ClaimSucceeded",
@@ -11,6 +11,11 @@ export const MIX_PANEL_EVENTS = {
   REVEAL_TRANSACTION_SIGNED: "RevealTransactionSigned",
   REVEAL_TRANSACTION_CANCELLED: "RevealTransactionCancelled",
   REVEAL_FAILED: "RevealFailed",
+  LOGIN_STARTED: "LoginStarted",
+  Login_Wallet_Selected: "LoginWalletSelected",
+  Login_Email_Submitted: "LoginEmailSubmitted",
+  LOGIN_FAILED: "LoginFailed",
+  LOGIN_SUCCEED: "LoginSucceed"
 } as const;
 
 export const MIX_PANEL_METADATA = {
@@ -24,6 +29,8 @@ export const MIX_PANEL_METADATA = {
   TRANSACTION_SIGNATURE: "TransactionSignature",
   CLAIMED_AMOUNT: "ClaimedAmount",
   REVEAL_DIALOG_TYPE: "RevealDialogType",
+  LOGIN_FAILED_REASON: "LoginFailed",
+  CONNECTOR_NAME: "ConnectorName",
 };
 
 export const REVEAL_TYPE = {
