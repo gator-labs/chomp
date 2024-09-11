@@ -5,7 +5,7 @@ import { BackIconOutline } from "./components/Icons/BackIconOutline";
 import { HomeIconOutline } from "./components/Icons/HomeIconOutline";
 import { Button } from "./components/ui/button";
 
-const notFound = () => {
+const NotFound = () => {
   const router = useRouter();
 
   return (
@@ -61,4 +61,4 @@ const notFound = () => {
   );
 };
 
-export default notFound;
+export default NotFound;

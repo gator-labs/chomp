@@ -9,8 +9,10 @@ import { Button } from "./components/ui/button";
 
 export default function GlobalError({
   error,
+  reset,
 }: {
-  error: Error & { digest?: string };
+  error: Error;
+  reset: () => void;
 }) {
   const router = useRouter();
 
@@ -18,12 +20,19 @@ export default function GlobalError({
     Sentry.captureException(error);
   }, [error]);
 
-  console.log(error.message);
+  // Check if it's a server-side error
+  const isServerError = (error as any).digest !== undefined;
+
+  // Set status code and error message
+  const statusCode = isServerError ? 500 : 400;
+  const errorMessages = isServerError
+  ? ["Server error. Please refresh the page and try again.", "Please let us know on Telegram if this error happens again. 🙏"]
+  : ["Client error. Please refresh the page and try again.", "Please let us know on Telegram if this error happens again. 🙏"];
 
   return (
     <html>
-      <body>
-        <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-[25%] mx-auto pt-14 gap-2">
+      <body className="bg-gray-950">
+        <div className="flex flex-col font-sora  text-white h-full w-[25%] mx-auto pt-14 gap-2">
           <div className="bg-gray-800 rounded-3xl relative">
             <Image
               src="/images/eroor-bg-attern.svg"
@@ -33,31 +42,29 @@ export default function GlobalError({
               height={20}
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-purple-200 text-[96px] font-bold">404</p>
+              <p className="text-purple-200 text-[96px] font-bold">{statusCode}</p>
             </div>
           </div>
 
           <div className="flex flex-col items-start text-white mt-2 gap-2">
-            <p className="text-base mb-2">
-              Page not found. Let&apos; s go somewhere else!
+          {errorMessages.map((message, index) => (
+            <p 
+              key={index} 
+              className={`${
+                index === 0 
+                  ? "text-base font-bold text-[16px]" 
+                  : "text-sm font-normal text-[14px]"
+              } mb-2`}
+            >
+              {message}
             </p>
-            <p className="text-base mb-2">Optional error description</p>
-            <p className="text-base">
-              (stack trace, other technical info that may be helpful for
-              debugging)
-            </p>
-          </div>
+          ))}
+        </div>
 
           <div className="flex flex-col mt-auto gap-4 mb-8">
-            <Button
-              size="lg"
-              className="gap-1 w-full"
-              onClick={() => {
-                router.push("/application");
-              }}
-            >
+            <Button size="lg" className="gap-1 w-full" onClick={() => reset()}>
               Refresh the page
-              <RefreshIcon />
+              <RefreshIcon fill="none" />
             </Button>
 
             <Button
