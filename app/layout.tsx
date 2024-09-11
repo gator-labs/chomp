@@ -7,8 +7,12 @@ import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
 import LinkProgressBar from "./components/LinkProgressBar/LinkProgressBar";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
+import { ClaimProvider } from "./providers/ClaimProvider";
 import ReactQueryProvider from "./providers/ReactQueryProvider";
+import { RevealContextProvider } from "./providers/RevealProvider";
 import { ToastProvider } from "./providers/ToastProvider";
+import { getCurrentUser } from "./queries/user";
+import { getBonkBalance } from "./utils/solana";
 
 export const viewport: Viewport = {
   minimumScale: 1,
@@ -30,12 +34,18 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const isDemo = process.env.ENVIRONMENT === "demo";
+
+  const user = await getCurrentUser();
+
+  const address = user?.wallets[0].address || "";
+
+  const bonkBalance = await getBonkBalance(address);
 
   return (
     <html lang="en" className={`${satoshi.variable} h-full`}>
@@ -49,7 +59,11 @@ export default function RootLayout({
         <ReactQueryProvider>
           <DynamicProvider>
             <ToastProvider>
-              <MobileChromeDetector>{children}</MobileChromeDetector>
+              <ClaimProvider>
+                <RevealContextProvider bonkBalance={bonkBalance}>
+                  <MobileChromeDetector>{children}</MobileChromeDetector>
+                </RevealContextProvider>
+              </ClaimProvider>
             </ToastProvider>
           </DynamicProvider>
         </ReactQueryProvider>

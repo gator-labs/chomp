@@ -51,6 +51,7 @@ export function RevealContextProvider({
     isRevealWithNftMode,
     questionIds,
     questions,
+    dialogLabel,
     isLoading,
   } = useReveal({
     bonkBalance,
@@ -69,9 +70,7 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button className="text-gray-850 h-10">
-              Learn how
-            </Button>
+            <Button className="text-gray-850 h-10">Learn how</Button>
           </a>
           <Button
             variant="outline"
@@ -96,11 +95,7 @@ export function RevealContextProvider({
       case "skipburn":
         return (
           <>
-            <Button
-              onClick={onReveal}
-            >
-              Reveal
-            </Button>
+            <Button onClick={onReveal}>Reveal</Button>
             <Button
               variant="outline"
               onClick={() => {
@@ -202,11 +197,7 @@ export function RevealContextProvider({
           </>
         );
       case "burning":
-        return (
-          <Button disabled>
-            Burning $BONK...
-          </Button>
-        );
+        return <Button disabled>Burning $BONK...</Button>;
     }
 
     return null;
@@ -287,9 +278,11 @@ export function RevealContextProvider({
                 >
                   {insufficientFunds
                     ? "Insufficient Funds"
-                    : questionIds.length > 1
-                      ? "Reveal all?"
-                      : "Reveal answer?"}
+                    : !!dialogLabel
+                      ? dialogLabel
+                      : questionIds.length > 1
+                        ? "Reveal all?"
+                        : "Reveal answer?"}
                 </h3>
               </div>
               {getDescriptionNode()}
