@@ -50,7 +50,7 @@ export default async function Layout({ children }: PageLayoutProps) {
             </Main>
             <TabNavigation isAdmin={!!user?.isAdmin} />
             <AuthRedirect />
-            <DailyDeckRedirect />
+            {/* <DailyDeckRedirect /> */}
           </div>
         </RevealContextProvider>
       </ClaimingProvider>
