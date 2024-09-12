@@ -29,7 +29,7 @@ export function TransactionProfile({
   return (
     <div
       className={classNames(
-        "flex p-6 rounded-2xl bg-gray-850 gap-4",
+        "flex p-6 rounded-2xl bg-gray-800 gap-4",
         className,
       )}
     >

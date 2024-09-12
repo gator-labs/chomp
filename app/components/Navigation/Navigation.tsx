@@ -18,7 +18,7 @@ export function Navigation({ items }: NavigationProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex justify-center p-1 space-x-6 py-3 w-full bg-gray-850">
+    <div className="flex justify-center p-1 space-x-6 py-3 w-full bg-gray-800">
       {items.map((item, index) => (
         <Link
           key={index}
@@ -27,7 +27,7 @@ export function Navigation({ items }: NavigationProps) {
         >
           <span
             className={classNames("px-4 py-1 rounded-full", {
-              "bg-gray-800": item.isActiveRegex
+              "bg-gray-700": item.isActiveRegex
                 ? new RegExp(item.isActiveRegex).test(pathname)
                 : item.href === pathname,
               "svg-active-fill": item.isActiveRegex

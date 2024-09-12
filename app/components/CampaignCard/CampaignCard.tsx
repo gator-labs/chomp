@@ -22,7 +22,7 @@ const CampaignCard = ({
   return (
     <Link
       href={`/campaigns/${id}`}
-      className="p-4 rounded-[8px] bg-gray-850 border-[0.5px] border-solid border-gray-600 flex items-center justify-between gap-4"
+      className="p-4 rounded-[8px] bg-gray-800 border-[0.5px] border-solid border-gray-500 flex items-center justify-between gap-4"
     >
       <div className="relative w-[52px] h-[52px]">
         <Image

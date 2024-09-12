@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     title: (
-      <h2 className="text-gray-850 text-base">
+      <h2 className="text-gray-800 text-base">
         Check out others' revealed questions
       </h2>
     ),
