@@ -130,7 +130,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
             variant="purple"
           >
             Next
-            <HalfArrowRightIcon fill="#0D0D0D" />
+            <HalfArrowRightIcon fill="#FFFFFF" />
           </Button>
         </div>
       )}
