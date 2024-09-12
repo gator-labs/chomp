@@ -34,7 +34,6 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
-  // const viewed = typeof type === "string" && type === "Viewed";
 
   const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
@@ -87,7 +86,7 @@ export async function getDailyDeck() {
 
   const questions = mapQuestionFromDeck(dailyDeck);
 
-  // if (!questions.filter((q) => q.status === undefined).length) return null;
+  if (!questions.filter((q) => q.status === undefined).length) return null;
 
   return {
     questions,
