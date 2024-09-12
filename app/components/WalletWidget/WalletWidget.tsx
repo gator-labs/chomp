@@ -15,10 +15,10 @@ type WalletWidgetProps = {
 
 export function WalletWidget({ address, className }: WalletWidgetProps) {
   const { handleLogOut } = useDynamicContext();
-  const { successToast } = useToast();
+  const { infoToast } = useToast();
   const handleCopyToClipboard = async () => {
     await copyTextToClipboard(address);
-    successToast(
+    infoToast(
       "Copied to clipboard",
       `Copied ${formatAddress(address)} to clipboard`,
     );
