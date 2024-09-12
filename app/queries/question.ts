@@ -140,17 +140,17 @@ export async function getQuestionSchema(
   return questionData;
 }
 
-export async function getUnansweredDailyQuestions(query = "") {
+export async function getUnansweredQuestions(query = "") {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return [];
   }
 
-  const dailyDeckQuestions = await prisma.deckQuestion.findMany({
+  const questions = await prisma.deckQuestion.findMany({
     where: {
       deck: {
-        date: {
+        activeFromDate: {
           gte: dayjs(new Date()).add(-3, "days").toDate(),
           lte: dayjs(new Date()).endOf("day").toDate(),
         },
@@ -178,11 +178,11 @@ export async function getUnansweredDailyQuestions(query = "") {
     },
   });
 
-  return dailyDeckQuestions.map((dq) => dq.question);
+  return questions.map((dq) => dq.question);
 }
 
 export async function getFirstUnansweredQuestion() {
-  const questions = await getUnansweredDailyQuestions();
+  const questions = await getUnansweredQuestions();
 
   if (questions.length === 0) {
     return null;
