@@ -60,13 +60,7 @@ const DailyDeckScreen = ({
             </div>
           </div>
         </main>
-        {/* <Disabled
-          className="after:opacity-90 after:bg-[#1B1B1B]"
-          disabled={!!questions?.length}
-          toastMessage="Please complete this Daily Deck first ✨"
-        > */}
           <TabNavigation isAdmin={isAdmin} />
-        {/* </Disabled> */}
       </div>
     </>
   );
