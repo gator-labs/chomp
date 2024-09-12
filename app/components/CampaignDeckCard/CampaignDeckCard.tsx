@@ -183,7 +183,14 @@ const CampaignDeckCard = ({
         }
       }}
       href={`/application/decks/${deckId}`}
-      className="p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2"
+      className={cn(
+        "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
+        {
+          "cursor-pointer":
+            buttonText === "Claim your reward" ||
+            buttonText === "Reveal results",
+        },
+      )}
     >
       <div className="flex gap-4">
         <div className="w-[77px] h-[87px] flex-shrink-0 relative">
