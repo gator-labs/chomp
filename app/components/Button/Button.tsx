@@ -32,7 +32,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variantStyles = {
-    primary: "bg-primary text-gray-900",
+    primary: "bg-primary text-white",
     secondary: "bg-secondary text-gray-900",
     warning: "bg-red text-gray-900",
     white: "bg-white text-gray-900",
