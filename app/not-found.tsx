@@ -10,11 +10,11 @@ const NotFound = () => {
 
   return (
     <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-[90%] md:w-[50%] lg:w-[25%] mx-auto pt-14 gap-2">
-      <div className="bg-gray-800 rounded-3xl relative">
+      <div className="bg-gray-800 rounded-[16px] relative gap-24px">
         <Image
           src="/images/eroor-bg-attern.svg"
           alt="Background Cover"
-          className="object-cover w-full h-full rounded-3xl"
+          className="object-cover w-full h-full rounded-[16px]"
           width={100}
           height={20}
         />
@@ -24,11 +24,11 @@ const NotFound = () => {
       </div>
 
       <div className="flex flex-col items-start text-white mt-2 gap-2">
-        <p className="text-base mb-2">
+        <p className="text-[16px] mb-2">
           Page not found. Let&apos; s go somewhere else!
         </p>
-        <p className="text-base mb-2">Optional error description</p>
-        <p className="text-base">
+        <p className="text-[14px] mb-2">Optional error description</p>
+        <p className="text-[14px]">
           (stack trace, other technical info that may be helpful for debugging)
         </p>
       </div>
