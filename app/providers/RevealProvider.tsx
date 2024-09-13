@@ -69,13 +69,11 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button className="text-gray-850 h-10">
-              Learn how
-            </Button>
+            <Button className="text-gray-850 h-10 font-bold">Learn how</Button>
           </a>
           <Button
             variant="outline"
-            className="h-10"
+            className="h-10 font-bold"
             onClick={() => {
               sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
                 [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
@@ -96,13 +94,12 @@ export function RevealContextProvider({
       case "skipburn":
         return (
           <>
-            <Button
-              onClick={onReveal}
-            >
+            <Button className="font-bold" onClick={onReveal}>
               Reveal
             </Button>
             <Button
               variant="outline"
+              className="font-bold"
               onClick={() => {
                 sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
@@ -139,6 +136,7 @@ export function RevealContextProvider({
         return (
           <>
             <Button
+              className="font-bold"
               onClick={() => {
                 if (
                   !hasPendingTransactions &&
@@ -164,6 +162,7 @@ export function RevealContextProvider({
                   : "Reveal"}
             </Button>
             <Button
+              className="font-bold"
               variant="outline"
               onClick={() => {
                 if (isRevealWithNftMode) return burnAndReveal(true);
@@ -203,7 +202,7 @@ export function RevealContextProvider({
         );
       case "burning":
         return (
-          <Button disabled>
+          <Button className="font-bold" disabled>
             Burning $BONK...
           </Button>
         );
