@@ -9,7 +9,7 @@ const NotFound = () => {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-[25%] mx-auto pt-14 gap-2">
+    <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-[90%] md:w-[50%] lg:w-[25%] mx-auto pt-14 gap-2">
       <div className="bg-gray-800 rounded-3xl relative">
         <Image
           src="/images/eroor-bg-attern.svg"
