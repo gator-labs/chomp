@@ -33,10 +33,9 @@ const NotFound = () => {
         </p>
       </div>
 
-      <div className="flex flex-col mt-auto gap-4 mb-8">
+      <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
         <Button
           size="lg"
-          className="gap-1 w-full"
           onClick={() => {
             router.push("/application");
           }}
@@ -48,7 +47,6 @@ const NotFound = () => {
         <Button
           size="lg"
           variant="outline"
-          className="gap-1"
           onClick={() => {
             router.back();
           }}
