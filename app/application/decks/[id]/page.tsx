@@ -1,3 +1,4 @@
+import CommingSoonDeck from "@/app/components/CommingSoonDeck/CommingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
 import { getDecksForExpiringSection } from "@/app/queries/home";
@@ -17,11 +18,9 @@ export default async function Page({ params: { id } }: PageProps) {
 
   return (
     <div className="h-full pt-3 pb-4">
-      {!deck?.questions.length ? (
-        <div className="flex flex-col justify-evenly h-full pb-4">
-          <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />
-        </div>
-      ) : (
+      {deck?.questions.length === 0 || deck === null ? (
+        <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />
+      ) : deck?.questions && deck?.questions?.length > 0 && deck?.deckInfo ? (
         <DeckScreen
           currentDeckId={deck.id}
           nextDeckId={nextDeck?.id}
@@ -32,6 +31,8 @@ export default async function Page({ params: { id } }: PageProps) {
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
         />
+      ) : (
+        <CommingSoonDeck deckName={deck?.name} />
       )}
     </div>
   );
