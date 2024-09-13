@@ -24,7 +24,7 @@ export const QUESTION_CARD_CONTENT = {
         You just chomped through that deck!{" "}
         {!!date && (
           <>
-            The deck will be revealed in{" "}
+            The deck will be revealed in{" "}{" "}
             <span className="text-secondary">
               ${formatDistanceToNowStrict(date)}
             </span>
