@@ -54,8 +54,8 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
         </p>
       </div>
 
-      <div className="flex flex-col mt-auto gap-4 mb-8">
-        <Button size="lg" className="gap-1 w-full" onClick={() => reset()}>
+      <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
+        <Button size="lg" onClick={() => reset()}>
           Refresh the page
           <RefreshIcon fill="none" />
         </Button>
@@ -63,7 +63,6 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
         <Button
           size="lg"
           variant="outline"
-          className="gap-1"
           onClick={() => {
             router.back();
           }}
