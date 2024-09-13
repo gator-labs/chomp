@@ -94,6 +94,22 @@ export function RevealContextProvider({
       case "skipburn":
         return (
           <>
+            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
+              <div className="relative flex-shrink-0">
+                <InfoIcon width={16} height={16} />
+              </div>
+              <div className="flex flex-col gap-2 text-xs font-normal">
+                <p>
+                  You would need to burn $BONK to reveal the answer, regardless
+                  of whether you&apos;ve chomped on the question card earlier or
+                  not.{" "}
+                </p>
+                <p>
+                  But you&apos;re only eligible for a potential reward if you
+                  chomped on this question earlier.
+                </p>
+              </div>
+            </div>
             <Button className="font-bold" onClick={onReveal}>
               Reveal
             </Button>
@@ -114,6 +130,11 @@ export function RevealContextProvider({
             >
               Cancel
             </Button>
+          </>
+        );
+      case "idle":
+        return (
+          <>
             <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
@@ -130,11 +151,6 @@ export function RevealContextProvider({
                 </p>
               </div>
             </div>
-          </>
-        );
-      case "idle":
-        return (
-          <>
             <Button
               className="font-bold"
               onClick={() => {
@@ -182,22 +198,6 @@ export function RevealContextProvider({
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
-            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
-              <div className="relative flex-shrink-0">
-                <InfoIcon width={16} height={16} />
-              </div>
-              <div className="flex flex-col gap-2 text-xs font-normal">
-                <p>
-                  You would need to burn $BONK to reveal the answer, regardless
-                  of whether you&apos;ve chomped on the question card earlier or
-                  not.{" "}
-                </p>
-                <p>
-                  But you&apos;re only eligible for a potential reward if you
-                  chomped on this question earlier.
-                </p>
-              </div>
-            </div>
           </>
         );
       case "burning":
@@ -281,7 +281,7 @@ export function RevealContextProvider({
                 <h3
                   className={classNames("font-bold", {
                     "text-[#DD7944]": insufficientFunds,
-                    "text-purple-500": !insufficientFunds,
+                    "text-purple-200": !insufficientFunds,
                   })}
                 >
                   {insufficientFunds
