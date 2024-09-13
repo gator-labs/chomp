@@ -16,7 +16,7 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
     await prisma.$queryRaw`
               select 
                 qo."id",
-                round(
+                floor(
                   1.0 *
                   (
                     select count(*)
@@ -33,7 +33,7 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                   , 0)
                   * 100) as "firstOrderSelectedAnswerPercentage",
                 (
-                  select round(avg(percentage))
+                  select floor(avg(percentage))
                   from public."QuestionAnswer"
                   where "questionOptionId" = qo."id" and "status" = ${AnswerStatus.Submitted}::"AnswerStatus"
                 ) as "secondOrderAveragePercentagePicked"
