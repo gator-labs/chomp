@@ -34,7 +34,7 @@ export function FeedQuestionCard({
 
   return (
     <div
-      className="bg-gray-800 border-[0.5px] border-gray-600 rounded-lg p-4 py-[15px] flex gap-4 h-full"
+      className="bg-gray-700 border-[0.5px] border-gray-500 rounded-lg p-4 py-[15px] flex gap-4 h-full"
       onClick={onClick}
     >
       {type === "Deck" && (
@@ -55,7 +55,7 @@ export function FeedQuestionCard({
                 />
               </div>
             )}
-            <p className="text-white font-sora font-semibold text-sm mr-auto">
+            <p className="text-white font-semibold text-sm mr-auto">
               {question}
             </p>
             {onTopCornerAction && topCornerActionIcon && (

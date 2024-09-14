@@ -9,7 +9,7 @@ import { cn } from "@/app/utils/tailwind";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { User } from "@prisma/client";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
@@ -66,6 +66,7 @@ const Leaderboard = ({
   const [ranking, setRanking] = useState<Ranking[] | []>([]);
   const leaderboardNameRef = useRef(null);
   const isOverflowing = useIsOverflowing(leaderboardNameRef);
+  const router = useRouter();
   const [loggedInUserScore, setLoggedInUserScore] = useState<
     | {
         loggedInUserRank: number | undefined;
@@ -120,9 +121,9 @@ const Leaderboard = ({
   return (
     <div className="pb-1 flex flex-col gap-4 h-full overflow-hidden">
       <div className="flex items-center gap-4 py-[5px]">
-        <Link href="/application/profile/leaderboard">
+        <div onClick={() => router.back()}>
           <HalfArrowLeftIcon />
-        </Link>
+        </div>
         {leaderboardImage && (
           <div className="relative w-[38px] h-[38px] flex-shrink-0">
             <ActiveIndicator isActive={isLeaderboardActive} />
@@ -139,22 +140,22 @@ const Leaderboard = ({
         ) : (
           <p
             ref={leaderboardNameRef}
-            className="text-[20px] leading-6 text-nowrap overflow-hidden"
+            className="text-xl leading-6 text-nowrap overflow-hidden"
           >
             {leaderboardName}
           </p>
         )}
       </div>
 
-      <div className="p-4 rounded-lg bg-gray-800 gap-4 flex">
+      <div className="p-4 rounded-lg bg-gray-700 gap-4 flex">
         <div className="h-10">
           <Avatar
-            src={loggedUser.profileSrc || AvatarPlaceholder.src}
+            src={loggedUser?.profileSrc || AvatarPlaceholder.src}
             size="medium"
           />
         </div>
         <div className="flex flex-col gap-2 flex-1 justify-center">
-          <span className="text-xs leading-[7px] text-gray-400">
+          <span className="text-xs  text-gray-400">
             {variant === "campaign"
               ? "All time ranking"
               : variant === "daily"
@@ -169,7 +170,7 @@ const Leaderboard = ({
                 <DownIcon fill="#ED6A5A" />
               )}
               <p
-                className={cn("text-[15px] leading-[11px] font-bold", {
+                className={cn("text-sm  font-bold", {
                   "text-aqua": rankDifference > 0,
                   "text-red": rankDifference < 0,
                 })}
@@ -182,8 +183,8 @@ const Leaderboard = ({
           <div className="flex justify-between">
             <div className="flex flex-col gap-2">
               <p
-                className={cn("text-xs leading-[7px]", {
-                  "text-[15px] leading-[11px] font-bold": !rankDifference,
+                className={cn("text-xs ", {
+                  "text-sm  font-bold": !rankDifference,
                 })}
               >
                 {!!loggedInUserScore?.loggedInUserRank
@@ -191,7 +192,7 @@ const Leaderboard = ({
                   : "- No Ranking Yet"}
               </p>
               {!loggedInUserScore?.loggedInUserRank && (
-                <p className="text-xs leading-[7px]">
+                <p className="text-xs ">
                   Your ranking will be displayed once ready!
                 </p>
               )}

@@ -1,30 +1,28 @@
-import { getCampaigns } from "@/app/queries/campaign";
-import LeaderboardCard from "../components/LeaderboardCard/LeaderboardCard";
-import Main from "../components/Main/Main";
+import CampaignCard from "@/app/components/CampaignCard/CampaignCard";
+import CampaignsHeader from "@/app/components/CampaignsHeader/CampaignsHeader";
 
-const CampaignLeaderboard = async () => {
-  const campaigns = await getCampaigns();
+import { getAllCampaigns } from "@/app/queries/campaign";
 
-  if (!campaigns.length) return;
+const CampaignsPage = async () => {
+  const campaigns = await getAllCampaigns();
 
   return (
-    <Main>
-      <div className="flex flex-col gap-2">
-        <p>Campaigns</p>
-        <ul className="flex flex-col gap-2">
-          {campaigns.map((campaign) => (
-            <LeaderboardCard
-              key={campaign.id}
-              name={campaign.name}
-              imageSrc={campaign.image}
-              isActive={campaign.isActive}
-              showActiveIndicator
-            />
-          ))}
-        </ul>
-      </div>
-    </Main>
+    <div className="pt-4 flex flex-col gap-8 overflow-hidden w-full max-w-lg mx-auto px-4">
+      <CampaignsHeader />
+      <ul className="flex flex-col gap-2 pb-2 overflow-auto">
+        {campaigns.map((campaign) => (
+          <CampaignCard
+            key={campaign.id}
+            imageSrc={campaign.image}
+            decksToAnswer={campaign.decksToAnswer?.length}
+            decksToReveal={campaign.decksToReveal?.length}
+            name={campaign.name}
+            id={campaign.id}
+          />
+        ))}
+      </ul>
+    </div>
   );
 };
 
-export default CampaignLeaderboard;
+export default CampaignsPage;

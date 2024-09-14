@@ -1,37 +1,19 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { HalfArrowLeftIcon } from "../Icons/HalfArrowLeftIcon";
+import { ArrowLeftIcon } from "../Icons/ArrowLeftIcon";
 
 const BackButton = () => {
   const router = useRouter();
-  const [isInternal, setIsInternal] = useState(false);
-
-  useEffect(() => {
-    const previousURL = document.referrer;
-    const currentOrigin = window.location.origin;
-
-    if (previousURL.startsWith(currentOrigin)) {
-      setIsInternal(true);
-    } else {
-      setIsInternal(false);
-    }
-  }, []);
 
   const handleBack = () => {
-    if (isInternal) {
-      router.refresh();
-      router.back();
-    } else {
-      router.refresh();
-      router.push("/application");
-    }
+    router.refresh();
+    router.back();
   };
 
   return (
     <div className="cursor-pointer" onClick={handleBack}>
-      <HalfArrowLeftIcon />
+      <ArrowLeftIcon />
     </div>
   );
 };

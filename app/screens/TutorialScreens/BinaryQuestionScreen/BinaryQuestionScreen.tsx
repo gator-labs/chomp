@@ -130,12 +130,12 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
             variant="purple"
           >
             Next
-            <HalfArrowRightIcon fill="#0D0D0D" />
+            <HalfArrowRightIcon fill="#FFFFFF" />
           </Button>
         </div>
       )}
       {isFlowFinished && (
-        <div className="fixed bottom-[0px] w-full p-6 bg-gray-800 flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
+        <div className="fixed bottom-[0px] w-full p-6 bg-gray-700 flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
           <h3 className="text-base">Well done! 🎉</h3>
           <p className="text-sm">
             Now let’s try a <b>multiple choice</b> question!

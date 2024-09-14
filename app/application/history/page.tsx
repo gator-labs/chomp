@@ -12,7 +12,7 @@ export default async function Page() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 overflow-hidden px-4">
+      <div className="flex flex-col gap-4 overflow-hidden">
         <ProfileNavigation />
         <HistoryHeader
           totalClaimableRewards={totalClaimableRewards}

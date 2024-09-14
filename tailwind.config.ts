@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 const colors = {
   // OLD COLORS
@@ -18,23 +19,24 @@ const colors = {
   // #DD7944
 
   // FIGMA NEW COLORS
-  primary: "#A3A3EC",
+  primary: "#5955D6",
   "primary-muted": "#2C28A4",
+  secondary: "#AFADEB",
   destructive: "#ED6A5A",
   green: "#1ED3B3",
   red: "#ED6A5A",
   white: "#FFFFFF",
   gray: {
-    50: "#F1F1F1",
+    50: "#FFFFFF",
     100: "#E6E6E6",
     200: "#CCCCCC",
     300: "#B3B3B3",
     400: "#999999",
-    600: "#666666",
-    700: "#4D4D4D",
-    800: "#333333",
-    850: "#1B1B1B",
-    950: "#0D0D0D",
+    500: "#666666",
+    600: "#4D4D4D",
+    700: "#333333",
+    800: "#1B1B1B",
+    900: "#0D0D0D",
   },
   purple: {
     50: "#EBEAFA",
@@ -42,7 +44,7 @@ const colors = {
     200: "#AFADEB",
     300: "#8784E1",
     400: "#5F5BD7",
-    500: "#A3A3EC",
+    500: "#5955D6",
     600: "#2C28A4",
     700: "#211E7B",
     800: "#161452",
@@ -75,13 +77,7 @@ module.exports = {
         purplePulse: "purplePulse 2s infinite",
       },
       fontFamily: {
-        sora: ["var(--font-sora)"],
-      },
-      fontSize: {
-        xs: ["10px", "12.6px"],
-        sm: ["13px", "16.38px"],
-        base: ["16px", "20px"],
-        l: ["24px", "27.6px"],
+        sans: ["var(--font-satoshi)", ...defaultTheme.fontFamily.sans],
       },
       boxShadow: {
         input: "0 0 4px 0",

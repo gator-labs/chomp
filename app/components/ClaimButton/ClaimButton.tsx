@@ -94,13 +94,13 @@ const ClaimButton = ({
   if (!didAnswer) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-500">
           You did not participate in this Chomp
         </p>
         <div className="flex flex-col gap-4 w-full">
           <Button
             variant="grayish"
-            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-600 cursor-auto"
+            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-500 cursor-auto"
             disabled
           >
             Claim <DollarIcon fill="#666666" />
@@ -114,11 +114,11 @@ const ClaimButton = ({
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
-          <p className="text-[13px] font-normal leading-[17.55px] text-left">
+          <p className="text-sm font-normal text-left">
             Your claimable reward:
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
-            <span className="text-[10px] font-bold leading-[12.6px] text-left">
+            <span className="text-xs font-bold text-left">
               {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
               BONK
             </span>
@@ -128,7 +128,7 @@ const ClaimButton = ({
         <div className="flex flex-col gap-4 w-full">
           <Button
             className={classNames(
-              "text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center",
+              "text-sm font-semibold text-left flex items-center justify-center",
               className,
               { "cursor-not-allowed opacity-50": isClaiming },
             )}
@@ -148,11 +148,9 @@ const ClaimButton = ({
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
-          <p className="text-[13px] font-normal leading-[17.55px] text-left">
-            You have claimed:
-          </p>
+          <p className="text-sm font-normal  text-left">You have claimed:</p>
           <Pill variant="white" className="!cursor-auto">
-            <span className="text-[10px] font-bold leading-[12.6px] text-left">
+            <span className="text-xs font-bold  text-left">
               {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
               BONK
             </span>
@@ -163,11 +161,11 @@ const ClaimButton = ({
           <Button
             disabled
             className={classNames(
-              "!bg-gray-400 text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+              "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
               className,
             )}
           >
-            <span className="text-gray-600">Claimed</span>
+            <span className="text-gray-500">Claimed</span>
             <DollarIcon height={24} width={24} fill="#666666" />
           </Button>
         </div>
@@ -178,13 +176,9 @@ const ClaimButton = ({
   return (
     <div className="flex flex-col gap-4 items-center justify-center">
       <div className="flex items-center justify-center gap-1">
-        <p className="text-[13px] font-normal leading-[17.55px] text-left">
-          Your claimable reward:
-        </p>
+        <p className="text-sm font-normal  text-left">Your claimable reward:</p>
         <Pill variant="white" className="!cursor-auto">
-          <span className="text-[10px] font-bold leading-[12.6px] text-left">
-            0 BONK
-          </span>
+          <span className="text-xs font-bold  text-left">0 BONK</span>
         </Pill>
         <RewardInfoBox />
       </div>
@@ -192,11 +186,11 @@ const ClaimButton = ({
         <Button
           disabled
           className={classNames(
-            "!bg-gray-400 text-[13px] font-semibold leading-[16.38px] text-left flex items-center justify-center border-none",
+            "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
             className,
           )}
         >
-          <span className="text-gray-600">Unclaimable</span>
+          <span className="text-gray-500">Unclaimable</span>
           <DollarIcon height={24} width={24} fill="#666666" />
         </Button>
       </div>

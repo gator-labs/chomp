@@ -113,7 +113,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
 
     return (
       <li
-        className="px-4 py-[15px] rounded-lg bg-gray-800 border-[0.5px] border-gray-600 flex flex-col gap-2"
+        className="px-4 py-[15px] rounded-lg bg-gray-700 border-[0.5px] border-gray-500 flex flex-col gap-2"
         key={question.id}
         ref={ref}
       >

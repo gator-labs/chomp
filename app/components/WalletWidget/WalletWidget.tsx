@@ -32,13 +32,13 @@ export function WalletWidget({ address, className }: WalletWidgetProps) {
           className,
         )}
       >
-        <div className="font-sora text-[#171616] text-base">
+        <div className=" text-[#171616] text-base">
           {formatAddress(address)}
         </div>
         <div className="flex gap-x-2">
           <Button
             isPill
-            className="!p-0 !w-[38px] !h-[38px] bg-purple-500 border-none"
+            className="!p-0 !w-[38px] !h-[38px] bg-secondary border-none"
             onClick={handleCopyToClipboard}
           >
             <CopyIcon />
@@ -46,7 +46,7 @@ export function WalletWidget({ address, className }: WalletWidgetProps) {
           <Button
             onClick={handleLogOut}
             isPill
-            className="!p-0 !w-[38px] !h-[38px] bg-purple-500 border-none"
+            className="!p-0 !w-[38px] !h-[38px] bg-secondary border-none"
           >
             <ExitIcon />
           </Button>

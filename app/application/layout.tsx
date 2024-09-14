@@ -32,7 +32,7 @@ export default async function Layout({ children }: PageLayoutProps) {
     <ConfettiProvider>
       <ClaimingProvider>
         <RevealContextProvider bonkBalance={bonkBalance}>
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col min-h-screen">
             <Main>
               <Navbar
                 avatarSrc={user?.profileSrc || ""}
@@ -46,9 +46,13 @@ export default async function Layout({ children }: PageLayoutProps) {
                 }))}
                 address={address}
               />
-              {children}
+              <div className="flex-grow pb-16">
+                {children}
+              </div>
             </Main>
-            <TabNavigation isAdmin={!!user?.isAdmin} />
+            <div className="sticky bottom-0 left-0 right-0 z-50">
+              <TabNavigation isAdmin={!!user?.isAdmin} />
+            </div>
             <AuthRedirect />
             <DailyDeckRedirect />
           </div>

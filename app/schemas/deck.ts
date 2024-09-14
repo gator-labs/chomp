@@ -6,7 +6,7 @@ export const deckSchema = z
   .object({
     id: z.number().optional(),
     deck: z.string().min(5),
-    heading: z.string().min(5).optional().nullish(),
+    heading: z.string().min(5).optional().nullish().or(z.literal("")),
     file: z
       .custom<File[]>()
       .optional()
@@ -41,8 +41,8 @@ export const deckSchema = z
           message: "Invalid image source",
         },
       ),
-    description: z.string().min(5).optional().nullish(),
-    footer: z.string().min(5).max(50).optional().nullish(),
+    description: z.string().min(5).optional().nullish().or(z.literal("")),
+    footer: z.string().min(5).max(50).optional().nullish().or(z.literal("")),
     tagIds: z.number().array().default([]),
     campaignId: z.number().optional().nullish(),
     revealToken: z.nativeEnum(Token),
@@ -144,4 +144,7 @@ export const deckSchema = z
   })
   .refine((data) => !(data.date && data.activeFromDate), {
     message: "Only one of 'date' or 'activeFromDate' can be selected",
+  })
+  .refine((data) => data.date || data.activeFromDate, {
+    message: "'date' or 'activeFromDate' must be set",
   });

@@ -28,7 +28,7 @@ export default function QuestionAnswerPreview({
 
   return (
     <div className="questions-card p-4 pt-6 rounded-lg z-0 flex-grow h-full min-h-[216px] relative">
-      <div className="text-base text-white mb-4 font-sora">{question}</div>
+      <div className="text-base text-white mb-4 ">{question}</div>
       <Image
         src={gatorHeadImage}
         alt="gator-head"
@@ -62,7 +62,7 @@ export default function QuestionAnswerPreview({
           revealAtDate={revealAtDate}
         />
         {!!tagElement?.props.children && (
-          <div className="text-sm text-white font-sora font-light flex justify-between items-center">
+          <div className="text-sm text-white  font-light flex justify-between items-center">
             Your answer {tagElement}
           </div>
         )}
