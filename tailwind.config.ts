@@ -71,9 +71,18 @@ module.exports = {
             backgroundColor: "#8872A5",
           },
         },
+        loadingLine: {
+          from: {
+            width: "0%",
+          },
+          to: {
+            width: "100%",
+          },
+        },
       },
       animation: {
         purplePulse: "purplePulse 2s infinite",
+        loadingLine: "loadingLine 4s linear forwards",
       },
       fontFamily: {
         sans: ["var(--font-satoshi)", ...defaultTheme.fontFamily.sans],

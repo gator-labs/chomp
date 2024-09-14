@@ -65,7 +65,7 @@ const toastLayout = (
     <div className="cursor-pointer" onClick={() => toast.dismiss()}>
       <RemoveIcon />
     </div>
-    <div className="absolute bottom-0 h-[5px] left-0 w-full bg-[#8784E1]"></div>
+    <div className="absolute bottom-0 h-[5px] left-0 bg-[#8784E1] animate-loadingLine"></div>
   </div>
 );
 
@@ -83,7 +83,14 @@ const defaultToastLayout = (message: string) =>
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const successToast = (message: string, description?: string) => {
-    toast(successToastLayout(message, description), toastOptions);
+    const toastId = toast(successToastLayout(message, description), {
+      ...toastOptions,
+    });
+
+    // Automatically dismiss the toast after the duration specified in toastOptions
+    setTimeout(() => {
+      toast.dismiss(toastId);
+    }, toastOptions.duration);
   };
 
   const infoToast = (message: string, description?: string) => {
@@ -91,7 +98,13 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const errorToast = (message: string, description?: string) => {
-    toast(errorToastLayout(message, description), toastOptions);
+    const toastId = toast(errorToastLayout(message, description), {
+      ...toastOptions,
+    });
+
+    setTimeout(() => {
+      toast.dismiss(toastId);
+    }, toastOptions.duration);
   };
 
   const defaultToast = (message: string) => {
