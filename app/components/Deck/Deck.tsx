@@ -261,8 +261,9 @@ export function Deck({
     );
   }
 
+  // get random option for 2nd order question.
   const randomQuestionMarker =
-    question.type === QuestionType.MultiChoice
+    question?.type === QuestionType.MultiChoice
       ? getAlphaIdentifier(random)
       : question.questionOptions[random].option;
 
