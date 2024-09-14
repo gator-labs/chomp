@@ -488,10 +488,10 @@ export async function getTotalNumberOfAnswersInDeck(
 ): Promise<number | null> {
   const res = await prisma.$queryRaw<{ totalNumberOfAnswers: number }[]>`
     SELECT COUNT(DISTINCT CONCAT(qa."userId", '-', q.id)) AS "totalNumberOfAnswers"
-    FROM "DeckQuestion" dq
-    JOIN "Question" q ON q.id = dq."questionId"
-    JOIN "QuestionOption" qo ON qo."questionId" = q.id
-    JOIN "QuestionAnswer" qa ON qa."questionOptionId" = qo.id
+    FROM public."DeckQuestion" dq
+    JOIN public."Question" q ON q.id = dq."questionId"
+    JOIN public."QuestionOption" qo ON qo."questionId" = q.id
+    JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
     WHERE dq."deckId" = ${deckId};
   `;
 
@@ -503,9 +503,9 @@ export async function getTotalNumberOfAnswersInQuestions(
 ): Promise<number | null> {
   const res = await prisma.$queryRaw<{ totalNumberOfAnswers: number }[]>`
     SELECT COUNT(DISTINCT CONCAT(qa."userId", '-', q.id)) AS "totalNumberOfAnswers"
-    FROM "Question" q
-    JOIN "QuestionOption" qo ON qo."questionId" = q.id
-    JOIN "QuestionAnswer" qa ON qa."questionOptionId" = qo.id
+    FROM public."Question" q
+    JOIN public."QuestionOption" qo ON qo."questionId" = q.id
+    JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
     WHERE q."id" = ${questionId};
   `;
 
