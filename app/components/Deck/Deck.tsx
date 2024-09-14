@@ -306,11 +306,17 @@ export function Deck({
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
       />
-
+      <div
+        className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
+        onClick={() => handleSkipQuestion()}
+      >
+        Skip question
+      </div>
+      
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-purple-500">Are you still there?</AlertDialogTitle>
+            <AlertDialogTitle className="text-secondary">Are you still there?</AlertDialogTitle>
             <AlertDialogDescription className="text-white">
               Your time&apos;s up! To prevent you from missing out on the next
               question, click proceed to continue.

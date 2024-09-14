@@ -80,12 +80,12 @@ const RewardShow = ({
 
   if (rewardAmount > 0) {
     return (
-      <div className="flex bg-gray-800 p-4 rounded-lg justify-between">
+      <div className="flex bg-gray-700 p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold text-left">
             {rewardAmount === 5000 ? "Well done!" : "Congrats, you won!"}
           </span>
-          <div className="h-[1px] w-full bg-gray-600" />
+          <div className="h-[1px] w-full bg-gray-500" />
           <div className="flex items-center gap-1 justify-between">
             <p className="text-sm font-normal  text-left">Claim reward:</p>
             <Pill
@@ -113,12 +113,12 @@ const RewardShow = ({
   }
 
   return (
-    <div className="p-4 flex bg-gray-800 rounded-md justify-between">
+    <div className="p-4 flex bg-gray-700 rounded-md justify-between">
       <div className="flex flex-col gap-4 w-max justify-between">
         <span className="text-xl font-bold text-left">
           Better luck next time!
         </span>
-        <div className="h-[1px] w-full bg-gray-600" />
+        <div className="h-[1px] w-full bg-gray-500" />
         <div className="flex items-center gap-1 justify-start">
           <p className="text-sm font-normal  text-left">Claim reward:</p>
           <Pill variant="white" className="!cursor-auto">

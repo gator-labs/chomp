@@ -36,13 +36,13 @@ export function AnswerResult({
     <div className="flex items-center gap-3 h-10">
       <div
         className={classNames(
-          "h-full w-10 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0",
+          "h-full w-10 bg-gray-600 rounded-lg flex items-center justify-center flex-shrink-0",
           { "bg-purple-500": selected },
         )}
       >
         <p
           className={classNames("text-sm font-bold text-white", {
-            "!text-gray-850": selected,
+            "!text-gray-800": selected,
           })}
         >
           {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
@@ -50,7 +50,7 @@ export function AnswerResult({
       </div>
       <div
         className={
-          "text-sm  font-light text-white h-full border-gray-600 border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden"
+          "text-sm  font-light text-white h-full border-gray-500 border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden"
         }
       >
         <PrimarySlider

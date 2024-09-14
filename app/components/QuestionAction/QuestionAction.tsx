@@ -79,7 +79,7 @@ export function QuestionAction({
       <div className="text-white font-semibold pb-7">
         <div className="text-center text-md mb-4 text-sm font-normal ">
           How many people do you think picked{" "}
-          <span className="px-2 py-1 bg-white rounded-2xl text-xs  text-gray-950">
+          <span className="px-2 py-1 bg-white rounded-2xl text-xs  text-gray-900">
             {randomQuestionMarker}
           </span>
         </div>
@@ -128,7 +128,7 @@ export function QuestionAction({
       <div className="text-center text-white font-semibold">
         <div className="text-sm font-normal mb-4 flex gap-1 items-center justify-center">
           How many people do you think picked{" "}
-          <span className="px-2 py-1 bg-white rounded-2xl text-xs  text-gray-950">
+          <span className="px-2 py-1 bg-white rounded-2xl text-xs  text-gray-900">
             {randomQuestionMarker}
           </span>
         </div>

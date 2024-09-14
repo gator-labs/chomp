@@ -94,13 +94,13 @@ const ClaimButton = ({
   if (!didAnswer) {
     return (
       <div className="flex flex-col items-center gap-4">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-500">
           You did not participate in this Chomp
         </p>
         <div className="flex flex-col gap-4 w-full">
           <Button
             variant="grayish"
-            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-600 cursor-auto"
+            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-500 cursor-auto"
             disabled
           >
             Claim <DollarIcon fill="#666666" />
@@ -165,7 +165,7 @@ const ClaimButton = ({
               className,
             )}
           >
-            <span className="text-gray-600">Claimed</span>
+            <span className="text-gray-500">Claimed</span>
             <DollarIcon height={24} width={24} fill="#666666" />
           </Button>
         </div>
@@ -190,7 +190,7 @@ const ClaimButton = ({
             className,
           )}
         >
-          <span className="text-gray-600">Unclaimable</span>
+          <span className="text-gray-500">Unclaimable</span>
           <DollarIcon height={24} width={24} fill="#666666" />
         </Button>
       </div>
