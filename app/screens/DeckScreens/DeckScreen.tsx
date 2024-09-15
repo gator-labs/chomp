@@ -28,8 +28,7 @@ const DeckScreen = ({
   nextDeckId,
   numberOfUserAnswers,
 }: DeckScreenProps) => {
-  console.log(numberOfUserAnswers);
-  const [isDeckStarted, setIsDeckStarted] = useState(true);
+  const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers > 0);
   const router = useRouter();
 
   return (
