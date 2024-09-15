@@ -52,6 +52,7 @@ export function RevealContextProvider({
     isRevealWithNftMode,
     questionIds,
     questions,
+    dialogLabel,
     isLoading,
   } = useReveal({
     bonkBalance,
@@ -70,7 +71,7 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button>Learn how</Button>
+            <Button className="text-gray-850 h-10">Learn how</Button>
           </a>
           <Button
             variant="outline"

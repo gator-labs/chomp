@@ -56,6 +56,9 @@ export async function getCampaign(id: number) {
               question: {
                 include: {
                   chompResults: {
+                    include: {
+                      question: true,
+                    },
                     where: {
                       userId,
                     },

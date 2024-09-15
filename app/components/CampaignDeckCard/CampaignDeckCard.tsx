@@ -1,9 +1,13 @@
 "use client";
 
+import { revealQuestions } from "@/app/actions/chompResult";
+import { RevealProps } from "@/app/hooks/useReveal";
+import { useClaim } from "@/app/providers/ClaimProvider";
+import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { getTimeString } from "@/app/utils/dateUtils";
 import { cn } from "@/lib/utils";
 import { ChompResult, Question, ResultType } from "@prisma/client";
-import { isAfter, isBefore } from "date-fns";
+import { isAfter } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { DeckGraphic } from "../Graphics/DeckGraphic";
@@ -22,7 +26,7 @@ type CampaignDeckCardProps = {
   numberOfQuestionsOptions: number;
   numberOfUserQuestionsAnswers: number;
   activeFromDate: Date;
-  chompResults: ChompResult[];
+  chompResults: (ChompResult & { question: Question })[];
   deckQuestions: Question[];
 };
 
@@ -40,8 +44,8 @@ const CampaignDeckCard = ({
   const currentDate = new Date();
   const isDeckReadyToReveal = isAfter(currentDate, revealAtDate);
   const isDeckStarted = isAfter(currentDate, activeFromDate);
-  const isDeckActive =
-    isAfter(currentDate, activeFromDate) && isBefore(currentDate, revealAtDate);
+  const { openRevealModal, closeRevealModal } = useRevealedContext();
+  const { openClaimModal } = useClaim();
 
   const timeString = getTimeString(
     isDeckStarted ? revealAtDate : activeFromDate,
@@ -141,10 +145,52 @@ const CampaignDeckCard = ({
   const Wrapper =
     buttonText === "Start" || buttonText === "Continue" ? Link : "div";
 
+  const revealableQuestions = deckQuestions.filter(
+    (dq) => !chompResults.map((cr) => cr.questionId).includes(dq.id),
+  );
+
   return (
     <Wrapper
+      onClick={() => {
+        if (buttonText === "Reveal results") {
+          openRevealModal({
+            reveal: async ({ burnTx, revealQuestionIds }: RevealProps) => {
+              await revealQuestions(revealQuestionIds!, burnTx);
+
+              closeRevealModal();
+            },
+            amount: revealableQuestions.reduce(
+              (curr, acc) => curr + acc.revealTokenAmount,
+              0,
+            ),
+            questionIds: revealableQuestions.map((q) => q.id),
+            questions: revealableQuestions.map((q) => q.question),
+            dialogLabel: "Reveal deck",
+          });
+        }
+
+        if (buttonText === "Claim your reward") {
+          openClaimModal({
+            description: "Would you like to claim all rewards in this deck?",
+            title: "Claim reward",
+            chompResults: chompResults.filter(
+              (cr) =>
+                cr.result === ResultType.Revealed &&
+                !!cr.rewardTokenAmount &&
+                Number(cr.rewardTokenAmount) > 0,
+            ),
+          });
+        }
+      }}
       href={`/application/decks/${deckId}`}
-      className="p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2"
+      className={cn(
+        "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
+        {
+          "cursor-pointer":
+            buttonText === "Claim your reward" ||
+            buttonText === "Reveal results",
+        },
+      )}
     >
       <div className="flex gap-4">
         <div className="w-[77px] h-[87px] flex-shrink-0 relative">
