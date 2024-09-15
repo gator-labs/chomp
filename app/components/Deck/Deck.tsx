@@ -20,7 +20,6 @@ import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
-import Sheet from "../Sheet/Sheet";
 import Stepper from "../Stepper/Stepper";
 import {
   AlertDialog,
@@ -29,7 +28,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../ui/alert-dialog";
-import { Button } from "../ui/button"
+import { Button } from "../ui/button";
 
 export type Option = {
   id: number;
@@ -85,7 +84,7 @@ export function Deck({
   const min = 0;
   const max =
     !!questions[currentQuestionIndex] &&
-      questions[currentQuestionIndex].questionOptions.length > 0
+    questions[currentQuestionIndex].questionOptions.length > 0
       ? questions[currentQuestionIndex].questionOptions.length - 1
       : 0;
 
@@ -113,7 +112,7 @@ export function Deck({
     const min = 0;
     const max =
       !!questions[currentQuestionIndex + 1] &&
-        questions[currentQuestionIndex + 1].questionOptions.length > 0
+      questions[currentQuestionIndex + 1].questionOptions.length > 0
         ? questions[currentQuestionIndex + 1].questionOptions.length - 1
         : 0;
     generateRandom({ min, max });
@@ -136,6 +135,7 @@ export function Deck({
 
   useEffect(() => {
     const run = async () => {
+      console.log("triggered");
       const res = await markQuestionAsSeenButNotAnswered(question.id);
       if (!!res?.hasError) {
         handleNextIndex();
@@ -151,12 +151,15 @@ export function Deck({
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
 
-  const handleOnDurationRanOut = async () => {
+  const handleOnDurationRanOut = useCallback(async () => {
+    console.log("handleOnDurationRanOut");
     await markQuestionAsTimedOut(question.id);
     setIsTimeOutPopUpVisible(true);
-  };
+    console.log("handleOnDurationRanOut");
+  }, [question, handleNextIndex, setDeckResponse]);
 
   const handleSkipQuestion = async () => {
+    console.log("handleSkipQuestion");
     await markQuestionAsSkipped(question.id);
     handleNextIndex();
   };
@@ -282,7 +285,7 @@ export function Deck({
             question={question.question}
             type={question.type}
             viewImageSrc={question.imageUrl}
-            onDurationRanOut={() => handleOnDurationRanOut()}
+            onDurationRanOut={handleOnDurationRanOut}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -313,11 +316,13 @@ export function Deck({
       >
         Skip question
       </div>
-      
+
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-secondary">Are you still there?</AlertDialogTitle>
+            <AlertDialogTitle className="text-secondary">
+              Are you still there?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-white">
               Your time&apos;s up! To prevent you from missing out on the next
               question, click proceed to continue.

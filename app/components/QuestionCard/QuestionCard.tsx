@@ -3,7 +3,13 @@ import { QuestionType } from "@prisma/client";
 import classNames from "classnames";
 import dayjs from "dayjs";
 import Image from "next/image";
-import { CSSProperties, ReactNode, useCallback, useState } from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import gatorHeadImage from "../../../public/images/gator-head.png";
 import { useInterval } from "../../hooks/useInterval";
 import {
@@ -42,14 +48,24 @@ export function QuestionCard({
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
     dueAt ? getDueAtString(dueAt) : "",
   );
+  const [hasDurationRanOut, setHasDurationRanOut] = useState(false);
+
   const handleDueAtFormatted = useCallback(() => {
-    if (!dueAt) return;
+    if (!dueAt || hasDurationRanOut) return;
 
     setDueAtFormatted(getDueAtString(dueAt));
     if (dayjs(dueAt).diff(new Date(), "seconds") <= 0) {
-      onDurationRanOut && onDurationRanOut();
+      if (onDurationRanOut) {
+        onDurationRanOut();
+        setHasDurationRanOut(true);
+      }
     }
-  }, [setDueAtFormatted, dueAt, onDurationRanOut]);
+  }, [dueAt, onDurationRanOut, hasDurationRanOut]);
+
+  useEffect(() => {
+    // Reset the hasDurationRanOut state when the question changes
+    setHasDurationRanOut(false);
+  }, [question]); // This effect depends on the question prop
 
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILLISECONDS);
 
