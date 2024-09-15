@@ -135,7 +135,6 @@ export function Deck({
 
   useEffect(() => {
     const run = async () => {
-      console.log("triggered");
       const res = await markQuestionAsSeenButNotAnswered(question.id);
       if (!!res?.hasError) {
         handleNextIndex();
