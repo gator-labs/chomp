@@ -152,14 +152,11 @@ export function Deck({
   }, [question, handleNextIndex, setDeckResponse]);
 
   const handleOnDurationRanOut = useCallback(async () => {
-    console.log("handleOnDurationRanOut");
     await markQuestionAsTimedOut(question.id);
     setIsTimeOutPopUpVisible(true);
-    console.log("handleOnDurationRanOut");
   }, [question, handleNextIndex, setDeckResponse]);
 
   const handleSkipQuestion = async () => {
-    console.log("handleSkipQuestion");
     await markQuestionAsSkipped(question.id);
     handleNextIndex();
   };

@@ -346,9 +346,6 @@ export async function markQuestionAsSkipped(questionId: number) {
   });
 
   try {
-    console.log("userId", userId);
-    console.log("questionOptions", questionOptions);
-    console.log("markQuestionAsSkipped");
     await prisma.questionAnswer.updateMany({
       where: {
         userId,
@@ -360,7 +357,6 @@ export async function markQuestionAsSkipped(questionId: number) {
         status: AnswerStatus.Skipped,
       },
     });
-    console.log("finished markQuestionAsSkipped");
   } catch (error) {
     return { hasError: true };
   }
