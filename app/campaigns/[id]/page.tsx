@@ -73,7 +73,7 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
                 dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
               ).length
             }
-            activeFromDate={deck.activeFromDate!}
+            activeFromDate={deck.activeFromDate || deck.createdAt}
           />
         ))}
       </ul>
