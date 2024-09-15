@@ -37,7 +37,7 @@ const RewardInfoBox = () => {
               </p>
               <p>
                 When your{" "}
-                <span className="font-bold text-purple-500">
+                <span className="font-bold text-secondary">
                   1st-order-answer
                 </span>{" "}
                 is the same as the best answer to the question (as calculated
@@ -47,7 +47,7 @@ const RewardInfoBox = () => {
               </p>
               <p>
                 Then, depending on the distance between your{" "}
-                <span className="font-bold text-purple-500">
+                <span className="font-bold text-secondary">
                   2nd-order-answer
                 </span>{" "}
                 and the actual revealed percentage of how everyone selected
