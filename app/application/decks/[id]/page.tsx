@@ -16,9 +16,9 @@ export default async function Page({ params: { id } }: PageProps) {
   const nextDeck = decks.filter((deck) => deck.id !== currentDeckId)?.[0];
 
   return (
-    <div className="h-full pt-3 pb-4">
+    <div className="h-full pt-3">
       {!deck?.questions.length ? (
-        <div className="flex flex-col justify-evenly h-full pb-4">
+        <div className="">
           <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />
         </div>
       ) : (

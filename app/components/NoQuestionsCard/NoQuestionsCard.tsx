@@ -1,7 +1,8 @@
 "use client";
 
-import { Button } from "../Button/Button";
-import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
+import ArrowRightCircleOuter from "../Icons/ArrowRightCircleOuter";
+import Share from "../Icons/Share";
+import { Button } from "../ui/button";
 import { QUESTION_CARD_CONTENT } from "./constants";
 
 import { useRouter } from "next-nprogress-bar";
@@ -25,7 +26,7 @@ export function NoQuestionsCard({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-between h-full w-full">
+    <div className="flex flex-col justify-between h-full w-full gap-4">
       <div
         className="questions-card text-white  relative"
         style={{
@@ -45,31 +46,38 @@ export function NoQuestionsCard({
           {QUESTION_CARD_CONTENT[variant].backgroundIcon}
         </div>
       </div>
-      {nextDeckId ? (
+      <div className="py-4 flex flex-col gap-4">
+        {nextDeckId ? (
+          <Button
+            className="gap-1 h-[50px]"
+            onClick={() => {
+              router.replace(`/application/decks/${nextDeckId}`);
+              router.refresh();
+            }}
+          >
+            Next Deck <ArrowRightCircleOuter />
+          </Button>
+        ) : (
+          <Button
+            className="gap-1 h-[50px]"
+            onClick={() => {
+              router.replace(`/application`);
+              router.refresh();
+            }}
+          >
+            Home <ArrowRightCircleOuter />
+          </Button>
+        )}
         <Button
-          variant="pink"
-          size="big"
-          className="gap-1"
+          className="gap-1 h-[50px]"
+          variant="outline"
           onClick={() => {
-            router.replace(`/application/decks/${nextDeckId}`);
-            router.refresh();
+            // add logic
           }}
         >
-          Next Deck <HalfArrowRightIcon fill="#0D0D0D" />
+          Share & Earn more! <Share />
         </Button>
-      ) : (
-        <Button
-          variant="pink"
-          size="big"
-          className="gap-1"
-          onClick={() => {
-            router.replace("/application");
-            router.refresh();
-          }}
-        >
-          Home <HalfArrowRightIcon fill="#0D0D0D" />
-        </Button>
-      )}
+      </div>
     </div>
   );
 }
