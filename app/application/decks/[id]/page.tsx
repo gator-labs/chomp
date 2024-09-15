@@ -1,4 +1,4 @@
-import CommingSoonDeck from "@/app/components/CommingSoonDeck/CommingSoonDeck";
+import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
 import { getDecksForExpiringSection } from "@/app/queries/home";
@@ -32,7 +32,7 @@ export default async function Page({ params: { id } }: PageProps) {
           numberOfUserAnswers={deck.numberOfUserAnswers!}
         />
       ) : (
-        <CommingSoonDeck deckName={deck?.name} />
+        <ComingSoonDeck deckName={deck?.name} />
       )}
     </div>
   );

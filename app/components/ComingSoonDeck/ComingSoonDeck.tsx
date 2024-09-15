@@ -6,7 +6,7 @@ import { BackIconOutline } from "../Icons/BackIconOutline";
 
 
 
-const CommingSoonDeck = ({deckName}: {deckName: string| undefined}) => {
+const ComingSoonDeck = ({deckName}: {deckName: string| undefined}) => {
     const router = useRouter();
 
     return (
@@ -16,7 +16,7 @@ const CommingSoonDeck = ({deckName}: {deckName: string| undefined}) => {
                     {deckName}
                 </p>
                 <p className="text-[14px] font-semibold text-white">
-                    Comming Soon
+                    Coming Soon
                 </p>
             </div>
 
@@ -46,4 +46,4 @@ const CommingSoonDeck = ({deckName}: {deckName: string| undefined}) => {
     );
 };
 
-export default CommingSoonDeck;
+export default ComingSoonDeck;
