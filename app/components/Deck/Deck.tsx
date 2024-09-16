@@ -306,12 +306,14 @@ export function Deck({
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
       />
-      <div
-        className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
-        onClick={() => handleSkipQuestion()}
-      >
-        Skip question
-      </div>
+      {currentQuestionStep !== QuestionStep.PickPercentage && (
+        <div
+          className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
+          onClick={() => handleSkipQuestion()}
+        >
+          Skip question
+        </div>
+      )}
 
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
