@@ -1,11 +1,10 @@
+import { useEffect } from "react";
 import * as Sentry from "@sentry/nextjs";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect } from "react";
-import { BackIconOutline } from "../Icons/BackIconOutline";
-import { RefreshIcon } from "../Icons/RefreshIcon";
 import { Button } from "../ui/button";
+import { RefreshCw, ArrowLeft } from 'lucide-react';
 
 function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
@@ -55,9 +54,9 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
       </div>
 
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
-        <Button size="lg" onClick={() => reset()}>
+        <Button size="lg" onClick={() => reset()} className="text-[14px] gap-2">
           Refresh the page
-          <RefreshIcon fill="none" />
+          <RefreshCw />
         </Button>
 
         <Button
@@ -66,8 +65,9 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
           onClick={() => {
             router.back();
           }}
+          className="text-[14px] gap-2"
         >
-          <BackIconOutline fill="none" />
+          <ArrowLeft />
           Back to previous page
         </Button>
       </div>

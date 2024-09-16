@@ -1,9 +1,8 @@
 "use client";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
-import { BackIconOutline } from "./components/Icons/BackIconOutline";
-import { HomeIconOutline } from "./components/Icons/HomeIconOutline";
 import { Button } from "./components/ui/button";
+import { House, ArrowLeft } from 'lucide-react';
 
 const NotFound = () => {
   const router = useRouter();
@@ -27,10 +26,6 @@ const NotFound = () => {
         <p className="text-[16px] mb-2">
           Page not found. Let&apos; s go somewhere else!
         </p>
-        <p className="text-[14px] mb-2">Optional error description</p>
-        <p className="text-[14px]">
-          (stack trace, other technical info that may be helpful for debugging)
-        </p>
       </div>
 
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
@@ -39,19 +34,20 @@ const NotFound = () => {
           onClick={() => {
             router.push("/application");
           }}
+          className="text-[14px] gap-2"
         >
           Return home
-          <HomeIconOutline fill="none" />
+          <House />
         </Button>
-
         <Button
           size="lg"
           variant="outline"
           onClick={() => {
             router.back();
           }}
+          className="text-[14px] gap-2"
         >
-          <BackIconOutline fill="none" />
+          <ArrowLeft />
           Back to previous page
         </Button>
       </div>
