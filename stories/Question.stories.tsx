@@ -29,7 +29,7 @@ const meta = {
     returnUrl: "/application",
   },
   decorators: (Story) => (
-    <div className="bg-gray-850 p-10">
+    <div className="bg-gray-800 p-10">
       <Story />
     </div>
   ),
@@ -96,7 +96,7 @@ export const Cramped: Story = {
     },
   },
   decorators: (Story) => (
-    <div className="bg-gray-850 h-80 overflow-y-auto">
+    <div className="bg-gray-800 h-80 overflow-y-auto">
       <Story />
     </div>
   ),

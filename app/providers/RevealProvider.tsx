@@ -4,10 +4,11 @@ import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import { ReactNode, createContext, useContext } from "react";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
+import { CloseIcon } from "../components/Icons/CloseIcon";
 import { InfoIcon } from "../components/Icons/InfoIcon";
-import Sheet from "../components/Sheet/Sheet";
 import Spinner from "../components/Spinner/Spinner";
 import { Button } from "../components/ui/button";
+import { Drawer, DrawerContent } from "../components/ui/drawer";
 import {
   MIX_PANEL_EVENTS,
   MIX_PANEL_METADATA,
@@ -51,6 +52,7 @@ export function RevealContextProvider({
     isRevealWithNftMode,
     questionIds,
     questions,
+    dialogLabel,
     isLoading,
   } = useReveal({
     bonkBalance,
@@ -69,13 +71,10 @@ export function RevealContextProvider({
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button className="text-gray-850 h-10">
-              Learn how
-            </Button>
+            <Button className="text-gray-850 h-10">Learn how</Button>
           </a>
           <Button
             variant="outline"
-            className="h-10"
             onClick={() => {
               sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
                 [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
@@ -96,11 +95,7 @@ export function RevealContextProvider({
       case "skipburn":
         return (
           <>
-            <Button
-              onClick={onReveal}
-            >
-              Reveal
-            </Button>
+            <Button onClick={onReveal}>Reveal</Button>
             <Button
               variant="outline"
               onClick={() => {
@@ -117,7 +112,7 @@ export function RevealContextProvider({
             >
               Cancel
             </Button>
-            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
+            <div className="bg-gray-600 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
               </div>
@@ -183,7 +178,7 @@ export function RevealContextProvider({
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
-            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
+            <div className="bg-gray-600 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
               </div>
@@ -202,11 +197,7 @@ export function RevealContextProvider({
           </>
         );
       case "burning":
-        return (
-          <Button disabled>
-            Burning $BONK...
-          </Button>
-        );
+        return <Button disabled>Burning $BONK...</Button>;
     }
 
     return null;
@@ -248,6 +239,16 @@ export function RevealContextProvider({
     );
   };
 
+  const closeRevealModal = () => {
+    sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
+      [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+      [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+      [MIX_PANEL_METADATA.REVEAL_TYPE]:
+        questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+    });
+    cancelReveal();
+  };
+
   return (
     <RevealedContext.Provider
       value={{ openRevealModal: onSetReveal, closeRevealModal: resetReveal }}
@@ -256,48 +257,61 @@ export function RevealContextProvider({
         isLoading={burnState === "burning"}
         loadingMessage="Burning $BONK..."
       />
-      <Sheet
-        disableClose={burnState === "burning"}
-        isOpen={isRevealModalOpen}
-        setIsOpen={() => {
-          sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
-            [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-            [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-            [MIX_PANEL_METADATA.REVEAL_TYPE]:
-              questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-          });
-          cancelReveal();
+      <Drawer
+        open={isRevealModalOpen}
+        onOpenChange={(open: boolean) => {
+          if (!open && burnState !== "burning") {
+            closeRevealModal();
+          }
         }}
-        closeIconHeight={16}
-        closeIconWidth={16}
+        dismissible={burnState !== "burning"}
       >
-        {isLoading ? (
-          <div className="h-[270px] flex items-center justify-center">
-            <Spinner />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-row w-full items-center justify-between">
-                <h3
-                  className={classNames("font-bold", {
-                    "text-[#DD7944]": insufficientFunds,
-                    "text-purple-500": !insufficientFunds,
-                  })}
-                >
-                  {insufficientFunds
-                    ? "Insufficient Funds"
-                    : questionIds.length > 1
-                      ? "Reveal all?"
-                      : "Reveal answer?"}
-                </h3>
+        <DrawerContent>
+          <div className="relative">
+            {isLoading ? (
+              <div className="h-[330px] flex items-center justify-center">
+                <Spinner />
               </div>
-              {getDescriptionNode()}
-            </div>
-            <div className="flex flex-col gap-2">{revealButtons()}</div>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    if (isRevealModalOpen) {
+                      e.stopPropagation();
+                      closeRevealModal();
+                    }
+                  }}
+                  className="absolute top-5 right-6 border-none w-max !p-0 z-50"
+                >
+                  <CloseIcon width={16} height={16} />
+                </Button>
+                <div className="flex flex-col gap-6 pt-6 px-6 pb-6">
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-row w-full items-center justify-between">
+                      <h3
+                        className={classNames("font-bold", {
+                          "text-[#DD7944]": insufficientFunds,
+                          "text-secondary": !insufficientFunds,
+                        })}
+                      >
+                        {insufficientFunds
+                          ? "Insufficient Funds"
+                          : questionIds.length > 1
+                            ? "Reveal all?"
+                            : "Reveal answer?"}
+                      </h3>
+                    </div>
+                    {getDescriptionNode()}
+                  </div>
+                  <div className="flex flex-col gap-2">{revealButtons()}</div>
+                </div>
+              </>
+            )}
           </div>
-        )}
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
 
       {children}
     </RevealedContext.Provider>

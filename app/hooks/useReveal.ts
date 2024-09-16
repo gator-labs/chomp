@@ -42,6 +42,7 @@ interface RevealCallbackBaseProps {
     revealQuestionIds,
   }: RevealProps) => Promise<void>;
   amount: number;
+  dialogLabel?: string;
 }
 
 interface RevealCallbackMultipleQuestions extends RevealCallbackBaseProps {
@@ -74,6 +75,7 @@ type RevealState = {
   questionIds: number[];
   questions: string[];
   genesisNft?: string;
+  dialogLabel?: string;
 };
 
 const INITIAL_BURN_STATE = "idle";
@@ -187,6 +189,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       questionIds,
       reveal,
       questions,
+      dialogLabel,
     }: RevealCallbackProps) => {
       setBurnState(INITIAL_BURN_STATE);
       setReveal({
@@ -194,6 +197,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         amount,
         questionIds: questionIds ?? [questionId],
         questions,
+        dialogLabel,
       });
       setIsRevealModalOpen(true);
       sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_OPENED, {
@@ -392,5 +396,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     questionIds,
     questions: reveal?.questions,
     isLoading,
+    dialogLabel: reveal?.dialogLabel,
   };
 }

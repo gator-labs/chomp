@@ -23,7 +23,7 @@ export function DailyDeckTitle({ date }: DailyDeckTitleProps) {
     <div className="text-sm  flex items-center justify-between">
       <div className="flex gap-2 items-center">
         <div className="h-[29px] px-4 bg-gray-100 rounded-[56px] flex items-center justify-center">
-          <span className=" text-gray-950 text-xs font-bold">Daily Deck</span>
+          <span className=" text-gray-900 text-xs font-bold">Daily Deck</span>
         </div>
         <div className="flex flex-col gap-1">
           <span className="font-bold text-xs">{monthAndDay}</span>
@@ -35,14 +35,14 @@ export function DailyDeckTitle({ date }: DailyDeckTitleProps) {
       </div>
       {isInfoModalOpen && (
         <div
-          className="flex flex-col gap-6 fixed z-50 bg-gray-800 p-6 bottom-[80px] rounded-tl-[32px] rounded-tr-[32px] left-0 w-full
-        after:content-empty after:fixed after:top-0 after:left-0 after:w-full after:h-full after:-z-10 after:bg-gray-850 after:opacity-60
+          className="flex flex-col gap-6 fixed z-50 bg-gray-700 p-6 bottom-[80px] rounded-tl-[32px] rounded-tr-[32px] left-0 w-full
+        after:content-empty after:fixed after:top-0 after:left-0 after:w-full after:h-full after:-z-10 after:bg-gray-800 after:opacity-60
         "
         >
           <div className="flex items-center justify-between">
             <p className="text-base">
               You’re viewing a{" "}
-              <span className="text-purple-500">Daily Deck</span>{" "}
+              <span className="text-secondary">Daily Deck</span>{" "}
             </p>
             <div onClick={() => setIsInfoModalOpen(false)}>
               <CloseIcon width={16} height={16} />

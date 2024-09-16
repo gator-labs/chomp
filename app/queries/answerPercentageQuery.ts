@@ -8,6 +8,7 @@ type QuestionOptionPercentage = {
 };
 
 export async function answerPercentageQuery(questionOptionIds: number[]) {
+  const isBinary = questionOptionIds.length === 2;
   if (!questionOptionIds.length) {
     return [];
   }
@@ -41,13 +42,19 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
               where qo."id" in (${Prisma.join(questionOptionIds)})
             `;
 
-  return questionOptionPercentages.map((qo) => ({
+  return questionOptionPercentages.map((qo, i) => ({
     id: qo.id,
     firstOrderSelectedAnswerPercentage: Number(
       qo.firstOrderSelectedAnswerPercentage ?? 0,
     ),
     secondOrderAveragePercentagePicked: Number(
-      qo.secondOrderAveragePercentagePicked ?? 0,
+      isBinary && i === 1
+        ? 100 -
+            Number(
+              questionOptionPercentages[0].secondOrderAveragePercentagePicked ??
+                0,
+            )
+        : (qo.secondOrderAveragePercentagePicked ?? 0),
     ),
   }));
 }
