@@ -40,22 +40,15 @@ export function DailyDeckTitle({ date }: DailyDeckTitleProps) {
         "
         >
           <div className="flex items-center justify-between">
-            <p className="text-base">
-              You’re viewing a{" "}
-              <span className="text-secondary">Daily Deck</span>{" "}
+            <p className="text-base text-secondary">
+              You’re viewing a Daily Deck
             </p>
             <div onClick={() => setIsInfoModalOpen(false)}>
               <CloseIcon width={16} height={16} />
             </div>
           </div>
           <p className="text-sm">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum
+            Everyday Chomp will be sharing 3-5 cards for you to Chomp on.
           </p>
         </div>
       )}
