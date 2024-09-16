@@ -16,7 +16,13 @@ type PageProps = {
 const CampaignPage = async ({ params: { id } }: PageProps) => {
   const campaign = await getCampaign(+id);
 
-  if (!campaign) return notFound();
+  console.log("campaign", campaign);
+
+  if (
+    !campaign ||
+    (campaign.isActive === false && campaign?.isVisible === false)
+  )
+    return notFound();
 
   return (
     <div className="flex flex-col gap-2 pt-4 overflow-hidden pb-2">

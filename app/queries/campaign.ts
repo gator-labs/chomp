@@ -45,8 +45,6 @@ export async function getCampaign(id: number) {
   return prisma.campaign.findUnique({
     where: {
       id,
-      isVisible: true,
-      isActive: true,
     },
     include: {
       deck: {
