@@ -15,7 +15,7 @@ import { authGuard } from "../utils/auth";
 
 export async function getActiveAndInactiveCampaigns() {
   return prisma.campaign.findMany({
-    orderBy: [{ name: "asc" }],
+    orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
   });
 }
 
