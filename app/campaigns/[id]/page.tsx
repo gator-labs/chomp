@@ -34,7 +34,7 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
         </div>
         <div className="flex flex-col">
           <h1 className="text-base mb-3">{campaign.name}</h1>
-          <p className="text-xs">
+          <p className="text-xs mb-6">
             {campaign.deck.length} deck{campaign.deck.length === 1 ? "" : "s"},{" "}
             {campaign.deck.flatMap((d) => d.deckQuestions).length} cards
           </p>
