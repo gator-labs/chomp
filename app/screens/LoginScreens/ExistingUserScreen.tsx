@@ -25,12 +25,12 @@ const ExistingUserScreen = ({ hasDailyDeck }: Props) => {
           </div>
         </div>
         <div className="flex flex-col gap-[14px] items-center w-full py-4">
-          <Link href={hasDailyDeck ? "daily-deck" : "/application"} className="w-full">
+        <Link href={hasDailyDeck ? "daily-deck" : "/application"} className="w-full">
             <Button variant="purple" className="gap-1">
               {hasDailyDeck ? "Start Daily Deck" : "Start"}{" "}
               <HalfArrowRightIcon fill="#FFFFFF" />
             </Button>
-          </Link>
+        </Link>
         </div>
       </div>
     </main>
