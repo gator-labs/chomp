@@ -1,11 +1,11 @@
 "use client";
-
-import { Button } from "@/app/components/Button/Button";
+import { Button } from "@/app/components/ui/button";
 import { Deck, Question } from "@/app/components/Deck/Deck";
-import PreviewDeckCard from "@/app/components/PreviewDeckCard";
-import Stepper from "@/app/components/Stepper/Stepper";
 import { useRouter } from "next-nprogress-bar";
 import { useState } from "react";
+import { CircleArrowRight } from 'lucide-react';
+import PreviewDeckCard from "@/app/components/PreviewDeckCard";
+import Stepper from "@/app/components/Stepper/Stepper";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -48,14 +48,16 @@ const DeckScreen = ({
           />
           <div className="flex flex-col gap-4 py-4">
             <Button
-              variant="primary"
-              className="h-50 w-full"
+              size="lg"
               onClick={() => setIsDeckStarted(true)}
+              className="text-[14px] gap-2"
             >
               Begin deck
+              <CircleArrowRight />
             </Button>
             <Button
-              className="h-50 w-full"
+              size="lg"
+              variant="outline"
               onClick={() => router.push("/application")}
             >
               Back to homepage
