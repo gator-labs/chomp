@@ -24,7 +24,7 @@ type QuestionActionProps = {
   percentage?: number;
   setPercentage?: Dispatch<SetStateAction<number>>;
   disabled?: boolean;
-  question: Question;
+  question?: Question;
   deckId?: number;
   deckVariant?: string;
 };
@@ -97,12 +97,13 @@ export function QuestionAction({
               ratioLeft={percentage}
               handleRatioChange={(value) => {
                 setPercentage && setPercentage(value);
-                sendAnswerToMixpanel(
-                  question,
-                  "SECOND_ORDER",
-                  deckId,
-                  deckVariant,
-                );
+                if (question)
+                  sendAnswerToMixpanel(
+                    question,
+                    "SECOND_ORDER",
+                    deckId,
+                    deckVariant,
+                  );
               }}
               labelLeft="No one"
               labelRight="Everyone"
@@ -152,10 +153,13 @@ export function QuestionAction({
               ratioLeft={percentage}
               handleRatioChange={(value) => {
                 setPercentage && setPercentage(value);
-                sendAnswerToMixpanel(
-                  question,
-                  "SECOND_ORDER"
-                );
+                if (question)
+                  sendAnswerToMixpanel(
+                    question,
+                    "SECOND_ORDER",
+                    deckId,
+                    deckVariant,
+                  );
               }}
               labelLeft="No one"
               labelRight="Everyone"

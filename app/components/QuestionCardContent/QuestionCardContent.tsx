@@ -24,7 +24,7 @@ type QuestionCardContentProps = {
   randomOptionPercentage?: number;
   className?: string;
   showRevealData?: boolean;
-  question: Question;
+  question?: Question;
 };
 
 export function QuestionCardContent({
@@ -60,7 +60,7 @@ export function QuestionCardContent({
           }
           onOptionSelected={(value) => {
             onOptionSelected(+value);
-            sendAnswerToMixpanel(question, "FIRST_ORDER");
+            if (question) sendAnswerToMixpanel(question, "FIRST_ORDER");
           }}
           value={optionSelectedId?.toString()}
           randomOptionPercentage={randomOptionPercentage}
