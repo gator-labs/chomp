@@ -6,6 +6,7 @@ import { ChompResult, Question } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CampaignsHeader from "@/app/components/CampaignsHeader/CampaignsHeader";
 
 type PageProps = {
   params: {
@@ -20,9 +21,7 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
 
   return (
     <div className="flex flex-col gap-2 pt-4 overflow-hidden pb-2">
-      <div className="px-4">
-        <BackButton />
-      </div>
+      <CampaignsHeader backAction="campaigns" />
       <div className="p-4 bg-gray-850 flex gap-4">
         <div className="relative w-[100.5px] h-[100.5px]">
           <Image
@@ -62,7 +61,7 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
             }
             deckQuestions={deck.deckQuestions.map((dq) => dq.question)}
             deckName={deck.deck}
-            imageUrl={campaign.image}
+            imageUrl={deck.imageUrl ? deck.imageUrl : campaign.image}
             revealAtDate={deck.revealAtDate!}
             numberOfQuestionsOptions={
               deck.deckQuestions.flatMap((dq) => dq.question.questionOptions)
