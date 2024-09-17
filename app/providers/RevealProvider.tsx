@@ -288,7 +288,6 @@ export function RevealContextProvider({
               <>
                 <Button
                   variant="ghost"
-                  size="icon"
                   onClick={(e) => {
                     if (isRevealModalOpen) {
                       e.stopPropagation();
