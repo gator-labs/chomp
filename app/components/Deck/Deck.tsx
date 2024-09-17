@@ -9,7 +9,7 @@ import {
 import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
-import { UserData } from "@/app/screens/DailyDeckScreen/DailyDeckScreen";
+import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
@@ -57,7 +57,6 @@ type DeckProps = {
   deckId: number;
   nextDeckId?: number;
   deckVariant?: "daily-deck" | "regular-deck";
-  userData: UserData;
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -71,7 +70,6 @@ export function Deck({
   nextDeckId,
   deckVariant,
   deckId,
-  userData,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
@@ -178,18 +176,7 @@ export function Deck({
           ...prev,
           { questionId: question.id, questionOptionId: number },
         ]);
-        sendToMixpanel(MIX_PANEL_EVENTS.FIRST_ORDER_SELECTED, {
-          [MIX_PANEL_METADATA.DECK_ID]: deckId,
-          [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
-          [MIX_PANEL_METADATA.USERNAME]: userData.username,
-          [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: userData.address,
-          [MIX_PANEL_METADATA.USER_ID]: userData.id,
-          [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
-          [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]:
-            question.questionOptions,
-          [MIX_PANEL_METADATA.QUESTION_HAS_IMAGE]: !!question.imageUrl,
-        });
+        sendAnswerToMixpanel(question, "FIRST_ORDER", deckId, deckVariant);
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
@@ -210,15 +197,7 @@ export function Deck({
             questionOptionId: currentOptionSelected,
           },
         ]);
-        sendToMixpanel(MIX_PANEL_EVENTS.FIRST_ORDER_SELECTED, {
-          [MIX_PANEL_METADATA.DECK_ID]: deckId,
-          [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
-          [MIX_PANEL_METADATA.USERNAME]: userData.username,
-          [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: userData.address,
-          [MIX_PANEL_METADATA.USER_ID]: userData.id,
-          [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
-        });
+        sendAnswerToMixpanel(question, "FIRST_ORDER", deckId, deckVariant);
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
@@ -235,15 +214,7 @@ export function Deck({
             response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
-          sendToMixpanel(MIX_PANEL_EVENTS.SECOND_ORDER_SELECTED, {
-            [MIX_PANEL_METADATA.DECK_ID]: deckId,
-            [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
-            [MIX_PANEL_METADATA.USERNAME]: userData.username,
-            [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: userData.address,
-            [MIX_PANEL_METADATA.USER_ID]: userData.id,
-            [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
-            [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
-          });
+          sendAnswerToMixpanel(question, "SECOND_ORDER", deckId, deckVariant);
           return newResponses;
         });
       }
@@ -282,9 +253,6 @@ export function Deck({
       sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_LOADED, {
         [MIX_PANEL_METADATA.DECK_ID]: deckId,
         [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
-        [MIX_PANEL_METADATA.USERNAME]: userData.username,
-        [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: userData.address,
-        [MIX_PANEL_METADATA.USER_ID]: userData.id,
         [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
         [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
         [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: question.questionOptions,
@@ -302,9 +270,6 @@ export function Deck({
     sendToMixpanel(MIX_PANEL_EVENTS.DECK_COMPLETED, {
       [MIX_PANEL_METADATA.DECK_ID]: deckId,
       [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
-      [MIX_PANEL_METADATA.USERNAME]: userData.username,
-      [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: userData.address,
-      [MIX_PANEL_METADATA.USER_ID]: userData.id,
     });
 
     return (

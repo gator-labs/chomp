@@ -10,12 +10,6 @@ import { getAnsweredQuestionsStatus } from "@/app/utils/question";
 import sendToMixpanel from "@/lib/mixpanel";
 import { useEffect } from "react";
 
-export interface UserData {
-  username: string;
-  address: string;
-  id: string;
-}
-
 interface Props {
   nextDeckId?: number;
   date?: Date | null;
@@ -24,7 +18,6 @@ interface Props {
   navBarData: NavbarProps;
   isAdmin: boolean;
   percentOfAnsweredQuestions: number;
-  userData: UserData;
 }
 
 const DailyDeckScreen = ({
@@ -35,7 +28,6 @@ const DailyDeckScreen = ({
   navBarData,
   percentOfAnsweredQuestions,
   isAdmin,
-  userData,
 }: Props) => {
   const deckVariant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
 
@@ -44,12 +36,9 @@ const DailyDeckScreen = ({
       sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
         [MIX_PANEL_METADATA.DECK_ID]: id,
         [MIX_PANEL_METADATA.IS_DAILY_DECK]: true,
-        [MIX_PANEL_METADATA.USERNAME]: userData.username,
-        [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: userData.address,
-        [MIX_PANEL_METADATA.USER_ID]: userData.id,
       });
     }
-  }, [questions, id, userData.id]);
+  }, [questions, id]);
 
   return (
     <>
@@ -67,7 +56,6 @@ const DailyDeckScreen = ({
                   questions={questions}
                   deckId={id!}
                   nextDeckId={nextDeckId}
-                  userData={userData}
                 />
               ) : (
                 <NoQuestionsCard

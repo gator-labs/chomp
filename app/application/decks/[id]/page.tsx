@@ -2,7 +2,6 @@ import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
 import { getDecksForExpiringSection } from "@/app/queries/home";
-import { getCurrentUser } from "@/app/queries/user";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 
 type PageProps = {
@@ -11,7 +10,6 @@ type PageProps = {
 
 export default async function Page({ params: { id } }: PageProps) {
   const currentDeckId = Number(id);
-  const user = await getCurrentUser();
   const deck = await getDeckQuestionsForAnswerById(currentDeckId);
 
   const decks = await getDecksForExpiringSection();
@@ -31,11 +29,6 @@ export default async function Page({ params: { id } }: PageProps) {
             totalNumberOfQuestions: deck.questions.length,
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
-          userData={{
-            id: user?.id || "",
-            address: user?.wallets[0].address || "",
-            username: user?.username || "",
-          }}
         />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />

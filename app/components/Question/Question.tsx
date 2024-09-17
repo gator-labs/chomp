@@ -1,10 +1,9 @@
 "use client";
 import { saveQuestion, SaveQuestionRequest } from "@/app/actions/answer";
-import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
+import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
 import { getAlphaIdentifier } from "@/app/utils/question";
-import sendToMixpanel from "@/lib/mixpanel";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useRouter } from "next-nprogress-bar";
@@ -25,7 +24,7 @@ type Option = {
   isLeft: boolean;
 };
 
-type Question = {
+export type Question = {
   id: number;
   durationMiliseconds: number;
   question: string;
@@ -38,18 +37,13 @@ type Question = {
 type QuestionProps = {
   question: Question;
   returnUrl: string;
-  user: {
-    id: string;
-    username: string;
-    address: string;
-  };
 };
 
 const getDueAt = (durationMiliseconds: number): Date => {
   return dayjs(new Date()).add(durationMiliseconds, "milliseconds").toDate();
 };
 
-export function Question({ question, returnUrl, user }: QuestionProps) {
+export function Question({ question, returnUrl }: QuestionProps) {
   const router = useRouter();
   const [answerState, setAnswerState] = useState<SaveQuestionRequest>(
     {} as SaveQuestionRequest,
@@ -97,16 +91,7 @@ export function Question({ question, returnUrl, user }: QuestionProps) {
           question.questionOptions.findIndex((option) => option.id === number),
         );
         setAnswerState({ questionId: question.id, questionOptionId: number });
-        sendToMixpanel(MIX_PANEL_EVENTS.FIRST_ORDER_SELECTED, {
-          [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
-          [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]:
-            question.questionOptions,
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
-          [MIX_PANEL_METADATA.QUESTION_HAS_IMAGE]: !!question.imageUrl,
-          [MIX_PANEL_METADATA.USER_ID]: user.id,
-          [MIX_PANEL_METADATA.USERNAME]: user.username,
-          [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: user.address,
-        });
+        sendAnswerToMixpanel(question, "FIRST_ORDER");
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
@@ -124,32 +109,14 @@ export function Question({ question, returnUrl, user }: QuestionProps) {
           questionId: question.id,
           questionOptionId: currentOptionSelected,
         });
-        sendToMixpanel(MIX_PANEL_EVENTS.FIRST_ORDER_SELECTED, {
-          [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
-          [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]:
-            question.questionOptions,
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
-          [MIX_PANEL_METADATA.QUESTION_HAS_IMAGE]: !!question.imageUrl,
-          [MIX_PANEL_METADATA.USER_ID]: user.id,
-          [MIX_PANEL_METADATA.USERNAME]: user.username,
-          [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: user.address,
-        });
+        sendAnswerToMixpanel(question, "FIRST_ORDER");
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
       }
 
       if (currentQuestionStep === QuestionStep.PickPercentage) {
-        sendToMixpanel(MIX_PANEL_EVENTS.SECOND_ORDER_SELECTED, {
-          [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
-          [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]:
-            question.questionOptions,
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
-          [MIX_PANEL_METADATA.QUESTION_HAS_IMAGE]: !!question.imageUrl,
-          [MIX_PANEL_METADATA.USER_ID]: user.id,
-          [MIX_PANEL_METADATA.USERNAME]: user.username,
-          [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: user.address,
-        });
+        sendAnswerToMixpanel(question, "SECOND_ORDER");
         handleSaveQuestion({
           ...answerState,
           percentageGiven: optionPercentage,

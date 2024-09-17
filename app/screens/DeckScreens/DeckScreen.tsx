@@ -8,7 +8,6 @@ import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import sendToMixpanel from "@/lib/mixpanel";
 import { useRouter } from "next-nprogress-bar";
 import { useState } from "react";
-import { UserData } from "../DailyDeckScreen/DailyDeckScreen";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -22,7 +21,6 @@ type DeckScreenProps = {
   currentDeckId: number;
   nextDeckId?: number;
   numberOfUserAnswers: number;
-  userData: UserData;
 };
 
 const DeckScreen = ({
@@ -31,7 +29,6 @@ const DeckScreen = ({
   currentDeckId,
   nextDeckId,
   numberOfUserAnswers,
-  userData,
 }: DeckScreenProps) => {
   const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers > 0);
   const router = useRouter();
@@ -59,9 +56,6 @@ const DeckScreen = ({
                 sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
                   [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,
                   [MIX_PANEL_METADATA.IS_DAILY_DECK]: false,
-                  [MIX_PANEL_METADATA.USERNAME]: userData.username,
-                  [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: userData.address,
-                  [MIX_PANEL_METADATA.USER_ID]: userData.id,
                 });
                 setIsDeckStarted(true);
               }}
@@ -82,7 +76,6 @@ const DeckScreen = ({
           deckId={currentDeckId}
           nextDeckId={nextDeckId}
           deckVariant="regular-deck"
-          userData={userData}
         />
       )}
     </>

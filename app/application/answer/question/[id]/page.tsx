@@ -3,7 +3,6 @@ import {
   getQuestionForAnswerById,
   hasAnsweredQuestion,
 } from "@/app/queries/question";
-import { getCurrentUser } from "@/app/queries/user";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
 
@@ -13,7 +12,6 @@ type PageProps = {
 
 export default async function Page({ params: { id } }: PageProps) {
   const hasAnswered = await hasAnsweredQuestion(+id);
-  const user = await getCurrentUser();
 
   if (hasAnswered) {
     return redirect("/application");
@@ -33,11 +31,6 @@ export default async function Page({ params: { id } }: PageProps) {
       {question && (
         <Question
           question={question}
-          user={{
-            id: user?.id || "",
-            username: user?.username || "",
-            address: user?.wallets[0].address || "",
-          }}
           returnUrl="/application"
         />
       )}
