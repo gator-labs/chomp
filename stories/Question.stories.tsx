@@ -55,6 +55,11 @@ export const TrueFalse: Story = {
         "The best way to secure your assets is to use a hardware wallet.",
       questionTags: [],
     },
+    user: {
+      id: "9243nd-48hj92-02q9p8",
+      address: "0x123",
+      username: "John Doe",
+    },
   },
 };
 
@@ -72,6 +77,11 @@ export const MultipleChoice: Story = {
       question:
         "The best way to secure your assets is to use a software wallet.",
       questionTags: [],
+    },
+    user: {
+      id: "9243nd-48hj92-02q9p8",
+      address: "0x123",
+      username: "John Doe",
     },
   },
 };
@@ -93,6 +103,11 @@ export const Cramped: Story = {
       question:
         "The best way to secure your assets is to use a hardware wallet.",
       questionTags: [],
+    },
+    user: {
+      id: "9243nd-48hj92-02q9p8",
+      address: "0x123",
+      username: "John Doe",
     },
   },
   decorators: (Story) => (

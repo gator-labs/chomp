@@ -52,6 +52,11 @@ export default async function Page() {
         })),
         address: address,
       }}
+      userData={{
+        username: user?.username || "",
+        address: address,
+        id: user?.id || "",
+      }}
     />
   );
 }

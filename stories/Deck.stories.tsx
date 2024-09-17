@@ -75,5 +75,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    userData: {
+      id: "9243nd-48hj92-02q9p8",
+      address: "0x123",
+      username: "John Doe",
+    },
+  },
 };

@@ -1,5 +1,6 @@
 "use server";
 
+import sendToMixpanel from "@/lib/mixpanel";
 import {
   AnswerStatus,
   FungibleAsset,
@@ -11,6 +12,7 @@ import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { release } from "os";
+import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "../constants/mixpanel";
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredQuestion } from "../queries/question";
 import { addUserTutorialTimestamp } from "../queries/user";
@@ -176,6 +178,13 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       }
 
       await Promise.all(fungibleAssetRevealTasks);
+
+      sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWERED_SUCCEEDED, {
+        [MIX_PANEL_METADATA.QUESTION_ID]: request.questionId,
+        [MIX_PANEL_METADATA.DECK_ID]: request.deckId,
+        [MIX_PANEL_METADATA.USER_ID]: userId,
+        [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: request.questionOptionId,
+      });
     });
   } catch (error) {
     const answerError = new AnswerError(
@@ -183,6 +192,12 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       { cause: error },
     );
     Sentry.captureException(answerError);
+    sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWERED_FAILED, {
+      [MIX_PANEL_METADATA.QUESTION_ID]: request.questionId,
+      [MIX_PANEL_METADATA.DECK_ID]: request.deckId,
+      [MIX_PANEL_METADATA.USER_ID]: userId,
+      [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: request.questionOptionId,
+    });
     release();
     throw error;
   }
@@ -267,6 +282,12 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       });
 
       await updateStreak(userId);
+      sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWERED_SUCCEEDED, {
+        [MIX_PANEL_METADATA.QUESTION_ID]: request.questionId,
+        [MIX_PANEL_METADATA.DECK_ID]: request.deckId,
+        [MIX_PANEL_METADATA.USER_ID]: userId,
+        [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: request.questionOptionId,
+      });
     });
 
     revalidatePath("/application");
@@ -276,6 +297,12 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       { cause: error },
     );
     Sentry.captureException(answerError);
+    sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_ANSWERED_FAILED, {
+      [MIX_PANEL_METADATA.QUESTION_ID]: request.questionId,
+      [MIX_PANEL_METADATA.DECK_ID]: request.deckId,
+      [MIX_PANEL_METADATA.USER_ID]: payload?.sub,
+      [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: request.questionOptionId,
+    });
     release();
     throw error;
   }
