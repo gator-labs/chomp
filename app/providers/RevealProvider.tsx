@@ -2,6 +2,7 @@
 import sendToMixpanel from "@/lib/mixpanel";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
+import Link from "next/link";
 import { ReactNode, createContext, useContext } from "react";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { CloseIcon } from "../components/Icons/CloseIcon";
@@ -66,13 +67,14 @@ export function RevealContextProvider({
     if (insufficientFunds && !isRevealWithNftMode) {
       return (
         <>
-          <a
+          <Link
             href="https://x.com/chompdotgames/status/1798664081102258304"
             target="_blank"
             rel="noopener noreferrer"
+            className="w-full"
           >
-            <Button className="text-gray-850 h-10">Learn how</Button>
-          </a>
+            <Button className="text-gray-850 h-10 w-full">Learn how</Button>
+          </Link>
           <Button
             variant="outline"
             onClick={() => {
