@@ -47,16 +47,11 @@ export default function TotalRewardsClaimAll({
         [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
-      const res = await promiseToast(
-        claimAllAvailable(),
-        {
-          loading: "Claim in progress. Please wait...",
-          success: "Funds are transferred!",
-          error: "Issue transferring funds.",
-          isChompLoader: true,
-        },
-        { duration: Infinity },
-      );
+      const res = await promiseToast(claimAllAvailable(), {
+        loading: "Claim in progress. Please wait...",
+        success: "Funds are transferred!",
+        error: "Issue transferring funds.",
+      });
 
       sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
         [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,

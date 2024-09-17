@@ -1,6 +1,6 @@
 import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from "..";
 
-export function SuccessIcon({
+export function RemoveIcon({
   width = ICON_DEFAULT_WIDTH_HEIGHT,
   height = ICON_DEFAULT_WIDTH_HEIGHT,
 }: IconProps) {
@@ -13,9 +13,9 @@ export function SuccessIcon({
       viewBox="0 0 24 24"
     >
       <path
-        fill="#1ED3B3"
+        fill="#fff"
         fillRule="evenodd"
-        d="M23 12c0 6.075-4.925 11-11 11S1 18.075 1 12 5.925 1 12 1s11 4.925 11 11zm-7.293-1.293a1 1 0 00-1.414-1.414L11 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+        d="M6.227 6.227a.75.75 0 011.06 0L12 10.939l4.712-4.712a.75.75 0 011.061 1.06L13.061 12l4.712 4.712a.75.75 0 01-1.06 1.061L12 13.061l-4.712 4.712a.75.75 0 11-1.061-1.06L10.939 12 6.227 7.288a.75.75 0 010-1.061z"
         clipRule="evenodd"
       ></path>
     </svg>

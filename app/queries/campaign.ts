@@ -90,7 +90,6 @@ export async function getAllCampaigns() {
   const campaigns = await prisma.campaign.findMany({
     where: {
       isVisible: true,
-      isActive: true,
     },
     include: {
       deck: {
@@ -120,6 +119,7 @@ export async function getAllCampaigns() {
         },
       },
     },
+    orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
   });
 
   return campaigns.map((campaign) => ({
