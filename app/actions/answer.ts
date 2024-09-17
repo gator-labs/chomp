@@ -181,12 +181,12 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       sendAnswerStatusToMixpanel(request, "SUCCEEDED");
     });
   } catch (error) {
+    sendAnswerStatusToMixpanel(request, "FAILED");
     const answerError = new AnswerError(
       `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,
       { cause: error },
     );
     Sentry.captureException(answerError);
-    sendAnswerStatusToMixpanel(request, "FAILED");
     release();
     throw error;
   }
@@ -276,12 +276,12 @@ export async function saveQuestion(request: SaveQuestionRequest) {
 
     revalidatePath("/application");
   } catch (error) {
+    sendAnswerStatusToMixpanel(request, "FAILED");
     const answerError = new AnswerError(
       `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,
       { cause: error },
     );
     Sentry.captureException(answerError);
-    sendAnswerStatusToMixpanel(request, "FAILED");
     release();
     throw error;
   }

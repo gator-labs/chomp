@@ -1,7 +1,9 @@
 "use client";
+import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
 import { QuestionType } from "@prisma/client";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../Button/Button";
+import { Question } from "../Deck/Deck";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 import { QuestionStep } from "../Question/Question";
 import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
@@ -22,6 +24,9 @@ type QuestionActionProps = {
   percentage?: number;
   setPercentage?: Dispatch<SetStateAction<number>>;
   disabled?: boolean;
+  question: Question;
+  deckId?: number;
+  deckVariant?: string;
 };
 
 export function QuestionAction({
@@ -33,6 +38,9 @@ export function QuestionAction({
   percentage = 50,
   setPercentage,
   disabled,
+  question,
+  deckId,
+  deckVariant,
 }: QuestionActionProps) {
   const [isSliderTouched, setIsSliderTouched] = useState(false);
 
@@ -87,9 +95,15 @@ export function QuestionAction({
           <div className="w-full h-full">
             <TrueFalseScale
               ratioLeft={percentage}
-              handleRatioChange={(value) =>
-                setPercentage && setPercentage(value)
-              }
+              handleRatioChange={(value) => {
+                setPercentage && setPercentage(value);
+                sendAnswerToMixpanel(
+                  question,
+                  "SECOND_ORDER",
+                  deckId,
+                  deckVariant,
+                );
+              }}
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}
@@ -136,9 +150,13 @@ export function QuestionAction({
           <div className="w-full h-full">
             <TrueFalseScale
               ratioLeft={percentage}
-              handleRatioChange={(value) =>
-                setPercentage && setPercentage(value)
-              }
+              handleRatioChange={(value) => {
+                setPercentage && setPercentage(value);
+                sendAnswerToMixpanel(
+                  question,
+                  "SECOND_ORDER"
+                );
+              }}
               labelLeft="No one"
               labelRight="Everyone"
               isSliderTouched={isSliderTouched}

@@ -109,14 +109,12 @@ export function Question({ question, returnUrl }: QuestionProps) {
           questionId: question.id,
           questionOptionId: currentOptionSelected,
         });
-        sendAnswerToMixpanel(question, "FIRST_ORDER");
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
       }
 
       if (currentQuestionStep === QuestionStep.PickPercentage) {
-        sendAnswerToMixpanel(question, "SECOND_ORDER");
         handleSaveQuestion({
           ...answerState,
           percentageGiven: optionPercentage,
@@ -162,6 +160,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           questionOptions={question.questionOptions}
           randomOptionId={question.questionOptions[random]?.id}
           percentage={optionPercentage}
+          question={question}
         />
       </QuestionCard>
 
@@ -174,6 +173,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           randomQuestionMarker={randomQuestionMarker}
           percentage={optionPercentage}
           setPercentage={setOptionPercentage}
+          question={question}
         />
       </div>
     </div>

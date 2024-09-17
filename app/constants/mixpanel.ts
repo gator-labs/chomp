@@ -18,11 +18,11 @@ export const MIX_PANEL_EVENTS = {
   LOGIN_SUCCEED: "LoginSucceed",
   DECK_STARTED: "DeckStarted",
   QUESTION_LOADED: "QuestionLoaded",
-  FIRST_ORDER_SELECTED: "FirstOrderCompleted",
-  SECOND_ORDER_SELECTED: "SecondOrderCompleted",
+  FIRST_ORDER_SELECTED: "QuestionFirstOrderAnswerSelected",
+  SECOND_ORDER_SELECTED: "QuestionSecondOrderAnswerSelected",
   QUESTION_ANSWERED_SUCCEEDED: "QuestionAnsweredSucceeded",
   QUESTION_ANSWERED_FAILED: "QuestionAnsweredFailed",
-  DECK_COMPLETED: "DeckCompleted",
+  DECK_COMPLETED: "DeckCompletionSucceeded",
 } as const;
 
 export const MIX_PANEL_METADATA = {

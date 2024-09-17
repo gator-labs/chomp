@@ -1,6 +1,8 @@
 "use client";
+import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
 import { QuestionAnswer, QuestionType } from "@prisma/client";
 import { AnswerResult } from "../AnswerResult/AnswerResult";
+import { Question } from "../Deck/Deck";
 import { QuestionStep } from "../Question/Question";
 import { RadioInput } from "../RadioInput/RadioInput";
 
@@ -22,6 +24,7 @@ type QuestionCardContentProps = {
   randomOptionPercentage?: number;
   className?: string;
   showRevealData?: boolean;
+  question: Question;
 };
 
 export function QuestionCardContent({
@@ -36,6 +39,7 @@ export function QuestionCardContent({
   randomOptionPercentage,
   className,
   showRevealData = false,
+  question,
 }: QuestionCardContentProps) {
   if (type === "BinaryQuestion") {
     return <></>;
@@ -54,7 +58,10 @@ export function QuestionCardContent({
               questionAnswers: qo.questionAnswers || [],
             })) ?? []
           }
-          onOptionSelected={(value) => onOptionSelected(+value)}
+          onOptionSelected={(value) => {
+            onOptionSelected(+value);
+            sendAnswerToMixpanel(question, "FIRST_ORDER");
+          }}
           value={optionSelectedId?.toString()}
           randomOptionPercentage={randomOptionPercentage}
           randomOptionId={randomOptionId}
@@ -72,7 +79,7 @@ export function QuestionCardContent({
             <AnswerResult
               index={index}
               answerText={qo.option}
-              percentage={qo.id === randomOptionId ? percentage ?? 0 : 0}
+              percentage={qo.id === randomOptionId ? (percentage ?? 0) : 0}
               handleRatioChange={
                 qo.id === randomOptionId ? onPercentageChanged : undefined
               }

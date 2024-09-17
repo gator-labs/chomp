@@ -197,7 +197,6 @@ export function Deck({
             questionOptionId: currentOptionSelected,
           },
         ]);
-        sendAnswerToMixpanel(question, "FIRST_ORDER", deckId, deckVariant);
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
@@ -214,7 +213,7 @@ export function Deck({
             response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
-          sendAnswerToMixpanel(question, "SECOND_ORDER", deckId, deckVariant);
+
           return newResponses;
         });
       }
@@ -254,16 +253,24 @@ export function Deck({
     }
   }, [question]);
 
+  useEffect(() => {
+    if (
+      questions.length === 0 ||
+      hasReachedEnd ||
+      currentQuestionIndex === -1
+    ) {
+      sendToMixpanel(MIX_PANEL_EVENTS.DECK_COMPLETED, {
+        [MIX_PANEL_METADATA.DECK_ID]: deckId,
+        [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
+      });
+    }
+  }, [questions.length, hasReachedEnd, currentQuestionIndex]);
+
   if (questions.length === 0 || hasReachedEnd || currentQuestionIndex === -1) {
     const percentOfAnsweredQuestions =
       (numberOfAnsweredQuestions / questions.length) * 100;
 
     const variant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
-
-    sendToMixpanel(MIX_PANEL_EVENTS.DECK_COMPLETED, {
-      [MIX_PANEL_METADATA.DECK_ID]: deckId,
-      [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
-    });
 
     return (
       <div className="flex flex-col justify-evenly h-full pb-4">
@@ -307,6 +314,7 @@ export function Deck({
               questionOptions={question.questionOptions}
               randomOptionId={question.questionOptions[random]?.id}
               percentage={optionPercentage}
+              question={question}
             />
           </QuestionCard>
         </div>
@@ -321,6 +329,9 @@ export function Deck({
         percentage={optionPercentage}
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
+        question={question}
+        deckId={deckId}
+        deckVariant={deckVariant || ""}
       />
       {currentQuestionStep !== QuestionStep.PickPercentage && (
         <div
