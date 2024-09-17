@@ -485,7 +485,7 @@ export default function DeckForm({
       <div className="mb-4">
         <label className="block mb-1">Campaign (optional)</label>
         <select
-          className="text-gray-800"
+          className="text-gray-800 w-full"
           {...register("campaignId", {
             setValueAs: (v) => (!v ? null : parseInt(v)),
           })}

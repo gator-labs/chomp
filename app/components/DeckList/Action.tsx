@@ -38,7 +38,7 @@ const Action = ({ row }: Props) => {
   }, [isModalOpen]);
 
   const handleCopyPublicDeckLink = async () => {
-    await copyTextToClipboard(`application/decks/${row.original.id}`);
+    await copyTextToClipboard(`${window.location.origin}/application/decks/${row.original.id}`);
     infoToast("Deck link copied to clipboard!");
   };
   return (
