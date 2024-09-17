@@ -9,7 +9,7 @@ type StatsCardProps = {
 
 export function StatsCard({ title, icon, value }: StatsCardProps) {
   return (
-    <div className="flex flex-row justify-between items-end text-white rounded-lg p-4 bg-gray-800 border-[1px] border-gray-600 h-[70px]">
+    <div className="flex flex-row justify-between items-end text-white rounded-lg p-4 bg-gray-700 border-[1px] border-gray-500 h-[70px]">
       <div className="flex gap-x-4 ">
         <div>{icon}</div>
         <div className="flex flex-col gap-1">

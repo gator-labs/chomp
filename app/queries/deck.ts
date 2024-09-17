@@ -33,13 +33,14 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).subtract(1, "day").toDate();
+  const currentDayEnd = dayjs(new Date()).toDate();
   const payload = await getJwtPayload();
 
   if (!payload?.sub) return null;
 
   const dailyDeck = await prisma.deck.findFirst({
+    orderBy: [{ date: "asc" }],
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
       deckQuestions: {
@@ -168,12 +169,24 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     deck.deckQuestions.some((dq) =>
       isBefore(dq.question.revealAtDate!, new Date()),
     )
-  )
-    return {
-      questions: [],
-      id: deck.id,
-      date: deck.date,
-    };
+  ) {
+    if (deck?.deckQuestions.length > 0) {
+      return {
+        questions: deck?.deckQuestions,
+        id: deck.id,
+        date: deck.date,
+        dailyDeckActive:
+          !!deck.activeFromDate && !isAfter(deck.activeFromDate, new Date()),
+        name: deck.deck,
+      };
+    } else {
+      return {
+        questions: [],
+        id: deck.id,
+        date: deck.date,
+      };
+    }
+  }
 
   const questions = mapQuestionFromDeck(deck);
 
@@ -252,8 +265,8 @@ export async function getDecks() {
 }
 
 export async function getDailyAnsweredQuestions() {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).subtract(1, "day").toDate();
+  const currentDayEnd = dayjs(new Date()).toDate();
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -261,6 +274,7 @@ export async function getDailyAnsweredQuestions() {
   }
 
   const dailyDeck = await prisma.deck.findFirst({
+    orderBy: [{ date: "asc" }],
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
       deckQuestions: {

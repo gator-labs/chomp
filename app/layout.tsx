@@ -7,8 +7,12 @@ import { Analytics } from "@vercel/analytics/react";
 import "react-spring-bottom-sheet/dist/style.css";
 import LinkProgressBar from "./components/LinkProgressBar/LinkProgressBar";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
+import { ClaimProvider } from "./providers/ClaimProvider";
 import ReactQueryProvider from "./providers/ReactQueryProvider";
+import { RevealContextProvider } from "./providers/RevealProvider";
 import { ToastProvider } from "./providers/ToastProvider";
+import { getCurrentUser } from "./queries/user";
+import { getBonkBalance } from "./utils/solana";
 
 export const viewport: Viewport = {
   minimumScale: 1,
@@ -30,18 +34,24 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const isDemo = process.env.ENVIRONMENT === "demo";
 
+  const user = await getCurrentUser();
+
+  const address = user?.wallets[0].address || "";
+
+  const bonkBalance = await getBonkBalance(address);
+
   return (
     <html lang="en" className={`${satoshi.variable} h-full`}>
-      <body className="bg-gray-950 text-white h-full">
+      <body className="bg-gray-900 text-white h-full">
         {isDemo && (
-          <div className="fixed top-0 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-gray-950 rounded-b-lg">
+          <div className="fixed top-0 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-gray-900 rounded-b-lg">
             Demo mode
           </div>
         )}
@@ -49,7 +59,11 @@ export default function RootLayout({
         <ReactQueryProvider>
           <DynamicProvider>
             <ToastProvider>
-              <MobileChromeDetector>{children}</MobileChromeDetector>
+              <ClaimProvider>
+                <RevealContextProvider bonkBalance={bonkBalance}>
+                  <MobileChromeDetector>{children}</MobileChromeDetector>
+                </RevealContextProvider>
+              </ClaimProvider>
             </ToastProvider>
           </DynamicProvider>
         </ReactQueryProvider>

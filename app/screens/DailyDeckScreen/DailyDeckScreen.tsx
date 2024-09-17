@@ -34,12 +34,7 @@ const DailyDeckScreen = ({
       <div className="flex flex-col h-full">
         <main className="flex-grow overflow-y-auto mb-2 h-full w-full max-w-lg mx-auto">
           <div className="flex flex-col h-full px-4">
-            <Disabled
-              disabled={!!questions?.length}
-              toastMessage="Please complete this Daily Deck first ✨"
-            >
-              <Navbar {...navBarData} />
-            </Disabled>
+            <Navbar {...navBarData} />
 
             <div className="py-3">
               <DailyDeckTitle date={date ?? new Date()} />
@@ -60,13 +55,7 @@ const DailyDeckScreen = ({
             </div>
           </div>
         </main>
-        <Disabled
-          className="after:opacity-90 after:bg-gray-850"
-          disabled={!!questions?.length}
-          toastMessage="Please complete this Daily Deck first ✨"
-        >
-          <TabNavigation isAdmin={isAdmin} />
-        </Disabled>
+        <TabNavigation isAdmin={isAdmin} />
       </div>
     </>
   );

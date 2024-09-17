@@ -27,7 +27,7 @@ export async function Profile({
   return (
     <div
       className={cn(
-        "flex items-center py-4 rounded-2xl bg-gray-950 gap-4",
+        "flex items-center py-4 rounded-2xl bg-gray-900 gap-4",
         className,
       )}
     >
@@ -46,7 +46,7 @@ export async function Profile({
             </span>
           )}
           <Link href="/application/settings">
-            <span className="font-normal text-sm text-purple-500">
+            <span className="font-normal text-sm text-secondary">
               {"Edit profile"}
             </span>
           </Link>
@@ -54,11 +54,11 @@ export async function Profile({
         <div className="flex gap-2">
           <div>
             <Button
-              className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-gray-800 !w-fit"
+              className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-gray-700 !w-fit"
               isPill
               size="small"
             >
-              <span className="font-normal ">{formatAddress(address)}</span>
+              <span className="font-normal">{formatAddress(address)}</span>
               {editAllowed && (
                 <div className="p-[3.5px]">
                   <PenIcon width={12} height={12} fill="#999999" />

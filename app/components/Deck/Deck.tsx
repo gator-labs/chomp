@@ -150,10 +150,10 @@ export function Deck({
     handleNextIndex();
   }, [question, handleNextIndex, setDeckResponse]);
 
-  const handleOnDurationRanOut = async () => {
+  const handleOnDurationRanOut = useCallback(async () => {
     await markQuestionAsTimedOut(question.id);
     setIsTimeOutPopUpVisible(true);
-  };
+  }, [question, handleNextIndex, setDeckResponse]);
 
   const handleSkipQuestion = async () => {
     await markQuestionAsSkipped(question.id);
@@ -260,8 +260,9 @@ export function Deck({
     );
   }
 
+  // get random option for 2nd order question.
   const randomQuestionMarker =
-    question.type === QuestionType.MultiChoice
+    question?.type === QuestionType.MultiChoice
       ? getAlphaIdentifier(random)
       : question.questionOptions[random].option;
 
@@ -280,7 +281,7 @@ export function Deck({
             question={question.question}
             type={question.type}
             viewImageSrc={question.imageUrl}
-            onDurationRanOut={() => handleOnDurationRanOut()}
+            onDurationRanOut={handleOnDurationRanOut}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
@@ -305,12 +306,14 @@ export function Deck({
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
       />
-      <div
-        className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
-        onClick={() => handleSkipQuestion()}
-      >
-        Skip question
-      </div>
+      {currentQuestionStep !== QuestionStep.PickPercentage && (
+        <div
+          className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
+          onClick={() => handleSkipQuestion()}
+        >
+          Skip question
+        </div>
+      )}
 
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>

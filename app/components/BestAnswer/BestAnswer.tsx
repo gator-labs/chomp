@@ -13,7 +13,7 @@ export function BestAnswer({
   children,
 }: BestAnswerProps) {
   return (
-    <div className="bg-gray-800 p-4 rounded">
+    <div className="bg-gray-700 p-4 rounded">
       <div className=" text-base text-white mb-2">Best Answer</div>
       {children}
       {optionSelected && (
@@ -21,7 +21,7 @@ export function BestAnswer({
           <div>You answered</div>
           <div
             className={classNames(
-              "text-gray-850 bg-aqua py-1 px-2 rounded-full",
+              "text-gray-800 bg-aqua py-1 px-2 rounded-full",
               {
                 "bg-red": bestOption !== optionSelected,
               },

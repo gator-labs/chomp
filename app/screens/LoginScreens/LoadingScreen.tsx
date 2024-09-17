@@ -3,7 +3,7 @@ import { DotLottiePlayer } from "@dotlottie/react-player";
 
 const LoadingScreen = () => {
   return (
-    <main className="fixed top-0 right-0 bottom-0 left-0 flex justify-center items-center h-dvh bg-gray-850">
+    <main className="fixed top-0 right-0 bottom-0 left-0 flex justify-center items-center h-dvh bg-gray-800">
       <div>
         <div className="rounded-full overflow-hidden flex justify-center items-center m-6">
           <DotLottiePlayer
