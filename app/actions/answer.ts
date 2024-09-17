@@ -178,14 +178,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
 
       await Promise.all(fungibleAssetRevealTasks);
 
-      sendAnswerStatusToMixpanel(
-        {
-          questionId: request.questionId,
-          deckId: request.deckId ?? 0,
-          questionOptionId: request.questionOptionId ?? 0,
-        },
-        "SUCCEEDED",
-      );
+      sendAnswerStatusToMixpanel(request, "SUCCEEDED");
     });
   } catch (error) {
     const answerError = new AnswerError(
@@ -193,14 +186,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       { cause: error },
     );
     Sentry.captureException(answerError);
-    sendAnswerStatusToMixpanel(
-      {
-        questionId: request.questionId,
-        deckId: request.deckId ?? 0,
-        questionOptionId: request.questionOptionId ?? 0,
-      },
-      "FAILED",
-    );
+    sendAnswerStatusToMixpanel(request, "FAILED");
     release();
     throw error;
   }
@@ -285,14 +271,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       });
 
       await updateStreak(userId);
-      sendAnswerStatusToMixpanel(
-        {
-          questionId: request.questionId,
-          deckId: request.deckId ?? 0,
-          questionOptionId: request.questionOptionId ?? 0,
-        },
-        "SUCCEEDED",
-      );
+      sendAnswerStatusToMixpanel(request, "SUCCEEDED");
     });
 
     revalidatePath("/application");
@@ -302,14 +281,7 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       { cause: error },
     );
     Sentry.captureException(answerError);
-    sendAnswerStatusToMixpanel(
-      {
-        questionId: request.questionId,
-        deckId: request.deckId ?? 0,
-        questionOptionId: request.questionOptionId,
-      },
-      "FAILED",
-    );
+    sendAnswerStatusToMixpanel(request, "FAILED");
     release();
     throw error;
   }

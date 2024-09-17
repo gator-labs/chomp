@@ -250,14 +250,7 @@ export function Deck({
 
   useEffect(() => {
     if (question) {
-      sendToMixpanel(MIX_PANEL_EVENTS.QUESTION_LOADED, {
-        [MIX_PANEL_METADATA.DECK_ID]: deckId,
-        [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
-        [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: question.question,
-        [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: question.questionOptions,
-        [MIX_PANEL_METADATA.QUESTION_HAS_IMAGE]: !!question.imageUrl,
-      });
+      sendAnswerToMixpanel(question, "QUESTION_LOADED", deckId, deckVariant);
     }
   }, [question]);
 

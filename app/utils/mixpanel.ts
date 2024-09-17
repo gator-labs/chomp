@@ -1,17 +1,20 @@
 import sendToMixpanel from "@/lib/mixpanel";
+import { SaveQuestionRequest } from "../actions/answer";
 import { Question } from "../components/Question/Question";
 import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "../constants/mixpanel";
 
 export function sendAnswerToMixpanel(
   question: Question,
-  order: string,
+  event: string,
   deckId?: number,
   deckVariant?: string,
 ) {
   sendToMixpanel(
-    order === "FIRST_ORDER"
+    event === "FIRST_ORDER"
       ? MIX_PANEL_EVENTS.FIRST_ORDER_SELECTED
-      : MIX_PANEL_EVENTS.SECOND_ORDER_SELECTED,
+      : event === "SECOND_ORDER"
+        ? MIX_PANEL_EVENTS.SECOND_ORDER_SELECTED
+        : MIX_PANEL_EVENTS.QUESTION_LOADED,
     {
       [MIX_PANEL_METADATA.QUESTION_ID]: question.id,
       [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: question.questionOptions,
@@ -25,11 +28,7 @@ export function sendAnswerToMixpanel(
 }
 
 export function sendAnswerStatusToMixpanel(
-  request: {
-    questionId: number;
-    deckId: number;
-    questionOptionId: number;
-  },
+  request: SaveQuestionRequest,
   status: "SUCCEEDED" | "FAILED",
 ) {
   sendToMixpanel(

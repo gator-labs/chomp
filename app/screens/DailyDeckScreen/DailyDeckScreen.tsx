@@ -38,7 +38,7 @@ const DailyDeckScreen = ({
         [MIX_PANEL_METADATA.IS_DAILY_DECK]: true,
       });
     }
-  }, [questions, id]);
+  }, [id]);
 
   return (
     <>
