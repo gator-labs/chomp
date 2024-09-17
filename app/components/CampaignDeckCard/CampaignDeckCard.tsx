@@ -1,7 +1,5 @@
 "use client";
 
-import { revealQuestions } from "@/app/actions/chompResult";
-import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaim } from "@/app/providers/ClaimProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { getTimeString } from "@/app/utils/dateUtils";
@@ -150,39 +148,40 @@ const CampaignDeckCard = ({
   );
 
   return (
-    <Wrapper
-      onClick={() => {
-        if (buttonText === "Reveal results") {
-          openRevealModal({
-            reveal: async ({ burnTx, revealQuestionIds }: RevealProps) => {
-              await revealQuestions(revealQuestionIds!, burnTx);
+    <Link
+      // temporary added comment due the breakpoint. Link to the task: https://linear.app/gator/issue/PROD-300/adjust-redirect-behavior-after-user-reveals-from-campaigndetail
+      // onClick={() => {
+      //   if (buttonText === "Reveal results") {
+      //     openRevealModal({
+      //       reveal: async ({ burnTx, revealQuestionIds }: RevealProps) => {
+      //         await revealQuestions(revealQuestionIds!, burnTx);
 
-              closeRevealModal();
-            },
-            amount: revealableQuestions.reduce(
-              (curr, acc) => curr + acc.revealTokenAmount,
-              0,
-            ),
-            questionIds: revealableQuestions.map((q) => q.id),
-            questions: revealableQuestions.map((q) => q.question),
-            dialogLabel: "Reveal deck",
-          });
-        }
+      //         closeRevealModal();
+      //       },
+      //       amount: revealableQuestions.reduce(
+      //         (curr, acc) => curr + acc.revealTokenAmount,
+      //         0,
+      //       ),
+      //       questionIds: revealableQuestions.map((q) => q.id),
+      //       questions: revealableQuestions.map((q) => q.question),
+      //       dialogLabel: "Reveal deck",
+      //     });
+      //   }
 
-        if (buttonText === "Claim your reward") {
-          openClaimModal({
-            description: "Would you like to claim all rewards in this deck?",
-            title: "Claim reward",
-            chompResults: chompResults.filter(
-              (cr) =>
-                cr.result === ResultType.Revealed &&
-                !!cr.rewardTokenAmount &&
-                Number(cr.rewardTokenAmount) > 0,
-            ),
-          });
-        }
-      }}
-      href={`/application/decks/${deckId}`}
+      //   if (buttonText === "Claim your reward") {
+      //     openClaimModal({
+      //       description: "Would you like to claim all rewards in this deck?",
+      //       title: "Claim reward",
+      //       chompResults: chompResults.filter(
+      //         (cr) =>
+      //           cr.result === ResultType.Revealed &&
+      //           !!cr.rewardTokenAmount &&
+      //           Number(cr.rewardTokenAmount) > 0,
+      //       ),
+      //     });
+      //   }
+      // }}
+      href={`/application/history`}
       className={cn(
         "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
         {
@@ -256,7 +255,7 @@ const CampaignDeckCard = ({
             />
           </div>
         )}
-    </Wrapper>
+    </Link>
   );
 };
 
