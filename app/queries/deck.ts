@@ -268,6 +268,7 @@ export async function getDailyAnsweredQuestions() {
   }
 
   const dailyDeck = await prisma.deck.findFirst({
+    orderBy: [{ date: "asc" }],
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
       deckQuestions: {
