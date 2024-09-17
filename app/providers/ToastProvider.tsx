@@ -1,29 +1,17 @@
 "use client";
-import { ReactNode, createContext, useContext, useEffect } from "react";
-import toast, { ToastOptions, Toaster, useToaster } from "react-hot-toast";
-import AnimatedTimer from "../components/AnimatedTimer/AnimatedTimer";
-import { ErrorIcon } from "../components/Icons/ToastIcons/ErrorIcon";
+import { createContext, ReactNode, useContext } from "react";
+import { ErrorIcon } from "react-hot-toast";
+import { toast, Toaster, ToasterProps } from "sonner";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
+import { RemoveIcon } from "../components/Icons/ToastIcons/RemoveIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
 import { SuccessIcon } from "../components/Icons/ToastIcons/SuccessIcon";
 
 type ToastContextType = {
-  successToast: (
-    message: string,
-    description?: string,
-    options?: ToastOptions,
-  ) => void;
-  infoToast: (
-    message: string,
-    description?: string,
-    options?: ToastOptions,
-  ) => void;
-  errorToast: (
-    message: string,
-    description?: string,
-    options?: ToastOptions,
-  ) => void;
-  defaultToast: (message: string, options?: ToastOptions) => void;
+  successToast: (message: string, description?: string) => void;
+  infoToast: (message: string, description?: string) => void;
+  errorToast: (message: string, description?: string) => void;
+  defaultToast: (message: string) => void;
   promiseToast: <T>(
     promise: Promise<T>,
     msgs: {
@@ -31,9 +19,7 @@ type ToastContextType = {
       success: string;
       error: string;
       description?: string;
-      isChompLoader?: boolean;
     },
-    options?: ToastOptions,
   ) => Promise<T>;
 };
 
@@ -47,123 +33,82 @@ export const useToast = () => {
   return context;
 };
 
-const toastOptions: ToastOptions = {
-  style: {
-    borderRadius: "8px",
-    backgroundColor: "#1B1B1B",
-    color: "#fff",
-    padding: "16px",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-    width: "358px",
-    minWidth: "358px",
-    border: "1px solid #A3A3EC",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "16px",
-  },
+const toastOptions: ToasterProps = {
   position: "top-center",
-  duration: 5000,
+  expand: true,
+  gap: 14,
+  duration: 4000,
+  style: {
+    width: "358px",
+    height: "75px",
+    border: "none",
+    background: "#1B1B1B",
+    padding: "0",
+    animation: "fade 0.3s",
+    borderRadius: "8px",
+  },
 };
 
-// Unified Toast Layout Function
 const toastLayout = (
   IconComponent: React.ElementType,
   message: string,
   description?: string,
-  id?: string,
 ) => (
-  <div style={{ ...toastOptions.style }}>
-    <div className="flex items-center gap-2">
-      <IconComponent height={26} width={26} />
-      <div className="flex flex-col">
-        <h4 className="text-sm font-bold text-left">{message}</h4>
-        {description && (
-          <p className="text-xs text-left text-gray-400">{description}</p>
-        )}
-      </div>
+  <div className="flex gap-6 items-center text-gray-50 justify-between p-6 border border-[#AFADEB] rounded-[8px] w-[358px] h-[75] bg-[#1B1B1B] relative overflow-hidden">
+    <div>
+      <IconComponent />
     </div>
-    {id && <AnimatedTimer id={id} />}
+    <div>
+      <h4>{message}</h4>
+      {description && <p>{description}</p>}
+    </div>
+    <div className="cursor-pointer" onClick={() => toast.dismiss()}>
+      <RemoveIcon />
+    </div>
+    <div className="absolute bottom-0 h-[5px] left-0 bg-[#8784E1] animate-loadingLine"></div>
   </div>
 );
 
-const successToastLayout = (
-  message: string,
-  id: string,
-  description?: string,
-) => toastLayout(SuccessIcon, message, description, id);
+const successToastLayout = (message: string, description?: string) =>
+  toastLayout(SuccessIcon, message, description);
 
-const infoToastLayout = (message: string, id: string, description?: string) =>
-  toastLayout(InfoIcon, message, description, id);
+const infoToastLayout = (message: string, description?: string) =>
+  toastLayout(InfoIcon, message, description);
 
-const errorToastLayout = (message: string, id: string, description?: string) =>
-  toastLayout(ErrorIcon, message, description, id);
+const errorToastLayout = (message: string, description?: string) =>
+  toastLayout(ErrorIcon, message, description);
 
-const defaultToastLayout = (message: string, id: string) =>
-  toastLayout(SuccessIcon, message, undefined, id); // Using SuccessIcon as a placeholder for default
-
-// Loading Toast Layout without AnimatedTimer
-const loadingToastLayout = (message: string, description?: string) => (
-  <div style={{ ...toastOptions.style }}>
-    <div className="flex items-center gap-2">
-      <SpinnerIcon height={26} width={26} />
-      <div className="flex flex-col">
-        <h4 className="text-sm font-bold text-left">{message}</h4>
-        {description && (
-          <p className="text-xs text-left text-gray-400">{description}</p>
-        )}
-      </div>
-    </div>
-  </div>
-);
+const defaultToastLayout = (message: string) =>
+  toastLayout(SuccessIcon, message);
 
 export const ToastProvider = ({ children }: { children: ReactNode }) => {
-  const { toasts } = useToaster();
-
-  useEffect(() => {
-    const toastsToRemove = toasts.filter((toast) => !toast.visible);
-
-    toastsToRemove.map((toastToRemove) => toast.remove(toastToRemove.id));
-  }, [toasts]);
-
-  const successToast = (
-    message: string,
-    description?: string,
-    options?: ToastOptions,
-  ) => {
-    toast.custom((t) => successToastLayout(message, t.id, description), {
+  const successToast = (message: string, description?: string) => {
+    const toastId = toast(successToastLayout(message, description), {
       ...toastOptions,
-      ...options,
     });
+
+    // Automatically dismiss the toast after the duration specified in toastOptions
+    setTimeout(() => {
+      toast.dismiss(toastId);
+    }, toastOptions.duration);
   };
 
-  const infoToast = (
-    message: string,
-    description?: string,
-    options?: ToastOptions,
-  ) => {
-    toast.custom((t) => infoToastLayout(message, t.id, description), {
-      ...toastOptions,
-      ...options,
-    });
+  const infoToast = (message: string, description?: string) => {
+    toast(infoToastLayout(message, description), toastOptions);
   };
 
-  const errorToast = (
-    message: string,
-    description?: string,
-    options?: ToastOptions,
-  ) => {
-    toast.custom((t) => errorToastLayout(message, t.id, description), {
+  const errorToast = (message: string, description?: string) => {
+    const toastId = toast(errorToastLayout(message, description), {
       ...toastOptions,
-      ...options,
     });
+
+    setTimeout(() => {
+      toast.dismiss(toastId);
+    }, toastOptions.duration);
   };
 
-  const defaultToast = (message: string, options?: ToastOptions) => {
-    toast.custom((t) => defaultToastLayout(message, t.id), {
-      ...toastOptions,
-      ...options,
-    });
+  const defaultToast = (message: string) => {
+    toast(defaultToastLayout(message), toastOptions);
   };
 
   const promiseToast = <T,>(
@@ -173,47 +118,24 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       success: string;
       error: string;
       description?: string;
-      isChompLoader?: boolean;
     },
-    options?: ToastOptions,
   ) => {
     // Show the loading toast
-    const toastId = toast.custom(
-      () => loadingToastLayout(msgs.loading, msgs.description),
-      options,
-    );
+    const toastId = toast(toastLayout(SpinnerIcon, msgs.loading), toastOptions);
 
     // Handle the promise resolution or rejection
     promise
       .then(() => {
-        toast.custom(
-          (t) =>
-            successToastLayout(
-              msgs.success,
-              t.id, // Ensure we pass the correct id to use AnimatedTimer
-              msgs.description,
-            ),
-          {
-            id: toastId,
-            ...toastOptions,
-            ...options,
-          },
-        );
+        // Dismiss the current toast
+        toast.dismiss(toastId);
+        // Show success toast
+        toast(successToastLayout(msgs.success, msgs.description), toastOptions);
       })
       .catch(() => {
-        toast.custom(
-          (t) =>
-            errorToastLayout(
-              msgs.error,
-              t.id, // Ensure we pass the correct id to use AnimatedTimer
-              msgs.description,
-            ),
-          {
-            id: toastId,
-            ...toastOptions,
-            ...options,
-          },
-        );
+        // Dismiss the current toast
+        toast.dismiss(toastId);
+        // Show error toast
+        toast(errorToastLayout(msgs.error, msgs.description), toastOptions);
       });
 
     return promise;
@@ -230,7 +152,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
       }}
     >
       {children}
-      <Toaster />
+      <Toaster {...toastOptions} />
     </ToastContext.Provider>
   );
 };
