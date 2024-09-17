@@ -11,7 +11,6 @@ import {
 import { isAfter, isBefore } from "date-fns";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
-import { authGuard } from "../utils/auth";
 
 export async function getActiveAndInactiveCampaigns() {
   return prisma.campaign.findMany({
@@ -38,9 +37,9 @@ export async function getCampaigns() {
 }
 
 export async function getCampaign(id: number) {
-  const payload = await authGuard();
+  const jwt = await getJwtPayload();
 
-  const userId = payload.sub;
+  const userId = jwt?.sub;
 
   return prisma.campaign.findUnique({
     where: {
