@@ -14,6 +14,9 @@ import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc'
+
 
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
@@ -30,6 +33,7 @@ export default function DeckForm({
   campaigns,
   action,
 }: DeckFormProps) {
+  dayjs.extend(utc);
   const { errorToast } = useToast();
 
   const {
@@ -42,6 +46,7 @@ export default function DeckForm({
   } = useForm({
     resolver: zodResolver(deckSchema),
     defaultValues: deck || {
+      date: dayjs().utc().startOf('day').toDate(),
       questions: [
         {
           type: QuestionType.MultiChoice,
