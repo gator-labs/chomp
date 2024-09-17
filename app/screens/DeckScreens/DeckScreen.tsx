@@ -58,9 +58,9 @@ const DeckScreen = ({
             <Button
               size="lg"
               variant="outline"
-              onClick={() => router.push("/application")}
+              onClick={() => router.back()}
             >
-              Back to homepage
+              Back
             </Button>
           </div>
         </div>
