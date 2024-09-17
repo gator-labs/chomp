@@ -259,8 +259,8 @@ export async function getDecks() {
 }
 
 export async function getDailyAnsweredQuestions() {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).subtract(1, "day").toDate();
+  const currentDayEnd = dayjs(new Date()).toDate();
   const payload = await getJwtPayload();
 
   if (!payload) {
