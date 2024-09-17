@@ -9,10 +9,8 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <html>
-      <body className="bg-gray-950 h-[100%]">
-        <ErrorBoundary error={error} reset={reset} />
-      </body>
-    </html>
+    <div className="bg-gray-950 h-[100%]">
+      <ErrorBoundary error={error} reset={reset} />
+    </div>
   );
 }

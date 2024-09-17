@@ -14,6 +14,9 @@ import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc'
+
 
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
@@ -30,6 +33,7 @@ export default function DeckForm({
   campaigns,
   action,
 }: DeckFormProps) {
+  dayjs.extend(utc);
   const { errorToast } = useToast();
 
   const {
@@ -60,6 +64,8 @@ export default function DeckForm({
   const [selectedCampaignId, setSelectedCampaignId] = useState(
     deck?.campaignId || undefined,
   );
+
+  const [previousDate, setPreviousDate] = useState<Date | undefined | null>(deck ? deck.date : undefined);
 
   const file = watch("file")?.[0];
   const deckImage = watch("imageUrl");
@@ -455,7 +461,17 @@ export default function DeckForm({
             <DatePicker
               showIcon
               selected={field.value}
-              onChange={field.onChange}
+              onChange={(date) => {
+                // If the new date is different from the previous date
+                if (!previousDate || dayjs(date).format('YYYY-MM-DD') !== dayjs(previousDate).format('YYYY-MM-DD')) {
+                  const newDate = dayjs(date).utc().startOf('day').toDate();  // Set time to 00:00 UTC
+                  field.onChange(newDate);  // Set the date with UTC midnight time
+                  setPreviousDate(newDate); // Update the previous date
+                } else {
+                  // If only the time has changed, keep the original date
+                  field.onChange(date);
+                }
+              }}
               placeholderText="Daily deck date"
               showTimeInput
               dateFormat="Pp"
