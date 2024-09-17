@@ -17,7 +17,6 @@ import { TextInput } from "../TextInput/TextInput";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc'
 
-dayjs.extend(utc);
 
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
@@ -34,6 +33,7 @@ export default function DeckForm({
   campaigns,
   action,
 }: DeckFormProps) {
+  dayjs.extend(utc);
   const { errorToast } = useToast();
 
   const {
