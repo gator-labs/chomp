@@ -38,7 +38,7 @@ export async function revealQuestion(
     nftAddress,
     nftType,
   );
-  return questions ? questions[0] : null;
+  return questions;
 }
 
 export async function revealDecks(
@@ -202,6 +202,17 @@ export async function revealQuestions(
 
   release();
   revalidatePath("/application");
+
+  return {
+    revealedQuestions: revealableQuestionIds.length,
+    correctQuestions: questionRewards.filter(
+      (reward) => reward.rewardAmount > 0,
+    ).length,
+    claimableAmount: questionRewards.reduce(
+      (acc, curr) => (acc += curr.rewardAmount),
+      0,
+    ),
+  };
 }
 
 export async function dismissQuestion(questionId: number) {
