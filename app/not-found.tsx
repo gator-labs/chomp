@@ -1,8 +1,8 @@
 "use client";
+import { ArrowLeft, House } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
 import { Button } from "./components/ui/button";
-import { House, ArrowLeft } from 'lucide-react';
 
 const NotFound = () => {
   const router = useRouter();
@@ -30,7 +30,6 @@ const NotFound = () => {
 
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
         <Button
-          size="lg"
           onClick={() => {
             router.push("/application");
           }}
@@ -40,7 +39,6 @@ const NotFound = () => {
           <House />
         </Button>
         <Button
-          size="lg"
           variant="outline"
           onClick={() => {
             router.back();
