@@ -345,17 +345,13 @@ export function Deck({
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-secondary">
-              Are you still there?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-white">
+            <AlertDialogTitle>Are you still there?</AlertDialogTitle>
+            <AlertDialogDescription>
               Your time&apos;s up! To prevent you from missing out on the next
               question, click proceed to continue.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <Button onClick={handleNoAnswer} size="lg">
-            Proceed
-          </Button>
+          <Button onClick={handleNoAnswer}>Proceed</Button>
         </AlertDialogContent>
       </AlertDialog>
     </div>

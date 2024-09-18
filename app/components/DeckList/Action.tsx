@@ -2,6 +2,7 @@
 
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { useToast } from "@/app/providers/ToastProvider";
+import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { Row } from "@tanstack/react-table";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -19,7 +20,7 @@ const Action = ({ row }: Props) => {
     useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const { successToast } = useToast();
+  const { infoToast, successToast } = useToast();
 
   useEffect(() => {
     const fetchTotalNumberOfAnswersInDeck = async () => {
@@ -36,6 +37,10 @@ const Action = ({ row }: Props) => {
     if (isModalOpen) fetchTotalNumberOfAnswersInDeck();
   }, [isModalOpen]);
 
+  const handleCopyPublicDeckLink = async () => {
+    await copyTextToClipboard(`${window.location.origin}/application/decks/${row.original.id}`);
+    infoToast("Deck link copied to clipboard!");
+  };
   return (
     <div className="flex gap-2">
       <Modal
@@ -75,8 +80,15 @@ const Action = ({ row }: Props) => {
           </div>
         </div>
       </Modal>
+      <Button
+        variant="primary"
+        isFullWidth={false}
+        onClick={handleCopyPublicDeckLink}
+      >
+        Deck link
+      </Button>
       <Link href={`/admin/decks/${row.original.id}`}>
-        <Button variant="primary" isFullWidth={false}>
+        <Button variant="primary" isFullWidth={true} className="h-full">
           Edit
         </Button>
       </Link>
