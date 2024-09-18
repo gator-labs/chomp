@@ -177,9 +177,8 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       }
 
       await Promise.all(fungibleAssetRevealTasks);
-
-      sendAnswerStatusToMixpanel(request, "SUCCEEDED");
     });
+    sendAnswerStatusToMixpanel(request, "SUCCEEDED");
   } catch (error) {
     sendAnswerStatusToMixpanel(request, "FAILED");
     const answerError = new AnswerError(
@@ -271,8 +270,9 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       });
 
       await updateStreak(userId);
-      sendAnswerStatusToMixpanel(request, "SUCCEEDED");
     });
+
+    sendAnswerStatusToMixpanel(request, "SUCCEEDED");
 
     revalidatePath("/application");
   } catch (error) {
