@@ -89,6 +89,7 @@ export async function getDailyDeck() {
 
   return {
     questions,
+    campaignId: dailyDeck?.campaignId,
     id: dailyDeck.id,
     date: dailyDeck.date,
   };
@@ -179,6 +180,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       questions: [],
       id: deck.id,
       date: deck.date,
+      campaignId: deck.campaignId
     };
   }
 
@@ -188,6 +190,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     questions,
     id: deck.id,
     date: deck.date,
+    campaignId: deck.campaignId,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
