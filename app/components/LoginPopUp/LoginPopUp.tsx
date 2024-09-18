@@ -55,7 +55,7 @@ const LoginPopUp = ({ isOpen, onClose, userId }: LoginPopUpProps) => {
           </div>
         </div>
         <p className="text-sm mb-6">
-          Get started by connecting wallet to begin answer questions
+          Get started by connecting wallet to begin answering questions.
         </p>
 
         <DynamicConnectButton
