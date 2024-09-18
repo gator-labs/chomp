@@ -6,8 +6,9 @@ import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "../constants/mixpanel";
 export function sendAnswerToMixpanel(
   question: Question,
   event: string,
-  deckId?: number,
-  deckVariant?: string,
+  deckId?: number | undefined,
+  deckVariant?: string | undefined,
+  selected?: string | number | undefined,
 ) {
   sendToMixpanel(
     event === "FIRST_ORDER"
@@ -22,6 +23,9 @@ export function sendAnswerToMixpanel(
       ...(deckId && { [MIX_PANEL_METADATA.DECK_ID]: deckId }),
       ...(deckVariant && {
         [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
+      }),
+      ...(selected && {
+        [MIX_PANEL_METADATA.QUESTION_ANSWER_SELECTED]: selected,
       }),
     },
   );

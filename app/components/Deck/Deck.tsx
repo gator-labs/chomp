@@ -179,7 +179,14 @@ export function Deck({
           ...prev,
           { questionId: question.id, questionOptionId: number },
         ]);
-        sendAnswerToMixpanel(question, "FIRST_ORDER", deckId, deckVariant);
+        sendAnswerToMixpanel(
+          question,
+          "FIRST_ORDER",
+          deckId,
+          deckVariant,
+          question.questionOptions.find((option) => option.id === number)
+            ?.option,
+        );
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;

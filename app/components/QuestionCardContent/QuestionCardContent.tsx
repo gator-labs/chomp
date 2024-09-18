@@ -60,7 +60,14 @@ export function QuestionCardContent({
           }
           onOptionSelected={(value) => {
             onOptionSelected(+value);
-            if (question) sendAnswerToMixpanel(question, "FIRST_ORDER");
+            if (question)
+              sendAnswerToMixpanel(
+                question,
+                "FIRST_ORDER",
+                undefined,
+                undefined,
+                questionOptions?.find((qo) => qo.id === +value)?.option,
+              );
           }}
           value={optionSelectedId?.toString()}
           randomOptionPercentage={randomOptionPercentage}

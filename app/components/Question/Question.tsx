@@ -100,7 +100,14 @@ export function Question({ question, returnUrl }: QuestionProps) {
           question.questionOptions.findIndex((option) => option.id === number),
         );
         setAnswerState({ questionId: question.id, questionOptionId: number });
-        sendAnswerToMixpanel(question, "FIRST_ORDER");
+        sendAnswerToMixpanel(
+          question,
+          "FIRST_ORDER",
+          undefined,
+          undefined,
+          question.questionOptions.find((option) => option.id === number)
+            ?.option,
+        );
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;

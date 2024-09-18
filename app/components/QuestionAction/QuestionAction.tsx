@@ -103,6 +103,7 @@ export function QuestionAction({
                     "SECOND_ORDER",
                     deckId,
                     deckVariant,
+                    value,
                   );
               }}
               labelLeft="No one"
@@ -159,6 +160,7 @@ export function QuestionAction({
                     "SECOND_ORDER",
                     deckId,
                     deckVariant,
+                    value,
                   );
               }}
               labelLeft="No one"
