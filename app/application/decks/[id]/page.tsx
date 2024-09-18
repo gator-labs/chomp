@@ -1,5 +1,6 @@
 import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
+import { getCampaignImage } from "@/app/queries/campaign";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
 import { getNextDeckId } from "@/app/queries/home";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
@@ -15,6 +16,8 @@ export default async function Page({ params: { id } }: PageProps) {
 
   const campaignId = Number(deck?.campaignId) || null
 
+  const campaignData = await getCampaignImage(campaignId ?? 0)
+
   const nextDeckId = await getNextDeckId(currentDeckId, campaignId);
 
   return (
@@ -26,6 +29,7 @@ export default async function Page({ params: { id } }: PageProps) {
           currentDeckId={deck.id}
           nextDeckId={nextDeckId}
           questions={deck.questions}
+          campaignImage={campaignData?.image ?? ''}
           deckInfo={{
             ...deck.deckInfo!,
             totalNumberOfQuestions: deck.questions.length,

@@ -82,6 +82,22 @@ export async function getCampaign(id: number) {
   });
 }
 
+export async function getCampaignImage(id: number) {
+  const payload = await authGuard();
+
+  return prisma.campaign.findUnique({
+    where: {
+      id,
+      isVisible: true,
+      isActive: true,
+    },
+    select: {
+      image: true,
+    },
+  });
+}
+
+
 export async function getAllCampaigns() {
   const payload = await getJwtPayload();
 
