@@ -22,13 +22,13 @@ const PreviewDeckCard = ({
   return (
     <div
       className={cn(
-        "w-full py-6 px-4 bg-gray-700 rounded-lg relative h-full flex flex-col justify-between",
+        "w-full py-6 px-4 bg-gray-700 rounded-lg relative  min-h-[385px] flex flex-col justify-between",
         className,
       )}
     >
-      <div className="flex flex-col gap-4">
-        <h1 className="text-[#8C96ED] text-lg">{heading}</h1>
-        {!!description && <p className="text-sm">{description}</p>}
+      <div className="flex flex-col gap-[20px]">
+        <h1 className="text-[#8C96ED] font-medium text-[24px]">{heading}</h1>
+        {!!description && <p className="text-[14px]">{description}</p>}
       </div>
       <div className="flex items-center gap-4">
         {!!imageUrl && (
@@ -43,9 +43,9 @@ const PreviewDeckCard = ({
           </div>
         )}
 
-        <div className="flex flex-col gap-2 h-[333px]">
-          {!!footer && <p className="text-sm">{footer}</p>}
-          <p className="text-sm">
+        <div className="flex flex-col gap-2">
+          {!!footer && <p className="text-[14px]">{footer}</p>}
+          <p className="text-[14px]">
             Total {totalNumberOfQuestions} card
             {totalNumberOfQuestions > 1 && "s"}
           </p>
