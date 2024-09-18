@@ -1,5 +1,6 @@
 "use client";
 
+import { sendAnswerStatusToMixpanel } from "@/app/utils/mixpanel";
 import { useRouter } from "next-nprogress-bar";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -29,14 +30,23 @@ export default function Page() {
       return setMessage("percentageGiven parameter is required");
     }
 
-    saveQuestion({
+    const answer = {
       questionId: +questionId,
       questionOptionId: +questionOptionId,
       percentageGiven: +percentageGiven,
       percentageGivenForAnswerId: percentageGivenForAnswerId
         ? +percentageGivenForAnswerId
         : undefined,
-    }).then(() => router.push("/application/history"));
+    };
+
+    saveQuestion(answer)
+      .then(() => {
+        sendAnswerStatusToMixpanel(answer, "SUCCEEDED");
+        router.push("/application/history");
+      })
+      .catch(() => {
+        sendAnswerStatusToMixpanel(answer, "FAILED");
+      });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);

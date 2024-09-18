@@ -2,7 +2,10 @@
 import { saveQuestion, SaveQuestionRequest } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
-import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
+import {
+  sendAnswerStatusToMixpanel,
+  sendAnswerToMixpanel,
+} from "@/app/utils/mixpanel";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
@@ -76,7 +79,13 @@ export function Question({ question, returnUrl }: QuestionProps) {
   const handleSaveQuestion = useCallback(
     (answer: SaveQuestionRequest | undefined = undefined) => {
       setCurrentQuestionStep(undefined);
-      saveQuestion(answer ?? answerState);
+      saveQuestion(answer ?? answerState)
+        .then(() => {
+          sendAnswerStatusToMixpanel(answer ?? answerState, "SUCCEEDED");
+        })
+        .catch(() => {
+          sendAnswerStatusToMixpanel(answer ?? answerState, "FAILED");
+        });
     },
     [setCurrentQuestionStep, answerState],
   );

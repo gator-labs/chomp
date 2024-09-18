@@ -178,9 +178,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
 
       await Promise.all(fungibleAssetRevealTasks);
     });
-    sendAnswerStatusToMixpanel(request, "SUCCEEDED");
   } catch (error) {
-    sendAnswerStatusToMixpanel(request, "FAILED");
     const answerError = new AnswerError(
       `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,
       { cause: error },
@@ -272,11 +270,8 @@ export async function saveQuestion(request: SaveQuestionRequest) {
       await updateStreak(userId);
     });
 
-    sendAnswerStatusToMixpanel(request, "SUCCEEDED");
-
     revalidatePath("/application");
   } catch (error) {
-    sendAnswerStatusToMixpanel(request, "FAILED");
     const answerError = new AnswerError(
       `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,
       { cause: error },

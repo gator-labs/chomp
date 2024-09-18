@@ -9,7 +9,10 @@ import {
 import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
-import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
+import {
+  sendAnswerStatusToMixpanel,
+  sendAnswerToMixpanel,
+} from "@/app/utils/mixpanel";
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
@@ -221,7 +224,12 @@ export function Deck({
 
       setIsSubmitting(true);
 
-      await answerQuestion({ ...deckResponse[0], deckId });
+      try {
+        await answerQuestion({ ...deckResponse[0], deckId });
+        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "SUCCEEDED");
+      } catch (error) {
+        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "FAILED");
+      }
 
       handleNextIndex();
     },
