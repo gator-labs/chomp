@@ -14,7 +14,7 @@ import prisma from "../services/prisma";
 
 export async function getActiveAndInactiveCampaigns() {
   return prisma.campaign.findMany({
-    orderBy: [{ name: "asc" }],
+    orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
   });
 }
 

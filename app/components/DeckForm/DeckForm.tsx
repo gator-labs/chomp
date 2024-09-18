@@ -46,7 +46,6 @@ export default function DeckForm({
   } = useForm({
     resolver: zodResolver(deckSchema),
     defaultValues: deck || {
-      date: dayjs().utc().startOf('day').toDate(),
       questions: [
         {
           type: QuestionType.MultiChoice,
@@ -62,9 +61,8 @@ export default function DeckForm({
   });
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
-  const [selectedCampaignId, setSelectedCampaignId] = useState(
-    deck?.campaignId || undefined,
-  );
+
+  const [previousDate, setPreviousDate] = useState<Date | undefined | null>(deck ? deck.date : undefined);
 
   const file = watch("file")?.[0];
   const deckImage = watch("imageUrl");
@@ -99,7 +97,7 @@ export default function DeckForm({
       ...data,
       questions,
       tagIds: selectedTagIds,
-      campaignId: selectedCampaignId,
+      campaignId: data.campaignId,
       id: deck?.id,
       imageUrl,
       file: undefined,
@@ -139,14 +137,6 @@ export default function DeckForm({
         <div className="text-red">{errors.deck?.message}</div>
       </div>
       <div className="my-10">
-        <h3 className="text-xl mb-3 font-bold">
-          Deck Info (DO NOT USE IN PRODUCTION)
-        </h3>
-        <div className="mb-3">
-          <label className="block mb-1">Heading (optional)</label>
-          <TextInput variant="secondary" {...register("heading")} />
-          <div className="text-red">{errors.heading?.message}</div>
-        </div>
         <div className="mb-3">
           <label className="block mb-1">Image URL (optional)</label>
           {!!deckPreviewUrl && (
@@ -460,7 +450,17 @@ export default function DeckForm({
             <DatePicker
               showIcon
               selected={field.value}
-              onChange={field.onChange}
+              onChange={(date) => {
+                // If the new date is different from the previous date
+                if (!previousDate || dayjs(date).format('YYYY-MM-DD') !== dayjs(previousDate).format('YYYY-MM-DD')) {
+                  const newDate = dayjs(date).utc().startOf('day').toDate();  // Set time to 00:00 UTC
+                  field.onChange(newDate);  // Set the date with UTC midnight time
+                  setPreviousDate(newDate); // Update the previous date
+                } else {
+                  // If only the time has changed, keep the original date
+                  field.onChange(date);
+                }
+              }}
               placeholderText="Daily deck date"
               showTimeInput
               dateFormat="Pp"
@@ -500,20 +500,18 @@ export default function DeckForm({
       </div>
       <div className="mb-4">
         <label className="block mb-1">Campaign (optional)</label>
-        <div className="flex gap-2">
+        <select
+          className="text-gray-800 w-full"
+          {...register("campaignId", {
+            setValueAs: (v) => (!v ? null : parseInt(v)),
+          })}
+        >
           {campaigns.map((campaign) => (
-            <Tag
-              tag={campaign.name}
-              onSelected={() =>
-                setSelectedCampaignId((prev) =>
-                  prev === campaign.id ? undefined : campaign.id,
-                )
-              }
-              isSelected={selectedCampaignId === campaign.id}
-              key={campaign.id}
-            />
+            <option value={Number(campaign.id)} key={campaign.id}>
+              {campaign.name}
+            </option>
           ))}
-        </div>
+        </select>
       </div>
       <Button
         variant="primary"

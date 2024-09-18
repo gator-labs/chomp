@@ -6,6 +6,7 @@ import Action from "./Action";
 import { DeckRowType } from "./DeckList";
 
 export const columns: ColumnDef<DeckRowType>[] = [
+  { header: "ID", accessorKey: "id" },
   { accessorKey: "deck", header: "Deck" },
   {
     header: "Token",
