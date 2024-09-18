@@ -35,6 +35,7 @@ export const MIX_PANEL_METADATA = {
   QUESTION_TEXT: "QuestionText",
   QUESTION_ANSWER_OPTIONS: "QuestionAnswerOptions",
   QUESTION_ANSWER_SELECTED: "QuestionAnswerSelected",
+  QUESTION_ANSWER_SELECTED_PERCENTAGE: "QuestionAnswerSelectedPercentage",
   QUESTION_HAS_IMAGE: "QuestionHasImage",
   TRANSACTION_SIGNATURE: "TransactionSignature",
   CLAIMED_AMOUNT: "ClaimedAmount",

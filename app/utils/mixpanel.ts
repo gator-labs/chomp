@@ -42,7 +42,9 @@ export function sendAnswerStatusToMixpanel(
     {
       [MIX_PANEL_METADATA.QUESTION_ID]: request.questionId,
       [MIX_PANEL_METADATA.DECK_ID]: request.deckId,
-      [MIX_PANEL_METADATA.QUESTION_ANSWER_OPTIONS]: request.questionOptionId,
+      [MIX_PANEL_METADATA.QUESTION_ANSWER_SELECTED]: request.questionOptionId,
+      [MIX_PANEL_METADATA.QUESTION_ANSWER_SELECTED_PERCENTAGE]:
+        request.percentageGiven,
     },
   );
 }
