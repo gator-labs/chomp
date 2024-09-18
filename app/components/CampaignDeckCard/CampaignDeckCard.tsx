@@ -15,6 +15,7 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import GiftIcon from "../Icons/GiftIcon";
 import HalfEyeIcon from "../Icons/HalfEyeIcon";
 import HourGlassIcon from "../Icons/HourGlassIcon";
+import { getDeckPath, HISTORY_PATH } from "@/lib/urls";
 
 type CampaignDeckCardProps = {
   deckId: number;
@@ -41,12 +42,12 @@ const CampaignDeckCard = ({
 }: CampaignDeckCardProps) => {
   const currentDate = new Date();
   const isDeckReadyToReveal = isAfter(currentDate, revealAtDate);
-  const isDeckStarted = isAfter(currentDate, activeFromDate);
+  const isDeckActive = isAfter(currentDate, activeFromDate);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
   const { openClaimModal } = useClaim();
 
   const timeString = getTimeString(
-    isDeckStarted ? revealAtDate : activeFromDate,
+    isDeckActive ? revealAtDate : activeFromDate,
   );
 
   const answeredQuestionsInPercentage =
@@ -65,7 +66,7 @@ const CampaignDeckCard = ({
     : "";
 
   let timeLabel = `Expiring in ${timeString}`;
-  if (!isDeckStarted) {
+  if (!isDeckActive) {
     timeLabel = `Starting in ${timeString}`;
   } else if (answeredQuestionsInPercentage === 100 && !isDeckReadyToReveal) {
     timeLabel = `Reveal in ${timeString}`;
@@ -83,7 +84,7 @@ const CampaignDeckCard = ({
   }
 
   let buttonText = "Continue";
-  if (!isDeckStarted) {
+  if (!isDeckActive) {
     buttonText = "Wait to start";
   } else if (answeredQuestionsInPercentage === 0 && !isDeckReadyToReveal) {
     buttonText = "Start";
@@ -101,7 +102,7 @@ const CampaignDeckCard = ({
     buttonText = "Reveal results";
   }
 
-  const icon = !isDeckStarted ? (
+  const icon = !isDeckActive ? (
     <HourGlassIcon />
   ) : chompResults.length === deckQuestions.length &&
     (claimedAmount === 0 || claimableAmount > 0) ? (
@@ -130,7 +131,7 @@ const CampaignDeckCard = ({
   });
 
   const buttonIconVisible =
-    (isDeckStarted &&
+    (isDeckActive &&
       answeredQuestionsInPercentage !== 100 &&
       !isDeckReadyToReveal) ||
     (isDeckReadyToReveal && chompResults.length !== deckQuestions.length) ||
@@ -147,6 +148,8 @@ const CampaignDeckCard = ({
     (dq) => !chompResults.map((cr) => cr.questionId).includes(dq.id),
   );
 
+  const linkPath = isDeckReadyToReveal ? HISTORY_PATH : getDeckPath(deckId)
+  
   return (
     <Link
       // temporary added comment due the breakpoint. Link to the task: https://linear.app/gator/issue/PROD-300/adjust-redirect-behavior-after-user-reveals-from-campaigndetail
@@ -181,7 +184,7 @@ const CampaignDeckCard = ({
       //     });
       //   }
       // }}
-      href={`/application/history`}
+      href={linkPath}
       className={cn(
         "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
         {
