@@ -3,6 +3,7 @@
 import { useClaim } from "@/app/providers/ClaimProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { getTimeString } from "@/app/utils/dateUtils";
+import { getDeckPath, HISTORY_PATH } from "@/lib/urls";
 import { cn } from "@/lib/utils";
 import { ChompResult, Question, ResultType } from "@prisma/client";
 import { isAfter } from "date-fns";
@@ -45,13 +46,13 @@ const CampaignDeckCard = ({
 }: CampaignDeckCardProps) => {
   const currentDate = new Date();
   const isDeckReadyToReveal = isAfter(currentDate, revealAtDate);
-  const isDeckStarted = isAfter(currentDate, activeFromDate);
+  const isDeckActive = isAfter(currentDate, activeFromDate);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
   const { openClaimModal } = useClaim();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const timeString = getTimeString(
-    isDeckStarted ? revealAtDate : activeFromDate,
+    isDeckActive ? revealAtDate : activeFromDate,
   );
 
   const answeredQuestionsInPercentage =
@@ -70,7 +71,7 @@ const CampaignDeckCard = ({
     : "";
 
   let timeLabel = `Expiring in ${timeString}`;
-  if (!isDeckStarted) {
+  if (!isDeckActive) {
     timeLabel = `Starting in ${timeString}`;
   } else if (
     answeredQuestionsInPercentage === 100 &&
@@ -94,7 +95,7 @@ const CampaignDeckCard = ({
   }
 
   let buttonText = !!userId ? "Continue" : "";
-  if (!isDeckStarted) {
+  if (!isDeckActive) {
     buttonText = "Wait to start";
   } else if (answeredQuestionsInPercentage === 0 && !isDeckReadyToReveal) {
     buttonText = "Start";
@@ -112,7 +113,7 @@ const CampaignDeckCard = ({
     buttonText = "Reveal results";
   }
 
-  const icon = !isDeckStarted ? (
+  const icon = !isDeckActive ? (
     <HourGlassIcon />
   ) : chompResults.length === deckQuestions.length &&
     (claimedAmount === 0 || claimableAmount > 0) &&
@@ -143,7 +144,7 @@ const CampaignDeckCard = ({
   });
 
   const buttonIconVisible =
-    (isDeckStarted &&
+    (isDeckActive &&
       answeredQuestionsInPercentage !== 100 &&
       !isDeckReadyToReveal) ||
     (isDeckReadyToReveal && chompResults.length !== deckQuestions.length) ||
@@ -158,6 +159,8 @@ const CampaignDeckCard = ({
   const revealableQuestions = deckQuestions.filter(
     (dq) => !chompResults.map((cr) => cr.questionId).includes(dq.id),
   );
+
+  const linkPath = isDeckReadyToReveal ? HISTORY_PATH : getDeckPath(deckId);
 
   return (
     <>

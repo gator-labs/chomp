@@ -2,11 +2,13 @@
 
 import { DailyDeckTitle } from "@/app/components/DailyDeckTitle/DailyDeckTitle";
 import { Deck, Question } from "@/app/components/Deck/Deck";
-import Disabled from "@/app/components/Disabled/Disabled";
 import { Navbar, NavbarProps } from "@/app/components/Navbar/Navbar";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import { TabNavigation } from "@/app/components/TabNavigation/TabNavigation";
+import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import { getAnsweredQuestionsStatus } from "@/app/utils/question";
+import sendToMixpanel from "@/lib/mixpanel";
+import { useEffect } from "react";
 
 interface Props {
   nextDeckId?: number;
@@ -28,6 +30,15 @@ const DailyDeckScreen = ({
   isAdmin,
 }: Props) => {
   const deckVariant = getAnsweredQuestionsStatus(percentOfAnsweredQuestions);
+
+  useEffect(() => {
+    if (questions?.length && id) {
+      sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
+        [MIX_PANEL_METADATA.DECK_ID]: id,
+        [MIX_PANEL_METADATA.IS_DAILY_DECK]: true,
+      });
+    }
+  }, [id]);
 
   return (
     <>

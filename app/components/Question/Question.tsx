@@ -2,6 +2,10 @@
 import { saveQuestion, SaveQuestionRequest } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
+import {
+  sendAnswerStatusToMixpanel,
+  sendAnswerToMixpanel,
+} from "@/app/utils/mixpanel";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
@@ -23,7 +27,7 @@ type Option = {
   isLeft: boolean;
 };
 
-type Question = {
+export type Question = {
   id: number;
   durationMiliseconds: number;
   question: string;
@@ -75,7 +79,13 @@ export function Question({ question, returnUrl }: QuestionProps) {
   const handleSaveQuestion = useCallback(
     (answer: SaveQuestionRequest | undefined = undefined) => {
       setCurrentQuestionStep(undefined);
-      saveQuestion(answer ?? answerState);
+      saveQuestion(answer ?? answerState)
+        .then(() => {
+          sendAnswerStatusToMixpanel(answer ?? answerState, "SUCCEEDED");
+        })
+        .catch(() => {
+          sendAnswerStatusToMixpanel(answer ?? answerState, "FAILED");
+        });
     },
     [setCurrentQuestionStep, answerState],
   );
@@ -90,6 +100,14 @@ export function Question({ question, returnUrl }: QuestionProps) {
           question.questionOptions.findIndex((option) => option.id === number),
         );
         setAnswerState({ questionId: question.id, questionOptionId: number });
+        sendAnswerToMixpanel(
+          question,
+          "FIRST_ORDER",
+          undefined,
+          undefined,
+          question.questionOptions.find((option) => option.id === number)
+            ?.option,
+        );
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
@@ -158,6 +176,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           questionOptions={question.questionOptions}
           randomOptionId={question.questionOptions[random]?.id}
           percentage={optionPercentage}
+          question={question}
         />
       </QuestionCard>
 
@@ -170,6 +189,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           randomQuestionMarker={randomQuestionMarker}
           percentage={optionPercentage}
           setPercentage={setOptionPercentage}
+          question={question}
         />
       </div>
     </div>
