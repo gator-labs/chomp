@@ -34,7 +34,7 @@ const PreviewDeckCard = ({
         {!!imageUrl && (
           <div className="relative w-[77px] h-[76px]">
             <Image
-              src='/avatars/0.png'
+              src={imageUrl}
               alt=""
               fill
               objectFit="cover"
