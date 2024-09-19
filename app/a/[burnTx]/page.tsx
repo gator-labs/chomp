@@ -10,7 +10,6 @@ export async function generateMetadata(
     { params: {burnTx} }: Props,
   ): Promise<Metadata> {
     let images = [getOgShareClaimAllPath(burnTx)]
-    console.log("burnTx", burnTx)
    
     return {
       openGraph: {

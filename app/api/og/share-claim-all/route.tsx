@@ -13,32 +13,29 @@ export async function GET(request: Request) {
         },
     });
 
-    console.log("results", results)
     const bonkClaimedRaw = results.reduce((sum, item) => sum + (item.rewardTokenAmount?.toNumber() || 0), 0);
     const bonkClaimed = Math.round(bonkClaimedRaw).toLocaleString("en-US")
     const numCorrect = results.filter(item => item.rewardTokenAmount && item.rewardTokenAmount?.toNumber() > 0).length.toLocaleString("en-US");
     const numAnswered = results.length.toLocaleString("en-US");
 
-    console.log('bonkClaimed:', bonkClaimed);
-    console.log('numCorrect:', numCorrect);
-    console.log('numAnswered:', numAnswered);
-
     return new ImageResponse(
         (
-          <div
-            tw="h-full w-full flex bg-[#F3F2EC] p-[19px]"
-          >
-            <div tw="text-2xl flex flex-col text-black">
-              <p>Burn tx: {burnTx}</p>
-              <p>Won: {bonkClaimed} $BONK</p>
-              <p>Correct: {numCorrect}</p>
-              <p>Answered: {numAnswered}</p>
+            <div tw="h-full w-full flex flex-col bg-[#F3F2EC] p-[19px]">
+                <div tw="flex flex-row">
+                    I just won {bonkClaimed} $BONK from playing Chomp
+                </div>
+                <div tw="flex flex-row">
+                    <div tw="flex">{numAnswered} questions answered</div>
+                    <div tw="flex">{numCorrect} correct answers</div>
+                </div>
+                <div tw="flex flex-row">
+                    Stop FOMOing and join the party. Flex your intelligence and win $BONK at app.chomp.games
+                </div>
             </div>
-          </div>
         ),
         {
-          width: 1200,
-          height: 630,
+            width: 1200,
+            height: 630,
         },
       );
 }
