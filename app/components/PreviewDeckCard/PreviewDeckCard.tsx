@@ -9,6 +9,7 @@ type PreviewDeckCardProps = {
   footer: string | null;
   imageUrl: string | null;
   totalNumberOfQuestions: number;
+  campaignImage: string;
 };
 
 const PreviewDeckCard = ({
@@ -16,6 +17,7 @@ const PreviewDeckCard = ({
   heading,
   description,
   footer,
+  campaignImage,
   imageUrl,
   totalNumberOfQuestions,
 }: PreviewDeckCardProps) => {
@@ -31,10 +33,10 @@ const PreviewDeckCard = ({
         {!!description && <p className="text-[14px]">{description}</p>}
       </div>
       <div className="flex items-center gap-4">
-        {!!imageUrl && (
-          <div className="relative w-[77px] h-[76px]">
+        {(imageUrl || campaignImage) && (
+          <div className="relative w-[77px] h-[77px]">
             <Image
-              src={imageUrl}
+              src={imageUrl || campaignImage} // use imageUrl first, fallback to campaignImage
               alt=""
               fill
               objectFit="cover"

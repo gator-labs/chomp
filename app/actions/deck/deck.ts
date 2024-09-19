@@ -341,6 +341,11 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
             imageUrl: question.imageUrl,
             durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
+            deckQuestions: {
+              create: {
+                deckId: deck.id,
+              },
+            },
             questionOptions: {
               createMany: {
                 data: question.questionOptions,
@@ -353,12 +358,8 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             },
             campaignId: validatedFields.data.campaignId,
           },
-        });
-
-        await tx.deckQuestion.create({
-          data: {
-            deckId: deck.id,
-            questionId: res.id,
+          include: {
+            deckQuestions: true,
           },
         });
       }
@@ -367,7 +368,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !!q.id,
       );
 
-      const currentDeckQuestions = await prisma.deckQuestion.findMany({
+      const currentDeckQuestions = await tx.deckQuestion.findMany({
         where: {
           deckId: data.id,
         },
@@ -432,6 +433,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         }
       }
 
+      // Currently a no-op, but may be needed after deck deletion logic is re-enabled.
       if (
         existingDeckQuestions.length === 0 &&
         currentDeckQuestions.length === 0
@@ -439,14 +441,16 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         return;
       }
 
-      await tx.deckQuestion.deleteMany({
-        where: {
-          deckId: deck.id,
-          questionId: {
-            notIn: existingDeckQuestions.map((q) => q.id) as number[],
-          },
-        },
-      });
+      // Temporarily deactivate deck deletion until this logic is rock solid.
+      // I saw an issue in testing.
+      // await tx.deckQuestion.deleteMany({
+      //   where: {
+      //     deckId: deck.id,
+      //     questionId: {
+      //       notIn: existingDeckQuestions.map((q) => q.id) as number[],
+      //     },
+      //   },
+      // });
     },
     { timeout: 20000 },
   );
