@@ -5,6 +5,8 @@ import { deckSchema } from "@/app/schemas/deck";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Campaign, QuestionType, Tag as TagType, Token } from "@prisma/client";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
@@ -14,9 +16,6 @@ import { Button } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
-import dayjs from "dayjs";
-import utc from 'dayjs/plugin/utc'
-
 
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
@@ -60,12 +59,16 @@ export default function DeckForm({
     name: "questions",
   });
 
+  const questions = watch("questions");
+
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
   const [selectedCampaignId, setSelectedCampaignId] = useState(
     deck?.campaignId || undefined,
   );
 
-  const [previousDate, setPreviousDate] = useState<Date | undefined | null>(deck ? deck.date : undefined);
+  const [previousDate, setPreviousDate] = useState<Date | undefined | null>(
+    deck ? deck.date : undefined,
+  );
 
   const file = watch("file")?.[0];
   const deckImage = watch("imageUrl");
@@ -348,16 +351,18 @@ export default function DeckForm({
                     ))}
                 </div>
 
-                <Button
-                  variant="secondary"
-                  type="button"
-                  onClick={() => {
-                    remove(questionIndex);
-                  }}
-                  className="mb-3"
-                >
-                  Remove
-                </Button>
+                {questions.length > 1 && (
+                  <Button
+                    variant="secondary"
+                    type="button"
+                    onClick={() => {
+                      remove(questionIndex);
+                    }}
+                    className="mb-3"
+                  >
+                    Remove
+                  </Button>
+                )}
               </fieldset>
             );
           }
@@ -463,9 +468,13 @@ export default function DeckForm({
               selected={field.value}
               onChange={(date) => {
                 // If the new date is different from the previous date
-                if (!previousDate || dayjs(date).format('YYYY-MM-DD') !== dayjs(previousDate).format('YYYY-MM-DD')) {
-                  const newDate = dayjs(date).utc().startOf('day').toDate();  // Set time to 00:00 UTC
-                  field.onChange(newDate);  // Set the date with UTC midnight time
+                if (
+                  !previousDate ||
+                  dayjs(date).format("YYYY-MM-DD") !==
+                    dayjs(previousDate).format("YYYY-MM-DD")
+                ) {
+                  const newDate = dayjs(date).utc().startOf("day").toDate(); // Set time to 00:00 UTC
+                  field.onChange(newDate); // Set the date with UTC midnight time
                   setPreviousDate(newDate); // Update the previous date
                 } else {
                   // If only the time has changed, keep the original date
