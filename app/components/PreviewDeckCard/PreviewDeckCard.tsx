@@ -40,7 +40,7 @@ const PreviewDeckCard = ({
               alt=""
               fill
               objectFit="cover"
-              className="rounded-[8px] overflow-hidden"
+              className="rounded-full overflow-hidden"
             />
           </div>
         )}
