@@ -39,9 +39,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }), isLoading && "cursor-not-allowed opacity-75")}
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        disabled={isLoading || props.disabled} // Disable the button if loading
         {...props}
       >
         {isLoading ? (
