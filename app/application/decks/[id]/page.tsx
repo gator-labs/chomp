@@ -15,7 +15,7 @@ export default async function Page({ params: { id } }: PageProps) {
 
   const campaignId = Number(deck?.campaignId) || null
 
-  const campaignData = await getCampaignImage(campaignId ?? 0)
+  const campaignData = campaignId ? await getCampaignImage(campaignId) : null
 
   const nextDeckId = await getNextDeckId(currentDeckId, campaignId);
 
