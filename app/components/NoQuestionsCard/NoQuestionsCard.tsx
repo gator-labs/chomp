@@ -45,9 +45,8 @@ export function NoQuestionsCard({
           style={{ zIndex: 1 }}
         />
       </div>
-
       <Button
-        onClick={() => window.open('https://rewards.taskon.xyz/campaign/detail/370083059', '_blank')}
+        onClick={() => window.open(process.env.REWARD_TASKON_URL, '_blank')}
         className="text-[14px] gap-2"
       >
         Share & Earn More
