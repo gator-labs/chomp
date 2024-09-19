@@ -355,7 +355,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           },
         });
 
-        await prisma.deckQuestion.create({
+        await tx.deckQuestion.create({
           data: {
             deckId: deck.id,
             questionId: res.id,
@@ -430,6 +430,13 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             question.questionOptions,
           );
         }
+      }
+
+      if (
+        existingDeckQuestions.length === 0 &&
+        currentDeckQuestions.length === 0
+      ) {
+        return;
       }
 
       await tx.deckQuestion.deleteMany({

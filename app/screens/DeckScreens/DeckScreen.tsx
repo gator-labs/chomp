@@ -6,6 +6,8 @@ import { useState } from "react";
 import { CircleArrowRight } from 'lucide-react';
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
+import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
+import sendToMixpanel from "@/lib/mixpanel";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -48,8 +50,15 @@ const DeckScreen = ({
           />
           <div className="flex flex-col gap-4 py-4">
             <Button
-              onClick={() => setIsDeckStarted(true)}
-              className="text-[14px] gap-2"
+              variant="primary"
+              className="h-50 w-full"
+              onClick={() => {
+                sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
+                  [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,
+                  [MIX_PANEL_METADATA.IS_DAILY_DECK]: false,
+                });
+                setIsDeckStarted(true);
+              }}
             >
               Begin deck
               <CircleArrowRight />
