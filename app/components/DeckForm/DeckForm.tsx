@@ -513,6 +513,7 @@ export default function DeckForm({
             setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         >
+          <option value="">None</option>
           {campaigns.map((campaign) => (
             <option value={Number(campaign.id)} key={campaign.id}>
               {campaign.name}
