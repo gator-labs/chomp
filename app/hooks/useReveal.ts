@@ -96,6 +96,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     type: NftType;
   }>();
   const [isLoading, setIsLoading] = useState(false);
+  const [processingTransaction, setProcessingTransaction] = useState(false);
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
   );
@@ -224,6 +225,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
   const burnAndReveal = async (ignoreNft?: boolean) => {
+    setProcessingTransaction(true)
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
       (chr) => chr.questionId!,
@@ -286,6 +288,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
           resetReveal();
           return;
+        }finally{
+          setProcessingTransaction(false)
         }
 
         const chompResults = await createQuestionChompResults(
@@ -393,6 +397,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     onSetReveal,
     resetReveal,
     cancelReveal: resetReveal,
+    processingTransaction,
     questionIds,
     questions: reveal?.questions,
     isLoading,

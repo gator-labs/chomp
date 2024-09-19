@@ -9,6 +9,7 @@ type PreviewDeckCardProps = {
   footer: string | null;
   imageUrl: string | null;
   totalNumberOfQuestions: number;
+  campaignImage: string;
 };
 
 const PreviewDeckCard = ({
@@ -16,34 +17,35 @@ const PreviewDeckCard = ({
   heading,
   description,
   footer,
+  campaignImage,
   imageUrl,
   totalNumberOfQuestions,
 }: PreviewDeckCardProps) => {
   return (
     <div
       className={cn(
-        "w-full py-6 px-4 bg-gray-700 rounded-lg relative  min-h-[385px] flex flex-col justify-between",
+        "min-h-[480px] w-full max-w-[480px] py-6 px-4 bg-gray-700 rounded-lg relative flex flex-col justify-between",
         className,
       )}
     >
-      <div className="flex flex-col gap-[20px]">
-        <h1 className="text-[#8C96ED] font-medium text-[24px]">{heading}</h1>
+      <div className="flex flex-col gap-5">
+        <h1 className="text-purple-200 font-medium text-[24px]">{heading}</h1>
         {!!description && <p className="text-[14px]">{description}</p>}
       </div>
       <div className="flex items-center gap-4">
-        {!!imageUrl && (
+        {(imageUrl || campaignImage) && (
           <div className="relative w-[77px] h-[77px]">
             <Image
-              src={imageUrl}
+              src={imageUrl || campaignImage} // use imageUrl first, fallback to campaignImage
               alt=""
               fill
               objectFit="cover"
-              className="rounded-lg overflow-hidden"
+              className="rounded-full overflow-hidden"
             />
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {!!footer && <p className="text-[14px]">{footer}</p>}
           <p className="text-[14px]">
             Total {totalNumberOfQuestions} card

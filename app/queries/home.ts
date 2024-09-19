@@ -41,6 +41,7 @@ export type DeckExpiringSoon = {
   deck: string;
   revealAtDate?: Date;
   date?: Date;
+  campaignId: number;
   answerCount?: number;
   revealAtAnswerCount?: number;
   image?: string;
@@ -79,21 +80,29 @@ export async function getDailyDecksForExpiringSection(): Promise<
   return decks;
 }
 
-export async function getNextDeckId(): Promise<number | undefined> {
+export async function getNextDeckId(
+  deckId: number,
+  campaignId: number | null,
+): Promise<number | undefined> {
   const payload = await authGuard();
 
-  const nextDeckId = await getNextDeckIdQuery(payload.sub);
+  const nextDeckId = await getNextDeckIdQuery(payload.sub, deckId, campaignId);
 
   return nextDeckId;
 }
 
-async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
+async function getNextDeckIdQuery(
+  userId: string,
+  deckId: number,
+  campaignId: number | null,
+): Promise<number | undefined> {
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
     select
     d."id",
     d."deck",
     d."revealAtDate",
     d."revealAtAnswerCount",
+    d."campaignId",
     c."image"
     from public."Deck" d
     full join public."Campaign" c on c."id" = d."campaignId"
@@ -137,10 +146,18 @@ async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
             join public."DeckQuestion" dq on dq."questionId" = q."id"
             where dq."deckId" = d."id" and qa."userId" = ${userId}
         )
-      limit 1
   `;
 
-  return deckExpiringSoon?.[0]?.id;
+  const filteredDecks = deckExpiringSoon.filter((deck) => deck.id !== deckId);
+
+  const campaignMatch = filteredDecks.find((deck) => deck.campaignId === campaignId);
+
+  if (campaignMatch) {
+    return campaignMatch.id;
+  }
+
+  return filteredDecks.length > 0 ? filteredDecks[0].id : undefined;
+
 }
 
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
