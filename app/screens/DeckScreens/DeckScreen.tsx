@@ -1,11 +1,13 @@
 "use client";
-
-import { Button } from "@/app/components/Button/Button";
+import { Button } from "@/app/components/ui/button";
 import { Deck, Question } from "@/app/components/Deck/Deck";
-import PreviewDeckCard from "@/app/components/PreviewDeckCard";
-import Stepper from "@/app/components/Stepper/Stepper";
 import { useRouter } from "next-nprogress-bar";
 import { useState } from "react";
+import { CircleArrowRight } from 'lucide-react';
+import PreviewDeckCard from "@/app/components/PreviewDeckCard";
+import Stepper from "@/app/components/Stepper/Stepper";
+import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
+import sendToMixpanel from "@/lib/mixpanel";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -50,15 +52,22 @@ const DeckScreen = ({
             <Button
               variant="primary"
               className="h-50 w-full"
-              onClick={() => setIsDeckStarted(true)}
+              onClick={() => {
+                sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
+                  [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,
+                  [MIX_PANEL_METADATA.IS_DAILY_DECK]: false,
+                });
+                setIsDeckStarted(true);
+              }}
             >
               Begin deck
+              <CircleArrowRight />
             </Button>
             <Button
-              className="h-50 w-full"
-              onClick={() => router.push("/application")}
+              variant="outline"
+              onClick={() => router.back()}
             >
-              Back to homepage
+              Back
             </Button>
           </div>
         </div>

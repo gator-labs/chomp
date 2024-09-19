@@ -440,6 +440,13 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           !newDeckQuestionIds?.includes(cdq.id),
       );
 
+      if (
+        existingDeckQuestions.length === 0 &&
+        currentDeckQuestions.length === 0
+      ) {
+        return;
+      }
+
       await tx.deckQuestion.deleteMany({
         where: {
           AND: [

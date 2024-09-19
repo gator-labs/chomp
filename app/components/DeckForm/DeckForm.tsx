@@ -62,9 +62,6 @@ export default function DeckForm({
   const questions = watch("questions");
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
-  const [selectedCampaignId, setSelectedCampaignId] = useState(
-    deck?.campaignId || undefined,
-  );
 
   const [previousDate, setPreviousDate] = useState<Date | undefined | null>(
     deck ? deck.date : undefined,
@@ -103,7 +100,7 @@ export default function DeckForm({
       ...data,
       questions,
       tagIds: selectedTagIds,
-      campaignId: selectedCampaignId,
+      campaignId: data.campaignId,
       id: deck?.id,
       imageUrl,
       file: undefined,
@@ -143,14 +140,6 @@ export default function DeckForm({
         <div className="text-red">{errors.deck?.message}</div>
       </div>
       <div className="my-10">
-        <h3 className="text-xl mb-3 font-bold">
-          Deck Info (DO NOT USE IN PRODUCTION)
-        </h3>
-        <div className="mb-3">
-          <label className="block mb-1">Heading (optional)</label>
-          <TextInput variant="secondary" {...register("heading")} />
-          <div className="text-red">{errors.heading?.message}</div>
-        </div>
         <div className="mb-3">
           <label className="block mb-1">Image URL (optional)</label>
           {!!deckPreviewUrl && (
@@ -374,11 +363,13 @@ export default function DeckForm({
             type="button"
             onClick={() => {
               append({
-                type: fields[fields.length - 1].type,
+                type: fields[fields.length - 1]
+                  ? fields[fields.length - 1].type
+                  : QuestionType.MultiChoice,
                 question: "",
-                questionOptions: getDefaultOptions(
-                  fields[fields.length - 1].type,
-                ),
+                questionOptions: fields[fields.length - 1]
+                  ? getDefaultOptions(fields[fields.length - 1].type)
+                  : getDefaultOptions(QuestionType.MultiChoice),
               });
             }}
           >
@@ -520,20 +511,18 @@ export default function DeckForm({
       </div>
       <div className="mb-4">
         <label className="block mb-1">Campaign (optional)</label>
-        <div className="flex gap-2">
+        <select
+          className="text-gray-800 w-full"
+          {...register("campaignId", {
+            setValueAs: (v) => (!v ? null : parseInt(v)),
+          })}
+        >
           {campaigns.map((campaign) => (
-            <Tag
-              tag={campaign.name}
-              onSelected={() =>
-                setSelectedCampaignId((prev) =>
-                  prev === campaign.id ? undefined : campaign.id,
-                )
-              }
-              isSelected={selectedCampaignId === campaign.id}
-              key={campaign.id}
-            />
+            <option value={Number(campaign.id)} key={campaign.id}>
+              {campaign.name}
+            </option>
           ))}
-        </div>
+        </select>
       </div>
       <Button
         variant="primary"
