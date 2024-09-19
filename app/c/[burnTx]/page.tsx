@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 type Props = {
     params: { burnTx: string }
@@ -17,4 +18,6 @@ export async function generateMetadata(
     }
   }
 
-export default function Page() {}
+export default function Page() {
+  redirect('/')
+}
