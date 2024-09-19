@@ -2,6 +2,7 @@ import BackButton from "@/app/components/BackButton/BackButton";
 import CampaignDeckCard from "@/app/components/CampaignDeckCard/CampaignDeckCard";
 import TrophyOutlineIcon from "@/app/components/Icons/TrophyOutlinedIcon";
 import { getCampaign } from "@/app/queries/campaign";
+import { getCurrentUser } from "@/app/queries/user";
 import { ChompResult, Question } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +16,10 @@ type PageProps = {
 };
 
 const CampaignPage = async ({ params: { id } }: PageProps) => {
-  const campaign = await getCampaign(+id);
+  const [campaign, user] = await Promise.all([
+    getCampaign(+id),
+    getCurrentUser(),
+  ]);
 
   if (!campaign) return notFound();
 
@@ -73,6 +77,7 @@ const CampaignPage = async ({ params: { id } }: PageProps) => {
               ).length
             }
             activeFromDate={deck.activeFromDate || deck.createdAt}
+            userId={user?.id}
           />
         ))}
       </ul>
