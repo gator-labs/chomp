@@ -21,7 +21,7 @@ export const QUESTION_CARD_CONTENT = {
     title: "You finished a deck!",
     body: (date?: Date | null) => (
       <>
-        Great job Chomping through a deck! 
+        Great job Chomping through a deck!{" "}
         {!!date && (
           <>
             The answers to this deck will be revealed in{" "}

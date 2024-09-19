@@ -26,7 +26,7 @@ export function NoQuestionsCard({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-between h-full w-full gap-[16px]">
+    <div className="flex flex-col justify-between h-full w-full gap-4">
       <div
         className="questions-card text-white  relative mb-[4px]"
       >
