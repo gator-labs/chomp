@@ -327,10 +327,9 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !q.id,
       );
 
-      console.log(newDeckQuestions);
+      const newDeckQuestionIds: number[] = [];
 
       for (const question of newDeckQuestions) {
-        console.log(question);
         const res = await tx.question.create({
           data: {
             question: question.question,
@@ -341,6 +340,11 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
             imageUrl: question.imageUrl,
             durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
+            deckQuestions: {
+              create: {
+                deckId: deck.id,
+              },
+            },
             questionOptions: {
               createMany: {
                 data: question.questionOptions,
@@ -353,21 +357,15 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             },
             campaignId: validatedFields.data.campaignId,
           },
-        });
-
-        await prisma.deckQuestion.create({
-          data: {
-            deckId: deck.id,
-            questionId: res.id,
+          include: {
+            deckQuestions: true,
           },
         });
+
+        newDeckQuestionIds.push(res.deckQuestions[0].id);
       }
 
-      const existingDeckQuestions = validatedFields.data.questions.filter(
-        (q) => !!q.id,
-      );
-
-      const currentDeckQuestions = await prisma.deckQuestion.findMany({
+      const currentDeckQuestions = await tx.deckQuestion.findMany({
         where: {
           deckId: data.id,
         },
@@ -375,6 +373,10 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           question: true,
         },
       });
+
+      const existingDeckQuestions = validatedFields.data.questions.filter(
+        (q) => !!q.id,
+      );
 
       for (const question of existingDeckQuestions) {
         const validatedQuestion = currentDeckQuestions.find(
@@ -432,12 +434,24 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         }
       }
 
+      const deckQuestionsToDelete = currentDeckQuestions.filter(
+        (cdq) =>
+          !existingDeckQuestions.find((edq) => edq.id === cdq.id) &&
+          !newDeckQuestionIds?.includes(cdq.id),
+      );
+
       await tx.deckQuestion.deleteMany({
         where: {
-          deckId: deck.id,
-          questionId: {
-            notIn: existingDeckQuestions.map((q) => q.id) as number[],
-          },
+          AND: [
+            {
+              deckId: deck.id,
+              questionId: {
+                in: deckQuestionsToDelete.map(
+                  (dq) => dq.questionId,
+                ) as number[],
+              },
+            },
+          ],
         },
       });
     },
