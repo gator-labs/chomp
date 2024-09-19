@@ -82,6 +82,10 @@ export async function getCampaign(id: number) {
 export async function getCampaignImage(id: number) {
   const payload = await getJwtPayload();
 
+  if(!payload){
+    return null;
+  }
+
   return prisma.campaign.findUnique({
     where: {
       id,
