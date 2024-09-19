@@ -170,6 +170,7 @@ const CampaignDeckCard = ({
           setIsLoginModalOpen(false);
         }}
         userId={userId}
+        deckId={deckId}
       />
 
       <Wrapper
