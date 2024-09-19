@@ -1,4 +1,5 @@
 import { getJwtPayload } from "@/app/actions/jwt";
+import { getIsUserAdmin } from "@/app/queries/user";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -13,5 +14,12 @@ export const AuthRedirect = async () => {
     redirect(`/login?next=${encodeURIComponent(path)}`);
   }
 
+  if (jwt && path?.includes("/admin")) {
+    const isAdmin = await getIsUserAdmin();
+
+    if (!isAdmin) {
+      redirect("/application");
+    }
+  }
   return null;
 };

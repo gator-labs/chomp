@@ -127,7 +127,6 @@ export async function getDailyDeckForFrame() {
 
 export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
-
   if (!payload?.sub) return null;
 
   const deck = await prisma.deck.findFirst({
@@ -164,28 +163,23 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return null;
   }
 
-  if (
-    (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) ||
+  if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
+    return {
+      questions: deck?.deckQuestions,
+      id: deck.id,
+      date: deck.date,
+      name: deck.deck,
+    };
+  } else if (
     deck.deckQuestions.some((dq) =>
       isBefore(dq.question.revealAtDate!, new Date()),
     )
   ) {
-    if (deck?.deckQuestions.length > 0) {
-      return {
-        questions: deck?.deckQuestions,
-        id: deck.id,
-        date: deck.date,
-        dailyDeckActive:
-          !!deck.activeFromDate && !isAfter(deck.activeFromDate, new Date()),
-        name: deck.deck,
-      };
-    } else {
-      return {
-        questions: [],
-        id: deck.id,
-        date: deck.date,
-      };
-    }
+    return {
+      questions: [],
+      id: deck.id,
+      date: deck.date,
+    };
   }
 
   const questions = mapQuestionFromDeck(deck);

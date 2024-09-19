@@ -6,12 +6,18 @@ import {
   markQuestionAsTimedOut,
   SaveQuestionRequest,
 } from "@/app/actions/answer";
+import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
+import {
+  sendAnswerStatusToMixpanel,
+  sendAnswerToMixpanel,
+} from "@/app/utils/mixpanel";
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
 } from "@/app/utils/question";
+import sendToMixpanel from "@/lib/mixpanel";
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -173,6 +179,14 @@ export function Deck({
           ...prev,
           { questionId: question.id, questionOptionId: number },
         ]);
+        sendAnswerToMixpanel(
+          question,
+          "FIRST_ORDER",
+          deckId,
+          deckVariant,
+          question.questionOptions.find((option) => option.id === number)
+            ?.option,
+        );
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
         return;
@@ -217,7 +231,12 @@ export function Deck({
 
       setIsSubmitting(true);
 
-      await answerQuestion({ ...deckResponse[0], deckId });
+      try {
+        await answerQuestion({ ...deckResponse[0], deckId });
+        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "SUCCEEDED");
+      } catch (error) {
+        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "FAILED");
+      }
 
       handleNextIndex();
     },
@@ -242,6 +261,25 @@ export function Deck({
       questionsRef.current.scrollTop = questionsRef.current?.scrollHeight;
     }
   }, [questionsRef.current]);
+
+  useEffect(() => {
+    if (question) {
+      sendAnswerToMixpanel(question, "QUESTION_LOADED", deckId, deckVariant);
+    }
+  }, [question]);
+
+  useEffect(() => {
+    if (
+      questions.length === 0 ||
+      hasReachedEnd ||
+      currentQuestionIndex === -1
+    ) {
+      sendToMixpanel(MIX_PANEL_EVENTS.DECK_COMPLETED, {
+        [MIX_PANEL_METADATA.DECK_ID]: deckId,
+        [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
+      });
+    }
+  }, [questions.length, hasReachedEnd, currentQuestionIndex]);
 
   if (questions.length === 0 || hasReachedEnd || currentQuestionIndex === -1) {
     const percentOfAnsweredQuestions =
@@ -291,6 +329,7 @@ export function Deck({
               questionOptions={question.questionOptions}
               randomOptionId={question.questionOptions[random]?.id}
               percentage={optionPercentage}
+              question={question}
             />
           </QuestionCard>
         </div>
@@ -305,6 +344,9 @@ export function Deck({
         percentage={optionPercentage}
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
+        question={question}
+        deckId={deckId}
+        deckVariant={deckVariant || ""}
       />
       {currentQuestionStep !== QuestionStep.PickPercentage && (
         <div
@@ -318,17 +360,13 @@ export function Deck({
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-secondary">
-              Are you still there?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-white">
+            <AlertDialogTitle>Are you still there?</AlertDialogTitle>
+            <AlertDialogDescription>
               Your time&apos;s up! To prevent you from missing out on the next
               question, click proceed to continue.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <Button onClick={handleNoAnswer} size="lg">
-            Proceed
-          </Button>
+          <Button onClick={handleNoAnswer}>Proceed</Button>
         </AlertDialogContent>
       </AlertDialog>
     </div>
