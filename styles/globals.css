@@ -28,7 +28,8 @@
 
 @layer components {
   .questions-card {
-    @apply bg-gray-700 min-h-[385px] w-full rounded-xl pt-6 pl-4 pr-4 flex flex-col justify-between border border-gray-500;
+    @apply bg-gray-700 min-h-[480px] w-full max-w-[480px] rounded-xl pt-6 pl-4 pr-4 flex flex-col justify-between border border-gray-500;
+
 
   }
   .loading-line-animation {

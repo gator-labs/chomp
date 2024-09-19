@@ -30,14 +30,15 @@ export function NoQuestionsCard({
       <div
         className="questions-card text-white  relative mb-[4px]"
       >
-        <div className="flex items-center justify-start text-left flex-col gap-[20px]">
-          <div className="text-[24px] font-bold mb-2 w-full text-[#AFADEB]">
+        <div className="flex items-center justify-start text-left flex-col space-y-5">
+          <div className="text-[24px] font-bold w-full text-purple-200">
             {QUESTION_CARD_CONTENT[variant].title}
           </div>
           <div className="text-[14px] relative z-10">
             {QUESTION_CARD_CONTENT[variant].body(deckRevealAtDate)}
           </div>
         </div>
+
         <Image
           src={gatorHeadImage}
           alt="gator-head"
@@ -56,7 +57,7 @@ export function NoQuestionsCard({
         nextDeckId ? (
           <Button
             variant="outline"
-            className="text-[14px] gap-[16px]"
+            className="text-[14px] gap-2"
             onClick={() => {
               router.replace(`/application/decks/${nextDeckId}`);
               router.refresh();
@@ -68,7 +69,7 @@ export function NoQuestionsCard({
         ) : (
           <Button
             variant="outline"
-            className="text-[14px] gap-[16px]"
+            className="text-[14px] gap-2"
             onClick={() => {
               router.replace("/application");
               router.refresh();
