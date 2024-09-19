@@ -309,3 +309,69 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     isQuestionRevealable,
   };
 }
+
+export async function getQuestionRewards(
+  questionId: number,
+  burnTxId: string,
+  userId: string,
+) {
+  const rewards = await prisma.chompResult.findMany({
+    where: {
+      AND: [
+        {
+          userId: userId,
+          burnTransactionSignature: burnTxId,
+          questionId,
+        },
+      ],
+    },
+    include: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: {
+                where: {
+                  userId,
+                },
+              },
+            },
+          },
+        },
+      },
+      user: true,
+    },
+  });
+
+  if (!rewards.length) return [];
+
+  return rewards.map((reward) => {
+    let correctAnswer = reward!.question!.questionOptions.find(
+      (option) => option.isCorrect,
+    );
+
+    if (!correctAnswer) {
+      correctAnswer = reward!.question!.questionOptions.find(
+        (option) => option.calculatedIsCorrect,
+      );
+    }
+
+    const userAnswers = reward!
+      .question!.questionOptions.flatMap((option) =>
+        option.questionAnswers.map((answer) => ({
+          ...answer,
+          questionOption: {
+            id: option.id,
+            option: option.option,
+            isLeft: option.isLeft,
+            createdAt: option.createdAt,
+            updatedAt: option.updatedAt,
+            questionId: option.questionId,
+          },
+        })),
+      )
+      .filter((answer) => answer.userId === userId);
+
+    return { ...reward, correctAnswer, userAnswers };
+  });
+}
