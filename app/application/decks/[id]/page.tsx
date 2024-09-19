@@ -1,7 +1,8 @@
 import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
+import { getCampaignImage } from "@/app/queries/campaign";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
-import { getDecksForExpiringSection } from "@/app/queries/home";
+import { getNextDeckId } from "@/app/queries/home";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 
 type PageProps = {
@@ -12,18 +13,22 @@ export default async function Page({ params: { id } }: PageProps) {
   const currentDeckId = Number(id);
   const deck = await getDeckQuestionsForAnswerById(currentDeckId);
 
-  const decks = await getDecksForExpiringSection();
-  const nextDeck = decks.filter((deck) => deck.id !== currentDeckId)?.[0];
+  const campaignId = Number(deck?.campaignId) || null
+
+  const campaignData = campaignId ? await getCampaignImage(campaignId) : null
+
+  const nextDeckId = await getNextDeckId(currentDeckId, campaignId);
 
   return (
     <div className="h-full pt-3 pb-4">
       {deck?.questions.length === 0 || deck === null ? (
-        <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />
+        <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
       ) : deck?.questions && deck?.questions?.length > 0 && deck?.deckInfo ? (
         <DeckScreen
           currentDeckId={deck.id}
-          nextDeckId={nextDeck?.id}
+          nextDeckId={nextDeckId}
           questions={deck.questions}
+          campaignImage={campaignData?.image ?? ''}
           deckInfo={{
             ...deck.deckInfo!,
             totalNumberOfQuestions: deck.questions.length,

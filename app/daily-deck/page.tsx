@@ -8,10 +8,13 @@ import DailyDeckScreen from "../screens/DailyDeckScreen/DailyDeckScreen";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 
 export default async function Page() {
-  const [dailyDeck, nextDeckId, user, history, dailyAnsweredQuestions] =
+  const dailyDeck = await getDailyDeck();
+  const currentDeckId = dailyDeck?.id;
+  const campaignId = dailyDeck?.campaignId || null
+  
+  const [nextDeckId, user, history, dailyAnsweredQuestions] =
     await Promise.all([
-      getDailyDeck(),
-      getNextDeckId(),
+      getNextDeckId(currentDeckId ?? 0, campaignId),
       getCurrentUser(),
       getTransactionHistory(),
       getDailyAnsweredQuestions(),

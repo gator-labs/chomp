@@ -19,6 +19,7 @@ type DeckScreenProps = {
   };
   questions: Question[];
   currentDeckId: number;
+  campaignImage: string;
   nextDeckId?: number;
   numberOfUserAnswers: number;
 };
@@ -28,6 +29,7 @@ const DeckScreen = ({
   questions,
   currentDeckId,
   nextDeckId,
+  campaignImage,
   numberOfUserAnswers,
 }: DeckScreenProps) => {
   const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers > 0);
@@ -45,6 +47,7 @@ const DeckScreen = ({
           />
           <PreviewDeckCard
             {...deckInfo}
+            campaignImage={campaignImage}
             totalNumberOfQuestions={questions.length}
             className="flex-1"
           />
