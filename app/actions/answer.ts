@@ -16,6 +16,7 @@ import { hasAnsweredQuestion } from "../queries/question";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
 import { AnswerError } from "../utils/error";
+import { sendAnswerStatusToMixpanel } from "../utils/mixpanel";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 import { updateStreak } from "./streak";

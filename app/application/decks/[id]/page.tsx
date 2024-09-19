@@ -11,7 +11,6 @@ type PageProps = {
 
 export default async function Page({ params: { id } }: PageProps) {
   const currentDeckId = Number(id);
-
   const deck = await getDeckQuestionsForAnswerById(currentDeckId);
 
   const campaignId = Number(deck?.campaignId) || null
