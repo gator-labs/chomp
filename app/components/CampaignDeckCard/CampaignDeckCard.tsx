@@ -211,7 +211,7 @@ const CampaignDeckCard = ({
         //     });
         //   }
         // }}
-        href={`/application/history`}
+        href={linkPath}
         className={cn(
           "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
           {
