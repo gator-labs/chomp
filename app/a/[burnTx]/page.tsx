@@ -1,3 +1,4 @@
+import { getOgShareClaimAllPath } from "@/lib/urls";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -8,7 +9,7 @@ type Props = {
 export async function generateMetadata(
     { params: {burnTx} }: Props,
   ): Promise<Metadata> {
-    let images = ["/o1.png"]
+    let images = [getOgShareClaimAllPath(burnTx)]
     console.log("burnTx", burnTx)
    
     return {
