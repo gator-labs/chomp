@@ -46,7 +46,7 @@ export function NoQuestionsCard({
         />
       </div>
       <Button
-        onClick={() => window.open(process.env.REWARD_TASKON_URL, '_blank')}
+        onClick={() => window.open(process.env.NEXT_PUBLIC_REWARD_TASKON_URL, '_blank')}
         className="text-[14px] gap-2"
       >
         Share & Earn More
