@@ -51,7 +51,6 @@ const DeckScreen = ({
           <div className="flex flex-col gap-4 py-4">
             <Button
               variant="primary"
-              className="h-50 w-full"
               onClick={() => {
                 sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
                   [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,
@@ -60,7 +59,7 @@ const DeckScreen = ({
                 setIsDeckStarted(true);
               }}
             >
-              Begin deck
+              Begin Deck
               <CircleArrowRight />
             </Button>
             <Button

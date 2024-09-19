@@ -17,7 +17,7 @@ const buttonVariants = cva(
           "text-white hover:text-gray-200",
       },
       size: {
-        default: "h-[50px] p-1 rounded-[4px] gap-1",
+        default: "h-[50px] p-1 rounded-[8px] gap-1",
       },
     },
     defaultVariants: {
