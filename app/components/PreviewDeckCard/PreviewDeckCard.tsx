@@ -24,12 +24,12 @@ const PreviewDeckCard = ({
   return (
     <div
       className={cn(
-        "w-full py-6 px-4 bg-gray-700 rounded-lg relative  min-h-[385px] flex flex-col justify-between",
+        "min-h-[480px] w-full max-w-[480px] py-6 px-4 bg-gray-700 rounded-lg relative flex flex-col justify-between",
         className,
       )}
     >
-      <div className="flex flex-col gap-[20px]">
-        <h1 className="text-[#8C96ED] font-medium text-[24px]">{heading}</h1>
+      <div className="flex flex-col gap-5">
+        <h1 className="text-purple-200 font-medium text-[24px]">{heading}</h1>
         {!!description && <p className="text-[14px]">{description}</p>}
       </div>
       <div className="flex items-center gap-4">
@@ -40,13 +40,12 @@ const PreviewDeckCard = ({
               alt=""
               fill
               objectFit="cover"
-              className="rounded-lg overflow-hidden"
+              className="rounded-full overflow-hidden"
             />
           </div>
         )}
 
-
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {!!footer && <p className="text-[14px]">{footer}</p>}
           <p className="text-[14px]">
             Total {totalNumberOfQuestions} card

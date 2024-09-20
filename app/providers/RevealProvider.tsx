@@ -45,6 +45,7 @@ export function RevealContextProvider({
     onReveal,
     cancelReveal,
     burnAndReveal,
+    processingTransaction,
     burnState,
     isRevealModalOpen,
     insufficientFunds,
@@ -157,6 +158,8 @@ export function RevealContextProvider({
             </div>
             <Button
               className="font-bold"
+              disabled={processingTransaction}
+              isLoading={processingTransaction}
               onClick={() => {
                 if (
                   !hasPendingTransactions &&
