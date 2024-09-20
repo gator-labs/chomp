@@ -14,7 +14,7 @@ const navigationItems = [
     isActiveRegex: "/application/answer.*",
   },
   { label: "Home", icon: <HomeIcon />, href: "/application" },
-  { label: "Stacks", icon: <StacksIcon />, href: "/application/stacks" },
+  { label: "Stacks", icon: <StacksIcon />, href: "/campaigns" },
 ];
 
 const adminNavigationItems = [
