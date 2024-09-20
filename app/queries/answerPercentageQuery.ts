@@ -22,21 +22,21 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                   (
                     select count(*)
                     from public."QuestionAnswer" subQa
-                    where subQa.selected = true and subQa."questionOptionId" = qo."id" and subQa."status" = ${AnswerStatus.Submitted}::"AnswerStatus"
+                    where subQa.selected = true and subQa."questionOptionId" = qo."id" and subQa."status" = ${AnswerStatus.Submitted}
                   ) 
                   /
                   NULLIF(
                     (
                       select count(*)
                       from public."QuestionAnswer" subQa
-                      where subQa."questionOptionId" = qo."id" and subQa."status" = ${AnswerStatus.Submitted}::"AnswerStatus"
+                      where subQa."questionOptionId" = qo."id" and subQa."status" = ${AnswerStatus.Submitted}
                     )
                   , 0)
                   * 100) as "firstOrderSelectedAnswerPercentage",
                 (
                   select round(avg(percentage))
                   from public."QuestionAnswer"
-                  where "questionOptionId" = qo."id" and "status" = ${AnswerStatus.Submitted}::"AnswerStatus"
+                  where "questionOptionId" = qo."id" and "status" = ${AnswerStatus.Submitted}
                 ) as "secondOrderAveragePercentagePicked"
               from public."QuestionOption" qo
               where qo."id" in (${Prisma.join(questionOptionIds)})

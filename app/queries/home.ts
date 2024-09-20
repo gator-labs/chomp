@@ -150,14 +150,15 @@ async function getNextDeckIdQuery(
 
   const filteredDecks = deckExpiringSoon.filter((deck) => deck.id !== deckId);
 
-  const campaignMatch = filteredDecks.find((deck) => deck.campaignId === campaignId);
+  const campaignMatch = filteredDecks.find(
+    (deck) => deck.campaignId === campaignId,
+  );
 
   if (campaignMatch) {
     return campaignMatch.id;
   }
 
   return filteredDecks.length > 0 ? filteredDecks[0].id : undefined;
-
 }
 
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
@@ -261,7 +262,7 @@ async function queryRevealedQuestions(
       ON qo."questionId" = q."id"
   LEFT JOIN public."QuestionAnswer" qa 
       ON qa."questionOptionId" = qo."id" 
-      AND qa."userId" = ${userId} AND qa."status" = ${AnswerStatus.Submitted}::"AnswerStatus"
+      AND qa."userId" = ${userId} AND qa."status" = ${AnswerStatus.Submitted}
   WHERE
       cr1."questionId" IS NULL
       AND qa."id" IS NULL
