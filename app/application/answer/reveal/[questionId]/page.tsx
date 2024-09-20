@@ -2,6 +2,7 @@ import BackButton from "@/app/components/BackButton/BackButton";
 import BestAnswerBinary from "@/app/components/BestAnswerBinary/BestAnswerBinary";
 import BestAnswerMultipleChoice from "@/app/components/BestAnswerMultipleChoice/BestAnswerMultipleChoice";
 import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
+import ClaimIndvidualModal from "@/app/components/ClaimIndividualModal/ClaimIndvidualModal";
 import LikeIcon from "@/app/components/Icons/LikeIcon";
 import { OpenLinkIcon } from "@/app/components/Icons/OpenLinkIcon";
 import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
@@ -299,6 +300,14 @@ const RevealAnswerPage = async ({ params }: Props) => {
           questionResponse.chompResults[0]?.burnTransactionSignature || ""
         }
         questions={[questionResponse.question]}
+      />
+      <ClaimIndvidualModal
+        rewardAmount={questionResponse.chompResults[0]?.rewardTokenAmount ?? 0}
+        transactionHash={
+          questionResponse.chompResults[0]?.burnTransactionSignature || ""
+        }
+        userId ={user?.id}
+        questionIds={[questionResponse.id]}
       />
       {sendTransactionSignature && (
         <a
