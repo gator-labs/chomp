@@ -118,7 +118,7 @@ export default function TotalRewardsClaimAll({
     if (wonAmount > 0) {
       tweetText = `I just won ${wonAmount} $BONK for chomping ${numCards} ${cardText}.`;
     } else {
-      tweetText = `I suck, do you? #chompchomp`;
+      tweetText = `I suck, do you?`;
     }
 
     const twitterUrl = `https://x.com/intent/post?url=https%3A%2F%2Fapp.chomp.games&text=${encodeURIComponent(tweetText)}&hashtags=chompchomp&via=chompdotgames`;
