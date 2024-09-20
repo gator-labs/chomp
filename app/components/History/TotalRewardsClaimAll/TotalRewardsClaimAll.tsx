@@ -177,11 +177,9 @@ export default function TotalRewardsClaimAll({
             </div>
 
             <div className="flex justify-center">
-              <Image
-                src={`${process.env.NEXT_PUBLIC_API_URL}/og/share-claim-all?burnTx=${'5Yb5nd57ZoHGXgK9eSMiCUQbGFCLaFxYWVq6SsccUdkhLKUqFpUBex4Fv8VqC69h9UC5FcYkCZNhx38GW6nz8ZcJ'}`}
+              <img
+                src={`${process.env.NEXT_PUBLIC_API_URL}/og/share-claim-all?burnTx=${claimRes?.burnTx?.substring(0, 10)}`}
                 alt="Claim All image"
-                width={100}
-                height={100}
                 className="p-4 w-[100%] h-auto"
               />
             </div>
