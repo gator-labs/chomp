@@ -116,7 +116,7 @@ export default function TotalRewardsClaimAll({
 
     let tweetText = "";
     if (wonAmount > 0) {
-      tweetText = `I just won ${wonAmount} $BONK for chomping ${numCards} ${cardText}. #chompchomp`;
+      tweetText = `I just won ${wonAmount} $BONK for chomping ${numCards} ${cardText}.`;
     } else {
       tweetText = `I suck, do you? #chompchomp`;
     }
