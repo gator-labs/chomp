@@ -1,6 +1,5 @@
 "use server";
 
-import { AnswerStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
 import { redirect } from "next/navigation";
@@ -262,7 +261,7 @@ async function queryRevealedQuestions(
       ON qo."questionId" = q."id"
   LEFT JOIN public."QuestionAnswer" qa 
       ON qa."questionOptionId" = qo."id" 
-      AND qa."userId" = ${userId} AND qa."status" = ${AnswerStatus.Submitted}
+      AND qa."userId" = ${userId} AND qa."status" = 'Submitted'
   WHERE
       cr1."questionId" IS NULL
       AND qa."id" IS NULL
