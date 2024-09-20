@@ -23,6 +23,7 @@ export const MIX_PANEL_EVENTS = {
   QUESTION_ANSWERED_SUCCEEDED: "QuestionAnsweredSucceeded",
   QUESTION_ANSWERED_FAILED: "QuestionAnsweredFailed",
   DECK_COMPLETED: "DeckCompletionSucceeded",
+  SHARE_EARN_URL: "ShareTaskonURL",
 } as const;
 
 export const MIX_PANEL_METADATA = {
