@@ -77,7 +77,9 @@ export async function GET(request: Request) {
             <p tw="text-[120px] leading-[40px] text-[#6C6219] font-black">
               {numCorrect}
             </p>
-            <p tw="text-[40px] text-[#CCBF64] font-black">correct answers</p>
+            <p tw="text-[40px] text-[#CCBF64] font-black mr-4">
+              correct answers
+            </p>
           </div>
         </div>
 

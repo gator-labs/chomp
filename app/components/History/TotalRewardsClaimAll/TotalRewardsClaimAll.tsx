@@ -16,6 +16,7 @@ import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowDownToLine } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { startTransition, useOptimistic, useState } from "react";
 import { Button } from "../../Button/Button";
 import { CloseIcon } from "../../Icons/CloseIcon";
@@ -51,7 +52,7 @@ export default function TotalRewardsClaimAll({
 
   const shortenBurnTx = claimRes?.burnTx?.substring(0, 10);
   const imgUrl = shortenBurnTx
-    ? `${process.env.NEXT_PUBLIC_API_URL}${getOgShareClaimAllPath(shortenBurnTx)}`
+    ? `${process.env.NEXT_PUBLIC_APP_URL}${getOgShareClaimAllPath(shortenBurnTx)}`
     : null;
   const metadataUrl = shortenBurnTx
     ? `${process.env.NEXT_PUBLIC_APP_URL}/a/${shortenBurnTx}`
@@ -202,12 +203,23 @@ export default function TotalRewardsClaimAll({
             </div>
 
             <div className="flex flex-row px-5 justify-between">
-              <SdButton
-                variant="ghost"
-                className="bg-purple-200 text-gray-900 rounded-full w-[40px] h-[40px]"
-              >
-                <ArrowDownToLine />
-              </SdButton>
+              {imgUrl ? (
+                <Link href={imgUrl} download="chomp.jpg">
+                  <SdButton
+                    variant="ghost"
+                    className="bg-purple-200 text-gray-900 rounded-full w-[40px] h-[40px]"
+                  >
+                    <ArrowDownToLine />
+                  </SdButton>
+                </Link>
+              ) : (
+                <SdButton
+                  variant="ghost"
+                  className="bg-purple-200 text-gray-900 rounded-full w-[40px] h-[40px]"
+                >
+                  <ArrowDownToLine />
+                </SdButton>
+              )}
               <SdButton
                 variant="ghost"
                 className="bg-purple-200 text-gray-900 rounded-full w-[40px] h-[40px]"
