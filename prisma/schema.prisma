@@ -289,6 +289,7 @@ enum NftType {
   Genesis
   Glowburger
   ChompyAndFriends
+  ChompyAroundTheWorld
 }
 
 enum AnswerStatus {
