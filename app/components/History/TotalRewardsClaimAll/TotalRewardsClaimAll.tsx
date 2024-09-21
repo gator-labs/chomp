@@ -1,5 +1,6 @@
 "use client";
 import { claimAllAvailable } from "@/app/actions/claim";
+import { TwitterIcon } from "@/app/components/Icons/TwitterIcon";
 import {
   MIX_PANEL_EVENTS,
   MIX_PANEL_METADATA,
@@ -10,16 +11,16 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import sendToMixpanel from "@/lib/mixpanel";
+import { getOgShareClaimAllPath } from "@/lib/urls";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Button } from "../../Button/Button";
-import { startTransition, useOptimistic, useState } from "react";
-import { Drawer, DrawerContent } from "../../ui/drawer";
-import { Button as SdButton } from "../../ui/button";
-import { CloseIcon } from "../../Icons/CloseIcon";
-import { ArrowDownToLine } from 'lucide-react';
-import { TwitterIcon } from "@/app/components/Icons/TwitterIcon"
+import { ArrowDownToLine } from "lucide-react";
 import Image from "next/image";
+import { startTransition, useOptimistic, useState } from "react";
+import { Button } from "../../Button/Button";
+import { CloseIcon } from "../../Icons/CloseIcon";
+import { Button as SdButton } from "../../ui/button";
+import { Drawer, DrawerContent } from "../../ui/drawer";
 
 type TotalRewardsClaimAllProps = {
   totalClaimableRewards?: {
@@ -32,8 +33,7 @@ type ClaimQuestionData = {
   questionIds: number[];
   claimedAmount: number;
   burnTx: string | null;
-}
-
+};
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
@@ -46,8 +46,16 @@ export default function TotalRewardsClaimAll({
   const { fire } = useConfetti();
   const queryClient = useQueryClient();
   const { isClaiming, setIsClaiming } = useClaiming();
-  const [openClaimShareModal, setOpenClaimShareModal] = useState(false)
-  const [claimRes, setClaimRes] = useState<ClaimQuestionData>()
+  const [openClaimShareModal, setOpenClaimShareModal] = useState(false);
+  const [claimRes, setClaimRes] = useState<ClaimQuestionData>();
+
+  const shortenBurnTx = claimRes?.burnTx?.substring(0, 10);
+  const imgUrl = shortenBurnTx
+    ? `${process.env.NEXT_PUBLIC_API_URL}${getOgShareClaimAllPath(shortenBurnTx)}`
+    : null;
+  const metadataUrl = shortenBurnTx
+    ? `${process.env.NEXT_PUBLIC_APP_URL}/a/${shortenBurnTx}`
+    : null;
 
   const onClaimAll = async () => {
     try {
@@ -71,7 +79,7 @@ export default function TotalRewardsClaimAll({
         questionIds: res?.questionIds ?? [],
         claimedAmount: res?.claimedAmount ?? 0,
         burnTx: res?.burnTx ?? null,
-      })
+      });
 
       sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
         [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
@@ -109,6 +117,8 @@ export default function TotalRewardsClaimAll({
   };
 
   const handleTwitterShare = () => {
+    if (!metadataUrl) return;
+
     const wonAmount = claimRes?.claimedAmount || 0;
     const numCards = claimRes?.questionIds.length || 0;
 
@@ -116,14 +126,18 @@ export default function TotalRewardsClaimAll({
 
     let tweetText = "";
     if (wonAmount > 0) {
-      tweetText = `I just won ${wonAmount} $BONK for chomping ${numCards} ${cardText}.`;
+      tweetText = `I just won ${wonAmount.toLocaleString("en-US")} $BONK for chomping ${numCards} ${cardText}.`;
     } else {
       tweetText = `I suck, do you?`;
     }
 
-    const twitterUrl = `https://x.com/intent/post?url=https%3A%2F%2Fapp.chomp.games&text=${encodeURIComponent(tweetText)}&hashtags=chompchomp&via=chompdotgames`;
+    const url = encodeURIComponent(metadataUrl);
+    const text = encodeURIComponent(tweetText);
+    const hashtags = "chompchomp";
+    const via = "chompdotgames";
+    const twitterUrl = `https://x.com/intent/post?url=${url}&text=${text}&hashtags=${hashtags}&via=${via}`;
 
-    window.open(twitterUrl, '_blank');
+    window.open(twitterUrl, "_blank");
   };
 
   return (
@@ -172,20 +186,26 @@ export default function TotalRewardsClaimAll({
                 </h3>
               </div>
               <p className="text-[14px]">
-                You just claimed ${claimRes?.claimedAmount} BONK from {claimRes?.questionIds.length} cards!
+                You just claimed ${claimRes?.claimedAmount} BONK from{" "}
+                {claimRes?.questionIds.length} cards!
               </p>
             </div>
 
             <div className="flex justify-center">
-              <img
-                src={`${process.env.NEXT_PUBLIC_API_URL}/og/share-claim-all?burnTx=${claimRes?.burnTx?.substring(0, 10)}`}
-                alt="Claim All image"
-                className="p-4 w-[100%] h-auto"
-              />
+              {imgUrl && (
+                <Image
+                  src={imgUrl}
+                  alt="Claim All image"
+                  className="p-4 w-[100%] h-auto"
+                />
+              )}
             </div>
 
             <div className="flex flex-row px-5 justify-between">
-              <SdButton variant="ghost" className="bg-purple-200 text-gray-900 rounded-full w-[40px] h-[40px]">
+              <SdButton
+                variant="ghost"
+                className="bg-purple-200 text-gray-900 rounded-full w-[40px] h-[40px]"
+              >
                 <ArrowDownToLine />
               </SdButton>
               <SdButton
