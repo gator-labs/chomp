@@ -1,3 +1,4 @@
+import { ChompyGuitarIcon } from "@/app/components/Icons/ChompyGuitarIcon";
 import prisma from "@/app/services/prisma";
 import { ImageResponse } from "next/og";
 
@@ -67,31 +68,51 @@ export async function GET(request: Request) {
           </div>
         </div>
         <div tw="p-4 bg-[#AFADEB] rounded-[12px] flex flex-row my-4">
-          <div tw="flex-1 p-6 rounded-[12px] bg-[#D6FCF4] flex justify-center items-center gap-2 text-center mr-4">
-            <p tw="text-[120px] leading-[40px] text-[#0C5546] font-black mr-4">
-              {numAnswered}
-            </p>
-            <p tw="text-[40px] text-[#68C6B2] font-black">questions answered</p>
+          <div tw="flex-1 p-6 rounded-[12px] bg-[#D6FCF4] flex justify-center items-center mr-4">
+            <div tw="flex">
+              <p tw="text-[120px] leading-[40px] text-[#0C5546] font-black mr-6">
+                {numAnswered}
+              </p>
+            </div>
+            <div tw="flex flex-col">
+              <span tw="text-[40px] text-[#68C6B2] font-black flex">
+                questions
+              </span>
+              <span tw="text-[40px] text-[#68C6B2] font-black flex">
+                answered
+              </span>
+            </div>
           </div>
-          <div tw="flex-1 p-5 rounded-[12px] bg-[#FBF3BA] flex justify-center items-center gap-2 text-center">
-            <p tw="text-[120px] leading-[40px] text-[#6C6219] font-black">
-              {numCorrect}
-            </p>
-            <p tw="text-[40px] text-[#CCBF64] font-black mr-4">
-              correct answers
-            </p>
+          <div tw="flex-1 p-6 rounded-[12px] bg-[#FBF3BA] flex justify-center items-center mr-4">
+            <div tw="flex">
+              <p tw="text-[120px] leading-[40px] text-[#6C6219] font-black mr-6">
+                {numCorrect}
+              </p>
+            </div>
+            <div tw="flex flex-col">
+              <span tw="text-[40px] text-[#CCBF64] font-black flex">
+                correct
+              </span>
+              <span tw="text-[40px] text-[#CCBF64] font-black flex">
+                answers
+              </span>
+            </div>
           </div>
         </div>
 
-        <div tw="flex  flex-row items-center ">
-          <p tw="text-[40px] p-4 font-bold text-purple-200 bg-[#5955D6] rounded-[12px] flex flex-col">
-            Stop FOMOing and join the party. Flex your intelligence and win
-            $BONK at <span className="text-white">app.chomp.games</span>
-          </p>
-          <img
-            src={`${APP_URL}/images/gator-guitar.png`}
-            tw="w-[20%] h-[70%]"
-          />
+        <div tw="flex flex-row">
+          <div tw="text-[40px] p-4 font-bold text-purple-200 bg-[#5955D6] rounded-[12px] flex flex-col w-4/5">
+            <p tw="my-0">Stop FOMOing and join the party.</p>
+            <p tw="my-0">Flex your intelligence and win</p>
+            <p tw="my-0">
+              $BONK at
+              <span tw="text-[#FFFFFF] ml-3">app.chomp.games</span>
+            </p>
+          </div>
+          <div tw="flex w-[10px]"></div>
+          <div tw="flex flex-col grow">
+            <ChompyGuitarIcon width={220} height={200} />
+          </div>
         </div>
       </div>
     ),
