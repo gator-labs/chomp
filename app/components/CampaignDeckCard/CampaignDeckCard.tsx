@@ -1,7 +1,5 @@
 "use client";
 
-import { useClaim } from "@/app/providers/ClaimProvider";
-import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { getTimeString } from "@/app/utils/dateUtils";
 import { getDeckPath, HISTORY_PATH } from "@/lib/urls";
 import { cn } from "@/lib/utils";
@@ -9,7 +7,6 @@ import { ChompResult, Question, ResultType } from "@prisma/client";
 import { isAfter } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
 import CardsIcon from "../Icons/CardsIcon";
@@ -17,7 +14,6 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import GiftIcon from "../Icons/GiftIcon";
 import HalfEyeIcon from "../Icons/HalfEyeIcon";
 import HourGlassIcon from "../Icons/HourGlassIcon";
-import LoginPopUp from "../LoginPopUp/LoginPopUp";
 
 type CampaignDeckCardProps = {
   deckId: number;
@@ -47,9 +43,6 @@ const CampaignDeckCard = ({
   const currentDate = new Date();
   const isDeckReadyToReveal = isAfter(currentDate, revealAtDate);
   const isDeckActive = isAfter(currentDate, activeFromDate);
-  const { openRevealModal, closeRevealModal } = useRevealedContext();
-  const { openClaimModal } = useClaim();
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const timeString = getTimeString(
     isDeckActive ? revealAtDate : activeFromDate,
@@ -154,63 +147,12 @@ const CampaignDeckCard = ({
     chompResults.length === deckQuestions.length &&
     (claimedAmount === 0 || claimableAmount > 0);
 
-  const Wrapper = !!userId ? Link : "div";
-
-  const revealableQuestions = deckQuestions.filter(
-    (dq) => !chompResults.map((cr) => cr.questionId).includes(dq.id),
-  );
-
-  const linkPath = isDeckReadyToReveal ? HISTORY_PATH : getDeckPath(deckId);
+  let linkPath = isDeckReadyToReveal ? HISTORY_PATH : getDeckPath(deckId);
+  if (!userId) linkPath = `/login?next=${encodeURIComponent(linkPath)}`;
 
   return (
     <>
-      <LoginPopUp
-        isOpen={isLoginModalOpen}
-        onClose={() => {
-          setIsLoginModalOpen(false);
-        }}
-        userId={userId}
-        deckId={deckId}
-      />
-
-      <Wrapper
-        onClick={() => {
-          if (!userId) {
-            setIsLoginModalOpen(true);
-          }
-        }}
-        // temporary added comment due the breakpoint. Link to the task: https://linear.app/gator/issue/PROD-300/adjust-redirect-behavior-after-user-reveals-from-campaigndetail
-        // onClick={() => {
-        //   if (buttonText === "Reveal results") {
-        //     openRevealModal({
-        //       reveal: async ({ burnTx, revealQuestionIds }: RevealProps) => {
-        //         await revealQuestions(revealQuestionIds!, burnTx);
-
-        //         closeRevealModal();
-        //       },
-        //       amount: revealableQuestions.reduce(
-        //         (curr, acc) => curr + acc.revealTokenAmount,
-        //         0,
-        //       ),
-        //       questionIds: revealableQuestions.map((q) => q.id),
-        //       questions: revealableQuestions.map((q) => q.question),
-        //       dialogLabel: "Reveal deck",
-        //     });
-        //   }
-
-        //   if (buttonText === "Claim your reward") {
-        //     openClaimModal({
-        //       description: "Would you like to claim all rewards in this deck?",
-        //       title: "Claim reward",
-        //       chompResults: chompResults.filter(
-        //         (cr) =>
-        //           cr.result === ResultType.Revealed &&
-        //           !!cr.rewardTokenAmount &&
-        //           Number(cr.rewardTokenAmount) > 0,
-        //       ),
-        //     });
-        //   }
-        // }}
+      <Link
         href={linkPath}
         className={cn(
           "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
@@ -289,7 +231,7 @@ const CampaignDeckCard = ({
               />
             </div>
           )}
-      </Wrapper>
+      </Link>
     </>
   );
 };
