@@ -204,7 +204,7 @@ export default function TotalRewardsClaimAll({
 
             <div className="flex flex-row px-5 justify-between">
               {imgUrl ? (
-                <Link href={imgUrl} download="chomp.jpg">
+                <Link href={imgUrl} download="chomp.jpg" target="_blank">
                   <SdButton
                     variant="ghost"
                     className="bg-purple-200 text-gray-900 rounded-full w-[40px] h-[40px]"
