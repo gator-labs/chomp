@@ -7,6 +7,7 @@ import {
 import { NftType } from "@prisma/client";
 import {
   CHOMPY_AND_FRIEDNS_DROP_VALUE,
+  CHOMPY_AROUND_THE_WORLD_COLLECTION_VALUE,
   COLLECTION_KEY,
   GENESIS_COLLECTION_VALUE,
   GLOWBURGER_COLLECTION_VALUE,
@@ -83,6 +84,24 @@ export const getUnusedGlowburgerNft = async (assets: DasApiAssetList) => {
   return glowburgerNft;
 };
 
+export const getUnusedChompyAroundTheWorldNft = async (
+  assets: DasApiAssetList,
+) => {
+  const revealNftIds = (
+    await prisma.revealNft.findMany({
+      select: { nftId: true },
+    })
+  ).map((nft) => nft.nftId);
+
+  const [chompyAroundTheWorld] = assets.items.filter(
+    (item) =>
+      checkIsNftEligible(item, NftType.Glowburger) &&
+      !revealNftIds.includes(item.id),
+  );
+
+  return chompyAroundTheWorld;
+};
+
 export const checkNft = async (nftAddress: string, nftType: NftType) => {
   const revealNftIds = (
     await prisma.revealNft.findMany({
@@ -129,6 +148,16 @@ const checkIsNftEligible = (asset: DasApiAsset, nftType: NftType) => {
             attribute.value === RARITY.LEGENDARY),
       ).length === 2 &&
       !asset.burnt
+    );
+  }
+
+  if (nftType === NftType.ChompyAroundTheWorld) {
+    return (
+      !!asset.grouping.find(
+        (group) =>
+          group.group_key === COLLECTION_KEY &&
+          group.group_value === CHOMPY_AROUND_THE_WORLD_COLLECTION_VALUE,
+      ) && !asset.burnt
     );
   }
 
