@@ -15,6 +15,7 @@ import {
 import { getJwtPayload } from "../actions/jwt";
 import {
   getUnusedChompyAndFriendsNft,
+  getUnusedChompyAroundTheWorldNft,
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
@@ -133,6 +134,16 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           });
         }
 
+        const chompyAroundTheWorldNft =
+          await getUnusedChompyAroundTheWorldNft(userAssets);
+
+        if (!!chompyAroundTheWorldNft) {
+          return setRevealNft({
+            id: chompyAroundTheWorldNft.id,
+            type: NftType.ChompyAroundTheWorld,
+          });
+        }
+
         const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
 
         if (!!glowburgerNft) {
@@ -225,7 +236,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
   const burnAndReveal = async (ignoreNft?: boolean) => {
-    setProcessingTransaction(true)
+    setProcessingTransaction(true);
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
       (chr) => chr.questionId!,
@@ -288,8 +299,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
           resetReveal();
           return;
-        }finally{
-          setProcessingTransaction(false)
+        } finally {
+          setProcessingTransaction(false);
         }
 
         const chompResults = await createQuestionChompResults(
