@@ -5,9 +5,13 @@ import HistoryListSkeleton from "../HistoryListSkeleton/HistoryListSkeleton";
 import QuestionRowCard from "../QuestionRowCard/QuestionRowCard";
 import Skeleton from "../Skeleton/Skeleton";
 
-export default function History() {
+interface HistoryProps {
+  deckId?: string;
+}
+
+export default function History({ deckId }: HistoryProps) {
   const { data, isFetchingNextPage, lastElementRef, isLoading } =
-    useInfiniteQuestionsHistory();
+    useInfiniteQuestionsHistory(deckId);
 
   if (isLoading) return <HistoryListSkeleton />;
 

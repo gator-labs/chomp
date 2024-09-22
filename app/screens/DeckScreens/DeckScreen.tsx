@@ -1,13 +1,13 @@
 "use client";
-import { Button } from "@/app/components/ui/button";
 import { Deck, Question } from "@/app/components/Deck/Deck";
-import { useRouter } from "next-nprogress-bar";
-import { useState } from "react";
-import { CircleArrowRight } from 'lucide-react';
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
+import { Button } from "@/app/components/ui/button";
 import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import sendToMixpanel from "@/lib/mixpanel";
+import { CircleArrowRight } from "lucide-react";
+import { useRouter } from "next-nprogress-bar";
+import { useState } from "react";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -16,6 +16,7 @@ type DeckScreenProps = {
     footer: string | null;
     imageUrl: string | null;
     totalNumberOfQuestions: number;
+    revealAtDate?: Date | null;
   };
   questions: Question[];
   currentDeckId: number;
@@ -65,10 +66,7 @@ const DeckScreen = ({
               Begin Deck
               <CircleArrowRight />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.back()}
-            >
+            <Button variant="outline" onClick={() => router.back()}>
               Back
             </Button>
           </div>

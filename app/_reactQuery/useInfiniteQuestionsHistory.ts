@@ -2,7 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useRef } from "react";
 import { getQuestionsHistory } from "../actions/history";
 
-export default function useInfiniteQuestionsHistory() {
+export default function useInfiniteQuestionsHistory(deckId?: string) {
   const observer = useRef<IntersectionObserver>();
 
   const {
@@ -15,7 +15,7 @@ export default function useInfiniteQuestionsHistory() {
     ...rest
   } = useInfiniteQuery({
     queryKey: ["questions-history"],
-    queryFn: ({ pageParam }) => getQuestionsHistory({ pageParam }),
+    queryFn: ({ pageParam }) => getQuestionsHistory({ pageParam, deckId }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.length ? allPages.length + 1 : undefined;
