@@ -152,7 +152,6 @@ const checkIsNftEligible = (asset: DasApiAsset, nftType: NftType) => {
   }
 
   if (nftType === NftType.ChompyAroundTheWorld) {
-    console.log(asset.grouping);
     return (
       !!asset.grouping.find(
         (group) =>
