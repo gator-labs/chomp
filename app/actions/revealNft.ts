@@ -95,7 +95,7 @@ export const getUnusedChompyAroundTheWorldNft = async (
 
   const [chompyAroundTheWorld] = assets.items.filter(
     (item) =>
-      checkIsNftEligible(item, NftType.Glowburger) &&
+      checkIsNftEligible(item, NftType.ChompyAroundTheWorld) &&
       !revealNftIds.includes(item.id),
   );
 
