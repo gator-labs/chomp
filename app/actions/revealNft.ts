@@ -95,7 +95,7 @@ export const getUnusedChompyAroundTheWorldNft = async (
 
   const [chompyAroundTheWorld] = assets.items.filter(
     (item) =>
-      checkIsNftEligible(item, NftType.Glowburger) &&
+      checkIsNftEligible(item, NftType.ChompyAroundTheWorld) &&
       !revealNftIds.includes(item.id),
   );
 
@@ -152,6 +152,7 @@ const checkIsNftEligible = (asset: DasApiAsset, nftType: NftType) => {
   }
 
   if (nftType === NftType.ChompyAroundTheWorld) {
+    console.log(asset.grouping);
     return (
       !!asset.grouping.find(
         (group) =>
