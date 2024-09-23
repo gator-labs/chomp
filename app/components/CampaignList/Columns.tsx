@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "../Button/Button";
 
 export const columns: ColumnDef<Campaign>[] = [
-  { accessorKey: "name", header: "Campaign" },
+  { accessorKey: "name", header: "Stack" },
   {
     accessorKey: "logo",
     header: "Logo",
@@ -30,7 +30,7 @@ export const columns: ColumnDef<Campaign>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div>
-        <Link href={`/admin/campaigns/${row.original.id}`}>
+        <Link href={`/admin/stacks/${row.original.id}`}>
           <Button variant="primary" isFullWidth={false}>
             Edit
           </Button>

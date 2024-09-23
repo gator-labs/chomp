@@ -21,10 +21,10 @@ const navigationItems = [
     isActiveRegex: "/admin/tags.*",
   },
   {
-    label: "Campaigns",
+    label: "Stacks",
     icon: <MoneyIcon />,
-    href: "/admin/campaigns",
-    isActiveRegex: "/admin/campaigns.*",
+    href: "/admin/stacks",
+    isActiveRegex: "/admin/stacks.*",
   },
   {
     label: "Banners",

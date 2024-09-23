@@ -9,7 +9,7 @@ const CampaignsPage = async () => {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex justify-end gap-2">
-        <Link href="/admin/campaigns/new">
+        <Link href="/admin/stacks/new">
           <Button variant="primary">New</Button>
         </Link>
       </div>

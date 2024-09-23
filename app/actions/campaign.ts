@@ -41,8 +41,8 @@ export async function createCampaign(data: z.infer<typeof campaignSchema>) {
     },
   });
 
-  revalidatePath("/admin/campaigns");
-  redirect("/admin/campaigns");
+  revalidatePath("/admin/stacks");
+  redirect("/admin/stacks");
 }
 
 export async function editCampaign(data: z.infer<typeof campaignSchema>) {
@@ -98,6 +98,6 @@ export async function editCampaign(data: z.infer<typeof campaignSchema>) {
     },
   });
 
-  revalidatePath("/admin/campaigns");
-  redirect("/admin/campaigns");
+  revalidatePath("/admin/stacks");
+  redirect("/admin/stacks");
 }

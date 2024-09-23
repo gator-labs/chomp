@@ -8,7 +8,7 @@ const CampaignLeaderboard = async () => {
 
   return (
     <div className="flex flex-col gap-2">
-      <p>Campaign Leaderboard</p>
+      <p>Stack Leaderboard</p>
       <ul className="flex flex-col gap-2">
         {campaigns.map((campaign) => (
           <LeaderboardCard
