@@ -113,7 +113,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
 
     return (
       <li
-        className="px-4 py-[15px] rounded-lg bg-[#333333] border-[0.5px] border-[#666666] flex flex-col gap-2"
+        className="px-4 py-[15px] rounded-lg bg-gray-700 border-[0.5px] border-gray-500 flex flex-col gap-2"
         key={question.id}
         ref={ref}
       >
@@ -142,8 +142,8 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
 
               handleReveal();
             }}
-            className={cn("text-xs text-[#6DECAF]", {
-              "text-[#CFC5F7] underline cursor-pointer":
+            className={cn("text-xs text-aqua", {
+              "text-pink underline cursor-pointer":
                 questionStatus === "Reveal unchomped question",
             })}
           >

@@ -32,16 +32,16 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variantStyles = {
-    primary: "bg-primary text-btn-text-primary",
-    secondary: "bg-secondary text-btn-text-secondary",
-    warning: "bg-warning text-btn-text-warning",
-    white: "bg-white text-btn-text-white",
-    black: "bg-black text-btn-text-black",
-    pink: "bg-pink text-btn-text-pink",
-    "pink-border": "bg-pink-border text-btn-text-pink-border",
-    purple: "bg-purple text-btn-text-purple",
-    grayish: "bg-grayish",
-    aqua: "bg-aqua text-btn-text-primary",
+    primary: "bg-primary text-white",
+    secondary: "bg-secondary text-gray-900",
+    warning: "bg-red text-gray-900",
+    white: "bg-white text-gray-900",
+    black: "bg-gray-800 text-text-gray-100",
+    pink: "bg-pink text-gray-900",
+    "pink-border": "bg-gray-900 text-gray-900-border",
+    purple: "bg-purple-500 text-white",
+    grayish: "bg-gray-600",
+    aqua: "bg-aqua text-gray-900",
   };
 
   const variantClasses = variantStyles[variant] || variantStyles.primary;
@@ -51,9 +51,9 @@ export function Button({
     `rounded-lg inline-flex justify-center items-center`,
     {
       "bg-opacity-100 border-white border-[1px]": variant === "secondary",
-      "border-purple border-[1px]": variant === "pink-border",
-      "!bg-disabled": disabled,
-      "text-btn-text-disabled": disabled,
+      "border-purple-500 border-[1px]": variant === "pink-border",
+      "!bg-gray-400": disabled,
+      "text-gray-500": disabled,
       "cursor-default": disabled,
       "py-2 px-4": size === "small",
       "py-4 px-8": size === "normal",
@@ -65,7 +65,7 @@ export function Button({
       "text-base": size === "big",
       "w-full": isFullWidth,
       "!rounded-full": isPill,
-      "text-btn-text-primary": variant === "white",
+      "text-gray-900": variant === "white",
     },
     className,
   );

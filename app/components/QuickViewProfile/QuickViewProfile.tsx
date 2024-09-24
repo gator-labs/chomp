@@ -64,7 +64,7 @@ export function QuickViewProfile({
         </Link>
         <TransactionsTable transactions={transactions} />
         <div className="flex gap-2 items-center mt-auto">
-          <div className="p-2 rounded-lg bg-[#666666] flex gap-2">
+          <div className="p-2 rounded-lg bg-gray-500 flex gap-2">
             <a
               href="https://t.me/+BN0ZDiUhTUkxNzZl"
               target="_blank"
@@ -80,7 +80,7 @@ export function QuickViewProfile({
               <XIcon />
             </a>
           </div>
-          <p className="text-sm font-normal !text-[10px]">
+          <p className="text-sm font-normal !text-xs">
             Follow our socials for the latest news and special announcements!
           </p>
         </div>

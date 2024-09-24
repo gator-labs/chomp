@@ -19,14 +19,14 @@ const Stepper = ({
       {new Array(numberOfSteps).fill(null).map((_, index) => (
         <li
           key={index}
-          className="h-2 flex-1 rounded-[40px] bg-[#666666] overflow-hidden"
+          className="h-1 flex-1 rounded-[40px] bg-gray-500 overflow-hidden"
         >
           <div
             className={classNames(
               `w-0 h-full transition-all duration-300 ease-out`,
               index <= activeStep && "w-full",
-              color === "purple" && "bg-[#CFC5F7]",
-              color === "green" && "bg-[#6DECAF]",
+              color === "purple" && "bg-pink",
+              color === "green" && "bg-aqua",
             )}
           />
         </li>

@@ -2,12 +2,14 @@
 import sendToMixpanel from "@/lib/mixpanel";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
+import Link from "next/link";
 import { ReactNode, createContext, useContext } from "react";
-import { Button } from "../components/Button/Button";
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
+import { CloseIcon } from "../components/Icons/CloseIcon";
 import { InfoIcon } from "../components/Icons/InfoIcon";
-import Sheet from "../components/Sheet/Sheet";
 import Spinner from "../components/Spinner/Spinner";
+import { Button } from "../components/ui/button";
+import { Drawer, DrawerContent } from "../components/ui/drawer";
 import {
   MIX_PANEL_EVENTS,
   MIX_PANEL_METADATA,
@@ -43,6 +45,7 @@ export function RevealContextProvider({
     onReveal,
     cancelReveal,
     burnAndReveal,
+    processingTransaction,
     burnState,
     isRevealModalOpen,
     insufficientFunds,
@@ -51,6 +54,7 @@ export function RevealContextProvider({
     isRevealWithNftMode,
     questionIds,
     questions,
+    dialogLabel,
     isLoading,
   } = useReveal({
     bonkBalance,
@@ -64,19 +68,17 @@ export function RevealContextProvider({
     if (insufficientFunds && !isRevealWithNftMode) {
       return (
         <>
-          <a
+          <Link
             href="https://x.com/chompdotgames/status/1798664081102258304"
             target="_blank"
             rel="noopener noreferrer"
+            className="w-full"
           >
-            <Button variant="white" isPill className="text-black h-10">
-              Learn how
-            </Button>
-          </a>
+            <Button className="text-gray-850 h-10 w-full">Learn how</Button>
+          </Link>
           <Button
-            variant="black"
-            className="h-10"
-            isPill
+            variant="outline"
+            className="h-10 font-bold"
             onClick={() => {
               sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
                 [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
@@ -97,33 +99,7 @@ export function RevealContextProvider({
       case "skipburn":
         return (
           <>
-            <Button
-              variant="white"
-              isPill
-              onClick={onReveal}
-              className="text-black h-10"
-            >
-              Reveal
-            </Button>
-            <Button
-              variant="black"
-              isPill
-              className="h-10"
-              onClick={() => {
-                sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
-                  [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-                  [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-                  [MIX_PANEL_METADATA.REVEAL_TYPE]:
-                    questionIds.length > 1
-                      ? REVEAL_TYPE.ALL
-                      : REVEAL_TYPE.SINGLE,
-                });
-                cancelReveal();
-              }}
-            >
-              Cancel
-            </Button>
-            <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
+            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
               <div className="relative flex-shrink-0">
                 <InfoIcon width={16} height={16} />
               </div>
@@ -139,14 +115,51 @@ export function RevealContextProvider({
                 </p>
               </div>
             </div>
+            <Button className="font-bold" onClick={onReveal}>
+              Reveal
+            </Button>
+            <Button
+              variant="outline"
+              className="font-bold"
+              onClick={() => {
+                sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
+                  [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+                  [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+                  [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                    questionIds.length > 1
+                      ? REVEAL_TYPE.ALL
+                      : REVEAL_TYPE.SINGLE,
+                });
+                cancelReveal();
+              }}
+            >
+              Cancel
+            </Button>
           </>
         );
       case "idle":
         return (
           <>
+            <div className="bg-gray-700 p-4 flex gap-4 rounded-lg">
+              <div className="relative flex-shrink-0">
+                <InfoIcon width={16} height={16} />
+              </div>
+              <div className="flex flex-col gap-2 text-xs font-normal">
+                <p>
+                  You would need to burn $BONK to reveal the answer, regardless
+                  of whether you&apos;ve chomped on the question card earlier or
+                  not.{" "}
+                </p>
+                <p>
+                  But you&apos;re only eligible for a potential reward if you
+                  chomped on this question earlier.
+                </p>
+              </div>
+            </div>
             <Button
-              variant="white"
-              isPill
+              className="font-bold"
+              disabled={processingTransaction}
+              isLoading={processingTransaction}
               onClick={() => {
                 if (
                   !hasPendingTransactions &&
@@ -164,7 +177,6 @@ export function RevealContextProvider({
 
                 burnAndReveal();
               }}
-              className="flex items-center h-10"
             >
               {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
@@ -173,9 +185,8 @@ export function RevealContextProvider({
                   : "Reveal"}
             </Button>
             <Button
-              variant="black"
-              className="h-10"
-              isPill
+              className="font-bold"
+              variant="outline"
               onClick={() => {
                 if (isRevealWithNftMode) return burnAndReveal(true);
 
@@ -194,27 +205,11 @@ export function RevealContextProvider({
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
-            <div className="bg-[#4D4D4D] p-4 flex gap-4 rounded-lg">
-              <div className="relative flex-shrink-0">
-                <InfoIcon width={16} height={16} />
-              </div>
-              <div className="flex flex-col gap-2 text-xs font-normal">
-                <p>
-                  You would need to burn $BONK to reveal the answer, regardless
-                  of whether you&apos;ve chomped on the question card earlier or
-                  not.{" "}
-                </p>
-                <p>
-                  But you&apos;re only eligible for a potential reward if you
-                  chomped on this question earlier.
-                </p>
-              </div>
-            </div>
           </>
         );
       case "burning":
         return (
-          <Button variant="white" className="h-10" isPill disabled>
+          <Button className="font-bold" disabled>
             Burning $BONK...
           </Button>
         );
@@ -259,6 +254,16 @@ export function RevealContextProvider({
     );
   };
 
+  const closeRevealModal = () => {
+    sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
+      [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
+      [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+      [MIX_PANEL_METADATA.REVEAL_TYPE]:
+        questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+    });
+    cancelReveal();
+  };
+
   return (
     <RevealedContext.Provider
       value={{ openRevealModal: onSetReveal, closeRevealModal: resetReveal }}
@@ -267,48 +272,60 @@ export function RevealContextProvider({
         isLoading={burnState === "burning"}
         loadingMessage="Burning $BONK..."
       />
-      <Sheet
-        disableClose={burnState === "burning"}
-        isOpen={isRevealModalOpen}
-        setIsOpen={() => {
-          sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
-            [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-            [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-            [MIX_PANEL_METADATA.REVEAL_TYPE]:
-              questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-          });
-          cancelReveal();
+      <Drawer
+        open={isRevealModalOpen}
+        onOpenChange={(open: boolean) => {
+          if (!open && burnState !== "burning") {
+            closeRevealModal();
+          }
         }}
-        closeIconHeight={16}
-        closeIconWidth={16}
+        dismissible={burnState !== "burning"}
       >
-        {isLoading ? (
-          <div className="h-[270px] flex items-center justify-center">
-            <Spinner />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-6 pt-4 px-6 pb-6">
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-row w-full items-center justify-between">
-                <h3
-                  className={classNames("font-bold", {
-                    "text-[#DD7944]": insufficientFunds,
-                    "text-[#A3A3EC]": !insufficientFunds,
-                  })}
-                >
-                  {insufficientFunds
-                    ? "Insufficient Funds"
-                    : questionIds.length > 1
-                      ? "Reveal all?"
-                      : "Reveal answer?"}
-                </h3>
+        <DrawerContent>
+          <div className="relative">
+            {isLoading ? (
+              <div className="h-[330px] flex items-center justify-center">
+                <Spinner />
               </div>
-              {getDescriptionNode()}
-            </div>
-            <div className="flex flex-col gap-2">{revealButtons()}</div>
+            ) : (
+              <>
+                <Button
+                  variant="ghost"
+                  onClick={(e) => {
+                    if (isRevealModalOpen) {
+                      e.stopPropagation();
+                      closeRevealModal();
+                    }
+                  }}
+                  className="absolute top-5 right-6 border-none w-max !p-0 z-50"
+                >
+                  <CloseIcon width={16} height={16} />
+                </Button>
+                <div className="flex flex-col gap-6 pt-6 px-6 pb-6">
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-row w-full items-center justify-between">
+                      <h3
+                        className={classNames("font-bold", {
+                          "text-[#DD7944]": insufficientFunds,
+                          "text-secondary": !insufficientFunds,
+                        })}
+                      >
+                        {insufficientFunds
+                          ? "Insufficient Funds"
+                          : questionIds.length > 1
+                            ? "Reveal all?"
+                            : "Reveal answer?"}
+                      </h3>
+                    </div>
+                    {getDescriptionNode()}
+                  </div>
+                  <div className="flex flex-col gap-2">{revealButtons()}</div>
+                </div>
+              </>
+            )}
           </div>
-        )}
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
 
       {children}
     </RevealedContext.Provider>

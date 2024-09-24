@@ -6,10 +6,10 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 import prisma from "../services/prisma";
-import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
-import { acquireMutex } from "../utils/mutex";
-
 import { sendBonk } from "../utils/bonk";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
+import { ClaimError } from "../utils/error";
+import { acquireMutex } from "../utils/mutex";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 
@@ -165,9 +165,8 @@ export async function claimQuestions(questionIds: number[]) {
       questions: chompResults.map((cr) => cr.question),
     };
   } catch (e) {
-    class ClaimError extends Error {}
     const claimError = new ClaimError(
-      `User with id: ${payload.sub} is having trouble with claiming questions with next ids: ${questionIds}`,
+      `User with id: ${payload.sub} is having trouble claiming for questions ids: ${questionIds}`,
       { cause: e },
     );
     Sentry.captureException(claimError);

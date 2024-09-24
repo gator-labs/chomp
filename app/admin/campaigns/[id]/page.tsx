@@ -1,5 +1,5 @@
 import CampaignForm from "@/app/components/CampaignForm/CampaignForm";
-import { getCampaign } from "@/app/queries/campaign";
+import { getActiveAndInactiveCampaign } from "@/app/queries/campaign";
 import { notFound } from "next/navigation";
 
 type PageProps = {
@@ -9,7 +9,7 @@ type PageProps = {
 };
 
 const CampaignPage = async ({ params: { id } }: PageProps) => {
-  const campaign = await getCampaign(+id);
+  const campaign = await getActiveAndInactiveCampaign(+id);
 
   if (!campaign) return notFound();
 

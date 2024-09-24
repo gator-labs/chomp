@@ -1,10 +1,13 @@
 "use client";
 
-import { Button } from "../Button/Button";
-import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
-import { QUESTION_CARD_CONTENT } from "./constants";
-
+import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
+import sendToMixpanel from "@/lib/mixpanel";
+import gatorHeadImage from "@/public/images/gator-head.png";
+import { CircleArrowRight, Share2 } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
+import Image from "next/image";
+import { Button } from "../ui/button";
+import { QUESTION_CARD_CONTENT } from "./constants";
 
 type NoQuestionsCardProps = {
   variant:
@@ -25,49 +28,55 @@ export function NoQuestionsCard({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col justify-between h-full w-full">
-      <div
-        className="questions-card text-white font-sora relative"
-        style={{
-          aspectRatio: 0.92,
-          height: variant === "answer-page" ? "100%" : "auto",
-        }}
-      >
-        <div className="flex items-center justify-start text-left flex-col h-full gap-5">
-          <div className="text-2xl font-bold mb-2 w-full">
+    <div className="flex flex-col justify-between h-full w-full gap-4">
+      <div className="questions-card text-white  relative mb-[4px]">
+        <div className="flex items-center justify-start text-left flex-col space-y-5">
+          <div className="text-[24px] font-bold w-full text-purple-200">
             {QUESTION_CARD_CONTENT[variant].title}
           </div>
-          <div className="text-base relative z-10">
+          <div className="text-[14px] relative z-10">
             {QUESTION_CARD_CONTENT[variant].body(deckRevealAtDate)}
           </div>
         </div>
-        <div className="absolute bottom-2.5 right-4">
-          {QUESTION_CARD_CONTENT[variant].backgroundIcon}
-        </div>
+
+        <Image
+          src={gatorHeadImage}
+          alt="gator-head"
+          className="absolute bottom-0 left-0 w-full"
+          style={{ zIndex: 1 }}
+        />
       </div>
+      <Button
+        onClick={() => {
+          sendToMixpanel(MIX_PANEL_EVENTS.SHARE_EARN_URL);
+          window.open(process.env.NEXT_PUBLIC_REWARD_TASKON_URL, "_blank");
+        }}
+        className="text-[14px] gap-2"
+      >
+        Share & Earn More
+        <Share2 />
+      </Button>
       {nextDeckId ? (
         <Button
-          variant="pink"
-          size="big"
-          className="gap-1"
+          variant="outline"
+          className="text-[14px] gap-2"
           onClick={() => {
             router.replace(`/application/decks/${nextDeckId}`);
             router.refresh();
           }}
         >
-          Next Deck <HalfArrowRightIcon fill="#0D0D0D" />
+          Next Deck <CircleArrowRight />
         </Button>
       ) : (
         <Button
-          variant="pink"
-          size="big"
-          className="gap-1"
+          variant="outline"
+          className="text-[14px] gap-2"
           onClick={() => {
             router.replace("/application");
             router.refresh();
           }}
         >
-          Home <HalfArrowRightIcon fill="#0D0D0D" />
+          Go Home <CircleArrowRight />
         </Button>
       )}
     </div>

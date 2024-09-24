@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { QuestionCardContent } from "../app/components/QuestionCardContent/QuestionCardContent";
 
+import { QuestionStep } from "@/app/components/Question/Question";
 import { QuestionType } from "@prisma/client";
 import { fn } from "@storybook/test";
-import { QuestionStep } from "@/app/components/Question/Question";
 
 const questionOptions = [
   { id: 1, option: "Answer" },
@@ -25,7 +25,7 @@ const meta = {
     onOptionSelected: fn(),
   },
   decorators: (Story) => (
-    <div className="bg-black w-96 p-5">
+    <div className="bg-gray-800 w-96 p-5">
       <Story />
     </div>
   ),

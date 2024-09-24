@@ -37,7 +37,7 @@ export const Secondary: Story = {
     size: "big",
   },
   decorators: (Story) => (
-    <div className="bg-black p-2">
+    <div className="bg-gray-800 p-2">
       <Story />
     </div>
   ),
@@ -48,7 +48,7 @@ export const White: Story = {
     variant: "white",
   },
   decorators: (Story) => (
-    <div className="bg-black p-2">
+    <div className="bg-gray-800 p-2">
       <Story />
     </div>
   ),
@@ -61,7 +61,7 @@ export const Share: Story = {
     children: <ShareIcon />,
   },
   decorators: (Story) => (
-    <div className="bg-black p-2">
+    <div className="bg-gray-800 p-2">
       <Story />
     </div>
   ),

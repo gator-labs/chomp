@@ -18,29 +18,17 @@ export const QUESTION_CARD_CONTENT = {
     backgroundIcon: <TrophyGraphic />,
   },
   "regular-deck": {
-    title: "Nice!",
+    title: "You finished a deck!",
     body: (date?: Date | null) => (
       <>
-        You just chomped through that deck!{" "}
+        Great job Chomping through a deck!{" "}
         {!!date && (
           <>
-            The deck will be revealed in{" "}
-            <span className="text-[#A3A3EC]">
-              {formatDistanceToNowStrict(date)}
-            </span>
+            The answers to this deck will be revealed in{" "}
+            {formatDistanceToNowStrict(date)}
             .
           </>
         )}
-        <br />
-        <br /> Meanwhile, go check out some more chomps in{" "}
-        <b>
-          <Link href="/application/answer">answer</Link>
-        </b>{" "}
-        page or go back{" "}
-        <b>
-          <Link href="/application">home</Link>
-        </b>{" "}
-        to check for more decks.
       </>
     ),
     backgroundIcon: <TrophyGraphic />,

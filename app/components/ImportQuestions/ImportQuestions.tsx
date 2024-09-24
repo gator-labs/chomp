@@ -75,7 +75,7 @@ export function ImportQuestions({ action }: ImportQuestionsProps) {
         </div>
         <div className="basis-1/3">
           <label
-            className="cursor-pointer block w-full text-center bg-primary text-btn-text-primary rounded-lg py-3"
+            className="cursor-pointer block w-full text-center bg-primary text-gray-900 rounded-lg py-3"
             htmlFor="fileInput"
           >
             Import

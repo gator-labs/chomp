@@ -21,25 +21,25 @@ const RankingCard = ({
   return (
     <li
       className={cn(
-        "p-4 bg-[#1B1B1B] rounded-lg justify-between items-center flex",
+        "p-4 bg-gray-800 rounded-lg justify-between items-center flex",
         {
-          "bg-[#333333]": loggedUserId === userId,
+          "bg-gray-700": loggedUserId === userId,
         },
       )}
     >
       <div className="flex items-center">
         <div
           className={cn(
-            "w-10 h-10 flex items-center justify-center rounded-full text-[#A3A3EC] font-semibold mr-2",
+            "w-10 h-10 flex items-center justify-center rounded-full text-secondary font-semibold mr-2",
             {
               "bg-[#FFF294]": rank === 1,
               "bg-[#DFDFDF]": rank === 2,
               "bg-[#E2956C]": rank === 3,
-              "text-[#0D0D0D]": rank < 4,
+              "text-gray-900": rank < 4,
             },
           )}
         >
-          <p className="text-[20px] leading-[15px]">{rank}</p>
+          <p className="text-xl">{rank}</p>
         </div>
         <Avatar src={imageSrc} size="medium" />
         <p className="ml-6 text-sm">{name}</p>

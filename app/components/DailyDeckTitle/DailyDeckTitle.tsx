@@ -20,13 +20,8 @@ export function DailyDeckTitle({ date }: DailyDeckTitleProps) {
   const year = getDailyDeckFormattedString(date).split(" ").slice(2).join(" ");
 
   return (
-    <div className="text-sm font-sora flex items-center justify-between">
+    <div className="text-sm  flex items-center justify-between mt-12">
       <div className="flex gap-2 items-center">
-        <div className="h-[29px] px-4 bg-[#E6E6E6] rounded-[56px] flex items-center justify-center">
-          <span className=" text-btn-text-primary text-xs font-bold">
-            Daily Deck
-          </span>
-        </div>
         <div className="flex flex-col gap-1">
           <span className="font-bold text-xs">{monthAndDay}</span>
           <span className="text-xs">{year}</span>
@@ -37,26 +32,20 @@ export function DailyDeckTitle({ date }: DailyDeckTitleProps) {
       </div>
       {isInfoModalOpen && (
         <div
-          className="flex flex-col gap-6 fixed z-50 bg-[#333333] p-6 bottom-[80px] rounded-tl-[32px] rounded-tr-[32px] left-0 w-full
-        after:content-empty after:fixed after:top-0 after:left-0 after:w-full after:h-full after:-z-10 after:bg-black after:opacity-60
+          className="flex flex-col gap-6 fixed z-50 bg-gray-700 p-6 bottom-[80px] rounded-tl-[32px] rounded-tr-[32px] left-0 w-full
+        after:content-empty after:fixed after:top-0 after:left-0 after:w-full after:h-full after:-z-10 after:bg-gray-800 after:opacity-60
         "
         >
           <div className="flex items-center justify-between">
-            <p className="text-base">
-              You’re viewing a <span className="text-purple">Daily Deck</span>{" "}
+            <p className="text-base text-secondary">
+              You’re viewing a Daily Deck
             </p>
             <div onClick={() => setIsInfoModalOpen(false)}>
               <CloseIcon width={16} height={16} />
             </div>
           </div>
           <p className="text-sm">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum
+            Everyday Chomp will be sharing 3-5 cards for you to Chomp on.
           </p>
         </div>
       )}

@@ -19,7 +19,7 @@ export function TransactionsTable({
         <div key={index}>
           <TransactionRow {...t} />
           {index !== transactions.length - 1 && (
-            <div className="bg-[#666] h-[1px] w-full"></div>
+            <div className="bg-gray-500 h-[1px] w-full"></div>
           )}
         </div>
       ))}

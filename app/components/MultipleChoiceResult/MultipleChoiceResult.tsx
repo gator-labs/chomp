@@ -12,14 +12,14 @@ export default function MultipleChoiceResult({
   disablePercentageLabel = false,
 }: MultipleChoiceResultProps) {
   return (
-    <div className="border-[#666666] border-[1px] rounded-lg flex items-center w-full justify-between px-4 relative overflow-hidden">
+    <div className="border-gray-500 border-[1px] rounded-lg flex items-center w-full justify-between px-4 relative overflow-hidden">
       {text}
       {!disablePercentageLabel && percentage && (
-        <div className="font-bold text-sm text-[#4d4d4d]">{percentage}%</div>
+        <div className="font-bold text-sm text-gray-600">{percentage}%</div>
       )}
       {percentage && (
         <div
-          className="bg-[#4d4d4d] h-full absolute"
+          className="bg-gray-600 h-full absolute"
           style={{ left: "-5px", width: `calc(${percentage}% + 5px)` }}
         ></div>
       )}

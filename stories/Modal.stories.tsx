@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { Modal } from "../app/components/Modal/Modal";
 import { Button } from "@/app/components/Button/Button";
+import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+import { Modal } from "../app/components/Modal/Modal";
 
 const meta = {
   title: "Modal",
@@ -30,7 +30,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     children: (
-      <div className="text-sm text-white font-sora">
+      <div className="text-sm text-white ">
         <div className="mb-4">
           This is a generic modal with a close button on the top right
         </div>

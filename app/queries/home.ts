@@ -1,8 +1,9 @@
 "use server";
 
-import { AnswerStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
+import { redirect } from "next/navigation";
+import { getJwtPayload } from "../actions/jwt";
 import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
@@ -38,6 +39,8 @@ export type DeckExpiringSoon = {
   id: number;
   deck: string;
   revealAtDate?: Date;
+  date?: Date;
+  campaignId: number;
   answerCount?: number;
   revealAtAnswerCount?: number;
   image?: string;
@@ -62,22 +65,43 @@ export async function getDecksForExpiringSection(): Promise<
 
   return decks;
 }
+export async function getDailyDecksForExpiringSection(): Promise<
+  DeckExpiringSoon[]
+> {
+  const payload = await getJwtPayload();
 
-export async function getNextDeckId(): Promise<number | undefined> {
+  if (!payload) {
+    return redirect("/login");
+  }
+
+  const decks = await queryExpiringDailyDecks(payload.sub);
+
+  return decks;
+}
+
+export async function getNextDeckId(
+  deckId: number,
+  campaignId: number | null,
+): Promise<number | undefined> {
   const payload = await authGuard();
 
-  const nextDeckId = await getNextDeckIdQuery(payload.sub);
+  const nextDeckId = await getNextDeckIdQuery(payload.sub, deckId, campaignId);
 
   return nextDeckId;
 }
 
-async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
+async function getNextDeckIdQuery(
+  userId: string,
+  deckId: number,
+  campaignId: number | null,
+): Promise<number | undefined> {
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
     select
     d."id",
     d."deck",
     d."revealAtDate",
     d."revealAtAnswerCount",
+    d."campaignId",
     c."image"
     from public."Deck" d
     full join "Campaign" c on c."id" = d."campaignId"
@@ -121,10 +145,19 @@ async function getNextDeckIdQuery(userId: string): Promise<number | undefined> {
             join public."DeckQuestion" dq on dq."questionId" = q."id"
             where dq."deckId" = d."id" and qa."userId" = ${userId}
         )
-      limit 1
   `;
 
-  return deckExpiringSoon?.[0]?.id;
+  const filteredDecks = deckExpiringSoon.filter((deck) => deck.id !== deckId);
+
+  const campaignMatch = filteredDecks.find(
+    (deck) => deck.campaignId === campaignId,
+  );
+
+  if (campaignMatch) {
+    return campaignMatch.id;
+  }
+
+  return filteredDecks.length > 0 ? filteredDecks[0].id : undefined;
 }
 
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
@@ -139,8 +172,8 @@ FROM
 FULL JOIN
     "Campaign" c ON c."id" = d."campaignId"
 WHERE
-    d."revealAtDate" > NOW()
-    AND d."date" IS NULL
+    d."revealAtDate" > NOW() 
+    AND d."date" IS NULL 
     AND d."activeFromDate" <= NOW()
     AND EXISTS (
         SELECT 1
@@ -155,6 +188,43 @@ WHERE
     );
   `;
 
+  return deckExpiringSoon;
+}
+
+async function queryExpiringDailyDecks(
+  userId: string,
+): Promise<DeckExpiringSoon[]> {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
+  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
+  SELECT
+    d."id",
+    d."deck",
+    d."revealAtDate",
+    d."date",
+    c."image"
+FROM
+    public."Deck" d
+FULL JOIN
+    "Campaign" c ON c."id" = d."campaignId"
+WHERE
+    d."activeFromDate" IS NULL
+    AND d."date" >= ${currentDayStart}
+    AND d."date" <= ${currentDayEnd}
+    AND EXISTS (
+        SELECT 1
+        FROM public."DeckQuestion" dq
+        JOIN public."Question" q ON dq."questionId" = q."id"
+        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        AND qa."userId" = ${userId}
+        AND qa."id" > 0
+        WHERE dq."deckId" = d."id"
+        GROUP BY dq."deckId"
+        HAVING COUNT(DISTINCT qa."id") < COUNT(DISTINCT qo."id")
+    );
+  `;
   return deckExpiringSoon;
 }
 
@@ -191,7 +261,7 @@ async function queryRevealedQuestions(
       ON qo."questionId" = q."id"
   LEFT JOIN public."QuestionAnswer" qa 
       ON qa."questionOptionId" = qo."id" 
-      AND qa."userId" = ${userId} AND qa."status" = ${AnswerStatus.Submitted}::"AnswerStatus"
+      AND qa."userId" = ${userId} AND qa."status" = 'Submitted'
   WHERE
       cr1."questionId" IS NULL
       AND qa."id" IS NULL

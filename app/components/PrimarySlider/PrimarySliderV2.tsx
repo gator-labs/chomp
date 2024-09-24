@@ -62,7 +62,7 @@ const PrimarySliderV2 = ({
         >
           <Slider.Range
             className={classNames(
-              "rounded-l-lg h-[2px] mx-auto w-full bg-[#FFFFFF] bg-opacity-50",
+              "rounded-l-lg h-[2px] mx-auto w-full bg-white bg-opacity-50",
               rangeClassName,
             )}
             style={{

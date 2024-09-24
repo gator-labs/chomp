@@ -28,15 +28,15 @@ const Pill = ({
   className,
 }: PillProps) => {
   const variantStyles = {
-    primary: "bg-primary text-btn-text-primary",
-    secondary: "bg-secondary text-btn-text-secondary",
-    warning: "bg-warning text-btn-text-warning",
-    white: "bg-white text-btn-text-white",
-    black: "bg-black text-btn-text-black",
-    pink: "bg-pink text-btn-text-pink",
-    "pink-border": "bg-pink-border text-btn-text-pink-border",
-    purple: "bg-purple text-btn-text-purple",
-    grayish: "bg-grayish text-btn-text-grayish",
+    primary: "bg-primary text-gray-900",
+    secondary: "bg-secondary text-gray-100",
+    warning: "bg-red text-gray-900",
+    white: "bg-white text-gray-900",
+    black: "bg-gray-800 text-text-gray-100",
+    pink: "bg-pink text-gray-900",
+    "pink-border": "bg-pink-border text-gray-900-border",
+    purple: "bg-purple-500 text-white",
+    grayish: "bg-gray-600 text-gray-100",
   };
 
   const sizeStyles = {

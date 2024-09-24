@@ -30,7 +30,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     children: (
-      <div className="text-sm text-white font-sora p-4">
+      <div className="text-sm text-white  p-4">
         <div className="mb-4">
           This is a generic modal with a close button on the top right
         </div>

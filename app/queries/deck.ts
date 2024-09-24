@@ -33,13 +33,14 @@ const questionDeckToRunInclude = {
 } satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).subtract(1, "day").toDate();
+  const currentDayEnd = dayjs(new Date()).toDate();
   const payload = await getJwtPayload();
 
   if (!payload?.sub) return null;
 
   const dailyDeck = await prisma.deck.findFirst({
+    orderBy: [{ date: "asc" }],
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
       deckQuestions: {
@@ -88,6 +89,7 @@ export async function getDailyDeck() {
 
   return {
     questions,
+    campaignId: dailyDeck?.campaignId,
     id: dailyDeck.id,
     date: dailyDeck.date,
   };
@@ -126,7 +128,6 @@ export async function getDailyDeckForFrame() {
 
 export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
-
   if (!payload?.sub) return null;
 
   const deck = await prisma.deck.findFirst({
@@ -163,17 +164,25 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return null;
   }
 
-  if (
-    (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) ||
+  if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
+    return {
+      questions: deck?.deckQuestions,
+      id: deck.id,
+      date: deck.date,
+      name: deck.deck,
+    };
+  } else if (
     deck.deckQuestions.some((dq) =>
       isBefore(dq.question.revealAtDate!, new Date()),
     )
-  )
+  ) {
     return {
       questions: [],
       id: deck.id,
       date: deck.date,
+      campaignId: deck.campaignId
     };
+  }
 
   const questions = mapQuestionFromDeck(deck);
 
@@ -181,6 +190,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     questions,
     id: deck.id,
     date: deck.date,
+    campaignId: deck.campaignId,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
@@ -252,8 +262,8 @@ export async function getDecks() {
 }
 
 export async function getDailyAnsweredQuestions() {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDayStart = dayjs(new Date()).subtract(1, "day").toDate();
+  const currentDayEnd = dayjs(new Date()).toDate();
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -261,6 +271,7 @@ export async function getDailyAnsweredQuestions() {
   }
 
   const dailyDeck = await prisma.deck.findFirst({
+    orderBy: [{ date: "asc" }],
     where: {
       date: { gte: currentDayStart, lte: currentDayEnd },
       deckQuestions: {

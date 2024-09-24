@@ -38,15 +38,12 @@ const Marquee = ({ text }: Props) => {
   return (
     <div ref={container} className="overflow-hidden flex">
       <div className="whitespace-nowrap relative">
-        <p
-          ref={firstText}
-          className="text-[20px] leading-6 pr-5 whitespace-nowrap"
-        >
+        <p ref={firstText} className="text-xl leading-6 pr-5 whitespace-nowrap">
           {text}
         </p>
         <p
           ref={secondText}
-          className="text-[20px] leading-6 pr-5 whitespace-nowrap absolute left-full top-0"
+          className="text-xl leading-6 pr-5 whitespace-nowrap absolute left-full top-0"
         >
           {text}
         </p>

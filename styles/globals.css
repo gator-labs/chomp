@@ -28,7 +28,12 @@
 
 @layer components {
   .questions-card {
-    @apply bg-[#333] min-h-[304px] w-full rounded-xl px-4 py-6 flex flex-col justify-between border-[0.5px] border-[#666];
+    @apply bg-gray-700 min-h-[480px] w-full max-w-[480px] rounded-xl pt-6 pl-4 pr-4 flex flex-col justify-between border border-gray-500;
+
+
+  }
+  .loading-line-animation {
+    animation: loadingLine 4s linear;
   }
 }
 
@@ -55,14 +60,10 @@
 
 [data-rsbs-overlay],
 [data-rsbs-state] {
-  @apply !mx-auto !bg-btn-border-black;
+  @apply !mx-auto !bg-gray-700;
 }
 [data-rsbs-state]::after {
-  @apply !mx-auto !bg-btn-border-black;
-}
-
-.reveal-page-content > * > * > * {
-  cursor: default;
+  @apply !mx-auto !bg-gray-700;
 }
 
 .bulleted-list {

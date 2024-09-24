@@ -30,7 +30,7 @@ const LeaderboardCard = ({
   const isOverflowing = useIsOverflowing(leaderboardNameRef);
 
   const CardContent = (
-    <li className="px-4 py-[15px] border-[0.5px] border-[#666666] rounded-lg bg-[#333333] flex items-center justify-between h-[70px]">
+    <li className="px-4 py-[15px] border-[0.5px] border-gray-500 rounded-lg bg-gray-700 flex items-center justify-between h-[70px]">
       <div className="flex items-center gap-4 overflow-hidden">
         <div className="relative w-[38px] h-[38px] flex-shrink-0">
           {showActiveIndicator && <ActiveIndicator isActive={isActive} />}

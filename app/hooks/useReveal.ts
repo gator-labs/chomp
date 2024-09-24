@@ -4,14 +4,18 @@ import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
+import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
+import { getJwtPayload } from "../actions/jwt";
 import {
   getUnusedChompyAndFriendsNft,
+  getUnusedChompyAroundTheWorldNft,
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
@@ -22,6 +26,7 @@ import {
   REVEAL_TYPE,
 } from "../constants/mixpanel";
 import { useToast } from "../providers/ToastProvider";
+import { BurnError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {
@@ -38,6 +43,7 @@ interface RevealCallbackBaseProps {
     revealQuestionIds,
   }: RevealProps) => Promise<void>;
   amount: number;
+  dialogLabel?: string;
 }
 
 interface RevealCallbackMultipleQuestions extends RevealCallbackBaseProps {
@@ -70,6 +76,7 @@ type RevealState = {
   questionIds: number[];
   questions: string[];
   genesisNft?: string;
+  dialogLabel?: string;
 };
 
 const INITIAL_BURN_STATE = "idle";
@@ -90,7 +97,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     type: NftType;
   }>();
   const [isLoading, setIsLoading] = useState(false);
-
+  const [processingTransaction, setProcessingTransaction] = useState(false);
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
   );
@@ -124,6 +131,16 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           return setRevealNft({
             id: chompyAndFriendsNft.id,
             type: NftType.ChompyAndFriends,
+          });
+        }
+
+        const chompyAroundTheWorldNft =
+          await getUnusedChompyAroundTheWorldNft(userAssets);
+
+        if (!!chompyAroundTheWorldNft) {
+          return setRevealNft({
+            id: chompyAroundTheWorldNft.id,
+            type: NftType.ChompyAroundTheWorld,
           });
         }
 
@@ -184,6 +201,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       questionIds,
       reveal,
       questions,
+      dialogLabel,
     }: RevealCallbackProps) => {
       setBurnState(INITIAL_BURN_STATE);
       setReveal({
@@ -191,6 +209,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         amount,
         questionIds: questionIds ?? [questionId],
         questions,
+        dialogLabel,
       });
       setIsRevealModalOpen(true);
       sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_OPENED, {
@@ -217,6 +236,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
   const burnAndReveal = async (ignoreNft?: boolean) => {
+    setProcessingTransaction(true);
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
       (chr) => chr.questionId!,
@@ -224,6 +244,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     const revealQuestionIds = reveal!.questionIds.filter(
       (id) => !pendingChompResultIds.includes(id),
     );
+
+    const payload = await getJwtPayload();
 
     try {
       if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
@@ -277,6 +299,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
           resetReveal();
           return;
+        } finally {
+          setProcessingTransaction(false);
         }
 
         const chompResults = await createQuestionChompResults(
@@ -301,6 +325,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           errorToast(
             "Error while confirming transaction. Bonk was not burned. Try again.",
           );
+          const burnError = new BurnError(
+            `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+            { cause: res.value.err },
+          );
+          Sentry.captureException(burnError);
           await deleteQuestionChompResults(pendingChompResultIds);
         }
       }
@@ -348,8 +377,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
         error,
       });
-
       errorToast("Error happened while revealing question. Try again.");
+      const revealError = new RevealError(
+        `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+        { cause: error },
+      );
+      Sentry.captureException(revealError);
+      release();
     } finally {
       resetReveal();
     }
@@ -374,8 +408,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     onSetReveal,
     resetReveal,
     cancelReveal: resetReveal,
+    processingTransaction,
     questionIds,
     questions: reveal?.questions,
     isLoading,
+    dialogLabel: reveal?.dialogLabel,
   };
 }

@@ -47,16 +47,11 @@ export default function TotalRewardsClaimAll({
         [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
-      const res = await promiseToast(
-        claimAllAvailable(),
-        {
-          loading: "Claim in progress. Please wait...",
-          success: "Funds are transferred!",
-          error: "Issue transferring funds.",
-          isChompLoader: true,
-        },
-        { duration: Infinity },
-      );
+      const res = await promiseToast(claimAllAvailable(), {
+        loading: "Claim in progress. Please wait...",
+        success: "Funds are transferred!",
+        error: "Issue transferring funds.",
+      });
 
       sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
         [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
@@ -94,8 +89,8 @@ export default function TotalRewardsClaimAll({
   return (
     <div className="flex justify-between">
       <div className="flex flex-col justify-between gap-[10px]">
-        <p className="text-xs text-white leading-[7px]">Claimable rewards</p>
-        <p className="text-base text-white leading-[12px]">
+        <p className="text-xs text-white ">Claimable rewards</p>
+        <p className="text-base text-white ">
           {numberToCurrencyFormatter.format(optimisticAmount)} BONK
         </p>
       </div>

@@ -18,12 +18,12 @@ export default function PollResultMultipleChoice(
       <div className="flex gap-2 flex-col">
         {options.map((o, index) => (
           <div key={index} className="flex gap-3.5">
-            <div className="bg-[#4d4d4d] min-w-10 h-10 flex items-center justify-center text-white text-sm font-sora font-bold rounded-lg">
+            <div className="bg-gray-600 min-w-10 h-10 flex items-center justify-center text-white text-sm  font-bold rounded-lg">
               {o.label}
             </div>
             <MultipleChoiceResult
               text={
-                <div className="text-sm font-sora font-light text-white z-10">
+                <div className="text-sm  font-light text-white z-10">
                   {o.option}
                 </div>
               }
