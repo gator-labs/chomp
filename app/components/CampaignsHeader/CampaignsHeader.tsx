@@ -15,7 +15,7 @@ const CampaignsHeader: React.FC<CampaignsHeaderProps> = ({
   const router = useRouter();
 
   const handleBack = () => 
-    backAction === "back" ? router.back() : router.push("/campaigns");
+    backAction === "back" ? router.back() : router.push("/stacks");
 
   return (
     <header className="flex items-center gap-2">
