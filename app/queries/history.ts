@@ -134,9 +134,9 @@ export async function getQuestionsHistoryQuery(
 `;
 
   let finalQuery = baseQuery;
-  if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging") {
-    finalQuery += havingClause;
-  }
+  // if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging") {
+  //   finalQuery += havingClause;
+  // }
   finalQuery += endQuery;
 
   const historyResult: QuestionHistory[] =
