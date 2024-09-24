@@ -11,12 +11,18 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { CONNECTION } from "@/app/utils/solana";
 import sendToMixpanel from "@/lib/mixpanel";
+import { QuestionOption } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
+import { useState } from "react";
 import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
+import ShareV2Icon from "../Icons/ShareV2Icon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
+import ShareResultDrawer from "../ShareResultDrawer/ShareResultDrawer";
+import SingleRevealShareImage from "../SingleRevealShareImage/SingleRevealShareImage";
+import { Button as NewButton } from "../ui/button";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
@@ -24,8 +30,11 @@ interface ClaimButtonProps {
   rewardAmount?: number;
   didAnswer?: boolean;
   questionIds: number[];
-  questions?: string[];
+  questions: string[];
   transactionHash?: string;
+  options: QuestionOption[];
+  selectedOptionId?: number;
+  profileSrc?: string | null;
 }
 
 const ClaimButton = ({
@@ -36,11 +45,15 @@ const ClaimButton = ({
   questionIds,
   transactionHash,
   questions,
+  options,
+  selectedOptionId,
+  profileSrc,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
   const queryClient = useQueryClient();
   const { isClaiming, setIsClaiming } = useClaiming();
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const onClick = async () => {
     try {
@@ -100,7 +113,7 @@ const ClaimButton = ({
         <div className="flex flex-col gap-4 w-full">
           <Button
             variant="grayish"
-            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-500 cursor-auto"
+            className="items-center gap-1 !bg-gray-400 !text-gray-500 cursor-auto h-[50px]"
             disabled
           >
             Claim <DollarIcon fill="#666666" />
@@ -128,7 +141,7 @@ const ClaimButton = ({
         <div className="flex flex-col gap-4 w-full">
           <Button
             className={classNames(
-              "text-sm font-semibold text-left flex items-center justify-center",
+              "text-sm font-semibold text-left flex items-center justify-center h-[50px]",
               className,
               { "cursor-not-allowed opacity-50": isClaiming },
             )}
@@ -139,7 +152,31 @@ const ClaimButton = ({
             <span>Claim</span>
             <DollarIcon height={24} width={24} />
           </Button>
+          <NewButton
+            onClick={() => setIsShareModalOpen(true)}
+            variant="outline"
+            className="w-full h-[50px]"
+          >
+            Share and earn more
+            <ShareV2Icon />
+          </NewButton>
         </div>
+        <ShareResultDrawer
+          title="Share your result!"
+          isOpen={isShareModalOpen}
+          description={`You won ${rewardAmount?.toLocaleString()} BONK for your correct answer.`}
+          imageComponent={
+            <SingleRevealShareImage
+              options={options}
+              question={questions[0]}
+              selectedOptionId={selectedOptionId!}
+              profileSrc={profileSrc}
+              rewardAmount={rewardAmount!.toLocaleString()}
+
+            />
+          }
+          onClose={() => setIsShareModalOpen(false)}
+        />{" "}
       </div>
     );
   }
@@ -161,7 +198,7 @@ const ClaimButton = ({
           <Button
             disabled
             className={classNames(
-              "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
+              "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none h-[50px]",
               className,
             )}
           >
@@ -169,6 +206,29 @@ const ClaimButton = ({
             <DollarIcon height={24} width={24} fill="#666666" />
           </Button>
         </div>
+        <NewButton
+          onClick={() => setIsShareModalOpen(true)}
+          variant="outline"
+          className="w-full h-[50px]"
+        >
+          Share and earn more
+          <ShareV2Icon />
+        </NewButton>
+        <ShareResultDrawer
+          title="Share your result!"
+          isOpen={isShareModalOpen}
+          description={`You won ${rewardAmount?.toLocaleString()} BONK for your correct answer.`}
+          imageComponent={
+            <SingleRevealShareImage
+              options={options}
+              question={questions[0]}
+              selectedOptionId={selectedOptionId!}
+              profileSrc={profileSrc}
+              rewardAmount={rewardAmount!.toLocaleString()}
+            />
+          }
+          onClose={() => setIsShareModalOpen(false)}
+        />
       </div>
     );
   }
@@ -186,7 +246,7 @@ const ClaimButton = ({
         <Button
           disabled
           className={classNames(
-            "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
+            "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none h-[50px]",
             className,
           )}
         >

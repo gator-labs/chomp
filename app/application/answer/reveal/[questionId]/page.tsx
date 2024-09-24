@@ -299,6 +299,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
           questionResponse.chompResults[0]?.burnTransactionSignature || ""
         }
         questions={[questionResponse.question]}
+        options={questionResponse.questionOptions}
+        selectedOptionId={answerSelected?.questionOptionId}
+        profileSrc={user?.profileSrc}
       />
       {sendTransactionSignature && (
         <a
