@@ -1,7 +1,7 @@
 "use client";
 
 import { getTimeString } from "@/app/utils/dateUtils";
-import { getDeckPath, HISTORY_PATH } from "@/lib/urls";
+import { getDeckPath } from "@/lib/urls";
 import { cn } from "@/lib/utils";
 import { ChompResult, Question, ResultType } from "@prisma/client";
 import { isAfter } from "date-fns";
@@ -147,7 +147,7 @@ const CampaignDeckCard = ({
     chompResults.length === deckQuestions.length &&
     (claimedAmount === 0 || claimableAmount > 0);
 
-  let linkPath = isDeckReadyToReveal ? HISTORY_PATH : getDeckPath(deckId);
+  let linkPath = getDeckPath(deckId);
   if (!userId) linkPath = `/login?next=${encodeURIComponent(linkPath)}`;
 
   return (
