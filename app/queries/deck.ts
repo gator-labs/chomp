@@ -328,7 +328,11 @@ export async function getDeckSchema(id: number) {
         include: {
           question: {
             include: {
-              questionOptions: true,
+              questionOptions: {
+                include: {
+                  questionAnswers: true,
+                },
+              },
               questionTags: {
                 include: {
                   tag: true,
@@ -351,6 +355,12 @@ export async function getDeckSchema(id: number) {
     revealTokenAmount: deck.deckQuestions[0]?.question.revealTokenAmount,
     tagIds: deck.deckQuestions[0]?.question.questionTags.map((qt) => qt.tag.id),
     deckQuestions: undefined,
+    isQuestionAnswered: deck?.deckQuestions?.some((deckQuestion) =>
+      deckQuestion?.question?.questionOptions?.some(
+        (option) =>
+          option?.questionAnswers && option.questionAnswers.length > 0,
+      ),
+    ),
     questions: deck.deckQuestions.map((dq) => ({
       ...dq.question,
       revealToken: undefined,

@@ -21,6 +21,7 @@ type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
   campaigns: Campaign[];
+  isQuestionAnswered: boolean;
   action: (
     data: z.infer<typeof deckSchema>,
   ) => Promise<{ errorMessage?: string } | void>;
@@ -30,6 +31,7 @@ export default function DeckForm({
   deck,
   tags,
   campaigns,
+  isQuestionAnswered,
   action,
 }: DeckFormProps) {
   dayjs.extend(utc);
@@ -524,7 +526,7 @@ export default function DeckForm({
       <Button
         variant="primary"
         type="submit"
-        disabled={isSubmitting || isSubmitSuccessful}
+        disabled={isSubmitting || isSubmitSuccessful || isQuestionAnswered}
       >
         {isSubmitting ? "Submitting" : "Submit"}
       </Button>{" "}

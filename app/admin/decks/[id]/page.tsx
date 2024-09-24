@@ -21,6 +21,6 @@ export default async function Page({ params: { id } }: PageProps) {
   }
 
   return (
-    <DeckForm action={editDeck} deck={deck} tags={tags} campaigns={campaigns} />
+    <DeckForm action={editDeck} deck={deck} tags={tags} campaigns={campaigns} isQuestionAnswered={deck?.isQuestionAnswered}/>
   );
 }
