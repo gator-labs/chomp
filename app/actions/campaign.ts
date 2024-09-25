@@ -1,5 +1,6 @@
 "use server";
 
+import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -41,8 +42,8 @@ export async function createCampaign(data: z.infer<typeof campaignSchema>) {
     },
   });
 
-  revalidatePath("/admin/stacks");
-  redirect("/admin/stacks");
+  revalidatePath(`${ADMIN_PATH}${STACKS_PATH}`);
+  redirect(`${ADMIN_PATH}${STACKS_PATH}`);
 }
 
 export async function editCampaign(data: z.infer<typeof campaignSchema>) {
@@ -98,6 +99,6 @@ export async function editCampaign(data: z.infer<typeof campaignSchema>) {
     },
   });
 
-  revalidatePath("/admin/stacks");
-  redirect("/admin/stacks");
+  revalidatePath(`${ADMIN_PATH}${STACKS_PATH}`);
+  redirect(`${ADMIN_PATH}${STACKS_PATH}`);
 }

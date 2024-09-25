@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
+import { STACKS_PATH } from "@/lib/urls";
 
 type CampaignCardProps = {
   id: number;
@@ -21,7 +22,7 @@ const CampaignCard = ({
 }: CampaignCardProps) => {
   return (
     <Link
-      href={`/stacks/${id}`}
+      href={`${STACKS_PATH}/${id}`}
       className="p-4 rounded-[8px] bg-gray-800 border-[0.5px] border-solid border-gray-500 flex items-center justify-between gap-4"
       style={{
         pointerEvents:

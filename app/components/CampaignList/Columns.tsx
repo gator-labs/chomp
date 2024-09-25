@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../Button/Button";
+import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 
 export const columns: ColumnDef<Campaign>[] = [
   { accessorKey: "name", header: "Stack" },
@@ -30,7 +31,7 @@ export const columns: ColumnDef<Campaign>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div>
-        <Link href={`/admin/stacks/${row.original.id}`}>
+        <Link href={`${ADMIN_PATH}${STACKS_PATH}/${row.original.id}`}>
           <Button variant="primary" isFullWidth={false}>
             Edit
           </Button>

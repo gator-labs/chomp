@@ -1,5 +1,6 @@
 "use client";
 
+import { STACKS_PATH } from "@/lib/urls";
 import { ChallengeIcon } from "../Icons/ChallengeIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
 import { SettingsIcon } from "../Icons/SettingsIcon";
@@ -14,7 +15,7 @@ const navigationItems = [
     isActiveRegex: "/application/answer.*",
   },
   { label: "Home", icon: <HomeIcon />, href: "/application" },
-  { label: "Stacks", icon: <StacksIcon />, href: "/stacks" },
+  { label: "Stacks", icon: <StacksIcon />, href: STACKS_PATH },
 ];
 
 const adminNavigationItems = [
