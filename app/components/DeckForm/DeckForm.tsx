@@ -21,7 +21,7 @@ type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
   campaigns: Campaign[];
-  isQuestionAnswered: boolean;
+  isQuestionAnswered?: boolean;
   action: (
     data: z.infer<typeof deckSchema>,
   ) => Promise<{ errorMessage?: string } | void>;
@@ -523,6 +523,11 @@ export default function DeckForm({
           ))}
         </select>
       </div>
+      {!!isQuestionAnswered && (
+        <div className="text-red">
+          Editing is disabled as the deck already has an answer.
+        </div>
+      )}
       <Button
         variant="primary"
         type="submit"

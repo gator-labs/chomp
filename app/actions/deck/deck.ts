@@ -244,7 +244,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
 }
 
 export async function editDeck(data: z.infer<typeof deckSchema>) {
-  console.log("IN");
+  console.log("IN", data);
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
@@ -283,6 +283,32 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     );
 
     if (!isBucketImageValid) throw new Error("Invalid image");
+  }
+
+  const currentDeckQuestions = await prisma.deckQuestion.findMany({
+    where: {
+      deckId: data.id,
+    },
+    include: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const isQuestionAnswered = currentDeckQuestions?.some((deckQuestion) =>
+    deckQuestion?.question?.questionOptions?.some(
+      (option) => option?.questionAnswers && option.questionAnswers.length > 0,
+    ),
+  );
+  if(isQuestionAnswered){
+    return { errorMessage: "Cannot edit deck" };
   }
 
   const existingQuestionId = (
@@ -327,10 +353,10 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !q.id,
       );
 
-      console.log(newDeckQuestions);
+      console.log("New Questions:", newDeckQuestions);
 
       for (const question of newDeckQuestions) {
-        console.log(question);
+        console.log("New Question", question);
         const res = await tx.question.create({
           data: {
             question: question.question,
@@ -368,14 +394,31 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !!q.id,
       );
 
-      const currentDeckQuestions = await tx.deckQuestion.findMany({
-        where: {
-          deckId: data.id,
-        },
-        include: {
-          question: true,
-        },
-      });
+      const existingQuestionIds = new Set(
+        existingDeckQuestions.map((q) => q.id),
+      );
+
+      const deletedQuestions = currentDeckQuestions.filter(
+        (dq) => !existingQuestionIds.has(dq.question.id),
+      );
+
+      const deletedQuestionOptionsIds = deletedQuestions.flatMap((q) =>
+        q.question.questionOptions.map((qo) => qo.id),
+      );
+      const deletedquestionIds = deletedQuestions.map((q) => q.questionId);
+
+      console.log(
+        "Existing Deck:",
+        existingDeckQuestions,
+        "Current Deck:",
+        currentDeckQuestions,
+        "Deleted Question:",
+        deletedQuestions,
+        "DeltedOptionId",
+        deletedQuestionOptionsIds,
+        "deltedQuestionId",
+        deletedquestionIds,
+      );
 
       for (const question of existingDeckQuestions) {
         const validatedQuestion = currentDeckQuestions.find(
@@ -435,11 +478,35 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
 
       // Currently a no-op, but may be needed after deck deletion logic is re-enabled.
       if (
-        existingDeckQuestions.length === 0 &&
-        currentDeckQuestions.length === 0
+        deletedQuestionOptionsIds.length === 0 &&
+        deletedquestionIds.length === 0
       ) {
         return;
       }
+
+      await tx.questionOption.deleteMany({
+        where: {
+          id: {
+            in: deletedQuestionOptionsIds,
+          },
+        },
+      });
+
+      await tx.deckQuestion.deleteMany({
+        where: {
+          id: {
+            in: deletedquestionIds,
+          },
+        },
+      });
+
+      await tx.question.deleteMany({
+        where: {
+          id: {
+            in: deletedquestionIds,
+          },
+        },
+      });
 
       // Temporarily deactivate deck deletion until this logic is rock solid.
       // I saw an issue in testing.
