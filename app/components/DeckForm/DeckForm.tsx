@@ -527,6 +527,11 @@ export default function DeckForm({
           ))}
         </select>
       </div>
+      {!!isQuestionAnswered && (
+        <div className="text-red">
+          Editing is disabled as the deck already has an answer.
+        </div>
+      )}
       <Button
         type="submit"
         disabled={isSubmitting || isSubmitSuccessful || isQuestionAnswered}
