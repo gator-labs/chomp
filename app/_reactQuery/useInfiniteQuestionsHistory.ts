@@ -14,7 +14,7 @@ export default function useInfiniteQuestionsHistory(deckId?: string) {
     isFetchingNextPage,
     ...rest
   } = useInfiniteQuery({
-    queryKey: ["questions-history"],
+    queryKey: deckId ? [`questions-history-${deckId}`] : ["questions-history"],
     queryFn: ({ pageParam }) => getQuestionsHistory({ pageParam, deckId }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
