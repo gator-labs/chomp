@@ -23,7 +23,6 @@ const RevealDeck = async ({
   numberOfQuestions,
   deckImage = chompGraphicImage.src,
 }: RevealDeckProps) => {
-  console.log("deckTitle", deckTitle);
   const [revealableQuestions, totalClaimableRewards] = await Promise.all([
     getAllDeckQuestionsReadyForReveal(deckId),
     getDeckTotalClaimableRewards(deckId),
