@@ -65,8 +65,11 @@ export async function getQuestionsHistoryQuery(
   userId: string,
   pageSize: number,
   currentPage: number,
+  deckId?: string,
 ): Promise<QuestionHistory[]> {
   const offset = (currentPage - 1) * pageSize;
+
+  const deckHistoryCondition: string = `AND dq."deckId" = ${deckId}`;
 
   const baseQuery = `
   SELECT 
@@ -108,8 +111,9 @@ export async function getQuestionsHistoryQuery(
   LEFT JOIN 
     public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
   FULL JOIN public."Campaign" c on c.id = q."campaignId"
+  JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
   WHERE 
-    q."revealAtDate" IS NOT NULL
+    q."revealAtDate" IS NOT NULL ${deckId ? deckHistoryCondition : ""}
   GROUP BY 
     q.id, cr."rewardTokenAmount", cr."burnTransactionSignature", c."image"
 `;
@@ -130,9 +134,9 @@ export async function getQuestionsHistoryQuery(
 `;
 
   let finalQuery = baseQuery;
-  if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging") {
-    finalQuery += havingClause;
-  }
+  // if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging") {
+  //   finalQuery += havingClause;
+  // }
   finalQuery += endQuery;
 
   const historyResult: QuestionHistory[] =
@@ -194,6 +198,67 @@ WHERE
     AND q."revealAtDate" < NOW()
     AND qa.selected = TRUE
     AND qa."userId" = '${userId}';
+	`,
+  );
+
+  return questions.filter(
+    (question) =>
+      question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
+  );
+}
+
+export async function getAllDeckQuestionsReadyForReveal(
+  deckId: number,
+): Promise<{ id: number; revealTokenAmount: number; question: string }[]> {
+  const payload = await authGuard();
+
+  const userId = payload.sub;
+
+  const questions = await prisma.$queryRawUnsafe<
+    {
+      id: number;
+      revealTokenAmount: number;
+      answerCount: number;
+      question: string;
+    }[]
+  >(
+    `
+		SELECT 
+    q.id,
+    q.question,
+    CASE 
+        WHEN cr."transactionStatus" = 'Completed' OR cr."transactionStatus" = 'Pending' THEN 0
+        ELSE q."revealTokenAmount"
+    END AS "revealTokenAmount",
+    (
+        SELECT
+            COUNT(DISTINCT CONCAT(qa."userId", qo."questionId"))
+        FROM 
+            public."QuestionOption" qo
+        JOIN 
+            public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        WHERE 
+            qo."questionId" = q."id"
+    ) AS "answerCount",
+     dc."deckId" as "deckId"
+FROM 
+    public."Question" q
+LEFT JOIN 
+    "ChompResult" cr ON cr."questionId" = q.id
+    AND cr."userId" = '${userId}'
+    AND cr."transactionStatus" IN ('Completed', 'Pending')
+JOIN 
+    "QuestionOption" qo ON q.id = qo."questionId"
+JOIN 
+    "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+JOIN "DeckQuestion" dc ON q.id = dc."questionId"
+WHERE 
+    (cr."transactionStatus" IS NULL OR cr."transactionStatus" != 'Completed')
+    AND q."revealAtDate" IS NOT NULL
+    AND q."revealAtDate" < NOW()
+    AND qa.selected = TRUE
+    AND qa."userId" = '${userId}'
+    AND dc."deckId" = ${deckId};
 	`,
   );
 

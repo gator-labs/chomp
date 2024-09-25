@@ -27,7 +27,7 @@ export default function QuestionAnswerPreview({
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
 
   return (
-    <div className="questions-card p-4 pt-6 rounded-lg z-0 flex-grow h-full min-h-[216px] relative">
+    <div className="bg-gray-700 w-full max-w-[480px] pl-4 pr-4 flex flex-col justify-between border border-gray-500 p-4 pt-6 rounded-lg z-0 flex-grow h-full min-h-[216px] relative">
       <div className="text-base text-white mb-4 ">{question}</div>
       <Image
         src={gatorHeadImage}

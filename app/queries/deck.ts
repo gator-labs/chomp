@@ -164,12 +164,20 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return null;
   }
 
+  const totalDeckQuestions = await prisma.deckQuestion.count({
+    where: {
+      deckId: deckId,
+    },
+  });
+
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
       questions: deck?.deckQuestions,
       id: deck.id,
       date: deck.date,
       name: deck.deck,
+      totalDeckQuestions,
+      revealAtDate: deck.revealAtDate,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -180,7 +188,15 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       questions: [],
       id: deck.id,
       date: deck.date,
-      campaignId: deck.campaignId
+      revealAtDate: deck.revealAtDate,
+      campaignId: deck.campaignId,
+      totalDeckQuestions,
+      deckInfo: {
+        heading: deck.heading || deck.deck,
+        description: deck.description,
+        imageUrl: deck.imageUrl,
+        footer: deck.footer,
+      },
     };
   }
 
@@ -190,7 +206,9 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     questions,
     id: deck.id,
     date: deck.date,
+    revealAtDate: deck.revealAtDate,
     campaignId: deck.campaignId,
+    totalDeckQuestions,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
