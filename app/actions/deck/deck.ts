@@ -353,10 +353,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !q.id,
       );
 
-      console.log("New Questions:", newDeckQuestions);
-
       for (const question of newDeckQuestions) {
-        console.log("New Question", question);
         const res = await tx.question.create({
           data: {
             question: question.question,
@@ -407,18 +404,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
       );
       const deletedquestionIds = deletedQuestions.map((q) => q.questionId);
 
-      console.log(
-        "Existing Deck:",
-        existingDeckQuestions,
-        "Current Deck:",
-        currentDeckQuestions,
-        "Deleted Question:",
-        deletedQuestions,
-        "DeltedOptionId",
-        deletedQuestionOptionsIds,
-        "deltedQuestionId",
-        deletedquestionIds,
-      );
 
       for (const question of existingDeckQuestions) {
         const validatedQuestion = currentDeckQuestions.find(
@@ -476,12 +461,22 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         }
       }
 
-      // Currently a no-op, but may be needed after deck deletion logic is re-enabled.
       if (
         deletedQuestionOptionsIds.length === 0 &&
         deletedquestionIds.length === 0
       ) {
         return;
+      }
+
+      for (const question of deletedQuestions) {
+        if (question?.question.imageUrl) {
+          const deleteObject = new DeleteObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME!,
+            Key: question?.question.imageUrl.split("/").pop(),
+          });
+
+          await s3Client.send(deleteObject);
+        }
       }
 
       await tx.questionOption.deleteMany({
@@ -507,17 +502,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           },
         },
       });
-
-      // Temporarily deactivate deck deletion until this logic is rock solid.
-      // I saw an issue in testing.
-      // await tx.deckQuestion.deleteMany({
-      //   where: {
-      //     deckId: deck.id,
-      //     questionId: {
-      //       notIn: existingDeckQuestions.map((q) => q.id) as number[],
-      //     },
-      //   },
-      // });
     },
     { timeout: 20000 },
   );
