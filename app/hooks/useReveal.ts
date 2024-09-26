@@ -346,8 +346,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       } else {
         await reveal!.reveal({
           burnTx: signature,
-          nftAddress: revealNft!.id,
-          nftType: revealNft!.type,
+          nftAddress: ignoreNft ? "" : revealNft!.id,
+          nftType: ignoreNft ? undefined : revealNft!.type,
         });
       }
 

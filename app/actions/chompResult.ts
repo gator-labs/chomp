@@ -158,6 +158,20 @@ export async function revealQuestions(
       },
     });
 
+    let revealNftId = null;
+
+    if (isRevealedWithNft) {
+      const revealNft = await prisma.revealNft.create({
+        data: {
+          userId: payload.sub,
+          nftType,
+          nftId: nftAddress,
+        },
+      });
+
+      revealNftId = revealNft.nftId;
+    }
+
     await tx.chompResult.createMany({
       data: [
         ...questionRewards.map((questionReward) => ({
@@ -167,7 +181,7 @@ export async function revealQuestions(
           burnTransactionSignature: burnTx,
           rewardTokenAmount: questionReward.rewardAmount,
           transactionStatus: TransactionStatus.Completed,
-          revealNftId: isRevealedWithNft ? nftAddress : null,
+          revealNftId,
         })),
       ],
     });
