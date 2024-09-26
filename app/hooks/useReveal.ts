@@ -26,7 +26,7 @@ import {
   REVEAL_TYPE,
 } from "../constants/mixpanel";
 import { useToast } from "../providers/ToastProvider";
-import { BurnError, RevealError } from "../utils/error";
+import { BurnError, DynamicRevealError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {
@@ -256,81 +256,95 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
       if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
         const blockhash = await CONNECTION.getLatestBlockhash();
-        const signer = await wallet!.connector.getSigner<ISolana>();
 
-        const tx = await genBonkBurnTx(
-          address!,
-          blockhash.blockhash,
-          reveal?.amount ?? 0,
-        );
-        setBurnState("burning");
-
+        // This try catch is to catch Dynamic related issues to narrow down the error
         try {
-          const { signature: sn } = await promiseToast(
-            signer.signAndSendTransaction(tx),
-            {
-              loading: "Waiting for signature...",
-              success: "Bonk burn transaction signed!",
-              error: "You denied message signature.",
-            },
+          const signer = await wallet!.connector.getSigner<ISolana>();
+
+          const tx = await genBonkBurnTx(
+            address!,
+            blockhash.blockhash,
+            reveal?.amount ?? 0,
           );
+          setBurnState("burning");
 
-          sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_SIGNED, {
-            [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: sn,
-            [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-            [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
-            [MIX_PANEL_METADATA.REVEAL_TYPE]:
-              revealQuestionIds.length > 1
-                ? REVEAL_TYPE.ALL
-                : REVEAL_TYPE.SINGLE,
-          });
+          try {
+            const { signature: sn } = await promiseToast(
+              signer.signAndSendTransaction(tx),
+              {
+                loading: "Waiting for signature...",
+                success: "Bonk burn transaction signed!",
+                error: "You denied message signature.",
+              },
+            );
 
-          signature = sn;
-        } catch (error) {
-          if ((error as any)?.message === "User rejected the request.")
-            sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
+            sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_SIGNED, {
+              [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: sn,
+              [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+              [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
               [MIX_PANEL_METADATA.REVEAL_TYPE]:
                 revealQuestionIds.length > 1
                   ? REVEAL_TYPE.ALL
                   : REVEAL_TYPE.SINGLE,
-              [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-              [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
             });
 
+            signature = sn;
+          } catch (error) {
+            if ((error as any)?.message === "User rejected the request.")
+              sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
+                [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                  revealQuestionIds.length > 1
+                    ? REVEAL_TYPE.ALL
+                    : REVEAL_TYPE.SINGLE,
+                [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
+                [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+              });
+
+            resetReveal();
+            return;
+          } finally {
+            setProcessingTransaction(false);
+          }
+
+          const chompResults = await createQuestionChompResults(
+            revealQuestionIds.map((qid) => ({
+              burnTx: signature!,
+              questionId: qid,
+            })),
+          );
+
+          pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
+
+          const res = await CONNECTION.confirmTransaction(
+            {
+              blockhash: blockhash.blockhash,
+              lastValidBlockHeight: blockhash.lastValidBlockHeight,
+              signature,
+            },
+            "confirmed",
+          );
+
+          if (!!res.value.err) {
+            errorToast(
+              "Error while confirming transaction. Bonk was not burned. Try again.",
+            );
+            const burnError = new BurnError(
+              `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+              { cause: res.value.err },
+            );
+            Sentry.captureException(burnError);
+            await deleteQuestionChompResults(pendingChompResultIds);
+          }
+        } catch (error) {
+          errorToast("Error happened while revealing question. Try again.");
+          const dynamicRevealError = new DynamicRevealError(
+            `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+            { cause: error },
+          );
+          Sentry.captureException(dynamicRevealError);
+          release();
           resetReveal();
           return;
-        } finally {
-          setProcessingTransaction(false);
-        }
-
-        const chompResults = await createQuestionChompResults(
-          revealQuestionIds.map((qid) => ({
-            burnTx: signature!,
-            questionId: qid,
-          })),
-        );
-
-        pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
-
-        const res = await CONNECTION.confirmTransaction(
-          {
-            blockhash: blockhash.blockhash,
-            lastValidBlockHeight: blockhash.lastValidBlockHeight,
-            signature,
-          },
-          "confirmed",
-        );
-
-        if (!!res.value.err) {
-          errorToast(
-            "Error while confirming transaction. Bonk was not burned. Try again.",
-          );
-          const burnError = new BurnError(
-            `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-            { cause: res.value.err },
-          );
-          Sentry.captureException(burnError);
-          await deleteQuestionChompResults(pendingChompResultIds);
         }
       }
 
