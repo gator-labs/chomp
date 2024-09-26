@@ -114,10 +114,11 @@ export async function revealQuestions(
     throw new Error("No revealable questions available");
   }
 
+  const isRevealedWithNft =
+    nftAddress && nftType && (await checkNft(nftAddress, nftType));
+
   const bonkToBurn = revealableQuestions
-    .slice(
-      nftAddress && nftType && (await checkNft(nftAddress, nftType)) ? 1 : 0,
-    ) // skip bonk burn for first question if nft is supplied
+    .slice(isRevealedWithNft ? 1 : 0) // skip bonk burn for first question if nft is supplied
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
   if (bonkToBurn > 0) {
@@ -166,6 +167,7 @@ export async function revealQuestions(
           burnTransactionSignature: burnTx,
           rewardTokenAmount: questionReward.rewardAmount,
           transactionStatus: TransactionStatus.Completed,
+          revealNftId: isRevealedWithNft ? nftAddress : null,
         })),
       ],
     });

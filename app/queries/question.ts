@@ -245,6 +245,9 @@ export async function getQuestionWithUserAnswer(questionId: number) {
         where: {
           userId,
         },
+        include: {
+          revealNft: true,
+        },
       },
     },
   });

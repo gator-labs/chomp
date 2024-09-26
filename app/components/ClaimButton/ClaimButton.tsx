@@ -26,6 +26,7 @@ interface ClaimButtonProps {
   questionIds: number[];
   questions?: string[];
   transactionHash?: string;
+  revealNftId?: string | null;
 }
 
 const ClaimButton = ({
@@ -36,6 +37,7 @@ const ClaimButton = ({
   questionIds,
   transactionHash,
   questions,
+  revealNftId,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
@@ -54,12 +56,14 @@ const ClaimButton = ({
         [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
 
-      const tx = await CONNECTION.getTransaction(transactionHash!, {
-        commitment: "confirmed",
-        maxSupportedTransactionVersion: 0,
-      });
+      if (!revealNftId) {
+        const tx = await CONNECTION.getTransaction(transactionHash!, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
 
-      if (!tx) return errorToast("Cannot get transaction");
+        if (!tx) return errorToast("Cannot get transaction");
+      }
 
       promiseToast(claimQuestions(questionIds), {
         loading: "Claiming your rewards...",

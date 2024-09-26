@@ -170,6 +170,9 @@ model ChompResult {
   updatedAt                DateTime          @default(now()) @updatedAt
   transactionStatus        TransactionStatus
 
+  revealNftId String?    @unique
+  revealNft   RevealNft? @relation(fields: [revealNftId], references: [nftId])
+
   @@unique([userId, questionId])
 }
 
@@ -211,6 +214,8 @@ model RevealNft {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   nftType   NftType
+
+  chompResult ChompResult? @relation
 
   @@unique([nftId, userId])
 }
