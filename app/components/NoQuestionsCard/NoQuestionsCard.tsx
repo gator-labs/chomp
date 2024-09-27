@@ -46,19 +46,8 @@ export function NoQuestionsCard({
           style={{ zIndex: 1 }}
         />
       </div>
-      <Button
-        onClick={() => {
-          sendToMixpanel(MIX_PANEL_EVENTS.SHARE_EARN_URL);
-          window.open(process.env.NEXT_PUBLIC_REWARD_TASKON_URL, "_blank");
-        }}
-        className="text-[14px] gap-2"
-      >
-        Share & Earn More
-        <Share2 />
-      </Button>
       {nextDeckId ? (
         <Button
-          variant="outline"
           className="text-[14px] gap-2"
           onClick={() => {
             router.replace(`/application/decks/${nextDeckId}`);
@@ -69,7 +58,6 @@ export function NoQuestionsCard({
         </Button>
       ) : (
         <Button
-          variant="outline"
           className="text-[14px] gap-2"
           onClick={() => {
             router.replace("/application");
