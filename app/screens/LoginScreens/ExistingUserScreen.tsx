@@ -1,6 +1,6 @@
-import { Button } from "@/app/components/Button/Button";
 import ChompHeadIcon from "@/app/components/Icons/ChompHeadIcon";
 import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
+import { Button } from "@/app/components/ui/button";
 import Link from "next/link";
 
 interface Props {
@@ -25,8 +25,11 @@ const ExistingUserScreen = ({ hasDailyDeck }: Props) => {
           </div>
         </div>
         <div className="flex flex-col gap-[14px] items-center w-full py-4">
-        <Link href={hasDailyDeck ? "daily-deck" : "/application"} className="w-full">
-            <Button variant="purple" className="gap-1">
+          <Link
+            href={hasDailyDeck ? "daily-deck" : "/application"}
+            className="w-full"
+          >
+            <Button>
               {hasDailyDeck ? "Start Daily Deck" : "Start"}{" "}
               <HalfArrowRightIcon fill="#FFFFFF" />
             </Button>

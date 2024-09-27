@@ -9,7 +9,7 @@ import { formatErrorsToString } from "@/app/utils/zod";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { ZodError } from "zod";
-import { Button } from "../Button/Button";
+import { Button } from "../ui/button";
 import { DataTable } from "../DataTable/DataTable";
 import { columns, questionImportColumns } from "./Columns";
 

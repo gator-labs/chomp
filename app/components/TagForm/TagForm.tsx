@@ -31,7 +31,7 @@ export default function TagForm({ tag, action }: TagFormProps) {
       <div className="mb-3">
         <label className="block mb-1">Tag</label>
         <TextInput variant="secondary" {...register("tag")} />
-        <div className="text-red">{errors.tag?.message}</div>
+        <div className="text-destructive">{errors.tag?.message}</div>
       </div>
 
       <SubmitButton />

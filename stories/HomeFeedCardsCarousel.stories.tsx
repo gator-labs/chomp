@@ -29,11 +29,12 @@ export const Default: Story = {
   args: {
     title: (
       <h2 className="text-gray-800 text-base">
-        Check out others' revealed questions
+        Check out others&apos; revealed questions
       </h2>
     ),
     slides: [
       <FeedQuestionCard
+        key="1"
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
         onTopCornerAction={fn()}
@@ -48,6 +49,7 @@ export const Default: Story = {
         }
       />,
       <FeedQuestionCard
+        key="2"
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
         onTopCornerAction={fn()}
@@ -61,6 +63,7 @@ export const Default: Story = {
         }
       />,
       <FeedQuestionCard
+        key="3"
         revealAtDate={dayjs(new Date()).add(1, "day").toDate()}
         question="The best way to secure your assets is to use a hardware wallet"
         topCornerActionIcon={<CloseIcon />}

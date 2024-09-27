@@ -172,7 +172,7 @@ const Leaderboard = ({
               <p
                 className={cn("text-sm  font-bold", {
                   "text-aqua": rankDifference > 0,
-                  "text-red": rankDifference < 0,
+                  "text-destructive": rankDifference < 0,
                 })}
               >
                 {Math.abs(rankDifference)}

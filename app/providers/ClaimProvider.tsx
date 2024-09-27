@@ -5,7 +5,7 @@ import { ChompResult, Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { ReactNode, createContext, useContext, useState } from "react";
 import { claimQuestions } from "../actions/claim";
-import { Button } from "../components/Button/Button";
+import { Button } from "../components/ui/button";
 import Sheet from "../components/Sheet/Sheet";
 import {
   MIX_PANEL_EVENTS,

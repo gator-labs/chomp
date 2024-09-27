@@ -12,10 +12,11 @@ import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "../Button/Button";
+import { Button as OldButton } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
+import { Button } from "../ui/button";
 
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
@@ -135,7 +136,7 @@ export default function DeckForm({
       <div className="mb-3">
         <label className="block mb-1">Deck title</label>
         <TextInput variant="secondary" {...register("deck")} />
-        <div className="text-red">{errors.deck?.message}</div>
+        <div className="text-destructive">{errors.deck?.message}</div>
       </div>
       <div className="my-10">
         <div className="mb-3">
@@ -159,7 +160,7 @@ export default function DeckForm({
                   setValue("file", []);
                   setValue("imageUrl", undefined);
                 }}
-                variant="warning"
+                variant="destructive"
                 className="!w-fit !h-[30px]"
               >
                 Remove
@@ -170,7 +171,7 @@ export default function DeckForm({
               accept="image/png, image/jpeg, image/webp"
               {...register("file")}
             />
-            <div className="text-red">
+            <div className="text-destructive">
               {errors.questions && errors.file?.message}
             </div>{" "}
           </div>
@@ -181,7 +182,7 @@ export default function DeckForm({
             className="border-[1px] py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray border-gray min-h-20"
             {...register("description")}
           />
-          <div className="text-red">{errors.description?.message}</div>
+          <div className="text-destructive">{errors.description?.message}</div>
         </div>
         <div className="mb-3">
           <label className="block mb-1">Footer (optional)</label>
@@ -189,7 +190,7 @@ export default function DeckForm({
             className="border-[1px] py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray border-gray min-h-20"
             {...register("footer")}
           />{" "}
-          <div className="text-red">{errors.footer?.message}</div>
+          <div className="text-destructive">{errors.footer?.message}</div>
         </div>
       </div>
       <div className="mb-3">
@@ -206,7 +207,7 @@ export default function DeckForm({
               >
                 <h2 className="text-xl mb-2">Question #{questionIndex + 1}</h2>
 
-                <div className="text-red">
+                <div className="text-destructive">
                   {errors.questions && errors.questions[questionIndex]?.message}
                 </div>
 
@@ -216,7 +217,7 @@ export default function DeckForm({
                     variant="secondary"
                     {...register(`questions.${questionIndex}.question`)}
                   />
-                  <div className="text-red">
+                  <div className="text-destructive">
                     {errors.questions &&
                       errors.questions[questionIndex]?.question?.message}
                   </div>
@@ -267,7 +268,7 @@ export default function DeckForm({
                             undefined,
                           );
                         }}
-                        variant="warning"
+                        variant="destructive"
                         className="!w-fit !h-[30px]"
                       >
                         Remove
@@ -278,7 +279,7 @@ export default function DeckForm({
                       accept="image/png, image/jpeg, image/webp"
                       {...register(`questions.${questionIndex}.file`)}
                     />
-                    <div className="text-red">
+                    <div className="text-destructive">
                       {errors.questions &&
                         errors.questions[questionIndex]?.file?.message}
                     </div>{" "}
@@ -327,7 +328,7 @@ export default function DeckForm({
                             </div>
                           )}
                         </div>
-                        <div className="text-red">
+                        <div className="text-destructive">
                           {errors.questions &&
                             errors.questions[questionIndex]?.questionOptions &&
                             errors.questions[questionIndex]?.questionOptions![
@@ -338,7 +339,7 @@ export default function DeckForm({
                     ))}
                 </div>
 
-                <Button
+                <OldButton
                   variant="secondary"
                   type="button"
                   onClick={() => {
@@ -347,7 +348,7 @@ export default function DeckForm({
                   className="mb-3"
                 >
                   Remove
-                </Button>
+                </OldButton>
               </fieldset>
             );
           }
@@ -355,7 +356,6 @@ export default function DeckForm({
 
         {fields.length < 20 && (
           <Button
-            variant="primary"
             type="button"
             onClick={() => {
               append({
@@ -382,7 +382,7 @@ export default function DeckForm({
             </option>
           ))}
         </select>
-        <div className="text-red">{errors.revealToken?.message}</div>
+        <div className="text-destructive">{errors.revealToken?.message}</div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">Reveal token amount</label>
@@ -393,7 +393,9 @@ export default function DeckForm({
             value: 5000,
           })}
         />
-        <div className="text-red">{errors.revealTokenAmount?.message}</div>
+        <div className="text-destructive">
+          {errors.revealTokenAmount?.message}
+        </div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">Reveal at date (optional)</label>
@@ -415,7 +417,7 @@ export default function DeckForm({
             />
           )}
         />
-        <div className="text-red">{errors.revealAtDate?.message}</div>
+        <div className="text-destructive">{errors.revealAtDate?.message}</div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">
@@ -439,7 +441,7 @@ export default function DeckForm({
             />
           )}
         />
-        <div className="text-red">{errors.activeFromDate?.message}</div>
+        <div className="text-destructive">{errors.activeFromDate?.message}</div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">Daily deck date (optional)</label>
@@ -474,7 +476,7 @@ export default function DeckForm({
             />
           )}
         />
-        <div className="text-red">{errors.date?.message}</div>
+        <div className="text-destructive">{errors.date?.message}</div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">Reveal at answer count (optional)</label>
@@ -484,7 +486,9 @@ export default function DeckForm({
             setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         />
-        <div className="text-red">{errors.revealAtAnswerCount?.message}</div>
+        <div className="text-destructive">
+          {errors.revealAtAnswerCount?.message}
+        </div>
       </div>
       <div className="mb-4">
         <label className="block mb-1">Tags (optional)</label>
@@ -521,11 +525,7 @@ export default function DeckForm({
           ))}
         </select>
       </div>
-      <Button
-        variant="primary"
-        type="submit"
-        disabled={isSubmitting || isSubmitSuccessful}
-      >
+      <Button type="submit" disabled={isSubmitting || isSubmitSuccessful}>
         {isSubmitting ? "Submitting" : "Submit"}
       </Button>{" "}
     </form>

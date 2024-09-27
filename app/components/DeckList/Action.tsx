@@ -6,8 +6,8 @@ import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { Row } from "@tanstack/react-table";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "../Button/Button";
 import { Modal } from "../Modal/Modal";
+import { Button } from "../ui/button";
 import { DeckRowType } from "./DeckList";
 
 type Props = {
@@ -38,7 +38,9 @@ const Action = ({ row }: Props) => {
   }, [isModalOpen]);
 
   const handleCopyPublicDeckLink = async () => {
-    await copyTextToClipboard(`${window.location.origin}/application/decks/${row.original.id}`);
+    await copyTextToClipboard(
+      `${window.location.origin}/application/decks/${row.original.id}`,
+    );
     infoToast("Deck link copied to clipboard!");
   };
   return (
@@ -58,7 +60,7 @@ const Action = ({ row }: Props) => {
           </p>
           <div className="flex gap-2">
             <Button
-              variant="warning"
+              variant="destructive"
               disabled={isDeleting || isFetching}
               onClick={async () => {
                 setIsDeleting(true);
@@ -71,7 +73,6 @@ const Action = ({ row }: Props) => {
               {isDeleting ? "Deleting" : "Delete"}
             </Button>
             <Button
-              variant="primary"
               disabled={isDeleting || isFetching}
               onClick={() => setIsModalOpen(false)}
             >
@@ -80,20 +81,16 @@ const Action = ({ row }: Props) => {
           </div>
         </div>
       </Modal>
-      <Button
-        variant="primary"
-        isFullWidth={false}
-        onClick={handleCopyPublicDeckLink}
-      >
+      <Button isFullWidth={false} onClick={handleCopyPublicDeckLink}>
         Deck link
       </Button>
       <Link href={`/admin/decks/${row.original.id}`}>
-        <Button variant="primary" isFullWidth={true} className="h-full">
+        <Button isFullWidth={true} className="h-full">
           Edit
         </Button>
       </Link>
       <Button
-        variant="warning"
+        variant="destructive"
         isFullWidth={false}
         onClick={() => setIsModalOpen(true)}
       >
