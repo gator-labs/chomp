@@ -125,8 +125,6 @@ export const checkNft = async (nftAddress: string, nftType: NftType) => {
     return null;
   }
 
-  await createRevealNft(nftAddress, payload.sub, nftType);
-
   return true;
 };
 

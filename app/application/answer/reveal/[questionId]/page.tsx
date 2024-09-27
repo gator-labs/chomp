@@ -299,6 +299,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           questionResponse.chompResults[0]?.burnTransactionSignature || ""
         }
         questions={[questionResponse.question]}
+        revealNftId={questionResponse.chompResults[0].revealNftId}
       />
       {sendTransactionSignature && (
         <a
