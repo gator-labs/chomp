@@ -44,7 +44,7 @@ export const deckSchema = z
     description: z.string().min(5).optional().nullish().or(z.literal("")),
     footer: z.string().min(5).max(50).optional().nullish().or(z.literal("")),
     tagIds: z.number().array().default([]),
-    campaignId: z.number().optional().nullish(),
+    stackId: z.number().optional().nullish(),
     revealToken: z.nativeEnum(Token),
     date: z.date().nullish(),
     activeFromDate: z.date().nullish(),

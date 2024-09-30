@@ -12,22 +12,22 @@ import { isAfter, isBefore } from "date-fns";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 
-export async function getActiveAndInactiveCampaigns() {
-  return prisma.campaign.findMany({
+export async function getActiveAndInactiveStacks() {
+  return prisma.stack.findMany({
     orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
   });
 }
 
-export async function getActiveAndInactiveCampaign(campaignId: number) {
-  return prisma.campaign.findUnique({
+export async function getActiveAndInactiveStack(stackId: number) {
+  return prisma.stack.findUnique({
     where: {
-      id: campaignId,
+      id: stackId,
     },
   });
 }
 
-export async function getCampaigns() {
-  return prisma.campaign.findMany({
+export async function getStacks() {
+  return prisma.stack.findMany({
     where: {
       isVisible: true,
       isActive: true,
@@ -36,12 +36,12 @@ export async function getCampaigns() {
   });
 }
 
-export async function getCampaign(id: number) {
+export async function getStack(id: number) {
   const jwt = await getJwtPayload();
 
   const userId = jwt?.sub;
 
-  return prisma.campaign.findUnique({
+  return prisma.stack.findUnique({
     where: {
       id,
     },
@@ -79,14 +79,14 @@ export async function getCampaign(id: number) {
   });
 }
 
-export async function getCampaignImage(id: number) {
+export async function getStackImage(id: number) {
   const payload = await getJwtPayload();
 
-  if(!payload){
+  if (!payload) {
     return null;
   }
 
-  return prisma.campaign.findUnique({
+  return prisma.stack.findUnique({
     where: {
       id,
       isVisible: true,
@@ -98,13 +98,12 @@ export async function getCampaignImage(id: number) {
   });
 }
 
-
-export async function getAllCampaigns() {
+export async function getAllStacks() {
   const payload = await getJwtPayload();
 
   const userId = payload?.sub;
 
-  const campaigns = await prisma.campaign.findMany({
+  const stacks = await prisma.stack.findMany({
     where: {
       isVisible: true,
     },
@@ -139,10 +138,10 @@ export async function getAllCampaigns() {
     orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
   });
 
-  return campaigns.map((campaign) => ({
-    ...campaign,
-    decksToAnswer: !!userId ? getDecksToAnswer(campaign.deck) : undefined,
-    decksToReveal: !!userId ? getDecksToReveal(campaign.deck) : undefined,
+  return stacks.map((stack) => ({
+    ...stack,
+    decksToAnswer: !!userId ? getDecksToAnswer(stack.deck) : undefined,
+    decksToReveal: !!userId ? getDecksToReveal(stack.deck) : undefined,
   }));
 }
 

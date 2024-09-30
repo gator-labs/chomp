@@ -10,7 +10,7 @@ type PageLayoutProps = {
   children: ReactNode;
 };
 
-const CampaignsLayout = async ({ children }: PageLayoutProps) => {
+const StacksLayout = async ({ children }: PageLayoutProps) => {
   const [user, history] = await Promise.all([
     getCurrentUser(),
     getTransactionHistory(),
@@ -47,4 +47,4 @@ const CampaignsLayout = async ({ children }: PageLayoutProps) => {
   );
 };
 
-export default CampaignsLayout;
+export default StacksLayout;

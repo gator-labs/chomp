@@ -16,7 +16,7 @@ const prisma = new PrismaClient();
 async function main() {
   const currentDate = new Date();
 
-  const campaign = await prisma.campaign.create({
+  const stack = await prisma.stack.create({
     data: {
       isActive: true,
       name: "Bonkaton",
@@ -29,13 +29,12 @@ async function main() {
     data: {
       deck: `Bonkaton: Deck ${format(currentDate, "MM/dd/yyyy")}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      isActive: true,
-      campaignId: campaign.id,
+      stackId: stack.id,
       deckQuestions: {
         create: {
           question: {
             create: {
-              campaignId: campaign.id,
+              stackId: stack.id,
               question: "Bonkaton question?",
               type: QuestionType.MultiChoice,
               revealToken: Token.Bonk,

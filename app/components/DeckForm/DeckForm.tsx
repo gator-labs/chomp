@@ -4,7 +4,7 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { deckSchema } from "@/app/schemas/deck";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Campaign, QuestionType, Tag as TagType, Token } from "@prisma/client";
+import { QuestionType, Stack, Tag as TagType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Image from "next/image";
@@ -21,7 +21,7 @@ import { Button } from "../ui/button";
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
-  campaigns: Campaign[];
+  stacks: Stack[];
   action: (
     data: z.infer<typeof deckSchema>,
   ) => Promise<{ errorMessage?: string } | void>;
@@ -30,7 +30,7 @@ type DeckFormProps = {
 export default function DeckForm({
   deck,
   tags,
-  campaigns,
+  stacks,
   action,
 }: DeckFormProps) {
   dayjs.extend(utc);
@@ -99,7 +99,7 @@ export default function DeckForm({
       ...data,
       questions,
       tagIds: selectedTagIds,
-      campaignId: data.campaignId,
+      stackId: data.stackId,
       id: deck?.id,
       imageUrl,
       file: undefined,
@@ -145,7 +145,7 @@ export default function DeckForm({
             <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg">
               <Image
                 fill
-                alt="preview-image-campaign"
+                alt="preview-image-stack"
                 src={deckPreviewUrl}
                 className="object-cover w-full h-full"
               />
@@ -250,7 +250,7 @@ export default function DeckForm({
                     <div className="w-32 h-32 relative overflow-hidden rounded-full">
                       <Image
                         fill
-                        alt="preview-image-campaign"
+                        alt="preview-image-stack"
                         src={previewUrl}
                         className="object-cover w-full h-full"
                       />
@@ -510,17 +510,17 @@ export default function DeckForm({
         </div>
       </div>
       <div className="mb-4">
-        <label className="block mb-1">Campaign (optional)</label>
+        <label className="block mb-1">Stack (optional)</label>
         <select
           className="text-gray-800 w-full"
-          {...register("campaignId", {
+          {...register("stackId", {
             setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         >
           <option value="">None</option>
-          {campaigns.map((campaign) => (
-            <option value={Number(campaign.id)} key={campaign.id}>
-              {campaign.name}
+          {stacks.map((stack) => (
+            <option value={Number(stack.id)} key={stack.id}>
+              {stack.name}
             </option>
           ))}
         </select>

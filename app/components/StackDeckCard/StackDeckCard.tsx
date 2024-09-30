@@ -15,7 +15,7 @@ import GiftIcon from "../Icons/GiftIcon";
 import HalfEyeIcon from "../Icons/HalfEyeIcon";
 import HourGlassIcon from "../Icons/HourGlassIcon";
 
-type CampaignDeckCardProps = {
+type StackDeckCardProps = {
   deckId: number;
   deckName: string;
   imageUrl: string;
@@ -28,7 +28,7 @@ type CampaignDeckCardProps = {
   userId?: string;
 };
 
-const CampaignDeckCard = ({
+const StackDeckCard = ({
   deckId,
   deckName,
   imageUrl,
@@ -39,7 +39,7 @@ const CampaignDeckCard = ({
   chompResults,
   deckQuestions,
   userId,
-}: CampaignDeckCardProps) => {
+}: StackDeckCardProps) => {
   const currentDate = new Date();
   const isDeckReadyToReveal = isAfter(currentDate, revealAtDate);
   const isDeckActive = isAfter(currentDate, activeFromDate);
@@ -236,4 +236,4 @@ const CampaignDeckCard = ({
   );
 };
 
-export default CampaignDeckCard;
+export default StackDeckCard;

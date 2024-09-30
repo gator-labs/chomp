@@ -20,7 +20,7 @@
     "dev:subj-question": "dotenv -c -- ts-node scripts/CreateSubjectiveWithAnswers.ts",
     "dev:mc-obj": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/objective-multiple-choice-questions.ts",
     "dev:binary-obj": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/objective-binary-questions.ts",
-    "dev:campaign-leaderboard": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/campaign-leaderboard.ts",
+    "dev:stack-leaderboard": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/stack-leaderboard.ts",
     "dev:reveal-nft": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/reveal-nft.ts",
     "dev:obj-question": "dotenv -c -- ts-node scripts/CreateObjectiveWithAnswers.ts",
     "dev:philippines-deck": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/philippines-deck.ts",

@@ -200,7 +200,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
         date: validatedFields.data.date,
         activeFromDate: validatedFields.data.activeFromDate,
-        campaignId: validatedFields.data.campaignId,
+        stackId: validatedFields.data.stackId,
         description: validatedFields.data.description,
         footer: validatedFields.data.footer,
         heading: validatedFields.data.heading,
@@ -233,7 +233,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
               data: validatedFields.data.tagIds.map((tagId) => ({ tagId })),
             },
           },
-          campaignId: validatedFields.data.campaignId,
+          stackId: validatedFields.data.stackId,
         },
       });
     }
@@ -316,7 +316,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
           date: validatedFields.data.date,
-          campaignId: validatedFields.data.campaignId,
+          stackId: validatedFields.data.stackId,
           footer: validatedFields.data.footer,
           description: validatedFields.data.description,
           heading: validatedFields.data.heading,
@@ -356,7 +356,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
                 data: validatedFields.data.tagIds.map((tagId) => ({ tagId })),
               },
             },
-            campaignId: validatedFields.data.campaignId,
+            stackId: validatedFields.data.stackId,
           },
           include: {
             deckQuestions: true,
@@ -420,7 +420,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
                 },
               },
             },
-            campaignId: validatedFields.data.campaignId,
+            stackId: validatedFields.data.stackId,
           },
         });
 
