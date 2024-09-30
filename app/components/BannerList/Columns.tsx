@@ -5,7 +5,7 @@ import { Banner } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "../Button/Button";
+import { Button } from "../ui/button";
 
 export const columns: ColumnDef<Banner>[] = [
   {
@@ -29,7 +29,7 @@ export const columns: ColumnDef<Banner>[] = [
     cell: ({ row }) => (
       <div>
         <Link href={`/admin/banners/${row.original.id}`}>
-          <Button variant="primary" isFullWidth={false}>
+          <Button isFullWidth={false}>
             Edit
           </Button>
         </Link>

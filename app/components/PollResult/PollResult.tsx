@@ -40,7 +40,7 @@ export default function PollResult({
                   <div
                     className={classNames(
                       "text-aqua text-sm font-bold z-10 flex items-center gap-1",
-                      { "text-red": !isCorrect },
+                      { "text-destructive": !isCorrect },
                     )}
                   >
                     <div>You guessed {percentageSelected}% for </div>

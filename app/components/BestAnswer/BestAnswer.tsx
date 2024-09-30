@@ -23,7 +23,7 @@ export function BestAnswer({
             className={classNames(
               "text-gray-800 bg-aqua py-1 px-2 rounded-full",
               {
-                "bg-red": bestOption !== optionSelected,
+                "bg-destructive": bestOption !== optionSelected,
               },
             )}
           >

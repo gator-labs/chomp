@@ -12,7 +12,7 @@ const ActiveIndicator = ({ isActive, className }: Props) => {
         "w-2.5 h-2.5 rounded-full border-[1px] border-gray-700 absolute top-0 left-0 z-[1]",
         {
           "bg-aqua": isActive,
-          "bg-red": !isActive,
+          "bg-destructive": !isActive,
         },
         className,
       )}

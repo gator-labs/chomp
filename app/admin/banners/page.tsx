@@ -1,5 +1,5 @@
 import BannerList from "@/app/components/BannerList/BannerList";
-import { Button } from "@/app/components/Button/Button";
+import { Button } from "@/app/components/ui/button";
 import { getBanners } from "@/app/queries/banner";
 import Link from "next/link";
 
@@ -10,7 +10,7 @@ const AdminBannersPage = async () => {
     <div className="flex flex-col gap-2">
       <div className="flex justify-end gap-2">
         <Link href="/admin/banners/new">
-          <Button variant="primary">New</Button>
+          <Button>New</Button>
         </Link>
       </div>
 

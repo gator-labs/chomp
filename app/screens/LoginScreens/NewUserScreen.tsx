@@ -1,4 +1,4 @@
-import { Button } from "@/app/components/Button/Button";
+import { Button } from "@/app/components/ui/button";
 import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
 import NewIcon from "@/app/components/Icons/NewIcon";
 import Link from "next/link";
@@ -22,7 +22,7 @@ const NewUserScreen = () => {
         </div>
         <div className="flex flex-col gap-[14px] items-center w-full py-4">
           <Link href="/tutorial" className="w-full">
-            <Button variant="purple" className="gap-1">
+            <Button>
               Let’s go <HalfArrowRightIcon fill="#FFFFFF" />
             </Button>
           </Link>

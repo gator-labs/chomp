@@ -1,13 +1,13 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import { Button } from "../Button/Button";
+import { Button } from "../ui/button";
 
 export function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button variant="primary" type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending}>
       Submit
     </Button>
   );
