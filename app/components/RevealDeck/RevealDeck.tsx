@@ -31,13 +31,15 @@ const RevealDeck = async ({
     <div className="pt-4 flex flex-col gap-8 overflow-hidden w-full max-w-lg mx-auto px-4">
       <BackButton />
       <div className="p-4 bg-gray-850 flex gap-4">
-        <div className="relative w-[100.5px] h-[100.5px]">
-          <Image
-            src={deckImage}
-            fill
-            alt={deckTitle}
-            className="object-cover"
-          />
+        <div>
+          <div className="relative w-[100.5px] h-[100.5px]">
+            <Image
+              src={deckImage}
+              fill
+              alt={deckTitle}
+              className="object-cover"
+            />
+          </div>
         </div>
         <div className="flex flex-col">
           <h1 className="text-base mb-3">{deckTitle}</h1>
