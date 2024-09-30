@@ -25,8 +25,8 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: "/application/campaigns",
-        destination: "/application/stacks",
+        source: "/campaigns",
+        destination: "/stacks",
         permanent: true,
       },
       {
