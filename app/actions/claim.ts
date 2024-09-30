@@ -161,6 +161,7 @@ export async function claimQuestions(questionIds: number[]) {
         (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
         0,
       ),
+      burnTx: chompResults[0].burnTransactionSignature,
       transactionSignature: sendTx,
       questions: chompResults.map((cr) => cr.question),
     };
