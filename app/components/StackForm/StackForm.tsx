@@ -9,8 +9,8 @@ import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
+import { Button } from "../ui/button";
 
 type StackFormProps = {
   stack?: Stack;
@@ -71,7 +71,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
       <div className="mb-3">
         <label className="block mb-1">Stack</label>
         <TextInput variant="secondary" {...register("name")} />
-        <div className="text-red">{errors.name?.message}</div>
+        <div className="text-destructive">{errors.name?.message}</div>
       </div>
       <div className="mb-3">
         <label className="mr-3">Is active</label>
@@ -80,7 +80,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
           className="mt-1"
           {...register("isActive", { value: true })}
         />
-        <div className="text-red">{errors.isActive?.message}</div>
+        <div className="text-destructive">{errors.isActive?.message}</div>
       </div>
       <div className="mb-3">
         <label className="mr-3">Is visible</label>
@@ -89,7 +89,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
           className="mt-1"
           {...register("isVisible", { value: true })}
         />
-        <div className="text-red">{errors.isVisible?.message}</div>
+        <div className="text-destructive">{errors.isVisible?.message}</div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">Image</label>
@@ -109,9 +109,9 @@ export default function StackForm({ stack, action }: StackFormProps) {
           {...register("file")}
         />
 
-        <div className="text-red">{errors.file?.message as string}</div>
+        <div className="text-destructive">{errors.file?.message as string}</div>
       </div>
-      <Button variant="primary" type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Submitting" : "Submit"}
       </Button>
     </form>

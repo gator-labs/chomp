@@ -16,6 +16,7 @@ type DeckScreenProps = {
     footer: string | null;
     imageUrl: string | null;
     totalNumberOfQuestions: number;
+    revealAtDate?: Date | null;
   };
   questions: Question[];
   currentDeckId: number;
@@ -53,7 +54,6 @@ const DeckScreen = ({
           />
           <div className="flex flex-col gap-4 py-4">
             <Button
-              variant="primary"
               onClick={() => {
                 sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
                   [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,

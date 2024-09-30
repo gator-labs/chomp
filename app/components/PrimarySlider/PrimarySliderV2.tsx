@@ -79,7 +79,7 @@ const PrimarySliderV2 = ({
           >
             <div
               className={classNames("w-full h-full rounded-2xl", {
-                "bg-[#575CDF]": isSliderTouched,
+                "bg-purple-400": isSliderTouched,
                 "animate-purplePulse": !isSliderTouched,
               })}
             />

@@ -30,7 +30,7 @@ const Pill = ({
   const variantStyles = {
     primary: "bg-primary text-gray-900",
     secondary: "bg-secondary text-gray-100",
-    warning: "bg-red text-gray-900",
+    warning: "bg-destructive text-gray-900",
     white: "bg-white text-gray-900",
     black: "bg-gray-800 text-text-gray-100",
     pink: "bg-pink text-gray-900",

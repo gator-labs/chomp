@@ -54,7 +54,7 @@ const toastLayout = (
   message: string,
   description?: string,
 ) => (
-  <div className="flex gap-6 items-center text-gray-50 justify-between p-6 border border-[#AFADEB] rounded-[8px] w-[358px] h-[75] bg-[#1B1B1B] relative overflow-hidden">
+  <div className="flex gap-6 items-center text-gray-50 justify-between p-6 border border-purple-200 rounded-[8px] w-[358px] h-[75] bg-gray-800 relative overflow-hidden">
     <div>
       <IconComponent />
     </div>
@@ -65,7 +65,7 @@ const toastLayout = (
     <div className="cursor-pointer" onClick={() => toast.dismiss()}>
       <RemoveIcon />
     </div>
-    <div className="absolute bottom-0 h-[5px] left-0 bg-[#8784E1] animate-loadingLine"></div>
+    <div className="absolute bottom-0 h-[5px] left-0 bg-purple-300 animate-loadingLine"></div>
   </div>
 );
 

@@ -1,5 +1,6 @@
 import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
+import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
 import { getNextDeckId } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
@@ -21,9 +22,20 @@ export default async function Page({ params: { id } }: PageProps) {
 
   return (
     <div className="h-full pt-3 pb-4">
-      {deck?.questions.length === 0 || deck === null ? (
+      {deck === null ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
-      ) : deck?.questions && deck?.questions?.length > 0 && deck?.deckInfo ? (
+      ) : deck.revealAtDate &&
+        deck.revealAtDate < new Date() &&
+        deck.deckInfo ? (
+        <RevealDeck
+          deckId={currentDeckId}
+          deckTitle={deck.deckInfo.heading}
+          deckDescription={deck.deckInfo.description}
+          deckFooter={deck.deckInfo.footer}
+          deckImage={deck.deckInfo.imageUrl || stackData?.image}
+          numberOfQuestions={deck.totalDeckQuestions}
+        />
+      ) : deck.questions?.length > 0 && deck.deckInfo ? (
         <DeckScreen
           currentDeckId={deck.id}
           nextDeckId={nextDeckId}
@@ -35,6 +47,8 @@ export default async function Page({ params: { id } }: PageProps) {
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
         />
+      ) : deck.questions.length === 0 ? (
+        <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />
       )}

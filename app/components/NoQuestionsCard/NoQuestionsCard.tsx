@@ -29,7 +29,7 @@ export function NoQuestionsCard({
 
   return (
     <div className="flex flex-col justify-between h-full w-full gap-4">
-      <div className="questions-card text-white  relative mb-[4px]">
+      <div className="bg-gray-700 min-h-[350px] w-full max-w-[480px] rounded-xl pt-6 pl-4 pr-4 flex flex-col justify-between border border-gray-500 text-white relative mb-[4px]">
         <div className="flex items-center justify-start text-left flex-col space-y-5">
           <div className="text-[24px] font-bold w-full text-purple-200">
             {QUESTION_CARD_CONTENT[variant].title}
@@ -46,19 +46,8 @@ export function NoQuestionsCard({
           style={{ zIndex: 1 }}
         />
       </div>
-      <Button
-        onClick={() => {
-          sendToMixpanel(MIX_PANEL_EVENTS.SHARE_EARN_URL);
-          window.open(process.env.NEXT_PUBLIC_REWARD_TASKON_URL, "_blank");
-        }}
-        className="text-[14px] gap-2"
-      >
-        Share & Earn More
-        <Share2 />
-      </Button>
       {nextDeckId ? (
         <Button
-          variant="outline"
           className="text-[14px] gap-2"
           onClick={() => {
             router.replace(`/application/decks/${nextDeckId}`);
@@ -69,7 +58,6 @@ export function NoQuestionsCard({
         </Button>
       ) : (
         <Button
-          variant="outline"
           className="text-[14px] gap-2"
           onClick={() => {
             router.replace("/application");

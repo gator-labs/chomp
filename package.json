@@ -21,6 +21,7 @@
     "dev:mc-obj": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/objective-multiple-choice-questions.ts",
     "dev:binary-obj": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/objective-binary-questions.ts",
     "dev:stack-leaderboard": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/stack-leaderboard.ts",
+    "dev:reveal-nft": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/reveal-nft.ts",
     "dev:obj-question": "dotenv -c -- ts-node scripts/CreateObjectiveWithAnswers.ts",
     "dev:philippines-deck": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/philippines-deck.ts",
     "dev:restore-db": "dotenv -c -- ts-node scripts/restore-database.ts",

@@ -6,7 +6,7 @@ import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "../Button/Button";
+import { Button } from "../ui/button";
 
 export const columns: ColumnDef<Stack>[] = [
   { accessorKey: "name", header: "Stack" },

@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Tag } from "@prisma/client";
 import Link from "next/link";
-import { Button } from "../Button/Button";
+import { Button } from "../ui/button";
 
 export const columns: ColumnDef<Tag>[] = [
   { accessorKey: "tag", header: "Tag" },
@@ -12,7 +12,7 @@ export const columns: ColumnDef<Tag>[] = [
     cell: ({ row }) => (
       <div>
         <Link href={`/admin/tags/${row.original.id}`}>
-          <Button variant="primary" isFullWidth={false}>
+          <Button isFullWidth={false}>
             Edit
           </Button>
         </Link>

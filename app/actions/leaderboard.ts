@@ -290,6 +290,10 @@ const mapLeaderboardData = async (
     const entry = leaderboard[index];
     const user = users.find((u) => u.id === entry.userId)!;
 
+    if (!user) {
+      continue;
+    }
+
     if (entry.value !== leaderboard[index - 1]?.value) rank = rank + 1;
 
     if (rank > 100) {

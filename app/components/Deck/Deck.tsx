@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
+import classNames from "classnames";
 
 export type Option = {
   id: number;
@@ -87,6 +88,7 @@ export function Deck({
 
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
+  const [processingSkipQuestion, setProcessingSkipQuestion] = useState(false)
   const min = 0;
   const max =
     !!questions[currentQuestionIndex] &&
@@ -118,7 +120,7 @@ export function Deck({
     const min = 0;
     const max =
       !!questions[currentQuestionIndex + 1] &&
-      questions[currentQuestionIndex + 1].questionOptions.length > 0
+        questions[currentQuestionIndex + 1].questionOptions.length > 0
         ? questions[currentQuestionIndex + 1].questionOptions.length - 1
         : 0;
     generateRandom({ min, max });
@@ -162,8 +164,11 @@ export function Deck({
   }, [question, handleNextIndex, setDeckResponse]);
 
   const handleSkipQuestion = async () => {
+    if (processingSkipQuestion) return;
+    setProcessingSkipQuestion(true)
     await markQuestionAsSkipped(question.id);
     handleNextIndex();
+    setProcessingSkipQuestion(false)
   };
 
   const onQuestionActionClick = useCallback(
@@ -350,7 +355,7 @@ export function Deck({
       />
       {currentQuestionStep !== QuestionStep.PickPercentage && (
         <div
-          className="text-sm text-center mt-5 text-gray-400 underline cursor-pointer"
+          className={classNames("text-sm text-center mt-5 text-gray-400 underline ", processingSkipQuestion ? "cursor-not-allowed" : "cursor-pointer")}
           onClick={() => handleSkipQuestion()}
         >
           Skip question

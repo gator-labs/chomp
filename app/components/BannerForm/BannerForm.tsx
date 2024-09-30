@@ -9,8 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Banner } from "@prisma/client";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
+import { Button } from "../ui/button";
 
 interface Props {
   banner?: Banner;
@@ -57,7 +57,7 @@ const BannerForm = ({ banner, action }: Props) => {
       <div className="mb-3">
         <label className="block mb-1">Url</label>
         <TextInput variant="secondary" {...register("url")} />
-        <div className="text-red">{errors.url?.message}</div>
+        <div className="text-destructive">{errors.url?.message}</div>
       </div>
       <div className="mb-3">
         <label className="mr-3">Is active</label>
@@ -66,7 +66,7 @@ const BannerForm = ({ banner, action }: Props) => {
           className="mt-1"
           {...register("isActive", { value: true })}
         />
-        <div className="text-red">{errors.isActive?.message}</div>
+        <div className="text-destructive">{errors.isActive?.message}</div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">Image*</label>
@@ -86,10 +86,9 @@ const BannerForm = ({ banner, action }: Props) => {
           {...register("image")}
         />
 
-        <div className="text-red">{errors.image?.message as string}</div>
+        <div className="text-destructive">{errors.image?.message as string}</div>
       </div>
       <Button
-        variant="primary"
         type="submit"
         disabled={isSubmitting || !isDirty}
       >

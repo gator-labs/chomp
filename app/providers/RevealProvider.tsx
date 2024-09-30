@@ -297,7 +297,7 @@ export function RevealContextProvider({
                       closeRevealModal();
                     }
                   }}
-                  className="absolute top-5 right-6 border-none w-max !p-0 z-50"
+                  className="!absolute !top-3 !right-6 !border-none !w-max !p-0 z-50"
                 >
                   <CloseIcon width={16} height={16} />
                 </Button>

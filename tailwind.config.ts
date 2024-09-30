@@ -10,12 +10,9 @@ const colors = {
 
   // HARDCODED COLORS IN APP
   // #6DECAFCC
-  // #8C96ED
-  // #575CDF
-  // #FFF294§
+  // #FFF294
   // #DFDFDF
   // #E2956C
-  // #171616
   // #DD7944
 
   // FIGMA NEW COLORS
@@ -24,7 +21,6 @@ const colors = {
   secondary: "#AFADEB",
   destructive: "#ED6A5A",
   green: "#1ED3B3",
-  red: "#ED6A5A",
   white: "#FFFFFF",
   gray: {
     50: "#FFFFFF",
