@@ -1,9 +1,9 @@
-import { Campaign } from "@prisma/client";
+import { Stack } from "@prisma/client";
 import { DataTable } from "../DataTable/DataTable";
 import { columns } from "./Columns";
 
 interface Props {
-  stacks: Campaign[];
+  stacks: Stack[];
 }
 
 const StackList = ({ stacks }: Props) => {

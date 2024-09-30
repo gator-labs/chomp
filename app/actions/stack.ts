@@ -33,7 +33,7 @@ export async function createStack(data: z.infer<typeof stackSchema>) {
 
   if (!isBucketImageValid) throw new Error("Invalid image");
 
-  await prisma.campaign.create({
+  await prisma.stack.create({
     data: {
       name: validatedFields.data.name,
       isActive: validatedFields.data.isActive,
@@ -72,7 +72,7 @@ export async function editStack(data: z.infer<typeof stackSchema>) {
 
   if (!isBucketImageValid) throw new Error("Invalid image");
 
-  const currentStack = await prisma.campaign.findUnique({
+  const currentStack = await prisma.stack.findUnique({
     where: {
       id: data.id,
     },
@@ -87,7 +87,7 @@ export async function editStack(data: z.infer<typeof stackSchema>) {
     await s3Client.send(deleteObject);
   }
 
-  await prisma.campaign.update({
+  await prisma.stack.update({
     where: {
       id: data.id,
     },

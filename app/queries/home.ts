@@ -101,10 +101,10 @@ async function getNextDeckIdQuery(
     d."deck",
     d."revealAtDate",
     d."revealAtAnswerCount",
-    d."campaignId",
+    d."stackId",
     c."image"
     from public."Deck" d
-    full join "Stack" c on c."id" = d."campaignId"
+    full join "Stack" c on c."id" = d."stackId"
     where
       (
         (
@@ -168,7 +168,7 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
 FROM
     public."Deck" d
 FULL JOIN
-    "Stack" c ON c."id" = d."campaignId"
+    "Stack" c ON c."id" = d."stackId"
 WHERE
     d."revealAtDate" > NOW() 
     AND d."date" IS NULL 
@@ -205,7 +205,7 @@ async function queryExpiringDailyDecks(
 FROM
     public."Deck" d
 FULL JOIN
-    "Stack" c ON c."id" = d."campaignId"
+    "Stack" c ON c."id" = d."stackId"
 WHERE
     d."activeFromDate" IS NULL
     AND d."date" >= ${currentDayStart}
@@ -248,7 +248,7 @@ async function queryRevealedQuestions(
     q."revealTokenAmount",
     c."image"
   FROM public."Question" q
-  LEFT JOIN "Stack" c ON c."id" = q."campaignId"
+  LEFT JOIN "Stack" c ON c."id" = q."stackId"
   LEFT JOIN public."ChompResult" cr1 
       ON cr1."questionId" = q."id" 
       AND cr1."userId" = ${userId} 

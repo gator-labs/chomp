@@ -1,6 +1,6 @@
 "use client";
 
-import { Campaign } from "@prisma/client";
+import { Stack } from "@prisma/client";
 
 import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 import { ColumnDef } from "@tanstack/react-table";
@@ -8,7 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../Button/Button";
 
-export const columns: ColumnDef<Campaign>[] = [
+export const columns: ColumnDef<Stack>[] = [
   { accessorKey: "name", header: "Stack" },
   {
     accessorKey: "logo",

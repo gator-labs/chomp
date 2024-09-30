@@ -4,7 +4,7 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { deckSchema } from "@/app/schemas/deck";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Campaign, QuestionType, Tag as TagType, Token } from "@prisma/client";
+import { QuestionType, Stack, Tag as TagType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Image from "next/image";
@@ -20,7 +20,7 @@ import { TextInput } from "../TextInput/TextInput";
 type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
-  stacks: Campaign[];
+  stacks: Stack[];
   action: (
     data: z.infer<typeof deckSchema>,
   ) => Promise<{ errorMessage?: string } | void>;

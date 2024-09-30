@@ -1,6 +1,6 @@
 "use client";
 
-import { Campaign } from "@prisma/client";
+import { Stack } from "@prisma/client";
 
 import { stackSchema } from "@/app/schemas/stack";
 
@@ -13,7 +13,7 @@ import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
 
 type StackFormProps = {
-  stack?: Campaign;
+  stack?: Stack;
   action: "update" | "create";
 };
 

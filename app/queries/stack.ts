@@ -13,13 +13,13 @@ import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 
 export async function getActiveAndInactiveStacks() {
-  return prisma.campaign.findMany({
+  return prisma.stack.findMany({
     orderBy: [{ isActive: "desc" }, { createdAt: "desc" }],
   });
 }
 
 export async function getActiveAndInactiveStack(stackId: number) {
-  return prisma.campaign.findUnique({
+  return prisma.stack.findUnique({
     where: {
       id: stackId,
     },
@@ -27,7 +27,7 @@ export async function getActiveAndInactiveStack(stackId: number) {
 }
 
 export async function getStacks() {
-  return prisma.campaign.findMany({
+  return prisma.stack.findMany({
     where: {
       isVisible: true,
       isActive: true,
@@ -41,7 +41,7 @@ export async function getStack(id: number) {
 
   const userId = jwt?.sub;
 
-  return prisma.campaign.findUnique({
+  return prisma.stack.findUnique({
     where: {
       id,
     },
@@ -86,7 +86,7 @@ export async function getStackImage(id: number) {
     return null;
   }
 
-  return prisma.campaign.findUnique({
+  return prisma.stack.findUnique({
     where: {
       id,
       isVisible: true,
@@ -103,7 +103,7 @@ export async function getAllStacks() {
 
   const userId = payload?.sub;
 
-  const stacks = await prisma.campaign.findMany({
+  const stacks = await prisma.stack.findMany({
     where: {
       isVisible: true,
     },

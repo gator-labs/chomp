@@ -17,7 +17,7 @@ export const getNumberOfChompedQuestionsOfStackQuery = async (
       qa."questionOptionId" = qo."id"
       JOIN public."Question" 
       q ON q.id  = qo."questionId" 
-      WHERE q."campaignId" = ${stackId}
+      WHERE q."stackId" = ${stackId}
       GROUP BY 
       qa."userId"
       ORDER BY "questionsAnswered" desc

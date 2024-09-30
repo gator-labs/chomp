@@ -199,10 +199,7 @@ const getNumberOfChompedQuestions = async (
 const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
   const whereStackClause = !!stackId
     ? {
-        OR: [
-          { question: { campaignId: stackId } },
-          { deck: { campaignId: stackId } },
-        ],
+        OR: [{ question: { stackId } }, { deck: { stackId } }],
       }
     : {};
 
@@ -236,9 +233,7 @@ const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
 };
 
 const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number) => {
-  const whereStackClause = !!stackId
-    ? { question: { campaignId: stackId } }
-    : {};
+  const whereStackClause = !!stackId ? { question: { stackId } } : {};
 
   const res = await prisma.chompResult.groupBy({
     by: ["userId"],
