@@ -11,16 +11,16 @@ import {
 } from "date-fns";
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
-  getNumberOfChompedQuestionsOfCampaignQuery,
+  getNumberOfChompedQuestionsOfStackQuery,
   getNumberOfChompedQuestionsQuery,
 } from "../queries/leaderboard";
 import { getCurrentUser } from "../queries/user";
 import prisma from "../services/prisma";
 import { getStartAndEndOfDay, getWeekStartAndEndDates } from "../utils/date";
 interface LeaderboardProps {
-  variant: "weekly" | "daily" | "campaign";
+  variant: "weekly" | "daily" | "stack";
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions";
-  campaignId?: number;
+  stackId?: number;
 }
 
 export const getPreviousUserRank = async (
@@ -130,11 +130,11 @@ export const getPreviousUserRank = async (
 export const getLeaderboard = async ({
   filter,
   variant,
-  campaignId,
+  stackId,
 }: LeaderboardProps) => {
   let dateFilter = {};
 
-  if (variant !== "campaign") {
+  if (variant !== "stack") {
     const dateRange = getDateRange(variant);
     console.log(dateRange);
     dateFilter = {
@@ -145,13 +145,13 @@ export const getLeaderboard = async ({
     };
   }
 
-  if (filter === "totalPoints") return getTotalPoints(dateFilter, campaignId);
+  if (filter === "totalPoints") return getTotalPoints(dateFilter, stackId);
 
   if (filter === "totalBonkClaimed")
-    return getTotalBonkClaimed(dateFilter, campaignId);
+    return getTotalBonkClaimed(dateFilter, stackId);
 
   if (filter === "chompedQuestions")
-    return getNumberOfChompedQuestions(dateFilter, campaignId);
+    return getNumberOfChompedQuestions(dateFilter, stackId);
 };
 
 const getNumberOfChompedQuestions = async (
@@ -163,7 +163,7 @@ const getNumberOfChompedQuestions = async (
         };
       }
     | {},
-  campaignId?: number,
+  stackId?: number,
 ) => {
   const gte = (
     dateFilter as {
@@ -183,8 +183,8 @@ const getNumberOfChompedQuestions = async (
     }
   )?.createdAt?.lte;
 
-  const res = await (!!campaignId
-    ? getNumberOfChompedQuestionsOfCampaignQuery(campaignId)
+  const res = await (!!stackId
+    ? getNumberOfChompedQuestionsOfStackQuery(stackId)
     : getNumberOfChompedQuestionsQuery(gte, lte));
 
   const leaderboard = res.map((item: any) => ({
@@ -196,16 +196,21 @@ const getNumberOfChompedQuestions = async (
   return mapLeaderboardData(leaderboard, userIds);
 };
 
-const getTotalPoints = async (dateFilter = {}, campaignId?: number) => {
-  const whereCampaignClause = !!campaignId
-    ? { OR: [{ question: { campaignId } }, { deck: { campaignId } }] }
+const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
+  const whereStackClause = !!stackId
+    ? {
+        OR: [
+          { question: { campaignId: stackId } },
+          { deck: { campaignId: stackId } },
+        ],
+      }
     : {};
 
   const data = await prisma.fungibleAssetTransactionLog.groupBy({
     by: ["userId"],
     where: {
       asset: FungibleAsset.Point,
-      ...whereCampaignClause,
+      ...whereStackClause,
       ...dateFilter,
       change: {
         gt: 0,
@@ -230,8 +235,10 @@ const getTotalPoints = async (dateFilter = {}, campaignId?: number) => {
   return mapLeaderboardData(leaderboard, userIds);
 };
 
-const getTotalBonkClaimed = async (dateFilter = {}, campaignId?: number) => {
-  const whereCampaignClause = !!campaignId ? { question: { campaignId } } : {};
+const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number) => {
+  const whereStackClause = !!stackId
+    ? { question: { campaignId: stackId } }
+    : {};
 
   const res = await prisma.chompResult.groupBy({
     by: ["userId"],
@@ -240,7 +247,7 @@ const getTotalBonkClaimed = async (dateFilter = {}, campaignId?: number) => {
         gt: 0,
       },
       result: ResultType.Claimed,
-      ...whereCampaignClause,
+      ...whereStackClause,
       ...dateFilter,
     },
     _sum: {

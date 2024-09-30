@@ -6,19 +6,19 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getIsUserAdmin } from "../queries/user";
-import { campaignSchema } from "../schemas/campaign";
+import { stackSchema } from "../schemas/stack";
 import prisma from "../services/prisma";
 import s3Client from "../services/s3Client";
 import { validateBucketImage } from "../utils/file";
 
-export async function createCampaign(data: z.infer<typeof campaignSchema>) {
+export async function createStack(data: z.infer<typeof stackSchema>) {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
     redirect("/application");
   }
 
-  const validatedFields = campaignSchema.safeParse(data);
+  const validatedFields = stackSchema.safeParse(data);
 
   if (!validatedFields.success) {
     return false;
@@ -46,14 +46,14 @@ export async function createCampaign(data: z.infer<typeof campaignSchema>) {
   redirect(`${ADMIN_PATH}${STACKS_PATH}`);
 }
 
-export async function editCampaign(data: z.infer<typeof campaignSchema>) {
+export async function editStack(data: z.infer<typeof stackSchema>) {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
     redirect("/application");
   }
 
-  const validatedFields = campaignSchema.safeParse(data);
+  const validatedFields = stackSchema.safeParse(data);
 
   if (!validatedFields.success) {
     return false;
@@ -72,16 +72,16 @@ export async function editCampaign(data: z.infer<typeof campaignSchema>) {
 
   if (!isBucketImageValid) throw new Error("Invalid image");
 
-  const currentCampaign = await prisma.campaign.findUnique({
+  const currentStack = await prisma.campaign.findUnique({
     where: {
       id: data.id,
     },
   });
 
-  if (currentCampaign?.image !== validatedFields.data.image) {
+  if (currentStack?.image !== validatedFields.data.image) {
     const deleteObject = new DeleteObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET_NAME!,
-      Key: currentCampaign!.image.split("/").pop(),
+      Key: currentStack!.image.split("/").pop(),
     });
 
     await s3Client.send(deleteObject);

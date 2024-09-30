@@ -1,11 +1,11 @@
 import { Button } from "@/app/components/Button/Button";
-import CampaignList from "@/app/components/CampaignList/CampaignList";
-import { getActiveAndInactiveCampaigns } from "@/app/queries/campaign";
+import StackList from "@/app/components/StackList/StackList";
+import { getActiveAndInactiveStacks } from "@/app/queries/stack";
 import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 import Link from "next/link";
 
-const CampaignsPage = async () => {
-  const campaigns = await getActiveAndInactiveCampaigns();
+const StacksPage = async () => {
+  const stacks = await getActiveAndInactiveStacks();
 
   return (
     <div className="flex flex-col gap-2">
@@ -15,9 +15,9 @@ const CampaignsPage = async () => {
         </Link>
       </div>
 
-      <CampaignList campaigns={campaigns} />
+      <StackList stacks={stacks} />
     </div>
   );
 };
 
-export default CampaignsPage;
+export default StacksPage;

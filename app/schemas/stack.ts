@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { IMAGE_VALID_TYPES, MAX_IMAGE_UPLOAD_SIZE } from "../constants/images";
 
-export const campaignSchema = z
+export const stackSchema = z
   .object({
     id: z.number().optional(),
     name: z.string().trim().min(1, "Name is required"),

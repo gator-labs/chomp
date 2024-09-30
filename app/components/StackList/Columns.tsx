@@ -2,11 +2,11 @@
 
 import { Campaign } from "@prisma/client";
 
+import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../Button/Button";
-import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 
 export const columns: ColumnDef<Campaign>[] = [
   { accessorKey: "name", header: "Stack" },
@@ -17,7 +17,7 @@ export const columns: ColumnDef<Campaign>[] = [
       <Image
         width={40}
         height={40}
-        alt="campaign-image"
+        alt="stack-image"
         className="w-10 h-10 rounded-full object-cover"
         src={row.original.image}
       />

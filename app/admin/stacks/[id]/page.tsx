@@ -1,5 +1,5 @@
-import CampaignForm from "@/app/components/CampaignForm/CampaignForm";
-import { getActiveAndInactiveCampaign } from "@/app/queries/campaign";
+import StackForm from "@/app/components/StackForm/StackForm";
+import { getActiveAndInactiveStack } from "@/app/queries/stack";
 import { notFound } from "next/navigation";
 
 type PageProps = {
@@ -8,12 +8,12 @@ type PageProps = {
   };
 };
 
-const CampaignPage = async ({ params: { id } }: PageProps) => {
-  const campaign = await getActiveAndInactiveCampaign(+id);
+const StackPage = async ({ params: { id } }: PageProps) => {
+  const stack = await getActiveAndInactiveStack(+id);
 
-  if (!campaign) return notFound();
+  if (!stack) return notFound();
 
-  return <CampaignForm campaign={campaign} action="update" />;
+  return <StackForm stack={stack} action="update" />;
 };
 
-export default CampaignPage;
+export default StackPage;

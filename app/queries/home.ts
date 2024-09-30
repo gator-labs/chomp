@@ -40,7 +40,7 @@ export type DeckExpiringSoon = {
   deck: string;
   revealAtDate?: Date;
   date?: Date;
-  campaignId: number;
+  stackId: number;
   answerCount?: number;
   revealAtAnswerCount?: number;
   image?: string;
@@ -81,11 +81,11 @@ export async function getDailyDecksForExpiringSection(): Promise<
 
 export async function getNextDeckId(
   deckId: number,
-  campaignId: number | null,
+  stackId: number | null,
 ): Promise<number | undefined> {
   const payload = await authGuard();
 
-  const nextDeckId = await getNextDeckIdQuery(payload.sub, deckId, campaignId);
+  const nextDeckId = await getNextDeckIdQuery(payload.sub, deckId, stackId);
 
   return nextDeckId;
 }
@@ -93,7 +93,7 @@ export async function getNextDeckId(
 async function getNextDeckIdQuery(
   userId: string,
   deckId: number,
-  campaignId: number | null,
+  stackId: number | null,
 ): Promise<number | undefined> {
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
     select
@@ -104,7 +104,7 @@ async function getNextDeckIdQuery(
     d."campaignId",
     c."image"
     from public."Deck" d
-    full join "Campaign" c on c."id" = d."campaignId"
+    full join "Stack" c on c."id" = d."campaignId"
     where
       (
         (
@@ -149,12 +149,10 @@ async function getNextDeckIdQuery(
 
   const filteredDecks = deckExpiringSoon.filter((deck) => deck.id !== deckId);
 
-  const campaignMatch = filteredDecks.find(
-    (deck) => deck.campaignId === campaignId,
-  );
+  const stackMatch = filteredDecks.find((deck) => deck.stackId === stackId);
 
-  if (campaignMatch) {
-    return campaignMatch.id;
+  if (stackMatch) {
+    return stackMatch.id;
   }
 
   return filteredDecks.length > 0 ? filteredDecks[0].id : undefined;
@@ -170,7 +168,7 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
 FROM
     public."Deck" d
 FULL JOIN
-    "Campaign" c ON c."id" = d."campaignId"
+    "Stack" c ON c."id" = d."campaignId"
 WHERE
     d."revealAtDate" > NOW() 
     AND d."date" IS NULL 
@@ -207,7 +205,7 @@ async function queryExpiringDailyDecks(
 FROM
     public."Deck" d
 FULL JOIN
-    "Campaign" c ON c."id" = d."campaignId"
+    "Stack" c ON c."id" = d."campaignId"
 WHERE
     d."activeFromDate" IS NULL
     AND d."date" >= ${currentDayStart}
@@ -250,7 +248,7 @@ async function queryRevealedQuestions(
     q."revealTokenAmount",
     c."image"
   FROM public."Question" q
-  LEFT JOIN "Campaign" c ON c."id" = q."campaignId"
+  LEFT JOIN "Stack" c ON c."id" = q."campaignId"
   LEFT JOIN public."ChompResult" cr1 
       ON cr1."questionId" = q."id" 
       AND cr1."userId" = ${userId} 

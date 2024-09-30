@@ -10,15 +10,16 @@ import { getBonkBalance, getSolBalance } from "../utils/solana";
 export default async function Page() {
   const dailyDeck = await getDailyDeck();
   const currentDeckId = dailyDeck?.id;
-  const campaignId = dailyDeck?.campaignId || null
-  
-  const [nextDeckId, user, history, dailyAnsweredQuestions] =
-    await Promise.all([
-      getNextDeckId(currentDeckId ?? 0, campaignId),
+  const stackId = dailyDeck?.stackId || null;
+
+  const [nextDeckId, user, history, dailyAnsweredQuestions] = await Promise.all(
+    [
+      getNextDeckId(currentDeckId ?? 0, stackId),
       getCurrentUser(),
       getTransactionHistory(),
       getDailyAnsweredQuestions(),
-    ]);
+    ],
+  );
 
   const address = user?.wallets[0].address || "";
 

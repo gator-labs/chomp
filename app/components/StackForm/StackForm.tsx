@@ -2,9 +2,9 @@
 
 import { Campaign } from "@prisma/client";
 
-import { campaignSchema } from "@/app/schemas/campaign";
+import { stackSchema } from "@/app/schemas/stack";
 
-import { createCampaign, editCampaign } from "@/app/actions/campaign";
+import { createStack, editStack } from "@/app/actions/stack";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -12,41 +12,41 @@ import { useForm } from "react-hook-form";
 import { Button } from "../Button/Button";
 import { TextInput } from "../TextInput/TextInput";
 
-type CampaignFormProps = {
-  campaign?: Campaign;
+type StackFormProps = {
+  stack?: Campaign;
   action: "update" | "create";
 };
 
-export default function CampaignForm({ campaign, action }: CampaignFormProps) {
+export default function StackForm({ stack, action }: StackFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isLoading },
     watch,
   } = useForm({
-    resolver: zodResolver(campaignSchema),
+    resolver: zodResolver(stackSchema),
     defaultValues: {
-      id: campaign?.id,
-      name: campaign?.name || "",
-      isActive: !!campaign?.isActive,
-      isVisible: !!campaign?.isVisible,
+      id: stack?.id,
+      name: stack?.name || "",
+      isActive: !!stack?.isActive,
+      isVisible: !!stack?.isVisible,
       file: [],
-      image: campaign?.image || "",
+      image: stack?.image || "",
     },
   });
   const file = watch("file")?.[0];
 
-  const previewUrl = !!file ? URL.createObjectURL(file) : campaign?.image;
+  const previewUrl = !!file ? URL.createObjectURL(file) : stack?.image;
 
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        let imageUrl = campaign?.image;
+        let imageUrl = stack?.image;
 
         if (!!file) imageUrl = await uploadImageToS3Bucket(file);
 
         if (action === "create") {
-          await createCampaign({
+          await createStack({
             isActive: data.isActive,
             isVisible: data.isVisible,
             name: data.name,
@@ -55,7 +55,7 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
         }
 
         if (action === "update") {
-          await editCampaign({
+          await editStack({
             id: data.id,
             isActive: data.isActive,
             isVisible: data.isVisible,
@@ -66,10 +66,10 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
       })}
     >
       <h1 className="text-3xl mb-3">
-        {campaign ? `Edit campaign #${campaign.id}` : "Create campaign"}
+        {stack ? `Edit stack #${stack.id}` : "Create stack"}
       </h1>
       <div className="mb-3">
-        <label className="block mb-1">Campaign</label>
+        <label className="block mb-1">Stack</label>
         <TextInput variant="secondary" {...register("name")} />
         <div className="text-red">{errors.name?.message}</div>
       </div>
@@ -97,7 +97,7 @@ export default function CampaignForm({ campaign, action }: CampaignFormProps) {
           <div className="w-32 h-32 relative overflow-hidden rounded-full">
             <Image
               fill
-              alt="preview-image-campaign"
+              alt="preview-image-stack"
               src={previewUrl}
               className="object-cover w-full h-full"
             />

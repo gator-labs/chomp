@@ -1,5 +1,5 @@
 import Leaderboard from "@/app/components/Leaderboard/Leaderboard";
-import { getCampaign } from "@/app/queries/campaign";
+import { getStack } from "@/app/queries/stack";
 import { getCurrentUser } from "@/app/queries/user";
 import { notFound } from "next/navigation";
 
@@ -9,24 +9,24 @@ type PageProps = {
   };
 };
 
-const CampaignLeaderboardPage = async ({ params }: PageProps) => {
-  const [user, campaign] = await Promise.all([
+const StackLeaderboardPage = async ({ params }: PageProps) => {
+  const [user, stack] = await Promise.all([
     getCurrentUser(),
-    getCampaign(Number(params.id)),
+    getStack(Number(params.id)),
   ]);
 
-  if (!campaign) return notFound();
+  if (!stack) return notFound();
 
   return (
     <Leaderboard
-      leaderboardName={campaign.name}
-      isLeaderboardActive={campaign.isActive}
-      leaderboardImage={campaign.image}
-      campaignId={campaign.id}
+      leaderboardName={stack.name}
+      isLeaderboardActive={stack.isActive}
+      leaderboardImage={stack.image}
+      stackId={stack.id}
       loggedUser={user!}
-      variant="campaign"
+      variant="stack"
     />
   );
 };
 
-export default CampaignLeaderboardPage;
+export default StackLeaderboardPage;

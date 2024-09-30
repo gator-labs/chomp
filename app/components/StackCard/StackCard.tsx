@@ -1,11 +1,11 @@
 "use client";
 
+import { STACKS_PATH } from "@/lib/urls";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
-import { STACKS_PATH } from "@/lib/urls";
 
-type CampaignCardProps = {
+type StackCardProps = {
   id: number;
   imageSrc: string;
   name: string;
@@ -13,13 +13,13 @@ type CampaignCardProps = {
   decksToReveal?: number;
 };
 
-const CampaignCard = ({
+const StackCard = ({
   id,
   imageSrc,
   name,
   decksToAnswer,
   decksToReveal,
-}: CampaignCardProps) => {
+}: StackCardProps) => {
   return (
     <Link
       href={`${STACKS_PATH}/${id}`}
@@ -62,4 +62,4 @@ const CampaignCard = ({
   );
 };
 
-export default CampaignCard;
+export default StackCard;

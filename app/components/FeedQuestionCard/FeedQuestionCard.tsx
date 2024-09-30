@@ -49,7 +49,7 @@ export function FeedQuestionCard({
               <div className="relative w-6 h-6 flex-shrink-0">
                 <Image
                   src={image}
-                  alt="campaign-image"
+                  alt="stack-image"
                   fill
                   className="rounded-full"
                 />

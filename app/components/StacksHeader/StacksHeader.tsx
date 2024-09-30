@@ -4,12 +4,12 @@ import { STACKS_PATH } from "@/lib/urls";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "../Icons/ArrowLeftIcon";
 
-interface CampaignsHeaderProps {
+interface StacksHeaderProps {
   heading?: string;
-  backAction: "back" | "campaigns";
+  backAction: "back" | "stacks";
 }
 
-const CampaignsHeader: React.FC<CampaignsHeaderProps> = ({
+const StacksHeader: React.FC<StacksHeaderProps> = ({
   heading,
   backAction = "back",
 }) => {
@@ -28,4 +28,4 @@ const CampaignsHeader: React.FC<CampaignsHeaderProps> = ({
   );
 };
 
-export default CampaignsHeader;
+export default StacksHeader;

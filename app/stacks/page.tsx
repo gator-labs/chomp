@@ -1,23 +1,23 @@
-import CampaignCard from "@/app/components/CampaignCard/CampaignCard";
-import CampaignsHeader from "@/app/components/CampaignsHeader/CampaignsHeader";
+import StackCard from "@/app/components/StackCard/StackCard";
+import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
 
-import { getAllCampaigns } from "@/app/queries/campaign";
+import { getAllStacks } from "@/app/queries/stack";
 
-const CampaignsPage = async () => {
-  const campaigns = await getAllCampaigns();
+const StacksPage = async () => {
+  const stacks = await getAllStacks();
 
   return (
     <div className="pt-4 flex flex-col gap-8 overflow-hidden w-full max-w-lg mx-auto px-4">
-      <CampaignsHeader backAction="back" heading="Stacks" />
+      <StacksHeader backAction="back" heading="Stacks" />
       <ul className="flex flex-col gap-2 pb-2 overflow-auto">
-        {campaigns.map((campaign) => (
-          <CampaignCard
-            key={campaign.id}
-            imageSrc={campaign.image}
-            decksToAnswer={campaign.decksToAnswer?.length}
-            decksToReveal={campaign.decksToReveal?.length}
-            name={campaign.name}
-            id={campaign.id}
+        {stacks.map((stack) => (
+          <StackCard
+            key={stack.id}
+            imageSrc={stack.image}
+            decksToAnswer={stack.decksToAnswer?.length}
+            decksToReveal={stack.decksToReveal?.length}
+            name={stack.name}
+            id={stack.id}
           />
         ))}
       </ul>
@@ -25,4 +25,4 @@ const CampaignsPage = async () => {
   );
 };
 
-export default CampaignsPage;
+export default StacksPage;

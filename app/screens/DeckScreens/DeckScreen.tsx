@@ -1,13 +1,13 @@
 "use client";
-import { Button } from "@/app/components/ui/button";
 import { Deck, Question } from "@/app/components/Deck/Deck";
-import { useRouter } from "next-nprogress-bar";
-import { useState } from "react";
-import { CircleArrowRight } from 'lucide-react';
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
+import { Button } from "@/app/components/ui/button";
 import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
 import sendToMixpanel from "@/lib/mixpanel";
+import { CircleArrowRight } from "lucide-react";
+import { useRouter } from "next-nprogress-bar";
+import { useState } from "react";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -19,7 +19,7 @@ type DeckScreenProps = {
   };
   questions: Question[];
   currentDeckId: number;
-  campaignImage: string;
+  stackImage: string;
   nextDeckId?: number;
   numberOfUserAnswers: number;
 };
@@ -29,7 +29,7 @@ const DeckScreen = ({
   questions,
   currentDeckId,
   nextDeckId,
-  campaignImage,
+  stackImage,
   numberOfUserAnswers,
 }: DeckScreenProps) => {
   const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers > 0);
@@ -47,7 +47,7 @@ const DeckScreen = ({
           />
           <PreviewDeckCard
             {...deckInfo}
-            campaignImage={campaignImage}
+            stackImage={stackImage}
             totalNumberOfQuestions={questions.length}
             className="flex-1"
           />
@@ -65,10 +65,7 @@ const DeckScreen = ({
               Begin Deck
               <CircleArrowRight />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => router.back()}
-            >
+            <Button variant="outline" onClick={() => router.back()}>
               Back
             </Button>
           </div>

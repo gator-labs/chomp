@@ -1,7 +1,7 @@
-import CampaignForm from "@/app/components/CampaignForm/CampaignForm";
+import StackForm from "@/app/components/StackForm/StackForm";
 
-const NewCampaign = () => {
-  return <CampaignForm action="create" />;
+const NewStack = () => {
+  return <StackForm action="create" />;
 };
 
-export default NewCampaign;
+export default NewStack;
