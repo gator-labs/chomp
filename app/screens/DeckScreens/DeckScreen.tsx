@@ -50,7 +50,6 @@ const DeckScreen = ({
             {...deckInfo}
             campaignImage={campaignImage}
             totalNumberOfQuestions={questions.length}
-            className="flex-1"
           />
           <div className="flex flex-col gap-4 py-4">
             <Button
