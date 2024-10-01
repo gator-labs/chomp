@@ -17,8 +17,6 @@ type PageProps = {
 const StackPage = async ({ params: { id } }: PageProps) => {
   const [stack, user] = await Promise.all([getStack(+id), getCurrentUser()]);
 
-  console.log("stack", stack);
-
   if (!stack || (stack.isActive === false && stack?.isVisible === false))
     return notFound();
 
@@ -38,7 +36,18 @@ const StackPage = async ({ params: { id } }: PageProps) => {
           <h1 className="text-base mb-3">{stack.name}</h1>
           <p className="text-xs mb-6">
             {stack.deck.length} deck{stack.deck.length === 1 ? "" : "s"},{" "}
-            {stack.deck.flatMap((d) => d.deckQuestions).length} cards
+            {
+              stack.deck
+                .flatMap((d) => d.deckQuestions)
+                .filter((dq) =>
+                  dq.question.questionOptions.every(
+                    (qo) =>
+                      qo.questionAnswers.length >=
+                      Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
+                  ),
+                ).length
+            }
+            cards
           </p>
           <Link
             href={`/application/leaderboard/stack/${id}`}

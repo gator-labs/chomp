@@ -164,11 +164,30 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return null;
   }
 
-  const totalDeckQuestions = await prisma.deckQuestion.count({
+  const deckQuestions = await prisma.deckQuestion.findMany({
     where: {
       deckId: deckId,
     },
+    include: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
   });
+
+  const totalDeckQuestions = deckQuestions.filter((dq) =>
+    dq.question.questionOptions.every(
+      (qo) =>
+        qo.questionAnswers.length >=
+        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
+    ),
+  ).length;
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {

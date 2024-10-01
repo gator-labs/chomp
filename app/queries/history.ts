@@ -1,4 +1,3 @@
-import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 
@@ -71,7 +70,7 @@ export async function getQuestionsHistoryQuery(
 
   const deckHistoryCondition: string = `AND dq."deckId" = ${deckId}`;
 
-  const baseQuery = `
+  const query = `
   SELECT 
     q.id, 
     q.question,
@@ -116,31 +115,18 @@ export async function getQuestionsHistoryQuery(
     q."revealAtDate" IS NOT NULL ${deckId ? deckHistoryCondition : ""}
   GROUP BY 
     q.id, cr."rewardTokenAmount", cr."burnTransactionSignature", c."image"
-`;
-
-  const havingClause = `
   HAVING 
     (
       SELECT COUNT(distinct concat(qa."userId", qo."questionId"))
       FROM public."QuestionOption" qo
       JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
       WHERE qo."questionId" = q."id"
-    ) >= 20
-`;
-
-  const endQuery = `
+    ) >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)}
   ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
 
-  let finalQuery = baseQuery;
-  // if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging") {
-  //   finalQuery += havingClause;
-  // }
-  finalQuery += endQuery;
-
-  const historyResult: QuestionHistory[] =
-    await prisma.$queryRawUnsafe(finalQuery);
+  const historyResult: QuestionHistory[] = await prisma.$queryRawUnsafe(query);
 
   return historyResult.map((hr) => ({
     ...hr,
@@ -203,7 +189,8 @@ WHERE
 
   return questions.filter(
     (question) =>
-      question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
+      question.answerCount &&
+      question.answerCount >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
   );
 }
 
@@ -264,6 +251,7 @@ WHERE
 
   return questions.filter(
     (question) =>
-      question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
+      question.answerCount &&
+      question.answerCount >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
   );
 }
