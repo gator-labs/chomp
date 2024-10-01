@@ -30,6 +30,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: "/campaigns/:slug",
+        destination: "/stacks/:slug",
+        permanent: true,
+      },
+      {
         source: "/application/decks",
         destination: "/application",
         permanent: true,
