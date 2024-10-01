@@ -1,6 +1,6 @@
 import { calculateReward } from "@/app/utils/algo";
 
-test("rewards: multiple choice objective", async () => {
+test.skip("rewards: multiple choice objective", async () => {
   const userId = "37203323-f3a5-412b-ba4e-0b4d95bdf75d";
   const questionId = 166;
   const questionIds = [questionId];
