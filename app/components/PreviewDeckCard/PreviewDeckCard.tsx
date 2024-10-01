@@ -24,7 +24,7 @@ const PreviewDeckCard = ({
   return (
     <div
       className={cn(
-        "min-h-[350px] w-full max-w-[480px] py-6 px-4 bg-gray-700 rounded-lg relative flex flex-col justify-between",
+        "h-[350px] w-full max-w-[480px] py-6 px-4 bg-gray-700 rounded-lg relative flex flex-col justify-between overflow-scroll",
         className,
       )}
     >
