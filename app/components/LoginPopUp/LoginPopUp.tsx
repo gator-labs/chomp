@@ -21,7 +21,7 @@ type LoginPopUpProps = {
 
 const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
   const { authToken, awaitingSignatureState } = useDynamicContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if(localStorage.getItem("selectedDeckId")) {
