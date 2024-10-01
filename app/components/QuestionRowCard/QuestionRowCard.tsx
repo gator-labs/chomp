@@ -25,7 +25,11 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import { DollarIcon } from "../Icons/DollarIcon";
 import { EyeIcon } from "../Icons/EyeIcon";
 
-const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
+type QuestionRowCardProps = {
+  deckId?: string;
+} & QuestionHistory;
+
+const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
   (question, ref) => {
     const revealAtText = getRevealAtText(question.revealAtDate);
     const queryClient = useQueryClient();
@@ -70,7 +74,13 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
               [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
               [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
             });
-            queryClient.resetQueries({ queryKey: ["questions-history"] });
+            queryClient.resetQueries({
+              queryKey: [
+                question.deckId
+                  ? `questions-history-${question.deckId}`
+                  : "questions-history",
+              ],
+            });
             router.push("/application/answer/reveal/" + question.id);
             router.refresh();
             fire();
@@ -101,7 +111,13 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
       openRevealModal({
         reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
           await revealQuestion(question.id, burnTx, nftAddress, nftType);
-          queryClient.resetQueries({ queryKey: ["questions-history"] });
+          queryClient.resetQueries({
+            queryKey: [
+              question.deckId
+                ? `questions-history-${question.deckId}`
+                : "questions-history",
+            ],
+          });
           router.push("/application/answer/reveal/" + question.id);
           router.refresh();
         },

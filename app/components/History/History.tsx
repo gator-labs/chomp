@@ -23,6 +23,7 @@ export default function History({ deckId }: HistoryProps) {
             key={question.id}
             {...question}
             ref={lastElementRef}
+            deckId={deckId}
           />
         ))}
         {isFetchingNextPage && <Skeleton />}
