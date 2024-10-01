@@ -72,7 +72,7 @@ export function QuestionCard({
   return (
     <div
       className={classNames(
-        " bg-gray-700 min-h-[350px] w-full max-w-[480px] pl-4 pr-4 flex flex-col justify-between border border-gray-500 p-4 pt-6 rounded-lg z-0 flex-grow h-full",
+        " bg-gray-700 h-[350px] w-full max-w-[480px] pl-4 pr-4 flex flex-col justify-between border border-gray-500 p-4 pt-6 rounded-lg z-0 flex-grow overflow-scroll",
         className,
       )}
       style={{

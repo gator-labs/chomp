@@ -13,10 +13,10 @@ import { CONNECTION } from "@/app/utils/solana";
 import sendToMixpanel from "@/lib/mixpanel";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
-import { Button } from "../Button/Button";
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
+import { Button } from "../ui/button";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
@@ -26,6 +26,7 @@ interface ClaimButtonProps {
   questionIds: number[];
   questions?: string[];
   transactionHash?: string;
+  revealNftId?: string | null;
 }
 
 const ClaimButton = ({
@@ -36,6 +37,7 @@ const ClaimButton = ({
   questionIds,
   transactionHash,
   questions,
+  revealNftId,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
@@ -54,12 +56,14 @@ const ClaimButton = ({
         [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
 
-      const tx = await CONNECTION.getTransaction(transactionHash!, {
-        commitment: "confirmed",
-        maxSupportedTransactionVersion: 0,
-      });
+      if (!revealNftId) {
+        const tx = await CONNECTION.getTransaction(transactionHash!, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
 
-      if (!tx) return errorToast("Cannot get transaction");
+        if (!tx) return errorToast("Cannot get transaction");
+      }
 
       promiseToast(claimQuestions(questionIds), {
         loading: "Claiming your rewards...",
@@ -98,11 +102,7 @@ const ClaimButton = ({
           You did not participate in this Chomp
         </p>
         <div className="flex flex-col gap-4 w-full">
-          <Button
-            variant="grayish"
-            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-500 cursor-auto"
-            disabled
-          >
+          <Button variant="disabled">
             Claim <DollarIcon fill="#666666" />
           </Button>
         </div>
@@ -132,7 +132,6 @@ const ClaimButton = ({
               className,
               { "cursor-not-allowed opacity-50": isClaiming },
             )}
-            variant="purple"
             onClick={onClick}
             disabled={isClaiming}
           >
@@ -159,9 +158,9 @@ const ClaimButton = ({
         </div>
         <div className="flex flex-col gap-4 w-full">
           <Button
-            disabled
+            variant="disabled"
             className={classNames(
-              "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
+              "text-sm font-semibold text-left flex items-center justify-center border-none",
               className,
             )}
           >
@@ -184,9 +183,9 @@ const ClaimButton = ({
       </div>
       <div className="flex flex-col gap-4 w-full">
         <Button
-          disabled
+          variant="disabled"
           className={classNames(
-            "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
+            "text-sm font-semibold text-left flex items-center justify-center border-none",
             className,
           )}
         >

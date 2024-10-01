@@ -20,7 +20,7 @@ type DeckScreenProps = {
   };
   questions: Question[];
   currentDeckId: number;
-  campaignImage: string;
+  stackImage: string;
   nextDeckId?: number;
   numberOfUserAnswers: number;
 };
@@ -30,7 +30,7 @@ const DeckScreen = ({
   questions,
   currentDeckId,
   nextDeckId,
-  campaignImage,
+  stackImage,
   numberOfUserAnswers,
 }: DeckScreenProps) => {
   const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers > 0);
@@ -48,13 +48,11 @@ const DeckScreen = ({
           />
           <PreviewDeckCard
             {...deckInfo}
-            campaignImage={campaignImage}
+            stackImage={stackImage}
             totalNumberOfQuestions={questions.length}
-            className="flex-1"
           />
           <div className="flex flex-col gap-4 py-4">
             <Button
-              variant="primary"
               onClick={() => {
                 sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
                   [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,

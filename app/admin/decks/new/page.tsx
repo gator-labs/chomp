@@ -1,11 +1,11 @@
 import { createDeck } from "@/app/actions/deck/deck";
 import DeckForm from "@/app/components/DeckForm/DeckForm";
-import { getActiveAndInactiveCampaigns } from "@/app/queries/campaign";
+import { getActiveAndInactiveStacks } from "@/app/queries/stack";
 import { getTags } from "@/app/queries/tag";
 
 export default async function Page() {
   const tags = await getTags();
-  const campaigns = await getActiveAndInactiveCampaigns();
+  const stacks = await getActiveAndInactiveStacks();
 
-  return <DeckForm action={createDeck} tags={tags} campaigns={campaigns} />;
+  return <DeckForm action={createDeck} tags={tags} stacks={stacks} />;
 }

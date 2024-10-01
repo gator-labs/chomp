@@ -89,7 +89,7 @@ export async function getDailyDeck() {
 
   return {
     questions,
-    campaignId: dailyDeck?.campaignId,
+    stackId: dailyDeck?.stackId,
     id: dailyDeck.id,
     date: dailyDeck.date,
   };
@@ -189,7 +189,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       id: deck.id,
       date: deck.date,
       revealAtDate: deck.revealAtDate,
-      campaignId: deck.campaignId,
+      stackId: deck.stackId,
       totalDeckQuestions,
       deckInfo: {
         heading: deck.heading || deck.deck,
@@ -206,9 +206,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     questions,
     id: deck.id,
     date: deck.date,
-    revealAtDate: deck.revealAtDate,
-    campaignId: deck.campaignId,
-    totalDeckQuestions,
+    stackId: deck.stackId,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,

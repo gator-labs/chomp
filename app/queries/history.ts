@@ -52,7 +52,7 @@ export async function getDecksHistory(
 		JOIN public."QuestionOption" qo ON qo."questionId" = q.id
 		LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
 		LEFT JOIN public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
-		LEFT JOIN public."Campaign" c ON c.id = d."campaignId"
+		LEFT JOIN public."Stack" c ON c.id = d."stackId"
 		WHERE d."revealAtDate" IS NOT NULL 
 		GROUP BY d.deck, d.id, c.image, d."revealAtDate"
 		ORDER BY d."revealAtDate" DESC
@@ -110,7 +110,7 @@ export async function getQuestionsHistoryQuery(
     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
   LEFT JOIN 
     public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
-  FULL JOIN public."Campaign" c on c.id = q."campaignId"
+  FULL JOIN public."Stack" c on c.id = q."stackId"
   JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
   WHERE 
     q."revealAtDate" IS NOT NULL ${deckId ? deckHistoryCondition : ""}

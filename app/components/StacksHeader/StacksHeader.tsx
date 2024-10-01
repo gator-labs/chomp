@@ -1,21 +1,22 @@
 "use client";
 
+import { STACKS_PATH } from "@/lib/urls";
 import { useRouter } from "next/navigation";
 import { ArrowLeftIcon } from "../Icons/ArrowLeftIcon";
 
-interface CampaignsHeaderProps {
-  heading?: string; 
-  backAction: "back" | "campaigns";
+interface StacksHeaderProps {
+  heading?: string;
+  backAction: "back" | "stacks";
 }
 
-const CampaignsHeader: React.FC<CampaignsHeaderProps> = ({
+const StacksHeader: React.FC<StacksHeaderProps> = ({
   heading,
-  backAction = "back", 
+  backAction = "back",
 }) => {
   const router = useRouter();
 
-  const handleBack = () => 
-    backAction === "back" ? router.back() : router.push("/campaigns");
+  const handleBack = () =>
+    backAction === "back" ? router.back() : router.push(`${STACKS_PATH}`);
 
   return (
     <header className="flex items-center gap-2">
@@ -27,4 +28,4 @@ const CampaignsHeader: React.FC<CampaignsHeaderProps> = ({
   );
 };
 
-export default CampaignsHeader;
+export default StacksHeader;

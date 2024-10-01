@@ -16,7 +16,6 @@ const ComingSoonDeck = ({ deckName }: { deckName: string | undefined }) => {
 
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px] w-full">
         <Button
-          size="default"
           onClick={() => {
             router.push("/application");
           }}
@@ -26,7 +25,6 @@ const ComingSoonDeck = ({ deckName }: { deckName: string | undefined }) => {
         </Button>
 
         <Button
-          size="default"
           variant="outline"
           onClick={() => {
             router.back();

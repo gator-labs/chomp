@@ -24,9 +24,9 @@ import { FILTERS } from "./constants";
 
 interface Props {
   leaderboardName: string;
-  variant: "weekly" | "daily" | "campaign";
+  variant: "weekly" | "daily" | "stack";
   loggedUser: User;
-  campaignId?: number;
+  stackId?: number;
   leaderboardImage?: string;
   isLeaderboardActive?: boolean;
 }
@@ -57,7 +57,7 @@ export interface Ranking {
 const Leaderboard = ({
   leaderboardName,
   variant,
-  campaignId,
+  stackId,
   leaderboardImage,
   isLeaderboardActive = false,
   loggedUser,
@@ -89,14 +89,14 @@ const Leaderboard = ({
       const res = await getLeaderboard({
         filter,
         variant,
-        campaignId,
+        stackId,
       });
 
       setLoggedInUserScore(res?.loggedInUserScore);
       setRanking(res?.ranking || []);
       setIsLoading(false);
 
-      if (variant !== "campaign") {
+      if (variant !== "stack") {
         const rank = await getPreviousUserRank(variant, filter);
         setPreviousUserRank(rank);
       } else {
@@ -111,7 +111,7 @@ const Leaderboard = ({
         | "totalBonkClaimed"
         | "chompedQuestions",
     );
-  }, [activeFilter, campaignId]);
+  }, [activeFilter, stackId]);
 
   const rankDifference =
     previousUserRank && loggedInUserScore?.loggedInUserRank
@@ -156,7 +156,7 @@ const Leaderboard = ({
         </div>
         <div className="flex flex-col gap-2 flex-1 justify-center">
           <span className="text-xs  text-gray-400">
-            {variant === "campaign"
+            {variant === "stack"
               ? "All time ranking"
               : variant === "daily"
                 ? "Today"
@@ -172,7 +172,7 @@ const Leaderboard = ({
               <p
                 className={cn("text-sm  font-bold", {
                   "text-aqua": rankDifference > 0,
-                  "text-red": rankDifference < 0,
+                  "text-destructive": rankDifference < 0,
                 })}
               >
                 {Math.abs(rankDifference)}

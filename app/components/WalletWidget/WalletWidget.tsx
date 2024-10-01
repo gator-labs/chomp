@@ -32,7 +32,7 @@ export function WalletWidget({ address, className }: WalletWidgetProps) {
           className,
         )}
       >
-        <div className=" text-[#171616] text-base">
+        <div className="text-gray-800 text-base">
           {formatAddress(address)}
         </div>
         <div className="flex gap-x-2">

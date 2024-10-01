@@ -1,14 +1,15 @@
 "use client";
 
-import { Campaign } from "@prisma/client";
+import { Stack } from "@prisma/client";
 
+import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "../Button/Button";
+import { Button } from "../ui/button";
 
-export const columns: ColumnDef<Campaign>[] = [
-  { accessorKey: "name", header: "Campaign" },
+export const columns: ColumnDef<Stack>[] = [
+  { accessorKey: "name", header: "Stack" },
   {
     accessorKey: "logo",
     header: "Logo",
@@ -16,7 +17,7 @@ export const columns: ColumnDef<Campaign>[] = [
       <Image
         width={40}
         height={40}
-        alt="campaign-image"
+        alt="stack-image"
         className="w-10 h-10 rounded-full object-cover"
         src={row.original.image}
       />
@@ -30,7 +31,7 @@ export const columns: ColumnDef<Campaign>[] = [
     header: "Actions",
     cell: ({ row }) => (
       <div>
-        <Link href={`/admin/campaigns/${row.original.id}`}>
+        <Link href={`${ADMIN_PATH}${STACKS_PATH}/${row.original.id}`}>
           <Button variant="primary" isFullWidth={false}>
             Edit
           </Button>

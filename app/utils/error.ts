@@ -25,6 +25,13 @@ export class RevealError extends Error {
   }
 }
 
+export class DynamicRevealError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "DynamicRevealError";
+  }
+}
+
 export class AnswerError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);

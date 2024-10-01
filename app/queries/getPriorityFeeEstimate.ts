@@ -1,4 +1,5 @@
 import { Transaction } from "@solana/web3.js";
+import bs58 from "bs58";
 
 export const getRecentPrioritizationFees = async (tx: Transaction) => {
   const response = await fetch(process.env.NEXT_PUBLIC_RPC_URL!, {
@@ -12,8 +13,13 @@ export const getRecentPrioritizationFees = async (tx: Transaction) => {
       method: "getPriorityFeeEstimate",
       params: [
         {
+          transaction: bs58.encode(
+            tx.serialize({
+              requireAllSignatures: false,
+              verifySignatures: false,
+            }),
+          ),
           options: {
-            transaction: tx,
             includeAllPriorityFeeLevels: true,
           },
         },

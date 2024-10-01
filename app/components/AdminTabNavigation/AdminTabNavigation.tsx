@@ -1,3 +1,4 @@
+import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 import { BackIcon } from "../Icons/BackIcon";
 import { FilterIcon } from "../Icons/FilterIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
@@ -21,10 +22,10 @@ const navigationItems = [
     isActiveRegex: "/admin/tags.*",
   },
   {
-    label: "Campaigns",
+    label: "Stacks",
     icon: <MoneyIcon />,
-    href: "/admin/campaigns",
-    isActiveRegex: "/admin/campaigns.*",
+    href: `${ADMIN_PATH}${STACKS_PATH}`,
+    isActiveRegex: `${ADMIN_PATH}${STACKS_PATH}.*`,
   },
   {
     label: "Banners",

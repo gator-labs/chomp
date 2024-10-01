@@ -2,8 +2,8 @@
 
 import prisma from "../services/prisma";
 
-export const getNumberOfChompedQuestionsOfCampaignQuery = async (
-  campaignId: number,
+export const getNumberOfChompedQuestionsOfStackQuery = async (
+  stackId: number,
 ) => {
   return prisma.$queryRaw<{ questionsAnswered: number; userId: string }[]>`
       SELECT
@@ -17,7 +17,7 @@ export const getNumberOfChompedQuestionsOfCampaignQuery = async (
       qa."questionOptionId" = qo."id"
       JOIN public."Question" 
       q ON q.id  = qo."questionId" 
-      WHERE q."campaignId" = ${campaignId}
+      WHERE q."stackId" = ${stackId}
       GROUP BY 
       qa."userId"
       ORDER BY "questionsAnswered" desc
