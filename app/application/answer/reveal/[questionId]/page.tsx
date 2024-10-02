@@ -2,9 +2,7 @@ import BackButton from "@/app/components/BackButton/BackButton";
 import BestAnswerBinary from "@/app/components/BestAnswerBinary/BestAnswerBinary";
 import BestAnswerMultipleChoice from "@/app/components/BestAnswerMultipleChoice/BestAnswerMultipleChoice";
 import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
-import LikeIcon from "@/app/components/Icons/LikeIcon";
 import { OpenLinkIcon } from "@/app/components/Icons/OpenLinkIcon";
-import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
 import TopInfoBox from "@/app/components/InfoBoxes/RevealPage/TopInfoBox";
 import PollResultBinary from "@/app/components/PollResultBinary/PollResultBinary";
 import PollResultMultipleChoice from "@/app/components/PollResultMultipleChoice/PollResultMultipleChoice";
@@ -15,11 +13,7 @@ import RewardShow from "@/app/components/RewardShow/RewardShow";
 import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { getCurrentUser } from "@/app/queries/user";
-import {
-  BINARY_QUESTION_OPTION_LABELS,
-  BINARY_QUESTION_TRUE_LABELS,
-  getAlphaIdentifier,
-} from "@/app/utils/question";
+import { getAlphaIdentifier } from "@/app/utils/question";
 import { QuestionType, ResultType, TransactionStatus } from "@prisma/client";
 import { notFound, redirect } from "next/navigation";
 
@@ -94,22 +88,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
   let answerContent = <></>;
 
   if (!!answerSelected && isBinary) {
-    let bestAnswerIcon = <></>;
-
-    if (
-      BINARY_QUESTION_OPTION_LABELS.includes(
-        answerSelected.questionOption?.option,
-      )
-    ) {
-      bestAnswerIcon = BINARY_QUESTION_TRUE_LABELS.includes(
-        questionResponse.correctAnswer?.option ?? "",
-      ) ? (
-        <LikeIcon />
-      ) : (
-        <UnlikeIcon />
-      );
-    }
-
     answerContent = (
       <>
         <div>
@@ -119,7 +97,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
           />
         </div>
         <BestAnswerBinary
-          icon={bestAnswerIcon}
           bestOption={questionResponse.correctAnswer?.option ?? ""}
           optionSelected={answerSelected.questionOption?.option ?? ""}
         />
@@ -204,13 +181,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
     answerContent = (
       <>
         <BestAnswerBinary
-          icon={
-            questionResponse.correctAnswer?.isLeft ? (
-              <LikeIcon />
-            ) : (
-              <UnlikeIcon />
-            )
-          }
           bestOption={questionResponse.correctAnswer?.option ?? ""}
         />
         <PollResultBinary

@@ -17,6 +17,7 @@ export default function BestAnswerMultipleChoice({
     <BestAnswer optionSelected={optionSelected} bestOption={bestOption}>
       <div className="flex gap-3.5">
         <div className="bg-aqua min-w-10 h-10 flex justify-center items-center text-sm  font-bold rounded-lg">
+          {/* Should it be removed */}
           <LikeIcon fill="#fff" />
         </div>
         <MultipleChoiceResult
