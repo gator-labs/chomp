@@ -104,7 +104,7 @@ async function getNextDeckIdQuery(
     d."stackId",
     c."image"
     from public."Deck" d
-    full join "Stack" c on c."id" = d."stackId"
+    full join public."Stack" c on c."id" = d."stackId"
     where
       (
         (
@@ -168,7 +168,7 @@ async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
 FROM
     public."Deck" d
 FULL JOIN
-    "Stack" c ON c."id" = d."stackId"
+    public."Stack" c ON c."id" = d."stackId"
 WHERE
     d."revealAtDate" > NOW() 
     AND d."date" IS NULL 
@@ -231,6 +231,8 @@ export async function getQuestionsForRevealedSection(): Promise<
 > {
   const payload = await authGuard();
 
+  console.log(payload);
+
   const questions = await queryRevealedQuestions(payload.sub);
 
   return questions;
@@ -248,7 +250,7 @@ async function queryRevealedQuestions(
     q."revealTokenAmount",
     c."image"
   FROM public."Question" q
-  LEFT JOIN "Stack" c ON c."id" = q."stackId"
+  LEFT JOIN public."Stack" c ON c."id" = q."stackId"
   LEFT JOIN public."ChompResult" cr1 
       ON cr1."questionId" = q."id" 
       AND cr1."userId" = ${userId} 
@@ -302,11 +304,11 @@ async function queryQuestionsForReadyToReveal(
   	) as "answerCount",
   q."revealTokenAmount"
   FROM public."Question" q
-  LEFT JOIN "ChompResult" cr on cr."questionId" = q.id
+  LEFT JOIN public."ChompResult" cr on cr."questionId" = q.id
   AND cr."userId" = ${userId}
   AND cr."transactionStatus" = 'Completed'
-  JOIN "QuestionOption" qo ON q.id = qo."questionId"
-  JOIN "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+  JOIN public."QuestionOption" qo ON q.id = qo."questionId"
+  JOIN public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
   WHERE
   cr."questionId" is null
   AND
@@ -334,8 +336,8 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
     await prisma.$queryRaw`
   select 
     (
-      select count(distinct qo."questionId") from "QuestionAnswer" qa
-      inner join "QuestionOption" qo ON qo.id = qa."questionOptionId" 
+      select count(distinct qo."questionId") from public."QuestionAnswer" qa
+      inner join public."QuestionOption" qo ON qo.id = qa."questionOptionId" 
       where qa.selected = true and qa."status" = 'Submitted' and qa."userId" = u."id"
     ) as "cardsChomped",
     (

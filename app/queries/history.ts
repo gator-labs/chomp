@@ -185,13 +185,13 @@ export async function getAllQuestionsReadyForReveal(): Promise<
 FROM 
     public."Question" q
 LEFT JOIN 
-    "ChompResult" cr ON cr."questionId" = q.id
+    public."ChompResult" cr ON cr."questionId" = q.id
     AND cr."userId" = '${userId}'
     AND cr."transactionStatus" IN ('Completed', 'Pending')
 JOIN 
-    "QuestionOption" qo ON q.id = qo."questionId"
+    public."QuestionOption" qo ON q.id = qo."questionId"
 JOIN 
-    "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+    public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
 WHERE 
     (cr."transactionStatus" IS NULL OR cr."transactionStatus" != 'Completed')
     AND q."revealAtDate" IS NOT NULL
