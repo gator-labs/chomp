@@ -354,7 +354,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
       );
 
       for (const question of newDeckQuestions) {
-        const res = await tx.question.create({
+        await tx.question.create({
           data: {
             question: question.question,
             type: question.type,
@@ -448,11 +448,23 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
                 },
               },
             },
+            questionOptions: {
+              deleteMany: {
+                questionId: question.id,
+              },
+              createMany: {
+                data: question.questionOptions.map((qo) => ({
+                  option: qo.option,
+                  isCorrect: qo.isCorrect ?? false, 
+                  isLeft: qo.isLeft ?? false,
+                })),
+              },
+            },
             stackId: validatedFields.data.stackId,
           },
         });
 
-        if (question.id) {
+        if (question.id && question.type === validatedQuestion?.question.type) {
           await handleUpsertingQuestionOptionsConcurrently(
             tx,
             question.id,
