@@ -175,7 +175,9 @@ const StackDeckCard = ({
       />
       <Wrapper
         onClick={() => {
-          if (buttonText === "Reveal results") {
+          if (!userId) {
+            setIsLoginModalOpen(true);
+          } else if (buttonText === "Reveal results") {
             openRevealModal({
               reveal: async ({ burnTx, revealQuestionIds }: RevealProps) => {
                 await revealQuestions(revealQuestionIds!, burnTx);
@@ -191,7 +193,6 @@ const StackDeckCard = ({
               dialogLabel: "Reveal deck",
             });
           }
-
           if (buttonText === "Claim your reward") {
             openClaimModal({
               description: "Would you like to claim all rewards in this deck?",
