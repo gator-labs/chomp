@@ -14,6 +14,7 @@ import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { getTotalNumberOfDeckQuestions } from "../utils/question";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -181,13 +182,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     },
   });
 
-  const totalDeckQuestions = deckQuestions.filter((dq) =>
-    dq.question.questionOptions.every(
-      (qo) =>
-        qo.questionAnswers.length >=
-        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
-    ),
-  ).length;
+  const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions)
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
