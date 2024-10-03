@@ -22,7 +22,7 @@ type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
   stacks: Stack[];
-  isQuestionAnswered: boolean;
+  isQuestionAnswered?: boolean;
   action: (
     data: z.infer<typeof deckSchema>,
   ) => Promise<{ errorMessage?: string } | void>;
