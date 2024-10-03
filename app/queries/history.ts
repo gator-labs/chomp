@@ -1,5 +1,6 @@
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
+import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 export type HistoryResult = {
   id: number;
@@ -187,11 +188,7 @@ WHERE
 	`,
   );
 
-  return questions.filter(
-    (question) =>
-      question.answerCount &&
-      question.answerCount >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
-  );
+  return filterQuestionsByMinimalNumberOfAnswers(questions);
 }
 
 export async function getAllDeckQuestionsReadyForReveal(
@@ -249,9 +246,5 @@ WHERE
 	`,
   );
 
-  return questions.filter(
-    (question) =>
-      question.answerCount &&
-      question.answerCount >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
-  );
+  return filterQuestionsByMinimalNumberOfAnswers(questions);
 }

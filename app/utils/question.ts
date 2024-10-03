@@ -178,3 +178,15 @@ export const getAnsweredQuestionsStatus = (
     return "answered-some";
   }
 };
+
+export const filterQuestionsByMinimalNumberOfAnswers = <
+  T extends { answerCount?: number },
+>(
+  questions: T[],
+) => {
+  return questions.filter(
+    (question) =>
+      question.answerCount &&
+      question.answerCount >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
+  );
+};
