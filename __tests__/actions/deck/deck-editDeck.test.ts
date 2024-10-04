@@ -44,15 +44,6 @@ describe("Editing a Deck", () => {
     revealAtAnswerCount: null,
     durationMiliseconds: 10,
     questions: [
-      {
-        question: "Question",
-        type: "BinaryQuestion",
-        questionOptions: [
-          { option: "1", isCorrect: false, isLeft: true },
-          { option: "2", isCorrect: false, isLeft: false },
-        ],
-        imageUrl: "",
-      },
     ],
     imageUrl: "",
   } as unknown as z.infer<typeof deckSchema>;
@@ -74,36 +65,6 @@ describe("Editing a Deck", () => {
           heading: mockData.heading,
         },
       });
-      const question = mockData.questions[0];
-      const newQuestion = await tx.question.create({
-        data: {
-          question: question.question,
-          type: question.type,
-          imageUrl: question.imageUrl,
-          revealToken: mockData.revealToken,
-          revealTokenAmount: mockData.revealTokenAmount,
-          revealAtDate: mockData.revealAtDate,
-          revealAtAnswerCount: mockData.revealAtAnswerCount,
-          durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
-          deckQuestions: {
-            create: {
-              deckId: deck.id,
-            },
-          },
-          questionOptions: {
-            createMany: {
-              data: question.questionOptions,
-            },
-          },
-          questionTags: {
-            createMany: {
-              data: mockData.tagIds.map((tagId) => ({ tagId })),
-            },
-          },
-          stackId: mockData.stackId,
-        },
-      });
-      currentDeckQuestionId = newQuestion.id;
       currentDeckId = deck.id;
     });
 
@@ -134,6 +95,49 @@ describe("Editing a Deck", () => {
     expect(mockData?.deck).toEqual(editedDeck?.deck);
   });
 
+  it('should successfully add new questions to an existing deck', async () => {
+    mockData = {
+      id: currentDeckId,
+      ...mockData,
+      questions: [
+        {
+          question: "New Test Question",
+          type: "BinaryQuestion",
+          questionOptions: [
+            { option: "1", isCorrect: false, isLeft: true },
+            { option: "2", isCorrect: false, isLeft: false },
+          ],
+          imageUrl: "",
+        },
+      ],
+    };
+
+    await editDeck(mockData);
+
+    const updatedDeck = await prisma.deck.findUnique({
+      where: { id: currentDeckId },
+      include: {
+        deckQuestions: {
+          include: {
+            question: {
+              include: {
+                questionOptions: true,
+                questionTags: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(updatedDeck).toBeTruthy();
+    expect(updatedDeck!.deck).toBe(mockData.deck);
+    expect(updatedDeck!.deckQuestions).toHaveLength(1);
+    expect(updatedDeck!.deckQuestions).toHaveLength(1);
+    expect(updatedDeck!.deckQuestions[0].question.question).toBe('New Test Question');
+    expect(updatedDeck!.deckQuestions[0].question.questionOptions).toHaveLength(2);
+  });
+
   it("should change a question a binary question to multi", async () => {
     mockData = {
       id: currentDeckId,
@@ -141,13 +145,13 @@ describe("Editing a Deck", () => {
       questions: [
         {
           id: currentDeckQuestionId,
-          question: "Question",
+          question: "Updated Question",
           type: "MultiChoice",
           questionOptions: [
-            { option: "test", isCorrect: false, isLeft: false },
-            { option: "test", isCorrect: false, isLeft: false },
-            { option: "test", isCorrect: true, isLeft: false },
-            { option: "test", isCorrect: false, isLeft: false },
+            { option: "test Option 1", isCorrect: false, isLeft: false },
+            { option: "test Option 2", isCorrect: false, isLeft: false },
+            { option: "test Option 3", isCorrect: true, isLeft: false },
+            { option: "test Option 4", isCorrect: false, isLeft: false },
           ],
           imageUrl: "",
         },
@@ -155,9 +159,9 @@ describe("Editing a Deck", () => {
     };
     await editDeck(mockData);
     const editedDeck = await getDeckSchema(currentDeckId);
-    expect(editedDeck?.questions[0].questionOptions).toMatchObject(
-      mockData.questions[0].questionOptions,
-    );
+    expect(editedDeck!.questions[0].question).toBe('Updated Question');
+    expect(editedDeck!.questions[0].questionOptions).toHaveLength(4);
+    expect(editedDeck!.questions[0].questionOptions[0].option).toBe('test Option 1');
   });
 
   it("should delete a question from deck", async () => {
@@ -233,5 +237,18 @@ describe("Editing a Deck", () => {
         },
       });
     }
+
+    const updateData = {
+      ...mockData,
+      deck: 'Updated Test Deck',
+    };
+
+    const result = await editDeck(updateData);
+
+    expect(result).toEqual({ errorMessage: 'Cannot edit deck' });
+
+    const unchangedDeck = await getDeckSchema(currentDeckId);
+
+    expect(unchangedDeck!.deck).toBe(mockData.deck);
   });
 });
