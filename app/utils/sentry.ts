@@ -4,4 +4,5 @@ export const ignoreErrors = [
   "[PhantomRedirect] getSession called, but required input 'encryptionSecretKey' not found in local storage",
   "User rejected the request.",
   "Talisman extension has not been configured yet. Please continue with onboarding.",
+  "Cannot destructure property 'address' of '(intermediate value)' as it is undefined.",
 ];
