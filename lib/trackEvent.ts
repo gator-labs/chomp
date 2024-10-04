@@ -1,4 +1,4 @@
-const sendToMixpanel = async (
+const trackEvent = async (
   eventName: string,
   eventProperties?: Record<string, any>,
 ) => {
@@ -28,4 +28,4 @@ const sendToMixpanel = async (
   });
 };
 
-export default sendToMixpanel;
+export default trackEvent;

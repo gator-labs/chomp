@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, userAgent } from "next/server";
 
-import { MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
+import { TRACKING_METADATA } from "@/app/constants/tracking";
 import { getCurrentUser } from "@/app/queries/user";
 import Mixpanel from "mixpanel";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
@@ -46,9 +46,9 @@ export async function POST(request: NextRequest) {
         $os: os.name,
         $os_version: os.version,
         $browser_version: browser.version,
-        [MIX_PANEL_METADATA.USER_ID]: currentUser.id,
-        [MIX_PANEL_METADATA.USERNAME]: currentUser.username,
-        [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]:
+        [TRACKING_METADATA.USER_ID]: currentUser.id,
+        [TRACKING_METADATA.USERNAME]: currentUser.username,
+        [TRACKING_METADATA.USER_WALLET_ADDRESS]:
           currentUser.wallets[0].address,
         ip,
       });

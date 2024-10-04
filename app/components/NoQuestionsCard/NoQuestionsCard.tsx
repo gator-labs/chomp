@@ -1,7 +1,5 @@
 "use client";
 
-import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
-import sendToMixpanel from "@/lib/mixpanel";
 import gatorHeadImage from "@/public/images/gator-head.png";
 import { CircleArrowRight, Share2 } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";

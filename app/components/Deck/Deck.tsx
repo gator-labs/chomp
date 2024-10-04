@@ -6,18 +6,18 @@ import {
   markQuestionAsTimedOut,
   SaveQuestionRequest,
 } from "@/app/actions/answer";
-import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
 import {
-  sendAnswerStatusToMixpanel,
-  sendAnswerToMixpanel,
-} from "@/app/utils/mixpanel";
+  trackAnswerStatus,
+  trackQuestionAnswer,
+} from "@/app/utils/tracking";
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
 } from "@/app/utils/question";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -184,7 +184,7 @@ export function Deck({
           ...prev,
           { questionId: question.id, questionOptionId: number },
         ]);
-        sendAnswerToMixpanel(
+        trackQuestionAnswer(
           question,
           "FIRST_ORDER",
           deckId,
@@ -238,9 +238,9 @@ export function Deck({
 
       try {
         await answerQuestion({ ...deckResponse[0], deckId });
-        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "SUCCEEDED");
+        trackAnswerStatus({ ...deckResponse[0], deckId }, "SUCCEEDED");
       } catch (error) {
-        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "FAILED");
+        trackAnswerStatus({ ...deckResponse[0], deckId }, "FAILED");
       }
 
       handleNextIndex();
@@ -269,7 +269,7 @@ export function Deck({
 
   useEffect(() => {
     if (question) {
-      sendAnswerToMixpanel(question, "QUESTION_LOADED", deckId, deckVariant);
+      trackQuestionAnswer(question, "QUESTION_LOADED", deckId, deckVariant);
     }
   }, [question]);
 
@@ -279,9 +279,9 @@ export function Deck({
       hasReachedEnd ||
       currentQuestionIndex === -1
     ) {
-      sendToMixpanel(MIX_PANEL_EVENTS.DECK_COMPLETED, {
-        [MIX_PANEL_METADATA.DECK_ID]: deckId,
-        [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
+      trackEvent(TRACKING_EVENTS.DECK_COMPLETED, {
+        [TRACKING_METADATA.DECK_ID]: deckId,
+        [TRACKING_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
       });
     }
   }, [questions.length, hasReachedEnd, currentQuestionIndex]);
