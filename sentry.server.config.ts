@@ -19,5 +19,9 @@ Sentry.init({
   ignoreErrors: ignoreErrors,
 
   // Enables capturing all console API calls and redirects them to Sentry using the captureException
-  integrations: [Sentry.captureConsoleIntegration()],
+  integrations: [
+    Sentry.captureConsoleIntegration({
+      levels: ["error"],
+    }),
+  ],
 });
