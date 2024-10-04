@@ -17,4 +17,7 @@ Sentry.init({
   // Uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: process.env.NODE_ENV === 'development',
   ignoreErrors: ignoreErrors,
+
+  // Enables capturing all console API calls and redirects them to Sentry using the captureException
+  integrations: [Sentry.captureConsoleIntegration()],
 });
