@@ -62,11 +62,7 @@ export async function getStack(id: number) {
                   },
                   questionOptions: {
                     include: {
-                      questionAnswers: {
-                        where: {
-                          userId,
-                        },
-                      },
+                      questionAnswers: true,
                     },
                   },
                 },

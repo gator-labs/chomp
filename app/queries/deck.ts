@@ -14,6 +14,7 @@ import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { getTotalNumberOfDeckQuestions } from "../utils/question";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -164,11 +165,24 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return null;
   }
 
-  const totalDeckQuestions = await prisma.deckQuestion.count({
+  const deckQuestions = await prisma.deckQuestion.findMany({
     where: {
       deckId: deckId,
     },
+    include: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
   });
+
+  const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions)
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
