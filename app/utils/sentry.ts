@@ -4,4 +4,6 @@ export const ignoreErrors = [
   "[PhantomRedirect] getSession called, but required input 'encryptionSecretKey' not found in local storage",
   "User rejected the request.",
   "Talisman extension has not been configured yet. Please continue with onboarding.",
+  "Non-Error exception captured",
+  "Non-Error promise rejection captured",
 ];
