@@ -13,10 +13,12 @@ type PotentialRewardsRevealAllProps = {
     revealTokenAmount: number;
     question: string;
   }[];
+  deckId?: number;
 };
 
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
+  deckId,
 }: PotentialRewardsRevealAllProps) {
   const [optimisticRevealableQuestionsLength, revealOptimistic] = useOptimistic(
     revealableQuestions.length,
@@ -44,7 +46,11 @@ export default function PotentialRewardsRevealAll({
         revealOptimistic(0);
       });
 
-      queryClient.resetQueries({ queryKey: ["questions-history"] });
+      queryClient.resetQueries({
+        queryKey: [
+          deckId ? `questions-history-${deckId}` : "questions-history",
+        ],
+      });
       closeRevealModal();
       setIsLoading(false);
     },

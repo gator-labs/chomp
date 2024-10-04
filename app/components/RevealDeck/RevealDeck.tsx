@@ -53,6 +53,7 @@ const RevealDeck = async ({
       <HistoryHeader
         revealableQuestions={revealableQuestions}
         totalClaimableRewards={totalClaimableRewards}
+        deckId={deckId}
       />
       <History deckId={`${deckId}`} />
     </div>
