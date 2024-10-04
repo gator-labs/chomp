@@ -205,7 +205,7 @@ async function queryExpiringDailyDecks(
 FROM
     public."Deck" d
 FULL JOIN
-    "Stack" c ON c."id" = d."stackId"
+    public."Stack" c ON c."id" = d."stackId"
 WHERE
     d."activeFromDate" IS NULL
     AND d."date" >= ${currentDayStart}
