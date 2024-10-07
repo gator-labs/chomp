@@ -42,7 +42,7 @@ describe("Editing a Deck", () => {
     durationMiliseconds: 10,
     questions: [
     ],
-    imageUrl: "https://chomp-staging.s3.eu-north-1.amazonaws.com/fc01972b-adee-4ab6-855f-1f733cdc6428",
+    imageUrl: "",
   } as unknown as z.infer<typeof deckSchema>;
 
  // Add mock deck with one question and a user to database
@@ -150,7 +150,7 @@ describe("Editing a Deck", () => {
             { option: "test Option 3", isCorrect: true, isLeft: false },
             { option: "test Option 4", isCorrect: false, isLeft: false },
           ],
-          imageUrl: "https://chomp-staging.s3.eu-north-1.amazonaws.com/12eb5d95-d1d6-456b-9dde-c3632ab71f7b",
+          imageUrl: "",
         },
       ],
     };
