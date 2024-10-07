@@ -21,15 +21,17 @@ type LoginPopUpProps = {
 
 const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
   const { authToken, awaitingSignatureState } = useDynamicContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if(localStorage.getItem("selectedDeckId")) {
+    if (localStorage.getItem("selectedDeckId")) {
       localStorage.removeItem("selectedDeckId");
     }
   }, []);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     setIsLoading(true);
 
     if (authToken) setJwt(authToken);
@@ -53,22 +55,20 @@ const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
       redirect(`/application/decks/${selectedDeckId}`, RedirectType.push);
     }
 
-    if (!userId && !authToken && awaitingSignatureState === "idle") {
+    if (
+      !userId &&
+      !authToken &&
+      awaitingSignatureState === "idle" &&
+      !localStorage.getItem("selectedDeckId")
+    ) {
       setIsLoading(false);
     }
-  }, [authToken, userId, awaitingSignatureState]);
+  }, [authToken, userId, awaitingSignatureState, isOpen]);
 
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <Drawer
-      open={isOpen}
-      onOpenChange={(open: boolean) => {
-        if (!open) {
-          onClose();
-        }
-      }}
-    >
+    <Drawer open={isOpen}>
       <DrawerContent className="p-6 flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <p className="text-base text-secondary font-bold">
