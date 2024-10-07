@@ -1,6 +1,6 @@
 "use client";
 
-import { sendAnswerStatusToMixpanel } from "@/app/utils/mixpanel";
+import { trackAnswerStatus } from "@/app/utils/tracking";
 import { useRouter } from "next-nprogress-bar";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,11 +41,11 @@ export default function Page() {
 
     saveQuestion(answer)
       .then(() => {
-        sendAnswerStatusToMixpanel(answer, "SUCCEEDED");
+        trackAnswerStatus(answer, "SUCCEEDED");
         router.push("/application/history");
       })
       .catch(() => {
-        sendAnswerStatusToMixpanel(answer, "FAILED");
+        trackAnswerStatus(answer, "FAILED");
       });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

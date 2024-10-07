@@ -1,5 +1,5 @@
 "use client";
-import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
+import { trackQuestionAnswer } from "@/app/utils/tracking";
 import { QuestionType } from "@prisma/client";
 import { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../Button/Button";
@@ -98,7 +98,7 @@ export function QuestionAction({
               handleRatioChange={(value) => {
                 setPercentage && setPercentage(value);
                 if (question)
-                  sendAnswerToMixpanel(
+                  trackQuestionAnswer(
                     question,
                     "SECOND_ORDER",
                     deckId,
@@ -155,7 +155,7 @@ export function QuestionAction({
               handleRatioChange={(value) => {
                 setPercentage && setPercentage(value);
                 if (question)
-                  sendAnswerToMixpanel(
+                  trackQuestionAnswer(
                     question,
                     "SECOND_ORDER",
                     deckId,

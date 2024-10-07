@@ -3,8 +3,8 @@ import { Deck, Question } from "@/app/components/Deck/Deck";
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
 import { Button } from "@/app/components/ui/button";
-import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
-import sendToMixpanel from "@/lib/mixpanel";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
 import { CircleArrowRight } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import { useState } from "react";
@@ -54,9 +54,9 @@ const DeckScreen = ({
           <div className="flex flex-col gap-4 py-4">
             <Button
               onClick={() => {
-                sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
-                  [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,
-                  [MIX_PANEL_METADATA.IS_DAILY_DECK]: false,
+                trackEvent(TRACKING_EVENTS.DECK_STARTED, {
+                  [TRACKING_METADATA.DECK_ID]: currentDeckId,
+                  [TRACKING_METADATA.IS_DAILY_DECK]: false,
                 });
                 setIsDeckStarted(true);
               }}
