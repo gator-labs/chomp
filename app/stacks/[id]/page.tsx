@@ -61,11 +61,20 @@ const StackPage = async ({ params: { id } }: PageProps) => {
             key={deck.id}
             deckId={deck.id}
             chompResults={
-              deck.deckQuestions.flatMap(
-                (dq) => dq.question.chompResults,
-              ) as (ChompResult & { question: Question })[]
+              deck.deckQuestions
+                .flatMap((dq) => dq.question.chompResults)
+                .map((cr) => ({
+                  ...cr,
+                  rewardTokenAmount: Number(cr.rewardTokenAmount),
+                })) as (Omit<ChompResult, "rewardTokenAmount"> & {
+                rewardTokenAmount: number;
+                question: Question;
+              })[]
             }
-            deckQuestions={deck.deckQuestions.map((dq) => dq.question)}
+            deckQuestions={deck.deckQuestions.map((dq) => ({
+              ...dq.question,
+              chompResults: undefined,
+            }))}
             deckName={deck.deck}
             imageUrl={deck.imageUrl ? deck.imageUrl : stack.image}
             revealAtDate={deck.revealAtDate!}
