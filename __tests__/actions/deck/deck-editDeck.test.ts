@@ -14,9 +14,6 @@ jest.mock("@/app/queries/user", () => ({
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
-jest.mock("@/app/utils/file", () => ({
-  validateBucketImage: jest.fn(),
-}));
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
