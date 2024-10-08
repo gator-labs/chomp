@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  HOME_STAT_CARD_TYPE,
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
+} from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
 import { cn } from "@/lib/utils";
 import { Goal } from "lucide-react";
 import { useState } from "react";
@@ -12,12 +18,26 @@ type LongestStreakBoxProps = {
 const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const onClose = () => setIsOpen(false);
+  const onClose = async () => {
+    setIsOpen(false);
+
+    await trackEvent(TRACKING_EVENTS.HOME_STAT_CARD_DIALOG_CLOSED, {
+      [TRACKING_METADATA.TYPE]: HOME_STAT_CARD_TYPE.STREAK,
+    });
+  };
+
+  const openStreakDrawer = async () => {
+    setIsOpen(true);
+
+    await trackEvent(TRACKING_EVENTS.HOME_STAT_CARD_DIALOG_OPENED, {
+      [TRACKING_METADATA.TYPE]: HOME_STAT_CARD_TYPE.STREAK,
+    });
+  };
 
   return (
     <>
       <div
-        onClick={() => setIsOpen(true)}
+        onClick={openStreakDrawer}
         className="w-full rounded-[8px] border-[0.5px] border-solid p-4 border-gray-500 bg-gray-700 flex gap-4 items-center"
       >
         <p className="text-[44px] leading-[60px] font-bold">{longestStreak}</p>
