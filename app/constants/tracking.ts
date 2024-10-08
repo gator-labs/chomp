@@ -24,6 +24,8 @@ export const TRACKING_EVENTS = {
   QUESTION_ANSWERED_FAILED: "QuestionAnsweredFailed",
   DECK_COMPLETED: "DeckCompletionSucceeded",
   SHARE_EARN_URL: "ShareTaskonURL",
+  HOME_STAT_CARD_DIALOG_OPENED: "HomeStatCardDialogOpened",
+  HOME_STAT_CARD_DIALOG_CLOSED: "HomeStatCardDialogClosed",
 } as const;
 
 export const TRACKING_METADATA = {
@@ -46,6 +48,13 @@ export const TRACKING_METADATA = {
   DECK_ID: "DeckId",
   DECK_NAME: "DeckName",
   IS_DAILY_DECK: "IsDailyDeck",
+  TYPE: "Type",
+};
+
+export const HOME_STAT_CARD_TYPE = {
+  STREAK: "Streak",
+  BONK_CLAIMED: "BonkClaimed",
+  CARDS_REVEALED: "CardsRevealed",
 };
 
 export const REVEAL_TYPE = {
