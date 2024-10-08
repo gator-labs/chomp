@@ -2,8 +2,6 @@
 
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
-import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
@@ -62,19 +60,6 @@ export async function getDecksForExpiringSection(): Promise<
   const payload = await authGuard();
 
   const decks = await queryExpiringDecks(payload.sub);
-
-  return decks;
-}
-export async function getDailyDecksForExpiringSection(): Promise<
-  DeckExpiringSoon[]
-> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
-
-  const decks = await queryExpiringDailyDecks(payload.sub);
 
   return decks;
 }
@@ -159,10 +144,14 @@ async function getNextDeckIdQuery(
 }
 
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
   SELECT
     d."id",
     d."deck",
+    d."date",
     d."revealAtDate",
     c."image"
 FROM
@@ -171,8 +160,10 @@ FULL JOIN
     public."Stack" c ON c."id" = d."stackId"
 WHERE
     d."revealAtDate" > NOW() 
-    AND d."date" IS NULL 
-    AND d."activeFromDate" <= NOW()
+    AND (d."activeFromDate" <= NOW() OR  
+    d."activeFromDate" IS NULL
+    AND d."date" >= ${currentDayStart}
+    AND d."date" <= ${currentDayEnd})
     AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq
@@ -186,43 +177,6 @@ WHERE
     );
   `;
 
-  return deckExpiringSoon;
-}
-
-async function queryExpiringDailyDecks(
-  userId: string,
-): Promise<DeckExpiringSoon[]> {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
-
-  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
-  SELECT
-    d."id",
-    d."deck",
-    d."revealAtDate",
-    d."date",
-    c."image"
-FROM
-    public."Deck" d
-FULL JOIN
-    public."Stack" c ON c."id" = d."stackId"
-WHERE
-    d."activeFromDate" IS NULL
-    AND d."date" >= ${currentDayStart}
-    AND d."date" <= ${currentDayEnd}
-    AND EXISTS (
-        SELECT 1
-        FROM public."DeckQuestion" dq
-        JOIN public."Question" q ON dq."questionId" = q."id"
-        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
-        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
-        AND qa."userId" = ${userId}
-        AND qa."id" > 0
-        WHERE dq."deckId" = d."id"
-        GROUP BY dq."deckId"
-        HAVING COUNT(DISTINCT qa."id") < COUNT(DISTINCT qo."id")
-    );
-  `;
   return deckExpiringSoon;
 }
 
