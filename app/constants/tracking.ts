@@ -1,4 +1,4 @@
-export const MIX_PANEL_EVENTS = {
+export const TRACKING_EVENTS = {
   WALLET_CONNECTED: "LoginWalletConnected",
   CLAIM_STARTED: "ClaimStarted",
   CLAIM_FAILED: "ClaimFailed",
@@ -26,7 +26,7 @@ export const MIX_PANEL_EVENTS = {
   SHARE_EARN_URL: "ShareTaskonURL",
 } as const;
 
-export const MIX_PANEL_METADATA = {
+export const TRACKING_METADATA = {
   REVEAL_TYPE: "RevealType",
   USER_WALLET_ADDRESS: "UserWalletAddress",
   USER_EMAIL: "UserEmail",
@@ -58,4 +58,4 @@ export const REVEAL_DIALOG_TYPE = {
   INSUFFICIENT_FUNDS: "InsufficientFunds",
 };
 
-export type MixPanelEventType = keyof typeof MIX_PANEL_EVENTS;
+export type TrackingEventsType = keyof typeof TRACKING_EVENTS;

@@ -1,15 +1,15 @@
 "use client";
 import { claimAllAvailable } from "@/app/actions/claim";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
   REVEAL_TYPE,
-} from "@/app/constants/mixpanel";
+} from "@/app/constants/tracking";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic } from "react";
@@ -40,13 +40,13 @@ export default function TotalRewardsClaimAll({
     try {
       setIsClaiming(true);
 
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
+      trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
+        [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
         ),
-        [MIX_PANEL_METADATA.QUESTION_TEXT]:
+        [TRACKING_METADATA.QUESTION_TEXT]:
           totalClaimableRewards?.questions.map((q) => q?.question),
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
       const res = await promiseToast(claimAllAvailable(), {
@@ -55,12 +55,12 @@ export default function TotalRewardsClaimAll({
         error: "Issue transferring funds.",
       });
 
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
-        [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-        [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: res?.transactionSignature,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
+      trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
+        [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
+        [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+        [TRACKING_METADATA.TRANSACTION_SIGNATURE]: res?.transactionSignature,
+        [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
       startTransition(() => {
@@ -78,13 +78,13 @@ export default function TotalRewardsClaimAll({
       );
       setIsClaiming(false);
     } catch (error) {
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
+      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+        [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
         ),
-        [MIX_PANEL_METADATA.QUESTION_TEXT]:
+        [TRACKING_METADATA.QUESTION_TEXT]:
           totalClaimableRewards?.questions.map((q) => q?.question),
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
     } finally {
       setIsClaiming(false);

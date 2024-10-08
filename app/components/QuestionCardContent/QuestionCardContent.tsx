@@ -1,5 +1,5 @@
 "use client";
-import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
+import { trackQuestionAnswer } from "@/app/utils/tracking";
 import { QuestionAnswer, QuestionType } from "@prisma/client";
 import { AnswerResult } from "../AnswerResult/AnswerResult";
 import { Question } from "../Deck/Deck";
@@ -61,7 +61,7 @@ export function QuestionCardContent({
           onOptionSelected={(value) => {
             onOptionSelected(+value);
             if (question)
-              sendAnswerToMixpanel(
+              trackQuestionAnswer(
                 question,
                 "FIRST_ORDER",
                 undefined,

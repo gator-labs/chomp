@@ -3,6 +3,7 @@ import StackDeckCard from "@/app/components/StackDeckCard/StackDeckCard";
 import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
 import { getStack } from "@/app/queries/stack";
 import { getCurrentUser } from "@/app/queries/user";
+import { getTotalNumberOfDeckQuestions } from "@/app/utils/question";
 import { ChompResult, Question } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,10 +18,12 @@ type PageProps = {
 const StackPage = async ({ params: { id } }: PageProps) => {
   const [stack, user] = await Promise.all([getStack(+id), getCurrentUser()]);
 
-  console.log("stack", stack);
-
   if (!stack || (stack.isActive === false && stack?.isVisible === false))
     return notFound();
+
+  const deckQuestions = stack.deck.flatMap((d) => d.deckQuestions);
+
+  const totalNumberOfCards = getTotalNumberOfDeckQuestions(deckQuestions);
 
   return (
     <div className="flex flex-col gap-2 pt-4 overflow-hidden pb-2">
@@ -38,7 +41,7 @@ const StackPage = async ({ params: { id } }: PageProps) => {
           <h1 className="text-base mb-3">{stack.name}</h1>
           <p className="text-xs mb-6">
             {stack.deck.length} deck{stack.deck.length === 1 ? "" : "s"},{" "}
-            {stack.deck.flatMap((d) => d.deckQuestions).length} cards
+            {totalNumberOfCards} cards
           </p>
           <Link
             href={`/application/leaderboard/stack/${id}`}
@@ -58,11 +61,20 @@ const StackPage = async ({ params: { id } }: PageProps) => {
             key={deck.id}
             deckId={deck.id}
             chompResults={
-              deck.deckQuestions.flatMap(
-                (dq) => dq.question.chompResults,
-              ) as (ChompResult & { question: Question })[]
+              deck.deckQuestions
+                .flatMap((dq) => dq.question.chompResults)
+                .map((cr) => ({
+                  ...cr,
+                  rewardTokenAmount: Number(cr.rewardTokenAmount),
+                })) as (Omit<ChompResult, "rewardTokenAmount"> & {
+                rewardTokenAmount: number;
+                question: Question;
+              })[]
             }
-            deckQuestions={deck.deckQuestions.map((dq) => dq.question)}
+            deckQuestions={deck.deckQuestions.map((dq) => ({
+              ...dq.question,
+              chompResults: undefined,
+            }))}
             deckName={deck.deck}
             imageUrl={deck.imageUrl ? deck.imageUrl : stack.image}
             revealAtDate={deck.revealAtDate!}
