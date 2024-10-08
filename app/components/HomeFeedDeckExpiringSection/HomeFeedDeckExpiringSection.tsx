@@ -1,16 +1,13 @@
-import { getDailyDecksForExpiringSection, getDecksForExpiringSection } from "@/app/queries/home";
+import { getDecksForExpiringSection } from "@/app/queries/home";
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedDeckCard } from "../HomeFeedDeckCard/HomeFeedDeckCard";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
 
 export async function HomeFeedDeckExpiringSection() {
   const decks = await getDecksForExpiringSection();
-  const dailyDeck = await getDailyDecksForExpiringSection();
 
-  const combinedArray = [...decks, ...(dailyDeck || [])];
-
-  const deckSlides = !!combinedArray.length
-    ? combinedArray.map((d) => (
+  const deckSlides = !!decks.length
+    ? decks.map((d) => (
         <HomeFeedDeckCard
           imageUrl={d.image}
           key={d.id}
