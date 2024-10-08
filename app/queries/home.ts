@@ -11,6 +11,12 @@ import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
 
+export type Streak = {
+  streakStartDate: Date;
+  streakEndDate: Date;
+  streakLength: number;
+};
+
 type UserStatistics = {
   cardsChomped: string;
   averageTimeToAnswer: string;
@@ -374,4 +380,50 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       ? result?.totalPointsEarned.toString()
       : "0",
   };
+}
+
+export async function getUsersLongestStreak(): Promise<number> {
+  const payload = await authGuard();
+
+  const longestStreak = await queryUsersLongestStreak(payload.sub);
+
+  return longestStreak;
+}
+
+async function queryUsersLongestStreak(userId: string): Promise<number> {
+  const streaks: Streak[] = await prisma.$queryRaw`
+  WITH userActivity AS (
+  SELECT DISTINCT DATE("createdAt") AS activityDate
+  FROM public."ChompResult"
+  WHERE "userId" = ${userId}  
+  UNION
+  SELECT DISTINCT DATE("createdAt") AS activityDate
+  FROM public."QuestionAnswer" qa
+  WHERE "userId" = ${userId}
+  and qa."status" = 'Submitted'
+  ),
+  consecutiveDays AS (
+    SELECT 
+      activityDate,
+      LAG(activityDate) OVER (ORDER BY activityDate) AS previousDate
+    FROM userActivity
+  ),
+  "streakGroups" AS (
+    SELECT 
+      activityDate,
+      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END) 
+      OVER (ORDER BY activityDate) AS "streakGroup"
+    FROM consecutiveDays
+  )
+  SELECT 
+    MIN(activityDate) AS "streakStartDate",
+    MAX(activityDate) AS "streakEndDate",
+    COUNT(*) AS "streakLength"
+  FROM "streakGroups"
+  GROUP BY "streakGroup"
+  ORDER BY "streakLength" DESC
+  LIMIT 1
+  `;
+
+  return streaks[0].streakLength;
 }
