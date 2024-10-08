@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  HOME_STAT_CARD_TYPE,
-  TRACKING_EVENTS,
-  TRACKING_METADATA,
-} from "@/app/constants/tracking";
-import trackEvent from "@/lib/trackEvent";
+import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import { cn } from "@/lib/utils";
 import { Goal } from "lucide-react";
 import { useState } from "react";
-import StreakInfoDrawer from "../StreakInfoDrawer/StreakInfoDrawer";
+import StatsDrawer from "../StatsDrawer/StatsDrawer";
 
 type LongestStreakBoxProps = {
   longestStreak: number;
@@ -18,27 +13,16 @@ type LongestStreakBoxProps = {
 const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const onClose = async () => {
-    setIsOpen(false);
-
-    await trackEvent(TRACKING_EVENTS.HOME_STAT_CARD_DIALOG_CLOSED, {
-      [TRACKING_METADATA.TYPE]: HOME_STAT_CARD_TYPE.STREAK,
-    });
-  };
-
-  const openStreakDrawer = async () => {
-    setIsOpen(true);
-
-    await trackEvent(TRACKING_EVENTS.HOME_STAT_CARD_DIALOG_OPENED, {
-      [TRACKING_METADATA.TYPE]: HOME_STAT_CARD_TYPE.STREAK,
-    });
-  };
-
   return (
     <>
       <div
-        onClick={openStreakDrawer}
-        className="w-full rounded-[8px] border-[0.5px] border-solid p-4 border-gray-500 bg-gray-700 flex gap-4 items-center"
+        onClick={() => setIsOpen(true)}
+        className={cn(
+          "w-full rounded-[8px] border-[0.5px] border-solid p-4 border-gray-500 bg-gray-700 flex gap-4 items-center transition-all duration-200 hover:bg-gray-600 cursor-pointer",
+          {
+            "bg-gray-600": isOpen,
+          },
+        )}
       >
         <p className="text-[44px] leading-[60px] font-bold">{longestStreak}</p>
         <div className="flex-1 flex-col flex gap-1">
@@ -60,7 +44,16 @@ const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
           </p>
         </div>
       </div>
-      <StreakInfoDrawer isOpen={isOpen} onClose={onClose} />
+      <StatsDrawer
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Streak"
+        description="Keep going! Streaks track consecutive days you've answered or
+          revealed. How long can you keep it up?"
+        type={
+          HOME_STAT_CARD_TYPE.CARDS_REVEALED as keyof typeof HOME_STAT_CARD_TYPE
+        }
+      />
     </>
   );
 };
