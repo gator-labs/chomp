@@ -187,6 +187,7 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
 
   if (
     treasurySolBalance < 0.1 ||
+    // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
     (treasuryBonkBalance < 10000000 && treasuryBonkBalance > 0)
   ) {
     Sentry.captureMessage(
