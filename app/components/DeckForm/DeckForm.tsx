@@ -22,7 +22,6 @@ type DeckFormProps = {
   deck?: z.infer<typeof deckSchema>;
   tags: TagType[];
   stacks: Stack[];
-  isQuestionAnswered?: boolean;
   action: (
     data: z.infer<typeof deckSchema>,
   ) => Promise<{ errorMessage?: string } | void>;
@@ -526,10 +525,7 @@ export default function DeckForm({
           ))}
         </select>
       </div>
-      <Button
-        type="submit"
-        disabled={isSubmitting || isSubmitSuccessful}
-      >
+      <Button type="submit" disabled={isSubmitting || isSubmitSuccessful}>
         {isSubmitting ? "Submitting" : "Submit"}
       </Button>{" "}
     </form>

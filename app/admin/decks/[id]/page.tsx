@@ -20,7 +20,5 @@ export default async function Page({ params: { id } }: PageProps) {
     return notFound();
   }
 
-  return (
-    <DeckForm action={editDeck} deck={deck} tags={tags} stacks={stacks} />
-  );
+  return <DeckForm action={editDeck} deck={deck} tags={tags} stacks={stacks} />;
 }
