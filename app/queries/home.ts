@@ -349,13 +349,6 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       limit 1
     ) as "averageTimeToAnswer",
     (
-      select s."count"
-      from public."Streak" s
-      where s."userId" = u."id"
-      order by s."count" desc
-      limit 1
-    ) as "daysStreak",
-    (
       select
         fab."amount"
       from public."FungibleAssetBalance" fab
