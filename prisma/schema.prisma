@@ -24,7 +24,6 @@ model User {
   chompResults                ChompResult[]
   fungibleAssetBalance        FungibleAssetBalance[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
-  streak                      Streak[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
 }
@@ -196,14 +195,6 @@ model FungibleAssetBalance {
   user   User          @relation(fields: [userId], references: [id])
 
   @@id([asset, userId])
-}
-
-model Streak {
-  id        Int      @id @default(autoincrement())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  count     Int      @default(0)
-  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model RevealNft {
