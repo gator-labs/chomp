@@ -39,8 +39,9 @@ const PreviewDeckCard = ({
               src={imageUrl || stackImage} // use imageUrl first, fallback to stackImage
               alt=""
               fill
-              objectFit="cover"
               className="rounded-full overflow-hidden"
+              sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
+              style={{ objectFit: "cover" }}
             />
           </div>
         )}
@@ -59,6 +60,8 @@ const PreviewDeckCard = ({
         alt="gator-head"
         className="absolute bottom-0 left-0 w-full"
         style={{ zIndex: 1 }}
+        sizes="480px"
+        priority
       />
     </div>
   );
