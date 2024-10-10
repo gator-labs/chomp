@@ -21,5 +21,5 @@ jobs:
     - name: Run Jest tests
       run: npm run gh-test
       env:
-        DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_STAGING }}
-        DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_STAGING }}
+        DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_DEMO }}
+        DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_DEMO }}

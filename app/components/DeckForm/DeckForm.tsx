@@ -93,8 +93,6 @@ export default function DeckForm({
       imageUrl = await uploadImageToS3Bucket(data.file[0]);
     }
 
-    console.log({ imageUrl });
-
     const result = await action({
       ...data,
       questions,
