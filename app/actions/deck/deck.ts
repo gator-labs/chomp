@@ -244,7 +244,6 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
 }
 
 export async function editDeck(data: z.infer<typeof deckSchema>) {
-  console.log("IN");
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
@@ -327,11 +326,8 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         (q) => !q.id,
       );
 
-      console.log(newDeckQuestions);
-
       for (const question of newDeckQuestions) {
-        console.log(question);
-        const res = await tx.question.create({
+        await tx.question.create({
           data: {
             question: question.question,
             type: question.type,

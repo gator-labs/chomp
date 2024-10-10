@@ -8,6 +8,10 @@ const nextConfig = {
       bodySizeLimit: "3mb",
     },
   },
+  compiler: {
+    removeConsole:
+      process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
+  },
   experimental: { serverComponentsExternalPackages: ["@aws-sdk"] },
   images: {
     remotePatterns: [

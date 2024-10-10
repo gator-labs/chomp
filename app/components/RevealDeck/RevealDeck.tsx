@@ -38,6 +38,8 @@ const RevealDeck = async ({
               fill
               alt={deckTitle}
               className="object-cover"
+              sizes="(max-width: 600px) 80px, (min-width: 601px) 100.5px"
+              priority
             />
           </div>
         </div>

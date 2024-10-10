@@ -185,8 +185,6 @@ export async function getQuestionsForRevealedSection(): Promise<
 > {
   const payload = await authGuard();
 
-  console.log(payload);
-
   const questions = await queryRevealedQuestions(payload.sub);
 
   return questions;

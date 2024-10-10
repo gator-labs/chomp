@@ -5,12 +5,12 @@ import { ChompResult, Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { ReactNode, createContext, useContext, useState } from "react";
 import { claimQuestions } from "../actions/claim";
-import { Button } from "../components/ui/button";
 import Sheet from "../components/Sheet/Sheet";
+import { Button } from "../components/ui/button";
 import {
+  REVEAL_TYPE,
   TRACKING_EVENTS,
   TRACKING_METADATA,
-  REVEAL_TYPE,
 } from "../constants/tracking";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION } from "../utils/solana";
@@ -43,8 +43,6 @@ const ClaimProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     .filter((cr) => !!cr.burnTransactionSignature)
     .map((cr) => cr.burnTransactionSignature!)
     .filter(onlyUnique);
-
-  console.log(questionIds, questions);
 
   const startClaiming = async (ids: number[]) => {
     try {

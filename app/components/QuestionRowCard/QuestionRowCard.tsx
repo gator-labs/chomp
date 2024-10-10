@@ -1,9 +1,9 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestions } from "@/app/actions/claim";
 import {
+  REVEAL_TYPE,
   TRACKING_EVENTS,
   TRACKING_METADATA,
-  REVEAL_TYPE,
 } from "@/app/constants/tracking";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
@@ -141,6 +141,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
                 alt="stack-image"
                 fill
                 className="rounded-full"
+                sizes="(max-width: 600px) 24px, (min-width: 601px) 36px"
               />
             </div>
           )}
