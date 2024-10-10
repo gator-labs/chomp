@@ -136,8 +136,10 @@ export async function getAllStacks() {
 
   return stacks.map((stack) => ({
     ...stack,
+    decks: stack.deck,
     decksToAnswer: !!userId ? getDecksToAnswer(stack.deck) : undefined,
     decksToReveal: !!userId ? getDecksToReveal(stack.deck) : undefined,
+    deck: undefined,
   }));
 }
 

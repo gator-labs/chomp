@@ -18,6 +18,7 @@ const StacksPage = async () => {
             decksToReveal={stack.decksToReveal?.length}
             name={stack.name}
             id={stack.id}
+            numberOfDecks={stack.decks.length}
           />
         ))}
       </ul>
