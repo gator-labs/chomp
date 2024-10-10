@@ -22,9 +22,13 @@ const StackCard = ({
   decksToReveal,
   numberOfDecks,
 }: StackCardProps) => {
+  const hasDeckDetails =
+    decksToAnswer !== undefined &&
+    decksToReveal !== undefined &&
+    numberOfDecks > 0;
   return (
     <Link
-      href={numberOfDecks > 0 ? `${STACKS_PATH}/${id}` : ""}
+      href={`${STACKS_PATH}/${id}`}
       className="p-4 rounded-[8px] bg-gray-800 border-[0.5px] border-solid border-gray-500 flex items-center justify-between gap-4"
       style={{
         pointerEvents:
@@ -45,17 +49,15 @@ const StackCard = ({
           <p className="text-xs font-medium text-gray-400">Coming soon</p>
         )}
 
-        {decksToAnswer !== undefined &&
-          decksToReveal !== undefined &&
-          numberOfDecks > 0 && (
-            <p className="text-xs font-medium text-gray-400">
-              <span className="text-white">{decksToAnswer}</span> deck
-              {decksToAnswer === 1 ? "" : "s"} to answer{" "}
-              <span className="text-white">•</span>{" "}
-              <span className="text-white">{decksToReveal}</span> deck
-              {decksToReveal === 1 ? "" : "s"} to reveal
-            </p>
-          )}
+        {hasDeckDetails && (
+          <p className="text-xs font-medium text-gray-400">
+            <span className="text-white">{decksToAnswer}</span> deck
+            {decksToAnswer === 1 ? "" : "s"} to answer{" "}
+            <span className="text-white">•</span>{" "}
+            <span className="text-white">{decksToReveal}</span> deck
+            {decksToReveal === 1 ? "" : "s"} to reveal
+          </p>
+        )}
       </div>
       {!(decksToAnswer === 0 && decksToReveal === 0) && (
         <div className="flex-shrink-0">
