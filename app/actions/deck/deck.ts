@@ -12,7 +12,10 @@ import { deckSchema } from "../../schemas/deck";
 import prisma from "../../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
 import { formatErrorsToString } from "../../utils/zod";
-import { handleUpsertingQuestionOptionsConcurrently } from "../question/question";
+import {
+  handleAddNewQuestionOptionsConcurrently,
+  handleUpsertingQuestionOptionsConcurrently,
+} from "../question/question";
 import { deckInputFactory } from "./factories";
 
 export async function deleteQuestions(questionIds: number[]) {
@@ -265,6 +268,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     .map((question) => question.imageUrl)
     .filter((image) => !!image);
 
+  //Validate and upload images for question.
   for (let index = 0; index < images.length; index++) {
     const image = images[index]!;
 
@@ -276,6 +280,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     if (!isBucketImageValid) throw new Error("Invalid image");
   }
 
+  //Validate and upload images for deck.
   if (validatedFields.data.imageUrl) {
     const isBucketImageValid = await validateBucketImage(
       validatedFields.data.imageUrl.split("/").pop()!,
@@ -285,6 +290,24 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     if (!isBucketImageValid) throw new Error("Invalid image");
   }
 
+  // New added question in the deck
+  const newDeckQuestions = validatedFields.data.questions.filter((q) => !q.id);
+
+  // Retrieve the previous questionIds from the deck without any updates
+  const existingQuestionId = (
+    await prisma.deckQuestion.findFirst({
+      where: {
+        deckId: data.id,
+      },
+    })
+  )?.questionId;
+
+  // Retrieve the questions from the deck
+  const existingDeckQuestions = validatedFields.data.questions.filter(
+    (q) => !!q.id,
+  );
+
+  // Retrieve the previous question from the deck without any updates
   const currentDeckQuestions = await prisma.deckQuestion.findMany({
     where: {
       deckId: data.id,
@@ -302,22 +325,53 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     },
   });
 
+  const existingQuestionIds = new Set(existingDeckQuestions.map((q) => q.id));
+
   const isQuestionAnswered = currentDeckQuestions?.some((deckQuestion) =>
     deckQuestion?.question?.questionOptions?.some(
       (option) => option?.questionAnswers && option.questionAnswers.length > 0,
     ),
   );
-  if(isQuestionAnswered){
-    return { errorMessage: "Cannot edit deck" };
-  }
 
-  const existingQuestionId = (
-    await prisma.deckQuestion.findFirst({
-      where: {
-        deckId: data.id,
-      },
-    })
-  )?.questionId;
+  for (const question of currentDeckQuestions) {
+    const currentQuestion = question.question;
+    const existingQuestion = existingDeckQuestions.find(
+      (q) => q.id === currentQuestion.id,
+    );
+
+    if (
+      existingQuestion &&
+      currentQuestion.type !== existingQuestion.type &&
+      isQuestionAnswered
+    ) {
+      return {
+        errorMessage:
+          "Question type can't be changed if there's an answer.",
+      };
+    }
+
+    if (
+      existingQuestion &&
+      currentDeckQuestions.length !== existingDeckQuestions.length &&
+      isQuestionAnswered
+    ) {
+      return {
+        errorMessage:
+          "Adding/Removing question is not allowed if there's an answer.",
+      };
+    }
+
+    if (
+      existingQuestion &&
+      currentQuestion.id !== existingQuestion.id &&
+      isQuestionAnswered
+    ) {
+      return {
+        errorMessage:
+          "New question cannot be added if there's an answer.",
+      };
+    }
+  }
 
   const existingTagIds = (
     await prisma.questionTag.findMany({
@@ -328,9 +382,9 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   ).map((qt) => qt.tagId);
 
   // ADD DELETE IMAGE
-
   await prisma.$transaction(
     async (tx) => {
+      // Update deck metadata
       const deck = await tx.deck.update({
         where: {
           id: data.id,
@@ -349,10 +403,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         },
       });
 
-      const newDeckQuestions = validatedFields.data.questions.filter(
-        (q) => !q.id,
-      );
-
+      // add new questions
       for (const question of newDeckQuestions) {
         await tx.question.create({
           data: {
@@ -387,14 +438,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         });
       }
 
-      const existingDeckQuestions = validatedFields.data.questions.filter(
-        (q) => !!q.id,
-      );
-
-      const existingQuestionIds = new Set(
-        existingDeckQuestions.map((q) => q.id),
-      );
-
       const deletedQuestions = currentDeckQuestions.filter(
         (dq) => !existingQuestionIds.has(dq.question.id),
       );
@@ -404,7 +447,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
       );
       const deletedquestionIds = deletedQuestions.map((q) => q.questionId);
 
-
+      // Delete image from s3 for current question in the deck
       for (const question of existingDeckQuestions) {
         const validatedQuestion = currentDeckQuestions.find(
           (dq) => dq.questionId === question.id,
@@ -422,6 +465,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           await s3Client.send(deleteObject);
         }
 
+        // Change question metadata
         await tx.question.update({
           where: {
             id: question.id,
@@ -448,28 +492,28 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
                 },
               },
             },
-            questionOptions: {
-              deleteMany: {
-                questionId: question.id,
-              },
-              createMany: {
-                data: question.questionOptions.map((qo) => ({
-                  option: qo.option,
-                  isCorrect: qo.isCorrect ?? false, 
-                  isLeft: qo.isLeft ?? false,
-                })),
-              },
-            },
             stackId: validatedFields.data.stackId,
           },
         });
 
-        if (question.id && question.type === validatedQuestion?.question.type) {
-          await handleUpsertingQuestionOptionsConcurrently(
-            tx,
-            question.id,
-            question.questionOptions,
-          );
+        // Change question option metadata
+        if (question.id) {
+          // Update option metadata for same question type
+          if (question.type === validatedQuestion?.question.type) {
+            await handleUpsertingQuestionOptionsConcurrently(
+              tx,
+              question.id,
+              question.questionOptions,
+            );
+          }
+          // Add new question options for change in option type
+          else {
+            await handleAddNewQuestionOptionsConcurrently(
+              tx,
+              question.id,
+              question.questionOptions,
+            );
+          }
         }
       }
 
@@ -480,6 +524,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         return;
       }
 
+      // delete question data if question is removed
       for (const question of deletedQuestions) {
         if (question?.question.imageUrl) {
           const deleteObject = new DeleteObjectCommand({
