@@ -56,7 +56,7 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
         <Button
           variant="outline"
           className="text-[14px] gap-2"
-          onClick={() => window.location.href = '/failed'}
+          onClick={() => window.location.href = HOME_PATH}
         >
           <ArrowLeft />
           Return home
