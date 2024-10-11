@@ -28,6 +28,7 @@ const ExistingUserScreen = ({ hasDailyDeck }: Props) => {
           <Link
             href={hasDailyDeck ? "daily-deck" : "/application"}
             className="w-full"
+            scroll={false}
           >
             <Button>
               {hasDailyDeck ? "Start Daily Deck" : "Start"}{" "}

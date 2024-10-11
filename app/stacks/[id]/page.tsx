@@ -35,6 +35,8 @@ const StackPage = async ({ params: { id } }: PageProps) => {
             fill
             alt={stack.name}
             className="object-cover"
+            sizes="(max-width: 600px) 80px, (min-width: 601px) 100.5px"
+            priority
           />
         </div>
         <div className="flex flex-col">

@@ -41,6 +41,7 @@ const StackCard = ({
           fill
           alt={name}
           className="rounded-full object-cover"
+          sizes="(max-width: 600px) 40px, (min-width: 601px) 52px"
         />
       </div>
       <div className="flex flex-col gap-3 flex-1">
