@@ -46,6 +46,7 @@ export function Avatar({ src, size, className, style }: AvatarProps) {
         "rounded-full border-2 border-white object-cover object-center",
         className,
       )}
+      sizes="(max-width: 600px) 40px, (min-width: 601px) 64px, (min-width: 1000px) 80px"
       style={{
         width: resolveDimensions(),
         height: resolveDimensions(),
