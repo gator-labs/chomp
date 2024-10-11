@@ -4,7 +4,10 @@ import {
   getUsersTotalClaimedAmount,
   getUsersTotalRevealedCards,
 } from "@/app/queries/home";
-import { Goal } from "lucide-react";
+
+import bonkImg from "@/public/images/bonk.png";
+import Image from "next/image";
+import DoubleCardIcon from "../Icons/DoubleCardIcon";
 import LongestStreakBox from "../LongestStreakBox/LongestStreakBox";
 import { StatsBox } from "../StatsBox/StatsBox";
 
@@ -23,7 +26,15 @@ export async function DashboardUserStats() {
         <StatsBox
           title={totalClaimedAmount.toLocaleString("en-US")}
           description="BONK Claimed"
-          icon={<Goal width={20} height={20} />}
+          icon={
+            <Image
+              src={bonkImg.src}
+              width={20}
+              height={20}
+              alt="bonk"
+              className="object-cover rounded-full"
+            />
+          }
           drawerProps={{
             title: "BONK Claimed",
             description:
@@ -34,7 +45,7 @@ export async function DashboardUserStats() {
         <StatsBox
           title={totalRevealedCards.toLocaleString("en-US")}
           description="Cards Revealed"
-          icon={<Goal width={20} height={20} />}
+          icon={<DoubleCardIcon width={20} height={20} />}
           drawerProps={{
             title: "Cards Revealed",
             description:
