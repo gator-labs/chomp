@@ -25,7 +25,7 @@ const StacksLayout = async ({ children }: PageLayoutProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <Main className="px-0">
+      <Main className="px-0" userId={user?.id}>
         {!!user && (
           <Navbar
             avatarSrc={user?.profileSrc || ""}
