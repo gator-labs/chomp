@@ -27,7 +27,7 @@ const StackPage = async ({ params: { id } }: PageProps) => {
 
   return (
     <div className="flex flex-col gap-2 pt-4 overflow-hidden pb-2">
-      <StacksHeader backAction="stacks" />
+      <StacksHeader backAction="stacks" className="px-4" />
       <div className="p-4 bg-gray-850 flex gap-4">
         <div className="relative w-[100.5px] h-[100.5px]">
           <Image
@@ -35,6 +35,8 @@ const StackPage = async ({ params: { id } }: PageProps) => {
             fill
             alt={stack.name}
             className="object-cover"
+            sizes="(max-width: 600px) 80px, (min-width: 601px) 100.5px"
+            priority
           />
         </div>
         <div className="flex flex-col">
