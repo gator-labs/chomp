@@ -132,6 +132,7 @@ const Leaderboard = ({
               src={leaderboardImage}
               alt={`${leaderboardName}-logo`}
               className="object-cover w-full h-full rounded-full"
+              sizes="(max-width: 600px) 38px, (min-width: 601px) 50px"
             />
           </div>
         )}

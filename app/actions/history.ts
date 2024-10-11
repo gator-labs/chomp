@@ -81,6 +81,15 @@ export async function getDeckTotalClaimableRewards(deckId: number) {
       rewardTokenAmount: {
         gt: 0,
       },
+      AND: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
+      },
     },
     include: {
       question: {

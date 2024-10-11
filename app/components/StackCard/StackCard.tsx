@@ -9,6 +9,7 @@ type StackCardProps = {
   id: number;
   imageSrc: string;
   name: string;
+  numberOfDecks: number;
   decksToAnswer?: number;
   decksToReveal?: number;
 };
@@ -19,7 +20,12 @@ const StackCard = ({
   name,
   decksToAnswer,
   decksToReveal,
+  numberOfDecks,
 }: StackCardProps) => {
+  const hasDeckDetails =
+    decksToAnswer !== undefined &&
+    decksToReveal !== undefined &&
+    numberOfDecks > 0;
   return (
     <Link
       href={`${STACKS_PATH}/${id}`}
@@ -35,23 +41,24 @@ const StackCard = ({
           fill
           alt={name}
           className="rounded-full object-cover"
+          sizes="(max-width: 600px) 40px, (min-width: 601px) 52px"
         />
       </div>
       <div className="flex flex-col gap-3 flex-1">
         <h3 className="text-white text-sm font-bold">{name}</h3>
-        {decksToAnswer !== undefined && decksToReveal !== undefined ? (
-          decksToAnswer === 0 && decksToReveal === 0 ? (
-            <p className="text-xs font-medium text-gray-400">Coming soon</p>
-          ) : (
-            <p className="text-xs font-medium text-gray-400">
-              <span className="text-white">{decksToAnswer}</span> deck
-              {decksToAnswer === 1 ? "" : "s"} to answer{" "}
-              <span className="text-white">•</span>{" "}
-              <span className="text-white">{decksToReveal}</span> deck
-              {decksToReveal === 1 ? "" : "s"} to reveal
-            </p>
-          )
-        ) : null}
+        {numberOfDecks === 0 && (
+          <p className="text-xs font-medium text-gray-400">Coming soon</p>
+        )}
+
+        {hasDeckDetails && (
+          <p className="text-xs font-medium text-gray-400">
+            <span className="text-white">{decksToAnswer}</span> deck
+            {decksToAnswer === 1 ? "" : "s"} to answer{" "}
+            <span className="text-white">•</span>{" "}
+            <span className="text-white">{decksToReveal}</span> deck
+            {decksToReveal === 1 ? "" : "s"} to reveal
+          </p>
+        )}
       </div>
       {!(decksToAnswer === 0 && decksToReveal === 0) && (
         <div className="flex-shrink-0">

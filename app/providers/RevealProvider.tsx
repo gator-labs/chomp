@@ -1,5 +1,5 @@
 "use client";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import Link from "next/link";
@@ -11,10 +11,10 @@ import Spinner from "../components/Spinner/Spinner";
 import { Button } from "../components/ui/button";
 import { Drawer, DrawerContent } from "../components/ui/drawer";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
   REVEAL_TYPE,
-} from "../constants/mixpanel";
+} from "../constants/tracking";
 import { RevealCallbackProps, useReveal } from "../hooks/useReveal";
 import { numberToCurrencyFormatter } from "../utils/currency";
 
@@ -80,10 +80,10 @@ export function RevealContextProvider({
             variant="outline"
             className="h-10 font-bold"
             onClick={() => {
-              sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
-                [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-                [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-                [MIX_PANEL_METADATA.REVEAL_TYPE]:
+              trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
+                [TRACKING_METADATA.QUESTION_ID]: questionIds,
+                [TRACKING_METADATA.QUESTION_TEXT]: questions,
+                [TRACKING_METADATA.REVEAL_TYPE]:
                   questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
               });
               cancelReveal();
@@ -122,10 +122,10 @@ export function RevealContextProvider({
               variant="outline"
               className="font-bold"
               onClick={() => {
-                sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
-                  [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-                  [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-                  [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
+                  [TRACKING_METADATA.QUESTION_ID]: questionIds,
+                  [TRACKING_METADATA.QUESTION_TEXT]: questions,
+                  [TRACKING_METADATA.REVEAL_TYPE]:
                     questionIds.length > 1
                       ? REVEAL_TYPE.ALL
                       : REVEAL_TYPE.SINGLE,
@@ -166,10 +166,10 @@ export function RevealContextProvider({
                   questionIds?.length &&
                   !isRevealWithNftMode
                 )
-                  sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_STARTED, {
-                    [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-                    [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-                    [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                  trackEvent(TRACKING_EVENTS.REVEAL_STARTED, {
+                    [TRACKING_METADATA.QUESTION_ID]: questionIds,
+                    [TRACKING_METADATA.QUESTION_TEXT]: questions,
+                    [TRACKING_METADATA.REVEAL_TYPE]:
                       questionIds.length > 1
                         ? REVEAL_TYPE.ALL
                         : REVEAL_TYPE.SINGLE,
@@ -191,10 +191,10 @@ export function RevealContextProvider({
                 if (isRevealWithNftMode) return burnAndReveal(true);
 
                 resetReveal();
-                sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
-                  [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-                  [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-                  [MIX_PANEL_METADATA.REVEAL_TYPE]:
+                trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
+                  [TRACKING_METADATA.QUESTION_ID]: questionIds,
+                  [TRACKING_METADATA.QUESTION_TEXT]: questions,
+                  [TRACKING_METADATA.REVEAL_TYPE]:
                     questionIds.length > 1
                       ? REVEAL_TYPE.ALL
                       : REVEAL_TYPE.SINGLE,
@@ -255,10 +255,10 @@ export function RevealContextProvider({
   };
 
   const closeRevealModal = () => {
-    sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_CLOSED, {
-      [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-      [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-      [MIX_PANEL_METADATA.REVEAL_TYPE]:
+    trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
+      [TRACKING_METADATA.QUESTION_ID]: questionIds,
+      [TRACKING_METADATA.QUESTION_TEXT]: questions,
+      [TRACKING_METADATA.REVEAL_TYPE]:
         questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
     });
     cancelReveal();

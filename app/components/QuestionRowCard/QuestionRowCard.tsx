@@ -1,10 +1,10 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestions } from "@/app/actions/claim";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
   REVEAL_TYPE,
-} from "@/app/constants/mixpanel";
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
+} from "@/app/constants/tracking";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -14,7 +14,7 @@ import { QuestionHistory } from "@/app/queries/history";
 import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
 import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
@@ -47,10 +47,10 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
 
         setIsClaiming(true);
 
-        sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
-          [MIX_PANEL_METADATA.QUESTION_ID]: [question.id],
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: [question.question],
-          [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+        trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
+          [TRACKING_METADATA.QUESTION_ID]: [question.id],
+          [TRACKING_METADATA.QUESTION_TEXT]: [question.question],
+          [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
         });
 
         const tx = await CONNECTION.getTransaction(transactionHash, {
@@ -66,13 +66,13 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
           error: "Failed to claim rewards. Please try again.",
         })
           .then((res) => {
-            sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
-              [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
-              [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-              [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]:
+            trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
+              [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
+              [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+              [TRACKING_METADATA.TRANSACTION_SIGNATURE]:
                 res?.transactionSignature,
-              [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
-              [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+              [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
+              [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
             });
             queryClient.resetQueries({
               queryKey: [
@@ -89,10 +89,10 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
             setIsClaiming(false);
           });
       } catch (error) {
-        sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
-          [MIX_PANEL_METADATA.QUESTION_ID]: [question.id],
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: [question.question],
-          [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+        trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+          [TRACKING_METADATA.QUESTION_ID]: [question.id],
+          [TRACKING_METADATA.QUESTION_TEXT]: [question.question],
+          [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
         });
         errorToast("Failed to claim rewards. Please try again.");
       }
@@ -141,6 +141,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
                 alt="stack-image"
                 fill
                 className="rounded-full"
+                sizes="(max-width: 600px) 24px, (min-width: 601px) 36px"
               />
             </div>
           )}

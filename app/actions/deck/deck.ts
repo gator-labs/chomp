@@ -247,7 +247,6 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
 }
 
 export async function editDeck(data: z.infer<typeof deckSchema>) {
-  console.log("IN");
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
