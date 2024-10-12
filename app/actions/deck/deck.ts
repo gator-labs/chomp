@@ -545,7 +545,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
 
       await tx.deckQuestion.deleteMany({
         where: {
-          id: {
+          questionId: {
             in: deletedquestionIds,
           },
         },
