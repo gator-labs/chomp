@@ -1,15 +1,15 @@
 "use client";
 import { claimQuestions } from "@/app/actions/claim";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
   REVEAL_TYPE,
-} from "@/app/constants/mixpanel";
+} from "@/app/constants/tracking";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import BulkIcon from "../Icons/BulkIcon";
@@ -43,10 +43,10 @@ const RewardShow = ({
 
       setIsClaiming(true);
 
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+      trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
+        [TRACKING_METADATA.QUESTION_ID]: questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
 
       promiseToast(claimQuestions(questionIds), {
@@ -55,13 +55,13 @@ const RewardShow = ({
         error: "Failed to claim rewards. Please try again.",
       })
         .then((res) => {
-          sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
-            [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
-            [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-            [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]:
+          trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
+            [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
+            [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+            [TRACKING_METADATA.TRANSACTION_SIGNATURE]:
               res?.transactionSignature,
-            [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
-            [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+            [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
+            [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
           });
           queryClient.resetQueries({ queryKey: ["questions-history"] });
           fire();
@@ -70,10 +70,10 @@ const RewardShow = ({
           setIsClaiming(false);
         });
     } catch (error) {
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+        [TRACKING_METADATA.QUESTION_ID]: questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
     }
   };

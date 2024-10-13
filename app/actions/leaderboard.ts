@@ -136,7 +136,6 @@ export const getLeaderboard = async ({
 
   if (variant !== "stack") {
     const dateRange = getDateRange(variant);
-    console.log(dateRange);
     dateFilter = {
       createdAt: {
         gte: dateRange!.startDate,
@@ -322,7 +321,6 @@ const mapLeaderboardData = async (
 };
 
 const getDateRange = (variant: "weekly" | "daily", previous?: boolean) => {
-  console.log({ variant });
   if (variant === "weekly") {
     const { startDateOfTheWeek, endDateOfTheWeek } = getWeekStartAndEndDates(
       subDays(new Date(), previous ? 7 : 0),

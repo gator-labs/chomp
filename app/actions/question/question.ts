@@ -158,6 +158,32 @@ export async function handleUpsertingQuestionOptionsConcurrently(
   await Promise.all(questionOptionUpsertPromiseArray);
 }
 
+export async function handleAddNewQuestionOptionsConcurrently(
+  tx: PrismaTransactionalClient,
+  questionId: number,
+  questionOptions: {
+    option: string;
+    id?: number | undefined;
+    isCorrect?: boolean | undefined;
+    isLeft?: boolean | undefined;
+  }[],
+) {
+  await tx.questionOption.deleteMany({
+    where: {
+      questionId: questionId,
+    },
+  });
+
+  await tx.questionOption.createMany({
+    data: questionOptions.map((qo) => ({
+      questionId: questionId,
+      option: qo.option,
+      isCorrect: qo.isCorrect ?? false,
+      isLeft: qo.isLeft ?? false,
+    })),
+  });
+}
+
 export async function handleInsertQuestions(
   questionsToAdd: QuestionImportModel[],
 ) {

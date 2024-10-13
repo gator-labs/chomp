@@ -1,4 +1,4 @@
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { ISolana } from "@dynamic-labs/solana";
@@ -20,11 +20,11 @@ import {
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
   REVEAL_DIALOG_TYPE,
   REVEAL_TYPE,
-} from "../constants/mixpanel";
+} from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
 import { BurnError, DynamicRevealError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
@@ -164,13 +164,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       } catch (error) {
         console.error(error);
       } finally {
-        sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_LOADED, {
-          [MIX_PANEL_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
+        trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_LOADED, {
+          [TRACKING_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
             ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
             : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
-          [MIX_PANEL_METADATA.QUESTION_ID]: reveal.questionIds,
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal.questions,
-          [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          [TRACKING_METADATA.QUESTION_ID]: reveal.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal.questions,
+          [TRACKING_METADATA.REVEAL_TYPE]:
             reveal.questionIds.length > 1
               ? REVEAL_TYPE.ALL
               : REVEAL_TYPE.SINGLE,
@@ -212,13 +212,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         dialogLabel,
       });
       setIsRevealModalOpen(true);
-      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_OPENED, {
-        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+      trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_OPENED, {
+        [TRACKING_METADATA.REVEAL_TYPE]:
           (questionIds ?? [questionId])?.length > 1
             ? REVEAL_TYPE.ALL
             : REVEAL_TYPE.SINGLE,
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds ?? [questionId],
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.QUESTION_ID]: questionIds ?? [questionId],
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
       });
     },
     [setReveal, setIsRevealModalOpen, setBurnState],
@@ -278,11 +278,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
               },
             );
 
-            sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_SIGNED, {
-              [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: sn,
-              [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-              [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
-              [MIX_PANEL_METADATA.REVEAL_TYPE]:
+            trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_SIGNED, {
+              [TRACKING_METADATA.TRANSACTION_SIGNATURE]: sn,
+              [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+              [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+              [TRACKING_METADATA.REVEAL_TYPE]:
                 revealQuestionIds.length > 1
                   ? REVEAL_TYPE.ALL
                   : REVEAL_TYPE.SINGLE,
@@ -291,13 +291,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             signature = sn;
           } catch (error) {
             if ((error as any)?.message === "User rejected the request.")
-              sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
-                [MIX_PANEL_METADATA.REVEAL_TYPE]:
+              trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
+                [TRACKING_METADATA.REVEAL_TYPE]:
                   revealQuestionIds.length > 1
                     ? REVEAL_TYPE.ALL
                     : REVEAL_TYPE.SINGLE,
-                [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-                [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+                [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+                [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
               });
 
             resetReveal();
@@ -365,15 +365,15 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         });
       }
 
-      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_SUCCEEDED, {
+      trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
         transactionSignature: signature,
         nftAddress: revealNft?.id,
         nftType: revealNft?.type,
         burnedAmount: reveal?.amount,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+        [TRACKING_METADATA.REVEAL_TYPE]:
           revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
       });
 
       if (revealNft && !isMultiple) {
@@ -384,11 +384,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await deleteQuestionChompResults(pendingChompResultIds);
       }
 
-      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_FAILED, {
-        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+      trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
+        [TRACKING_METADATA.REVEAL_TYPE]:
           revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
         error,
       });
       errorToast("Error happened while revealing question. Try again.");
