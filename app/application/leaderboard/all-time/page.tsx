@@ -2,7 +2,7 @@ import Leaderboard from "@/app/components/Leaderboard/Leaderboard";
 import { getCurrentUser } from "@/app/queries/user";
 import { redirect } from "next/navigation";
 
-const DailyLeaderboard = async () => {
+const AllTimeLeaderboard = async () => {
   const user = await getCurrentUser();
 
   if (!user) redirect("login");
@@ -16,4 +16,4 @@ const DailyLeaderboard = async () => {
   );
 };
 
-export default DailyLeaderboard;
+export default AllTimeLeaderboard;
