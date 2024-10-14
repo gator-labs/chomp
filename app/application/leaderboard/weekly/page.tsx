@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 const WeeklyLeaderboard = async () => {
   const user = await getCurrentUser();
 
-  if (!user) redirect("login");
+  if (!user) redirect("/login");
 
   return (
     <Leaderboard
