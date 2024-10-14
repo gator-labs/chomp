@@ -144,11 +144,13 @@ describe("Editing a Deck", () => {
   });
 
   it("Should update the previously added binary question to a multichoice question.", async () => {
+    const currentDeck = await getDeckSchema(currentDeckId);
     mockData = {
       id: currentDeckId,
       ...mockData,
       questions: [
         {
+          id: currentDeck?.questions[0].id,
           question: "Updated Question",
           type: "MultiChoice",
           questionOptions: [
@@ -162,10 +164,10 @@ describe("Editing a Deck", () => {
       ],
     };
     await editDeck(mockData);
-    const editedDeck = await getDeckSchema(currentDeckId);
-    expect(editedDeck!.questions[0].question).toBe("Updated Question");
-    expect(editedDeck!.questions[0].questionOptions).toHaveLength(4);
-    expect(editedDeck!.questions[0].questionOptions[0].option).toBe(
+    const updatedDeck = await getDeckSchema(currentDeckId);
+    expect(updatedDeck!.questions[0].question).toBe("Updated Question");
+    expect(updatedDeck!.questions[0].questionOptions).toHaveLength(4);
+    expect(updatedDeck!.questions[0].questionOptions[0].option).toBe(
       "test Option 1",
     );
   });
