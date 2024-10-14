@@ -18,7 +18,7 @@ import { getCurrentUser } from "../queries/user";
 import prisma from "../services/prisma";
 import { getStartAndEndOfDay, getWeekStartAndEndDates } from "../utils/date";
 interface LeaderboardProps {
-  variant: "weekly" | "daily" | "stack";
+  variant: "weekly" | "daily" | "stack" | "all-time";
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions";
   stackId?: number;
 }
@@ -134,7 +134,7 @@ export const getLeaderboard = async ({
 }: LeaderboardProps) => {
   let dateFilter = {};
 
-  if (variant !== "stack") {
+  if (variant !== "stack" && variant !== "all-time") {
     const dateRange = getDateRange(variant);
     dateFilter = {
       createdAt: {

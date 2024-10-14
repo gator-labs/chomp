@@ -4,6 +4,11 @@ import ChartIcon from "../Icons/ChartIcon";
 export const CHOMP_LEADERBOARD = [
   {
     icon: <CalendarIcon />,
+    label: "All-time Leaderboard",
+    href: "/application/leaderboard/all-time",
+  },
+  {
+    icon: <CalendarIcon />,
     label: "Weekly Leaderboard",
     href: "/application/leaderboard/weekly",
   },
