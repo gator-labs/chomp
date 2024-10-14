@@ -70,7 +70,7 @@ describe("Editing a Deck", () => {
 
   // delete all the deck and user data after all the test run
   afterAll(async () => {
-    deleteDeck(currentDeckId);
+    await deleteDeck(currentDeckId);
     await prisma.user.delete({
       where: {
         id: user.id,
