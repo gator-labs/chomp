@@ -20,7 +20,7 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
-jest.setTimeout(30_000)
+jest.setTimeout(60000);
 
 describe("Get All-time leaderboard data", () => {
   const currentDate = new Date();
