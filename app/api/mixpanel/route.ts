@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const currentUser = await getCurrentUser();
-    
+
     const { event, properties } = data;
     const ip = getIPAddress(request.headers);
     const { device, browser, os } = userAgent({ headers: request.headers });
@@ -48,19 +48,14 @@ export async function POST(request: NextRequest) {
         $browser_version: browser.version,
         [TRACKING_METADATA.USER_ID]: currentUser.id,
         [TRACKING_METADATA.USERNAME]: currentUser.username,
-        [TRACKING_METADATA.USER_WALLET_ADDRESS]:
-          currentUser.wallets[0].address,
+        [TRACKING_METADATA.USER_WALLET_ADDRESS]: currentUser.wallets[0].address,
         ip,
       });
     }
 
-
     return NextResponse.json({ status: "Event tracked successfully" });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    console.error("[Mixpanel]", error);
+    return NextResponse.json({ status: "Internal Server Error" });
   }
 }

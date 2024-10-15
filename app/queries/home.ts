@@ -9,6 +9,12 @@ import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
 
+export type Streak = {
+  streakStartDate: Date;
+  streakEndDate: Date;
+  streakLength: number;
+};
+
 type UserStatistics = {
   cardsChomped: string;
   averageTimeToAnswer: string;
@@ -295,13 +301,6 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       limit 1
     ) as "averageTimeToAnswer",
     (
-      select s."count"
-      from public."Streak" s
-      where s."userId" = u."id"
-      order by s."count" desc
-      limit 1
-    ) as "daysStreak",
-    (
       select
         fab."amount"
       from public."FungibleAssetBalance" fab
@@ -326,4 +325,89 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       ? result?.totalPointsEarned.toString()
       : "0",
   };
+}
+
+export async function getUsersLatestStreak(): Promise<number> {
+  const payload = await authGuard();
+
+  const longestStreak = await queryUsersLatestStreak(payload.sub);
+
+  return longestStreak;
+}
+
+async function queryUsersLatestStreak(userId: string): Promise<number> {
+  const streaks: Streak[] = await prisma.$queryRaw`
+  WITH userActivity AS (
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."ChompResult"
+    WHERE "userId" = ${userId}  
+    UNION
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."QuestionAnswer" qa
+    WHERE "userId" = ${userId}
+    AND qa."status" = 'Submitted'
+  ),
+  consecutiveDays AS (
+    SELECT 
+      activityDate,
+      LAG(activityDate) OVER (ORDER BY activityDate) AS previousDate
+    FROM userActivity
+  ),
+  "streakGroups" AS (
+    SELECT 
+      activityDate,
+      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END) 
+      OVER (ORDER BY activityDate) AS "streakGroup"
+    FROM consecutiveDays
+  )
+  SELECT 
+    MIN(activityDate) AS "streakStartDate",
+    MAX(activityDate) AS "streakEndDate",
+    COUNT(*) AS "streakLength"
+  FROM "streakGroups"
+  GROUP BY "streakGroup"
+  HAVING MAX(activityDate) = CURRENT_DATE
+  ORDER BY MAX(activityDate) DESC
+  LIMIT 1
+  `;
+
+  return Number(streaks?.[0]?.streakLength || 0);
+}
+
+export async function getUsersTotalClaimedAmount(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalClaimedAmount = await queryUsersTotalClaimedAmount(payload.sub);
+
+  return totalClaimedAmount;
+}
+
+async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
+  const result: { totalClaimedAmount: number }[] = await prisma.$queryRaw`
+  SELECT ROUND(SUM("rewardTokenAmount")) AS "totalClaimedAmount"
+  FROM public."ChompResult"
+  WHERE "result" = 'Claimed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalClaimedAmount);
+}
+
+export async function getUsersTotalRevealedCards(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalRevealedCards = await queryUsersTotalRevealedCards(payload.sub);
+
+  return totalRevealedCards;
+}
+
+async function queryUsersTotalRevealedCards(userId: string): Promise<number> {
+  const result: { totalRevealedCards: number }[] = await prisma.$queryRaw`
+  SELECT COUNT(*) AS "totalRevealedCards"
+  FROM public."ChompResult"
+  WHERE "result" != 'Dismissed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalRevealedCards);
 }
