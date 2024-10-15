@@ -301,13 +301,6 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       limit 1
     ) as "averageTimeToAnswer",
     (
-      select s."count"
-      from public."Streak" s
-      where s."userId" = u."id"
-      order by s."count" desc
-      limit 1
-    ) as "daysStreak",
-    (
       select
         fab."amount"
       from public."FungibleAssetBalance" fab
@@ -377,7 +370,7 @@ async function queryUsersLongestStreak(userId: string): Promise<number> {
   LIMIT 1
   `;
 
-  return streaks[0].streakLength;
+  return Number(streaks[0].streakLength);
 }
 
 export async function getUsersTotalClaimedAmount(): Promise<number> {
