@@ -1,6 +1,6 @@
 import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import {
-  getUsersLongestStreak,
+  getUsersLatestStreak,
   getUsersTotalClaimedAmount,
   getUsersTotalRevealedCards,
 } from "@/app/queries/home";
@@ -8,20 +8,20 @@ import {
 import bonkImg from "@/public/images/bonk.png";
 import Image from "next/image";
 import DoubleCardIcon from "../Icons/DoubleCardIcon";
-import LongestStreakBox from "../LongestStreakBox/LongestStreakBox";
+import LatestStreakBox from "../LatestStreakBox/LatestStreakBox";
 import { StatsBox } from "../StatsBox/StatsBox";
 
 export async function DashboardUserStats() {
-  const [longestStreak, totalClaimedAmount, totalRevealedCards] =
+  const [latestStreak, totalClaimedAmount, totalRevealedCards] =
     await Promise.all([
-      getUsersLongestStreak(),
+      getUsersLatestStreak(),
       getUsersTotalClaimedAmount(),
       getUsersTotalRevealedCards(),
     ]);
 
   return (
     <div className="flex flex-col gap-2">
-      <LongestStreakBox longestStreak={longestStreak} />
+      <LatestStreakBox latestStreak={latestStreak} />
       <div className="flex w-full gap-2">
         <StatsBox
           title={totalClaimedAmount.toLocaleString("en-US")}

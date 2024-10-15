@@ -6,11 +6,11 @@ import { Goal } from "lucide-react";
 import { useState } from "react";
 import StatsDrawer from "../StatsDrawer/StatsDrawer";
 
-type LongestStreakBoxProps = {
-  longestStreak: number;
+type LatestStreakBoxProps = {
+  latestStreak: number;
 };
 
-const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
+const LatestStreakBox = ({ latestStreak }: LatestStreakBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -24,21 +24,21 @@ const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
           },
         )}
       >
-        <p className="text-[44px] leading-[60px] font-bold">{longestStreak}</p>
+        <p className="text-[44px] leading-[60px] font-bold">{latestStreak}</p>
         <div className="flex-1 flex-col flex gap-1">
           <div className="flex justify-between">
             <p className="text-base leading-[18px] font-bold">
-              day{longestStreak === 1 ? "" : "s"} streak
+              day{latestStreak === 1 ? "" : "s"} streak
             </p>
             <Goal width={20} height={20} />
           </div>
           <p
             className={cn("text-xs leading-4", {
-              "text-destructive": longestStreak === 0,
-              "text-purple-200": longestStreak > 0,
+              "text-destructive": latestStreak === 0,
+              "text-purple-200": latestStreak > 0,
             })}
           >
-            {longestStreak === 0
+            {latestStreak === 0
               ? "It's never too late to start"
               : "Great job! Keep going!"}
           </p>
@@ -58,4 +58,4 @@ const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
   );
 };
 
-export default LongestStreakBox;
+export default LatestStreakBox;
