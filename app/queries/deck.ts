@@ -182,7 +182,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     },
   });
 
-  const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions)
+  const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
@@ -377,6 +377,7 @@ export async function getDeckSchema(id: number) {
 
   return {
     ...deck,
+    revealAtDate: deck.revealAtDate!,
     revealToken: deck.deckQuestions[0]?.question.revealToken,
     revealTokenAmount: deck.deckQuestions[0]?.question.revealTokenAmount,
     tagIds: deck.deckQuestions[0]?.question.questionTags.map((qt) => qt.tag.id),
