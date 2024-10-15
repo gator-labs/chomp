@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
 
       // Update initial and last UTM data
       if (!storedUtmData || hasNewUtmParams) {
-        initialUtm = initialUtm.utm_source ? initialUtm : utmParams;
-        lastUtm = { ...lastUtm, ...utmParams };
+        initialUtm = Object.keys(initialUtm).length > 0 ? initialUtm : utmParams;
+        lastUtm = hasNewUtmParams ?  utmParams : lastUtm;
 
         // Remove undefined values
         Object.keys(lastUtm).forEach(
