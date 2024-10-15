@@ -338,14 +338,14 @@ export async function getUsersLatestStreak(): Promise<number> {
 async function queryUsersLatestStreak(userId: string): Promise<number> {
   const streaks: Streak[] = await prisma.$queryRaw`
   WITH userActivity AS (
-  SELECT DISTINCT DATE("createdAt") AS activityDate
-  FROM public."ChompResult"
-  WHERE "userId" = ${userId}  
-  UNION
-  SELECT DISTINCT DATE("createdAt") AS activityDate
-  FROM public."QuestionAnswer" qa
-  WHERE "userId" = ${userId}
-  AND qa."status" = 'Submitted'
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."ChompResult"
+    WHERE "userId" = ${userId}  
+    UNION
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."QuestionAnswer" qa
+    WHERE "userId" = ${userId}
+    AND qa."status" = 'Submitted'
   ),
   consecutiveDays AS (
     SELECT 
@@ -366,7 +366,8 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
     COUNT(*) AS "streakLength"
   FROM "streakGroups"
   GROUP BY "streakGroup"
-  ORDER BY MAX(activityDate) DESC 
+  HAVING MAX(activityDate) = CURRENT_DATE
+  ORDER BY MAX(activityDate) DESC
   LIMIT 1
   `;
 
