@@ -11,11 +11,11 @@ import { Goal } from "lucide-react";
 import { useState } from "react";
 import StreakInfoDrawer from "../StreakInfoDrawer/StreakInfoDrawer";
 
-type LongestStreakBoxProps = {
-  longestStreak: number;
+type LatestStreakBoxProps = {
+  latestStreak: number;
 };
 
-const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
+const LatestStreakBox = ({ latestStreak }: LatestStreakBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const onClose = async () => {
@@ -40,21 +40,21 @@ const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
         onClick={openStreakDrawer}
         className="w-full rounded-[8px] border-[0.5px] border-solid p-4 border-gray-500 bg-gray-700 flex gap-4 items-center"
       >
-        <p className="text-[44px] leading-[60px] font-bold">{longestStreak}</p>
+        <p className="text-[44px] leading-[60px] font-bold">{latestStreak}</p>
         <div className="flex-1 flex-col flex gap-1">
           <div className="flex justify-between">
             <p className="text-base leading-[18px] font-bold">
-              day{longestStreak === 1 ? "" : "s"} streak
+              day{latestStreak === 1 ? "" : "s"} streak
             </p>
             <Goal width={20} height={20} />
           </div>
           <p
             className={cn("text-xs leading-4", {
-              "text-destructive": longestStreak === 0,
-              "text-purple-200": longestStreak > 0,
+              "text-destructive": latestStreak === 0,
+              "text-purple-200": latestStreak > 0,
             })}
           >
-            {longestStreak === 0
+            {latestStreak === 0
               ? "It's never too late to start"
               : "Great job! Keep going!"}
           </p>
@@ -65,4 +65,4 @@ const LongestStreakBox = ({ longestStreak }: LongestStreakBoxProps) => {
   );
 };
 
-export default LongestStreakBox;
+export default LatestStreakBox;

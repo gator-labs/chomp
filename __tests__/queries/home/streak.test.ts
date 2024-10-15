@@ -1,4 +1,4 @@
-import { getUsersLongestStreak } from "@/app/queries/home";
+import { getUsersLatestStreak } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import {
@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 
 jest.mock("@/app/utils/auth");
 
-describe("getUsersLongestStreak", () => {
+describe("getUsersLatestStreak", () => {
   const user1 = {
     id: uuidv4(),
     username: `user1`,
@@ -328,24 +328,24 @@ describe("getUsersLongestStreak", () => {
     });
   });
 
-  it("should return the longest streak for user1", async () => {
+  it("should return the latest streak for user1", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
-    const longestStreak = await getUsersLongestStreak();
+    const latestStreak = await getUsersLatestStreak();
 
-    expect(longestStreak).toBe(3);
+    expect(latestStreak).toBe(3); // User1's most recent streak is 3 consecutive days
   });
 
-  it("should return the longest streak for user2", async () => {
+  it("should return the latest streak for user2", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user2.id });
-    const longestStreak = await getUsersLongestStreak();
+    const latestStreak = await getUsersLatestStreak();
 
-    expect(longestStreak).toBe(2);
+    expect(latestStreak).toBe(1); // User2's most recent streak is 1 day after the gap
   });
 
-  it("should return the longest streak for user3", async () => {
+  it("should return the latest streak for user3", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user3.id });
-    const longestStreak = await getUsersLongestStreak();
+    const latestStreak = await getUsersLatestStreak();
 
-    expect(longestStreak).toBe(1);
+    expect(latestStreak).toBe(1); // User3's most recent streak is 1 day
   });
 });

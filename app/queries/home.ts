@@ -327,15 +327,15 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
   };
 }
 
-export async function getUsersLongestStreak(): Promise<number> {
+export async function getUsersLatestStreak(): Promise<number> {
   const payload = await authGuard();
 
-  const longestStreak = await queryUsersLongestStreak(payload.sub);
+  const longestStreak = await queryUsersLatestStreak(payload.sub);
 
   return longestStreak;
 }
 
-async function queryUsersLongestStreak(userId: string): Promise<number> {
+async function queryUsersLatestStreak(userId: string): Promise<number> {
   const streaks: Streak[] = await prisma.$queryRaw`
   WITH userActivity AS (
   SELECT DISTINCT DATE("createdAt") AS activityDate
@@ -345,7 +345,7 @@ async function queryUsersLongestStreak(userId: string): Promise<number> {
   SELECT DISTINCT DATE("createdAt") AS activityDate
   FROM public."QuestionAnswer" qa
   WHERE "userId" = ${userId}
-  and qa."status" = 'Submitted'
+  AND qa."status" = 'Submitted'
   ),
   consecutiveDays AS (
     SELECT 
@@ -366,9 +366,9 @@ async function queryUsersLongestStreak(userId: string): Promise<number> {
     COUNT(*) AS "streakLength"
   FROM "streakGroups"
   GROUP BY "streakGroup"
-  ORDER BY "streakLength" DESC
+  ORDER BY MAX(activityDate) DESC 
   LIMIT 1
   `;
 
-  return Number(streaks[0].streakLength);
+  return Number(streaks[0]?.streakLength || 0);
 }
