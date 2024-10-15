@@ -16,16 +16,20 @@ const trackEvent = async (
     ...additionalProperties,
   };
 
-  fetch("/api/mixpanel", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      event: eventName,
-      properties: properties,
-    }),
-  });
+  try {
+    await fetch("/api/mixpanel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        event: eventName,
+        properties: properties,
+      }),
+    });
+  } catch (e) {
+    console.error("Unable to track event", e);
+  }
 };
 
 export default trackEvent;

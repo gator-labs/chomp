@@ -12,7 +12,10 @@ import { deckSchema } from "../../schemas/deck";
 import prisma from "../../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
 import { formatErrorsToString } from "../../utils/zod";
-import { handleUpsertingQuestionOptionsConcurrently } from "../question/question";
+import {
+  handleAddNewQuestionOptionsConcurrently,
+  handleUpsertingQuestionOptionsConcurrently,
+} from "../question/question";
 import { deckInputFactory } from "./factories";
 
 export async function deleteQuestions(questionIds: number[]) {
@@ -244,7 +247,6 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
 }
 
 export async function editDeck(data: z.infer<typeof deckSchema>) {
-  console.log("IN");
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
@@ -265,6 +267,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     .map((question) => question.imageUrl)
     .filter((image) => !!image);
 
+  //Validate and upload images for question.
   for (let index = 0; index < images.length; index++) {
     const image = images[index]!;
 
@@ -276,6 +279,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     if (!isBucketImageValid) throw new Error("Invalid image");
   }
 
+  //Validate and upload images for deck.
   if (validatedFields.data.imageUrl) {
     const isBucketImageValid = await validateBucketImage(
       validatedFields.data.imageUrl.split("/").pop()!,
@@ -285,6 +289,10 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
     if (!isBucketImageValid) throw new Error("Invalid image");
   }
 
+  // New added question in the deck
+  const newDeckQuestions = validatedFields.data.questions.filter((q) => !q.id);
+
+  // Retrieve the previous questionIds from the deck without any updates
   const existingQuestionId = (
     await prisma.deckQuestion.findFirst({
       where: {
@@ -292,6 +300,77 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
       },
     })
   )?.questionId;
+
+  // Retrieve the questions from the deck
+  const existingDeckQuestions = validatedFields.data.questions.filter(
+    (q) => !!q.id,
+  );
+
+  // Retrieve the previous question from the deck without any updates
+  const currentDeckQuestions = await prisma.deckQuestion.findMany({
+    where: {
+      deckId: data.id,
+    },
+    include: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const existingQuestionIds = new Set(existingDeckQuestions.map((q) => q.id));
+
+  const isQuestionAnswered = currentDeckQuestions?.some((deckQuestion) =>
+    deckQuestion?.question?.questionOptions?.some(
+      (option) => option?.questionAnswers && option.questionAnswers.length > 0,
+    ),
+  );
+
+  for (const question of currentDeckQuestions) {
+    const currentQuestion = question.question;
+    const existingQuestion = existingDeckQuestions.find(
+      (q) => q.id === currentQuestion.id,
+    );
+
+    if (
+      existingQuestion &&
+      currentQuestion.type !== existingQuestion.type &&
+      isQuestionAnswered
+    ) {
+      return {
+        errorMessage:
+          "Question type can't be changed if there's an answer.",
+      };
+    }
+
+    if (
+      existingQuestion &&
+      currentDeckQuestions.length !== existingDeckQuestions.length &&
+      isQuestionAnswered
+    ) {
+      return {
+        errorMessage:
+          "Adding/Removing question is not allowed if there's an answer.",
+      };
+    }
+
+    if (
+      existingQuestion &&
+      currentQuestion.id !== existingQuestion.id &&
+      isQuestionAnswered
+    ) {
+      return {
+        errorMessage:
+          "New question cannot be added if there's an answer.",
+      };
+    }
+  }
 
   const existingTagIds = (
     await prisma.questionTag.findMany({
@@ -302,9 +381,9 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   ).map((qt) => qt.tagId);
 
   // ADD DELETE IMAGE
-
   await prisma.$transaction(
     async (tx) => {
+      // Update deck metadata
       const deck = await tx.deck.update({
         where: {
           id: data.id,
@@ -323,15 +402,9 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         },
       });
 
-      const newDeckQuestions = validatedFields.data.questions.filter(
-        (q) => !q.id,
-      );
-
-      console.log(newDeckQuestions);
-
+      // add new questions
       for (const question of newDeckQuestions) {
-        console.log(question);
-        const res = await tx.question.create({
+        await tx.question.create({
           data: {
             question: question.question,
             type: question.type,
@@ -364,19 +437,16 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
         });
       }
 
-      const existingDeckQuestions = validatedFields.data.questions.filter(
-        (q) => !!q.id,
+      const deletedQuestions = currentDeckQuestions.filter(
+        (dq) => !existingQuestionIds.has(dq.question.id),
       );
 
-      const currentDeckQuestions = await tx.deckQuestion.findMany({
-        where: {
-          deckId: data.id,
-        },
-        include: {
-          question: true,
-        },
-      });
+      const deletedQuestionOptionsIds = deletedQuestions.flatMap((q) =>
+        q.question.questionOptions.map((qo) => qo.id),
+      );
+      const deletedquestionIds = deletedQuestions.map((q) => q.questionId);
 
+      // Delete image from s3 for current question in the deck
       for (const question of existingDeckQuestions) {
         const validatedQuestion = currentDeckQuestions.find(
           (dq) => dq.questionId === question.id,
@@ -394,6 +464,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           await s3Client.send(deleteObject);
         }
 
+        // Change question metadata
         await tx.question.update({
           where: {
             id: question.id,
@@ -424,33 +495,69 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           },
         });
 
+        // Change question option metadata
         if (question.id) {
-          await handleUpsertingQuestionOptionsConcurrently(
-            tx,
-            question.id,
-            question.questionOptions,
-          );
+          // Update option metadata for same question type
+          if (question.type === validatedQuestion?.question.type) {
+            await handleUpsertingQuestionOptionsConcurrently(
+              tx,
+              question.id,
+              question.questionOptions,
+            );
+          }
+          // Add new question options for change in option type
+          else {
+            await handleAddNewQuestionOptionsConcurrently(
+              tx,
+              question.id,
+              question.questionOptions,
+            );
+          }
         }
       }
 
-      // Currently a no-op, but may be needed after deck deletion logic is re-enabled.
       if (
-        existingDeckQuestions.length === 0 &&
-        currentDeckQuestions.length === 0
+        deletedQuestionOptionsIds.length === 0 &&
+        deletedquestionIds.length === 0
       ) {
         return;
       }
 
-      // Temporarily deactivate deck deletion until this logic is rock solid.
-      // I saw an issue in testing.
-      // await tx.deckQuestion.deleteMany({
-      //   where: {
-      //     deckId: deck.id,
-      //     questionId: {
-      //       notIn: existingDeckQuestions.map((q) => q.id) as number[],
-      //     },
-      //   },
-      // });
+      // delete question data if question is removed
+      for (const question of deletedQuestions) {
+        if (question?.question.imageUrl) {
+          const deleteObject = new DeleteObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME!,
+            Key: question?.question.imageUrl.split("/").pop(),
+          });
+
+          await s3Client.send(deleteObject);
+        }
+      }
+
+      await tx.questionOption.deleteMany({
+        where: {
+          id: {
+            in: deletedQuestionOptionsIds,
+          },
+        },
+      });
+
+      await tx.deckQuestion.deleteMany({
+        where: {
+          questionId: {
+            in: deletedquestionIds,
+          },
+        },
+      });
+
+      await tx.question.deleteMany({
+        where: {
+          id: {
+            in: deletedquestionIds,
+          },
+        },
+      });
     },
     { timeout: 20000 },
   );

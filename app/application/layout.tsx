@@ -32,7 +32,7 @@ export default async function Layout({ children }: PageLayoutProps) {
       <ClaimingProvider>
         <RevealContextProvider bonkBalance={bonkBalance}>
           <div className="flex flex-col min-h-screen">
-            <Main>
+            <Main userId={user?.id}>
               <Navbar
                 avatarSrc={user?.profileSrc || ""}
                 bonkBalance={bonkBalance}
@@ -45,9 +45,9 @@ export default async function Layout({ children }: PageLayoutProps) {
                 }))}
                 address={address}
               />
-              <div className="flex-grow pb-16">{children}</div>
+              <div className="flex-grow pb-20">{children}</div>
             </Main>
-            <div className="sticky bottom-0 left-0 right-0 z-50">
+            <div className="fixed bottom-0 left-0 right-0 z-50">
               <TabNavigation isAdmin={!!user?.isAdmin} />
             </div>
             <AuthRedirect />
