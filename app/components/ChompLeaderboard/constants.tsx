@@ -1,9 +1,10 @@
+import TrophyIcon from "../Icons/TrophyIcon";
 import CalendarIcon from "../Icons/CalendarIcon";
 import ChartIcon from "../Icons/ChartIcon";
 
 export const CHOMP_LEADERBOARD = [
   {
-    icon: <CalendarIcon />,
+    icon: <TrophyIcon />,
     label: "All-time Leaderboard",
     href: "/application/leaderboard/all-time",
   },

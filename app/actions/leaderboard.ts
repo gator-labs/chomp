@@ -11,6 +11,7 @@ import {
 } from "date-fns";
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
+  getAllTimeChompedQuestionsQuery,
   getNumberOfChompedQuestionsOfStackQuery,
   getNumberOfChompedQuestionsQuery,
 } from "../queries/leaderboard";
@@ -184,7 +185,9 @@ const getNumberOfChompedQuestions = async (
 
   const res = await (!!stackId
     ? getNumberOfChompedQuestionsOfStackQuery(stackId)
-    : getNumberOfChompedQuestionsQuery(gte, lte));
+    : Object.keys(dateFilter).length === 0
+      ? getAllTimeChompedQuestionsQuery()
+      : getNumberOfChompedQuestionsQuery(gte, lte));
 
   const leaderboard = res.map((item: any) => ({
     userId: item.userId,
