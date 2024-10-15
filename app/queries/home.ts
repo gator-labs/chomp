@@ -370,7 +370,7 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
   LIMIT 1
   `;
 
-  return Number(streaks[0]?.streakLength || 0);
+  return Number(streaks?.[0]?.streakLength || 0);
 }
 
 export async function getUsersTotalClaimedAmount(): Promise<number> {
