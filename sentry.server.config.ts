@@ -20,8 +20,12 @@ Sentry.init({
 
   // Enables capturing all console API calls and redirects them to Sentry using the captureException
   integrations: [
-    Sentry.captureConsoleIntegration({
-      levels: ["error"],
-    }),
+    ...(process.env.NODE_ENV === 'production'
+      ? [
+          Sentry.captureConsoleIntegration({
+            levels: ["error"],
+          }),
+        ]
+      : []),
   ],
 });
