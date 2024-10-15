@@ -24,3 +24,5 @@ jobs:
         DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_DEMO }}
         DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_DEMO }}
         NEXT_PUBLIC_RPC_URL: ${{ secrets.NEXT_PUBLIC_RPC_URL }}
+        KV_REST_API_URL: ${{ secrets.KV_REST_API_URL_DEMO }}
+        KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN_DEMO }}
