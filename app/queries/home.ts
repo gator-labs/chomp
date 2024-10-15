@@ -372,3 +372,41 @@ async function queryUsersLongestStreak(userId: string): Promise<number> {
 
   return Number(streaks[0].streakLength);
 }
+
+export async function getUsersTotalClaimedAmount(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalClaimedAmount = await queryUsersTotalClaimedAmount(payload.sub);
+
+  return totalClaimedAmount;
+}
+
+async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
+  const result: { totalClaimedAmount: number }[] = await prisma.$queryRaw`
+  SELECT ROUND(SUM("rewardTokenAmount")) AS "totalClaimedAmount"
+  FROM public."ChompResult"
+  WHERE "result" = 'Claimed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalClaimedAmount);
+}
+
+export async function getUsersTotalRevealedCards(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalRevealedCards = await queryUsersTotalRevealedCards(payload.sub);
+
+  return totalRevealedCards;
+}
+
+async function queryUsersTotalRevealedCards(userId: string): Promise<number> {
+  const result: { totalRevealedCards: number }[] = await prisma.$queryRaw`
+  SELECT COUNT(*) AS "totalRevealedCards"
+  FROM public."ChompResult"
+  WHERE "result" != 'Dismissed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalRevealedCards);
+}
