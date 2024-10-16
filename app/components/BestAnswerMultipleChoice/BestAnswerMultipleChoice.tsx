@@ -1,30 +1,27 @@
+import classNames from "classnames";
 import { BestAnswer } from "../BestAnswer/BestAnswer";
-import LikeIcon from "../Icons/LikeIcon";
-import MultipleChoiceResult from "../MultipleChoiceResult/MultipleChoiceResult";
 
 type BestAnswerMultipleChoiceProps = {
   optionSelected?: string;
   bestOption: string;
-  optionLabel: string;
+  optionLabel?: string;
 };
 
 export default function BestAnswerMultipleChoice({
   optionSelected,
   bestOption,
-  optionLabel,
 }: BestAnswerMultipleChoiceProps) {
   return (
     <BestAnswer optionSelected={optionSelected} bestOption={bestOption}>
-      <div className="flex gap-3.5">
-        <div className="bg-aqua min-w-10 h-10 flex justify-center items-center text-sm  font-bold rounded-lg">
-          {/* Should it be removed */}
-          <LikeIcon fill="#fff" />
-        </div>
-        <MultipleChoiceResult
-          text={
-            <div className="text-sm  font-light text-white">{optionLabel}</div>
-          }
-        />
+      <div
+        className={classNames(
+          "flex items-center justify-center gap-1 w-full bg-aqua py-3 text-sm  font-semibold text-gray-800 rounded-lg",
+          {
+            "bg-destructive": bestOption !== optionSelected,
+          },
+        )}
+      >
+        <div>{optionSelected}</div>
       </div>
     </BestAnswer>
   );

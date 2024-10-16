@@ -150,7 +150,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
           />
         </div>
         <BestAnswerMultipleChoice
-          optionLabel={questionResponse.correctAnswer?.option ?? ""}
           bestOption={questionResponse.correctAnswer?.option ?? ""}
           optionSelected={answerSelected.questionOption?.option ?? ""}
         />
