@@ -8,7 +8,7 @@ import {
 import { DataTable } from "../DataTable/DataTable";
 import { columns } from "./Columns";
 
-export type DeckRowType = Deck & { deckLiveAt: Date | null } & {
+export type DeckRowType = Deck & { deckLiveAt?: Date | null } & {
   deckQuestions: (DeckQuestion & {
     question: Question & {
       questionTags: (QuestionTag & {
