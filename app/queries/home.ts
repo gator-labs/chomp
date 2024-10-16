@@ -366,7 +366,7 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
     COUNT(*) AS "streakLength"
   FROM "streakGroups"
   GROUP BY "streakGroup"
-  HAVING MAX(activityDate) = CURRENT_DATE
+  HAVING MAX(activityDate) IN (CURRENT_DATE, CURRENT_DATE - INTERVAL '1 day')
   ORDER BY MAX(activityDate) DESC
   LIMIT 1
   `;
