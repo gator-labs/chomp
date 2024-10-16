@@ -26,6 +26,7 @@ export const TRACKING_EVENTS = {
   SHARE_EARN_URL: "ShareTaskonURL",
   HOME_STAT_CARD_DIALOG_OPENED: "HomeStatCardDialogOpened",
   HOME_STAT_CARD_DIALOG_CLOSED: "HomeStatCardDialogClosed",
+  PAGE_VIEW: "PageView"
 } as const;
 
 export const TRACKING_METADATA = {
@@ -49,6 +50,8 @@ export const TRACKING_METADATA = {
   DECK_NAME: "DeckName",
   IS_DAILY_DECK: "IsDailyDeck",
   TYPE: "Type",
+  URL_PATH: "URL PATH",
+  URL_SEARCH: "URL SEARCH"
 };
 
 export const HOME_STAT_CARD_TYPE = {
