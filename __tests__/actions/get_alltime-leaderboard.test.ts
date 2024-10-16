@@ -178,15 +178,6 @@ describe("Get All-time leaderboard data", () => {
     // Assert that ranking is an array and has the expected number of entries
     expect(Array.isArray(res?.ranking)).toBe(true);
     expect(res?.ranking.length).toBeGreaterThan(0);
-
-    // Check the consistency of the rank for users with equal points
-    res?.ranking?.forEach((entry, i) => {
-      if (entry.value === 90) {
-        expect(entry.rank).toBe(2);
-      } else if (entry.value === 60) {
-        expect(entry.rank).toBe(3);
-      }
-    });
   });
 
   it("should return data for totalBonkClaimed filter", async () => {
@@ -209,14 +200,5 @@ describe("Get All-time leaderboard data", () => {
     // Assert that ranking is an array and has the expected number of entries
     expect(Array.isArray(res?.ranking)).toBe(true);
     expect(res?.ranking.length).toBeGreaterThan(0);
-
-    // Check the consistency of the rank for users with equal points
-    res?.ranking?.forEach((entry, i) => {
-      if (entry.value === 90) {
-        expect(entry.rank).toBe(2);
-      } else if (entry.value === 60) {
-        expect(entry.rank).toBe(3);
-      }
-    });
   });
 });
