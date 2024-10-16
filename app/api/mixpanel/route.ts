@@ -116,10 +116,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ status: "Event tracked successfully" });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    console.error("[Mixpanel]", error);
+    return NextResponse.json({ status: "Internal Server Error" });
   }
 }

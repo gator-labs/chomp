@@ -327,25 +327,25 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
   };
 }
 
-export async function getUsersLongestStreak(): Promise<number> {
+export async function getUsersLatestStreak(): Promise<number> {
   const payload = await authGuard();
 
-  const longestStreak = await queryUsersLongestStreak(payload.sub);
+  const longestStreak = await queryUsersLatestStreak(payload.sub);
 
   return longestStreak;
 }
 
-async function queryUsersLongestStreak(userId: string): Promise<number> {
+async function queryUsersLatestStreak(userId: string): Promise<number> {
   const streaks: Streak[] = await prisma.$queryRaw`
   WITH userActivity AS (
-  SELECT DISTINCT DATE("createdAt") AS activityDate
-  FROM public."ChompResult"
-  WHERE "userId" = ${userId}  
-  UNION
-  SELECT DISTINCT DATE("createdAt") AS activityDate
-  FROM public."QuestionAnswer" qa
-  WHERE "userId" = ${userId}
-  and qa."status" = 'Submitted'
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."ChompResult"
+    WHERE "userId" = ${userId}  
+    UNION
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."QuestionAnswer" qa
+    WHERE "userId" = ${userId}
+    AND qa."status" = 'Submitted'
   ),
   consecutiveDays AS (
     SELECT 
@@ -366,9 +366,48 @@ async function queryUsersLongestStreak(userId: string): Promise<number> {
     COUNT(*) AS "streakLength"
   FROM "streakGroups"
   GROUP BY "streakGroup"
-  ORDER BY "streakLength" DESC
+  HAVING MAX(activityDate) IN (CURRENT_DATE, CURRENT_DATE - INTERVAL '1 day')
+  ORDER BY MAX(activityDate) DESC
   LIMIT 1
   `;
 
-  return Number(streaks[0].streakLength);
+  return Number(streaks?.[0]?.streakLength || 0);
+}
+
+export async function getUsersTotalClaimedAmount(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalClaimedAmount = await queryUsersTotalClaimedAmount(payload.sub);
+
+  return totalClaimedAmount;
+}
+
+async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
+  const result: { totalClaimedAmount: number }[] = await prisma.$queryRaw`
+  SELECT ROUND(SUM("rewardTokenAmount")) AS "totalClaimedAmount"
+  FROM public."ChompResult"
+  WHERE "result" = 'Claimed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalClaimedAmount);
+}
+
+export async function getUsersTotalRevealedCards(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalRevealedCards = await queryUsersTotalRevealedCards(payload.sub);
+
+  return totalRevealedCards;
+}
+
+async function queryUsersTotalRevealedCards(userId: string): Promise<number> {
+  const result: { totalRevealedCards: number }[] = await prisma.$queryRaw`
+  SELECT COUNT(*) AS "totalRevealedCards"
+  FROM public."ChompResult"
+  WHERE "result" != 'Dismissed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalRevealedCards);
 }

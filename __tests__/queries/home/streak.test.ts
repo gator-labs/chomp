@@ -1,4 +1,4 @@
-import { getUsersLongestStreak } from "@/app/queries/home";
+import { getUsersLatestStreak } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import {
@@ -8,11 +8,12 @@ import {
   Token,
   TransactionStatus,
 } from "@prisma/client";
+import { subDays } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 
 jest.mock("@/app/utils/auth");
 
-describe("getUsersLongestStreak", () => {
+describe("getUsersLatestStreak", () => {
   const user1 = {
     id: uuidv4(),
     username: `user1`,
@@ -37,7 +38,7 @@ describe("getUsersLongestStreak", () => {
           data: {
             question: "Is the sky blue?",
             type: QuestionType.BinaryQuestion,
-            revealAtDate: new Date("2024-06-11 16:00:00.000"),
+            revealAtDate: new Date("2024-10-11 16:00:00.000"),
             revealToken: Token.Bonk,
             revealTokenAmount: 5000,
             questionOptions: {
@@ -69,7 +70,7 @@ describe("getUsersLongestStreak", () => {
           data: {
             question: "Is water wet?",
             type: QuestionType.BinaryQuestion,
-            revealAtDate: new Date("2024-06-12 16:00:00.000"),
+            revealAtDate: new Date("2024-10-12 16:00:00.000"),
             revealToken: Token.Bonk,
             revealTokenAmount: 5000,
             questionOptions: {
@@ -101,7 +102,7 @@ describe("getUsersLongestStreak", () => {
           data: {
             question: "Is the earth flat?",
             type: QuestionType.BinaryQuestion,
-            revealAtDate: new Date("2024-06-13 16:00:00.000"),
+            revealAtDate: new Date("2024-10-13 16:00:00.000"),
             revealToken: Token.Bonk,
             revealTokenAmount: 5000,
             questionOptions: {
@@ -150,7 +151,7 @@ describe("getUsersLongestStreak", () => {
             status: AnswerStatus.Submitted,
             userId: user1.id,
             percentage: 50,
-            createdAt: new Date("2024-06-11 16:00:00.000"),
+            createdAt: new Date(),
           },
           {
             questionOptionId: questions[1].questionOptions[0].id, // User 1 answers "Yes" to "Is water wet?"
@@ -159,7 +160,7 @@ describe("getUsersLongestStreak", () => {
             status: AnswerStatus.Submitted,
             userId: user1.id,
             percentage: 50,
-            createdAt: new Date("2024-06-12 16:00:00.000"),
+            createdAt: subDays(new Date(), 1),
           },
           {
             questionOptionId: questions[2].questionOptions[1].id, // User 1 answers "No" to "Is the earth flat?"
@@ -168,7 +169,7 @@ describe("getUsersLongestStreak", () => {
             status: AnswerStatus.Submitted,
             userId: user1.id,
             percentage: 50,
-            createdAt: new Date("2024-06-13 16:00:00.000"),
+            createdAt: subDays(new Date(), 2),
           },
         ],
       });
@@ -183,7 +184,7 @@ describe("getUsersLongestStreak", () => {
             status: AnswerStatus.Submitted,
             userId: user2.id,
             percentage: 50,
-            createdAt: new Date("2024-06-11 16:00:00.000"),
+            createdAt: new Date(),
           },
           {
             questionOptionId: questions[1].questionOptions[0].id, // User 2 answers "Yes"
@@ -192,17 +193,17 @@ describe("getUsersLongestStreak", () => {
             status: AnswerStatus.Submitted,
             userId: user2.id,
             percentage: 50,
-            createdAt: new Date("2024-06-12 16:00:00.000"),
+            createdAt: subDays(new Date(), 2),
           },
-          // User 2 does not answer on June 13
+          // User 2 does not answer on October 13
           {
-            questionOptionId: questions[2].questionOptions[0].id, // User 2 answers on June 14
+            questionOptionId: questions[2].questionOptions[0].id, // User 2 answers on October 14
             selected: true,
             timeToAnswer: 100,
             status: AnswerStatus.Submitted,
             userId: user2.id,
             percentage: 50,
-            createdAt: new Date("2024-06-14 16:00:00.000"),
+            createdAt: subDays(new Date(), 4),
           },
         ],
       });
@@ -217,7 +218,7 @@ describe("getUsersLongestStreak", () => {
             status: AnswerStatus.Submitted,
             userId: user3.id,
             percentage: 50,
-            createdAt: new Date("2024-06-11 16:00:00.000"),
+            createdAt: new Date(),
           },
         ],
       });
@@ -229,7 +230,7 @@ describe("getUsersLongestStreak", () => {
             userId: user1.id,
             result: ResultType.Revealed,
             questionId: questions[0].id,
-            createdAt: new Date("2024-06-11 16:00:00.000"),
+            createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
           },
         }),
@@ -238,7 +239,7 @@ describe("getUsersLongestStreak", () => {
             userId: user1.id,
             result: ResultType.Revealed,
             questionId: questions[1].id,
-            createdAt: new Date("2024-06-12 16:00:00.000"),
+            createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
           },
         }),
@@ -247,7 +248,7 @@ describe("getUsersLongestStreak", () => {
             userId: user1.id,
             result: ResultType.Revealed,
             questionId: questions[2].id,
-            createdAt: new Date("2024-06-13 16:00:00.000"),
+            createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
           },
         }),
@@ -260,7 +261,7 @@ describe("getUsersLongestStreak", () => {
             userId: user2.id,
             result: ResultType.Revealed,
             questionId: questions[0].id,
-            createdAt: new Date("2024-06-11 16:00:00.000"),
+            createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
           },
         }),
@@ -269,17 +270,17 @@ describe("getUsersLongestStreak", () => {
             userId: user2.id,
             result: ResultType.Revealed,
             questionId: questions[1].id,
-            createdAt: new Date("2024-06-12 16:00:00.000"),
+            createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
           },
         }),
-        // User 2 does not reveal question on June 13
+        // User 2 does not reveal question on October 13
         tx.chompResult.create({
           data: {
             userId: user2.id,
             result: ResultType.Revealed,
             questionId: questions[2].id,
-            createdAt: new Date("2024-06-14 16:00:00.000"),
+            createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
           },
         }),
@@ -291,7 +292,7 @@ describe("getUsersLongestStreak", () => {
           userId: user3.id,
           result: ResultType.Revealed,
           questionId: questions[0].id,
-          createdAt: new Date("2024-06-11 16:00:00.000"),
+          createdAt: new Date(),
           transactionStatus: TransactionStatus.Completed,
         },
       });
@@ -328,24 +329,24 @@ describe("getUsersLongestStreak", () => {
     });
   });
 
-  it("should return the longest streak for user1", async () => {
+  it("should return the latest streak for user1 ending today", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
-    const longestStreak = await getUsersLongestStreak();
+    const latestStreak = await getUsersLatestStreak();
 
-    expect(longestStreak).toBe(3);
+    expect(latestStreak).toBe(3); // User1's streak ends today after answering for 3 consecutive days
   });
 
-  it("should return the longest streak for user2", async () => {
+  it("should return the latest streak for user2 ending today", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user2.id });
-    const longestStreak = await getUsersLongestStreak();
+    const latestStreak = await getUsersLatestStreak();
 
-    expect(longestStreak).toBe(2);
+    expect(latestStreak).toBe(1); // User2's streak ends today after answering today but skipped the previous day
   });
 
-  it("should return the longest streak for user3", async () => {
+  it("should return the latest streak for user3 ending today", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user3.id });
-    const longestStreak = await getUsersLongestStreak();
+    const latestStreak = await getUsersLatestStreak();
 
-    expect(longestStreak).toBe(1);
+    expect(latestStreak).toBe(1); // User3's streak ends today after answering on one day only
   });
 });
