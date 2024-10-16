@@ -56,8 +56,7 @@ const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
 
   if (isLoading) return <LoadingScreen />;
 
-  if (isAuthenticated && !payload?.new_user)
-    return <ExistingUserScreen hasDailyDeck={hasDailyDeck} />;
+  if (isAuthenticated && !payload?.new_user) return <ExistingUserScreen />;
 
   if (isAuthenticated && payload?.new_user) return <NewUserScreen />;
 
