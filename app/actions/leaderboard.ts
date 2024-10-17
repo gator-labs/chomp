@@ -11,6 +11,7 @@ import {
 } from "date-fns";
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
+  getAllTimeChompedQuestionsQuery,
   getNumberOfChompedQuestionsOfStackQuery,
   getNumberOfChompedQuestionsQuery,
 } from "../queries/leaderboard";
@@ -18,7 +19,7 @@ import { getCurrentUser } from "../queries/user";
 import prisma from "../services/prisma";
 import { getStartAndEndOfDay, getWeekStartAndEndDates } from "../utils/date";
 interface LeaderboardProps {
-  variant: "weekly" | "daily" | "stack";
+  variant: "weekly" | "daily" | "stack" | "all-time";
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions";
   stackId?: number;
 }
@@ -134,7 +135,7 @@ export const getLeaderboard = async ({
 }: LeaderboardProps) => {
   let dateFilter = {};
 
-  if (variant !== "stack") {
+  if (variant !== "stack" && variant !== "all-time") {
     const dateRange = getDateRange(variant);
     dateFilter = {
       createdAt: {
@@ -184,7 +185,9 @@ const getNumberOfChompedQuestions = async (
 
   const res = await (!!stackId
     ? getNumberOfChompedQuestionsOfStackQuery(stackId)
-    : getNumberOfChompedQuestionsQuery(gte, lte));
+    : Object.keys(dateFilter).length === 0
+      ? getAllTimeChompedQuestionsQuery()
+      : getNumberOfChompedQuestionsQuery(gte, lte));
 
   const leaderboard = res.map((item: any) => ({
     userId: item.userId,
