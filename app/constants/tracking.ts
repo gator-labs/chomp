@@ -27,6 +27,8 @@ export const TRACKING_EVENTS = {
   HOME_STAT_CARD_DIALOG_OPENED: "HomeStatCardDialogOpened",
   HOME_STAT_CARD_DIALOG_CLOSED: "HomeStatCardDialogClosed",
   PAGE_VIEW: "PageView"
+  WELCOME_BACK_ANSWER_BUTTON_CLICKED: "WelcomeBackAnswerButtonClicked",
+  WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
 } as const;
 
 export const TRACKING_METADATA = {
@@ -50,8 +52,8 @@ export const TRACKING_METADATA = {
   DECK_NAME: "DeckName",
   IS_DAILY_DECK: "IsDailyDeck",
   TYPE: "Type",
-  URL_PATH: "URL PATH",
-  URL_SEARCH: "URL SEARCH"
+  URL_PATH: "UrlPath",
+  URL_SEARCH: "UrlSearch"
 };
 
 export const HOME_STAT_CARD_TYPE = {
