@@ -45,13 +45,20 @@ export const genBonkBurnTx = async (
   // Verify the estimateFee is not null due to RPC request failure in some cases
   if (estimateFee === null) {
     for (let i = 0; i < 2; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
       estimateFee = await getRecentPrioritizationFees(tx);
       if (estimateFee !== null) break;
     }
     
-    // Throw an error if the calls fail after maximum attempts
+    // Set median priority fee if estimateFee is still null
     if (estimateFee === null) {
-      throw new Error("Failed to estimate priority fee after maximum attempts");
+      estimateFee = {
+        result: {
+          priorityFeeLevels: {
+            high: 5000,
+          },
+        },
+      };
     }
   }
   
