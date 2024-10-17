@@ -24,7 +24,7 @@ import { FILTERS } from "./constants";
 
 interface Props {
   leaderboardName: string;
-  variant: "weekly" | "daily" | "stack";
+  variant: "weekly" | "daily" | "stack" | "all-time";
   loggedUser: User;
   stackId?: number;
   leaderboardImage?: string;
@@ -91,12 +91,11 @@ const Leaderboard = ({
         variant,
         stackId,
       });
-
       setLoggedInUserScore(res?.loggedInUserScore);
       setRanking(res?.ranking || []);
       setIsLoading(false);
 
-      if (variant !== "stack") {
+      if (variant !== "stack" && variant !== "all-time") {
         const rank = await getPreviousUserRank(variant, filter);
         setPreviousUserRank(rank);
       } else {
@@ -160,8 +159,8 @@ const Leaderboard = ({
             {variant === "stack"
               ? "All time ranking"
               : variant === "daily"
-                ? "Today"
-                : "This week"}
+                ? "Today" : variant === "weekly" ? "This week"
+                : "All time"}
           </span>
           {!!rankDifference && (
             <div className="flex gap-1 items-center">

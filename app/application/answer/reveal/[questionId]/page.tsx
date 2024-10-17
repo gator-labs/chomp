@@ -119,9 +119,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
           />
         </div>
         <BestAnswerBinary
-          icon={bestAnswerIcon}
           bestOption={questionResponse.correctAnswer?.option ?? ""}
-          optionSelected={answerSelected.questionOption?.option ?? ""}
+          optionSelected={answerSelected?.questionOption?.option ?? ""}
         />
         <div>
           <QuestionAnswerLabel
@@ -204,13 +203,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
     answerContent = (
       <>
         <BestAnswerBinary
-          icon={
-            questionResponse.correctAnswer?.isLeft ? (
-              <LikeIcon />
-            ) : (
-              <UnlikeIcon />
-            )
-          }
           bestOption={questionResponse.correctAnswer?.option ?? ""}
         />
         <PollResultBinary

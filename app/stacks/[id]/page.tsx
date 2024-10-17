@@ -85,9 +85,13 @@ const StackPage = async ({ params: { id } }: PageProps) => {
                 .length
             }
             numberOfUserQuestionsAnswers={
-              deck.deckQuestions.flatMap((dq) =>
-                dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
-              ).length
+              deck.deckQuestions
+                .flatMap((dq) =>
+                  dq.question.questionOptions.flatMap(
+                    (qo) => qo.questionAnswers,
+                  ),
+                )
+                .filter((qa) => qa.userId === user?.id).length
             }
             activeFromDate={deck.activeFromDate || deck.createdAt}
             userId={user?.id}
