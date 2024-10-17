@@ -26,7 +26,7 @@ export const TRACKING_EVENTS = {
   SHARE_EARN_URL: "ShareTaskonURL",
   HOME_STAT_CARD_DIALOG_OPENED: "HomeStatCardDialogOpened",
   HOME_STAT_CARD_DIALOG_CLOSED: "HomeStatCardDialogClosed",
-  PAGE_VIEW: "PageView"
+  PAGE_VIEW: "PageView",
   WELCOME_BACK_ANSWER_BUTTON_CLICKED: "WelcomeBackAnswerButtonClicked",
   WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
 } as const;
