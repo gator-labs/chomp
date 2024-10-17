@@ -4,6 +4,7 @@ const trackEvent = async (
 ) => {
   const additionalProperties = {
     $current_url: window.location.href,
+    $hostname: window.location.hostname,
     $initial_referrer: document.referrer ? document.referrer : undefined,
     $initial_referring_domain: document.referrer
       ? new URL(document.referrer).hostname
