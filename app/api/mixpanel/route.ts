@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse, userAgent } from "next/server";
-
 import { TRACKING_METADATA } from "@/app/constants/tracking";
 import { getCurrentUser } from "@/app/queries/user";
 import { kv } from "@/lib/kv";
@@ -73,10 +72,14 @@ export async function POST(request: NextRequest) {
         (value) => value !== undefined,
       );
 
+      const utmParamsWithoutUndefined = Object.fromEntries(
+        Object.entries(utmParams).filter(([_, value]) => value !== undefined)
+      );
+
       // Update initial and last UTM data
       if (!storedUtmData || hasNewUtmParams) {
-        initialUtm = Object.keys(initialUtm).length > 0 ? initialUtm : utmParams;
-        lastUtm = hasNewUtmParams ?  utmParams : lastUtm;
+        initialUtm = Object.keys(initialUtm).length > 0 ? initialUtm : utmParamsWithoutUndefined;
+        lastUtm = hasNewUtmParams ? utmParamsWithoutUndefined : lastUtm;
 
         // Remove undefined values
         Object.keys(lastUtm).forEach(
