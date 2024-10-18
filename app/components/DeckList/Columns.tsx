@@ -21,6 +21,18 @@ export const columns: ColumnDef<DeckRowType>[] = [
     ),
   },
   {
+    header: "Deck Live At",
+    cell: ({ row }) => {
+      return (
+        <div>
+          {!!row.original.deckLiveAt 
+            ? dayjs(row.original.deckLiveAt).format("MM.DD.YYYY HH:mm")
+            : ""}{" "}
+        </div>
+      );
+    },
+  },
+  {
     header: "Reveal at",
     cell: ({ row }) => {
       return (
