@@ -1820,6 +1820,11 @@
   resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-api-core/-/sdk-api-core-0.0.545.tgz#775da85b84955a779a2f03fd2abde4a81646a8c3"
   integrity sha512-1FgXDohfzalYvxi7nMmxMzmmp773ohvU/oPeT+9BAYP4ufANWLGU74CnD5iBYCL2fT1eW8ZQBy7VVjvEfpMg4A==
 
+"@dynamic-labs/sdk-api-core@0.0.547":
+  version "0.0.547"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-api-core/-/sdk-api-core-0.0.547.tgz#d81d5693b522cec28f1702bbdf2fc2c9ee36409a"
+  integrity sha512-r0QR1grJRWHkHj0JY+3bMlF5FiA2kvb9eLppD04DcMfDdeSTrPr/iSliIPYHEPx913S/BMDkKqDkqjYye4iQKw==
+
 "@dynamic-labs/sdk-react-core@^3.4.0":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-react-core/-/sdk-react-core-3.4.0.tgz#e1e29e34bfdf4b419cbf5b0badcaf38c684764f2"
@@ -1853,6 +1858,15 @@
   integrity sha512-4Iwfu1IvohRyp8y+t+QhFkjlP/jeMGvu/KCk/C/W3QjaVYMmDYIwqvqk9Wc/23XTk1Grgf83b1hp3QGuhOg+YA==
   dependencies:
     "@dynamic-labs/sdk-api-core" "0.0.545"
+    "@solana/spl-token" "0.4.6"
+    "@solana/web3.js" "1.92.1"
+
+"@dynamic-labs/solana-core@^3.4.1":
+  version "3.4.1"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/solana-core/-/solana-core-3.4.1.tgz#4793cd94aa6f4a0b4d706f90d6fc15ca8a1ad6f3"
+  integrity sha512-h2W5HJTwkMF+SQIsGlkhjSdZ1d98hRrCLB17Wlq9bxRznVYvq8DZHzSOTg+HeQja2TQoSiZt+ul2gTQAqKIL4w==
+  dependencies:
+    "@dynamic-labs/sdk-api-core" "0.0.547"
     "@solana/spl-token" "0.4.6"
     "@solana/web3.js" "1.92.1"
 

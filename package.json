@@ -37,6 +37,7 @@
     "@dynamic-labs/global-wallet": "^3.4.0",
     "@dynamic-labs/sdk-react-core": "^3.4.0",
     "@dynamic-labs/solana": "^3.4.0",
+    "@dynamic-labs/solana-core": "^3.4.1",
     "@hookform/resolvers": "^3.3.4",
     "@metaplex-foundation/digital-asset-standard-api": "^1.0.3",
     "@metaplex-foundation/umi": "^0.9.1",
