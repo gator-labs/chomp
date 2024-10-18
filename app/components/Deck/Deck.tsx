@@ -1,41 +1,39 @@
-"use client";
+'use client';
 import {
   answerQuestion,
   markQuestionAsSeenButNotAnswered,
   markQuestionAsSkipped,
   markQuestionAsTimedOut,
   SaveQuestionRequest,
-} from "@/app/actions/answer";
-import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
-import { useRandom } from "@/app/hooks/useRandom";
-import { useStopwatch } from "@/app/hooks/useStopwatch";
-import {
-  trackAnswerStatus,
-  trackQuestionAnswer,
-} from "@/app/utils/tracking";
+} from '@/app/actions/answer';
+import { TRACKING_EVENTS, TRACKING_METADATA } from '@/app/constants/tracking';
+import { useRandom } from '@/app/hooks/useRandom';
+import { useStopwatch } from '@/app/hooks/useStopwatch';
+import { trackAnswerStatus, trackQuestionAnswer } from '@/app/utils/tracking';
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
-} from "@/app/utils/question";
-import trackEvent from "@/lib/trackEvent";
-import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
-import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
-import { QuestionStep } from "../Question/Question";
-import { QuestionAction } from "../QuestionAction/QuestionAction";
-import { QuestionCard } from "../QuestionCard/QuestionCard";
-import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
-import Stepper from "../Stepper/Stepper";
+} from '@/app/utils/question';
+import trackEvent from '@/lib/trackEvent';
+import { AnswerStatus, QuestionTag, QuestionType, Tag } from '@prisma/client';
+import dayjs from 'dayjs';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { NoQuestionsCard } from '../NoQuestionsCard/NoQuestionsCard';
+import { QuestionStep } from '../Question/Question';
+import { QuestionAction } from '../QuestionAction/QuestionAction';
+import { QuestionCard } from '../QuestionCard/QuestionCard';
+import { QuestionCardContent } from '../QuestionCardContent/QuestionCardContent';
+import Stepper from '../Stepper/Stepper';
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { Button } from "../ui/button";
-import classNames from "classnames";
+} from '../ui/alert-dialog';
+import { Button } from '../ui/button';
+import classNames from 'classnames';
+import { usePathname } from 'next/navigation';
 
 export type Option = {
   id: number;
@@ -60,12 +58,12 @@ type DeckProps = {
   questions: Question[];
   deckId: number;
   nextDeckId?: number;
-  deckVariant?: "daily-deck" | "regular-deck";
+  deckVariant?: 'daily-deck' | 'regular-deck';
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
   return dayjs(new Date())
-    .add(questions[index].durationMiliseconds, "milliseconds")
+    .add(questions[index].durationMiliseconds, 'milliseconds')
     .toDate();
 };
 
@@ -79,16 +77,17 @@ export function Deck({
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
-    QuestionStep.AnswerQuestion,
+    QuestionStep.AnswerQuestion
   );
+  const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(
-    questions.findIndex((q) => q.status === undefined),
+    questions.findIndex(q => q.status === undefined)
   );
 
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const [processingSkipQuestion, setProcessingSkipQuestion] = useState(false)
+  const [processingSkipQuestion, setProcessingSkipQuestion] = useState(false);
   const min = 0;
   const max =
     !!questions[currentQuestionIndex] &&
@@ -113,14 +112,14 @@ export function Deck({
       setDueAt(getDueAt(questions, currentQuestionIndex + 1));
     }
     setDeckResponse([]);
-    setCurrentQuestionIndex((index) => index + 1);
+    setCurrentQuestionIndex(index => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
     const min = 0;
     const max =
       !!questions[currentQuestionIndex + 1] &&
-        questions[currentQuestionIndex + 1].questionOptions.length > 0
+      questions[currentQuestionIndex + 1].questionOptions.length > 0
         ? questions[currentQuestionIndex + 1].questionOptions.length - 1
         : 0;
     generateRandom({ min, max });
@@ -138,7 +137,7 @@ export function Deck({
 
   const question = useMemo(
     () => questions[currentQuestionIndex],
-    [questions, currentQuestionIndex],
+    [questions, currentQuestionIndex]
   );
 
   useEffect(() => {
@@ -165,32 +164,31 @@ export function Deck({
 
   const handleSkipQuestion = async () => {
     if (processingSkipQuestion) return;
-    setProcessingSkipQuestion(true)
+    setProcessingSkipQuestion(true);
     await markQuestionAsSkipped(question.id);
     handleNextIndex();
-    setProcessingSkipQuestion(false)
+    setProcessingSkipQuestion(false);
   };
 
   const onQuestionActionClick = useCallback(
     async (number: number | undefined) => {
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
-        question.type === "BinaryQuestion"
+        question.type === 'BinaryQuestion'
       ) {
         setRandom(
-          question.questionOptions.findIndex((option) => option.id === number),
+          question.questionOptions.findIndex(option => option.id === number)
         );
-        setDeckResponse((prev) => [
+        setDeckResponse(prev => [
           ...prev,
           { questionId: question.id, questionOptionId: number },
         ]);
         trackQuestionAnswer(
           question,
-          "FIRST_ORDER",
+          'FIRST_ORDER',
           deckId,
           deckVariant,
-          question.questionOptions.find((option) => option.id === number)
-            ?.option,
+          question.questionOptions.find(option => option.id === number)?.option
         );
         setCurrentQuestionStep(QuestionStep.PickPercentage);
 
@@ -199,13 +197,13 @@ export function Deck({
 
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
-        question.type === "MultiChoice"
+        question.type === 'MultiChoice'
       ) {
         if (!currentOptionSelected) {
           return;
         }
 
-        setDeckResponse((prev) => [
+        setDeckResponse(prev => [
           ...prev,
           {
             questionId: question.id,
@@ -218,7 +216,7 @@ export function Deck({
       }
 
       if (currentQuestionStep === QuestionStep.PickPercentage) {
-        setDeckResponse((prev) => {
+        setDeckResponse(prev => {
           const newResponses = [...prev];
           const response = newResponses.pop();
           if (response) {
@@ -232,15 +230,15 @@ export function Deck({
           return newResponses;
         });
       }
-      setNumberOfAnsweredQuestions((prev) => prev + 1);
+      setNumberOfAnsweredQuestions(prev => prev + 1);
 
       setIsSubmitting(true);
 
       try {
         await answerQuestion({ ...deckResponse[0], deckId });
-        trackAnswerStatus({ ...deckResponse[0], deckId }, "SUCCEEDED");
+        trackAnswerStatus({ ...deckResponse[0], deckId }, 'SUCCEEDED');
       } catch (error) {
-        trackAnswerStatus({ ...deckResponse[0], deckId }, "FAILED");
+        trackAnswerStatus({ ...deckResponse[0], deckId }, 'FAILED');
       }
 
       handleNextIndex();
@@ -253,12 +251,12 @@ export function Deck({
       handleNextIndex,
       currentOptionSelected,
       optionPercentage,
-    ],
+    ]
   );
 
   const hasReachedEnd = useMemo(
     () => currentQuestionIndex >= questions.length,
-    [currentQuestionIndex],
+    [currentQuestionIndex]
   );
 
   useEffect(() => {
@@ -269,7 +267,7 @@ export function Deck({
 
   useEffect(() => {
     if (question) {
-      trackQuestionAnswer(question, "QUESTION_LOADED", deckId, deckVariant);
+      trackQuestionAnswer(question, 'QUESTION_LOADED', deckId, deckVariant);
     }
   }, [question]);
 
@@ -281,7 +279,10 @@ export function Deck({
     ) {
       trackEvent(TRACKING_EVENTS.DECK_COMPLETED, {
         [TRACKING_METADATA.DECK_ID]: deckId,
-        [TRACKING_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
+        [TRACKING_METADATA.IS_DAILY_DECK]: deckVariant === 'daily-deck',
+        [TRACKING_METADATA.SOURCE]: pathname.endsWith('answer')
+          ? TRACKING_METADATA.ANSWER_TAB
+          : '',
       });
     }
   }, [questions.length, hasReachedEnd, currentQuestionIndex]);
@@ -310,7 +311,7 @@ export function Deck({
       : question.questionOptions[random].option;
 
   return (
-    <div className="flex flex-col justify-start h-full pb-4">
+    <div className="flex flex-col justify-start h-full pb-4 w-full">
       <Stepper
         numberOfSteps={questions.length}
         activeStep={currentQuestionIndex}
@@ -351,11 +352,14 @@ export function Deck({
         disabled={isSubmitting}
         question={question}
         deckId={deckId}
-        deckVariant={deckVariant || ""}
+        deckVariant={deckVariant || ''}
       />
       {currentQuestionStep !== QuestionStep.PickPercentage && (
         <div
-          className={classNames("text-sm text-center mt-5 text-gray-400 underline ", processingSkipQuestion ? "cursor-not-allowed" : "cursor-pointer")}
+          className={classNames(
+            'text-sm text-center mt-5 text-gray-400 underline ',
+            processingSkipQuestion ? 'cursor-not-allowed' : 'cursor-pointer'
+          )}
           onClick={() => handleSkipQuestion()}
         >
           Skip question
@@ -363,7 +367,7 @@ export function Deck({
       )}
 
       <AlertDialog open={isTimeOutPopUpVisible}>
-        <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
+        <AlertDialogContent onEscapeKeyDown={e => e.preventDefault()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you still there?</AlertDialogTitle>
             <AlertDialogDescription>
