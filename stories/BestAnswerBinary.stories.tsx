@@ -27,16 +27,14 @@ type Story = StoryObj<typeof meta>;
 export const Correct: Story = {
   args: {
     optionSelected: "Yes",
-    bestOption: "Yes",
-    icon: <LikeIcon />,
+    bestOption: "Yes"
   },
 };
 
 export const Incorrect: Story = {
   args: {
     optionSelected: "Yes",
-    bestOption: "No",
-    icon: <UnlikeIcon />,
+    bestOption: "No"
   },
 };
 

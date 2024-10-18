@@ -1,40 +1,54 @@
-import ChompHeadIcon from "@/app/components/Icons/ChompHeadIcon";
-import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
+import { ChompFlatIcon } from "@/app/components/Icons/ChompFlatIcon";
 import { Button } from "@/app/components/ui/button";
+import { TRACKING_EVENTS } from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
+import { ANSWER_PATH, HISTORY_PATH } from "@/lib/urls";
+import chompyImg from "@/public/images/chompy.png";
+
+import Image from "next/image";
 import Link from "next/link";
 
-interface Props {
-  hasDailyDeck: boolean;
-}
-
-const ExistingUserScreen = ({ hasDailyDeck }: Props) => {
+const ExistingUserScreen = () => {
   return (
-    <main className="h-dvh bg-gray-800 pt-16">
-      <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 justify-between h-full">
-        <div className="relative w-full flex [&>*]:w-full">
-          <ChompHeadIcon />
+    <main className="h-dvh bg-gray-900 max-w-4xl mx-auto ">
+      <div className="py-4 flex justify-center items-center">
+        <ChompFlatIcon width={37} height={14} fill="#fff" />
+      </div>
+      <div className="py-28 px-4 flex flex-col gap-9">
+        <Image
+          src={chompyImg.src}
+          width={152}
+          height={140}
+          alt="chomp"
+          className="mx-auto"
+          sizes="(max-width: 768px) 100vw, 152px"
+        />
+        <div className="flex flex-col gap-2 justify-center items-center">
+          <p className="text-2xl text-white font-bold leading-[27.6px]">
+            Welcome back!
+          </p>
+          <p className="text-sm text-gray-400 leading-[18.9px] font-medium">
+            What do you want to do today?
+          </p>
         </div>
-        <div className="flex flex-col gap-8 items-center text-xl leading-6">
-          <h3 className="text-center">Welcome back!</h3>
-
-          <div className="flex gap-[10px] items-center w-full justify-center">
-            <p className="text-sm text-center">
-              Good to see you again. Click below to head over to{" "}
-              {hasDailyDeck ? "your Daily Deck." : "app."}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-col gap-[14px] items-center w-full py-4">
-          <Link
-            href={hasDailyDeck ? "daily-deck" : "/application"}
-            className="w-full"
-            scroll={false}
+        <div className="flex flex-col gap-2">
+          <Button
+            onClick={() =>
+              trackEvent(TRACKING_EVENTS.WELCOME_BACK_ANSWER_BUTTON_CLICKED)
+            }
+            asChild
           >
-            <Button>
-              {hasDailyDeck ? "Start Daily Deck" : "Start"}{" "}
-              <HalfArrowRightIcon fill="#FFFFFF" />
-            </Button>
-          </Link>
+            <Link href={ANSWER_PATH}>Answer Questions</Link>
+          </Button>
+          <Button
+            onClick={() =>
+              trackEvent(TRACKING_EVENTS.WELCOME_BACK_REVEAL_BUTTON_CLICKED)
+            }
+            variant="outline"
+            asChild
+          >
+            <Link href={HISTORY_PATH}>Reveal Answers</Link>
+          </Button>
         </div>
       </div>
     </main>
