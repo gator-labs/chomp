@@ -180,7 +180,10 @@ WHERE
         WHERE dq."deckId" = d."id"
         GROUP BY dq."deckId"
         HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
-    );
+    )
+    ORDER BY
+    d."date" ASC,
+    d."revealAtDate" ASC
   `;
 
   return deckExpiringSoon;
