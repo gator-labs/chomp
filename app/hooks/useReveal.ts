@@ -1,7 +1,6 @@
 import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from "@dynamic-labs/solana";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
@@ -113,86 +112,86 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const isRevealWithNftMode =
     revealNft && !isMultiple && burnState !== "burning";
 
-  useEffect(() => {
-    async function effect(address: string, reveal: RevealState) {
-      try {
-        const chompResults = await getUsersPendingChompResult(
-          reveal?.questionIds ?? [],
-        );
-        setPendingChompResults(chompResults);
+  // useEffect(() => {
+  //   async function effect(address: string, reveal: RevealState) {
+  //     try {
+  //       const chompResults = await getUsersPendingChompResult(
+  //         reveal?.questionIds ?? [],
+  //       );
+  //       setPendingChompResults(chompResults);
 
-        if (reveal?.questionIds?.length !== 1) return;
+  //       if (reveal?.questionIds?.length !== 1) return;
 
-        const userAssets = await getUserAssets(address);
-        const chompyAndFriendsNft =
-          await getUnusedChompyAndFriendsNft(userAssets);
+  //       const userAssets = await getUserAssets(address);
+  //       const chompyAndFriendsNft =
+  //         await getUnusedChompyAndFriendsNft(userAssets);
 
-        if (!!chompyAndFriendsNft) {
-          return setRevealNft({
-            id: chompyAndFriendsNft.id,
-            type: NftType.ChompyAndFriends,
-          });
-        }
+  //       if (!!chompyAndFriendsNft) {
+  //         return setRevealNft({
+  //           id: chompyAndFriendsNft.id,
+  //           type: NftType.ChompyAndFriends,
+  //         });
+  //       }
 
-        const chompyAroundTheWorldNft =
-          await getUnusedChompyAroundTheWorldNft(userAssets);
+  //       const chompyAroundTheWorldNft =
+  //         await getUnusedChompyAroundTheWorldNft(userAssets);
 
-        if (!!chompyAroundTheWorldNft) {
-          return setRevealNft({
-            id: chompyAroundTheWorldNft.id,
-            type: NftType.ChompyAroundTheWorld,
-          });
-        }
+  //       if (!!chompyAroundTheWorldNft) {
+  //         return setRevealNft({
+  //           id: chompyAroundTheWorldNft.id,
+  //           type: NftType.ChompyAroundTheWorld,
+  //         });
+  //       }
 
-        const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
+  //       const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
 
-        if (!!glowburgerNft) {
-          return setRevealNft({
-            id: glowburgerNft.id,
-            type: NftType.Glowburger,
-          });
-        }
+  //       if (!!glowburgerNft) {
+  //         return setRevealNft({
+  //           id: glowburgerNft.id,
+  //           type: NftType.Glowburger,
+  //         });
+  //       }
 
-        const genesisNft = await getUnusedGenesisNft(userAssets);
+  //       const genesisNft = await getUnusedGenesisNft(userAssets);
 
-        if (!!genesisNft) {
-          return setRevealNft({
-            id: genesisNft.id,
-            type: NftType.Genesis,
-          });
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_LOADED, {
-          [TRACKING_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
-            ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
-            : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
-          [TRACKING_METADATA.QUESTION_ID]: reveal.questionIds,
-          [TRACKING_METADATA.QUESTION_TEXT]: reveal.questions,
-          [TRACKING_METADATA.REVEAL_TYPE]:
-            reveal.questionIds.length > 1
-              ? REVEAL_TYPE.ALL
-              : REVEAL_TYPE.SINGLE,
-        });
-        setIsLoading(false);
-      }
-    }
+  //       if (!!genesisNft) {
+  //         return setRevealNft({
+  //           id: genesisNft.id,
+  //           type: NftType.Genesis,
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error(error);
+  //     } finally {
+  //       trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_LOADED, {
+  //         [TRACKING_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
+  //           ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
+  //           : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
+  //         [TRACKING_METADATA.QUESTION_ID]: reveal.questionIds,
+  //         [TRACKING_METADATA.QUESTION_TEXT]: reveal.questions,
+  //         [TRACKING_METADATA.REVEAL_TYPE]:
+  //           reveal.questionIds.length > 1
+  //             ? REVEAL_TYPE.ALL
+  //             : REVEAL_TYPE.SINGLE,
+  //       });
+  //       setIsLoading(false);
+  //     }
+  //   }
 
-    if (!address || !reveal || reveal?.questionIds.length === 0) {
-      return;
-    }
+  //   if (!address || !reveal || reveal?.questionIds.length === 0) {
+  //     return;
+  //   }
 
-    setIsLoading(true);
+  //   setIsLoading(true);
 
-    effect(address, reveal);
+  //   effect(address, reveal);
 
-    return () => {
-      setIsLoading(false);
-      setPendingChompResults([]);
-      setRevealNft(undefined);
-    };
-  }, [reveal, address, reveal?.questionIds]);
+  //   return () => {
+  //     setIsLoading(false);
+  //     setPendingChompResults([]);
+  //     setRevealNft(undefined);
+  //   };
+  // }, [reveal, address, reveal?.questionIds]);
 
   const onSetReveal = useCallback(
     ({
@@ -203,23 +202,23 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       questions,
       dialogLabel,
     }: RevealCallbackProps) => {
-      setBurnState(INITIAL_BURN_STATE);
-      setReveal({
-        reveal,
-        amount,
-        questionIds: questionIds ?? [questionId],
-        questions,
-        dialogLabel,
-      });
-      setIsRevealModalOpen(true);
-      trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_OPENED, {
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          (questionIds ?? [questionId])?.length > 1
-            ? REVEAL_TYPE.ALL
-            : REVEAL_TYPE.SINGLE,
-        [TRACKING_METADATA.QUESTION_ID]: questionIds ?? [questionId],
-        [TRACKING_METADATA.QUESTION_TEXT]: questions,
-      });
+      // setBurnState(INITIAL_BURN_STATE);
+      // setReveal({
+      //   reveal,
+      //   amount,
+      //   questionIds: questionIds ?? [questionId],
+      //   questions,
+      //   dialogLabel,
+      // });
+      // setIsRevealModalOpen(true);
+      // trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_OPENED, {
+      //   [TRACKING_METADATA.REVEAL_TYPE]:
+      //     (questionIds ?? [questionId])?.length > 1
+      //       ? REVEAL_TYPE.ALL
+      //       : REVEAL_TYPE.SINGLE,
+      //   [TRACKING_METADATA.QUESTION_ID]: questionIds ?? [questionId],
+      //   [TRACKING_METADATA.QUESTION_TEXT]: questions,
+      // });
     },
     [setReveal, setIsRevealModalOpen, setBurnState],
   );
@@ -247,160 +246,160 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
     const payload = await getJwtPayload();
 
-    try {
-      if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
-        signature = pendingChompResults[0].burnTransactionSignature!;
-        setBurnState("burning");
-        await createGetTransactionTask(signature);
-      }
+    // try {
+    //   if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
+    //     signature = pendingChompResults[0].burnTransactionSignature!;
+    //     setBurnState("burning");
+    //     await createGetTransactionTask(signature);
+    //   }
 
-      if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
-        const blockhash = await CONNECTION.getLatestBlockhash();
+    //   if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
+    //     const blockhash = await CONNECTION.getLatestBlockhash();
 
-        // This try catch is to catch Dynamic related issues to narrow down the error
-        try {
-          const signer = await wallet!.connector.getSigner<ISolana>();
+    //     // This try catch is to catch Dynamic related issues to narrow down the error
+    //     try {
+    //       const signer = await wallet!.connector.getSigner<ISolana>();
 
-          const tx = await genBonkBurnTx(
-            address!,
-            blockhash.blockhash,
-            reveal?.amount ?? 0,
-          );
-          setBurnState("burning");
+    //       const tx = await genBonkBurnTx(
+    //         address!,
+    //         blockhash.blockhash,
+    //         reveal?.amount ?? 0,
+    //       );
+    //       setBurnState("burning");
 
-          try {
-            const { signature: sn } = await promiseToast(
-              signer.signAndSendTransaction(tx),
-              {
-                loading: "Waiting for signature...",
-                success: "Bonk burn transaction signed!",
-                error: "You denied message signature.",
-              },
-            );
+    //       try {
+    //         const { signature: sn } = await promiseToast(
+    //           signer.signAndSendTransaction(tx),
+    //           {
+    //             loading: "Waiting for signature...",
+    //             success: "Bonk burn transaction signed!",
+    //             error: "You denied message signature.",
+    //           },
+    //         );
 
-            trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_SIGNED, {
-              [TRACKING_METADATA.TRANSACTION_SIGNATURE]: sn,
-              [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
-              [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-              [TRACKING_METADATA.REVEAL_TYPE]:
-                revealQuestionIds.length > 1
-                  ? REVEAL_TYPE.ALL
-                  : REVEAL_TYPE.SINGLE,
-            });
+    //         trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_SIGNED, {
+    //           [TRACKING_METADATA.TRANSACTION_SIGNATURE]: sn,
+    //           [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+    //           [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+    //           [TRACKING_METADATA.REVEAL_TYPE]:
+    //             revealQuestionIds.length > 1
+    //               ? REVEAL_TYPE.ALL
+    //               : REVEAL_TYPE.SINGLE,
+    //         });
 
-            signature = sn;
-          } catch (error) {
-            if ((error as any)?.message === "User rejected the request.")
-              trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
-                [TRACKING_METADATA.REVEAL_TYPE]:
-                  revealQuestionIds.length > 1
-                    ? REVEAL_TYPE.ALL
-                    : REVEAL_TYPE.SINGLE,
-                [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
-                [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-              });
+    //         signature = sn;
+    //       } catch (error) {
+    //         if ((error as any)?.message === "User rejected the request.")
+    //           trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
+    //             [TRACKING_METADATA.REVEAL_TYPE]:
+    //               revealQuestionIds.length > 1
+    //                 ? REVEAL_TYPE.ALL
+    //                 : REVEAL_TYPE.SINGLE,
+    //             [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+    //             [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+    //           });
 
-            resetReveal();
-            return;
-          } finally {
-            setProcessingTransaction(false);
-          }
+    //         resetReveal();
+    //         return;
+    //       } finally {
+    //         setProcessingTransaction(false);
+    //       }
 
-          const chompResults = await createQuestionChompResults(
-            revealQuestionIds.map((qid) => ({
-              burnTx: signature!,
-              questionId: qid,
-            })),
-          );
+    //       const chompResults = await createQuestionChompResults(
+    //         revealQuestionIds.map((qid) => ({
+    //           burnTx: signature!,
+    //           questionId: qid,
+    //         })),
+    //       );
 
-          pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
+    //       pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
 
-          const res = await CONNECTION.confirmTransaction(
-            {
-              blockhash: blockhash.blockhash,
-              lastValidBlockHeight: blockhash.lastValidBlockHeight,
-              signature,
-            },
-            "confirmed",
-          );
+    //       const res = await CONNECTION.confirmTransaction(
+    //         {
+    //           blockhash: blockhash.blockhash,
+    //           lastValidBlockHeight: blockhash.lastValidBlockHeight,
+    //           signature,
+    //         },
+    //         "confirmed",
+    //       );
 
-          if (!!res.value.err) {
-            errorToast(
-              "Error while confirming transaction. Bonk was not burned. Try again.",
-            );
-            const burnError = new BurnError(
-              `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-              { cause: res.value.err },
-            );
-            Sentry.captureException(burnError);
-            await deleteQuestionChompResults(pendingChompResultIds);
-          }
-        } catch (error) {
-          errorToast("Error happened while revealing question. Try again.");
-          const dynamicRevealError = new DynamicRevealError(
-            `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
-            { cause: error },
-          );
-          Sentry.captureException(dynamicRevealError);
-          release();
-          resetReveal();
-          return;
-        }
-      }
+    //       if (!!res.value.err) {
+    //         errorToast(
+    //           "Error while confirming transaction. Bonk was not burned. Try again.",
+    //         );
+    //         const burnError = new BurnError(
+    //           `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+    //           { cause: res.value.err },
+    //         );
+    //         Sentry.captureException(burnError);
+    //         await deleteQuestionChompResults(pendingChompResultIds);
+    //       }
+    //     } catch (error) {
+    //       errorToast("Error happened while revealing question. Try again.");
+    //       const dynamicRevealError = new DynamicRevealError(
+    //         `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+    //         { cause: error },
+    //       );
+    //       Sentry.captureException(dynamicRevealError);
+    //       release();
+    //       resetReveal();
+    //       return;
+    //     }
+    //   }
 
-      if (!isRevealWithNftMode) {
-        await reveal!.reveal({
-          burnTx: signature,
-          revealQuestionIds,
-          pendingChompResults: pendingChompResults.map((result) => ({
-            burnTx: result.burnTransactionSignature!,
-            id: result.questionId!,
-          })),
-        });
-      } else {
-        await reveal!.reveal({
-          burnTx: signature,
-          nftAddress: ignoreNft ? "" : revealNft!.id,
-          nftType: ignoreNft ? undefined : revealNft!.type,
-        });
-      }
+    //   if (!isRevealWithNftMode) {
+    //     await reveal!.reveal({
+    //       burnTx: signature,
+    //       revealQuestionIds,
+    //       pendingChompResults: pendingChompResults.map((result) => ({
+    //         burnTx: result.burnTransactionSignature!,
+    //         id: result.questionId!,
+    //       })),
+    //     });
+    //   } else {
+    //     await reveal!.reveal({
+    //       burnTx: signature,
+    //       nftAddress: ignoreNft ? "" : revealNft!.id,
+    //       nftType: ignoreNft ? undefined : revealNft!.type,
+    //     });
+    //   }
 
-      trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
-        transactionSignature: signature,
-        nftAddress: revealNft?.id,
-        nftType: revealNft?.type,
-        burnedAmount: reveal?.amount,
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-      });
+    //   trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
+    //     transactionSignature: signature,
+    //     nftAddress: revealNft?.id,
+    //     nftType: revealNft?.type,
+    //     burnedAmount: reveal?.amount,
+    //     [TRACKING_METADATA.REVEAL_TYPE]:
+    //       revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+    //     [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+    //     [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+    //   });
 
-      if (revealNft && !isMultiple) {
-        setRevealNft(undefined);
-      }
-    } catch (error) {
-      if (pendingChompResultIds.length > 0) {
-        await deleteQuestionChompResults(pendingChompResultIds);
-      }
+    //   if (revealNft && !isMultiple) {
+    //     setRevealNft(undefined);
+    //   }
+    // } catch (error) {
+    //   if (pendingChompResultIds.length > 0) {
+    //     await deleteQuestionChompResults(pendingChompResultIds);
+    //   }
 
-      trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-        error,
-      });
-      errorToast("Error happened while revealing question. Try again.");
-      const revealError = new RevealError(
-        `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
-        { cause: error },
-      );
-      Sentry.captureException(revealError);
-      release();
-    } finally {
-      resetReveal();
-    }
+    //   trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
+    //     [TRACKING_METADATA.REVEAL_TYPE]:
+    //       revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+    //     [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+    //     [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+    //     error,
+    //   });
+    //   errorToast("Error happened while revealing question. Try again.");
+    //   const revealError = new RevealError(
+    //     `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+    //     { cause: error },
+    //   );
+    //   Sentry.captureException(revealError);
+    //   release();
+    // } finally {
+    //   resetReveal();
+    // }
   };
 
   const questionIds = (reveal?.questionIds || []).filter(
