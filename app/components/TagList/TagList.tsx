@@ -1,4 +1,5 @@
 import { Tag } from "@prisma/client";
+
 import { DataTable } from "../DataTable/DataTable";
 import { columns } from "./Columns";
 

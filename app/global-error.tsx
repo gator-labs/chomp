@@ -1,4 +1,5 @@
 "use client";
+
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 
 // avoid using useRouter in the global error boundaries as they don't have nextjs context.

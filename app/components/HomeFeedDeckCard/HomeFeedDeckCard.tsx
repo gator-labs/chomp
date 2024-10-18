@@ -2,6 +2,7 @@
 
 import classNames from "classnames";
 import Image from "next/image";
+
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import CardsIcon from "../Icons/CardsIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
@@ -48,7 +49,6 @@ export function HomeFeedDeckCard({
     >
       <div className="w-[90px] h-[90px] flex-shrink-0 relative">
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <>
             <CardsIcon className="absolute top-0 left-0 w-full h-full" />
             <Image

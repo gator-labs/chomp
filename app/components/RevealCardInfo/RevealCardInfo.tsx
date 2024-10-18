@@ -1,4 +1,5 @@
 import { getRevealedAtString } from "@/app/utils/dateUtils";
+
 import { ClockIcon } from "../Icons/ClockIcon";
 
 type RevealCardInfoProps = {

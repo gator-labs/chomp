@@ -1,6 +1,7 @@
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { getTimeString } from "@/app/utils/dateUtils";
 import { TransactionLogType } from "@prisma/client";
+
 import { TRANSACTION_LABEL } from "./constants";
 
 export type TransactionData = {

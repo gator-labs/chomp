@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+
 import { getJwtPayload } from "../actions/jwt";
 
 export async function authGuard() {

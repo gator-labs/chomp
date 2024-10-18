@@ -1,6 +1,7 @@
 "use client";
 
 import { STACKS_PATH } from "@/lib/urls";
+
 import { ChallengeIcon } from "../Icons/ChallengeIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
 import { SettingsIcon } from "../Icons/SettingsIcon";

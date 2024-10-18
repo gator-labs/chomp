@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+
 import BannerSlider from "../components/BannerSlider/BannerSlider";
 import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUserStats";
 import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringSection/HomeFeedDeckExpiringSection";

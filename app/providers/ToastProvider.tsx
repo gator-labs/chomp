@@ -1,7 +1,9 @@
 "use client";
-import { createContext, ReactNode, useContext } from "react";
+
+import { ReactNode, createContext, useContext } from "react";
 import { ErrorIcon } from "react-hot-toast";
-import { toast, Toaster, ToasterProps } from "sonner";
+import { Toaster, ToasterProps, toast } from "sonner";
+
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { RemoveIcon } from "../components/Icons/ToastIcons/RemoveIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";

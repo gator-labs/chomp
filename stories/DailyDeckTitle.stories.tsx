@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import { DailyDeckTitle } from "../app/components/DailyDeckTitle/DailyDeckTitle";
 
 const meta = {

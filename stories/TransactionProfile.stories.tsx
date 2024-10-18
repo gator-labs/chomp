@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+
 import { TransactionProfile } from "../app/components/TransactionProfile/TransactionProfile";
 import AvatarSample from "./assets/avatar_sample.png";
 

@@ -1,4 +1,5 @@
 import path from "path";
+
 import { shuffleArray } from "./randomUtils";
 
 export const filePathForPlaceholderAvatars = Array.from({ length: 5 }).map(

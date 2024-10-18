@@ -1,4 +1,5 @@
 import classNames from "classnames";
+
 import { Avatar } from "../Avatar/Avatar";
 import PrimarySlider from "../PrimarySlider/PrimarySlider";
 import { OPTION_LABEL } from "./constants";

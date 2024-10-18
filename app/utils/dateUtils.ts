@@ -22,7 +22,7 @@ export const getRevealedAtString = (date: Date) => {
   if (differenceInMilliseconds < 0) {
     differenceInMilliseconds *= -1;
   }
-  let timeString = getTimeString(date);
+  const timeString = getTimeString(date);
   if (daysJsDate.isBefore(new Date())) {
     return `Revealed ${timeString} ago`;
   }

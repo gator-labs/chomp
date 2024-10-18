@@ -1,7 +1,9 @@
 "use client";
+
 import { ArrowLeft, House } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
+
 import { Button } from "./components/ui/button";
 
 const NotFound = () => {

@@ -1,9 +1,10 @@
 "use client";
+
 import { claimQuestions } from "@/app/actions/claim";
 import {
+  REVEAL_TYPE,
   TRACKING_EVENTS,
   TRACKING_METADATA,
-  REVEAL_TYPE,
 } from "@/app/constants/tracking";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -12,6 +13,7 @@ import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
+
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
@@ -69,7 +71,7 @@ const RewardShow = ({
         .finally(() => {
           setIsClaiming(false);
         });
-    } catch (error) {
+    } catch {
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: questions,

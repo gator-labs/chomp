@@ -1,9 +1,10 @@
 "use client";
 
 import gatorHeadImage from "@/public/images/gator-head.png";
-import { CircleArrowRight, Share2 } from "lucide-react";
+import { CircleArrowRight } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
+
 import { Button } from "../ui/button";
 import { QUESTION_CARD_CONTENT } from "./constants";
 

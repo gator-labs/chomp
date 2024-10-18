@@ -1,13 +1,13 @@
-type ObjectType = Record<PropertyKey, unknown>;
-type PickByValue<OBJ_T, VALUE_T> = // From https://stackoverflow.com/a/55153000
-  Pick<
-    OBJ_T,
-    { [K in keyof OBJ_T]: OBJ_T[K] extends VALUE_T ? K : never }[keyof OBJ_T]
-  >;
-type ObjectEntries<OBJ_T> = // From https://stackoverflow.com/a/60142095
-  {
-    [K in keyof OBJ_T]: [keyof PickByValue<OBJ_T, OBJ_T[K]>, OBJ_T[K]];
-  }[keyof OBJ_T][];
+// type ObjectType = Record<PropertyKey, unknown>;
+// type PickByValue<OBJ_T, VALUE_T> = // From https://stackoverflow.com/a/55153000
+//   Pick<
+//     OBJ_T,
+//     { [K in keyof OBJ_T]: OBJ_T[K] extends VALUE_T ? K : never }[keyof OBJ_T]
+//   >;
+// type ObjectEntries<OBJ_T> = // From https://stackoverflow.com/a/60142095
+//   {
+//     [K in keyof OBJ_T]: [keyof PickByValue<OBJ_T, OBJ_T[K]>, OBJ_T[K]];
+//   }[keyof OBJ_T][];
 
 type EntriesType =
   | [PropertyKey, unknown][]

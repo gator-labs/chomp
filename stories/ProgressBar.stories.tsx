@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { ProgressBar } from "../app/components/ProgressBar/ProgressBar";
 import { fn } from "@storybook/test";
+
+import { ProgressBar } from "../app/components/ProgressBar/ProgressBar";
 
 const meta = {
   title: "Progress/Bar",

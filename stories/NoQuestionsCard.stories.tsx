@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+
 import { NoQuestionsCard } from "../app/components/NoQuestionsCard/NoQuestionsCard";
 
 const meta = {

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+
 import { BestAnswer } from "../BestAnswer/BestAnswer";
 
 type BestAnswerBinaryProps = {

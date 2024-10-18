@@ -9,12 +9,12 @@ import {
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
+
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;
-const AMOUNT_TO_SEND = 1;
 const DECIMALS = 5;
 
 export const genBonkBurnTx = async (
@@ -25,7 +25,7 @@ export const genBonkBurnTx = async (
   const burnFromPublic = new PublicKey(ownerAddress); // user address
   const bonkPublic = new PublicKey(BONK_PUBLIC_ADDRESS); // bonk public address
 
-  let ata = await getAssociatedTokenAddress(bonkPublic, burnFromPublic);
+  const ata = await getAssociatedTokenAddress(bonkPublic, burnFromPublic);
 
   const tx = new Transaction();
 

@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Navigation } from "../app/components/Navigation/Navigation";
+
 import { ChallengeIcon } from "../app/components/Icons/ChallengeIcon";
-import { HomeIcon } from "../app/components/Icons/HomeIcon";
 import { ComposeIcon } from "../app/components/Icons/ComposeIcon";
+import { HomeIcon } from "../app/components/Icons/HomeIcon";
+import { Navigation } from "../app/components/Navigation/Navigation";
 
 const meta = {
   title: "Navigation",

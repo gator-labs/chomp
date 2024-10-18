@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { Props as ConfettiOptions } from "react-confetti";
+
 const Confetti = dynamic(() => import("react-confetti"), { ssr: false });
 
 interface ConfettiProps extends ConfettiOptions {

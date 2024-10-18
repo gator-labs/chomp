@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+
 import Circle from "../Icons/CircleIcon";
 import { CloseIcon } from "../Icons/CloseIcon";
 
@@ -20,7 +21,7 @@ const ProgressCloseButton = ({ onClick, progressDuration }: Props) => {
   );
 
   useEffect(() => {
-    let startTime = Date.now();
+    const startTime = Date.now();
     const interval = setInterval(() => {
       const elapsedTime = Date.now() - startTime;
       const progress = calculateProgress(elapsedTime, progressDuration);

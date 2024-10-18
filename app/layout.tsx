@@ -1,13 +1,13 @@
-import type { Metadata, Viewport } from "next";
-import DynamicProvider from "./providers/DynamicProvider";
-
 import { satoshi } from "@/lib/fonts";
 import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
+import type { Metadata, Viewport } from "next";
 import "react-spring-bottom-sheet/dist/style.css";
+
 import LinkProgressBar from "./components/LinkProgressBar/LinkProgressBar";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
 import { ClaimProvider } from "./providers/ClaimProvider";
+import DynamicProvider from "./providers/DynamicProvider";
 import ReactQueryProvider from "./providers/ReactQueryProvider";
 import { RevealContextProvider } from "./providers/RevealProvider";
 import { ToastProvider } from "./providers/ToastProvider";

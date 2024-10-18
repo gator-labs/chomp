@@ -1,8 +1,9 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
 
 import { Tag } from "@prisma/client";
+import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
+
 import { Button } from "../ui/button";
 
 export const columns: ColumnDef<Tag>[] = [
@@ -12,9 +13,7 @@ export const columns: ColumnDef<Tag>[] = [
     cell: ({ row }) => (
       <div>
         <Link href={`/admin/tags/${row.original.id}`}>
-          <Button isFullWidth={false}>
-            Edit
-          </Button>
+          <Button isFullWidth={false}>Edit</Button>
         </Link>
       </div>
     ),

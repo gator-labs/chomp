@@ -1,4 +1,3 @@
-
 ```sql
 WITH inserted_deck AS (
   INSERT INTO "Deck" ("deck", "date", "revealAtDate")
@@ -7,7 +6,7 @@ WITH inserted_deck AS (
 ), inserted_questions AS (
   -- Insert Questions and return their IDs
   INSERT INTO "Question" ("question", "type", "revealToken", "revealTokenAmount", "revealAtDate", "durationMiliseconds")
-  VALUES 
+  VALUES
     ('Is the sky blue?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),
     ('Do fish fly?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),
     ('Is water wet?', 'BinaryQuestion', 'Bonk', 0, NOW() + INTERVAL '1 days', 60000),
@@ -18,8 +17,8 @@ WITH inserted_deck AS (
   INSERT INTO "QuestionOption" ("option", "isCorrect", "isLeft", "questionId")
   SELECT opt.option, opt.isCorrect, opt.isLeft, iq.question_id
   FROM inserted_questions iq
-  CROSS JOIN LATERAL (VALUES 
-    ('True', true, true), 
+  CROSS JOIN LATERAL (VALUES
+    ('True', true, true),
     ('False', false, false)
   ) AS opt(option, isCorrect, isLeft)
 ), cross_join AS (

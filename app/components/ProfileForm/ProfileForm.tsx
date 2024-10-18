@@ -1,4 +1,5 @@
 "use client";
+
 import { updateProfile } from "@/app/actions/profile";
 import { IMAGE_ACTION } from "@/app/constants/images";
 import { useToast } from "@/app/providers/ToastProvider";
@@ -9,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next-nprogress-bar";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
 import { ChompBackgroundProfileIcon } from "../Icons/ChompBackgroundProfileIcon";

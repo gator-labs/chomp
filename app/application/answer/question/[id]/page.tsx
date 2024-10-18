@@ -28,12 +28,7 @@ export default async function Page({ params: { id } }: PageProps) {
 
   return (
     <div className="h-full py-2">
-      {question && (
-        <Question
-          question={question}
-          returnUrl="/application"
-        />
-      )}
+      {question && <Question question={question} returnUrl="/application" />}
     </div>
   );
 }
