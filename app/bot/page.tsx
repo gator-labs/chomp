@@ -5,17 +5,17 @@ import { DynamicWidget, useDynamicContext, useTelegramLogin } from "@dynamic-lab
 import { useEffect, useState } from "react";
 import Spinner from "./Spinner";
 
-// import Spinner from "./Spinner";
-
 export default function Main() {
   const { sdkHasLoaded, user } = useDynamicContext();
   const { telegramSignIn } = useTelegramLogin();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    console.log("sdkHasLoaded", sdkHasLoaded);
     if (!sdkHasLoaded) return;
 
     const signIn = async () => {
+        console.log("user", user);
       if (!user) {
         await telegramSignIn({ forceCreateUser: true });
       }
