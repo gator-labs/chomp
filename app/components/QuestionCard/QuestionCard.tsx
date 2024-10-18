@@ -1,4 +1,5 @@
 "use client";
+
 import { QuestionType } from "@prisma/client";
 import classNames from "classnames";
 import dayjs from "dayjs";
@@ -10,6 +11,7 @@ import {
   useEffect,
   useState,
 } from "react";
+
 import gatorHeadImage from "../../../public/images/gator-head.png";
 import { useInterval } from "../../hooks/useInterval";
 import {
@@ -42,7 +44,6 @@ export function QuestionCard({
   onDurationRanOut,
   style,
   isBlurred,
-  answer,
 }: QuestionCardProps) {
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(

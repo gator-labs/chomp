@@ -1,6 +1,6 @@
-// This slider component refers to new design of slider component shown in the figma design.
-
 "use client";
+
+// This slider component refers to new design of slider component shown in the figma design.
 import * as Slider from "@radix-ui/react-slider";
 import classNames from "classnames";
 
@@ -46,7 +46,9 @@ const PrimarySliderV2 = ({
         step={1}
         onValueChange={(value) => {
           activateSlider();
-          setValue && setValue(Number(value));
+          if (setValue) {
+            setValue(Number(value));
+          }
         }}
         value={[value]}
         onClick={activateSlider}

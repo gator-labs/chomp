@@ -34,7 +34,9 @@ export function useDragPositionPercentage({
         (event as React.MouseEvent)?.clientX ??
         (event as React.TouchEvent).touches[0].clientX;
       const percentage = (clientX - left) / width;
-      onChange && onChange(Math.round(percentage * 100));
+      if (onChange) {
+        onChange(Math.round(percentage * 100));
+      }
     },
     [isDragging, onChange],
   );

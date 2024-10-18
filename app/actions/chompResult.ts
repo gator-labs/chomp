@@ -7,6 +7,7 @@ import {
   TransactionStatus,
 } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";

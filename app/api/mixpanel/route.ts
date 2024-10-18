@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse, userAgent } from "next/server";
-
 import { TRACKING_METADATA } from "@/app/constants/tracking";
 import { getCurrentUser } from "@/app/queries/user";
 import Mixpanel from "mixpanel";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
+import { NextRequest, NextResponse, userAgent } from "next/server";
 
 const mixpanel = Mixpanel.init(process.env.MIX_PANEL_TOKEN!);
 

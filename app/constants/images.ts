@@ -6,5 +6,5 @@ export const IMAGE_VALID_TYPES = [
   "image/svg+xml",
 ];
 export const IMAGE_ACTION = {
-  REMOVE_IMAGE: "Remove Image", 
-}
+  REMOVE_IMAGE: "Remove Image",
+};

@@ -1,10 +1,9 @@
-import React from "react";
-import classNames from "classnames";
-import "../styles/globals.css";
-import "react-spring-bottom-sheet/dist/style.css";
 import type { Preview } from "@storybook/react";
+import classNames from "classnames";
+import "react-spring-bottom-sheet/dist/style.css";
 
 import { sora } from "../lib/fonts";
+import "../styles/globals.css";
 
 const preview: Preview = {
   parameters: {
@@ -16,7 +15,7 @@ const preview: Preview = {
     },
     nextjs: {
       appDirectory: true,
-    }
+    },
   },
   decorators: [
     (Story) => (
