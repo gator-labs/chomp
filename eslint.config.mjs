@@ -49,6 +49,9 @@ const config = [
       "prisma/migrations/",
       "public/",
       "scripts",
+      ".*",
+      "yarn.lock",
+      "README * ",
     ],
   },
 ];
