@@ -40,8 +40,28 @@ export const genBonkBurnTx = async (
   tx.recentBlockhash = blockhash;
   tx.feePayer = burnFromPublic;
 
-  const estimateFee = await getRecentPrioritizationFees(tx);
+  let estimateFee = await getRecentPrioritizationFees(tx);
 
+  // Verify the estimateFee is not null due to RPC request failure in some cases
+  if (estimateFee === null) {
+    for (let i = 0; i < 2; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      estimateFee = await getRecentPrioritizationFees(tx);
+      if (estimateFee !== null) break;
+    }
+    
+    // Set median priority fee if estimateFee is still null
+    if (estimateFee === null) {
+      estimateFee = {
+        result: {
+          priorityFeeLevels: {
+            high: 5000,
+          },
+        },
+      };
+    }
+  }
+  
   const computeUnitFix = 5000;
 
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
