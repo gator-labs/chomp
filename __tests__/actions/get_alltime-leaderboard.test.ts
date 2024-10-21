@@ -72,7 +72,7 @@ describe("Get All-time leaderboard data", () => {
       },
     });
     deckId = deck.id;
-    users = await generateUsers(1);
+    users = await generateUsers(50);
 
     await prisma.user.createMany({
       data: users,
