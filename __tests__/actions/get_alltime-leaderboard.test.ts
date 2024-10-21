@@ -72,11 +72,13 @@ describe("Get All-time leaderboard data", () => {
       },
     });
     deckId = deck.id;
+    console.log("deck id", deckId);
     users = await generateUsers(50);
-
+    console.log('users generated')
     await prisma.user.createMany({
       data: users,
     });
+    console.log('users created')
 
     const questionOptions = await prisma.questionOption.findMany({
       where: {
@@ -97,6 +99,8 @@ describe("Get All-time leaderboard data", () => {
       const secondOrderOption = questionOptions[secondOrderOptionIndex];
 
       for (const option of questionOptions) {
+    console.log('option processiong', option.id)
+
         const isSelectedOption = option.id === selectedOption.id;
         const percentage =
           secondOrderOption.id === option.id
@@ -129,6 +133,7 @@ describe("Get All-time leaderboard data", () => {
 
     const getDeck = await getDeckSchema(deckId);
 
+    console.log("create results")
     await prisma.chompResult.createMany({
       data: [
         {
@@ -142,6 +147,8 @@ describe("Get All-time leaderboard data", () => {
         },
       ],
     });
+
+    console.log("done with setup")
   });
 
   afterAll(async () => {
