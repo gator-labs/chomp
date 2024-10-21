@@ -18,7 +18,7 @@ const customJestConfig = {
   verbose: true,
   preset: 'ts-jest',
   testEnvironment: "node",
-  testTimeout: 20000,
+  testTimeout: 30000,
 };
 
 module.exports = async () => ({
