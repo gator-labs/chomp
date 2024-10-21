@@ -28,6 +28,7 @@ export const TRACKING_EVENTS = {
   HOME_STAT_CARD_DIALOG_CLOSED: "HomeStatCardDialogClosed",
   WELCOME_BACK_ANSWER_BUTTON_CLICKED: "WelcomeBackAnswerButtonClicked",
   WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
+  DECK_CLICKED: "DeckClicked",
 } as const;
 
 export const TRACKING_METADATA = {
