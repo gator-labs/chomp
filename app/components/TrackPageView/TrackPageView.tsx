@@ -8,24 +8,29 @@ function TrackPageView() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const url = `${pathname}?${searchParams}`
-    
+
     // Use a ref to store the previous URL
     const prevUrlRef = useRef(url)
 
     useEffect(() => {
-        const prevUrl = prevUrlRef.current
-        
-        if (prevUrl !== url) {
-            // URL has changed, track the event
-            trackEvent(TRACKING_EVENTS.PAGE_VIEW, {
-                [TRACKING_METADATA.URL_PATH]: pathname,
-                [TRACKING_METADATA.URL_SEARCH]: Object.fromEntries(searchParams.entries())
-            })
-        }
+        const trackPageView = async () => {
+            const prevUrl = prevUrlRef.current;
 
-        // Update the ref with the current URL
-        prevUrlRef.current = url
-    }, [url, pathname, searchParams])
+            if (prevUrl !== url) {
+                // URL has changed, track the event
+                await trackEvent(TRACKING_EVENTS.PAGE_VIEW, {
+                    [TRACKING_METADATA.URL_PATH]: pathname,
+                    [TRACKING_METADATA.URL_SEARCH]: Object.fromEntries(searchParams.entries())
+                });
+            }
+
+            // Update the ref with the current URL
+            prevUrlRef.current = url;
+        };
+
+        trackPageView();
+    }, [url, pathname, searchParams]);
+
 
     return null
 }
