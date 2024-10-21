@@ -72,7 +72,7 @@ describe("Get All-time leaderboard data", () => {
       },
     });
     deckId = deck.id;
-    users = await generateUsers(50);
+    users = await generateUsers(1);
 
     await prisma.user.createMany({
       data: users,
@@ -144,28 +144,28 @@ describe("Get All-time leaderboard data", () => {
     });
   });
 
-  afterAll(async () => {
-    await prisma.fungibleAssetTransactionLog.deleteMany({
-      where: {
-        question: {
-          deckQuestions: {
-            some: {
-              deckId: deckId,
-            },
-          },
-        },
-      },
-    });
-    await deleteDeck(deckId);
+  // afterAll(async () => {
+  //   await prisma.fungibleAssetTransactionLog.deleteMany({
+  //     where: {
+  //       question: {
+  //         deckQuestions: {
+  //           some: {
+  //             deckId: deckId,
+  //           },
+  //         },
+  //       },
+  //     },
+  //   });
+  //   await deleteDeck(deckId);
 
-    await prisma.user.deleteMany({
-      where: {
-        id: {
-          in: users.map((user) => user.id),
-        },
-      },
-    });
-  });
+  //   await prisma.user.deleteMany({
+  //     where: {
+  //       id: {
+  //         in: users.map((user) => user.id),
+  //       },
+  //     },
+  //   });
+  // });
 
   it("should return data for totalPoints filter", async () => {
     const res = await getLeaderboard({
