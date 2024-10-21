@@ -142,7 +142,7 @@ describe("Get All-time leaderboard data", () => {
         },
       ],
     });
-  });
+  }, 30_000);
 
   afterAll(async () => {
     await prisma.fungibleAssetTransactionLog.deleteMany({
@@ -165,7 +165,7 @@ describe("Get All-time leaderboard data", () => {
         },
       },
     });
-  });
+  }, 30_000);
 
   it("should return data for totalPoints filter", async () => {
     const res = await getLeaderboard({
