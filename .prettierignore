@@ -10,5 +10,6 @@ prisma/migrations/
 .*
 yarn.lock
 README*
+*.md 
 
 

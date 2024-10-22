@@ -52,6 +52,7 @@ const config = [
       ".*",
       "yarn.lock",
       "README * ",
+      "*.md",
     ],
   },
 ];
