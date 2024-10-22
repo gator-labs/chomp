@@ -1,13 +1,11 @@
 "use client";
 
-import gatorHeadImage from "@/public/images/gator-head.png";
 import { CircleArrowRight } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
-import Image from "next/image";
 
+import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 import { Button } from "../ui/button";
 import { QUESTION_CARD_CONTENT } from "./constants";
-import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type NoQuestionsCardProps = {
   variant:

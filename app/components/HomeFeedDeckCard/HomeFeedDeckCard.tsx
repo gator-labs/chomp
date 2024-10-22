@@ -1,13 +1,13 @@
 "use client";
 
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
 import classNames from "classnames";
 import Image from "next/image";
 
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import CardsIcon from "../Icons/CardsIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
-import trackEvent from "@/lib/trackEvent";
-import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 
 type StatusUnion = "chomped" | "new" | "continue";
 type HomeFeedDeckCardProps = {

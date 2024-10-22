@@ -45,11 +45,11 @@ export const genBonkBurnTx = async (
   // Verify the estimateFee is not null due to RPC request failure in some cases
   if (estimateFee === null) {
     for (let i = 0; i < 2; i++) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       estimateFee = await getRecentPrioritizationFees(tx);
       if (estimateFee !== null) break;
     }
-    
+
     // Set median priority fee if estimateFee is still null
     if (estimateFee === null) {
       estimateFee = {
@@ -61,7 +61,7 @@ export const genBonkBurnTx = async (
       };
     }
   }
-  
+
   const computeUnitFix = 5000;
 
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({

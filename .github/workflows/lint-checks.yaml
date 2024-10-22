@@ -1,0 +1,40 @@
+name: Code Quality Check
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Prettier
+        run: |
+          npm run check-format || (
+            echo '❌ Prettier Check Failed. Run yarn format, add changes, and try again.'
+            exit 1
+          )
+
+      - name: Run ESLint
+        run: |
+          npm run lint || (
+            echo '❌ ESLint Check Failed. Please fix the issues listed above.'
+            exit 1
+          )
+
+      - name: TypeScript type check
+        run: |
+          npm run check-types || (
+            echo '❌ TypeScript type check failed. Please resolve the errors.'
+            exit 1
+          )

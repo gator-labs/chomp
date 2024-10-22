@@ -1,7 +1,5 @@
-import { cn } from "@/app/utils/tailwind";
 import Image from "next/image";
 
-import gatorHeadImage from "../../../public/images/gator-head.png";
 import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type PreviewDeckCardProps = {

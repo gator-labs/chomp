@@ -6,6 +6,7 @@ import "react-spring-bottom-sheet/dist/style.css";
 
 import LinkProgressBar from "./components/LinkProgressBar/LinkProgressBar";
 import MobileChromeDetector from "./components/MobileChromeDetector/MobileChromeDetector";
+import TrackPageView from "./components/TrackPageView/TrackPageView";
 import { ClaimProvider } from "./providers/ClaimProvider";
 import DynamicProvider from "./providers/DynamicProvider";
 import ReactQueryProvider from "./providers/ReactQueryProvider";
@@ -13,7 +14,6 @@ import { RevealContextProvider } from "./providers/RevealProvider";
 import { ToastProvider } from "./providers/ToastProvider";
 import { getCurrentUser } from "./queries/user";
 import { getBonkBalance } from "./utils/solana";
-import TrackPageView from "./components/TrackPageView/TrackPageView";
 
 export const viewport: Viewport = {
   minimumScale: 1,

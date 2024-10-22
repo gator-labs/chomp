@@ -12,7 +12,6 @@ import {
   useState,
 } from "react";
 
-import gatorHeadImage from "../../../public/images/gator-head.png";
 import { useInterval } from "../../hooks/useInterval";
 import {
   ONE_SECOND_IN_MILLISECONDS,
@@ -72,10 +71,13 @@ export function QuestionCard({
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILLISECONDS);
 
   return (
-    <QuestionCardLayout className={className} style={{
-      ...style,
-      position: "relative",
-    }}>
+    <QuestionCardLayout
+      className={className}
+      style={{
+        ...style,
+        position: "relative",
+      }}
+    >
       <p
         className={classNames("text-white  text-2xl max-w-[330px] z-10", {
           "blur-sm": isBlurred,
@@ -121,7 +123,6 @@ export function QuestionCard({
           </div>
         )}
       </div>
-
     </QuestionCardLayout>
   );
 }
