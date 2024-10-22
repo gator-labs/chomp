@@ -20,7 +20,7 @@ jobs:
 
       - name: Run Prettier
         run: |
-          npm run check-format || (
+          npm run format || (
             echo '❌ Prettier Check Failed. Run yarn format, add changes, and try again.'
             exit 1
           )
