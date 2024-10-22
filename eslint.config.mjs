@@ -51,7 +51,6 @@ const config = [
       "scripts",
       ".*",
       "yarn.lock",
-      "README * ",
       "*.md",
     ],
   },
