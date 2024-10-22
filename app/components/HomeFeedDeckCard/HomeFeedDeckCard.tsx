@@ -6,6 +6,8 @@ import Image from "next/image";
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import CardsIcon from "../Icons/CardsIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
+import trackEvent from "@/lib/trackEvent";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 
 type StatusUnion = "chomped" | "new" | "continue";
 type HomeFeedDeckCardProps = {
@@ -45,6 +47,13 @@ export function HomeFeedDeckCard({
   return (
     <a
       href={date ? `/daily-deck` : `application/decks/${deckId}`}
+      onClick={() => {
+        trackEvent(TRACKING_EVENTS.DECK_CLICKED, {
+          [TRACKING_METADATA.DECK_ID]: deckId,
+          [TRACKING_METADATA.DECK_NAME]: deck,
+          [TRACKING_METADATA.IS_DAILY_DECK]: date ? true : false,
+        });
+      }}
       className="bg-gray-700 border-gray-500 rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
       <div className="w-[90px] h-[90px] flex-shrink-0 relative">
