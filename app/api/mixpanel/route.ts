@@ -25,7 +25,7 @@ function getIPAddress(headersList: ReadonlyHeaders) {
   return headersList.get("x-real-ip") ?? FALLBACK_IP_ADDRESS;
 }
 
-async function handleUtmParams(userId: string, properties: any) {
+async function handleUtmParams(userId: string, properties: any, deviceId: string) {
   const utmParams = {
     utm_source: properties.$utm_source,
     utm_medium: properties.$utm_medium,
@@ -34,10 +34,15 @@ async function handleUtmParams(userId: string, properties: any) {
     utm_content: properties.$utm_content,
   };
 
-  // Get stored UTM data from KV
-  const storedUtmData = await kv.get(`utm:${userId}`) as UtmData | null;
-  let initialUtm = storedUtmData?.initial_utm || {};
-  let lastUtm = storedUtmData?.last_utm || {};
+  // Get stored UTM data from KV for both user and device
+  const [userUtmData, deviceUtmData] = await Promise.all([
+    kv.get(`utm:${userId}`) as Promise<UtmData | null>,
+    kv.get(`utm:${deviceId}`) as Promise<UtmData | null>
+  ]);
+
+  // Always prioritize device's initial UTM if it exists
+  let initialUtm = deviceUtmData?.initial_utm || userUtmData?.initial_utm || {};
+  let lastUtm = userUtmData?.last_utm || {};
 
   // Check if any new UTM parameters are provided
   const hasNewUtmParams = Object.values(utmParams).some(
@@ -49,7 +54,7 @@ async function handleUtmParams(userId: string, properties: any) {
   );
 
   // Update initial and last UTM data
-  if (!storedUtmData || hasNewUtmParams) {
+  if (!userUtmData || hasNewUtmParams) {
     initialUtm = Object.keys(initialUtm).length > 0 ? initialUtm : utmParamsWithoutUndefined;
     lastUtm = hasNewUtmParams ? utmParamsWithoutUndefined : lastUtm;
 
@@ -58,7 +63,7 @@ async function handleUtmParams(userId: string, properties: any) {
       (key) => lastUtm[key] === undefined && delete lastUtm[key],
     );
 
-    // Store updated UTM data in KV
+    // Store updated UTM data in KV for the user
     await kv.set(`utm:${userId}`, {
       initial_utm: initialUtm,
       last_utm: lastUtm,
@@ -103,7 +108,7 @@ export async function POST(request: NextRequest) {
 
     if (!currentUser) {
       // Pre-login user tracking
-      const { initialUtm, lastUtm } = await handleUtmParams(deviceId, properties);
+      const { initialUtm, lastUtm } = await handleUtmParams(deviceId, properties, deviceId);
 
       mixpanel.track(event, {
         ...properties,
@@ -121,7 +126,7 @@ export async function POST(request: NextRequest) {
       });
     } else {
       // Post-login user tracking
-      const { initialUtm, lastUtm } = await handleUtmParams(currentUser.id, properties);
+      const { initialUtm, lastUtm } = await handleUtmParams(currentUser.id, properties, deviceId);
 
       const {
         $utm_source,
