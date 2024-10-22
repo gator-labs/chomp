@@ -2,8 +2,19 @@ import { NextRequest } from 'next/server';
 import Mixpanel from 'mixpanel';
 import { POST } from './route';
 import { getCurrentUser } from "@/app/queries/user";
+import { cookies } from 'next/headers';
+import { v4 as uuidv4 } from 'uuid';
 
 // Mock dependencies
+jest.mock('next/headers', () => ({
+  cookies: jest.fn(() => ({
+    get: jest.fn(),
+    set: jest.fn(),
+  })),
+}));
+jest.mock('uuid', () => ({
+  v4: jest.fn(),
+}));
 jest.mock('@/lib/kv');
 jest.mock('mixpanel', () => {
   return {
@@ -19,12 +30,23 @@ jest.mock('@/app/queries/user', () => ({
 describe('Mixpanel tracking route', () => {
   let mockRequest: NextRequest;
   let mockMixpanelTrack: jest.Mock;
+  let mockCookies: {
+    get: jest.Mock;
+    set: jest.Mock;
+  };
   
   beforeEach(() => {
     jest.resetAllMocks();
     mockMixpanelTrack = jest.fn();
     (Mixpanel.init as jest.Mock).mockReturnValue({ track: mockMixpanelTrack });
     (getCurrentUser as jest.Mock).mockResolvedValue(null);
+
+    mockCookies = {
+      get: jest.fn(),
+      set: jest.fn(),
+    };
+    (cookies as jest.Mock).mockReturnValue(mockCookies);
+    (uuidv4 as jest.Mock).mockReturnValue('mock-device-id');
 
     // Mock Request with utm params as property
     mockRequest = {
