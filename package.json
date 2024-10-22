@@ -36,6 +36,7 @@
     "@dotlottie/react-player": "^1.6.19",
     "@dynamic-labs/global-wallet": "^3.4.2",
     "@dynamic-labs/sdk-react-core": "^3.4.2",
+    "@dynamic-labs/solana": "^3.4.2",
     "@dynamic-labs/solana-core": "^3.4.2",
     "@hookform/resolvers": "^3.3.4",
     "@metaplex-foundation/digital-asset-standard-api": "^1.0.3",
