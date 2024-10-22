@@ -29,6 +29,7 @@ export const TRACKING_EVENTS = {
   PAGE_VIEW: "PageView",
   WELCOME_BACK_ANSWER_BUTTON_CLICKED: "WelcomeBackAnswerButtonClicked",
   WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
+  DECK_CLICKED: "DeckClicked",
 } as const;
 
 export const TRACKING_METADATA = {
