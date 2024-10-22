@@ -13,6 +13,7 @@ import { RevealContextProvider } from "./providers/RevealProvider";
 import { ToastProvider } from "./providers/ToastProvider";
 import { getCurrentUser } from "./queries/user";
 import { getBonkBalance } from "./utils/solana";
+import TrackPageView from "./components/TrackPageView/TrackPageView";
 
 export const viewport: Viewport = {
   minimumScale: 1,
@@ -68,6 +69,7 @@ export default async function RootLayout({
           </DynamicProvider>
         </ReactQueryProvider>
         <Analytics />
+        <TrackPageView />
       </body>
     </html>
   );
