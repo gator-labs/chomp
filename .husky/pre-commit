@@ -1,6 +1,3 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 echo 'Styling and testing before committing...'
 
 # Check Prettier standards
