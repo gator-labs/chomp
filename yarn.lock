@@ -1717,29 +1717,29 @@
   dependencies:
     "@dotlottie/common" "0.7.11"
 
-"@dynamic-labs/assert-package-version@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/assert-package-version/-/assert-package-version-3.4.0.tgz#fcc5768420a6f548a89c8741bf59614363e9a02c"
-  integrity sha512-B/koaoB5enM7w0DhwQq6MxCQ5zSbE6FIUYTAnaE7MqVZv5IKrlFCxcMp608T0bHJ0xVb2pVnmK29V8E7PT1Lcg==
+"@dynamic-labs/assert-package-version@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/assert-package-version/-/assert-package-version-3.4.2.tgz#6d2db6e1686a3a8a03d3d41249037b48f3c1f2a0"
+  integrity sha512-vWri9uG6fmSin6eNGak/uI0cvVpKte2yrCvrRUi4bO4hdu7opno8qv5psh9EjOG40/wnmp8x2r3aL9QB2uoUcQ==
   dependencies:
-    "@dynamic-labs/logger" "3.4.0"
+    "@dynamic-labs/logger" "3.4.2"
 
-"@dynamic-labs/embedded-wallet-solana@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/embedded-wallet-solana/-/embedded-wallet-solana-3.4.0.tgz#a87aa5d1f90e202065bd493b9bb93df1b88764cd"
-  integrity sha512-/M+Ns+Yj8TL7zEgqhoCpDEerJoR/k6yGRzC1fPMXN1dRCbg5sG/KXfBe1LOvAp+PLcr0YhZxQRed7B1oyyCmfA==
+"@dynamic-labs/embedded-wallet-solana@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/embedded-wallet-solana/-/embedded-wallet-solana-3.4.2.tgz#a230319ac49ee77b9b60aff9b75557ecc97a701a"
+  integrity sha512-vYG6XFu0HMR47J1yY6qBIVfdueE6zHsFDpVOqBapUqkFZ1BbuImSEnB5IpYwQIXemAWhP2t9zbZQely4MHxFbw==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/embedded-wallet" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
-    "@dynamic-labs/rpc-providers" "3.4.0"
-    "@dynamic-labs/sdk-api-core" "0.0.545"
-    "@dynamic-labs/solana-core" "3.4.0"
-    "@dynamic-labs/types" "3.4.0"
-    "@dynamic-labs/utils" "3.4.0"
-    "@dynamic-labs/wallet-book" "3.4.0"
-    "@dynamic-labs/wallet-connector-core" "3.4.0"
-    "@dynamic-labs/webauthn" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/embedded-wallet" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
+    "@dynamic-labs/rpc-providers" "3.4.2"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
+    "@dynamic-labs/solana-core" "3.4.2"
+    "@dynamic-labs/types" "3.4.2"
+    "@dynamic-labs/utils" "3.4.2"
+    "@dynamic-labs/wallet-book" "3.4.2"
+    "@dynamic-labs/wallet-connector-core" "3.4.2"
+    "@dynamic-labs/webauthn" "3.4.2"
     "@solana/spl-token" "0.4.6"
     "@solana/web3.js" "1.92.1"
     "@turnkey/http" "2.12.2"
@@ -1750,97 +1750,92 @@
     react-dom "18.2.0"
     viem "2.9.25"
 
-"@dynamic-labs/embedded-wallet@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/embedded-wallet/-/embedded-wallet-3.4.0.tgz#2b2ce33ff6679be11f9ef7930ecd77745b1a8c2a"
-  integrity sha512-NyMYqirYwlJJKUIny0xZWeyfy6SUV99lkkzQuhgoioKK5a6rjHjm8y9KCzsKKqlggxc4sGNJWwK4tsAXoWgiJw==
+"@dynamic-labs/embedded-wallet@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/embedded-wallet/-/embedded-wallet-3.4.2.tgz#ba531ec81bafccb85f1ab04e5371a4281beb21bb"
+  integrity sha512-NGLcW5znJ9GC1UcyafW20NGf2XtrdPeM7a7w+c2c+jfK79x1GcBRdHhedqjqH1d/hv/XSOVVJJTWHPFpbftpYQ==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
-    "@dynamic-labs/sdk-api-core" "0.0.545"
-    "@dynamic-labs/utils" "3.4.0"
-    "@dynamic-labs/wallet-book" "3.4.0"
-    "@dynamic-labs/wallet-connector-core" "3.4.0"
-    "@dynamic-labs/webauthn" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
+    "@dynamic-labs/utils" "3.4.2"
+    "@dynamic-labs/wallet-book" "3.4.2"
+    "@dynamic-labs/wallet-connector-core" "3.4.2"
+    "@dynamic-labs/webauthn" "3.4.2"
     "@turnkey/api-key-stamper" "0.4.1"
     "@turnkey/http" "2.12.2"
     "@turnkey/iframe-stamper" "2.0.0"
     "@turnkey/webauthn-stamper" "0.5.0"
 
-"@dynamic-labs/global-wallet@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/global-wallet/-/global-wallet-3.4.0.tgz#2f6bf20de722a4d936bff47719056da62039d921"
-  integrity sha512-u37RDHkD9aljxi1u5I5G2OGesOBYO9TPL7PPhTlF+eiGcCfWfGefNSE9lVopdXiiOs5CGS2kwpUIXcNKK9p7hA==
+"@dynamic-labs/global-wallet@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/global-wallet/-/global-wallet-3.4.2.tgz#3a429c32dd2a77697bf41263539434680dd41a3a"
+  integrity sha512-yKwS2bSB3eUktAsmqnvcuiwnH/RF9C4afbYNgYUACh6sHWJx2rbLwvLSvrrNF23rNxc+egQBxxBFShHXRMtIAw==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/wallet-connector-core" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/wallet-connector-core" "3.4.2"
     "@walletconnect/core" "2.13.1"
     "@walletconnect/utils" "2.13.1"
     "@walletconnect/web3wallet" "1.12.1"
     jsqr "1.4.0"
 
-"@dynamic-labs/iconic@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/iconic/-/iconic-3.4.0.tgz#823b05df5816b007d03a490efd24ee7e348c7c2a"
-  integrity sha512-l3w8Bui4hoto7Mht6jZI5cSsV+Eid+uTqpqqJ0iYEgXdjXZVDwLItRKXVwVPe99VV90wcZnsNeDfC0y/FinSKw==
+"@dynamic-labs/iconic@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/iconic/-/iconic-3.4.2.tgz#3e113698cea1cd1f4bad3aaed9e72d497e96d130"
+  integrity sha512-1G2vaqun/jXG/sgksG6LLjFTHzy50B0pI3PtH+dk1ra57SObMbX5tyBobYvJcn51hM5NO2IJ4aBeUlvZYDDuJQ==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
     sharp "0.33.2"
 
-"@dynamic-labs/logger@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/logger/-/logger-3.4.0.tgz#f0ba7a939d975143e0cba834063436b07af72eef"
-  integrity sha512-H0ROgiAFAhDrAXoUSWlw5bTri28vJfFJlRlrQNkbxyAbiCUPp3Uj+TRk9CJzVU41oisJ878IP3JGxhgdnCpk/g==
+"@dynamic-labs/logger@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/logger/-/logger-3.4.2.tgz#0b2bb8837ee44a0d141658c2e6c946cc049c01a7"
+  integrity sha512-UV7TiT9UMEI7b+1yMBWDu6EPJQeT+/6Cf40D5HomdTIWl1+s3duQ/Y5V9KOqBys203NKbD+a1Py+vYh0Bnsmyw==
 
-"@dynamic-labs/multi-wallet@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/multi-wallet/-/multi-wallet-3.4.0.tgz#336756bfd70bdc2bf06505ffa7c09c749d67c3e0"
-  integrity sha512-e8nXqOlknyTXyiy/H1R/fveJXUL0ByUCqQfqVhWwCZVEWKJtCg2hG367/XpGGAMdfIbPwJE8RTJnG6cIM3Wrog==
+"@dynamic-labs/multi-wallet@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/multi-wallet/-/multi-wallet-3.4.2.tgz#7e52a17d395129b948a1311ac0bdac7e34efd2a4"
+  integrity sha512-/9OQx3fkAtImyVLWg61aTOSHUwhM4QykPPE9K3L0tIG3OY7JqwJKs2IUYb/6gRKxBaR50rGmvZFFV4chxz5Smg==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/rpc-providers" "3.4.0"
-    "@dynamic-labs/sdk-api-core" "0.0.545"
-    "@dynamic-labs/types" "3.4.0"
-    "@dynamic-labs/utils" "3.4.0"
-    "@dynamic-labs/wallet-book" "3.4.0"
-    "@dynamic-labs/wallet-connector-core" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/rpc-providers" "3.4.2"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
+    "@dynamic-labs/types" "3.4.2"
+    "@dynamic-labs/utils" "3.4.2"
+    "@dynamic-labs/wallet-book" "3.4.2"
+    "@dynamic-labs/wallet-connector-core" "3.4.2"
     tslib "2.4.1"
 
-"@dynamic-labs/rpc-providers@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/rpc-providers/-/rpc-providers-3.4.0.tgz#dac8f6c4a0f2d578c29ace777898cb2380dbd7e1"
-  integrity sha512-ppY0Y5iClRwITONVHJwiGBVSXXT9R4ygg9c8A81sBifrxN1znyBtPrnMl2+IVPFPIEQ/GCvCWplmbR4zftpPnw==
+"@dynamic-labs/rpc-providers@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/rpc-providers/-/rpc-providers-3.4.2.tgz#5946e0106c961de8c2cfc8c7e8dff5afbacd0151"
+  integrity sha512-i1L2vrr+a3dPmSgwku8CEZqSot6WnfHMi6PLTX0iJV6/bdt3wWW2khw+BLZezX0ZgmgPmAR+MiQ8W4SWtPb93Q==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/types" "3.4.0"
-
-"@dynamic-labs/sdk-api-core@0.0.545":
-  version "0.0.545"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-api-core/-/sdk-api-core-0.0.545.tgz#775da85b84955a779a2f03fd2abde4a81646a8c3"
-  integrity sha512-1FgXDohfzalYvxi7nMmxMzmmp773ohvU/oPeT+9BAYP4ufANWLGU74CnD5iBYCL2fT1eW8ZQBy7VVjvEfpMg4A==
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/types" "3.4.2"
 
 "@dynamic-labs/sdk-api-core@0.0.547":
   version "0.0.547"
   resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-api-core/-/sdk-api-core-0.0.547.tgz#d81d5693b522cec28f1702bbdf2fc2c9ee36409a"
   integrity sha512-r0QR1grJRWHkHj0JY+3bMlF5FiA2kvb9eLppD04DcMfDdeSTrPr/iSliIPYHEPx913S/BMDkKqDkqjYye4iQKw==
 
-"@dynamic-labs/sdk-react-core@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-react-core/-/sdk-react-core-3.4.0.tgz#e1e29e34bfdf4b419cbf5b0badcaf38c684764f2"
-  integrity sha512-DvE38nZf7TIO4iocAvoKbfuISdYq/vabYvB/E1ngncKvY81m9qgyZfdwLWdW8su3ybG/lbOdQrCCT+lCZWov6A==
+"@dynamic-labs/sdk-react-core@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-react-core/-/sdk-react-core-3.4.2.tgz#2e4c7f66fae662168f6ea12918e83906c4e7cab1"
+  integrity sha512-3IXgwLoRjcUd8Gipp3HOZ9KmFLteG3/+idSpglQztL9diKxgDLx5Uh/97jSX0oCYfp0Mb0WmcW6NpMrGrFe8rg==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/iconic" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
-    "@dynamic-labs/multi-wallet" "3.4.0"
-    "@dynamic-labs/rpc-providers" "3.4.0"
-    "@dynamic-labs/sdk-api-core" "0.0.545"
-    "@dynamic-labs/store" "3.4.0"
-    "@dynamic-labs/types" "3.4.0"
-    "@dynamic-labs/utils" "3.4.0"
-    "@dynamic-labs/wallet-book" "3.4.0"
-    "@dynamic-labs/wallet-connector-core" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/iconic" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
+    "@dynamic-labs/multi-wallet" "3.4.2"
+    "@dynamic-labs/rpc-providers" "3.4.2"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
+    "@dynamic-labs/store" "3.4.2"
+    "@dynamic-labs/types" "3.4.2"
+    "@dynamic-labs/utils" "3.4.2"
+    "@dynamic-labs/wallet-book" "3.4.2"
+    "@dynamic-labs/wallet-connector-core" "3.4.2"
     "@hcaptcha/react-hcaptcha" "1.4.4"
     country-list "2.3.0"
     eventemitter3 "5.0.1"
@@ -1852,38 +1847,29 @@
     react-international-phone "4.2.5"
     yup "0.32.11"
 
-"@dynamic-labs/solana-core@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/solana-core/-/solana-core-3.4.0.tgz#3af0e3f971b754dfef11526500e3178e28872f4d"
-  integrity sha512-4Iwfu1IvohRyp8y+t+QhFkjlP/jeMGvu/KCk/C/W3QjaVYMmDYIwqvqk9Wc/23XTk1Grgf83b1hp3QGuhOg+YA==
-  dependencies:
-    "@dynamic-labs/sdk-api-core" "0.0.545"
-    "@solana/spl-token" "0.4.6"
-    "@solana/web3.js" "1.92.1"
-
-"@dynamic-labs/solana-core@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/solana-core/-/solana-core-3.4.1.tgz#4793cd94aa6f4a0b4d706f90d6fc15ca8a1ad6f3"
-  integrity sha512-h2W5HJTwkMF+SQIsGlkhjSdZ1d98hRrCLB17Wlq9bxRznVYvq8DZHzSOTg+HeQja2TQoSiZt+ul2gTQAqKIL4w==
+"@dynamic-labs/solana-core@3.4.2", "@dynamic-labs/solana-core@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/solana-core/-/solana-core-3.4.2.tgz#344fbb58afadfbad1563269dbb3e06da64fac6d3"
+  integrity sha512-hS0stiqXPVKzCZm4+hM3y1Ljf4tY2NpDyZhkhbUfhqGHItHuRKF7gx9plfYeRbDY2hVOK75FnawRnhqS3wIgLQ==
   dependencies:
     "@dynamic-labs/sdk-api-core" "0.0.547"
     "@solana/spl-token" "0.4.6"
     "@solana/web3.js" "1.92.1"
 
-"@dynamic-labs/solana@^3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/solana/-/solana-3.4.0.tgz#b2599d3c367d04a94acecdaddda5ba46e82b5937"
-  integrity sha512-6EP0ZHaVch/7gsuL4cIgiacyypRlfu9qRSNhYKUqxrk1Hz7x3hGimP4sB42kSOckyZRXbTBBLU2gY1XLzUYInQ==
+"@dynamic-labs/solana@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/solana/-/solana-3.4.2.tgz#7ae275492fcc12371da529767fef30cd9cebbe0c"
+  integrity sha512-tsN6CbcdrUdUsDEbvA1dxzBsCL1lJ8Tgjm3v5erRiFqVPudqDUp+FUZvRRytZoRYkH7YK5hvE+B7U0bAcPGc/Q==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/embedded-wallet-solana" "3.4.0"
-    "@dynamic-labs/rpc-providers" "3.4.0"
-    "@dynamic-labs/sdk-api-core" "0.0.545"
-    "@dynamic-labs/solana-core" "3.4.0"
-    "@dynamic-labs/types" "3.4.0"
-    "@dynamic-labs/utils" "3.4.0"
-    "@dynamic-labs/wallet-book" "3.4.0"
-    "@dynamic-labs/wallet-connector-core" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/embedded-wallet-solana" "3.4.2"
+    "@dynamic-labs/rpc-providers" "3.4.2"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
+    "@dynamic-labs/solana-core" "3.4.2"
+    "@dynamic-labs/types" "3.4.2"
+    "@dynamic-labs/utils" "3.4.2"
+    "@dynamic-labs/wallet-book" "3.4.2"
+    "@dynamic-labs/wallet-connector-core" "3.4.2"
     "@solana/web3.js" "1.92.1"
     "@wallet-standard/app" "1.0.1"
     "@wallet-standard/base" "1.0.1"
@@ -1892,61 +1878,61 @@
     bs58 "5.0.0"
     tweetnacl "1.0.3"
 
-"@dynamic-labs/store@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/store/-/store-3.4.0.tgz#70fd29f06e89f322168dcbf6c2fc9b44e61b6e82"
-  integrity sha512-0HLHUr1RMxLfoyKDh4hZS4PV7MlIPzDw4jN/5lCo/u+b1omf4Tqb4905hGQ15b/b5ni9Yd3+sRYyrtmIxmZ//A==
+"@dynamic-labs/store@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/store/-/store-3.4.2.tgz#d91ee648a38548ba4d034f0965f8e6952268553d"
+  integrity sha512-WYiALr/15wiKSMU5pm06w0A3hOW2dD5jOZOproima8Zk2I2KOKcMT5wkSC7/CH5EKFpuOgTPCgf6RVdMYViOyQ==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
 
-"@dynamic-labs/types@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/types/-/types-3.4.0.tgz#82004038efe1d4e2257b7b391d851bed7c3b1fd8"
-  integrity sha512-wxmVyYgaDSXsU7u77De+DVsV69QvZ4MvbmXa0/nx/or1xFJyHlWzNTeAs37oL5nOJVhWfwHeP7lsBLezxuaEtw==
+"@dynamic-labs/types@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/types/-/types-3.4.2.tgz#08e83b4fa28006c8645e19a4bd54e73b82116c19"
+  integrity sha512-Fhpmd+2RFHcOvLSr1Dqam+3kBH0o67qSYIVcdKyhZqiZWzHHkEB8Ssw1Cu1zEmKIRXdH+zP5MUNopT2tBGfeUg==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/sdk-api-core" "0.0.545"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
 
-"@dynamic-labs/utils@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/utils/-/utils-3.4.0.tgz#5f1c5ff446ab5d09db9e8395f1a5bad1ab64c995"
-  integrity sha512-KuV28IIyCAWPJBMmPxKQzF2HdU0C0/UayXDTp+SlRG7MokhxzKAh+ft+BiwWJ5WA/rgNFD53Iom4xRkIMGjTZQ==
+"@dynamic-labs/utils@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/utils/-/utils-3.4.2.tgz#b3fa01c5b56e9d12daa2560813b12be8091a1848"
+  integrity sha512-LYPAw6yCtp2hdLd+mWyRBQQBvd/SdL+QaipAbl/0ROG14lIBfd2i44jA0shIG/FLu+wPM+BZ5buP/RHi5rOIzA==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
-    "@dynamic-labs/sdk-api-core" "0.0.545"
-    "@dynamic-labs/types" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
+    "@dynamic-labs/types" "3.4.2"
     buffer "6.0.3"
     eventemitter3 "5.0.1"
     tldts "6.0.16"
 
-"@dynamic-labs/wallet-book@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/wallet-book/-/wallet-book-3.4.0.tgz#987249302f26fd45ca8e23e368a13ac066e87340"
-  integrity sha512-tviyRcuayleojzUxAFHYnRSnK4UjtyOfP6VeFZlQuVHsIfScn2b2reEU1U3VJHowbs4VsyXomsnutBXqB8FV/A==
+"@dynamic-labs/wallet-book@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/wallet-book/-/wallet-book-3.4.2.tgz#08ea70efa819b3b913ffe99e36b23d03df355ac5"
+  integrity sha512-/RVvSRQylnE1dxwLnzRUJvVFHFmylMHEw6zxkuRRhbE9QVnTzYJG25jrBF+aBRt1DMuldvwZhBFW8GCAKNpSvQ==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/iconic" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
-    "@dynamic-labs/utils" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/iconic" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
+    "@dynamic-labs/utils" "3.4.2"
     util "0.12.5"
     zod "3.22.4"
 
-"@dynamic-labs/wallet-connector-core@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/wallet-connector-core/-/wallet-connector-core-3.4.0.tgz#554dcc7effaff9aaf8ba2b848817d0ee4dfbcf4f"
-  integrity sha512-TKNqtcmdLbYlBqME8HnAEPWEGmyPLsjNn+TqjNPCUgEhK6KbZ6UkBsJkDd1YMK/tTvB4azDTTMeFQBHI+Dm/mQ==
+"@dynamic-labs/wallet-connector-core@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/wallet-connector-core/-/wallet-connector-core-3.4.2.tgz#40dd13fe3c83d7736e481154234cdf141c4a85cf"
+  integrity sha512-2zCs/AEVClbYg2MiuuR7UjYq4XC8vCifIe5mYd09hrh08mNYsQLjRF+Xf4zmtIaN9/Kwt8T87pDqozVfonLewg==
   dependencies:
-    "@dynamic-labs/sdk-api-core" "0.0.545"
+    "@dynamic-labs/sdk-api-core" "0.0.547"
 
-"@dynamic-labs/webauthn@3.4.0":
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/@dynamic-labs/webauthn/-/webauthn-3.4.0.tgz#95b57e92a0a6a4784eb31d890a4e06fecae2425d"
-  integrity sha512-m5w4VtNEKie2AVu2wuRdjUDRfk67tBrPztPP7kx6BYvaHT84lXUHt1ZymPN4dxYnR4EFdRKLleUI4OBeicZJyw==
+"@dynamic-labs/webauthn@3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@dynamic-labs/webauthn/-/webauthn-3.4.2.tgz#a36db2ac53046f07eca961159f2ca50d22e5e5b7"
+  integrity sha512-uVA0eYuv1rHRorVB4uttwjjYZ/3Pps5DN+2nUAeRJwvYvYMqsRHc61TL7vtsjXb6q1VWth+WYrKjU6mxfTvsMA==
   dependencies:
-    "@dynamic-labs/assert-package-version" "3.4.0"
-    "@dynamic-labs/logger" "3.4.0"
+    "@dynamic-labs/assert-package-version" "3.4.2"
+    "@dynamic-labs/logger" "3.4.2"
     "@simplewebauthn/browser" "9.0.1"
     "@simplewebauthn/types" "9.0.1"
 
@@ -4946,10 +4932,31 @@
     rpc-websockets "^7.11.1"
     superstruct "^1.0.4"
 
-"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.88.1", "@solana/web3.js@^1.91.8":
+"@solana/web3.js@^1.32.0", "@solana/web3.js@^1.91.8":
   version "1.95.3"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.95.3.tgz#70b5f4d76823f56b5af6403da51125fffeb65ff3"
   integrity sha512-O6rPUN0w2fkNqx/Z3QJMB9L225Ex10PRDH8bTaIUPZXMPV0QP8ZpPvjQnXK+upUczlRgzHzd6SjKIha1p+I6og==
+  dependencies:
+    "@babel/runtime" "^7.25.0"
+    "@noble/curves" "^1.4.2"
+    "@noble/hashes" "^1.4.0"
+    "@solana/buffer-layout" "^4.0.1"
+    agentkeepalive "^4.5.0"
+    bigint-buffer "^1.1.5"
+    bn.js "^5.2.1"
+    borsh "^0.7.0"
+    bs58 "^4.0.1"
+    buffer "6.0.3"
+    fast-stable-stringify "^1.0.0"
+    jayson "^4.1.1"
+    node-fetch "^2.7.0"
+    rpc-websockets "^9.0.2"
+    superstruct "^2.0.2"
+
+"@solana/web3.js@^1.88.1":
+  version "1.95.4"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.95.4.tgz#771603f60d75cf7556ad867e1fd2efae32f9ad09"
+  integrity sha512-sdewnNEA42ZSMxqkzdwEWi6fDgzwtJHaQa5ndUGEJYtoOnM6X5cvPmjoTUp7/k7bRrVAxfBgDnvQQHD6yhlLYw==
   dependencies:
     "@babel/runtime" "^7.25.0"
     "@noble/curves" "^1.4.2"
