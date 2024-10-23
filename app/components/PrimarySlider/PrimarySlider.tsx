@@ -28,7 +28,7 @@ const PrimarySlider = ({
   return (
     <Slider.Root
       className={classNames(
-        "relative flex items-center select-none touch-none w-full min-h-5",
+        "relative flex items-center select-none touch-none w-full",
         className,
       )}
       defaultValue={[50]}
@@ -39,7 +39,7 @@ const PrimarySlider = ({
     >
       <Slider.Track
         className={classNames(
-          "relative grow rounded-[10px] h-[36px] overflow-hidden bg-pink",
+          "relative grow rounded-[10px] h-full overflow-hidden bg-pink",
           trackClassName,
         )}
         style={{
@@ -48,7 +48,7 @@ const PrimarySlider = ({
       >
         <Slider.Range
           className={classNames(
-            "absolute rounded-l-lg h-[36px] bg-dark-purple-500",
+            "absolute rounded-l-lg h-full bg-dark-purple-500",
             rangeClassName,
           )}
           style={{
@@ -62,8 +62,8 @@ const PrimarySlider = ({
           aria-label="Volume"
         >
           <div className="flex justify-around w-full h-full items-center">
-            <div className="w-[2px] h-1/3 bg-gray " />
-            <div className="w-[2px] h-1/3 bg-gray " />
+            <div className="w-[2px] h-1/3 bg-gray" />
+            <div className="w-[2px] h-1/3 bg-gray" />
           </div>
         </Slider.Thumb>
       )}
