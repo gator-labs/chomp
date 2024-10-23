@@ -7,12 +7,15 @@ import * as Sentry from "@sentry/nextjs";
 import { clearJwt } from "../actions/jwt";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "../constants/tracking";
 import { LoginError } from "../utils/error";
+import { usePathname } from "next/navigation";
+
 
 export default function DynamicProvider({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
   return (
     <DynamicContextProvider
       theme="dark"
@@ -21,7 +24,9 @@ export default function DynamicProvider({
         walletConnectors: [SolanaWalletConnectors],
         eventsCallbacks: {
           onLogout: () => {
-            clearJwt();
+            if (pathname !== "/bot") {
+              clearJwt();
+            }
           },
           onAuthFlowOpen() {
             trackEvent(TRACKING_EVENTS.LOGIN_STARTED);
