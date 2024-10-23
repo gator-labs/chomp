@@ -1,20 +1,20 @@
-"use server";
+'use server';
 
-import { ChompResult, ResultType } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
-import { Keypair, PublicKey } from "@solana/web3.js";
-import base58 from "bs58";
-import { revalidatePath } from "next/cache";
-import prisma from "../services/prisma";
-import { sendBonk } from "../utils/bonk";
-import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
-import { ClaimError } from "../utils/error";
-import { acquireMutex } from "../utils/mutex";
-import { getBonkBalance, getSolBalance } from "../utils/solana";
-import { getJwtPayload } from "./jwt";
+import { ChompResult, ResultType } from '@prisma/client';
+import * as Sentry from '@sentry/nextjs';
+import { Keypair, PublicKey } from '@solana/web3.js';
+import base58 from 'bs58';
+import { revalidatePath } from 'next/cache';
+import prisma from '../services/prisma';
+import { sendBonk } from '../utils/bonk';
+import { ONE_MINUTE_IN_MILLISECONDS } from '../utils/dateUtils';
+import { ClaimError } from '../utils/error';
+import { acquireMutex } from '../utils/mutex';
+import { getBonkBalance, getSolBalance } from '../utils/solana';
+import { getJwtPayload } from './jwt';
 
 export async function claimQuestion(questionId: number) {
-  console.log("claim questions fired");
+  console.log('claim questions fired');
   const questions = await claimQuestions([questionId]);
   return questions ? questions : null;
 }
@@ -29,7 +29,7 @@ export async function getClaimableQuestionIds(): Promise<number[]> {
   const claimableQuestions = await prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
-      result: "Revealed",
+      result: 'Revealed',
       questionId: { not: null },
       rewardTokenAmount: {
         gt: 0,
@@ -41,7 +41,7 @@ export async function getClaimableQuestionIds(): Promise<number[]> {
   });
 
   return claimableQuestions.map(
-    (claimableQuestion) => claimableQuestion.questionId!,
+    claimableQuestion => claimableQuestion.questionId!
   );
 }
 
@@ -55,7 +55,7 @@ export async function getAllRevealableQuestions() {
   const revealableQuestionsAndAmount = await prisma.chompResult.findMany({
     where: {
       userId: payload.sub,
-      result: "Revealed",
+      result: 'Revealed',
       questionId: { not: null },
     },
     select: {
@@ -77,7 +77,7 @@ export async function claimAllAvailable() {
 
   const claimableQuestionIds = await getClaimableQuestionIds();
 
-  if (!claimableQuestionIds.length) throw new Error("No claimable questions");
+  if (!claimableQuestionIds.length) throw new Error('No claimable questions');
 
   return claimQuestions(claimableQuestionIds);
 }
@@ -90,7 +90,7 @@ export async function claimQuestions(questionIds: number[]) {
   }
 
   const release = await acquireMutex({
-    identifier: "CLAIM",
+    identifier: 'CLAIM',
     data: { userId: payload.sub },
   });
 
@@ -121,7 +121,7 @@ export async function claimQuestions(questionIds: number[]) {
     await prisma.chompResult.updateMany({
       where: {
         id: {
-          in: chompResults.map((r) => r.id),
+          in: chompResults.map(r => r.id),
         },
       },
       data: {
@@ -131,14 +131,14 @@ export async function claimQuestions(questionIds: number[]) {
 
     const sendTx = await handleSendBonk(chompResults, userWallet.address);
 
-    if (!sendTx) throw new Error("Send tx is missing");
+    if (!sendTx) throw new Error('Send tx is missing');
 
     await prisma.$transaction(
-      async (tx) => {
+      async tx => {
         await tx.chompResult.updateMany({
           where: {
             id: {
-              in: chompResults.map((r) => r.id),
+              in: chompResults.map(r => r.id),
             },
           },
           data: {
@@ -147,27 +147,30 @@ export async function claimQuestions(questionIds: number[]) {
         });
       },
       {
-        isolationLevel: "Serializable",
+        isolationLevel: 'Serializable',
         timeout: ONE_MINUTE_IN_MILLISECONDS,
-      },
+      }
     );
 
     release();
-    revalidatePath("/application");
-    revalidatePath("/application/history");
+    revalidatePath('/application');
+    revalidatePath('/application/history');
     return {
       questionIds,
       claimedAmount: chompResults.reduce(
         (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
-        0,
+        0
       ),
       transactionSignature: sendTx,
-      questions: chompResults.map((cr) => cr.question),
+      questions: chompResults.map(cr => cr.question),
+      correctAnswers: chompResults.filter(
+        cr => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0
+      ).length,
     };
   } catch (e) {
     const claimError = new ClaimError(
       `User with id: ${payload.sub} is having trouble claiming for questions ids: ${questionIds}`,
-      { cause: e },
+      { cause: e }
     );
     Sentry.captureException(claimError);
     release();
@@ -177,7 +180,7 @@ export async function claimQuestions(questionIds: number[]) {
 
 async function handleSendBonk(chompResults: ChompResult[], address: string) {
   const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
+    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || '')
   );
 
   const treasuryAddress = treasuryWallet.publicKey.toString();
@@ -193,9 +196,9 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
     Sentry.captureMessage(
       `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
       {
-        level: "fatal",
+        level: 'fatal',
         tags: {
-          category: "feedback", // Custom tag to categorize as feedback
+          category: 'feedback', // Custom tag to categorize as feedback
         },
         extra: {
           treasurySolBalance,
@@ -204,13 +207,13 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
           Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
           Solscan: `https://solscan.io/account/${treasuryAddress}#transfers `,
         },
-      },
+      }
     );
   }
 
   const tokenAmount = chompResults.reduce(
     (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
-    0,
+    0
   );
 
   let sendTx: string | null = null;
@@ -218,7 +221,7 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
     sendTx = await sendBonk(
       treasuryWallet,
       new PublicKey(address),
-      Math.round(tokenAmount * 10 ** 5),
+      Math.round(tokenAmount * 10 ** 5)
     );
   }
 
