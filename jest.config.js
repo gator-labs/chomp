@@ -7,18 +7,16 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   collectCoverage: true,
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'json'],
+  coverageDirectory: "coverage",
+  coverageReporters: ["text", "lcov", "json"],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/$1',
+    "^@/(.*)$": "<rootDir>/$1",
   },
-  modulePaths: [
-    "<rootDir>"
-  ],
+  modulePaths: ["<rootDir>"],
   verbose: true,
-  preset: 'ts-jest',
+  preset: "ts-jest",
   testEnvironment: "node",
-  testTimeout: 20000
+  testTimeout: 20000,
 };
 
 module.exports = async () => ({

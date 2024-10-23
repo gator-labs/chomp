@@ -18,6 +18,7 @@ import {
 } from "../../utils/dateUtils";
 import { CountdownIcon } from "../Icons/CountdownIcon";
 import { Modal } from "../Modal/Modal";
+import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type QuestionCardProps = {
   question: string;
@@ -70,22 +71,10 @@ export function QuestionCard({
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILLISECONDS);
 
   return (
-    <div
-      className={classNames(
-        " bg-gray-700 h-[350px] w-full max-w-[480px] pl-4 pr-4 flex flex-col justify-between border border-gray-500 p-4 pt-6 rounded-lg z-0 flex-grow overflow-scroll",
-        className,
-      )}
-      style={{
-        ...style,
-        position: "relative",
-      }}
-    >
-      <Image
-        src={gatorHeadImage}
-        alt="gator-head"
-        className="absolute bottom-0 left-0 w-full"
-        style={{ zIndex: 1 }}
-      />
+    <QuestionCardLayout className={className} style={{
+      ...style,
+      position: "relative",
+    }}>
       <p
         className={classNames("text-white  text-2xl max-w-[330px] z-10", {
           "blur-sm": isBlurred,
@@ -131,6 +120,7 @@ export function QuestionCard({
           </div>
         )}
       </div>
-    </div>
+
+    </QuestionCardLayout>
   );
 }
