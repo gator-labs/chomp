@@ -1,19 +1,21 @@
-"use client";
-import { claimAllAvailable } from "@/app/actions/claim";
+'use client';
+import { claimAllAvailable } from '@/app/actions/claim';
 import {
   TRACKING_EVENTS,
   TRACKING_METADATA,
   REVEAL_TYPE,
-} from "@/app/constants/tracking";
-import { useClaiming } from "@/app/providers/ClaimingProvider";
-import { useConfetti } from "@/app/providers/ConfettiProvider";
-import { useToast } from "@/app/providers/ToastProvider";
-import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import trackEvent from "@/lib/trackEvent";
-import { Question } from "@prisma/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { startTransition, useOptimistic } from "react";
-import { Button } from "../../Button/Button";
+} from '@/app/constants/tracking';
+import { useClaiming } from '@/app/providers/ClaimingProvider';
+import { useConfetti } from '@/app/providers/ConfettiProvider';
+import { useToast } from '@/app/providers/ToastProvider';
+import { numberToCurrencyFormatter } from '@/app/utils/currency';
+import trackEvent from '@/lib/trackEvent';
+import { Question } from '@prisma/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { startTransition, useOptimistic, useState } from 'react';
+import { Button } from '../../Button/Button';
+import ClaimShareDrawer from '../../ClaimShareDrawer/ClaimShareDrawer';
+import AvatarPlaceholder from '@/public/images/avatar_placeholder.png';
 
 type TotalRewardsClaimAllProps = {
   totalClaimableRewards?: {
@@ -27,12 +29,19 @@ export default function TotalRewardsClaimAll({
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
     totalClaimableRewards?.totalClaimableRewards || 0,
-    (_, optimisticValue: number) => optimisticValue,
+    (_, optimisticValue: number) => optimisticValue
   );
   const { promiseToast, successToast } = useToast();
   const { fire } = useConfetti();
   const queryClient = useQueryClient();
   const { isClaiming, setIsClaiming } = useClaiming();
+  const [claimResult, setClaimResult] = useState({
+    claimedAmount: 0,
+    correctAnswers: 0,
+    questionsAnswered: 0,
+    transactionHash: '',
+  });
+  const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
 
   const onClaimAll = async () => {
     try {
@@ -40,17 +49,18 @@ export default function TotalRewardsClaimAll({
 
       trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
-          (q) => q?.id,
+          q => q?.id
         ),
-        [TRACKING_METADATA.QUESTION_TEXT]:
-          totalClaimableRewards?.questions.map((q) => q?.question),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          q => q?.question
+        ),
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
       const res = await promiseToast(claimAllAvailable(), {
-        loading: "Claim in progress. Please wait...",
-        success: "Funds are transferred!",
-        error: "Issue transferring funds.",
+        loading: 'Claim in progress. Please wait...',
+        success: 'Funds are transferred!',
+        error: 'Issue transferring funds.',
       });
 
       trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
@@ -64,21 +74,31 @@ export default function TotalRewardsClaimAll({
       startTransition(() => {
         claimOptimistic(0);
       });
-      queryClient.resetQueries({ queryKey: ["questions-history"] });
+      queryClient.resetQueries({ queryKey: ['questions-history'] });
 
       fire();
       successToast(
-        "Claimed!",
-        `You have successfully claimed ${numberToCurrencyFormatter.format(totalClaimableRewards?.totalClaimableRewards || 0)} BONK!`,
+        'Claimed!',
+        `You have successfully claimed ${numberToCurrencyFormatter.format(
+          totalClaimableRewards?.totalClaimableRewards || 0
+        )} BONK!`
       );
       setIsClaiming(false);
+      setIsClaimShareDrawerOpen(true);
+      setClaimResult({
+        claimedAmount: res!.claimedAmount,
+        correctAnswers: res!.correctAnswers,
+        questionsAnswered: res!.questions.length,
+        transactionHash: res!.transactionSignature,
+      });
     } catch (error) {
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
-          (q) => q?.id,
+          q => q?.id
         ),
-        [TRACKING_METADATA.QUESTION_TEXT]:
-          totalClaimableRewards?.questions.map((q) => q?.question),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          q => q?.question
+        ),
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
     } finally {
@@ -106,6 +126,16 @@ export default function TotalRewardsClaimAll({
           Claim all
         </Button>
       )}
+
+      <ClaimShareDrawer
+        isOpen={isClaimShareDrawerOpen}
+        onClose={() => setIsClaimShareDrawerOpen(false)}
+        claimedAmount={claimResult.claimedAmount}
+        correctAnswers={claimResult.correctAnswers}
+        questionsAnswered={claimResult.questionsAnswered}
+        transactionHash={claimResult.transactionHash}
+        profileImg={AvatarPlaceholder.src}
+      />
     </div>
   );
 }

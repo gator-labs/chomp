@@ -30,6 +30,9 @@ export const TRACKING_EVENTS = {
   WELCOME_BACK_ANSWER_BUTTON_CLICKED: "WelcomeBackAnswerButtonClicked",
   WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
   DECK_CLICKED: "DeckClicked",
+  SHARE_ALL_DIALOG_LOADED: "ShareAllDialogLoaded",
+  SHARE_ALL_DIALOG_CLOSED: "ShareAllDialogClosed",
+  SHARE_ALL_X_BUTTON_CLICKED: "ShareAllXButtonClicked",
 } as const;
 
 export const TRACKING_METADATA = {
@@ -54,7 +57,7 @@ export const TRACKING_METADATA = {
   IS_DAILY_DECK: "IsDailyDeck",
   TYPE: "Type",
   URL_PATH: "UrlPath",
-  URL_SEARCH: "UrlSearch"
+  URL_SEARCH: "UrlSearch",
 };
 
 export const HOME_STAT_CARD_TYPE = {
