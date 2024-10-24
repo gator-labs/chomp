@@ -18,16 +18,13 @@ export default function Main() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    console.log("sdkHasLoaded", sdkHasLoaded);
     if (!sdkHasLoaded) return;
 
     if (authToken) setJwt(authToken);
 
     const signIn = async () => {
-      console.log("user", user);
       if (!user) {
-        const newUser = await telegramSignIn({ forceCreateUser: true });
-        console.log(newUser, 'new')
+        await telegramSignIn({ forceCreateUser: true });
       }
       setIsLoading(false);
     };

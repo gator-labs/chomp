@@ -26,8 +26,7 @@ model User {
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
-  telegramId                  String?
-  telegramUserName            String?
+  telegramUsername            String?
 }
 
 model Wallet {
