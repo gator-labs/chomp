@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
-import { ChompyGuitarIcon } from '@/app/components/Icons/ChompyGuitarIcon';
-import prisma from '@/app/services/prisma';
-import { decryptString } from '@/app/utils/crypto-js';
-import { ImageResponse } from 'next/og';
+import { ChompyGuitarIcon } from "@/app/components/Icons/ChompyGuitarIcon";
+import prisma from "@/app/services/prisma";
+import { decryptString } from "@/app/utils/crypto-js";
+import { ImageResponse } from "next/og";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const encryptedHash = searchParams.get('txHash');
+  const encryptedHash = searchParams.get("encryptedTxHash");
 
   if (!encryptedHash) return;
 
@@ -24,28 +24,29 @@ export async function GET(request: Request) {
 
   const bonkClaimedRaw = results.reduce(
     (sum, item) => sum + (item.rewardTokenAmount?.toNumber() || 0),
-    0
+    0,
   );
-  const bonkClaimed = Math.round(bonkClaimedRaw).toLocaleString('en-US');
+  const bonkClaimed = Math.round(bonkClaimedRaw).toLocaleString("en-US");
   const numCorrect = results
     .filter(
-      item => item.rewardTokenAmount && item.rewardTokenAmount?.toNumber() > 0
+      (item) =>
+        item.rewardTokenAmount && item.rewardTokenAmount?.toNumber() > 0,
     )
-    .length.toLocaleString('en-US');
+    .length.toLocaleString("en-US");
 
-  const numAnswered = results.length.toLocaleString('en-US');
+  const numAnswered = results.length.toLocaleString("en-US");
 
   const satoshiBlack = await fetch(
-    new URL(`${APP_URL}/fonts/satoshi/Satoshi-Black.otf`, import.meta.url)
-  ).then(res => res.arrayBuffer());
+    new URL(`${APP_URL}/fonts/satoshi/Satoshi-Black.otf`, import.meta.url),
+  ).then((res) => res.arrayBuffer());
 
   const satoshiBold = await fetch(
-    new URL(`${APP_URL}/fonts/satoshi/Satoshi-Bold.otf`, import.meta.url)
-  ).then(res => res.arrayBuffer());
+    new URL(`${APP_URL}/fonts/satoshi/Satoshi-Bold.otf`, import.meta.url),
+  ).then((res) => res.arrayBuffer());
 
   const satoshiRegular = await fetch(
-    new URL(`${APP_URL}/fonts/satoshi/Satoshi-Regular.otf`, import.meta.url)
-  ).then(res => res.arrayBuffer());
+    new URL(`${APP_URL}/fonts/satoshi/Satoshi-Regular.otf`, import.meta.url),
+  ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
     (
@@ -124,10 +125,10 @@ export async function GET(request: Request) {
       width: 1200,
       height: 630,
       fonts: [
-        { data: satoshiBlack, name: 'Satoshi-Black', style: 'normal' },
-        { data: satoshiRegular, name: 'Satoshi-Regular', style: 'normal' },
-        { data: satoshiBold, name: 'Satoshi-Bold', style: 'normal' },
+        { data: satoshiBlack, name: "Satoshi-Black", style: "normal" },
+        { data: satoshiRegular, name: "Satoshi-Regular", style: "normal" },
+        { data: satoshiBold, name: "Satoshi-Bold", style: "normal" },
       ],
-    }
+    },
   );
 }

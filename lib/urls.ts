@@ -9,7 +9,7 @@ export const STACKS_PATH = "/stacks";
 export const LEADERBOARD_PATH = `${HOME_PATH}/leaderboard`;
 export const ANSWER_PATH = `${HOME_PATH}/answer`;
 export const getOgShareClaimAllPath = (encryptedTxHash: string) =>
-  `/api/og/share-claim-all?txHash=${encryptedTxHash}`;
+  `/api/og/share-claim-all?encryptedTxHash=${encryptedTxHash}`;
 export const getClaimAllShareUrl = (txHash: string) => {
   const encryptedTxHash = encrypt(txHash);
 
