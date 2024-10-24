@@ -1,10 +1,10 @@
 import { NextRequest } from 'next/server';
 import Mixpanel from 'mixpanel';
-import { POST } from './route';
 import { getCurrentUser } from "@/app/queries/user";
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
 import { kv } from '@/lib/kv';
+import { POST } from '@/app/api/mixpanel/route';
 
 // Mock dependencies
 jest.mock('next/headers', () => ({
@@ -15,12 +15,6 @@ jest.mock('next/headers', () => ({
 }));
 jest.mock('uuid', () => ({
   v4: jest.fn(),
-}));
-jest.mock('@/lib/kv', () => ({
-  kv: {
-    get: jest.fn(),
-    set: jest.fn(),
-  },
 }));
 jest.mock('mixpanel', () => {
   return {
@@ -42,26 +36,23 @@ describe('Mixpanel tracking route', () => {
   };
   let mockUser: any;
   
-  beforeEach(() => {
+  beforeEach(async() => {
     jest.resetAllMocks();
     mockMixpanelTrack = jest.fn();
     (Mixpanel.init as jest.Mock).mockReturnValue({ track: mockMixpanelTrack });
     (getCurrentUser as jest.Mock).mockResolvedValue(null);
-    (kv.get as jest.Mock).mockResolvedValue(null);
-    (kv.set as jest.Mock).mockResolvedValue(undefined);
-
     mockCookies = {
       get: jest.fn(),
       set: jest.fn(),
     };
     (cookies as jest.Mock).mockReturnValue(mockCookies);
-    (uuidv4 as jest.Mock).mockReturnValue('mock-device-id');
+    (uuidv4 as jest.Mock).mockReturnValue('550e8400-e29b-41d4-a716-446655440000');
 
     // Mock Request with utm params as property
     mockRequest = {
       json: jest.fn().mockResolvedValue({
         event: 'Test Action',
-        properties: { $utm_source: 'test' }
+        properties: { $utm_content: 'test' }
       }),
       headers: new Headers({
         'x-forwarded-for': '127.0.0.1',
@@ -86,6 +77,9 @@ describe('Mixpanel tracking route', () => {
         userId: 'a19f7611-5cd2-49b8-ad81-69dc42a2a5a3'
       }]
     };
+
+    await kv.set("utm:550e8400-e29b-41d4-a716-446655440000", {});
+    await kv.set("utm:a19f7611-5cd2-49b8-ad81-69dc42a2a5a3", {});
   });
 
   // Assertion of non-authenticated user event tracking
@@ -116,38 +110,30 @@ describe('Mixpanel tracking route', () => {
     expect(responseData).toEqual({ status: 'Internal Server Error' });
   });
 
-  // Test cases for UTM tracking scenarios
+  // TEST CASES FOR UTM TRACKING SCENARIOS
 
-  it("should handle normal flow: logged out user visits, then confirms", async () => {
+  it("UTM Edge Case 1: User visits from Google Search, then signs up", async () => {
     // First visit (pre-login)
     mockRequest.json = jest.fn().mockResolvedValue({
       event: 'Page View',
-      properties: { $utm_source: 'google', $utm_medium: 'cpc' }
+      properties: { $utm_source: 'google', $utm_medium: 'search' }
     });
 
     let response = await POST(mockRequest);
     let responseData = await response.json();
 
     expect(responseData).toEqual({ status: 'Event tracked successfully' });
-    expect(kv.set).toHaveBeenCalledWith('utm:mock-device-id', {
-      initial_utm: { utm_source: 'google', utm_medium: 'cpc' },
-      last_utm: { utm_source: 'google', utm_medium: 'cpc' }
+    const utmData = await kv.get('utm:550e8400-e29b-41d4-a716-446655440000');
+    expect(utmData).toEqual({
+      initial_utm: { utm_source: 'google', utm_medium: 'search' },
+      last_utm: { utm_source: 'google', utm_medium: 'search' }
     });
-
+    
     // Second visit (post-login)
     (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
-    (kv.get as jest.Mock).mockImplementation((key: string) => {
-      if (key === 'utm:mock-device-id') {
-        return Promise.resolve({
-          initial_utm: { utm_source: 'google', utm_medium: 'cpc' },
-          last_utm: { utm_source: 'google', utm_medium: 'cpc' }
-        });
-      }
-      return Promise.resolve(null);
-    });
 
     mockRequest.json = jest.fn().mockResolvedValue({
-      event: 'Signup',
+      event: 'LoginSucceded',
       properties: {}
     });
 
@@ -155,56 +141,123 @@ describe('Mixpanel tracking route', () => {
     responseData = await response.json();
 
     expect(responseData).toEqual({ status: 'Event tracked successfully' });
-
-    // TODO: Assertion for specific Mixpanel event properties
-    // expect(mockMixpanelTrack).toHaveBeenCalledWith('Signup', expect.objectContaining({
-    //   initial_utm_source: 'google',
-    //   initial_utm_medium: 'cpc',
-    //   last_utm_source: 'google',
-    //   last_utm_medium: 'cpc',
-    //   [TRACKING_METADATA.USER_ID]: mockUser.id
-    // }));
+    const utmDataPostLogin = await kv.get('utm:a19f7611-5cd2-49b8-ad81-69dc42a2a5a3');
+    expect(utmDataPostLogin).toEqual({
+      initial_utm: { utm_source: 'google', utm_medium: 'search' },
+      last_utm: { utm_source: 'google', utm_medium: 'search' }
+    });
   });
 
-  it("should handle slow conversion: guest visits from Twitter, then later from Instagram and signs up", async () => {
+  it("UTM Edge Case 2: User visits from Twitter, then later from Telegram and Sign up", async () => {
     // First visit from Twitter
     mockRequest.json = jest.fn().mockResolvedValue({
       event: 'Page View',
-      properties: { $utm_source: 'twitter', $utm_campaign: 'summer_promo' }
+      properties: { $utm_source: 'twitter', $utm_campaign: 'us_election' }
     });
 
     let response = await POST(mockRequest);
     let responseData = await response.json();
 
     expect(responseData).toEqual({ status: 'Event tracked successfully' });
-    expect(kv.set).toHaveBeenCalledWith('utm:mock-device-id', {
-      initial_utm: { utm_source: 'twitter', utm_campaign: 'summer_promo' },
-      last_utm: { utm_source: 'twitter', utm_campaign: 'summer_promo' }
+    const utmData = await kv.get('utm:550e8400-e29b-41d4-a716-446655440000');
+    expect(utmData).toEqual({
+      initial_utm: { utm_source: 'twitter', utm_campaign: 'us_election' },
+      last_utm: { utm_source: 'twitter', utm_campaign: 'us_election' }
     });
 
-    // Second visit from Instagram
-    (kv.get as jest.Mock).mockResolvedValue({
-      initial_utm: { utm_source: 'twitter', utm_campaign: 'summer_promo' },
-      last_utm: { utm_source: 'twitter', utm_campaign: 'summer_promo' }
-    });
-
+    // Second visit from Telegram
     mockRequest.json = jest.fn().mockResolvedValue({
       event: 'Page View',
-      properties: { $utm_source: 'instagram', $utm_campaign: 'fall_collection' }
+      properties: { $utm_source: 'telegram', $utm_campaign: 'hacker_house' }
     });
 
     response = await POST(mockRequest);
     responseData = await response.json();
 
     expect(responseData).toEqual({ status: 'Event tracked successfully' });
-    expect(kv.set).toHaveBeenCalledWith('utm:mock-device-id', {
-      initial_utm: { utm_source: 'twitter', utm_campaign: 'summer_promo' },
-      last_utm: { utm_source: 'instagram', utm_campaign: 'fall_collection' }
+    const utmDataPreLogin = await kv.get('utm:550e8400-e29b-41d4-a716-446655440000');
+    expect(utmDataPreLogin).toEqual({
+      initial_utm: { utm_source: 'twitter', utm_campaign: 'us_election' },
+      last_utm: { utm_source: 'telegram', utm_campaign: 'hacker_house' }
     });
 
-    // Signup (still logged out)
+    // Login Success
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+
     mockRequest.json = jest.fn().mockResolvedValue({
-      event: 'Signup',
+      event: 'LoginSucceded',
+      properties: { $utm_source: 'telegram', $utm_campaign: 'founders_villa' }
+    });
+
+    response = await POST(mockRequest);
+    responseData = await response.json();
+
+    expect(responseData).toEqual({ status: 'Event tracked successfully' });
+    const utmDataPostLogin = await kv.get('utm:a19f7611-5cd2-49b8-ad81-69dc42a2a5a3');
+    expect(utmDataPostLogin).toEqual({
+      initial_utm: { utm_source: 'twitter', utm_campaign: 'us_election' },
+      last_utm: { utm_source: 'telegram', utm_campaign: 'founders_villa' }
+    });
+  });
+
+  it("UTM Edge Case 3: First time UTM is tracked Post-login, then visits again Pre-login", async () => {
+    // First footprint on Login Page
+    mockRequest.json = jest.fn().mockResolvedValue({
+      event: 'Login Started',
+      properties: { $utm_source: 'telegram', $utm_medium: 'community' }
+    });
+
+    let response = await POST(mockRequest);
+    let responseData = await response.json();
+
+    expect(responseData).toEqual({ status: 'Event tracked successfully' });
+    const utmData = await kv.get('utm:550e8400-e29b-41d4-a716-446655440000');
+    expect(utmData).toEqual({
+      initial_utm: { utm_source: 'telegram', utm_medium: 'community' },
+      last_utm: { utm_source: 'telegram', utm_medium: 'community' }
+    });
+    
+    // Login Success
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+
+    mockRequest.json = jest.fn().mockResolvedValue({
+      event: 'LoginSucceded',
+      properties: { $utm_source: 'telegram', $utm_medium: 'community' }
+    });
+
+    response = await POST(mockRequest);
+    responseData = await response.json();
+
+    expect(responseData).toEqual({ status: 'Event tracked successfully' });
+    const utmDataPostLogin = await kv.get('utm:a19f7611-5cd2-49b8-ad81-69dc42a2a5a3');
+    expect(utmDataPostLogin).toEqual({
+      initial_utm: { utm_source: 'telegram', utm_medium: 'community' },
+      last_utm: { utm_source: 'telegram', utm_medium: 'community' }
+    });
+
+    // Second visit (Pre-login)
+    (getCurrentUser as jest.Mock).mockResolvedValue(null);
+
+    mockRequest.json = jest.fn().mockResolvedValue({
+      event: 'Page View',
+      properties: { $utm_source: 'twitter', $utm_medium: 'social' }
+    });
+
+    response = await POST(mockRequest);
+    responseData = await response.json();
+
+    expect(responseData).toEqual({ status: 'Event tracked successfully' });
+    const utmDataPreLogin = await kv.get('utm:550e8400-e29b-41d4-a716-446655440000');
+    expect(utmDataPreLogin).toEqual({
+      initial_utm: { utm_source: 'telegram', utm_medium: 'community' },
+      last_utm: { utm_source: 'twitter', utm_medium: 'social' }
+    });
+
+    // Third visit (Post-login)
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+    
+    mockRequest.json = jest.fn().mockResolvedValue({
+      event: 'Page View',
       properties: {}
     });
 
@@ -212,67 +265,10 @@ describe('Mixpanel tracking route', () => {
     responseData = await response.json();
 
     expect(responseData).toEqual({ status: 'Event tracked successfully' });
-    // TODO: Assertion for specific Mixpanel event properties
-    // expect(mockMixpanelTrack).toHaveBeenCalledWith('Signup', expect.objectContaining({
-    //   initial_utm_source: 'twitter',
-    //   initial_utm_campaign: 'summer_promo',
-    //   last_utm_source: 'instagram',
-    //   last_utm_campaign: 'fall_collection'
-    // }));
-  });
-
-  it("should handle logged in users: first time UTM is tracked when logged in, then signs out from the same device", async () => {
-    // First visit (logged in, first time UTM tracked)
-    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
-
-    mockRequest.json = jest.fn().mockResolvedValue({
-      event: 'Page View',
-      properties: { $utm_source: 'linkedin', $utm_medium: 'social' }
+    const utmPostLogin = await kv.get('utm:a19f7611-5cd2-49b8-ad81-69dc42a2a5a3');
+    expect(utmPostLogin).toEqual({
+      initial_utm: { utm_source: 'telegram', utm_medium: 'community' },
+      last_utm: { utm_source: 'twitter', utm_medium: 'social' }
     });
-
-    let response = await POST(mockRequest);
-    let responseData = await response.json();
-
-    expect(responseData).toEqual({ status: 'Event tracked successfully' });
-    expect(kv.set).toHaveBeenCalledWith(`utm:${mockUser.id}`, {
-      initial_utm: { utm_source: 'linkedin', utm_medium: 'social' },
-      last_utm: { utm_source: 'linkedin', utm_medium: 'social' }
-    });
-    // TODO: Assertion for specific Mixpanel event properties
-    // expect(mockMixpanelTrack).toHaveBeenCalledWith('Page View', expect.objectContaining({
-    //   initial_utm_source: 'linkedin',
-    //   initial_utm_medium: 'social',
-    //   last_utm_source: 'linkedin',
-    //   last_utm_medium: 'social',
-    //   [TRACKING_METADATA.USER_ID]: mockUser.id
-    // }));
-
-    // Second visit (logged out, same device)
-    (getCurrentUser as jest.Mock).mockResolvedValue(null);
-    (kv.get as jest.Mock).mockResolvedValue({
-      initial_utm: { utm_source: 'linkedin', utm_medium: 'social' },
-      last_utm: { utm_source: 'linkedin', utm_medium: 'social' }
-    });
-
-    mockRequest.json = jest.fn().mockResolvedValue({
-      event: 'Page View',
-      properties: { $utm_source: 'facebook', $utm_medium: 'cpc' }
-    });
-
-    response = await POST(mockRequest);
-    responseData = await response.json();
-
-    expect(responseData).toEqual({ status: 'Event tracked successfully' });
-    expect(kv.set).toHaveBeenCalledWith('utm:mock-device-id', {
-      initial_utm: { utm_source: 'linkedin', utm_medium: 'social' },
-      last_utm: { utm_source: 'facebook', utm_medium: 'cpc' }
-    });
-    // TODO: Assertion for specific Mixpanel event properties
-    // expect(mockMixpanelTrack).toHaveBeenCalledWith('Page View', expect.objectContaining({
-    //   initial_utm_source: 'linkedin',
-    //   initial_utm_medium: 'social',
-    //   last_utm_source: 'facebook',
-    //   last_utm_medium: 'cpc'
-    // }));
   });
 });

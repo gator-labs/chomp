@@ -42,7 +42,7 @@ async function handleUtmParams(userId: string, properties: any, deviceId: string
 
   // Always prioritize device's initial UTM if it exists
   let initialUtm = deviceUtmData?.initial_utm || userUtmData?.initial_utm || {};
-  let lastUtm = userUtmData?.last_utm || {};
+  let lastUtm = deviceUtmData?.last_utm || userUtmData?.last_utm || {};
 
   // Check if any new UTM parameters are provided
   const hasNewUtmParams = Object.values(utmParams).some(
@@ -54,21 +54,24 @@ async function handleUtmParams(userId: string, properties: any, deviceId: string
   );
 
   // Update initial and last UTM data
-  if (!userUtmData || hasNewUtmParams) {
+  if (hasNewUtmParams) {
     initialUtm = Object.keys(initialUtm).length > 0 ? initialUtm : utmParamsWithoutUndefined;
-    lastUtm = hasNewUtmParams ? utmParamsWithoutUndefined : lastUtm;
-
-    // Remove undefined values
-    Object.keys(lastUtm).forEach(
-      (key) => lastUtm[key] === undefined && delete lastUtm[key],
-    );
-
-    // Store updated UTM data in KV for the user
-    await kv.set(`utm:${userId}`, {
-      initial_utm: initialUtm,
-      last_utm: lastUtm,
-    });
+    lastUtm = utmParamsWithoutUndefined;
   }
+
+  // Remove undefined values
+  Object.keys(initialUtm).forEach(
+    (key) => initialUtm[key] === undefined && delete initialUtm[key],
+  );
+  Object.keys(lastUtm).forEach(
+    (key) => lastUtm[key] === undefined && delete lastUtm[key],
+  );
+
+  // Store updated UTM data in KV for the user
+  await kv.set(`utm:${userId}`, {
+    initial_utm: initialUtm,
+    last_utm: lastUtm,
+  });
 
   return { initialUtm, lastUtm };
 }
@@ -106,12 +109,21 @@ export async function POST(request: NextRequest) {
       ip,
     };
 
+    const {
+      $utm_source,
+      $utm_medium,
+      $utm_campaign,
+      $utm_term,
+      $utm_content,
+      ...propertiesWithoutUtm
+    } = properties;
+
     if (!currentUser) {
       // Pre-login user tracking
       const { initialUtm, lastUtm } = await handleUtmParams(deviceId, properties, deviceId);
 
-      mixpanel.track(event, {
-        ...properties,
+      const trackingPayload = {
+        ...propertiesWithoutUtm,
         ...deviceProperties,
         initial_utm_source: initialUtm.utm_source,
         initial_utm_medium: initialUtm.utm_medium,
@@ -123,26 +135,16 @@ export async function POST(request: NextRequest) {
         last_utm_campaign: lastUtm.utm_campaign,
         last_utm_term: lastUtm.utm_term,
         last_utm_content: lastUtm.utm_content,
-      });
+      }
+
+      mixpanel.track(event, trackingPayload);
     } else {
       // Post-login user tracking
       const { initialUtm, lastUtm } = await handleUtmParams(currentUser.id, properties, deviceId);
 
-      const {
-        $utm_source,
-        $utm_medium,
-        $utm_campaign,
-        $utm_term,
-        $utm_content,
-        ...propertiesWithoutUtm
-      } = properties;
-
-      mixpanel.track(event, {
+      const trackingPayload = {
         ...propertiesWithoutUtm,
         ...deviceProperties,
-        [TRACKING_METADATA.USER_ID]: currentUser.id,
-        [TRACKING_METADATA.USERNAME]: currentUser.username,
-        [TRACKING_METADATA.USER_WALLET_ADDRESS]: currentUser.wallets[0].address,
         initial_utm_source: initialUtm.utm_source,
         initial_utm_medium: initialUtm.utm_medium,
         initial_utm_campaign: initialUtm.utm_campaign,
@@ -153,7 +155,12 @@ export async function POST(request: NextRequest) {
         last_utm_campaign: lastUtm.utm_campaign,
         last_utm_term: lastUtm.utm_term,
         last_utm_content: lastUtm.utm_content,
-      });
+        [TRACKING_METADATA.USER_ID]: currentUser.id,
+        [TRACKING_METADATA.USERNAME]: currentUser.username,
+        [TRACKING_METADATA.USER_WALLET_ADDRESS]: currentUser.wallets[0].address,
+      }
+      
+      mixpanel.track(event, trackingPayload);
     }
 
     return NextResponse.json({ status: "Event tracked successfully" });
