@@ -1,6 +1,6 @@
+import PollResultMultipleChoice from "@/app/components/PollResultMultipleChoice/PollResultMultipleChoice";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import PollResultMultipleChoice from "@/app/components/PollResultMultipleChoice/PollResultMultipleChoice";
 import AvatarSample from "./assets/avatar_sample.png";
 
 const meta = {

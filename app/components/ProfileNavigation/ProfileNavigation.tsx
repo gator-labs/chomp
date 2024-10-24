@@ -3,6 +3,7 @@
 import { cn } from "@/app/utils/tailwind";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { PROFILE_LINKS } from "./constants";
 
 const ProfileNavigation = () => {

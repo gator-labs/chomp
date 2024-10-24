@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+
 import { getTransactionHistory } from "../actions/fungible-asset";
 import Main from "../components/Main/Main";
 import { Navbar } from "../components/Navbar/Navbar";

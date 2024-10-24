@@ -1,4 +1,5 @@
 import { getQuestionsForReadyToRevealSection } from "@/app/queries/home";
+
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";
 import { RevealFeedQuestionCard } from "../RevealFeedQuestionCard/RevealFeedQuestionCard";

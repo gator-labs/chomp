@@ -1,4 +1,5 @@
 import Image from "next/image";
+
 import { GraphicsProps } from ".";
 import chompGraphicImage from "../../../public/images/chomp-graphic.png";
 

@@ -1,8 +1,10 @@
 "use client";
+
 import { useDragPositionPercentage } from "@/app/hooks/useDragPositionPercentage";
 import { useIsomorphicLayoutEffect } from "@/app/hooks/useIsomorphicLayoutEffect";
 import classNames from "classnames";
 import { useRef, useState } from "react";
+
 import Thumb from "../Thumb/Thumb";
 
 type ProgressBarProps = {

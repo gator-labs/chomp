@@ -1,9 +1,9 @@
-import type { Meta, StoryObj } from "@storybook/react";
-import { QuestionAction } from "../app/components/QuestionAction/QuestionAction";
-
 import { QuestionStep } from "@/app/components/Question/Question";
 import { QuestionType } from "@prisma/client";
+import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+
+import { QuestionAction } from "../app/components/QuestionAction/QuestionAction";
 
 const meta = {
   title: "Cards/Question Action",

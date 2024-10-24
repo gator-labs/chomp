@@ -1,14 +1,13 @@
 "use client";
 
-import { Stack } from "@prisma/client";
-
-import { stackSchema } from "@/app/schemas/stack";
-
 import { createStack, editStack } from "@/app/actions/stack";
+import { stackSchema } from "@/app/schemas/stack";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Stack } from "@prisma/client";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
+
 import { TextInput } from "../TextInput/TextInput";
 import { Button } from "../ui/button";
 
@@ -21,7 +20,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isLoading },
+    formState: { errors, isSubmitting },
     watch,
   } = useForm({
     resolver: zodResolver(stackSchema),

@@ -1,0 +1,14 @@
+node_modules/
+.next/
+public/
+out/
+coverage/
+build/
+.vercel/
+docs/
+prisma/migrations/
+.*
+yarn.lock
+*.md 
+
+

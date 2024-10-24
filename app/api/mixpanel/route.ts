@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse, userAgent } from "next/server";
 import { TRACKING_METADATA } from "@/app/constants/tracking";
 import { getCurrentUser } from "@/app/queries/user";
 import { kv } from "@/lib/kv";
 import Mixpanel from "mixpanel";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
+import { NextRequest, NextResponse, userAgent } from "next/server";
 
 const mixpanel = Mixpanel.init(process.env.MIX_PANEL_TOKEN!);
 
@@ -51,14 +51,7 @@ export async function POST(request: NextRequest) {
         utm_content: properties.$utm_content,
       };
 
-      const {
-        $utm_source,
-        $utm_medium,
-        $utm_campaign,
-        $utm_term,
-        $utm_content,
-        ...propertiesWithoutUtm
-      } = properties;
+      const { ...propertiesWithoutUtm } = properties;
 
       // Get stored UTM data from KV
       const storedUtmData = (await kv.get(
@@ -73,12 +66,15 @@ export async function POST(request: NextRequest) {
       );
 
       const utmParamsWithoutUndefined = Object.fromEntries(
-        Object.entries(utmParams).filter(([_, value]) => value !== undefined)
+        Object.entries(utmParams).filter(([value]) => value !== undefined),
       );
 
       // Update initial and last UTM data
       if (!storedUtmData || hasNewUtmParams) {
-        initialUtm = Object.keys(initialUtm).length > 0 ? initialUtm : utmParamsWithoutUndefined;
+        initialUtm =
+          Object.keys(initialUtm).length > 0
+            ? initialUtm
+            : utmParamsWithoutUndefined;
         lastUtm = hasNewUtmParams ? utmParamsWithoutUndefined : lastUtm;
 
         // Remove undefined values

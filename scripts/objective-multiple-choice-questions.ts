@@ -1,5 +1,6 @@
 import { PrismaClient, QuestionType, Token } from "@prisma/client";
 import { format } from "date-fns";
+
 import { askQuestion, generateUsers, selectOption } from "./utils";
 
 console.log(
@@ -88,28 +89,32 @@ async function main() {
   });
 
   console.log(questionOptions);
-  await Promise.all(users.map(async (user) => {
-    const selectedOption = questionOptions[Math.floor(Math.random() * 4)];
-    const secondOrderOption = questionOptions[Math.floor(Math.random() * 4)];
+  await Promise.all(
+    users.map(async (user) => {
+      const selectedOption = questionOptions[Math.floor(Math.random() * 4)];
+      const secondOrderOption = questionOptions[Math.floor(Math.random() * 4)];
 
-    await Promise.all(questionOptions.map(async (option) => {
-      const isSelectedOption = option.id === selectedOption.id;
-      const percentage =
-        secondOrderOption.id === option.id
-          ? Math.floor(Math.random() * 100)
-          : null;
+      await Promise.all(
+        questionOptions.map(async (option) => {
+          const isSelectedOption = option.id === selectedOption.id;
+          const percentage =
+            secondOrderOption.id === option.id
+              ? Math.floor(Math.random() * 100)
+              : null;
 
-      await prisma.questionAnswer.create({
-        data: {
-          userId: user.id,
-          questionOptionId: option.id,
-          percentage: percentage,
-          selected: isSelectedOption,
-          timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
-        },
-      });
-    }));
-  }));
+          await prisma.questionAnswer.create({
+            data: {
+              userId: user.id,
+              questionOptionId: option.id,
+              percentage: percentage,
+              selected: isSelectedOption,
+              timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
+            },
+          });
+        }),
+      );
+    }),
+  );
 }
 
 main()

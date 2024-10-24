@@ -1,6 +1,6 @@
-import TrophyIcon from "../Icons/TrophyIcon";
 import CalendarIcon from "../Icons/CalendarIcon";
 import ChartIcon from "../Icons/ChartIcon";
+import TrophyIcon from "../Icons/TrophyIcon";
 
 export const CHOMP_LEADERBOARD = [
   {

@@ -1,4 +1,5 @@
 import { PrismaClient, QuestionType, Token } from "@prisma/client";
+
 import { generateUsers } from "./utils";
 
 console.log("Loaded environment variables:");

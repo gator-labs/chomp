@@ -1,6 +1,7 @@
 import { endOfWeek, startOfWeek } from "date-fns";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+
 dayjs.extend(utc);
 
 export function parseDateToDateDefaultUtc(
@@ -34,10 +35,10 @@ export const getStartAndEndOfDay = (
   startOfTheDay: Date;
   endOfTheDay: Date;
 } => {
-  var startOfTheDay = new Date(date);
+  const startOfTheDay = new Date(date);
   startOfTheDay.setUTCHours(0, 0, 0, 0);
 
-  var endOfTheDay = new Date(date);
+  const endOfTheDay = new Date(date);
   endOfTheDay.setUTCHours(23, 59, 59, 999);
 
   return {

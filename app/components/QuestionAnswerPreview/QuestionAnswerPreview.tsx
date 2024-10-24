@@ -1,6 +1,8 @@
 "use client";
+
 import Image from "next/image";
 import { ReactElement, useState } from "react";
+
 import gatorHeadImage from "../../../public/images/gator-head.png";
 import { Modal } from "../Modal/Modal";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";

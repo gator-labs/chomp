@@ -7,6 +7,7 @@ import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+
 import { getIsUserAdmin } from "../../queries/user";
 import { deckSchema } from "../../schemas/deck";
 import prisma from "../../services/prisma";
@@ -344,8 +345,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
       isQuestionAnswered
     ) {
       return {
-        errorMessage:
-          "Question type can't be changed if there's an answer.",
+        errorMessage: "Question type can't be changed if there's an answer.",
       };
     }
 
@@ -366,8 +366,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
       isQuestionAnswered
     ) {
       return {
-        errorMessage:
-          "New question cannot be added if there's an answer.",
+        errorMessage: "New question cannot be added if there's an answer.",
       };
     }
   }

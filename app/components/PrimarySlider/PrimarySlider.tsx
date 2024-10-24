@@ -1,6 +1,6 @@
-// This slider component refers to old design of slider component shown in the figma design.
-
 "use client";
+
+// This slider component refers to old design of slider component shown in the figma design.
 import * as Slider from "@radix-ui/react-slider";
 import classNames from "classnames";
 

@@ -11,16 +11,16 @@ export const getRecentPrioritizationFees = async (tx: Transaction) => {
       body: JSON.stringify({
         jsonrpc: "2.0",
         id: 1,
-      method: "getPriorityFeeEstimate",
-      params: [
-        {
-          transaction: bs58.encode(
-            tx.serialize({
-              requireAllSignatures: false,
-              verifySignatures: false,
-            }),
-          ),
-          options: {
+        method: "getPriorityFeeEstimate",
+        params: [
+          {
+            transaction: bs58.encode(
+              tx.serialize({
+                requireAllSignatures: false,
+                verifySignatures: false,
+              }),
+            ),
+            options: {
               includeAllPriorityFeeLevels: true,
             },
           },
@@ -30,7 +30,7 @@ export const getRecentPrioritizationFees = async (tx: Transaction) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("PriorityFeeEstimateError",error);
+    console.error("PriorityFeeEstimateError", error);
     return null;
   }
 };

@@ -1,4 +1,5 @@
 import { getStacks } from "@/app/queries/stack";
+
 import LeaderboardCard from "../LeaderboardCard/LeaderboardCard";
 
 const StackLeaderboard = async () => {

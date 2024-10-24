@@ -8,6 +8,7 @@ import {
 } from "@dynamic-labs/sdk-react-core";
 import { RedirectType, redirect } from "next/navigation";
 import { useEffect, useState } from "react";
+
 import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";

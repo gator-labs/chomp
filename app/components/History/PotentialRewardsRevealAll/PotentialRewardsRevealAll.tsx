@@ -1,10 +1,12 @@
 "use client";
+
 import { revealQuestion, revealQuestions } from "@/app/actions/chompResult";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useCallback, useOptimistic, useState } from "react";
+
 import { Button } from "../../Button/Button";
 
 type PotentialRewardsRevealAllProps = {

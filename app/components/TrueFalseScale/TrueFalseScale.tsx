@@ -1,4 +1,5 @@
 import classNames from "classnames";
+
 import PrimarySliderV2 from "../PrimarySlider/PrimarySliderV2";
 
 type TrueFalseScaleProps = {

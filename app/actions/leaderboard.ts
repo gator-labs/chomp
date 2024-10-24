@@ -1,14 +1,14 @@
 "use server";
 
-import { FungibleAsset, ResultType } from "@prisma/client";
-
 import { kv } from "@/lib/kv";
+import { FungibleAsset, ResultType } from "@prisma/client";
 import {
   differenceInSeconds,
   isSameDay,
   isWithinInterval,
   subDays,
 } from "date-fns";
+
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
   getAllTimeChompedQuestionsQuery,
@@ -18,6 +18,7 @@ import {
 import { getCurrentUser } from "../queries/user";
 import prisma from "../services/prisma";
 import { getStartAndEndOfDay, getWeekStartAndEndDates } from "../utils/date";
+
 interface LeaderboardProps {
   variant: "weekly" | "daily" | "stack" | "all-time";
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions";

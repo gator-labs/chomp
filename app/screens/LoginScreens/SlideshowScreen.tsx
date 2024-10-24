@@ -6,6 +6,7 @@ import { WalletIcon } from "@/app/components/Icons/WalletIcon";
 import Stepper from "@/app/components/Stepper/Stepper";
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
 import { useState } from "react";
+
 import { SLIDESHOW } from "./constants";
 
 const SlideshowScreen = () => {

@@ -101,6 +101,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
         answerSelected.questionOption?.option,
       )
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       bestAnswerIcon = BINARY_QUESTION_TRUE_LABELS.includes(
         questionResponse.correctAnswer?.option ?? "",
       ) ? (

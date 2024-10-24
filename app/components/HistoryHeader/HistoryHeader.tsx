@@ -1,4 +1,5 @@
 import { Question } from "@prisma/client";
+
 import PotentialRewardsRevealAll from "../History/PotentialRewardsRevealAll/PotentialRewardsRevealAll";
 import TotalRewardsClaimAll from "../History/TotalRewardsClaimAll/TotalRewardsClaimAll";
 

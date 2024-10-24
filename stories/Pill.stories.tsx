@@ -1,6 +1,7 @@
 import Pill from "@/app/components/Pill/Pill";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+
 import { ShareIcon } from "../app/components/Icons/ShareIcon";
 
 const meta = {

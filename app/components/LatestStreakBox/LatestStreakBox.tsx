@@ -4,6 +4,7 @@ import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import { cn } from "@/lib/utils";
 import { Goal } from "lucide-react";
 import { useState } from "react";
+
 import StatsDrawer from "../StatsDrawer/StatsDrawer";
 
 type LatestStreakBoxProps = {

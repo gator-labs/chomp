@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+
 import { getTransactionHistory } from "../actions/fungible-asset";
 import { AuthRedirect } from "../components/AuthRedirect/AuthRedirect";
 import Main from "../components/Main/Main";

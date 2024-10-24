@@ -1,4 +1,5 @@
 import { TransactionLogType } from "@prisma/client";
+
 import { pointsPerAction } from "../constants/points";
 
 type RevealPointResult = {

@@ -4,6 +4,7 @@ import trackEvent from "@/lib/trackEvent";
 import { ChompResult, Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { ReactNode, createContext, useContext, useState } from "react";
+
 import { claimQuestions } from "../actions/claim";
 import Sheet from "../components/Sheet/Sheet";
 import { Button } from "../components/ui/button";
@@ -73,7 +74,7 @@ const ClaimProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
       queryClient.resetQueries({ queryKey: ["questions-history"] });
-    } catch (error) {
+    } catch {
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: questions,

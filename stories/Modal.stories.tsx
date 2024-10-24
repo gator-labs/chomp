@@ -1,6 +1,7 @@
 import { Button } from "@/app/components/Button/Button";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+
 import { Modal } from "../app/components/Modal/Modal";
 
 const meta = {

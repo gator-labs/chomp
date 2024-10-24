@@ -4,7 +4,6 @@ import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
 import { ANSWER_PATH, HISTORY_PATH } from "@/lib/urls";
 import chompyImg from "@/public/images/chompy.png";
-
 import Image from "next/image";
 import Link from "next/link";
 
