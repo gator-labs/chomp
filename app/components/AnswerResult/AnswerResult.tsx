@@ -34,10 +34,10 @@ export function AnswerResult({
     : undefined;
 
   return (
-    <div className="flex items-center gap-3 h-10">
+    <div className="flex items-stretch gap-3 min-h-10">
       <div
         className={classNames(
-          "h-full w-10 bg-gray-600 rounded-lg flex items-center justify-center flex-shrink-0",
+          "w-10 bg-gray-600 rounded-lg flex items-center justify-center",
           { "bg-purple-500": selected },
         )}
       >
@@ -51,21 +51,21 @@ export function AnswerResult({
       </div>
       <div
         className={
-          "text-sm  font-light text-white h-full border-gray-500 border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden"
+          "text-sm font-light text-white border-gray-500 border-[1px] rounded-lg flex text-left flex-1 !m-0 relative overflow-hidden"
         }
       >
         <PrimarySlider
           value={percentage}
           setValue={handleRatioChange}
           hideThumb
-          className={`rounded-[4px] h-full w-full`}
+          className={`rounded-[4px] w-full ${answerText.length > 20 ? "min-h-20" : "min-h-10"}`}
           backgroundColor="#4c4c4c"
           progressColor={progressColor ? progressColor : "#A3A3EC"}
           trackClassName={classNames(
-            "!rounded-[4px] h-full w-full",
+            "!rounded-[4px] min-h-10 w-full",
             progressBarClassName,
           )}
-          rangeClassName="!rounded-[4px] h-full"
+          rangeClassName="!rounded-[4px] min-h-10"
         />
         {valueSelected !== undefined && valueSelected !== null && avatarSrc && (
           <Avatar

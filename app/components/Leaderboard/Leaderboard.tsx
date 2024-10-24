@@ -68,9 +68,9 @@ const Leaderboard = ({
   const router = useRouter();
   const [loggedInUserScore, setLoggedInUserScore] = useState<
     | {
-        loggedInUserRank: number | undefined;
-        loggedInUserPoints: number | undefined;
-      }
+      loggedInUserRank: number | undefined;
+      loggedInUserPoints: number | undefined;
+    }
     | undefined
   >({
     loggedInUserRank: undefined,
@@ -94,7 +94,7 @@ const Leaderboard = ({
       setRanking(res?.ranking || []);
       setIsLoading(false);
 
-      if (variant !== "stack" && variant !== "all-time") {
+      if (variant !== "stack") {
         const rank = await getPreviousUserRank(variant, filter);
         setPreviousUserRank(rank);
       } else {
@@ -105,9 +105,9 @@ const Leaderboard = ({
     setIsLoading(true);
     effect(
       activeFilter.value as
-        | "totalPoints"
-        | "totalBonkClaimed"
-        | "chompedQuestions",
+      | "totalPoints"
+      | "totalBonkClaimed"
+      | "chompedQuestions",
     );
   }, [activeFilter, stackId]);
 
@@ -158,9 +158,7 @@ const Leaderboard = ({
             {variant === "stack"
               ? "All time ranking"
               : variant === "daily"
-                ? "Today"
-                : variant === "weekly"
-                  ? "This week"
+                ? "Today" : variant === "weekly" ? "This week"
                   : "All time"}
           </span>
           {!!rankDifference && (

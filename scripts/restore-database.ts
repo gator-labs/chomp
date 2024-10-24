@@ -1,3 +1,5 @@
+/* KINDLY REFER TO README.md FOR INSTRUCTIONS ON HOW TO RESTORE THE DATABASE */
+
 const { execSync } = require("child_process");
 const readline = require("readline");
 const fs = require("fs");
@@ -9,11 +11,8 @@ require("dotenv").config({
 
 const { PrismaClient, QuestionType, Token } = require("@prisma/client");
 
-console.log("Loaded environment variables:");
-console.log("DATABASE_PRISMA_URL:", process.env.DATABASE_PRISMA_URL);
-
 const prisma = new PrismaClient();
-// Replace your backup filename path here (Recommended location: file in scripts folder)
+// Keep the backup file in the scripts folder
 const backupFile = path.resolve(__dirname, "backup.sql.gz");
 
 async function main() {

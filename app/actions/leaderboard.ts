@@ -26,7 +26,7 @@ interface LeaderboardProps {
 }
 
 export const getPreviousUserRank = async (
-  variant: "weekly" | "daily",
+  variant: "weekly" | "daily" | "all-time",
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions",
 ) => {
   const today = new Date();
@@ -44,15 +44,21 @@ export const getPreviousUserRank = async (
     return;
 
   const currentUser = await getCurrentUser();
-  const dateRange = getDateRange(variant, true);
-  const { endDate: expirationDate } = getDateRange(variant)!;
+  let dateFilter = {}
+  let expirationDate = subDays(new Date(), 1);
 
-  const dateFilter = {
-    createdAt: {
-      gte: dateRange!.startDate,
-      lte: dateRange!.endDate,
-    },
-  };
+  if (variant !== "all-time") {
+    const dateRange = getDateRange(variant, true);
+    const { endDate } = getDateRange(variant)!;
+    expirationDate = endDate;
+
+    dateFilter = {
+      createdAt: {
+        gte: dateRange!.startDate,
+        lte: dateRange!.endDate,
+      },
+    };
+  }
 
   const key = `${variant}-${filter}`;
 
@@ -158,11 +164,11 @@ export const getLeaderboard = async ({
 const getNumberOfChompedQuestions = async (
   dateFilter:
     | {
-        createdAt: {
-          gte: Date;
-          lte: Date;
-        };
-      }
+      createdAt: {
+        gte: Date;
+        lte: Date;
+      };
+    }
     | {},
   stackId?: number,
 ) => {
@@ -202,8 +208,8 @@ const getNumberOfChompedQuestions = async (
 const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
   const whereStackClause = !!stackId
     ? {
-        OR: [{ question: { stackId } }, { deck: { stackId } }],
-      }
+      OR: [{ question: { stackId } }, { deck: { stackId } }],
+    }
     : {};
 
   const data = await prisma.fungibleAssetTransactionLog.groupBy({
@@ -312,9 +318,8 @@ const mapLeaderboardData = async (
       user,
       value: entry.value,
       rank,
-    });
+    })
   }
-
   return {
     ranking,
     loggedInUserScore: {

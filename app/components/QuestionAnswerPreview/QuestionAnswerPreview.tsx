@@ -38,12 +38,12 @@ export default function QuestionAnswerPreview({
       />
       {children}
       {viewImageSrc && (
-        <div className="flex z-10">
+        <div className="flex z-10 relative aspect-square mb-4">
           <Image
             onClick={() => setIsViewImageOpen(true)}
             src={viewImageSrc}
             alt="preview-image"
-            className="w-14 rounded-lg cursor-pointer"
+            className="w-14 rounded-lg cursor-pointer object-cover object-center"
             fill
           />
 
