@@ -17,7 +17,9 @@ export async function GET(request: Request) {
   const results = txHash
     ? await prisma.chompResult.findMany({
         where: {
-          sendTransactionSignature: txHash,
+          sendTransactionSignature: {
+            startsWith: txHash,
+          },
         },
       })
     : [];

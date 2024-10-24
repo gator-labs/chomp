@@ -31,7 +31,9 @@ const ClaimShareDrawer = ({
 }: ClaimShareDrawerProps) => {
   const { infoToast } = useToast();
 
-  const claimUrl = transactionHash ? getClaimAllShareUrl(transactionHash) : "";
+  const claimUrl = transactionHash
+    ? getClaimAllShareUrl(transactionHash.substring(0, 10))
+    : "";
 
   const handleCopy = async () => {
     await copyTextToClipboard(claimUrl);
