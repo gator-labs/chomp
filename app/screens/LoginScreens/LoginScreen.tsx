@@ -18,47 +18,47 @@ interface Props {
 }
 
 const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
-  const {
-    authToken,
-    isAuthenticated,
-    awaitingSignatureState,
-    walletConnector,
-  } = useDynamicContext();
-  const [isLoading, setIsLoading] = useState(true);
+  // const {
+  //   authToken,
+  //   isAuthenticated,
+  //   awaitingSignatureState,
+  //   walletConnector,
+  // } = useDynamicContext();
+  // const [isLoading, setIsLoading] = useState(true);
 
-  const params = useSearchParams();
+  // const params = useSearchParams();
 
-  useEffect(() => {
-    setIsLoading(true);
+  // useEffect(() => {
+  //   setIsLoading(true);
 
-    if (authToken) setJwt(authToken);
+  //   if (authToken) setJwt(authToken);
 
-    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
-      if (!!walletConnector)
-        trackEvent(TRACKING_EVENTS.WALLET_CONNECTED, {
-          walletConnectorName: walletConnector.name,
-        });
+  //   if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
+  //     if (!!walletConnector)
+  //       trackEvent(TRACKING_EVENTS.WALLET_CONNECTED, {
+  //         walletConnectorName: walletConnector.name,
+  //       });
 
-      setIsLoading(false);
-    }
-    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
-      const destination = params.get("next");
-      if (!!destination) {
-        redirect(destination);
-      } else {
-        setIsLoading(false);
-      }
-    }
+  //     setIsLoading(false);
+  //   }
+  //   if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
+  //     const destination = params.get("next");
+  //     if (!!destination) {
+  //       redirect(destination);
+  //     } else {
+  //       setIsLoading(false);
+  //     }
+  //   }
 
-    if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
-      setIsLoading(false);
-  }, [authToken, payload?.sub, awaitingSignatureState]);
+  //   if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
+  //     setIsLoading(false);
+  // }, [authToken, payload?.sub, awaitingSignatureState]);
 
-  if (isLoading) return <LoadingScreen />;
+  // if (isLoading) return <LoadingScreen />;
 
-  if (isAuthenticated && !payload?.new_user) return <ExistingUserScreen />;
+  // if (isAuthenticated && !payload?.new_user) return <ExistingUserScreen />;
 
-  if (isAuthenticated && payload?.new_user) return <NewUserScreen />;
+  // if (isAuthenticated && payload?.new_user) return <NewUserScreen />;
 
   return <SlideshowScreen />;
 };
