@@ -1,14 +1,14 @@
-import { DialogTitle } from '@radix-ui/react-dialog';
-import { Drawer, DrawerContent } from '../ui/drawer';
-import { CloseIcon } from '../Icons/CloseIcon';
-import { Button } from '../ui/button';
-import ClaimPreviewImage from '../ClaimPreviewImage/ClaimPreviewImage';
-import { copyTextToClipboard } from '@/app/utils/clipboard';
-import { useToast } from '@/app/providers/ToastProvider';
-import { getClaimAllShareUrl } from '@/lib/urls';
-import { useEffect } from 'react';
-import trackEvent from '@/lib/trackEvent';
-import { TRACKING_EVENTS } from '@/app/constants/tracking';
+import { TRACKING_EVENTS } from "@/app/constants/tracking";
+import { useToast } from "@/app/providers/ToastProvider";
+import { copyTextToClipboard } from "@/app/utils/clipboard";
+import trackEvent from "@/lib/trackEvent";
+import { getClaimAllShareUrl } from "@/lib/urls";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import { useEffect } from "react";
+import ClaimPreviewImage from "../ClaimPreviewImage/ClaimPreviewImage";
+import { CloseIcon } from "../Icons/CloseIcon";
+import { Button } from "../ui/button";
+import { Drawer, DrawerContent } from "../ui/drawer";
 
 type ClaimShareDrawerProps = {
   isOpen: boolean;
@@ -31,16 +31,16 @@ const ClaimShareDrawer = ({
 }: ClaimShareDrawerProps) => {
   const { infoToast } = useToast();
 
-  const claimUrl = transactionHash ? getClaimAllShareUrl(transactionHash) : '';
+  const claimUrl = transactionHash ? getClaimAllShareUrl(transactionHash) : "";
 
   const handleCopy = async () => {
     await copyTextToClipboard(claimUrl);
-    infoToast('Link copied!');
+    infoToast("Link copied!");
   };
 
   useEffect(() => {
     if (isOpen) {
-      trackEvent(TRACKING_EVENTS.SHARE_DIALOG_LOADED);
+      trackEvent(TRACKING_EVENTS.SHARE_ALL_DIALOG_LOADED);
     }
   }, [isOpen]);
 
@@ -49,7 +49,7 @@ const ClaimShareDrawer = ({
       open={isOpen}
       onOpenChange={async (open: boolean) => {
         if (!open) {
-          trackEvent(TRACKING_EVENTS.SHARE_DIALOG_CLOSED);
+          trackEvent(TRACKING_EVENTS.SHARE_ALL_DIALOG_CLOSED);
           onClose();
         }
       }}
@@ -67,7 +67,7 @@ const ClaimShareDrawer = ({
         </DialogTitle>
 
         <p className="text-sm mb-6">
-          You just claimed {claimedAmount.toLocaleString('en-US')} BONK from{' '}
+          You just claimed {claimedAmount.toLocaleString("en-US")} BONK from{" "}
           {questionsAnswered} cards!
         </p>
 
@@ -81,7 +81,7 @@ const ClaimShareDrawer = ({
         <Button
           asChild
           onClick={() => {
-            trackEvent(TRACKING_EVENTS.SHARE_X_BUTTON_CLICKED);
+            trackEvent(TRACKING_EVENTS.SHARE_ALL_X_BUTTON_CLICKED);
           }}
           className="h-[50px] mb-2 font-bold"
         >
