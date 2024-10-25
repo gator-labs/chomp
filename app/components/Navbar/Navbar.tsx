@@ -1,7 +1,9 @@
 "use client";
+
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 import { useState } from "react";
+
 import { Avatar } from "../Avatar/Avatar";
 import { ChompFlatIcon } from "../Icons/ChompFlatIcon";
 import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
