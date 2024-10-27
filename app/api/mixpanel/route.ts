@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TRACKING_METADATA } from "@/app/constants/tracking";
 import { getCurrentUser } from "@/app/queries/user";
 import { kv } from "@/lib/kv";
 import Mixpanel from "mixpanel";
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 import { cookies } from "next/headers";
+import { NextRequest, NextResponse, userAgent } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
 const mixpanel = Mixpanel.init(process.env.MIX_PANEL_TOKEN!);
