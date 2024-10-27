@@ -4,6 +4,7 @@ import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import classNames from "classnames";
 import Link from "next/link";
+
 import { Avatar } from "../Avatar/Avatar";
 import { CloseIcon } from "../Icons/CloseIcon";
 

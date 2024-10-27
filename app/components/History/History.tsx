@@ -1,6 +1,7 @@
 "use client";
 
 import useInfiniteQuestionsHistory from "@/app/_reactQuery/useInfiniteQuestionsHistory";
+
 import HistoryListSkeleton from "../HistoryListSkeleton/HistoryListSkeleton";
 import QuestionRowCard from "../QuestionRowCard/QuestionRowCard";
 import Skeleton from "../Skeleton/Skeleton";

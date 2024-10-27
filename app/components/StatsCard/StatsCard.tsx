@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+
 import { InfoIcon } from "../Icons/InfoIcon";
 
 type StatsCardProps = {

@@ -1,8 +1,10 @@
 "use server";
+
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
 import { IMAGE_ACTION } from "../constants/images";
 import { profileSchemaServer } from "../schemas/profile";
 import prisma from "../services/prisma";

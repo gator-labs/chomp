@@ -11,6 +11,7 @@ import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { release } from "os";
+
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredQuestion } from "../queries/question";
 import { addUserTutorialTimestamp } from "../queries/user";
@@ -296,7 +297,7 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
         selected: false,
       })),
     });
-  } catch (error) {
+  } catch {
     return { hasError: true };
   }
 }
@@ -324,7 +325,7 @@ export async function markQuestionAsTimedOut(questionId: number) {
         status: AnswerStatus.TimedOut,
       },
     });
-  } catch (error) {
+  } catch {
     return { hasError: true };
   }
 }
@@ -352,7 +353,7 @@ export async function markQuestionAsSkipped(questionId: number) {
         status: AnswerStatus.Skipped,
       },
     });
-  } catch (error) {
+  } catch {
     return { hasError: true };
   }
 }

@@ -4,9 +4,9 @@ import {
   getUsersTotalClaimedAmount,
   getUsersTotalRevealedCards,
 } from "@/app/queries/home";
-
 import bonkImg from "@/public/images/bonk.png";
 import Image from "next/image";
+
 import DoubleCardIcon from "../Icons/DoubleCardIcon";
 import LatestStreakBox from "../LatestStreakBox/LatestStreakBox";
 import { StatsBox } from "../StatsBox/StatsBox";

@@ -1,4 +1,5 @@
 import { BINARY_QUESTION_OPTION_LABELS } from "@/app/utils/question";
+
 import BinaryResult from "../BinaryResult/BinaryResult";
 import LikeIcon from "../Icons/LikeIcon";
 import UnlikeIcon from "../Icons/UnlikeIcon";

@@ -1,4 +1,5 @@
 import { getDecksForExpiringSection } from "@/app/queries/home";
+
 import { HomeFeedCardCarousel } from "../HomeFeedCardsCarousel/HomeFeedCardsCarousel";
 import { HomeFeedDeckCard } from "../HomeFeedDeckCard/HomeFeedDeckCard";
 import { HomeFeedEmptyQuestionCard } from "../HomeFeedEmptyQuestionCard/HomeFeedEmptyQuestionCard";

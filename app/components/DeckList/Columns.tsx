@@ -1,6 +1,8 @@
 "use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
+
 import { Tag } from "../Tag/Tag";
 import Action from "./Action";
 import { DeckRowType } from "./DeckList";
