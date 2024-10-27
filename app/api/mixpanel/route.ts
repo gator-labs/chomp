@@ -49,22 +49,15 @@ async function handleUtmParams(
   let initialUtm = deviceUtmData?.initial_utm || userUtmData?.initial_utm || {};
   let lastUtm = deviceUtmData?.last_utm || userUtmData?.last_utm || {};
 
-  // Check if any new UTM parameters are provided
-  const hasNewUtmParams = Object.values(utmParams).some(
-    (value) => value !== undefined,
-  );
-
-  const utmParamsWithoutUndefined = Object.fromEntries(
+  const validUtmParams = Object.fromEntries(
     Object.entries(utmParams).filter(([_, value]) => value !== undefined),
   );
 
-  // Update initial and last UTM data
-  if (hasNewUtmParams) {
+  // Update initial and last UTM data based on new valid UTM params
+  if (Object.keys(validUtmParams).length > 0) {
     initialUtm =
-      Object.keys(initialUtm).length > 0
-        ? initialUtm
-        : utmParamsWithoutUndefined;
-    lastUtm = utmParamsWithoutUndefined;
+      Object.keys(initialUtm).length > 0 ? initialUtm : validUtmParams;
+    lastUtm = validUtmParams;
   }
 
   // Remove undefined values
