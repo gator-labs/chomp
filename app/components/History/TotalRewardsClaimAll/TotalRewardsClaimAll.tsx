@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { claimAllAvailable } from '@/app/actions/claim';
+import { claimAllAvailable } from "@/app/actions/claim";
 import {
   REVEAL_TYPE,
   TRACKING_EVENTS,
@@ -11,12 +11,13 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic, useState } from "react";
+
 import { Button } from "../../Button/Button";
-import AvatarPlaceholder from '@/public/images/avatar_placeholder.png';
-import ClaimShareDrawer from '../../ClaimShareDrawer/ClaimShareDrawer';
+import ClaimShareDrawer from "../../ClaimShareDrawer/ClaimShareDrawer";
 
 type TotalRewardsClaimAllProps = {
   totalClaimableRewards?: {
@@ -30,7 +31,7 @@ export default function TotalRewardsClaimAll({
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
     totalClaimableRewards?.totalClaimableRewards || 0,
-    (_, optimisticValue: number) => optimisticValue
+    (_, optimisticValue: number) => optimisticValue,
   );
   const { promiseToast, successToast } = useToast();
   const { fire } = useConfetti();
@@ -40,7 +41,7 @@ export default function TotalRewardsClaimAll({
     claimedAmount: 0,
     correctAnswers: 0,
     questionsAnswered: 0,
-    transactionHash: '',
+    transactionHash: "",
   });
   const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
 
@@ -50,10 +51,10 @@ export default function TotalRewardsClaimAll({
 
       trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
-          q => q?.id
+          (q) => q?.id,
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
-          q => q?.question
+          (q) => q?.question,
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
           (q) => q?.question,
@@ -62,9 +63,9 @@ export default function TotalRewardsClaimAll({
       });
 
       const res = await promiseToast(claimAllAvailable(), {
-        loading: 'Claim in progress. Please wait...',
-        success: 'Funds are transferred!',
-        error: 'Issue transferring funds.',
+        loading: "Claim in progress. Please wait...",
+        success: "Funds are transferred!",
+        error: "Issue transferring funds.",
       });
 
       trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
@@ -78,14 +79,14 @@ export default function TotalRewardsClaimAll({
       startTransition(() => {
         claimOptimistic(0);
       });
-      queryClient.resetQueries({ queryKey: ['questions-history'] });
+      queryClient.resetQueries({ queryKey: ["questions-history"] });
 
       fire();
       successToast(
-        'Claimed!',
+        "Claimed!",
         `You have successfully claimed ${numberToCurrencyFormatter.format(
-          totalClaimableRewards?.totalClaimableRewards || 0
-        )} BONK!`
+          totalClaimableRewards?.totalClaimableRewards || 0,
+        )} BONK!`,
       );
       setIsClaiming(false);
       setIsClaimShareDrawerOpen(true);
@@ -95,13 +96,14 @@ export default function TotalRewardsClaimAll({
         questionsAnswered: res!.questions.length,
         transactionHash: res!.transactionSignature,
       });
-    } catch (_) {
+    } catch (error) {
+      console.error(error);
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
-          q => q?.id
+          (q) => q?.id,
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
-          q => q?.question
+          (q) => q?.question,
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
           (q) => q?.question,

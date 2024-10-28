@@ -10,7 +10,7 @@ type Props = {
 export async function generateMetadata({
   params: { txHash },
 }: Props): Promise<Metadata> {
-  let images = [getOgShareClaimAllPath(txHash)];
+  const images = [getOgShareClaimAllPath(txHash)];
 
   return {
     openGraph: {

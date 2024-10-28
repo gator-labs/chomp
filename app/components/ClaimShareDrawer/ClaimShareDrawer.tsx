@@ -5,6 +5,7 @@ import trackEvent from "@/lib/trackEvent";
 import { getClaimAllShareUrl } from "@/lib/urls";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useEffect } from "react";
+
 import ClaimPreviewImage from "../ClaimPreviewImage/ClaimPreviewImage";
 import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";

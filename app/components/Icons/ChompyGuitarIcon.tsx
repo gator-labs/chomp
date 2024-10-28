@@ -1,4 +1,4 @@
-import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from '.';
+import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from ".";
 
 export function ChompyGuitarIcon({
   width = ICON_DEFAULT_WIDTH_HEIGHT,

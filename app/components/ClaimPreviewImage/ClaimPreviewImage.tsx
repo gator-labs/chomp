@@ -1,4 +1,5 @@
 import Image from "next/image";
+
 import { ChompyGuitarIcon } from "../Icons/ChompyGuitarIcon";
 import HeadIcon from "../Icons/HeadIcon";
 
