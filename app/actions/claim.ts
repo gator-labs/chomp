@@ -218,7 +218,7 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
     sendTx = await sendBonk(
       treasuryWallet,
       new PublicKey(address),
-      Math.round(tokenAmount * 10 ** 5),
+      Math.round((tokenAmount * 10 ** 5) / 100),
     );
   }
 

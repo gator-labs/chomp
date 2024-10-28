@@ -1,7 +1,8 @@
+import { VersionedTransaction } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
 import bs58 from "bs58";
 
-export const getRecentPrioritizationFees = async (tx: Transaction) => {
+export const getRecentPrioritizationFees = async (tx: Transaction | VersionedTransaction) => {
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_RPC_URL!, {
       method: "POST",
@@ -11,16 +12,16 @@ export const getRecentPrioritizationFees = async (tx: Transaction) => {
       body: JSON.stringify({
         jsonrpc: "2.0",
         id: 1,
-      method: "getPriorityFeeEstimate",
-      params: [
-        {
-          transaction: bs58.encode(
-            tx.serialize({
-              requireAllSignatures: false,
-              verifySignatures: false,
-            }),
-          ),
-          options: {
+        method: "getPriorityFeeEstimate",
+        params: [
+          {
+            transaction: bs58.encode(
+              tx.serialize({
+                requireAllSignatures: false,
+                verifySignatures: false,
+              }),
+            ),
+            options: {
               includeAllPriorityFeeLevels: true,
             },
           },
@@ -30,7 +31,7 @@ export const getRecentPrioritizationFees = async (tx: Transaction) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("PriorityFeeEstimateError",error);
+    console.error("PriorityFeeEstimateError", error);
     return null;
   }
 };
