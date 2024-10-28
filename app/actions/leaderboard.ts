@@ -1,14 +1,14 @@
 "use server";
 
-import { FungibleAsset, ResultType } from "@prisma/client";
-
 import { kv } from "@/lib/kv";
+import { FungibleAsset, ResultType } from "@prisma/client";
 import {
   differenceInSeconds,
   isSameDay,
   isWithinInterval,
   subDays,
 } from "date-fns";
+
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
   getAllTimeChompedQuestionsQuery,
@@ -18,6 +18,7 @@ import {
 import { getCurrentUser } from "../queries/user";
 import prisma from "../services/prisma";
 import { getStartAndEndOfDay, getWeekStartAndEndDates } from "../utils/date";
+
 interface LeaderboardProps {
   variant: "weekly" | "daily" | "stack" | "all-time";
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions";
@@ -25,7 +26,7 @@ interface LeaderboardProps {
 }
 
 export const getPreviousUserRank = async (
-  variant: "weekly" | "daily",
+  variant: "weekly" | "daily" | "all-time",
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions",
 ) => {
   const today = new Date();
@@ -43,15 +44,21 @@ export const getPreviousUserRank = async (
     return;
 
   const currentUser = await getCurrentUser();
-  const dateRange = getDateRange(variant, true);
-  const { endDate: expirationDate } = getDateRange(variant)!;
+  let dateFilter = {};
+  let expirationDate = subDays(new Date(), 1);
 
-  const dateFilter = {
-    createdAt: {
-      gte: dateRange!.startDate,
-      lte: dateRange!.endDate,
-    },
-  };
+  if (variant !== "all-time") {
+    const dateRange = getDateRange(variant, true);
+    const { endDate } = getDateRange(variant)!;
+    expirationDate = endDate;
+
+    dateFilter = {
+      createdAt: {
+        gte: dateRange!.startDate,
+        lte: dateRange!.endDate,
+      },
+    };
+  }
 
   const key = `${variant}-${filter}`;
 
@@ -313,7 +320,6 @@ const mapLeaderboardData = async (
       rank,
     });
   }
-
   return {
     ranking,
     loggedInUserScore: {

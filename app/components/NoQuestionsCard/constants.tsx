@@ -1,5 +1,6 @@
 import { formatDistanceToNowStrict } from "date-fns";
 import Link from "next/link";
+
 import { TrophyGraphic } from "../Graphics/TrophyGraphic";
 import FlagIcon from "../Icons/FlagIcon";
 import HeartIcon from "../Icons/HeartIcon";
@@ -25,8 +26,7 @@ export const QUESTION_CARD_CONTENT = {
         {!!date && (
           <>
             The answers to this deck will be revealed in{" "}
-            {formatDistanceToNowStrict(date)}
-            .
+            {formatDistanceToNowStrict(date)}.
           </>
         )}
       </>

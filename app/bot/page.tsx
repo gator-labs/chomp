@@ -1,14 +1,18 @@
-
 "use client";
 
-import { DynamicWidget, useDynamicContext, useTelegramLogin } from "@dynamic-labs/sdk-react-core";
+import {
+  DynamicWidget,
+  useDynamicContext,
+  useTelegramLogin,
+} from "@dynamic-labs/sdk-react-core";
+import { isSolanaWallet } from "@dynamic-labs/solana-core";
+import { Connection } from "@solana/web3.js";
 import { useEffect, useState } from "react";
-import Spinner from "./Spinner";
-import { ISolana, isSolanaWallet } from '@dynamic-labs/solana-core';
-import { genBonkBurnTx } from "../utils/solana";
-import { Connection } from '@solana/web3.js';
 
-const BONK_AMOUNT = 5
+import { genBonkBurnTx } from "../utils/solana";
+import Spinner from "./Spinner";
+
+const BONK_AMOUNT = 5;
 
 export default function Main() {
   const { sdkHasLoaded, user, primaryWallet } = useDynamicContext();
@@ -20,7 +24,7 @@ export default function Main() {
     if (!sdkHasLoaded) return;
 
     const signIn = async () => {
-        console.log("user", user);
+      console.log("user", user);
       if (!user) {
         await telegramSignIn({ forceCreateUser: true });
       }
@@ -30,28 +34,35 @@ export default function Main() {
     signIn();
   }, [sdkHasLoaded]);
 
-
   const burnBonk = async () => {
-    if(!primaryWallet || !isSolanaWallet(primaryWallet)) {
-        return;
-      }
-      
+    if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
+      return;
+    }
+
     const connection: Connection = await primaryWallet.getConnection();
     const blockhash = await connection.getLatestBlockhash();
 
-    const signer = await primaryWallet.getSigner()
+    const signer = await primaryWallet.getSigner();
 
     const tx = await genBonkBurnTx(
-        primaryWallet.address,
-        blockhash.blockhash,
-        BONK_AMOUNT,
+      primaryWallet.address,
+      blockhash.blockhash,
+      BONK_AMOUNT,
     );
-    
-    signer.signAndSendTransaction(tx)
-  }
+
+    signer.signAndSendTransaction(tx);
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-black" style={{backgroundColor: "#f9f9fb", backgroundImage: "url('/background-pattern.svg')", backgroundBlendMode: "overlay", backgroundRepeat: "repeat"}}>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center text-black"
+      style={{
+        backgroundColor: "#f9f9fb",
+        backgroundImage: "url('/background-pattern.svg')",
+        backgroundBlendMode: "overlay",
+        backgroundRepeat: "repeat",
+      }}
+    >
       <div className="flex flex-col items-center justify-center text-center max-w-3xl px-4">
         <div className="pt-8">
           <div className="inline-flex items-center justify-center">
@@ -64,10 +75,17 @@ export default function Main() {
           <div className="flex justify-center py-4">
             {isLoading ? <Spinner /> : <DynamicWidget />}
           </div>
-          {user && (<><p className="mb-3">
-            Zero clicks, your wallet already exists.
-          </p>
-          <button className='bg-purple-500 p-2 rounded-md text-lg' onClick={burnBonk}>Burn {BONK_AMOUNT} $BONK</button></>)}
+          {user && (
+            <>
+              <p className="mb-3">Zero clicks, your wallet already exists.</p>
+              <button
+                className="bg-purple-500 p-2 rounded-md text-lg"
+                onClick={burnBonk}
+              >
+                Burn {BONK_AMOUNT} $BONK
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

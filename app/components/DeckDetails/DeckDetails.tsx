@@ -1,4 +1,5 @@
 "use client";
+
 import { revealDeck } from "@/app/actions/chompResult";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
@@ -11,6 +12,7 @@ import { ChompResult, Deck } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
+
 import { Button } from "../Button/Button";
 import { DeckDetailsFeedRowCard } from "../DeckDetailsFeedRowCard/DeckDetailsFeedRowCard";
 import { HalfArrowLeftIcon } from "../Icons/HalfArrowLeftIcon";

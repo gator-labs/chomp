@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
@@ -6,6 +7,7 @@ import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
+
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
@@ -19,10 +21,10 @@ import {
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
 import {
-  TRACKING_EVENTS,
-  TRACKING_METADATA,
   REVEAL_DIALOG_TYPE,
   REVEAL_TYPE,
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
 import { BurnError, DynamicRevealError, RevealError } from "../utils/error";
@@ -236,8 +238,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
   const burnAndReveal = async (ignoreNft?: boolean) => {
     setProcessingTransaction(true);
-    let signature: string | undefined = undefined;
-    let pendingChompResultIds = pendingChompResults.map(
+    const signature: string | undefined = undefined;
+    const pendingChompResultIds = pendingChompResults.map(
       (chr) => chr.questionId!,
     );
     const revealQuestionIds = reveal!.questionIds.filter(

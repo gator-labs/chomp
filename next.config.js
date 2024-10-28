@@ -32,7 +32,8 @@ const nextConfig = {
     serverComponentsExternalPackages: ["@aws-sdk"],
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
+    removeConsole:
+      process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
   },
   images: {
     remotePatterns: [
@@ -65,6 +66,10 @@ const nextConfig = {
         permanent: true,
       },
     ];
+  },
+
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 

@@ -1,5 +1,6 @@
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { z, ZodError } from "zod";
+import { ZodError, z } from "zod";
+
 import { getPreSignedURL } from "../actions/s3";
 import { IMAGE_VALID_TYPES, MAX_IMAGE_UPLOAD_SIZE } from "../constants/images";
 import s3Client from "../services/s3Client";

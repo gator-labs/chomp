@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { getLeaderboard, getPreviousUserRank } from "@/app/actions/leaderboard";
 import useIsOverflowing from "@/app/hooks/useIsOverflowing";
 import { nthNumber } from "@/app/utils/number";
@@ -11,6 +9,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
 import Chip from "../Chip/Chip";
@@ -95,7 +94,7 @@ const Leaderboard = ({
       setRanking(res?.ranking || []);
       setIsLoading(false);
 
-      if (variant !== "stack" && variant !== "all-time") {
+      if (variant !== "stack") {
         const rank = await getPreviousUserRank(variant, filter);
         setPreviousUserRank(rank);
       } else {
@@ -159,8 +158,10 @@ const Leaderboard = ({
             {variant === "stack"
               ? "All time ranking"
               : variant === "daily"
-                ? "Today" : variant === "weekly" ? "This week"
-                : "All time"}
+                ? "Today"
+                : variant === "weekly"
+                  ? "This week"
+                  : "All time"}
           </span>
           {!!rankDifference && (
             <div className="flex gap-1 items-center">

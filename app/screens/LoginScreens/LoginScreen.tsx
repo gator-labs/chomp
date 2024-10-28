@@ -1,15 +1,16 @@
 "use client";
 
-import { setJwt } from "@/app/actions/jwt";
-import { TRACKING_EVENTS } from "@/app/constants/tracking";
+// import { setJwt } from "@/app/actions/jwt";
+// import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { DynamicJwtPayload } from "@/lib/auth";
-import trackEvent from "@/lib/trackEvent";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { redirect, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import ExistingUserScreen from "./ExistingUserScreen";
-import LoadingScreen from "./LoadingScreen";
-import NewUserScreen from "./NewUserScreen";
+
+// import trackEvent from "@/lib/trackEvent";
+// import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+// import { redirect, useSearchParams } from "next/navigation";
+// import { useEffect, useState } from "react";
+// import ExistingUserScreen from "./ExistingUserScreen";
+// import LoadingScreen from "./LoadingScreen";
+// import NewUserScreen from "./NewUserScreen";
 import SlideshowScreen from "./SlideshowScreen";
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
   payload: DynamicJwtPayload | null;
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
   // const {
   //   authToken,

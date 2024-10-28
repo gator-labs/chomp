@@ -8,7 +8,7 @@ const meta = {
     layout: "centered",
   },
   args: {
-    amount: 102301849
+    amount: 102301849,
   },
   tags: ["autodocs"],
   decorators: (Story) => (
