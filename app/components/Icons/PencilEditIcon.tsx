@@ -1,7 +1,6 @@
 import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from ".";
 
 export function PencilEditIcon({
-  fill = "#fff",
   width = ICON_DEFAULT_WIDTH_HEIGHT,
   height = ICON_DEFAULT_WIDTH_HEIGHT,
 }: IconProps) {

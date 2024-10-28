@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+
 import { useToast } from "../providers/ToastProvider";
 
 type CopiedValue = string | null;
@@ -48,7 +49,7 @@ export function useCopyToClipboard(): {
     try {
       await copy(text);
       infoToast(infoText);
-    } catch (error) {
+    } catch {
       errorToast(errorText);
     }
   };

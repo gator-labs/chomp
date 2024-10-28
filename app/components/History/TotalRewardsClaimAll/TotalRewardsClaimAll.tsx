@@ -1,21 +1,22 @@
 'use client';
+
 import { claimAllAvailable } from '@/app/actions/claim';
 import {
+  REVEAL_TYPE,
   TRACKING_EVENTS,
   TRACKING_METADATA,
-  REVEAL_TYPE,
-} from '@/app/constants/tracking';
-import { useClaiming } from '@/app/providers/ClaimingProvider';
-import { useConfetti } from '@/app/providers/ConfettiProvider';
-import { useToast } from '@/app/providers/ToastProvider';
-import { numberToCurrencyFormatter } from '@/app/utils/currency';
-import trackEvent from '@/lib/trackEvent';
-import { Question } from '@prisma/client';
-import { useQueryClient } from '@tanstack/react-query';
-import { startTransition, useOptimistic, useState } from 'react';
-import { Button } from '../../Button/Button';
-import ClaimShareDrawer from '../../ClaimShareDrawer/ClaimShareDrawer';
+} from "@/app/constants/tracking";
+import { useClaiming } from "@/app/providers/ClaimingProvider";
+import { useConfetti } from "@/app/providers/ConfettiProvider";
+import { useToast } from "@/app/providers/ToastProvider";
+import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import trackEvent from "@/lib/trackEvent";
+import { Question } from "@prisma/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { startTransition, useOptimistic, useState } from "react";
+import { Button } from "../../Button/Button";
 import AvatarPlaceholder from '@/public/images/avatar_placeholder.png';
+import ClaimShareDrawer from '../../ClaimShareDrawer/ClaimShareDrawer';
 
 type TotalRewardsClaimAllProps = {
   totalClaimableRewards?: {
@@ -53,6 +54,9 @@ export default function TotalRewardsClaimAll({
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
           q => q?.question
+        ),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
         ),
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
@@ -98,6 +102,9 @@ export default function TotalRewardsClaimAll({
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
           q => q?.question
+        ),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
         ),
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });

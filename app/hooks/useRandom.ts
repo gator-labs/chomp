@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+
 import { getRandomInteger } from "../utils/randomUtils";
 
 type RandomProps = {

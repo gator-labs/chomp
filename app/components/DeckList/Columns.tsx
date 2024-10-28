@@ -1,6 +1,8 @@
 "use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
+
 import { Tag } from "../Tag/Tag";
 import Action from "./Action";
 import { DeckRowType } from "./DeckList";
@@ -19,6 +21,18 @@ export const columns: ColumnDef<DeckRowType>[] = [
     cell: ({ row }) => (
       <div>{row.original.deckQuestions[0]?.question.revealTokenAmount}</div>
     ),
+  },
+  {
+    header: "Deck Live At",
+    cell: ({ row }) => {
+      return (
+        <div>
+          {!!row.original.deckLiveAt 
+            ? dayjs(row.original.deckLiveAt).format("MM.DD.YYYY HH:mm")
+            : ""}{" "}
+        </div>
+      );
+    },
   },
   {
     header: "Reveal at",
