@@ -8,6 +8,7 @@ import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { RemoveIcon } from "../components/Icons/ToastIcons/RemoveIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
 import { SuccessIcon } from "../components/Icons/ToastIcons/SuccessIcon";
+import Link from "next/link";
 
 type ToastContextType = {
   successToast: (message: string, description?: string) => void;
@@ -54,7 +55,7 @@ const toastOptions: ToasterProps = {
 const toastLayout = (
   IconComponent: React.ElementType,
   message: string,
-  description?: string,
+  description?: string | React.ReactElement,
 ) => (
   <div className="flex gap-6 items-center text-gray-50 justify-between p-6 border border-purple-200 rounded-[8px] w-[358px] h-[75] bg-gray-800 relative overflow-hidden">
     <div>
@@ -77,8 +78,32 @@ const successToastLayout = (message: string, description?: string) =>
 const infoToastLayout = (message: string, description?: string) =>
   toastLayout(InfoIcon, message, description);
 
-const errorToastLayout = (message: string, description?: string) =>
-  toastLayout(ErrorIcon, message, description);
+const errorToastLayout = (message: string, description?: string) => {
+
+  const hasTelegramLink = message.includes("[TelegramLink]");
+  const parts = message.split("[TelegramLink]");
+  const firstPart = parts[0].split("\n");
+
+  if (hasTelegramLink) {
+    return toastLayout(ErrorIcon, firstPart[0], <>
+      {firstPart[1]}
+      {hasTelegramLink && (
+        <>
+          <Link
+            href="https://t.me/+8ffiqdoGLAIyZmNl"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-200 hover:underline"
+          >
+            Telegram
+          </Link>
+        </>
+      )}
+    </>);
+  }
+
+  return toastLayout(ErrorIcon, message, description);
+}
 
 const defaultToastLayout = (message: string) =>
   toastLayout(SuccessIcon, message);

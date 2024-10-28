@@ -70,7 +70,8 @@ const ClaimButton = ({
       promiseToast(claimQuestions(questionIds), {
         loading: "Claiming your rewards...",
         success: "You have successfully claimed your rewards!",
-        error: "Failed to claim rewards. Please try again.",
+        error:
+          "Transaction Failed! \n Please try again. If this issue keeps happening, let us know on [TelegramLink]",
       })
         .then((res) => {
           trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
