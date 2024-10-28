@@ -149,7 +149,9 @@ async function getNextDeckIdQuery(
   return filteredDecks.length > 0 ? filteredDecks[0].id : undefined;
 }
 
-async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
+export async function queryExpiringDecks(
+  userId: string,
+): Promise<DeckExpiringSoon[]> {
   const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
 
