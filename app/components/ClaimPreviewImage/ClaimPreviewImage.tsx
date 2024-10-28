@@ -1,8 +1,6 @@
-import Image from 'next/image';
-import React from 'react';
-import HeadIcon from '../Icons/HeadIcon';
-import AvatarPlaceholder from '@/public/images/avatar_placeholder.png';
-import { ChompyGuitarIcon } from '../Icons/ChompyGuitarIcon';
+import Image from "next/image";
+import { ChompyGuitarIcon } from "../Icons/ChompyGuitarIcon";
+import HeadIcon from "../Icons/HeadIcon";
 
 type ClaimPreviewImageProps = {
   questionsAnswered: number;
@@ -36,26 +34,26 @@ const ClaimPreviewImage = ({
           <p>I just won</p>
           <p>
             <span className="text-white">
-              {claimedAmount.toLocaleString('en-US')} BONK
-            </span>{' '}
+              {claimedAmount.toLocaleString("en-US")} BONK
+            </span>{" "}
             from playing Chomp
           </p>
         </div>
       </div>
       <div className="p-1 rounded-[8px] bg-secondary flex gap-1">
-        <div className="flex-1 rounded-[8px] flex bg-[#D6FCF4] items-center px-1 gap-1">
+        <div className="flex-1 rounded-[8px] flex bg-[#D6FCF4] items-center px-1 gap-1 justify-center">
           <p className="text-[50.44px] leading-[68px] text-[#0C5546] font-black">
             {questionsAnswered}
           </p>
-          <p className="text-[#68C6B2] text-[17.27px] leading-[17px] tracking-tight font-black">
+          <p className="text-[#68C6B2] text-[17.27px] leading-[17px] tracking-tight font-black w-[77px]">
             questions answered
           </p>
         </div>
-        <div className="flex-1 rounded-[8px] flex bg-[#FBF3BA] items-center px-1 gap-1">
+        <div className="flex-1 rounded-[8px] flex bg-[#FBF3BA] items-center px-1 gap-1 justify-center">
           <p className="text-[50.44px] leading-[68px] text-[#6C6219] font-black">
             {correctAnswers}
           </p>
-          <p className="text-[#CCBF64] text-[17.27px] leading-[17px] tracking-tight font-black">
+          <p className="text-[#CCBF64] text-[17.27px] leading-[17px] tracking-tight font-black w-[63px]">
             correct answers
           </p>
         </div>
@@ -65,9 +63,9 @@ const ClaimPreviewImage = ({
           <div
             className="bg-primary absolute top-[10px] right-0 translate-x-full"
             style={{
-              clipPath: 'polygon(0 0, 0% 100%, 100% 100%)',
-              width: '5.76px',
-              height: '5.18px',
+              clipPath: "polygon(0 0, 0% 100%, 100% 100%)",
+              width: "5.76px",
+              height: "5.18px",
             }}
           />
           <p className="font-black text-secondary text-[13.49px] leading-[18.21px] tracking-tight">
