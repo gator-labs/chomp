@@ -6,6 +6,7 @@ import {
   TransactionLogType,
 } from "@prisma/client";
 import { format } from "date-fns";
+
 import { generateUsers } from "./utils";
 
 console.log("Loaded environment variables:");

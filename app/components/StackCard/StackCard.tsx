@@ -3,6 +3,7 @@
 import { STACKS_PATH } from "@/lib/urls";
 import Image from "next/image";
 import Link from "next/link";
+
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
 
 type StackCardProps = {

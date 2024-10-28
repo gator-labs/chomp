@@ -1,9 +1,10 @@
 "use client";
+
 import { claimQuestions } from "@/app/actions/claim";
 import {
+  REVEAL_TYPE,
   TRACKING_EVENTS,
   TRACKING_METADATA,
-  REVEAL_TYPE,
 } from "@/app/constants/tracking";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -13,6 +14,7 @@ import { CONNECTION } from "@/app/utils/solana";
 import trackEvent from "@/lib/trackEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
+
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
@@ -85,7 +87,7 @@ const ClaimButton = ({
         .finally(() => {
           setIsClaiming(false);
         });
-    } catch (error) {
+    } catch {
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: questions,

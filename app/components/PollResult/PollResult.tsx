@@ -1,6 +1,7 @@
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import classNames from "classnames";
-import { cloneElement, ReactElement } from "react";
+import { ReactElement, cloneElement } from "react";
+
 import { Avatar } from "../Avatar/Avatar";
 
 type PollResultProps = {

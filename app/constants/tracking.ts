@@ -54,7 +54,7 @@ export const TRACKING_METADATA = {
   IS_DAILY_DECK: "IsDailyDeck",
   TYPE: "Type",
   URL_PATH: "UrlPath",
-  URL_SEARCH: "UrlSearch"
+  URL_SEARCH: "UrlSearch",
 };
 
 export const HOME_STAT_CARD_TYPE = {

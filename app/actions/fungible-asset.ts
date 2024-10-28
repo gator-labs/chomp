@@ -3,6 +3,7 @@ import {
   FungibleAssetBalance,
   TransactionLogType,
 } from "@prisma/client";
+
 import prisma, { PrismaTransactionClient } from "../services/prisma";
 import { createTypedObjectFromEntries } from "../utils/object";
 import { getJwtPayload } from "./jwt";
