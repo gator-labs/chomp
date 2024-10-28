@@ -1,5 +1,6 @@
 import { getOgShareClaimAllPath } from "@/lib/urls";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 type Props = {
@@ -19,7 +20,10 @@ export async function generateMetadata({
 }
 
 export default async function Page() {
+  const headersList = headers();
+  const referer = headersList.get("referer");
+
   redirect(
-    `/application?utm_source=x&utm_medium=social&utm_campaign=app_share&utm_content=claim_all`,
+    `/application?${referer === "x" ? "utm_source=x&utm_medium=social&" : ""}utm_campaign=app_share&utm_content=claim_all`,
   );
 }
