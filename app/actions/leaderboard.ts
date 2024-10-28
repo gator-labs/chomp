@@ -44,7 +44,7 @@ export const getPreviousUserRank = async (
     return;
 
   const currentUser = await getCurrentUser();
-  let dateFilter = {}
+  let dateFilter = {};
   let expirationDate = subDays(new Date(), 1);
 
   if (variant !== "all-time") {
@@ -164,11 +164,11 @@ export const getLeaderboard = async ({
 const getNumberOfChompedQuestions = async (
   dateFilter:
     | {
-      createdAt: {
-        gte: Date;
-        lte: Date;
-      };
-    }
+        createdAt: {
+          gte: Date;
+          lte: Date;
+        };
+      }
     | {},
   stackId?: number,
 ) => {
@@ -208,8 +208,8 @@ const getNumberOfChompedQuestions = async (
 const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
   const whereStackClause = !!stackId
     ? {
-      OR: [{ question: { stackId } }, { deck: { stackId } }],
-    }
+        OR: [{ question: { stackId } }, { deck: { stackId } }],
+      }
     : {};
 
   const data = await prisma.fungibleAssetTransactionLog.groupBy({
@@ -318,7 +318,7 @@ const mapLeaderboardData = async (
       user,
       value: entry.value,
       rank,
-    })
+    });
   }
   return {
     ranking,

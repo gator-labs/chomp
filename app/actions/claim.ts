@@ -134,8 +134,6 @@ export async function claimQuestions(questionIds: number[]) {
       },
     });
 
-
-
     await prisma.$transaction(
       async (tx) => {
         await tx.chompResult.updateMany({

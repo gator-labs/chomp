@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ReactNode, createContext, useContext } from "react";
 import { ErrorIcon } from "react-hot-toast";
 import { Toaster, ToasterProps, toast } from "sonner";
@@ -8,7 +9,6 @@ import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { RemoveIcon } from "../components/Icons/ToastIcons/RemoveIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
 import { SuccessIcon } from "../components/Icons/ToastIcons/SuccessIcon";
-import Link from "next/link";
 
 type ToastContextType = {
   successToast: (message: string, description?: string) => void;
@@ -79,31 +79,34 @@ const infoToastLayout = (message: string, description?: string) =>
   toastLayout(InfoIcon, message, description);
 
 const errorToastLayout = (message: string, description?: string) => {
-
   const hasTelegramLink = message.includes("[TelegramLink]");
   const parts = message.split("[TelegramLink]");
   const firstPart = parts[0].split("\n");
 
   if (hasTelegramLink) {
-    return toastLayout(ErrorIcon, firstPart[0], <>
-      {firstPart[1]}
-      {hasTelegramLink && (
-        <>
-          <Link
-            href="https://t.me/+8ffiqdoGLAIyZmNl"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-200 hover:underline"
-          >
-            Telegram
-          </Link>
-        </>
-      )}
-    </>);
+    return toastLayout(
+      ErrorIcon,
+      firstPart[0],
+      <>
+        {firstPart[1]}
+        {hasTelegramLink && (
+          <>
+            <Link
+              href="https://t.me/+8ffiqdoGLAIyZmNl"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-200 hover:underline"
+            >
+              Telegram
+            </Link>
+          </>
+        )}
+      </>,
+    );
   }
 
   return toastLayout(ErrorIcon, message, description);
-}
+};
 
 const defaultToastLayout = (message: string) =>
   toastLayout(SuccessIcon, message);
