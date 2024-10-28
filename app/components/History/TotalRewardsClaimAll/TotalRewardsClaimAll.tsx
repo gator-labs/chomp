@@ -95,7 +95,7 @@ export default function TotalRewardsClaimAll({
         questionsAnswered: res!.questions.length,
         transactionHash: res!.transactionSignature,
       });
-    } catch (error) {
+    } catch (_) {
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           q => q?.id
