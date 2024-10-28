@@ -13,5 +13,5 @@ export const getOgShareClaimAllPath = (encryptedTxHash: string) =>
 export const getClaimAllShareUrl = (txHash: string) => {
   const encryptedTxHash = encrypt(txHash);
 
-  return `${process.env.NEXT_PUBLIC_APP_URL}/a/${encryptedTxHash}`;
+  return `${window.location.origin}/a/${encryptedTxHash}`;
 };
