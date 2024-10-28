@@ -2,7 +2,9 @@ import { VersionedTransaction } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
 import bs58 from "bs58";
 
-export const getRecentPrioritizationFees = async (tx: Transaction | VersionedTransaction) => {
+export const getRecentPrioritizationFees = async (
+  tx: Transaction | VersionedTransaction,
+) => {
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_RPC_URL!, {
       method: "POST",

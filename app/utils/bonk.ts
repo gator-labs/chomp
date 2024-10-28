@@ -12,10 +12,10 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
-import { CONNECTION } from "./solana";
 import { getComputeUnits } from "../queries/getComputeUnitEstimate";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { pollTransactionConfirmation } from "../queries/pollTransactionConfirmation";
+import { CONNECTION } from "./solana";
 
 export const sendBonk = async (
   fromWallet: Keypair,
@@ -55,8 +55,7 @@ export const sendBonk = async (
 
   versionedTransaction.sign([fromWallet]);
 
-
-  let estimateFee = await getRecentPrioritizationFees(versionedTransaction);
+  const estimateFee = await getRecentPrioritizationFees(versionedTransaction);
 
   // Add the compute unit price instruction with the estimated fee
   const computeBudgetIx = ComputeBudgetProgram.setComputeUnitPrice({
@@ -70,7 +69,7 @@ export const sendBonk = async (
     instructions,
     fromWallet.publicKey,
     [],
-  )
+  );
 
   if (unitsConsumed) {
     // Add some margin to the compute units
@@ -87,9 +86,11 @@ export const sendBonk = async (
     instructions,
   }).compileToV0Message();
 
-  const updatedVersionedTransaction = new VersionedTransaction(v0updatedMessage);
+  const updatedVersionedTransaction = new VersionedTransaction(
+    v0updatedMessage,
+  );
 
-  updatedVersionedTransaction.sign([fromWallet])
+  updatedVersionedTransaction.sign([fromWallet]);
 
   // Re-fetch the blockhash every 4 retries, or, roughly once every minute
   const blockhashValidityThreshold = 4;
@@ -97,24 +98,27 @@ export const sendBonk = async (
   let retryCount: number = 0;
   let txtSig: string;
 
-  let maxRetries: number = 6
-  let skipPreflightChecks: boolean = true
-
+  const maxRetries: number = 6;
+  const skipPreflightChecks: boolean = true;
 
   // Send the transaction with configurable retries and preflight checks
   while (retryCount <= maxRetries) {
     try {
       // Check if the blockhash needs to be refreshed based on the retry count
       if (retryCount > 0 && retryCount % blockhashValidityThreshold === 0) {
-        let latestBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
+        const latestBlockhash = (await CONNECTION.getLatestBlockhash())
+          .blockhash;
         updatedVersionedTransaction.message.recentBlockhash = latestBlockhash;
         updatedVersionedTransaction.sign([fromWallet]);
       }
 
-      txtSig = await CONNECTION.sendRawTransaction(updatedVersionedTransaction.serialize(), {
-        skipPreflight: skipPreflightChecks,
-        maxRetries: 0,
-      });
+      txtSig = await CONNECTION.sendRawTransaction(
+        updatedVersionedTransaction.serialize(),
+        {
+          skipPreflight: skipPreflightChecks,
+          maxRetries: 0,
+        },
+      );
 
       return await pollTransactionConfirmation(txtSig);
     } catch (error) {
@@ -126,5 +130,5 @@ export const sendBonk = async (
     }
   }
 
-  return null
+  return null;
 };
