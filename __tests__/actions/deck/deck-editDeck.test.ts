@@ -20,7 +20,7 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Editing a Deck", () => {
-  const currentDate = new Date();
+  const currentDate = new Date("2024-07-20 16:19:30.717");
   let currentDeckId: number;
   let user: { id: string; username: string };
 
