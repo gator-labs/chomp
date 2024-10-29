@@ -1,4 +1,4 @@
-import { editDeck } from "@/app/actions/deck/deck";
+import { deleteDeck, editDeck } from "@/app/actions/deck/deck";
 import { getDeckSchema } from "@/app/queries/deck";
 import { deckSchema } from "@/app/schemas/deck";
 import prisma from "@/app/services/prisma";
@@ -20,7 +20,7 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Editing a Deck", () => {
-  const currentDate = new Date("2024-09-13 15:09:41.489");
+  const currentDate = new Date();
   let currentDeckId: number;
   let user: { id: string; username: string };
 
@@ -69,72 +69,7 @@ describe("Editing a Deck", () => {
 
   // delete all the deck and user data after all the test run
   afterAll(async () => {
-    const deckId = currentDeckId;
-    await prisma.$transaction(async (tx) => {
-      const deckQuestions = await tx.deckQuestion.findMany({
-        where: {
-          deckId,
-        },
-        include: {
-          question: {
-            include: {
-              questionOptions: true,
-            },
-          },
-        },
-      });
-
-      const questionOptionsIds = deckQuestions.flatMap((q) =>
-        q.question.questionOptions.map((qo) => qo.id),
-      );
-      const questionIds = deckQuestions.map((dq) => dq.questionId);
-
-      await tx.chompResult.deleteMany({
-        where: {
-          questionId: {
-            in: questionIds,
-          },
-        },
-      });
-
-      await tx.questionAnswer.deleteMany({
-        where: {
-          questionOptionId: {
-            in: questionOptionsIds,
-          },
-        },
-      });
-
-      await tx.questionOption.deleteMany({
-        where: {
-          id: {
-            in: questionOptionsIds,
-          },
-        },
-      });
-
-      await tx.deckQuestion.deleteMany({
-        where: {
-          deckId,
-        },
-      });
-
-      await tx.userDeck.deleteMany({
-        where: {
-          deckId,
-        },
-      });
-
-      await tx.deck.delete({ where: { id: deckId } });
-
-      await tx.question.deleteMany({
-        where: {
-          id: {
-            in: questionIds,
-          },
-        },
-      });
-    });
+    await deleteDeck(currentDeckId);
     await prisma.user.delete({
       where: {
         id: user.id,
