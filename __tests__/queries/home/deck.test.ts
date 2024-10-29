@@ -137,7 +137,7 @@ describe("queryExpiringDecks", () => {
       await tx.questionAnswer.createMany({
         data: questions[0].questionOptions.map((qo, i) => ({
           questionOptionId: qo.id,
-          userId: user1.id,
+          userId: user2.id,
           selected: i === 0,
         })),
       });
