@@ -125,27 +125,21 @@ describe("queryExpiringDecks", () => {
 
       // Create answers for user1
       await tx.questionAnswer.createMany({
-        data: [
-          {
-            questionOptionId: questions[0].questionOptions[0].id, // Answer to "Is the sky blue?"
+        data: questions.flatMap((question) =>
+          question.questionOptions.map((qo, i) => ({
+            questionOptionId: qo.id,
             userId: user1.id,
-            selected: true,
-          },
-          {
-            questionOptionId: questions[1].questionOptions[0].id, // Answer to "Is water wet?"
-            userId: user1.id,
-            selected: true,
-          },
-        ],
+            selected: i === 0,
+          })),
+        ),
       });
 
-      // Create partial answers for user2 (user2 hasn't answered all questions in deck 2)
-      await tx.questionAnswer.create({
-        data: {
-          questionOptionId: questions[0].questionOptions[0].id, // Answer to "Is the sky blue?"
-          userId: user2.id,
-          selected: true,
-        },
+      await tx.questionAnswer.createMany({
+        data: questions[0].questionOptions.map((qo, i) => ({
+          questionOptionId: qo.id,
+          userId: user1.id,
+          selected: i === 0,
+        })),
       });
     });
   });
