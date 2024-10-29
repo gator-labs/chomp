@@ -3,6 +3,7 @@
 import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { User, Wallet } from "@prisma/client";
+
 import RankingCard from "../RankingCard/RankingCard";
 
 interface Props {

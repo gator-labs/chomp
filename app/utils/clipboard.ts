@@ -11,7 +11,7 @@ function fallbackCopyTextToClipboard(text: string) {
 
   try {
     document.execCommand("copy");
-  } catch (err) {}
+  } catch {}
 
   document.body.removeChild(textArea);
 }

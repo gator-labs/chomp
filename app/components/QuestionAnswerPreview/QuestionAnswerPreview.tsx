@@ -1,6 +1,8 @@
 "use client";
+
 import Image from "next/image";
 import { ReactElement, useState } from "react";
+
 import gatorHeadImage from "../../../public/images/gator-head.png";
 import { Modal } from "../Modal/Modal";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
@@ -36,12 +38,12 @@ export default function QuestionAnswerPreview({
       />
       {children}
       {viewImageSrc && (
-        <div className="flex z-10">
+        <div className="flex z-10 relative aspect-square mb-4">
           <Image
             onClick={() => setIsViewImageOpen(true)}
             src={viewImageSrc}
             alt="preview-image"
-            className="w-14 rounded-lg cursor-pointer"
+            className="w-14 rounded-lg cursor-pointer object-cover object-center"
             fill
           />
 

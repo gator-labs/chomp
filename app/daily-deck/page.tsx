@@ -1,6 +1,6 @@
 import { getDailyAnsweredQuestions, getDailyDeck } from "@/app/queries/deck";
-
 import { redirect } from "next/navigation";
+
 import { getTransactionHistory } from "../actions/fungible-asset";
 import { getNextDeckId } from "../queries/home";
 import { getCurrentUser } from "../queries/user";

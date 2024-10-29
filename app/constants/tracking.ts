@@ -26,8 +26,11 @@ export const TRACKING_EVENTS = {
   SHARE_EARN_URL: "ShareTaskonURL",
   HOME_STAT_CARD_DIALOG_OPENED: "HomeStatCardDialogOpened",
   HOME_STAT_CARD_DIALOG_CLOSED: "HomeStatCardDialogClosed",
+  PAGE_VIEW: "PageView",
   WELCOME_BACK_ANSWER_BUTTON_CLICKED: "WelcomeBackAnswerButtonClicked",
   WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
+  DECK_CLICKED: "DeckClicked",
+  TELEGRAM_USER_MINIAPP_OPENED: "TelegramUserMiniAppOpened",
 } as const;
 
 export const TRACKING_METADATA = {
@@ -51,6 +54,12 @@ export const TRACKING_METADATA = {
   DECK_NAME: "DeckName",
   IS_DAILY_DECK: "IsDailyDeck",
   TYPE: "Type",
+  URL_PATH: "UrlPath",
+  URL_SEARCH: "UrlSearch",
+  TELEGRAM_ID: "TelegramId",
+  TELEGRAM_FIRST_NAME: "TelegramFirstName",
+  TELEGRAM_LAST_NAME: "TelegramLastName",
+  TELEGRAM_USERNAME: "TelegramUsername",
 };
 
 export const HOME_STAT_CARD_TYPE = {

@@ -1,6 +1,7 @@
+import { PrismaClient } from "@prisma/client";
+
 const { v4: uuidv4 } = require("uuid");
 const path = require("path");
-import { PrismaClient } from "@prisma/client";
 
 require("dotenv").config({
   path: path.resolve(__dirname, "../.env.local"),

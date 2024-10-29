@@ -1,5 +1,5 @@
 import jwt, { Secret } from "jsonwebtoken";
-import { JwksClient } from 'jwks-rsa';
+import { JwksClient } from "jwks-rsa";
 
 export interface VerifiedWallet {
   format: "blockchain";
@@ -25,7 +25,7 @@ export interface DynamicJwtPayload {
 
 export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
   try {
-    const jwksUrl = `https://app.dynamic.xyz/api/v0/sdk/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/.well-known/jwks`
+    const jwksUrl = `https://app.dynamic.xyz/api/v0/sdk/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/.well-known/jwks`;
 
     const client = new JwksClient({
       jwksUri: jwksUrl,

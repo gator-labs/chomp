@@ -8,6 +8,7 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
@@ -84,9 +85,7 @@ export default function QuestionForm({
       <div className="mb-3">
         <label className="block mb-1">Question statement</label>
         <TextInput variant="secondary" {...register("question")} />
-        <div className="text-destructive">
-          {errors.question?.message}
-        </div>
+        <div className="text-destructive">{errors.question?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -167,7 +166,9 @@ export default function QuestionForm({
             value: 5000,
           })}
         />
-        <div className="text-destructive">{errors.revealTokenAmount?.message}</div>
+        <div className="text-destructive">
+          {errors.revealTokenAmount?.message}
+        </div>
       </div>
 
       <div className="mb-3">
@@ -198,7 +199,9 @@ export default function QuestionForm({
             setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         />
-        <div className="text-destructive">{errors.revealAtAnswerCount?.message}</div>
+        <div className="text-destructive">
+          {errors.revealAtAnswerCount?.message}
+        </div>
       </div>
 
       <div className="mb-4">
