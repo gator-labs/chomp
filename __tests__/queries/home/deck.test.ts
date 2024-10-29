@@ -110,6 +110,13 @@ describe("queryExpiringDecks", () => {
 
       questionIds = questions.map((q) => q.id);
 
+      await prisma.deckQuestion.createMany({
+        data: [
+          { deckId: deckIds[0], questionId: questionIds[0] },
+          { deckId: deckIds[1], questionId: questionIds[1] },
+        ],
+      });
+
       // Create users
       await Promise.all([
         tx.user.create({ data: user1 }),
@@ -151,6 +158,13 @@ describe("queryExpiringDecks", () => {
       });
       await tx.questionOption.deleteMany({
         where: { questionId: { in: questionIds } },
+      });
+      await tx.deckQuestion.deleteMany({
+        where: {
+          questionId: {
+            in: questionIds,
+          },
+        },
       });
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { in: deckIds } } });
