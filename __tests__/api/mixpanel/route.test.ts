@@ -288,4 +288,66 @@ describe("Mixpanel tracking route", () => {
       last_utm: { utm_source: "twitter", utm_medium: "social" },
     });
   });
+
+  it("UTM Edge Case 4: First visits Pre-login, then login and logins again from another device", async () => {
+    // First visit from Twitter
+    mockRequest.json = jest.fn().mockResolvedValue({
+      event: "Page View",
+      properties: { $utm_source: "twitter", $utm_campaign: "us_election" },
+    });
+
+    let response = await POST(mockRequest);
+    let responseData = await response.json();
+
+    expect(responseData).toEqual({ status: "Event tracked successfully" });
+    const utmData = await kv.get("utm:550e8400-e29b-41d4-a716-446655440000");
+    expect(utmData).toEqual({
+      initial_utm: { utm_source: "twitter", utm_campaign: "us_election" },
+      last_utm: { utm_source: "twitter", utm_campaign: "us_election" },
+    });
+
+    // Login Success
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+
+    mockRequest.json = jest.fn().mockResolvedValue({
+      event: "LoginSucceded",
+      properties: { $utm_source: "telegram", $utm_medium: "community" },
+    });
+
+    response = await POST(mockRequest);
+    responseData = await response.json();
+
+    expect(responseData).toEqual({ status: "Event tracked successfully" });
+    const utmDataPostLogin = await kv.get(
+      "utm:a19f7611-5cd2-49b8-ad81-69dc42a2a5a3",
+    );
+    expect(utmDataPostLogin).toEqual({
+      initial_utm: { utm_source: "twitter", utm_campaign: "us_election" },
+      last_utm: { utm_source: "telegram", utm_medium: "community" },
+    });
+
+    // Second visit from another device
+    (getCurrentUser as jest.Mock).mockResolvedValue(mockUser);
+
+    mockRequest.json = jest.fn().mockResolvedValue({
+      event: "Page View",
+      properties: {},
+    });
+
+    // Mocking different device id
+    (uuidv4 as jest.Mock).mockReturnValue(
+      "490e7600-e29b-41d4-a716-ef695432800j",
+    );
+    response = await POST(mockRequest);
+    responseData = await response.json();
+
+    expect(responseData).toEqual({ status: "Event tracked successfully" });
+    const utmPostLogin = await kv.get(
+      "utm:a19f7611-5cd2-49b8-ad81-69dc42a2a5a3",
+    );
+    expect(utmPostLogin).toEqual({
+      initial_utm: { utm_source: "twitter", utm_campaign: "us_election" },
+      last_utm: { utm_source: "telegram", utm_medium: "community" },
+    });
+  });
 });
