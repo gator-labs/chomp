@@ -1,5 +1,6 @@
 "use client";
 
+import { setJwt } from "@/app/actions/jwt";
 import Spinner from "@/app/bot/Spinner";
 import { TelegramAuthDataProps } from "@/app/bot/page";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
@@ -21,13 +22,15 @@ export default function Bot({
 }: {
   telegramAuthData: TelegramAuthDataProps;
 }) {
-  const { sdkHasLoaded, user, primaryWallet } = useDynamicContext();
+  const { sdkHasLoaded, user, primaryWallet, authToken } = useDynamicContext();
   const { telegramSignIn } = useTelegramLogin();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     console.log("sdkHasLoaded", sdkHasLoaded);
     if (!sdkHasLoaded) return;
+
+    if (authToken) setJwt(authToken);
 
     if (telegramAuthData) {
       trackEvent(TRACKING_EVENTS.TELEGRAM_USER_MINIAPP_OPENED, {

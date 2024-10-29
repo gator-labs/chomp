@@ -37,6 +37,7 @@ export interface Ranking {
       userId: string;
       createdAt: Date;
       updatedAt: Date;
+
     }[];
   } & {
     id: string;
@@ -48,9 +49,11 @@ export interface Ranking {
     username: string | null;
     profileSrc: string | null;
     tutorialCompletedAt: Date | null;
+    telegramUsername: string | null;
   };
   value: number;
   rank: number;
+  telegramUsername: string;
 }
 
 const Leaderboard = ({
@@ -68,9 +71,9 @@ const Leaderboard = ({
   const router = useRouter();
   const [loggedInUserScore, setLoggedInUserScore] = useState<
     | {
-        loggedInUserRank: number | undefined;
-        loggedInUserPoints: number | undefined;
-      }
+      loggedInUserRank: number | undefined;
+      loggedInUserPoints: number | undefined;
+    }
     | undefined
   >({
     loggedInUserRank: undefined,
@@ -91,7 +94,13 @@ const Leaderboard = ({
         stackId,
       });
       setLoggedInUserScore(res?.loggedInUserScore);
-      setRanking(res?.ranking || []);
+      // setRanking(res?.ranking || []);
+      setRanking(
+        res?.ranking.map((rank) => ({
+          ...rank,
+          telegramUsername: rank.user.telegramUsername ?? "",
+        })) || []
+      );
       setIsLoading(false);
 
       if (variant !== "stack") {
@@ -105,9 +114,9 @@ const Leaderboard = ({
     setIsLoading(true);
     effect(
       activeFilter.value as
-        | "totalPoints"
-        | "totalBonkClaimed"
-        | "chompedQuestions",
+      | "totalPoints"
+      | "totalBonkClaimed"
+      | "chompedQuestions",
     );
   }, [activeFilter, stackId]);
 

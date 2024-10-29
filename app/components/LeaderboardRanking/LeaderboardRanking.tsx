@@ -15,6 +15,7 @@ interface Props {
     } & User;
     value: number;
     rank: number;
+    telegramUsername: string;
   }[];
 }
 
