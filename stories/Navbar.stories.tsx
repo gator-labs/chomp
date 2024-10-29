@@ -1,6 +1,7 @@
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import type { Meta, StoryObj } from "@storybook/react";
 import dayjs from "dayjs";
+
 import { Navbar } from "../app/components/Navbar/Navbar";
 import AvatarSample from "./assets/avatar_sample.png";
 
