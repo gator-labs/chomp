@@ -58,7 +58,6 @@ describe("Editing a Deck", () => {
           heading: mockData.heading,
         },
       });
-      console.log({ deck });
       currentDeckId = deck.id;
     });
 

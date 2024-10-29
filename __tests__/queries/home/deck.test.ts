@@ -175,12 +175,16 @@ describe("queryExpiringDecks", () => {
   it("should return decks expiring today with unanswered questions for user2", async () => {
     const result = await queryExpiringDecks(user2.id);
 
+    console.log(result);
+
     expect(result.length).toBe(1); // Only Deck 2 has unanswered questions for user2
     expect(result[0].deck).toBe("Deck 2");
   });
 
   it("should return an empty array for user1 as all questions are answered", async () => {
     const result = await queryExpiringDecks(user1.id);
+
+    console.log(result);
 
     expect(result.length).toBe(0); // user1 has answered all the questions in both decks
   });
