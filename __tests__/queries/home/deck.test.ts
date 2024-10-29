@@ -112,8 +112,8 @@ describe("queryExpiringDecks", () => {
 
       await prisma.deckQuestion.createMany({
         data: [
-          { deckId: deckIds[0], questionId: questionIds[0] },
-          { deckId: deckIds[1], questionId: questionIds[1] },
+          { deckId: decks[0].id, questionId: questions[0].id },
+          { deckId: decks[1].id, questionId: questions[1].id },
         ],
       });
 
