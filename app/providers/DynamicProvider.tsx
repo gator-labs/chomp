@@ -1,11 +1,12 @@
 "use client";
 
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { SolanaWalletConnectors } from "@dynamic-labs/solana";
 import * as Sentry from "@sentry/nextjs";
+
 import { clearJwt } from "../actions/jwt";
-import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "../constants/mixpanel";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "../constants/tracking";
 import { LoginError } from "../utils/error";
 
 export default function DynamicProvider({
@@ -24,17 +25,17 @@ export default function DynamicProvider({
             clearJwt();
           },
           onAuthFlowOpen() {
-            sendToMixpanel(MIX_PANEL_EVENTS.LOGIN_STARTED);
+            trackEvent(TRACKING_EVENTS.LOGIN_STARTED);
           },
           onAuthInit: (data) => {
             if (data?.type === "email") {
-              sendToMixpanel(MIX_PANEL_EVENTS.Login_Email_Submitted, {
-                [MIX_PANEL_METADATA.USER_EMAIL]: data?.email,
+              trackEvent(TRACKING_EVENTS.Login_Email_Submitted, {
+                [TRACKING_METADATA.USER_EMAIL]: data?.email,
               });
             } else if (data?.type === "wallet") {
-              sendToMixpanel(MIX_PANEL_EVENTS.Login_Wallet_Selected, {
-                [MIX_PANEL_METADATA.CONNECTOR_NAME]: data?.connectorName,
-                [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: data?.address,
+              trackEvent(TRACKING_EVENTS.Login_Wallet_Selected, {
+                [TRACKING_METADATA.CONNECTOR_NAME]: data?.connectorName,
+                [TRACKING_METADATA.USER_WALLET_ADDRESS]: data?.address,
               });
             }
           },
@@ -46,15 +47,15 @@ export default function DynamicProvider({
               reasonMessage = reason;
             }
             if (method?.type === "email") {
-              sendToMixpanel(MIX_PANEL_EVENTS.LOGIN_FAILED, {
-                [MIX_PANEL_METADATA.USER_EMAIL]: method?.email,
-                [MIX_PANEL_METADATA.LOGIN_FAILED_REASON]: reasonMessage,
+              trackEvent(TRACKING_EVENTS.LOGIN_FAILED, {
+                [TRACKING_METADATA.USER_EMAIL]: method?.email,
+                [TRACKING_METADATA.LOGIN_FAILED_REASON]: reasonMessage,
               });
             } else if (method?.type === "wallet") {
-              sendToMixpanel(MIX_PANEL_EVENTS.LOGIN_FAILED, {
-                [MIX_PANEL_METADATA.CONNECTOR_NAME]: method?.connectorName,
-                [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]: method?.address,
-                [MIX_PANEL_METADATA.LOGIN_FAILED_REASON]: reasonMessage,
+              trackEvent(TRACKING_EVENTS.LOGIN_FAILED, {
+                [TRACKING_METADATA.CONNECTOR_NAME]: method?.connectorName,
+                [TRACKING_METADATA.USER_WALLET_ADDRESS]: method?.address,
+                [TRACKING_METADATA.LOGIN_FAILED_REASON]: reasonMessage,
               });
             }
             const loginError = new LoginError(
@@ -65,12 +66,12 @@ export default function DynamicProvider({
           },
           onAuthSuccess: ({ isAuthenticated, user }) => {
             if (isAuthenticated) {
-              sendToMixpanel(MIX_PANEL_EVENTS.LOGIN_SUCCEED, {
-                [MIX_PANEL_METADATA.USER_EMAIL]:
+              trackEvent(TRACKING_EVENTS.LOGIN_SUCCEED, {
+                [TRACKING_METADATA.USER_EMAIL]:
                   user?.verifiedCredentials[0].email,
-                [MIX_PANEL_METADATA.USER_WALLET_ADDRESS]:
+                [TRACKING_METADATA.USER_WALLET_ADDRESS]:
                   user?.verifiedCredentials[0].address,
-                [MIX_PANEL_METADATA.USER_ID]: user?.userId,
+                [TRACKING_METADATA.USER_ID]: user?.userId,
               });
             }
           },

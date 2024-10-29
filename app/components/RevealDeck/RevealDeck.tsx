@@ -1,6 +1,7 @@
 import { getDeckTotalClaimableRewards } from "@/app/actions/history";
 import { getAllDeckQuestionsReadyForReveal } from "@/app/queries/history";
 import Image from "next/image";
+
 import chompGraphicImage from "../../../public/images/chomp-graphic.png";
 import BackButton from "../BackButton/BackButton";
 import History from "../History/History";
@@ -38,6 +39,8 @@ const RevealDeck = async ({
               fill
               alt={deckTitle}
               className="object-cover"
+              sizes="(max-width: 600px) 80px, (min-width: 601px) 100.5px"
+              priority
             />
           </div>
         </div>

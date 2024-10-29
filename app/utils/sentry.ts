@@ -6,4 +6,5 @@ export const ignoreErrors = [
   "Talisman extension has not been configured yet. Please continue with onboarding.",
   "Non-Error exception captured",
   "Non-Error promise rejection captured",
+  "Cannot destructure property 'address' of '(intermediate value)' as it is undefined.",
 ];

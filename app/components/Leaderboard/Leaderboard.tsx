@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { getLeaderboard, getPreviousUserRank } from "@/app/actions/leaderboard";
 import useIsOverflowing from "@/app/hooks/useIsOverflowing";
 import { nthNumber } from "@/app/utils/number";
@@ -11,6 +9,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
 import Chip from "../Chip/Chip";
@@ -24,7 +23,7 @@ import { FILTERS } from "./constants";
 
 interface Props {
   leaderboardName: string;
-  variant: "weekly" | "daily" | "stack";
+  variant: "weekly" | "daily" | "stack" | "all-time";
   loggedUser: User;
   stackId?: number;
   leaderboardImage?: string;
@@ -39,17 +38,7 @@ export interface Ranking {
       createdAt: Date;
       updatedAt: Date;
     }[];
-  } & {
-    id: string;
-    isAdmin: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    firstName: string | null;
-    lastName: string | null;
-    username: string | null;
-    profileSrc: string | null;
-    tutorialCompletedAt: Date | null;
-  };
+  } & User;
   value: number;
   rank: number;
 }
@@ -91,7 +80,6 @@ const Leaderboard = ({
         variant,
         stackId,
       });
-
       setLoggedInUserScore(res?.loggedInUserScore);
       setRanking(res?.ranking || []);
       setIsLoading(false);
@@ -132,6 +120,7 @@ const Leaderboard = ({
               src={leaderboardImage}
               alt={`${leaderboardName}-logo`}
               className="object-cover w-full h-full rounded-full"
+              sizes="(max-width: 600px) 38px, (min-width: 601px) 50px"
             />
           </div>
         )}
@@ -160,7 +149,9 @@ const Leaderboard = ({
               ? "All time ranking"
               : variant === "daily"
                 ? "Today"
-                : "This week"}
+                : variant === "weekly"
+                  ? "This week"
+                  : "All time"}
           </span>
           {!!rankDifference && (
             <div className="flex gap-1 items-center">

@@ -5,9 +5,9 @@ import { Deck, Question } from "@/app/components/Deck/Deck";
 import { Navbar, NavbarProps } from "@/app/components/Navbar/Navbar";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import { TabNavigation } from "@/app/components/TabNavigation/TabNavigation";
-import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { getAnsweredQuestionsStatus } from "@/app/utils/question";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { useEffect } from "react";
 
 interface Props {
@@ -33,9 +33,9 @@ const DailyDeckScreen = ({
 
   useEffect(() => {
     if (questions?.length && id) {
-      sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
-        [MIX_PANEL_METADATA.DECK_ID]: id,
-        [MIX_PANEL_METADATA.IS_DAILY_DECK]: true,
+      trackEvent(TRACKING_EVENTS.DECK_STARTED, {
+        [TRACKING_METADATA.DECK_ID]: id,
+        [TRACKING_METADATA.IS_DAILY_DECK]: true,
       });
     }
   }, [id]);
@@ -50,18 +50,15 @@ const DailyDeckScreen = ({
             <div className="py-3">
               <DailyDeckTitle date={date ?? new Date()} />
             </div>
-              {!!questions?.length ? (
-                <Deck
-                  questions={questions}
-                  deckId={id!}
-                  nextDeckId={nextDeckId}
-                />
-              ) : (
-                <NoQuestionsCard
-                  nextDeckId={nextDeckId}
-                  variant={deckVariant}
-                />
-              )}
+            {!!questions?.length ? (
+              <Deck
+                questions={questions}
+                deckId={id!}
+                nextDeckId={nextDeckId}
+              />
+            ) : (
+              <NoQuestionsCard nextDeckId={nextDeckId} variant={deckVariant} />
+            )}
           </div>
         </main>
         <TabNavigation isAdmin={isAdmin} />

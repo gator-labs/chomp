@@ -1,6 +1,5 @@
 import StackCard from "@/app/components/StackCard/StackCard";
 import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
-
 import { getAllStacks } from "@/app/queries/stack";
 
 const StacksPage = async () => {
@@ -18,6 +17,7 @@ const StacksPage = async () => {
             decksToReveal={stack.decksToReveal?.length}
             name={stack.name}
             id={stack.id}
+            numberOfDecks={stack.decks.length}
           />
         ))}
       </ul>

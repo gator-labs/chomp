@@ -1,12 +1,13 @@
 "use client";
 
 import { setJwt } from "@/app/actions/jwt";
-import { MIX_PANEL_EVENTS } from "@/app/constants/mixpanel";
+import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { DynamicJwtPayload } from "@/lib/auth";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+
 import ExistingUserScreen from "./ExistingUserScreen";
 import LoadingScreen from "./LoadingScreen";
 import NewUserScreen from "./NewUserScreen";
@@ -17,7 +18,7 @@ interface Props {
   payload: DynamicJwtPayload | null;
 }
 
-const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
+const LoginScreen = ({ payload }: Props) => {
   const {
     authToken,
     isAuthenticated,
@@ -35,7 +36,7 @@ const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
 
     if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
       if (!!walletConnector)
-        sendToMixpanel(MIX_PANEL_EVENTS.WALLET_CONNECTED, {
+        trackEvent(TRACKING_EVENTS.WALLET_CONNECTED, {
           walletConnectorName: walletConnector.name,
         });
 
@@ -56,8 +57,7 @@ const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
 
   if (isLoading) return <LoadingScreen />;
 
-  if (isAuthenticated && !payload?.new_user)
-    return <ExistingUserScreen hasDailyDeck={hasDailyDeck} />;
+  if (isAuthenticated && !payload?.new_user) return <ExistingUserScreen />;
 
   if (isAuthenticated && payload?.new_user) return <NewUserScreen />;
 

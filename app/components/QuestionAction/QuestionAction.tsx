@@ -1,7 +1,9 @@
 "use client";
-import { sendAnswerToMixpanel } from "@/app/utils/mixpanel";
+
+import { trackQuestionAnswer } from "@/app/utils/tracking";
 import { QuestionType } from "@prisma/client";
 import { Dispatch, SetStateAction, useState } from "react";
+
 import { Button } from "../Button/Button";
 import { Question } from "../Deck/Deck";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
@@ -96,9 +98,11 @@ export function QuestionAction({
             <TrueFalseScale
               ratioLeft={percentage}
               handleRatioChange={(value) => {
-                setPercentage && setPercentage(value);
+                if (setPercentage) {
+                  setPercentage(value);
+                }
                 if (question)
-                  sendAnswerToMixpanel(
+                  trackQuestionAnswer(
                     question,
                     "SECOND_ORDER",
                     deckId,
@@ -153,9 +157,11 @@ export function QuestionAction({
             <TrueFalseScale
               ratioLeft={percentage}
               handleRatioChange={(value) => {
-                setPercentage && setPercentage(value);
+                if (setPercentage) {
+                  setPercentage(value);
+                }
                 if (question)
-                  sendAnswerToMixpanel(
+                  trackQuestionAnswer(
                     question,
                     "SECOND_ORDER",
                     deckId,

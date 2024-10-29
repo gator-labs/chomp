@@ -1,7 +1,6 @@
 import { ICON_DEFAULT_WIDTH_HEIGHT, IconProps } from ".";
 
 export function ChompBackgroundProfileIcon({
-  fill = "none",
   width = ICON_DEFAULT_WIDTH_HEIGHT,
   height = ICON_DEFAULT_WIDTH_HEIGHT,
 }: IconProps) {

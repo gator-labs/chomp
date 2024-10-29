@@ -1,9 +1,9 @@
 "use server";
 
 import {
+  QuestionHistory,
   getDecksHistory,
   getQuestionsHistoryQuery,
-  QuestionHistory,
 } from "../queries/history";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
@@ -80,6 +80,15 @@ export async function getDeckTotalClaimableRewards(deckId: number) {
       questionId: { not: null },
       rewardTokenAmount: {
         gt: 0,
+      },
+      AND: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
       },
     },
     include: {

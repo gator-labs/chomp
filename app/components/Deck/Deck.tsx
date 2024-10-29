@@ -1,26 +1,26 @@
 "use client";
+
 import {
+  SaveQuestionRequest,
   answerQuestion,
   markQuestionAsSeenButNotAnswered,
   markQuestionAsSkipped,
   markQuestionAsTimedOut,
-  SaveQuestionRequest,
 } from "@/app/actions/answer";
-import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
-import {
-  sendAnswerStatusToMixpanel,
-  sendAnswerToMixpanel,
-} from "@/app/utils/mixpanel";
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
 } from "@/app/utils/question";
-import sendToMixpanel from "@/lib/mixpanel";
+import { trackAnswerStatus, trackQuestionAnswer } from "@/app/utils/tracking";
+import trackEvent from "@/lib/trackEvent";
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
+import classNames from "classnames";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
@@ -35,7 +35,6 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
-import classNames from "classnames";
 
 export type Option = {
   id: number;
@@ -88,7 +87,7 @@ export function Deck({
 
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
-  const [processingSkipQuestion, setProcessingSkipQuestion] = useState(false)
+  const [processingSkipQuestion, setProcessingSkipQuestion] = useState(false);
   const min = 0;
   const max =
     !!questions[currentQuestionIndex] &&
@@ -120,7 +119,7 @@ export function Deck({
     const min = 0;
     const max =
       !!questions[currentQuestionIndex + 1] &&
-        questions[currentQuestionIndex + 1].questionOptions.length > 0
+      questions[currentQuestionIndex + 1].questionOptions.length > 0
         ? questions[currentQuestionIndex + 1].questionOptions.length - 1
         : 0;
     generateRandom({ min, max });
@@ -165,10 +164,10 @@ export function Deck({
 
   const handleSkipQuestion = async () => {
     if (processingSkipQuestion) return;
-    setProcessingSkipQuestion(true)
+    setProcessingSkipQuestion(true);
     await markQuestionAsSkipped(question.id);
     handleNextIndex();
-    setProcessingSkipQuestion(false)
+    setProcessingSkipQuestion(false);
   };
 
   const onQuestionActionClick = useCallback(
@@ -184,7 +183,7 @@ export function Deck({
           ...prev,
           { questionId: question.id, questionOptionId: number },
         ]);
-        sendAnswerToMixpanel(
+        trackQuestionAnswer(
           question,
           "FIRST_ORDER",
           deckId,
@@ -238,9 +237,9 @@ export function Deck({
 
       try {
         await answerQuestion({ ...deckResponse[0], deckId });
-        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "SUCCEEDED");
-      } catch (error) {
-        sendAnswerStatusToMixpanel({ ...deckResponse[0], deckId }, "FAILED");
+        trackAnswerStatus({ ...deckResponse[0], deckId }, "SUCCEEDED");
+      } catch {
+        trackAnswerStatus({ ...deckResponse[0], deckId }, "FAILED");
       }
 
       handleNextIndex();
@@ -269,7 +268,7 @@ export function Deck({
 
   useEffect(() => {
     if (question) {
-      sendAnswerToMixpanel(question, "QUESTION_LOADED", deckId, deckVariant);
+      trackQuestionAnswer(question, "QUESTION_LOADED", deckId, deckVariant);
     }
   }, [question]);
 
@@ -279,9 +278,9 @@ export function Deck({
       hasReachedEnd ||
       currentQuestionIndex === -1
     ) {
-      sendToMixpanel(MIX_PANEL_EVENTS.DECK_COMPLETED, {
-        [MIX_PANEL_METADATA.DECK_ID]: deckId,
-        [MIX_PANEL_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
+      trackEvent(TRACKING_EVENTS.DECK_COMPLETED, {
+        [TRACKING_METADATA.DECK_ID]: deckId,
+        [TRACKING_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
       });
     }
   }, [questions.length, hasReachedEnd, currentQuestionIndex]);
@@ -355,7 +354,10 @@ export function Deck({
       />
       {currentQuestionStep !== QuestionStep.PickPercentage && (
         <div
-          className={classNames("text-sm text-center mt-5 text-gray-400 underline ", processingSkipQuestion ? "cursor-not-allowed" : "cursor-pointer")}
+          className={classNames(
+            "text-sm text-center mt-5 text-gray-400 underline ",
+            processingSkipQuestion ? "cursor-not-allowed" : "cursor-pointer",
+          )}
           onClick={() => handleSkipQuestion()}
         >
           Skip question

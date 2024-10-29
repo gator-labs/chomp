@@ -2,14 +2,19 @@
 
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
-import { getJwtPayload } from "../actions/jwt";
-import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
+import duration from "dayjs/plugin/duration";
+
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
+import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
-const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
+
+export type Streak = {
+  streakStartDate: Date;
+  streakEndDate: Date;
+  streakLength: number;
+};
 
 type UserStatistics = {
   cardsChomped: string;
@@ -62,19 +67,6 @@ export async function getDecksForExpiringSection(): Promise<
   const payload = await authGuard();
 
   const decks = await queryExpiringDecks(payload.sub);
-
-  return decks;
-}
-export async function getDailyDecksForExpiringSection(): Promise<
-  DeckExpiringSoon[]
-> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return redirect("/login");
-  }
-
-  const decks = await queryExpiringDailyDecks(payload.sub);
 
   return decks;
 }
@@ -159,10 +151,14 @@ async function getNextDeckIdQuery(
 }
 
 async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
   SELECT
     d."id",
     d."deck",
+    d."date",
     d."revealAtDate",
     c."image"
 FROM
@@ -171,8 +167,10 @@ FULL JOIN
     public."Stack" c ON c."id" = d."stackId"
 WHERE
     d."revealAtDate" > NOW() 
-    AND d."date" IS NULL 
-    AND d."activeFromDate" <= NOW()
+    AND (d."activeFromDate" <= NOW() OR  
+    d."activeFromDate" IS NULL
+    AND d."date" >= ${currentDayStart}
+    AND d."date" <= ${currentDayEnd})
     AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq
@@ -189,49 +187,10 @@ WHERE
   return deckExpiringSoon;
 }
 
-async function queryExpiringDailyDecks(
-  userId: string,
-): Promise<DeckExpiringSoon[]> {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
-
-  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
-  SELECT
-    d."id",
-    d."deck",
-    d."revealAtDate",
-    d."date",
-    c."image"
-FROM
-    public."Deck" d
-FULL JOIN
-    "Stack" c ON c."id" = d."stackId"
-WHERE
-    d."activeFromDate" IS NULL
-    AND d."date" >= ${currentDayStart}
-    AND d."date" <= ${currentDayEnd}
-    AND EXISTS (
-        SELECT 1
-        FROM public."DeckQuestion" dq
-        JOIN public."Question" q ON dq."questionId" = q."id"
-        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
-        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
-        AND qa."userId" = ${userId}
-        AND qa."id" > 0
-        WHERE dq."deckId" = d."id"
-        GROUP BY dq."deckId"
-        HAVING COUNT(DISTINCT qa."id") < COUNT(DISTINCT qo."id")
-    );
-  `;
-  return deckExpiringSoon;
-}
-
 export async function getQuestionsForRevealedSection(): Promise<
   RevealedQuestion[]
 > {
   const payload = await authGuard();
-
-  console.log(payload);
 
   const questions = await queryRevealedQuestions(payload.sub);
 
@@ -281,10 +240,7 @@ export async function getQuestionsForReadyToRevealSection(): Promise<
 
   const questions = await queryQuestionsForReadyToReveal(payload.sub);
 
-  return questions.filter(
-    (question) =>
-      question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
-  );
+  return filterQuestionsByMinimalNumberOfAnswers(questions);
 }
 
 async function queryQuestionsForReadyToReveal(
@@ -346,13 +302,6 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       limit 1
     ) as "averageTimeToAnswer",
     (
-      select s."count"
-      from public."Streak" s
-      where s."userId" = u."id"
-      order by s."count" desc
-      limit 1
-    ) as "daysStreak",
-    (
       select
         fab."amount"
       from public."FungibleAssetBalance" fab
@@ -377,4 +326,89 @@ async function queryUserStatistics(userId: string): Promise<UserStatistics> {
       ? result?.totalPointsEarned.toString()
       : "0",
   };
+}
+
+export async function getUsersLatestStreak(): Promise<number> {
+  const payload = await authGuard();
+
+  const longestStreak = await queryUsersLatestStreak(payload.sub);
+
+  return longestStreak;
+}
+
+async function queryUsersLatestStreak(userId: string): Promise<number> {
+  const streaks: Streak[] = await prisma.$queryRaw`
+  WITH userActivity AS (
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."ChompResult"
+    WHERE "userId" = ${userId}  
+    UNION
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."QuestionAnswer" qa
+    WHERE "userId" = ${userId}
+    AND qa."status" = 'Submitted'
+  ),
+  consecutiveDays AS (
+    SELECT 
+      activityDate,
+      LAG(activityDate) OVER (ORDER BY activityDate) AS previousDate
+    FROM userActivity
+  ),
+  "streakGroups" AS (
+    SELECT 
+      activityDate,
+      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END) 
+      OVER (ORDER BY activityDate) AS "streakGroup"
+    FROM consecutiveDays
+  )
+  SELECT 
+    MIN(activityDate) AS "streakStartDate",
+    MAX(activityDate) AS "streakEndDate",
+    COUNT(*) AS "streakLength"
+  FROM "streakGroups"
+  GROUP BY "streakGroup"
+  HAVING MAX(activityDate) IN (CURRENT_DATE, CURRENT_DATE - INTERVAL '1 day')
+  ORDER BY MAX(activityDate) DESC
+  LIMIT 1
+  `;
+
+  return Number(streaks?.[0]?.streakLength || 0);
+}
+
+export async function getUsersTotalClaimedAmount(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalClaimedAmount = await queryUsersTotalClaimedAmount(payload.sub);
+
+  return totalClaimedAmount;
+}
+
+async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
+  const result: { totalClaimedAmount: number }[] = await prisma.$queryRaw`
+  SELECT ROUND(SUM("rewardTokenAmount")) AS "totalClaimedAmount"
+  FROM public."ChompResult"
+  WHERE "result" = 'Claimed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalClaimedAmount);
+}
+
+export async function getUsersTotalRevealedCards(): Promise<number> {
+  const payload = await authGuard();
+
+  const totalRevealedCards = await queryUsersTotalRevealedCards(payload.sub);
+
+  return totalRevealedCards;
+}
+
+async function queryUsersTotalRevealedCards(userId: string): Promise<number> {
+  const result: { totalRevealedCards: number }[] = await prisma.$queryRaw`
+  SELECT COUNT(*) AS "totalRevealedCards"
+  FROM public."ChompResult"
+  WHERE "result" != 'Dismissed' 
+  AND "userId" = ${userId}
+  `;
+
+  return Number(result[0].totalRevealedCards);
 }

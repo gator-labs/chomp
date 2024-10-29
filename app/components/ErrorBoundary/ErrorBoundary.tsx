@@ -1,15 +1,15 @@
+"use client";
+
+import { HOME_PATH } from "@/lib/urls";
 import * as Sentry from "@sentry/nextjs";
-import { ArrowLeft, RefreshCw } from "lucide-react";
-import { useRouter } from "next-nprogress-bar";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
+
 import { Button } from "../ui/button";
-import { HOME_PATH } from "@/lib/urls";
 
-function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
-  const router = useRouter();
-
+function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
   useEffect(() => {
     Sentry.captureException(error);
   }, [error]);
@@ -55,15 +55,14 @@ function ErrorBoundary({ error, reset }: { error: Error; reset: () => void }) {
       </div>
 
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
-        <Link href={HOME_PATH}>
-          <Button
-            variant="outline"
-            className="text-[14px] gap-2"
-          >
-            <ArrowLeft />
-            Return home
-          </Button>
-        </Link>
+        <Button
+          variant="outline"
+          className="text-[14px] gap-2"
+          onClick={() => (window.location.href = HOME_PATH)}
+        >
+          <ArrowLeft />
+          Return home
+        </Button>
       </div>
     </div>
   );

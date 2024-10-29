@@ -11,15 +11,14 @@ import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { release } from "os";
+
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredQuestion } from "../queries/question";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
 import { AnswerError } from "../utils/error";
-import { sendAnswerStatusToMixpanel } from "../utils/mixpanel";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
-import { updateStreak } from "./streak";
 
 export type SaveQuestionRequest = {
   questionId: number;
@@ -172,8 +171,6 @@ export async function answerQuestion(request: SaveQuestionRequest) {
             deckIds: [request.deckId!],
           }),
         );
-
-        if (!!deckQuestions[0].deck.date) await updateStreak(userId);
       }
 
       await Promise.all(fungibleAssetRevealTasks);
@@ -266,8 +263,6 @@ export async function saveQuestion(request: SaveQuestionRequest) {
         injectedPrisma: tx,
         questionIds: [request.questionId],
       });
-
-      await updateStreak(userId);
     });
 
     revalidatePath("/application");
@@ -302,7 +297,7 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
         selected: false,
       })),
     });
-  } catch (error) {
+  } catch {
     return { hasError: true };
   }
 }
@@ -330,7 +325,7 @@ export async function markQuestionAsTimedOut(questionId: number) {
         status: AnswerStatus.TimedOut,
       },
     });
-  } catch (error) {
+  } catch {
     return { hasError: true };
   }
 }
@@ -358,7 +353,7 @@ export async function markQuestionAsSkipped(questionId: number) {
         status: AnswerStatus.Skipped,
       },
     });
-  } catch (error) {
+  } catch {
     return { hasError: true };
   }
 }

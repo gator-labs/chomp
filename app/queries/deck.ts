@@ -1,6 +1,5 @@
 "use server";
 
-import { Prisma } from ".prisma/client";
 import {
   Deck,
   DeckQuestion,
@@ -12,8 +11,11 @@ import {
 } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
+
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { getTotalNumberOfDeckQuestions } from "../utils/question";
+import { Prisma } from ".prisma/client";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -164,11 +166,24 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return null;
   }
 
-  const totalDeckQuestions = await prisma.deckQuestion.count({
+  const deckQuestions = await prisma.deckQuestion.findMany({
     where: {
       deckId: deckId,
     },
+    include: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
   });
+
+  const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
@@ -363,6 +378,7 @@ export async function getDeckSchema(id: number) {
 
   return {
     ...deck,
+    revealAtDate: deck.revealAtDate!,
     revealToken: deck.deckQuestions[0]?.question.revealToken,
     revealTokenAmount: deck.deckQuestions[0]?.question.revealTokenAmount,
     tagIds: deck.deckQuestions[0]?.question.questionTags.map((qt) => qt.tag.id),

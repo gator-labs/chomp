@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import { revalidatePath } from "next/cache";
+
 import prisma from "../services/prisma";
 import { sendBonk } from "../utils/bonk";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
@@ -185,9 +186,13 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
 
-  if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
+  if (
+    treasurySolBalance < 0.1 ||
+    // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
+    (treasuryBonkBalance < 10000000 && treasuryBonkBalance > 0)
+  ) {
     Sentry.captureMessage(
-      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers`,
+      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
       {
         level: "fatal",
         tags: {

@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Banner } from "@prisma/client";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
+
 import { TextInput } from "../TextInput/TextInput";
 import { Button } from "../ui/button";
 
@@ -86,12 +87,11 @@ const BannerForm = ({ banner, action }: Props) => {
           {...register("image")}
         />
 
-        <div className="text-destructive">{errors.image?.message as string}</div>
+        <div className="text-destructive">
+          {errors.image?.message as string}
+        </div>
       </div>
-      <Button
-        type="submit"
-        disabled={isSubmitting || !isDirty}
-      >
+      <Button type="submit" disabled={isSubmitting || !isDirty}>
         {isSubmitting ? "Submitting" : "Submit"}
       </Button>
     </form>

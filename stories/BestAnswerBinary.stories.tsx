@@ -1,6 +1,4 @@
 import BestAnswerBinary from "@/app/components/BestAnswerBinary/BestAnswerBinary";
-import LikeIcon from "@/app/components/Icons/LikeIcon";
-import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
@@ -28,7 +26,6 @@ export const Correct: Story = {
   args: {
     optionSelected: "Yes",
     bestOption: "Yes",
-    icon: <LikeIcon />,
   },
 };
 
@@ -36,7 +33,6 @@ export const Incorrect: Story = {
   args: {
     optionSelected: "Yes",
     bestOption: "No",
-    icon: <UnlikeIcon />,
   },
 };
 

@@ -1,4 +1,4 @@
-export const MIX_PANEL_EVENTS = {
+export const TRACKING_EVENTS = {
   WALLET_CONNECTED: "LoginWalletConnected",
   CLAIM_STARTED: "ClaimStarted",
   CLAIM_FAILED: "ClaimFailed",
@@ -24,9 +24,15 @@ export const MIX_PANEL_EVENTS = {
   QUESTION_ANSWERED_FAILED: "QuestionAnsweredFailed",
   DECK_COMPLETED: "DeckCompletionSucceeded",
   SHARE_EARN_URL: "ShareTaskonURL",
+  HOME_STAT_CARD_DIALOG_OPENED: "HomeStatCardDialogOpened",
+  HOME_STAT_CARD_DIALOG_CLOSED: "HomeStatCardDialogClosed",
+  PAGE_VIEW: "PageView",
+  WELCOME_BACK_ANSWER_BUTTON_CLICKED: "WelcomeBackAnswerButtonClicked",
+  WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
+  DECK_CLICKED: "DeckClicked",
 } as const;
 
-export const MIX_PANEL_METADATA = {
+export const TRACKING_METADATA = {
   REVEAL_TYPE: "RevealType",
   USER_WALLET_ADDRESS: "UserWalletAddress",
   USER_EMAIL: "UserEmail",
@@ -46,6 +52,15 @@ export const MIX_PANEL_METADATA = {
   DECK_ID: "DeckId",
   DECK_NAME: "DeckName",
   IS_DAILY_DECK: "IsDailyDeck",
+  TYPE: "Type",
+  URL_PATH: "UrlPath",
+  URL_SEARCH: "UrlSearch",
+};
+
+export const HOME_STAT_CARD_TYPE = {
+  STREAK: "Streak",
+  BONK_CLAIMED: "BonkClaimed",
+  CARDS_REVEALED: "CardsRevealed",
 };
 
 export const REVEAL_TYPE = {
@@ -58,4 +73,4 @@ export const REVEAL_DIALOG_TYPE = {
   INSUFFICIENT_FUNDS: "InsufficientFunds",
 };
 
-export type MixPanelEventType = keyof typeof MIX_PANEL_EVENTS;
+export type TrackingEventsType = keyof typeof TRACKING_EVENTS;

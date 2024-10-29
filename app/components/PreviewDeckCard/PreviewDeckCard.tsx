@@ -1,6 +1,6 @@
-import { cn } from "@/app/utils/tailwind";
 import Image from "next/image";
-import gatorHeadImage from "../../../public/images/gator-head.png";
+
+import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type PreviewDeckCardProps = {
   className?: string;
@@ -22,12 +22,7 @@ const PreviewDeckCard = ({
   totalNumberOfQuestions,
 }: PreviewDeckCardProps) => {
   return (
-    <div
-      className={cn(
-        "h-[350px] w-full max-w-[480px] py-6 px-4 bg-gray-700 rounded-lg relative flex flex-col justify-between overflow-scroll",
-        className,
-      )}
-    >
+    <QuestionCardLayout className={className}>
       <div className="flex flex-col gap-5">
         <h1 className="text-purple-200 font-medium text-[24px]">{heading}</h1>
         {!!description && <p className="text-[14px]">{description}</p>}
@@ -39,8 +34,9 @@ const PreviewDeckCard = ({
               src={imageUrl || stackImage} // use imageUrl first, fallback to stackImage
               alt=""
               fill
-              objectFit="cover"
               className="rounded-full overflow-hidden"
+              sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
+              style={{ objectFit: "cover" }}
             />
           </div>
         )}
@@ -53,14 +49,7 @@ const PreviewDeckCard = ({
           </p>
         </div>
       </div>
-
-      <Image
-        src={gatorHeadImage}
-        alt="gator-head"
-        className="absolute bottom-0 left-0 w-full"
-        style={{ zIndex: 1 }}
-      />
-    </div>
+    </QuestionCardLayout>
   );
 };
 

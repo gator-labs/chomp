@@ -7,6 +7,8 @@ import { ChompResult, Question, ResultType } from "@prisma/client";
 import { isAfter } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
+
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
 import CardsIcon from "../Icons/CardsIcon";
@@ -14,6 +16,7 @@ import { ClockIcon } from "../Icons/ClockIcon";
 import GiftIcon from "../Icons/GiftIcon";
 import HalfEyeIcon from "../Icons/HalfEyeIcon";
 import HourGlassIcon from "../Icons/HourGlassIcon";
+import LoginPopUp from "../LoginPopUp/LoginPopUp";
 
 type StackDeckCardProps = {
   deckId: number;
@@ -23,7 +26,10 @@ type StackDeckCardProps = {
   numberOfQuestionsOptions: number;
   numberOfUserQuestionsAnswers: number;
   activeFromDate: Date;
-  chompResults: (ChompResult & { question: Question })[];
+  chompResults: (Omit<ChompResult, "rewardTokenAmount"> & {
+    question: Question;
+    rewardTokenAmount: number;
+  })[];
   deckQuestions: Question[];
   userId?: string;
 };
@@ -43,6 +49,7 @@ const StackDeckCard = ({
   const currentDate = new Date();
   const isDeckReadyToReveal = isAfter(currentDate, revealAtDate);
   const isDeckActive = isAfter(currentDate, activeFromDate);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const timeString = getTimeString(
     isDeckActive ? revealAtDate : activeFromDate,
@@ -53,11 +60,11 @@ const StackDeckCard = ({
 
   const claimableAmount = chompResults
     .filter((cr) => cr.result === ResultType.Revealed)
-    .reduce((acc, cur) => acc + (Number(cur.rewardTokenAmount) ?? 0), 0);
+    .reduce((acc, cur) => acc + (cur.rewardTokenAmount ?? 0), 0);
 
   const claimedAmount = chompResults
     .filter((cr) => cr.result === ResultType.Claimed)
-    .reduce((acc, cur) => acc + (Number(cur.rewardTokenAmount) ?? 0), 0);
+    .reduce((acc, cur) => acc + (cur.rewardTokenAmount ?? 0), 0);
 
   const revealedAtTimeString = chompResults[0]?.createdAt
     ? getTimeString(chompResults[0].createdAt)
@@ -147,19 +154,31 @@ const StackDeckCard = ({
     chompResults.length === deckQuestions.length &&
     (claimedAmount === 0 || claimableAmount > 0);
 
-  let linkPath = getDeckPath(deckId);
-  if (!userId) linkPath = `/login?next=${encodeURIComponent(linkPath)}`;
+  const linkPath = getDeckPath(deckId);
+
+  const Wrapper = !!userId ? Link : "div";
 
   return (
     <>
-      <Link
+      <LoginPopUp
+        deckId={deckId}
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        userId={userId}
+      />
+      <Wrapper
+        onClick={() => {
+          if (!userId) setIsLoginModalOpen(true);
+        }}
+        scroll={false}
         href={linkPath}
         className={cn(
           "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
           {
             "cursor-pointer":
               buttonText === "Claim your reward" ||
-              buttonText === "Reveal results",
+              buttonText === "Reveal results" ||
+              !userId,
           },
         )}
       >
@@ -231,7 +250,7 @@ const StackDeckCard = ({
               />
             </div>
           )}
-      </Link>
+      </Wrapper>
     </>
   );
 };
