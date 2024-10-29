@@ -19,6 +19,7 @@ import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 import { Button } from "../ui/button";
+import { TELEGRAM_LINK_MARKER } from "./contants";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
@@ -70,8 +71,7 @@ const ClaimButton = ({
       promiseToast(claimQuestions(questionIds), {
         loading: "Claiming your rewards...",
         success: "You have successfully claimed your rewards!",
-        error:
-          "Transaction Failed! \n Please try again. If this issue keeps happening, let us know on [TelegramLink]",
+        error: `Transaction Failed! \n Please try again. If this issue keeps happening, let us know on ${TELEGRAM_LINK_MARKER}`,
       })
         .then((res) => {
           trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {

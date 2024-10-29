@@ -5,6 +5,7 @@ import { ReactNode, createContext, useContext } from "react";
 import { ErrorIcon } from "react-hot-toast";
 import { Toaster, ToasterProps, toast } from "sonner";
 
+import { TELEGRAM_LINK_MARKER } from "../components/ClaimButton/contants";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { RemoveIcon } from "../components/Icons/ToastIcons/RemoveIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
@@ -79,8 +80,8 @@ const infoToastLayout = (message: string, description?: string) =>
   toastLayout(InfoIcon, message, description);
 
 const errorToastLayout = (message: string, description?: string) => {
-  const hasTelegramLink = message.includes("[TelegramLink]");
-  const parts = message.split("[TelegramLink]");
+  const hasTelegramLink = message.includes(TELEGRAM_LINK_MARKER);
+  const parts = message.split(TELEGRAM_LINK_MARKER);
   const firstPart = parts[0].split("\n");
 
   if (hasTelegramLink) {
