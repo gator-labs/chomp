@@ -8,6 +8,7 @@ import { isAfter } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
 import CardsIcon from "../Icons/CardsIcon";
@@ -153,7 +154,7 @@ const StackDeckCard = ({
     chompResults.length === deckQuestions.length &&
     (claimedAmount === 0 || claimableAmount > 0);
 
-  let linkPath = getDeckPath(deckId);
+  const linkPath = getDeckPath(deckId);
 
   const Wrapper = !!userId ? Link : "div";
 

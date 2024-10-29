@@ -1,14 +1,15 @@
-'use client';
-import { Deck, Question } from '@/app/components/Deck/Deck';
-import PreviewDeckCard from '@/app/components/PreviewDeckCard';
-import Stepper from '@/app/components/Stepper/Stepper';
-import { Button } from '@/app/components/ui/button';
-import { TRACKING_EVENTS, TRACKING_METADATA } from '@/app/constants/tracking';
-import trackEvent from '@/lib/trackEvent';
-import { CircleArrowRight } from 'lucide-react';
-import { useRouter } from 'next-nprogress-bar';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+"use client";
+
+import { Deck, Question } from "@/app/components/Deck/Deck";
+import PreviewDeckCard from "@/app/components/PreviewDeckCard";
+import Stepper from "@/app/components/Stepper/Stepper";
+import { Button } from "@/app/components/ui/button";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
+import { CircleArrowRight } from "lucide-react";
+import { useRouter } from "next-nprogress-bar";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -41,7 +42,7 @@ const DeckScreen = ({
     !!deckInfo?.imageUrl;
 
   const [isDeckStarted, setIsDeckStarted] = useState(
-    numberOfUserAnswers > 0 || !hasDeckInfo
+    numberOfUserAnswers > 0 || !hasDeckInfo,
   );
   const router = useRouter();
   const pathname = usePathname();
@@ -79,13 +80,13 @@ const DeckScreen = ({
             <Button
               variant="outline"
               onClick={() => {
-                if (pathname.endsWith('answer'))
-                  return router.replace('/application');
+                if (pathname.endsWith("answer"))
+                  return router.replace("/application");
 
                 router.back();
               }}
             >
-              {pathname.endsWith('answer') ? 'Home' : 'Back'}
+              {pathname.endsWith("answer") ? "Home" : "Back"}
             </Button>
           </div>
         </div>

@@ -1,11 +1,11 @@
 "use client";
 
-import { Stack } from "@prisma/client";
-
 import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
+import { Stack } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import Link from "next/link";
+
 import { Button } from "../ui/button";
 
 export const columns: ColumnDef<Stack>[] = [

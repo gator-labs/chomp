@@ -20,6 +20,7 @@ import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
 import Link from "next/link";
 import { forwardRef } from "react";
+
 import { Button } from "../Button/Button";
 import { ClockIcon } from "../Icons/ClockIcon";
 import { DollarIcon } from "../Icons/DollarIcon";
@@ -88,7 +89,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
           .finally(() => {
             setIsClaiming(false);
           });
-      } catch (error) {
+      } catch {
         trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
           [TRACKING_METADATA.QUESTION_ID]: [question.id],
           [TRACKING_METADATA.QUESTION_TEXT]: [question.question],

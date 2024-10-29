@@ -1,4 +1,5 @@
 import { MouseEventHandler, ReactNode, useRef } from "react";
+
 import { CloseIcon } from "../Icons/CloseIcon";
 import { ReactPortal } from "../ReactPortal/ReactPortal";
 

@@ -1,9 +1,11 @@
 "use client";
+
 import trackEvent from "@/lib/trackEvent";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import Link from "next/link";
 import { ReactNode, createContext, useContext } from "react";
+
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { CloseIcon } from "../components/Icons/CloseIcon";
 import { InfoIcon } from "../components/Icons/InfoIcon";
@@ -11,9 +13,9 @@ import Spinner from "../components/Spinner/Spinner";
 import { Button } from "../components/ui/button";
 import { Drawer, DrawerContent } from "../components/ui/drawer";
 import {
+  REVEAL_TYPE,
   TRACKING_EVENTS,
   TRACKING_METADATA,
-  REVEAL_TYPE,
 } from "../constants/tracking";
 import { RevealCallbackProps, useReveal } from "../hooks/useReveal";
 import { numberToCurrencyFormatter } from "../utils/currency";
@@ -54,7 +56,6 @@ export function RevealContextProvider({
     isRevealWithNftMode,
     questionIds,
     questions,
-    dialogLabel,
     isLoading,
   } = useReveal({
     bonkBalance,

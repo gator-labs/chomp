@@ -1,6 +1,5 @@
 import StackCard from "@/app/components/StackCard/StackCard";
 import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
-
 import { getAllStacks } from "@/app/queries/stack";
 
 const StacksPage = async () => {

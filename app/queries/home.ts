@@ -2,11 +2,12 @@
 
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
-const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
 
 export type Streak = {

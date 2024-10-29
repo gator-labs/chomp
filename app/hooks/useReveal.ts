@@ -7,6 +7,7 @@ import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
+
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
@@ -20,10 +21,10 @@ import {
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
 import {
-  TRACKING_EVENTS,
-  TRACKING_METADATA,
   REVEAL_DIALOG_TYPE,
   REVEAL_TYPE,
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
 import { BurnError, DynamicRevealError, RevealError } from "../utils/error";

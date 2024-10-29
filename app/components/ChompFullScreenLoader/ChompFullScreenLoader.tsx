@@ -1,4 +1,5 @@
 import { DotLottiePlayer } from "@dotlottie/react-player";
+
 import { ReactPortal } from "../ReactPortal/ReactPortal";
 
 type ChompFullScreenLoaderProps = {
