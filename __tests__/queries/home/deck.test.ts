@@ -110,7 +110,7 @@ describe("queryExpiringDecks", () => {
 
       questionIds = questions.map((q) => q.id);
 
-      await prisma.deckQuestion.createMany({
+      await tx.deckQuestion.createMany({
         data: [
           { deckId: decks[0].id, questionId: questions[0].id },
           { deckId: decks[1].id, questionId: questions[1].id },
