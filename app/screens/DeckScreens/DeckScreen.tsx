@@ -36,10 +36,7 @@ const DeckScreen = ({
   numberOfUserAnswers,
 }: DeckScreenProps) => {
   const hasDeckInfo =
-    !!deckInfo &&
-    !!deckInfo?.description &&
-    !!deckInfo?.footer &&
-    !!deckInfo?.imageUrl;
+    !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
 
   const [isDeckStarted, setIsDeckStarted] = useState(
     numberOfUserAnswers > 0 || !hasDeckInfo,
