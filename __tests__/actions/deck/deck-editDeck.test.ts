@@ -20,7 +20,7 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Editing a Deck", () => {
-  const currentDate = new Date();
+  const currentDate = new Date("2024-07-20 16:19:30.717");
   let currentDeckId: number;
   let user: { id: string; username: string };
 
@@ -33,7 +33,7 @@ describe("Editing a Deck", () => {
     stackId: null,
     revealToken: "Bonk",
     activeFromDate: new Date(currentDate.setDate(currentDate.getDate() - 1)),
-    revealAtDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+    revealAtDate: new Date("2024-07-21 16:19:30.717"),
     revealTokenAmount: 50,
     revealAtAnswerCount: null,
     durationMiliseconds: 10,
