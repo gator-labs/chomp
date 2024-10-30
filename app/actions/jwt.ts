@@ -42,6 +42,11 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     return;
   }
 
+  const telegramUsername =
+    payload.verified_credentials[1].format === "oauth"
+      ? payload.verified_credentials[1].oauth_username
+      : null;
+
   const user = await prisma.user.upsert({
     where: {
       id: payload.sub,
@@ -49,6 +54,7 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     create: {
       id: payload.sub,
       profileSrc: getRandomAvatarPath(),
+      telegramUsername: telegramUsername,
     },
     update: {},
     include: {
