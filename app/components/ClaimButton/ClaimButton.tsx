@@ -14,12 +14,12 @@ import { CONNECTION } from "@/app/utils/solana";
 import trackEvent from "@/lib/trackEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
+import Link from "next/link";
 
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 import { Button } from "../ui/button";
-import { TELEGRAM_LINK_MARKER } from "./contants";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
@@ -71,7 +71,22 @@ const ClaimButton = ({
       promiseToast(claimQuestions(questionIds), {
         loading: "Claiming your rewards...",
         success: "You have successfully claimed your rewards!",
-        error: `Transaction Failed! \n Please try again. If this issue keeps happening, let us know on ${TELEGRAM_LINK_MARKER}`,
+        error: (
+          <div>
+            <p>Transaction Failed!</p>
+            <p>
+              Please try again. If this issue keeps happening, let us know on{" "}
+              <Link
+                href="https://t.me/+8ffiqdoGLAIyZmNl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-200 hover:underline"
+              >
+                Telegram
+              </Link>
+            </p>
+          </div>
+        ),
       })
         .then((res) => {
           trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {

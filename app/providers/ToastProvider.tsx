@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { ReactNode, createContext, useContext } from "react";
 import { ErrorIcon } from "react-hot-toast";
 import { Toaster, ToasterProps, toast } from "sonner";
 
-import { TELEGRAM_LINK_MARKER } from "../components/ClaimButton/contants";
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { RemoveIcon } from "../components/Icons/ToastIcons/RemoveIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
@@ -21,7 +19,7 @@ type ToastContextType = {
     msgs: {
       loading: string;
       success: string;
-      error: string;
+      error: string | React.ReactNode;
       description?: string;
     },
   ) => Promise<T>;
@@ -55,8 +53,8 @@ const toastOptions: ToasterProps = {
 
 const toastLayout = (
   IconComponent: React.ElementType,
-  message: string,
-  description?: string | React.ReactElement,
+  message: string | React.ReactNode,
+  description?: string,
 ) => (
   <div className="flex gap-6 items-center text-gray-50 justify-between p-6 border border-purple-200 rounded-[8px] w-[358px] h-[75] bg-gray-800 relative overflow-hidden">
     <div>
@@ -79,33 +77,10 @@ const successToastLayout = (message: string, description?: string) =>
 const infoToastLayout = (message: string, description?: string) =>
   toastLayout(InfoIcon, message, description);
 
-const errorToastLayout = (message: string, description?: string) => {
-  const hasTelegramLink = message.includes(TELEGRAM_LINK_MARKER);
-  const parts = message.split(TELEGRAM_LINK_MARKER);
-  const firstPart = parts[0].split("\n");
-
-  if (hasTelegramLink) {
-    return toastLayout(
-      ErrorIcon,
-      firstPart[0],
-      <>
-        {firstPart[1]}
-        {hasTelegramLink && (
-          <>
-            <Link
-              href="https://t.me/+8ffiqdoGLAIyZmNl"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-200 hover:underline"
-            >
-              Telegram
-            </Link>
-          </>
-        )}
-      </>,
-    );
-  }
-
+const errorToastLayout = (
+  message: string | React.ReactNode,
+  description?: string,
+) => {
   return toastLayout(ErrorIcon, message, description);
 };
 
@@ -147,7 +122,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     msgs: {
       loading: string;
       success: string;
-      error: string;
+      error: string | React.ReactNode;
       description?: string;
     },
   ) => {
