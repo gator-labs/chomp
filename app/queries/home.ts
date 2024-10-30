@@ -2,11 +2,12 @@
 
 import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
+
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
-const duration = require("dayjs/plugin/duration");
 dayjs.extend(duration);
 
 export type Streak = {
@@ -149,7 +150,9 @@ async function getNextDeckIdQuery(
   return filteredDecks.length > 0 ? filteredDecks[0].id : undefined;
 }
 
-async function queryExpiringDecks(userId: string): Promise<DeckExpiringSoon[]> {
+export async function queryExpiringDecks(
+  userId: string,
+): Promise<DeckExpiringSoon[]> {
   const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
 
@@ -180,7 +183,10 @@ WHERE
         WHERE dq."deckId" = d."id"
         GROUP BY dq."deckId"
         HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
-    );
+    )
+    ORDER BY
+    d."date" ASC,
+    d."revealAtDate" ASC
   `;
 
   return deckExpiringSoon;

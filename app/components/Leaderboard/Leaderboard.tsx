@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { getLeaderboard, getPreviousUserRank } from "@/app/actions/leaderboard";
 import useIsOverflowing from "@/app/hooks/useIsOverflowing";
 import { nthNumber } from "@/app/utils/number";
@@ -11,6 +9,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
 import Chip from "../Chip/Chip";
@@ -39,17 +38,7 @@ export interface Ranking {
       createdAt: Date;
       updatedAt: Date;
     }[];
-  } & {
-    id: string;
-    isAdmin: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    firstName: string | null;
-    lastName: string | null;
-    username: string | null;
-    profileSrc: string | null;
-    tutorialCompletedAt: Date | null;
-  };
+  } & User;
   value: number;
   rank: number;
 }
@@ -69,9 +58,9 @@ const Leaderboard = ({
   const router = useRouter();
   const [loggedInUserScore, setLoggedInUserScore] = useState<
     | {
-      loggedInUserRank: number | undefined;
-      loggedInUserPoints: number | undefined;
-    }
+        loggedInUserRank: number | undefined;
+        loggedInUserPoints: number | undefined;
+      }
     | undefined
   >({
     loggedInUserRank: undefined,
@@ -106,9 +95,9 @@ const Leaderboard = ({
     setIsLoading(true);
     effect(
       activeFilter.value as
-      | "totalPoints"
-      | "totalBonkClaimed"
-      | "chompedQuestions",
+        | "totalPoints"
+        | "totalBonkClaimed"
+        | "chompedQuestions",
     );
   }, [activeFilter, stackId]);
 
@@ -159,7 +148,9 @@ const Leaderboard = ({
             {variant === "stack"
               ? "All time ranking"
               : variant === "daily"
-                ? "Today" : variant === "weekly" ? "This week"
+                ? "Today"
+                : variant === "weekly"
+                  ? "This week"
                   : "All time"}
           </span>
           {!!rankDifference && (

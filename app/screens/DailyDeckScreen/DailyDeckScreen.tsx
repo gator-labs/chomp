@@ -50,18 +50,15 @@ const DailyDeckScreen = ({
             <div className="py-3">
               <DailyDeckTitle date={date ?? new Date()} />
             </div>
-              {!!questions?.length ? (
-                <Deck
-                  questions={questions}
-                  deckId={id!}
-                  nextDeckId={nextDeckId}
-                />
-              ) : (
-                <NoQuestionsCard
-                  nextDeckId={nextDeckId}
-                  variant={deckVariant}
-                />
-              )}
+            {!!questions?.length ? (
+              <Deck
+                questions={questions}
+                deckId={id!}
+                nextDeckId={nextDeckId}
+              />
+            ) : (
+              <NoQuestionsCard nextDeckId={nextDeckId} variant={deckVariant} />
+            )}
           </div>
         </main>
         <TabNavigation isAdmin={isAdmin} />

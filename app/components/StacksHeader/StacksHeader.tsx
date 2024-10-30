@@ -3,6 +3,7 @@
 import { STACKS_PATH } from "@/lib/urls";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+
 import { ArrowLeftIcon } from "../Icons/ArrowLeftIcon";
 
 interface StacksHeaderProps {

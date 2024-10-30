@@ -1,12 +1,13 @@
 "use client";
 
-import gatorHeadImage from "@/public/images/gator-head.png";
-import { CircleArrowRight, Share2 } from "lucide-react";
+import { CircleArrowRight } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
-import Image from "next/image";
+import { usePathname } from "next/navigation";
+
+import { HomeIcon } from "../Icons/HomeIcon";
+import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 import { Button } from "../ui/button";
 import { QUESTION_CARD_CONTENT } from "./constants";
-import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type NoQuestionsCardProps = {
   variant:
@@ -25,11 +26,12 @@ export function NoQuestionsCard({
   deckRevealAtDate,
 }: NoQuestionsCardProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <div className="flex flex-col justify-between h-full w-full gap-4">
       <QuestionCardLayout>
-        <div className="flex items-center justify-start text-left flex-col space-y-5">
+        <div className="flex items-start justify-start text-left flex-col space-y-5">
           <div className="text-[24px] font-bold w-full text-purple-200">
             {QUESTION_CARD_CONTENT[variant].title}
           </div>
@@ -42,6 +44,8 @@ export function NoQuestionsCard({
         <Button
           className="text-[14px] gap-2"
           onClick={() => {
+            if (pathname.endsWith("answer")) return window.location.reload();
+
             router.replace(`/application/decks/${nextDeckId}`);
             router.refresh();
           }}
@@ -57,6 +61,18 @@ export function NoQuestionsCard({
           }}
         >
           Go Home <CircleArrowRight />
+        </Button>
+      )}
+      {!!nextDeckId && pathname.endsWith("answer") && (
+        <Button
+          variant="outline"
+          className="text-[14px] gap-2"
+          onClick={() => {
+            router.replace("/application");
+            router.refresh();
+          }}
+        >
+          Go Home <HomeIcon />
         </Button>
       )}
     </div>

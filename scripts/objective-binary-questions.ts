@@ -1,5 +1,6 @@
 import { PrismaClient, QuestionType, Token } from "@prisma/client";
 import { format } from "date-fns";
+
 import { askQuestion, generateUsers, selectOption } from "./utils";
 
 console.log(

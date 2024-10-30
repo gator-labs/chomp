@@ -1,9 +1,10 @@
 "use client";
+
 import { claimAllAvailable } from "@/app/actions/claim";
 import {
+  REVEAL_TYPE,
   TRACKING_EVENTS,
   TRACKING_METADATA,
-  REVEAL_TYPE,
 } from "@/app/constants/tracking";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -13,6 +14,7 @@ import trackEvent from "@/lib/trackEvent";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic } from "react";
+
 import { Button } from "../../Button/Button";
 
 type TotalRewardsClaimAllProps = {
@@ -44,8 +46,9 @@ export default function TotalRewardsClaimAll({
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
         ),
-        [TRACKING_METADATA.QUESTION_TEXT]:
-          totalClaimableRewards?.questions.map((q) => q?.question),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
+        ),
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
@@ -77,13 +80,14 @@ export default function TotalRewardsClaimAll({
         `You have successfully claimed ${numberToCurrencyFormatter.format(totalClaimableRewards?.totalClaimableRewards || 0)} BONK!`,
       );
       setIsClaiming(false);
-    } catch (error) {
+    } catch {
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
         ),
-        [TRACKING_METADATA.QUESTION_TEXT]:
-          totalClaimableRewards?.questions.map((q) => q?.question),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
+        ),
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
     } finally {

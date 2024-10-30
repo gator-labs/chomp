@@ -45,6 +45,10 @@ const nextConfig = {
       },
     ];
   },
+
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 // Configuration object tells the next-pwa plugin

@@ -6,6 +6,7 @@ import {
 import trackEvent from "@/lib/trackEvent";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useEffect } from "react";
+
 import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";

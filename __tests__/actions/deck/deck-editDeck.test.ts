@@ -5,7 +5,6 @@ import prisma from "@/app/services/prisma";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
-
 // Mocking Next.js dependencies and functions that are not the focus of this test
 jest.mock("@/app/queries/user", () => ({
   getIsUserAdmin: jest.fn(),
@@ -21,7 +20,7 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Editing a Deck", () => {
-  const currentDate = new Date();
+  const currentDate = new Date("2024-07-20 16:19:30.717");
   let currentDeckId: number;
   let user: { id: string; username: string };
 
@@ -34,7 +33,7 @@ describe("Editing a Deck", () => {
     stackId: null,
     revealToken: "Bonk",
     activeFromDate: new Date(currentDate.setDate(currentDate.getDate() - 1)),
-    revealAtDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+    revealAtDate: new Date("2024-07-21 16:19:30.717"),
     revealTokenAmount: 50,
     revealAtAnswerCount: null,
     durationMiliseconds: 10,
@@ -42,7 +41,7 @@ describe("Editing a Deck", () => {
     imageUrl: "",
   } as unknown as z.infer<typeof deckSchema>;
 
- // Add mock deck with one question and a user to database
+  // Add mock deck with one question and a user to database
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
       const deck = await tx.deck.create({
@@ -208,10 +207,10 @@ describe("Editing a Deck", () => {
 
       await editDeck(mockData);
       const editedDeck = await getDeckSchema(currentDeckId);
-      if(editedDeck){
-        questionId = editedDeck?.questions[0]?.id
-        optionId1 = editedDeck?.questions[0].questionOptions[0].id
-        optionId2 = editedDeck?.questions[0].questionOptions[1].id
+      if (editedDeck) {
+        questionId = editedDeck?.questions[0]?.id;
+        optionId1 = editedDeck?.questions[0].questionOptions[0].id;
+        optionId2 = editedDeck?.questions[0].questionOptions[1].id;
       }
 
       // create a new user
@@ -285,7 +284,9 @@ describe("Editing a Deck", () => {
       await editDeck(mockData);
       const editedDeck = await getDeckSchema(currentDeckId);
 
-      expect(editedDeck!.questions[0].question).toBe("Updated Question After Answer");
+      expect(editedDeck!.questions[0].question).toBe(
+        "Updated Question After Answer",
+      );
       expect(editedDeck?.deck).toEqual(mockData.deck);
       expect(editedDeck?.description).toEqual(mockData.description);
       expect(editedDeck?.footer).toEqual(mockData.footer);
@@ -312,7 +313,9 @@ describe("Editing a Deck", () => {
         ],
       };
       const result = await editDeck(mockData);
-      expect(result).toEqual({ errorMessage: "Question type can't be changed if there's an answer." });
+      expect(result).toEqual({
+        errorMessage: "Question type can't be changed if there's an answer.",
+      });
     });
   });
 });

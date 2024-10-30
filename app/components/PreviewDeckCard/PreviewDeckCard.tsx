@@ -1,14 +1,13 @@
-import { cn } from "@/app/utils/tailwind";
 import Image from "next/image";
-import gatorHeadImage from "../../../public/images/gator-head.png";
+
 import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type PreviewDeckCardProps = {
   className?: string;
   heading: string;
-  description: string | null;
-  footer: string | null;
-  imageUrl: string | null;
+  description?: string | null;
+  footer?: string | null;
+  imageUrl?: string | null;
   totalNumberOfQuestions: number;
   stackImage: string;
 };
@@ -32,7 +31,7 @@ const PreviewDeckCard = ({
         {(imageUrl || stackImage) && (
           <div className="relative w-[77px] h-[77px]">
             <Image
-              src={imageUrl || stackImage} // use imageUrl first, fallback to stackImage
+              src={imageUrl || stackImage}
               alt=""
               fill
               className="rounded-full overflow-hidden"

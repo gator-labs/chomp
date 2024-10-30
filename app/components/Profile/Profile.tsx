@@ -3,6 +3,7 @@ import { cn } from "@/app/utils/tailwind";
 import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
+
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
 import { PenIcon } from "../Icons/PenIcon";

@@ -1,4 +1,5 @@
 "use client";
+
 import { Deck, Question } from "@/app/components/Deck/Deck";
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
@@ -7,6 +8,7 @@ import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
 import { CircleArrowRight } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 type DeckScreenProps = {
@@ -33,24 +35,32 @@ const DeckScreen = ({
   stackImage,
   numberOfUserAnswers,
 }: DeckScreenProps) => {
-  const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers > 0);
+  const hasDeckInfo =
+    !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
+
+  const [isDeckStarted, setIsDeckStarted] = useState(
+    numberOfUserAnswers > 0 || !hasDeckInfo,
+  );
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <>
       {!isDeckStarted ? (
-        <div className="flex flex-col gap-4 h-full">
+        <div className="flex flex-col gap-4 h-full w-full">
           <Stepper
             numberOfSteps={questions.length}
             activeStep={-1}
             color="green"
             className="pt-0 px-0"
           />
-          <PreviewDeckCard
-            {...deckInfo}
-            stackImage={stackImage}
-            totalNumberOfQuestions={questions.length}
-          />
+          {hasDeckInfo && (
+            <PreviewDeckCard
+              {...deckInfo}
+              stackImage={stackImage}
+              totalNumberOfQuestions={questions.length}
+            />
+          )}
           <div className="flex flex-col gap-4 py-4">
             <Button
               onClick={() => {
@@ -64,8 +74,16 @@ const DeckScreen = ({
               Begin Deck
               <CircleArrowRight />
             </Button>
-            <Button variant="outline" onClick={() => router.back()}>
-              Back
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (pathname.endsWith("answer"))
+                  return router.replace("/application");
+
+                router.back();
+              }}
+            >
+              {pathname.endsWith("answer") ? "Home" : "Back"}
             </Button>
           </div>
         </div>

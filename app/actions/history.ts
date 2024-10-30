@@ -1,9 +1,9 @@
 "use server";
 
 import {
+  QuestionHistory,
   getDecksHistory,
   getQuestionsHistoryQuery,
-  QuestionHistory,
 } from "../queries/history";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";

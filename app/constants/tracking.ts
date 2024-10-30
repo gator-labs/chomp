@@ -53,8 +53,10 @@ export const TRACKING_METADATA = {
   DECK_NAME: "DeckName",
   IS_DAILY_DECK: "IsDailyDeck",
   TYPE: "Type",
+  SOURCE: "Source",
+  ANSWER_TAB: "AnswerTab",
   URL_PATH: "UrlPath",
-  URL_SEARCH: "UrlSearch"
+  URL_SEARCH: "UrlSearch",
 };
 
 export const HOME_STAT_CARD_TYPE = {

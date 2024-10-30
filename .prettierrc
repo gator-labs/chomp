@@ -6,5 +6,8 @@
   "trailingComma": "all",
   "semi": true,
   "endOfLine": "auto",
-  "plugins": ["prettier-plugin-organize-imports"]
+  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "importOrder": ["^components/(.*)$", "^[./]"],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true
 }
