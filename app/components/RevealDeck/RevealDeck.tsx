@@ -1,5 +1,6 @@
 import { getDeckTotalClaimableRewards } from "@/app/actions/history";
 import { getAllDeckQuestionsReadyForReveal } from "@/app/queries/history";
+import { getProfileImage } from "@/app/queries/profile";
 import Image from "next/image";
 
 import chompGraphicImage from "../../../public/images/chomp-graphic.png";
@@ -24,10 +25,12 @@ const RevealDeck = async ({
   numberOfQuestions,
   deckImage = chompGraphicImage.src,
 }: RevealDeckProps) => {
-  const [revealableQuestions, totalClaimableRewards] = await Promise.all([
-    getAllDeckQuestionsReadyForReveal(deckId),
-    getDeckTotalClaimableRewards(deckId),
-  ]);
+  const [revealableQuestions, totalClaimableRewards, profileImg] =
+    await Promise.all([
+      getAllDeckQuestionsReadyForReveal(deckId),
+      getDeckTotalClaimableRewards(deckId),
+      getProfileImage(),
+    ]);
   return (
     <div className="pt-4 flex flex-col gap-8 overflow-hidden w-full max-w-lg mx-auto px-4">
       <BackButton />
@@ -56,6 +59,7 @@ const RevealDeck = async ({
       <HistoryHeader
         revealableQuestions={revealableQuestions}
         totalClaimableRewards={totalClaimableRewards}
+        profileImg={profileImg}
       />
       <History deckId={`${deckId}`} />
     </div>

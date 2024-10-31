@@ -15,3 +15,11 @@ export const getClaimAllShareUrl = (txHash: string) => {
 
   return `${window.location.origin}/a/${encryptedTxHash}`;
 };
+
+export const getClaimSingleShareUrl = (txHash: string) => {
+  const encryptedTxHash = encrypt(txHash);
+
+  return `${window.location.origin}/s/${encryptedTxHash}`;
+};
+export const getOgShareClaimSinglePath = (encryptedTxHash: string) =>
+  `/api/og/share-claim-single?encryptedTxHash=${encryptedTxHash}`;

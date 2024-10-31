@@ -11,12 +11,13 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import { getClaimAllShareUrl } from "@/lib/urls";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic, useState } from "react";
 
 import { Button } from "../../Button/Button";
+import ClaimPreviewImage from "../../ClaimPreviewImage/ClaimPreviewImage";
 import ClaimShareDrawer from "../../ClaimShareDrawer/ClaimShareDrawer";
 
 type TotalRewardsClaimAllProps = {
@@ -24,10 +25,12 @@ type TotalRewardsClaimAllProps = {
     questions: (Question | null)[];
     totalClaimableRewards: number;
   };
+  profileImg: string;
 };
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
+  profileImg,
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
     totalClaimableRewards?.totalClaimableRewards || 0,
@@ -115,6 +118,10 @@ export default function TotalRewardsClaimAll({
     }
   };
 
+  const copyUrl = getClaimAllShareUrl(
+    claimResult.transactionHash.substring(0, 10),
+  );
+
   return (
     <div className="flex justify-between">
       <div className="flex flex-col justify-between gap-[10px]">
@@ -137,13 +144,20 @@ export default function TotalRewardsClaimAll({
       )}
 
       <ClaimShareDrawer
+        variant="all"
         isOpen={isClaimShareDrawerOpen}
+        copyUrl={copyUrl}
         onClose={() => setIsClaimShareDrawerOpen(false)}
-        claimedAmount={claimResult.claimedAmount}
-        correctAnswers={claimResult.correctAnswers}
-        questionsAnswered={claimResult.questionsAnswered}
-        transactionHash={claimResult.transactionHash}
-        profileImg={AvatarPlaceholder.src}
+        description={`You just claimed ${Math.round(claimResult.claimedAmount).toLocaleString("en-US")}{" "}
+          BONK from ${claimResult.questionsAnswered} cards!`}
+        previewImage={
+          <ClaimPreviewImage
+            claimedAmount={claimResult.claimedAmount}
+            correctAnswers={claimResult.correctAnswers}
+            profileImg={profileImg}
+            questionsAnswered={claimResult.questionsAnswered}
+          />
+        }
       />
     </div>
   );
