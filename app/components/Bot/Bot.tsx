@@ -13,6 +13,7 @@ import {
 } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { Connection } from "@solana/web3.js";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const BONK_AMOUNT = 5;
@@ -89,6 +90,7 @@ export default function Bot({
         </div>
         <div className="bg-white p-5 rounded-lg shadow-sm mb-7 mt-7 text-sm">
           <h2 className="text-xl font-semibold mb-3">Start chomping</h2>
+          <Link href="/application">Open PWA</Link>
           <div className="flex justify-center py-4">
             {isLoading ? <Spinner /> : <DynamicWidget />}
           </div>
