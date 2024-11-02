@@ -38,17 +38,7 @@ export interface Ranking {
       createdAt: Date;
       updatedAt: Date;
     }[];
-  } & {
-    id: string;
-    isAdmin: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    firstName: string | null;
-    lastName: string | null;
-    username: string | null;
-    profileSrc: string | null;
-    tutorialCompletedAt: Date | null;
-  };
+  } & User;
   value: number;
   rank: number;
 }
