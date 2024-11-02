@@ -19,7 +19,7 @@ export async function GET() {
   try {
     const users = await prisma.user.findMany({
       where: {
-        isSubscriber: true,
+        isBotSubscriber: true,
       },
       select: {
         telegramId: true,
@@ -46,16 +46,16 @@ export async function POST(request: Request) {
   }
 
   const data = await request.json();
-  const { telegramId, userId, isSubscriber } = data;
+  const { telegramId, userId, isBotSubscriber } = data;
 
   try {
     await prisma.user.update({
       where: { telegramId, id: userId },
-      data: { isSubscriber },
+      data: { isBotSubscriber },
     });
     const users = await prisma.user.findMany({
       where: {
-        isSubscriber: true,
+        isBotSubscriber: true,
       },
       select: {
         telegramId: true,

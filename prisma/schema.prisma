@@ -27,7 +27,7 @@ model User {
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
-  isSubscriber                Boolean                       @default(false)
+  isBotSubscriber             Boolean                       @default(false)
 }
 
 model Wallet {
