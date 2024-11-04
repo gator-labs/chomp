@@ -26,8 +26,8 @@ interface RevealContextState {
 }
 
 const initialContextValue: RevealContextState = {
-  openRevealModal: () => { },
-  closeRevealModal: () => { },
+  openRevealModal: () => {},
+  closeRevealModal: () => {},
 };
 
 export const RevealedContext =

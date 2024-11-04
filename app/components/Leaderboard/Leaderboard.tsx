@@ -59,9 +59,9 @@ const Leaderboard = ({
   const router = useRouter();
   const [loggedInUserScore, setLoggedInUserScore] = useState<
     | {
-      loggedInUserRank: number | undefined;
-      loggedInUserPoints: number | undefined;
-    }
+        loggedInUserRank: number | undefined;
+        loggedInUserPoints: number | undefined;
+      }
     | undefined
   >({
     loggedInUserRank: undefined,
@@ -96,9 +96,9 @@ const Leaderboard = ({
     setIsLoading(true);
     effect(
       activeFilter.value as
-      | "totalPoints"
-      | "totalBonkClaimed"
-      | "chompedQuestions",
+        | "totalPoints"
+        | "totalBonkClaimed"
+        | "chompedQuestions",
     );
   }, [activeFilter, stackId]);
 

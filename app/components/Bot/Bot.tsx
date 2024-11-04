@@ -28,7 +28,6 @@ export default function Bot({
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    console.log("sdkHasLoaded", sdkHasLoaded);
     if (!sdkHasLoaded) return;
 
     if (authToken) setJwt(authToken);
