@@ -43,7 +43,7 @@ const StacksLayout = async ({ children }: PageLayoutProps) => {
         )}
         {children}
       </Main>
-      {!!user && <TabNavigation isAdmin={!!user?.isAdmin} />}
+      {<TabNavigation isAdmin={!!user?.isAdmin} />}
     </div>
   );
 };
