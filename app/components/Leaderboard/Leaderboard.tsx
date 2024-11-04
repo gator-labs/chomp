@@ -84,7 +84,7 @@ const Leaderboard = ({
       setRanking(res?.ranking || []);
       setIsLoading(false);
 
-      if (variant !== "stack") {
+      if (variant !== "stack" && variant !== "all-time") {
         const rank = await getPreviousUserRank(variant, filter);
         setPreviousUserRank(rank);
       } else {
