@@ -12,9 +12,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
-import { getComputeUnits } from "../queries/getComputeUnitEstimate";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
-import { pollTransactionConfirmation } from "../queries/pollTransactionConfirmation";
 import { CONNECTION } from "./solana";
 
 export const sendBonk = async (
@@ -64,21 +62,12 @@ export const sendBonk = async (
 
   instructions.unshift(computeBudgetIx);
 
-  // Get the optimal compute units
-  const unitsConsumed = await getComputeUnits(
-    instructions,
-    fromWallet.publicKey,
-    [],
-  );
+  const computeUnitFix = 5000;
+  const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
+    units: computeUnitFix * 1.1,
+  });
 
-  if (unitsConsumed) {
-    // Add some margin to the compute units
-    const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
-      units: Math.ceil(unitsConsumed * 1.1),
-    });
-
-    instructions.unshift(computeUnitsIx);
-  }
+  instructions.unshift(computeUnitsIx);
 
   const v0updatedMessage = new TransactionMessage({
     payerKey: fromWallet.publicKey,
@@ -92,43 +81,20 @@ export const sendBonk = async (
 
   updatedVersionedTransaction.sign([fromWallet]);
 
-  // Re-fetch the blockhash every 4 retries, or, roughly once every minute
-  const blockhashValidityThreshold = 4;
+  const signature = await CONNECTION.sendTransaction(
+    updatedVersionedTransaction,
+    {
+      maxRetries: 10,
+    },
+  );
 
-  let retryCount: number = 0;
-  let txtSig: string;
+  await CONNECTION.confirmTransaction(
+    {
+      signature,
+      ...blockhash,
+    },
+    "confirmed",
+  );
 
-  const maxRetries: number = 6;
-  const skipPreflightChecks: boolean = true;
-
-  // Send the transaction with configurable retries and preflight checks
-  while (retryCount <= maxRetries) {
-    try {
-      // Check if the blockhash needs to be refreshed based on the retry count
-      if (retryCount > 0 && retryCount % blockhashValidityThreshold === 0) {
-        const latestBlockhash = (await CONNECTION.getLatestBlockhash())
-          .blockhash;
-        updatedVersionedTransaction.message.recentBlockhash = latestBlockhash;
-        updatedVersionedTransaction.sign([fromWallet]);
-      }
-
-      txtSig = await CONNECTION.sendRawTransaction(
-        updatedVersionedTransaction.serialize(),
-        {
-          skipPreflight: skipPreflightChecks,
-          maxRetries: 0,
-        },
-      );
-
-      return await pollTransactionConfirmation(txtSig);
-    } catch (error) {
-      if (retryCount === maxRetries) {
-        throw new Error(`Error sending transaction: ${error}`);
-      }
-
-      retryCount++;
-    }
-  }
-
-  return null;
+  return signature;
 };
