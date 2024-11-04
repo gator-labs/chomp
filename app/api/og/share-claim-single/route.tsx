@@ -18,11 +18,11 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const startOfTxHash = searchParams.get("startOfTxHash");
+  const txHashAndQId = searchParams.get("txHashAndQId");
 
-  if (!startOfTxHash) return;
+  if (!txHashAndQId) return;
 
-  const [txHash, questionId] = startOfTxHash.split("&");
+  const [txHash, questionId] = txHashAndQId.split("&");
 
   if (!txHash || !questionId) return;
 

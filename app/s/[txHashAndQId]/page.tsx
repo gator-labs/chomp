@@ -4,13 +4,13 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 type Props = {
-  params: { txHash: string };
+  params: { txHashAndQId: string };
 };
 
 export async function generateMetadata({
-  params: { txHash },
+  params: { txHashAndQId },
 }: Props): Promise<Metadata> {
-  const images = [getOgShareClaimSinglePath(txHash)];
+  const images = [getOgShareClaimSinglePath(txHashAndQId)];
 
   return {
     openGraph: {
