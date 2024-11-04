@@ -71,7 +71,17 @@ export async function POST(request: Request) {
       },
     });
 
-    return Response.json({ profile });
+    // Create a custom serializer function to handle BigInt
+    const responseProfile = {
+      id: profile.id,
+      isAdmin: profile.isAdmin,
+      telegramId: profile.telegramId ? profile.telegramId.toString() : null,
+      isBotSubscriber: profile.isBotSubscriber,
+      username: profile.username,
+      wallets: profile.wallets,
+    };
+
+    return Response.json({ profile: responseProfile });
   } catch {
     return new Response(`Error creating user`, {
       status: 500,

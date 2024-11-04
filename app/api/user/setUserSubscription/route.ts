@@ -30,11 +30,11 @@ export async function POST(request: Request) {
 
   const data = await request.json();
   const { telegramAuthToken, isBotSubscriber } = data;
-  const telegramUserData = (await verifyTelegramAuthToken(
-    telegramAuthToken,
-  )) as TelegramAuthDataProps;
 
   try {
+    const telegramUserData = (await verifyTelegramAuthToken(
+      telegramAuthToken,
+    )) as TelegramAuthDataProps;
     const user = await prisma.user.findFirst({
       where: { telegramId: telegramUserData.id },
       select: {
