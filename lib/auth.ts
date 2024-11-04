@@ -11,11 +11,15 @@ export interface VerifiedEmail {
   format: "email";
   email: string;
 }
+export interface VerifiedOAuth {
+  format: "oauth";
+  oauth_username?: string;
+}
 
 export interface DynamicJwtPayload {
   sub: string;
   exp: number;
-  verified_credentials: (VerifiedWallet | VerifiedEmail)[];
+  verified_credentials: (VerifiedWallet | VerifiedEmail | VerifiedOAuth)[];
   new_user: boolean;
 }
 

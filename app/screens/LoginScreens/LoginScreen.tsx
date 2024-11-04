@@ -1,66 +1,98 @@
 "use client";
 
-// import { setJwt } from "@/app/actions/jwt";
-// import { TRACKING_EVENTS } from "@/app/constants/tracking";
+import { setJwt } from "@/app/actions/jwt";
+import { TRACKING_EVENTS } from "@/app/constants/tracking";
+// import { TelegramAuthDataProps } from "@/app/login/page";
 import { DynamicJwtPayload } from "@/lib/auth";
+import trackEvent from "@/lib/trackEvent";
+import { useIsLoggedIn } from "@dynamic-labs/sdk-react-core";
+import {
+  useDynamicContext, // useTelegramLogin,
+} from "@dynamic-labs/sdk-react-core";
+import { redirect, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-// import trackEvent from "@/lib/trackEvent";
-// import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-// import { redirect, useSearchParams } from "next/navigation";
-// import { useEffect, useState } from "react";
-// import ExistingUserScreen from "./ExistingUserScreen";
-// import LoadingScreen from "./LoadingScreen";
-// import NewUserScreen from "./NewUserScreen";
+import ExistingUserScreen from "./ExistingUserScreen";
+import LoadingScreen from "./LoadingScreen";
+import NewUserScreen from "./NewUserScreen";
 import SlideshowScreen from "./SlideshowScreen";
 
 interface Props {
   hasDailyDeck: boolean;
   payload: DynamicJwtPayload | null;
+  // telegramAuthData?: TelegramAuthDataProps;
 }
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const LoginScreen = ({ hasDailyDeck, payload }: Props) => {
-  // const {
-  //   authToken,
-  //   isAuthenticated,
-  //   awaitingSignatureState,
-  //   walletConnector,
-  // } = useDynamicContext();
-  // const [isLoading, setIsLoading] = useState(true);
+const LoginScreen = ({ payload }: Props) => {
+  const {
+    authToken,
+    awaitingSignatureState,
+    primaryWallet,
+    // user,
+    // sdkHasLoaded,
+    // userWithMissingInfo,
+  } = useDynamicContext();
 
-  // const params = useSearchParams();
+  const isLoggedIn = useIsLoggedIn();
 
-  // useEffect(() => {
-  //   setIsLoading(true);
+  const params = useSearchParams();
+  // const { telegramSignIn } = useTelegramLogin();
 
-  //   if (authToken) setJwt(authToken);
+  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoadingTelegram, setIsLoadingTelegram] = useState(false);
 
-  //   if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
-  //     if (!!walletConnector)
-  //       trackEvent(TRACKING_EVENTS.WALLET_CONNECTED, {
-  //         walletConnectorName: walletConnector.name,
-  //       });
+  useEffect(() => {
+    setIsLoading(true);
 
-  //     setIsLoading(false);
-  //   }
-  //   if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
-  //     const destination = params.get("next");
-  //     if (!!destination) {
-  //       redirect(destination);
-  //     } else {
-  //       setIsLoading(false);
-  //     }
-  //   }
+    // if (telegramAuthData) {
+    //   trackEvent(TRACKING_EVENTS.TELEGRAM_USER_MINIAPP_OPENED, {
+    //     [TRACKING_METADATA.TELEGRAM_FIRST_NAME]: telegramAuthData.firstName,
+    //     [TRACKING_METADATA.TELEGRAM_LAST_NAME]: telegramAuthData.lastName,
+    //     [TRACKING_METADATA.TELEGRAM_USERNAME]: telegramAuthData.username,
+    //     [TRACKING_METADATA.TELEGRAM_ID]: telegramAuthData.id,
+    //   });
 
-  //   if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
-  //     setIsLoading(false);
-  // }, [authToken, payload?.sub, awaitingSignatureState]);
+    //   const signIn = async () => {
+    //     console.log("user", user);
+    //     if (!user) {
+    //       await telegramSignIn({ forceCreateUser: true });
+    //       // setIsLoadingTelegram(false);
+    //     }
+    //   };
 
-  // if (isLoading) return <LoadingScreen />;
+    //   signIn();
+    // }
 
-  // if (isAuthenticated && !payload?.new_user) return <ExistingUserScreen />;
+    if (authToken) setJwt(authToken);
 
-  // if (isAuthenticated && payload?.new_user) return <NewUserScreen />;
+    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
+      if (!!primaryWallet?.connector)
+        trackEvent(TRACKING_EVENTS.WALLET_CONNECTED, {
+          walletConnectorName: primaryWallet?.connector?.name,
+        });
+
+      setIsLoading(false);
+    }
+
+    if (!!payload?.sub && !!authToken && awaitingSignatureState === "idle") {
+      const destination = params.get("next");
+      if (!!destination) {
+        console.log("redirect");
+        redirect(destination);
+      } else {
+        setIsLoading(false);
+      }
+    }
+
+    if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
+      setIsLoading(false);
+  }, [authToken, payload?.sub, awaitingSignatureState]);
+
+  if (isLoading) return <LoadingScreen />;
+
+  if (isLoggedIn && !payload?.new_user) return <ExistingUserScreen />;
+
+  if (isLoggedIn && payload?.new_user) return <NewUserScreen />;
 
   return <SlideshowScreen />;
 };
