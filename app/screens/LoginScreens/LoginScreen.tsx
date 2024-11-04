@@ -39,7 +39,6 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
   const { telegramSignIn } = useTelegramLogin();
 
   const [isLoading, setIsLoading] = useState(true);
-  // const [isLoadingTelegram, setIsLoadingTelegram] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
