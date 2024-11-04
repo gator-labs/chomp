@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { OPTION_LABEL } from "@/app/components/AnswerResult/constants";
 import prisma from "@/app/services/prisma";
-import { decryptString } from "@/app/utils/crypto-js";
 import { cn } from "@/lib/utils";
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
@@ -19,13 +18,11 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const encryptedHash = searchParams.get("encryptedTxHash");
+  const startOfTxHash = searchParams.get("startOfTxHash");
 
-  if (!encryptedHash) return;
+  if (!startOfTxHash) return;
 
-  const decryptedString = decryptString(encryptedHash);
-
-  const [txHash, questionId] = decryptedString.split("&");
+  const [txHash, questionId] = startOfTxHash.split("&");
 
   if (!txHash || !questionId) return;
 
