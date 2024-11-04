@@ -60,13 +60,16 @@ export const sendBonk = async (
     microLamports: estimateFee?.result?.priorityFeeLevels?.high || 5000,
   });
 
+  // update the instructions with compute budget instruction.
   instructions.unshift(computeBudgetIx);
 
   const computeUnitFix = 5000;
+
   const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
     units: computeUnitFix * 1.1,
   });
 
+  // update the instructions with compute unit instruction.
   instructions.unshift(computeUnitsIx);
 
   const v0updatedMessage = new TransactionMessage({
