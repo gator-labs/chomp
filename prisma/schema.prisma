@@ -27,6 +27,7 @@ model User {
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
+  telegramUsername            String?
   isBotSubscriber             Boolean                       @default(false)
 }
 
