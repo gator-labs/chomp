@@ -1,24 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 import { ChompyGuitarIcon } from "@/app/components/Icons/ChompyGuitarIcon";
 import prisma from "@/app/services/prisma";
-import { decryptString } from "@/app/utils/crypto-js";
 import { ImageResponse } from "next/og";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const encryptedHash = searchParams.get("encryptedTxHash");
+  const startOfTxHash = searchParams.get("startOfTxHash");
 
-  if (!encryptedHash) return;
-
-  const txHash = decryptString(encryptedHash);
+  if (!startOfTxHash) return;
 
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 
-  const results = txHash
+  const results = startOfTxHash
     ? await prisma.chompResult.findMany({
         where: {
           sendTransactionSignature: {
-            startsWith: txHash,
+            startsWith: startOfTxHash,
           },
         },
         include: {
