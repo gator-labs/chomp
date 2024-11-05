@@ -5,6 +5,7 @@ import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUs
 import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringSection/HomeFeedDeckExpiringSection";
 import { HomeFeedReadyToRevealSection } from "../components/HomeFeedReadyToRevealSection/HomeFeedReadyToRevealSection";
 import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealedQuestionsSection/HomeFeedRevealedQuestionsSection";
+import { MultiWalletPoc } from "../components/MultiWalletPoc/MultiWalletPoc";
 import { Profile } from "../components/Profile/Profile";
 import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import Spinner from "../components/Spinner/Spinner";
@@ -31,6 +32,8 @@ export default async function Page() {
       </div>
 
       {!!banners.length && <BannerSlider banners={banners} />}
+
+      <MultiWalletPoc />
 
       <Suspense fallback={<Spinner />}>
         <HomeFeedDeckExpiringSection />
