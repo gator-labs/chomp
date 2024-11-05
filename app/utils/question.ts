@@ -1,8 +1,10 @@
 import {
   ChompResult,
   Deck,
+  DeckQuestion,
   Question,
   QuestionAnswer,
+  QuestionOption,
   ResultType,
   TransactionStatus,
 } from "@prisma/client";
@@ -177,4 +179,34 @@ export const getAnsweredQuestionsStatus = (
   } else {
     return "answered-some";
   }
+};
+
+export const filterQuestionsByMinimalNumberOfAnswers = <
+  T extends { answerCount?: number },
+>(
+  questions: T[],
+) => {
+  return questions.filter(
+    (question) =>
+      question.answerCount &&
+      question.answerCount >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
+  );
+};
+
+export const getTotalNumberOfDeckQuestions = (
+  deckQuestions: (DeckQuestion & {
+    question: Question & {
+      questionOptions: (QuestionOption & {
+        questionAnswers: QuestionAnswer[];
+      })[];
+    };
+  })[],
+) => {
+  return deckQuestions.filter((dq) =>
+    dq.question.questionOptions.every(
+      (qo) =>
+        qo.questionAnswers.length >=
+        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
+    ),
+  ).length;
 };

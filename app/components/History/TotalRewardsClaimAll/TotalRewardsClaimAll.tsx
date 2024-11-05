@@ -1,29 +1,35 @@
 "use client";
+
 import { claimAllAvailable } from "@/app/actions/claim";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
   REVEAL_TYPE,
-} from "@/app/constants/mixpanel";
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
+} from "@/app/constants/tracking";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { startTransition, useOptimistic } from "react";
+import { startTransition, useOptimistic, useState } from "react";
+
 import { Button } from "../../Button/Button";
+import ClaimShareDrawer from "../../ClaimShareDrawer/ClaimShareDrawer";
 
 type TotalRewardsClaimAllProps = {
   totalClaimableRewards?: {
     questions: (Question | null)[];
     totalClaimableRewards: number;
   };
+  deckId?: number;
 };
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
+  deckId,
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
     totalClaimableRewards?.totalClaimableRewards || 0,
@@ -33,18 +39,29 @@ export default function TotalRewardsClaimAll({
   const { fire } = useConfetti();
   const queryClient = useQueryClient();
   const { isClaiming, setIsClaiming } = useClaiming();
+  const [claimResult, setClaimResult] = useState({
+    claimedAmount: 0,
+    correctAnswers: 0,
+    questionsAnswered: 0,
+    transactionHash: "",
+  });
+  const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
 
   const onClaimAll = async () => {
     try {
       setIsClaiming(true);
 
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
+      trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
+        [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
         ),
-        [MIX_PANEL_METADATA.QUESTION_TEXT]:
-          totalClaimableRewards?.questions.map((q) => q?.question),
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
+        ),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
+        ),
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
       const res = await promiseToast(claimAllAvailable(), {
@@ -53,33 +70,50 @@ export default function TotalRewardsClaimAll({
         error: "Issue transferring funds.",
       });
 
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
-        [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-        [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: res?.transactionSignature,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
+      trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
+        [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
+        [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+        [TRACKING_METADATA.TRANSACTION_SIGNATURE]: res?.transactionSignature,
+        [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
 
       startTransition(() => {
         claimOptimistic(0);
       });
-      queryClient.resetQueries({ queryKey: ["questions-history"] });
-
+      queryClient.resetQueries({
+        queryKey: [
+          deckId ? `questions-history-${deckId}` : "questions-history",
+        ],
+      });
       fire();
       successToast(
         "Claimed!",
-        `You have successfully claimed ${numberToCurrencyFormatter.format(totalClaimableRewards?.totalClaimableRewards || 0)} BONK!`,
+        `You have successfully claimed ${numberToCurrencyFormatter.format(
+          totalClaimableRewards?.totalClaimableRewards || 0,
+        )} BONK!`,
       );
       setIsClaiming(false);
+      setIsClaimShareDrawerOpen(true);
+      setClaimResult({
+        claimedAmount: res!.claimedAmount,
+        correctAnswers: res!.correctAnswers,
+        questionsAnswered: res!.questions.length,
+        transactionHash: res!.transactionSignature,
+      });
     } catch (error) {
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
+      console.error(error);
+      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+        [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
         ),
-        [MIX_PANEL_METADATA.QUESTION_TEXT]:
-          totalClaimableRewards?.questions.map((q) => q?.question),
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
+        ),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
+        ),
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.ALL,
       });
     } finally {
       setIsClaiming(false);
@@ -106,6 +140,16 @@ export default function TotalRewardsClaimAll({
           Claim all
         </Button>
       )}
+
+      <ClaimShareDrawer
+        isOpen={isClaimShareDrawerOpen}
+        onClose={() => setIsClaimShareDrawerOpen(false)}
+        claimedAmount={claimResult.claimedAmount}
+        correctAnswers={claimResult.correctAnswers}
+        questionsAnswered={claimResult.questionsAnswered}
+        transactionHash={claimResult.transactionHash}
+        profileImg={AvatarPlaceholder.src}
+      />
     </div>
   );
 }

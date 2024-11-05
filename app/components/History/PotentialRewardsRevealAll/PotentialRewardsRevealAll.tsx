@@ -1,10 +1,12 @@
 "use client";
+
 import { revealQuestion, revealQuestions } from "@/app/actions/chompResult";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useCallback, useOptimistic, useState } from "react";
+
 import { Button } from "../../Button/Button";
 
 type PotentialRewardsRevealAllProps = {
@@ -13,10 +15,12 @@ type PotentialRewardsRevealAllProps = {
     revealTokenAmount: number;
     question: string;
   }[];
+  deckId?: number;
 };
 
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
+  deckId,
 }: PotentialRewardsRevealAllProps) {
   const [optimisticRevealableQuestionsLength, revealOptimistic] = useOptimistic(
     revealableQuestions.length,
@@ -44,7 +48,11 @@ export default function PotentialRewardsRevealAll({
         revealOptimistic(0);
       });
 
-      queryClient.resetQueries({ queryKey: ["questions-history"] });
+      queryClient.resetQueries({
+        queryKey: [
+          deckId ? `questions-history-${deckId}` : "questions-history",
+        ],
+      });
       closeRevealModal();
       setIsLoading(false);
     },

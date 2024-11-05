@@ -1,4 +1,5 @@
 import jwt, { Secret } from "jsonwebtoken";
+import { JwksClient } from "jwks-rsa";
 
 export interface VerifiedWallet {
   format: "blockchain";
@@ -10,30 +11,33 @@ export interface VerifiedEmail {
   format: "email";
   email: string;
 }
+export interface VerifiedOAuth {
+  format: "oauth";
+  oauth_username?: string;
+}
 
 export interface DynamicJwtPayload {
   sub: string;
   exp: number;
-  verified_credentials: (VerifiedWallet | VerifiedEmail)[];
+  verified_credentials: (VerifiedWallet | VerifiedEmail | VerifiedOAuth)[];
   new_user: boolean;
 }
 
 export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
-  const options = {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${process.env.DYNAMIC_BEARER_TOKEN}`,
-    },
-  };
-
   try {
-    const response = await fetch(
-      `https://app.dynamicauth.com/api/v0/environments/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/keys`,
-      options,
-    );
-    const responseJson = await response.json();
-    const publicKey = responseJson.key.publicKey;
-    return { key: Buffer.from(publicKey, "base64").toString("ascii") };
+    const jwksUrl = `https://app.dynamic.xyz/api/v0/sdk/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/.well-known/jwks`;
+
+    const client = new JwksClient({
+      jwksUri: jwksUrl,
+      rateLimit: true,
+      cache: true,
+      cacheMaxEntries: 5,
+      cacheMaxAge: 600000,
+    });
+
+    const signingKey = await client.getSigningKey();
+    const publicKey = signingKey.getPublicKey();
+    return { key: publicKey };
   } catch (ex: unknown) {
     console.error(ex);
     return { error: ex };

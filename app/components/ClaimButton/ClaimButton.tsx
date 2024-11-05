@@ -1,22 +1,25 @@
 "use client";
+
 import { claimQuestions } from "@/app/actions/claim";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
   REVEAL_TYPE,
-} from "@/app/constants/mixpanel";
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
+} from "@/app/constants/tracking";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { CONNECTION } from "@/app/utils/solana";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
-import { Button } from "../Button/Button";
+import Link from "next/link";
+
 import { DollarIcon } from "../Icons/DollarIcon";
 import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
+import { Button } from "../ui/button";
 
 interface ClaimButtonProps {
   status: "claimable" | "claimed" | "unclaimable";
@@ -26,6 +29,7 @@ interface ClaimButtonProps {
   questionIds: number[];
   questions?: string[];
   transactionHash?: string;
+  revealNftId?: string | null;
 }
 
 const ClaimButton = ({
@@ -36,6 +40,7 @@ const ClaimButton = ({
   questionIds,
   transactionHash,
   questions,
+  revealNftId,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
@@ -48,32 +53,49 @@ const ClaimButton = ({
 
       setIsClaiming(true);
 
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+      trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
+        [TRACKING_METADATA.QUESTION_ID]: questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
 
-      const tx = await CONNECTION.getTransaction(transactionHash!, {
-        commitment: "confirmed",
-        maxSupportedTransactionVersion: 0,
-      });
+      if (!revealNftId) {
+        const tx = await CONNECTION.getTransaction(transactionHash!, {
+          commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
+        });
 
-      if (!tx) return errorToast("Cannot get transaction");
+        if (!tx) return errorToast("Cannot get transaction");
+      }
 
       promiseToast(claimQuestions(questionIds), {
         loading: "Claiming your rewards...",
         success: "You have successfully claimed your rewards!",
-        error: "Failed to claim rewards. Please try again.",
+        error: (
+          <div>
+            <p>Transaction Failed!</p>
+            <p>
+              Please try again. If this issue keeps happening, let us know on{" "}
+              <Link
+                href="https://t.me/+8ffiqdoGLAIyZmNl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-200 hover:underline"
+              >
+                Telegram
+              </Link>
+            </p>
+          </div>
+        ),
       })
         .then((res) => {
-          sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
-            [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
-            [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-            [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]:
+          trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
+            [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
+            [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+            [TRACKING_METADATA.TRANSACTION_SIGNATURE]:
               res?.transactionSignature,
-            [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
-            [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+            [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
+            [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
           });
           queryClient.resetQueries({ queryKey: ["questions-history"] });
           fire();
@@ -81,11 +103,11 @@ const ClaimButton = ({
         .finally(() => {
           setIsClaiming(false);
         });
-    } catch (error) {
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+    } catch {
+      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+        [TRACKING_METADATA.QUESTION_ID]: questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
       errorToast("Failed to claim rewards. Please try again.");
     }
@@ -98,11 +120,7 @@ const ClaimButton = ({
           You did not participate in this Chomp
         </p>
         <div className="flex flex-col gap-4 w-full">
-          <Button
-            variant="grayish"
-            className="items-center gap-1 h-[50px] !bg-gray-400 !text-gray-500 cursor-auto"
-            disabled
-          >
+          <Button variant="disabled">
             Claim <DollarIcon fill="#666666" />
           </Button>
         </div>
@@ -132,7 +150,6 @@ const ClaimButton = ({
               className,
               { "cursor-not-allowed opacity-50": isClaiming },
             )}
-            variant="purple"
             onClick={onClick}
             disabled={isClaiming}
           >
@@ -159,9 +176,9 @@ const ClaimButton = ({
         </div>
         <div className="flex flex-col gap-4 w-full">
           <Button
-            disabled
+            variant="disabled"
             className={classNames(
-              "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
+              "text-sm font-semibold text-left flex items-center justify-center border-none",
               className,
             )}
           >
@@ -184,9 +201,9 @@ const ClaimButton = ({
       </div>
       <div className="flex flex-col gap-4 w-full">
         <Button
-          disabled
+          variant="disabled"
           className={classNames(
-            "!bg-gray-400 text-sm font-semibold  text-left flex items-center justify-center border-none",
+            "text-sm font-semibold text-left flex items-center justify-center border-none",
             className,
           )}
         >

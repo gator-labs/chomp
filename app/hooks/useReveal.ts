@@ -1,12 +1,13 @@
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from "@dynamic-labs/solana";
+import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
+
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
@@ -20,13 +21,13 @@ import {
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
   REVEAL_DIALOG_TYPE,
   REVEAL_TYPE,
-} from "../constants/mixpanel";
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
+} from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
-import { BurnError, RevealError } from "../utils/error";
+import { BurnError, DynamicRevealError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {
@@ -164,13 +165,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       } catch (error) {
         console.error(error);
       } finally {
-        sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_LOADED, {
-          [MIX_PANEL_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
+        trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_LOADED, {
+          [TRACKING_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
             ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
             : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
-          [MIX_PANEL_METADATA.QUESTION_ID]: reveal.questionIds,
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal.questions,
-          [MIX_PANEL_METADATA.REVEAL_TYPE]:
+          [TRACKING_METADATA.QUESTION_ID]: reveal.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal.questions,
+          [TRACKING_METADATA.REVEAL_TYPE]:
             reveal.questionIds.length > 1
               ? REVEAL_TYPE.ALL
               : REVEAL_TYPE.SINGLE,
@@ -212,13 +213,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         dialogLabel,
       });
       setIsRevealModalOpen(true);
-      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_DIALOG_OPENED, {
-        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+      trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_OPENED, {
+        [TRACKING_METADATA.REVEAL_TYPE]:
           (questionIds ?? [questionId])?.length > 1
             ? REVEAL_TYPE.ALL
             : REVEAL_TYPE.SINGLE,
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds ?? [questionId],
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.QUESTION_ID]: questionIds ?? [questionId],
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
       });
     },
     [setReveal, setIsRevealModalOpen, setBurnState],
@@ -256,81 +257,98 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
       if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
         const blockhash = await CONNECTION.getLatestBlockhash();
-        const signer = await wallet!.connector.getSigner<ISolana>();
 
-        const tx = await genBonkBurnTx(
-          address!,
-          blockhash.blockhash,
-          reveal?.amount ?? 0,
-        );
-        setBurnState("burning");
-
+        // This try catch is to catch Dynamic related issues to narrow down the error
         try {
-          const { signature: sn } = await promiseToast(
-            signer.signAndSendTransaction(tx),
-            {
-              loading: "Waiting for signature...",
-              success: "Bonk burn transaction signed!",
-              error: "You denied message signature.",
-            },
+          if (!wallet || !isSolanaWallet(wallet)) {
+            return;
+          }
+          const signer = await wallet!.getSigner();
+
+          const tx = await genBonkBurnTx(
+            address!,
+            blockhash.blockhash,
+            reveal?.amount ?? 0,
           );
+          setBurnState("burning");
 
-          sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_SIGNED, {
-            [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: sn,
-            [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-            [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
-            [MIX_PANEL_METADATA.REVEAL_TYPE]:
-              revealQuestionIds.length > 1
-                ? REVEAL_TYPE.ALL
-                : REVEAL_TYPE.SINGLE,
-          });
+          try {
+            const { signature: sn } = await promiseToast(
+              signer.signAndSendTransaction(tx),
+              {
+                loading: "Waiting for signature...",
+                success: "Bonk burn transaction signed!",
+                error: "You denied message signature.",
+              },
+            );
 
-          signature = sn;
-        } catch (error) {
-          if ((error as any)?.message === "User rejected the request.")
-            sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
-              [MIX_PANEL_METADATA.REVEAL_TYPE]:
+            trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_SIGNED, {
+              [TRACKING_METADATA.TRANSACTION_SIGNATURE]: sn,
+              [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+              [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+              [TRACKING_METADATA.REVEAL_TYPE]:
                 revealQuestionIds.length > 1
                   ? REVEAL_TYPE.ALL
                   : REVEAL_TYPE.SINGLE,
-              [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-              [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
             });
 
+            signature = sn;
+          } catch (error) {
+            if ((error as any)?.message === "User rejected the request.")
+              trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
+                [TRACKING_METADATA.REVEAL_TYPE]:
+                  revealQuestionIds.length > 1
+                    ? REVEAL_TYPE.ALL
+                    : REVEAL_TYPE.SINGLE,
+                [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+                [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+              });
+
+            resetReveal();
+            return;
+          } finally {
+            setProcessingTransaction(false);
+          }
+
+          const chompResults = await createQuestionChompResults(
+            revealQuestionIds.map((qid) => ({
+              burnTx: signature!,
+              questionId: qid,
+            })),
+          );
+
+          pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
+
+          const res = await CONNECTION.confirmTransaction(
+            {
+              blockhash: blockhash.blockhash,
+              lastValidBlockHeight: blockhash.lastValidBlockHeight,
+              signature,
+            },
+            "confirmed",
+          );
+
+          if (!!res.value.err) {
+            errorToast(
+              "Error while confirming transaction. Bonk was not burned. Try again.",
+            );
+            const burnError = new BurnError(
+              `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+              { cause: res.value.err },
+            );
+            Sentry.captureException(burnError);
+            await deleteQuestionChompResults(pendingChompResultIds);
+          }
+        } catch (error) {
+          errorToast("Error happened while revealing question. Try again.");
+          const dynamicRevealError = new DynamicRevealError(
+            `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+            { cause: error },
+          );
+          Sentry.captureException(dynamicRevealError);
+          release();
           resetReveal();
           return;
-        } finally {
-          setProcessingTransaction(false);
-        }
-
-        const chompResults = await createQuestionChompResults(
-          revealQuestionIds.map((qid) => ({
-            burnTx: signature!,
-            questionId: qid,
-          })),
-        );
-
-        pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
-
-        const res = await CONNECTION.confirmTransaction(
-          {
-            blockhash: blockhash.blockhash,
-            lastValidBlockHeight: blockhash.lastValidBlockHeight,
-            signature,
-          },
-          "confirmed",
-        );
-
-        if (!!res.value.err) {
-          errorToast(
-            "Error while confirming transaction. Bonk was not burned. Try again.",
-          );
-          const burnError = new BurnError(
-            `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-            { cause: res.value.err },
-          );
-          Sentry.captureException(burnError);
-          await deleteQuestionChompResults(pendingChompResultIds);
         }
       }
 
@@ -346,20 +364,20 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       } else {
         await reveal!.reveal({
           burnTx: signature,
-          nftAddress: revealNft!.id,
-          nftType: revealNft!.type,
+          nftAddress: ignoreNft ? "" : revealNft!.id,
+          nftType: ignoreNft ? undefined : revealNft!.type,
         });
       }
 
-      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_SUCCEEDED, {
+      trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
         transactionSignature: signature,
         nftAddress: revealNft?.id,
         nftType: revealNft?.type,
         burnedAmount: reveal?.amount,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+        [TRACKING_METADATA.REVEAL_TYPE]:
           revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
       });
 
       if (revealNft && !isMultiple) {
@@ -370,11 +388,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await deleteQuestionChompResults(pendingChompResultIds);
       }
 
-      sendToMixpanel(MIX_PANEL_EVENTS.REVEAL_FAILED, {
-        [MIX_PANEL_METADATA.REVEAL_TYPE]:
+      trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
+        [TRACKING_METADATA.REVEAL_TYPE]:
           revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [MIX_PANEL_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: reveal?.questions,
+        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
         error,
       });
       errorToast("Error happened while revealing question. Try again.");

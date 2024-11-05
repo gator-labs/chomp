@@ -5,8 +5,9 @@ import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import { revalidatePath } from "next/cache";
+
 import prisma from "../services/prisma";
-import { sendBonk } from "../utils/bonk";
+import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { ClaimError } from "../utils/error";
 import { acquireMutex } from "../utils/mutex";
@@ -118,6 +119,10 @@ export async function claimQuestions(questionIds: number[]) {
       return;
     }
 
+    const sendTx = await handleSendBonk(chompResults, userWallet.address);
+
+    if (!sendTx) throw new Error("Send tx is missing");
+
     await prisma.chompResult.updateMany({
       where: {
         id: {
@@ -128,10 +133,6 @@ export async function claimQuestions(questionIds: number[]) {
         result: ResultType.Claimed,
       },
     });
-
-    const sendTx = await handleSendBonk(chompResults, userWallet.address);
-
-    if (!sendTx) throw new Error("Send tx is missing");
 
     await prisma.$transaction(
       async (tx) => {
@@ -163,6 +164,9 @@ export async function claimQuestions(questionIds: number[]) {
       ),
       transactionSignature: sendTx,
       questions: chompResults.map((cr) => cr.question),
+      correctAnswers: chompResults.filter(
+        (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
+      ).length,
     };
   } catch (e) {
     const claimError = new ClaimError(
@@ -185,9 +189,13 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
 
-  if (treasurySolBalance < 0.1 || treasuryBonkBalance < 10000000) {
+  if (
+    treasurySolBalance < 0.1 ||
+    // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
+    (treasuryBonkBalance < 10000000 && treasuryBonkBalance > 0)
+  ) {
     Sentry.captureMessage(
-      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${process.env.CHOMP_TREASURY_ADDRESS}#transfers`,
+      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
       {
         level: "fatal",
         tags: {

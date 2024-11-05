@@ -4,6 +4,7 @@ import { tagSchema } from "@/app/schemas/tag";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { TextInput } from "../TextInput/TextInput";
 
@@ -31,7 +32,7 @@ export default function TagForm({ tag, action }: TagFormProps) {
       <div className="mb-3">
         <label className="block mb-1">Tag</label>
         <TextInput variant="secondary" {...register("tag")} />
-        <div className="text-red">{errors.tag?.message}</div>
+        <div className="text-destructive">{errors.tag?.message}</div>
       </div>
 
       <SubmitButton />

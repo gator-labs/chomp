@@ -1,15 +1,15 @@
-import { cn } from "@/app/utils/tailwind";
 import Image from "next/image";
-import gatorHeadImage from "../../../public/images/gator-head.png";
+
+import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type PreviewDeckCardProps = {
   className?: string;
   heading: string;
-  description: string | null;
-  footer: string | null;
-  imageUrl: string | null;
+  description?: string | null;
+  footer?: string | null;
+  imageUrl?: string | null;
   totalNumberOfQuestions: number;
-  campaignImage: string;
+  stackImage: string;
 };
 
 const PreviewDeckCard = ({
@@ -17,30 +17,26 @@ const PreviewDeckCard = ({
   heading,
   description,
   footer,
-  campaignImage,
+  stackImage,
   imageUrl,
   totalNumberOfQuestions,
 }: PreviewDeckCardProps) => {
   return (
-    <div
-      className={cn(
-        "min-h-[480px] w-full max-w-[480px] py-6 px-4 bg-gray-700 rounded-lg relative flex flex-col justify-between",
-        className,
-      )}
-    >
+    <QuestionCardLayout className={className}>
       <div className="flex flex-col gap-5">
         <h1 className="text-purple-200 font-medium text-[24px]">{heading}</h1>
         {!!description && <p className="text-[14px]">{description}</p>}
       </div>
       <div className="flex items-center gap-4">
-        {(imageUrl || campaignImage) && (
+        {(imageUrl || stackImage) && (
           <div className="relative w-[77px] h-[77px]">
             <Image
-              src={imageUrl || campaignImage} // use imageUrl first, fallback to campaignImage
+              src={imageUrl || stackImage}
               alt=""
               fill
-              objectFit="cover"
               className="rounded-full overflow-hidden"
+              sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
+              style={{ objectFit: "cover" }}
             />
           </div>
         )}
@@ -53,14 +49,7 @@ const PreviewDeckCard = ({
           </p>
         </div>
       </div>
-
-      <Image
-        src={gatorHeadImage}
-        alt="gator-head"
-        className="absolute bottom-0 left-0 w-full"
-        style={{ zIndex: 1 }}
-      />
-    </div>
+    </QuestionCardLayout>
   );
 };
 

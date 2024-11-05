@@ -1,7 +1,9 @@
 "use client";
-import { createContext, ReactNode, useContext } from "react";
+
+import { ReactNode, createContext, useContext } from "react";
 import { ErrorIcon } from "react-hot-toast";
-import { toast, Toaster, ToasterProps } from "sonner";
+import { Toaster, ToasterProps, toast } from "sonner";
+
 import { InfoIcon } from "../components/Icons/ToastIcons/InfoIcon";
 import { RemoveIcon } from "../components/Icons/ToastIcons/RemoveIcon";
 import { SpinnerIcon } from "../components/Icons/ToastIcons/SpinnerIcon";
@@ -17,7 +19,7 @@ type ToastContextType = {
     msgs: {
       loading: string;
       success: string;
-      error: string;
+      error: string | React.ReactNode;
       description?: string;
     },
   ) => Promise<T>;
@@ -51,10 +53,10 @@ const toastOptions: ToasterProps = {
 
 const toastLayout = (
   IconComponent: React.ElementType,
-  message: string,
+  message: string | React.ReactNode,
   description?: string,
 ) => (
-  <div className="flex gap-6 items-center text-gray-50 justify-between p-6 border border-[#AFADEB] rounded-[8px] w-[358px] h-[75] bg-[#1B1B1B] relative overflow-hidden">
+  <div className="flex gap-6 items-center text-gray-50 justify-between p-6 border border-purple-200 rounded-[8px] w-[358px] h-[75] bg-gray-800 relative overflow-hidden">
     <div>
       <IconComponent />
     </div>
@@ -65,7 +67,7 @@ const toastLayout = (
     <div className="cursor-pointer" onClick={() => toast.dismiss()}>
       <RemoveIcon />
     </div>
-    <div className="absolute bottom-0 h-[5px] left-0 bg-[#8784E1] animate-loadingLine"></div>
+    <div className="absolute bottom-0 h-[5px] left-0 bg-purple-300 animate-loadingLine"></div>
   </div>
 );
 
@@ -75,8 +77,12 @@ const successToastLayout = (message: string, description?: string) =>
 const infoToastLayout = (message: string, description?: string) =>
   toastLayout(InfoIcon, message, description);
 
-const errorToastLayout = (message: string, description?: string) =>
-  toastLayout(ErrorIcon, message, description);
+const errorToastLayout = (
+  message: string | React.ReactNode,
+  description?: string,
+) => {
+  return toastLayout(ErrorIcon, message, description);
+};
 
 const defaultToastLayout = (message: string) =>
   toastLayout(SuccessIcon, message);
@@ -116,7 +122,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     msgs: {
       loading: string;
       success: string;
-      error: string;
+      error: string | React.ReactNode;
       description?: string;
     },
   ) => {

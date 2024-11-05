@@ -1,6 +1,6 @@
-import { MINIMAL_ANSWER_COUNT } from "../constants/answers";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
+import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 export type HistoryResult = {
   id: number;
@@ -52,7 +52,7 @@ export async function getDecksHistory(
 		JOIN public."QuestionOption" qo ON qo."questionId" = q.id
 		LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
 		LEFT JOIN public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
-		LEFT JOIN public."Campaign" c ON c.id = d."campaignId"
+		LEFT JOIN public."Stack" c ON c.id = d."stackId"
 		WHERE d."revealAtDate" IS NOT NULL 
 		GROUP BY d.deck, d.id, c.image, d."revealAtDate"
 		ORDER BY d."revealAtDate" DESC
@@ -65,10 +65,13 @@ export async function getQuestionsHistoryQuery(
   userId: string,
   pageSize: number,
   currentPage: number,
+  deckId?: string,
 ): Promise<QuestionHistory[]> {
   const offset = (currentPage - 1) * pageSize;
 
-  const baseQuery = `
+  const deckHistoryCondition: string = `AND dq."deckId" = ${deckId}`;
+
+  const query = `
   SELECT 
     q.id, 
     q.question,
@@ -107,36 +110,24 @@ export async function getQuestionsHistoryQuery(
     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
   LEFT JOIN 
     public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
-  FULL JOIN public."Campaign" c on c.id = q."campaignId"
+  FULL JOIN public."Stack" c on c.id = q."stackId"
+  JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
   WHERE 
-    q."revealAtDate" IS NOT NULL
+    q."revealAtDate" IS NOT NULL ${deckId ? deckHistoryCondition : ""}
   GROUP BY 
     q.id, cr."rewardTokenAmount", cr."burnTransactionSignature", c."image"
-`;
-
-  const havingClause = `
   HAVING 
     (
       SELECT COUNT(distinct concat(qa."userId", qo."questionId"))
       FROM public."QuestionOption" qo
       JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
       WHERE qo."questionId" = q."id"
-    ) >= 20
-`;
-
-  const endQuery = `
+    ) >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)}
   ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
 
-  let finalQuery = baseQuery;
-  if (process.env.NEXT_PUBLIC_ENVIRONMENT === "staging") {
-    finalQuery += havingClause;
-  }
-  finalQuery += endQuery;
-
-  const historyResult: QuestionHistory[] =
-    await prisma.$queryRawUnsafe(finalQuery);
+  const historyResult: QuestionHistory[] = await prisma.$queryRawUnsafe(query);
 
   return historyResult.map((hr) => ({
     ...hr,
@@ -181,13 +172,13 @@ export async function getAllQuestionsReadyForReveal(): Promise<
 FROM 
     public."Question" q
 LEFT JOIN 
-    "ChompResult" cr ON cr."questionId" = q.id
+    public."ChompResult" cr ON cr."questionId" = q.id
     AND cr."userId" = '${userId}'
     AND cr."transactionStatus" IN ('Completed', 'Pending')
 JOIN 
-    "QuestionOption" qo ON q.id = qo."questionId"
+    public."QuestionOption" qo ON q.id = qo."questionId"
 JOIN 
-    "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+    public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
 WHERE 
     (cr."transactionStatus" IS NULL OR cr."transactionStatus" != 'Completed')
     AND q."revealAtDate" IS NOT NULL
@@ -197,8 +188,63 @@ WHERE
 	`,
   );
 
-  return questions.filter(
-    (question) =>
-      question.answerCount && question.answerCount >= MINIMAL_ANSWER_COUNT,
+  return filterQuestionsByMinimalNumberOfAnswers(questions);
+}
+
+export async function getAllDeckQuestionsReadyForReveal(
+  deckId: number,
+): Promise<{ id: number; revealTokenAmount: number; question: string }[]> {
+  const payload = await authGuard();
+
+  const userId = payload.sub;
+
+  const questions = await prisma.$queryRawUnsafe<
+    {
+      id: number;
+      revealTokenAmount: number;
+      answerCount: number;
+      question: string;
+    }[]
+  >(
+    `
+		SELECT 
+    q.id,
+    q.question,
+    CASE 
+        WHEN cr."transactionStatus" = 'Completed' OR cr."transactionStatus" = 'Pending' THEN 0
+        ELSE q."revealTokenAmount"
+    END AS "revealTokenAmount",
+    (
+        SELECT
+            COUNT(DISTINCT CONCAT(qa."userId", qo."questionId"))
+        FROM 
+            public."QuestionOption" qo
+        JOIN 
+            public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        WHERE 
+            qo."questionId" = q."id"
+    ) AS "answerCount",
+     dc."deckId" as "deckId"
+FROM 
+    public."Question" q
+LEFT JOIN 
+    "ChompResult" cr ON cr."questionId" = q.id
+    AND cr."userId" = '${userId}'
+    AND cr."transactionStatus" IN ('Completed', 'Pending')
+JOIN 
+    "QuestionOption" qo ON q.id = qo."questionId"
+JOIN 
+    "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+JOIN "DeckQuestion" dc ON q.id = dc."questionId"
+WHERE 
+    (cr."transactionStatus" IS NULL OR cr."transactionStatus" != 'Completed')
+    AND q."revealAtDate" IS NOT NULL
+    AND q."revealAtDate" < NOW()
+    AND qa.selected = TRUE
+    AND qa."userId" = '${userId}'
+    AND dc."deckId" = ${deckId};
+	`,
   );
+
+  return filterQuestionsByMinimalNumberOfAnswers(questions);
 }

@@ -1,17 +1,18 @@
 "use client";
 
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { ChompResult, Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import React, { ReactNode, createContext, useContext, useState } from "react";
+
 import { claimQuestions } from "../actions/claim";
-import { Button } from "../components/Button/Button";
 import Sheet from "../components/Sheet/Sheet";
+import { Button } from "../components/ui/button";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
   REVEAL_TYPE,
-} from "../constants/mixpanel";
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
+} from "../constants/tracking";
 import { onlyUnique } from "../utils/array";
 import { CONNECTION } from "../utils/solana";
 
@@ -44,8 +45,6 @@ const ClaimProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     .map((cr) => cr.burnTransactionSignature!)
     .filter(onlyUnique);
 
-  console.log(questionIds, questions);
-
   const startClaiming = async (ids: number[]) => {
     try {
       const transactions = (
@@ -59,27 +58,27 @@ const ClaimProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
         throw new Error("Cannot find all transactions");
 
       setIsClaiming(true);
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+      trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
+        [TRACKING_METADATA.QUESTION_ID]: questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
 
       const res = await claimQuestions(ids);
 
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
-        [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-        [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]: res?.transactionSignature,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+      trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
+        [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
+        [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+        [TRACKING_METADATA.TRANSACTION_SIGNATURE]: res?.transactionSignature,
+        [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
       queryClient.resetQueries({ queryKey: ["questions-history"] });
-    } catch (error) {
-      sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
-        [MIX_PANEL_METADATA.QUESTION_ID]: questionIds,
-        [MIX_PANEL_METADATA.QUESTION_TEXT]: questions,
-        [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+    } catch {
+      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+        [TRACKING_METADATA.QUESTION_ID]: questionIds,
+        [TRACKING_METADATA.QUESTION_TEXT]: questions,
+        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
     } finally {
       setIsClaiming(false);

@@ -9,12 +9,13 @@ import {
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
+
+import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;
-const AMOUNT_TO_SEND = 1;
 const DECIMALS = 5;
 
 export const genBonkBurnTx = async (
@@ -25,7 +26,7 @@ export const genBonkBurnTx = async (
   const burnFromPublic = new PublicKey(ownerAddress); // user address
   const bonkPublic = new PublicKey(BONK_PUBLIC_ADDRESS); // bonk public address
 
-  let ata = await getAssociatedTokenAddress(bonkPublic, burnFromPublic);
+  const ata = await getAssociatedTokenAddress(bonkPublic, burnFromPublic);
 
   const tx = new Transaction();
 
@@ -40,12 +41,33 @@ export const genBonkBurnTx = async (
   tx.recentBlockhash = blockhash;
   tx.feePayer = burnFromPublic;
 
-  const estimateFee = await getRecentPrioritizationFees(tx);
+  let estimateFee = await getRecentPrioritizationFees(tx);
 
-  const computeUnitFix = 5000;
+  // Verify the estimateFee is not null due to RPC request failure in some cases
+  if (estimateFee === null) {
+    for (let i = 0; i < 2; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      estimateFee = await getRecentPrioritizationFees(tx);
+      if (estimateFee !== null) break;
+    }
 
+    // Set median priority fee if estimateFee is still null
+    if (estimateFee === null) {
+      estimateFee = {
+        result: {
+          priorityFeeLevels: {
+            high: HIGH_PRIORITY_FEE,
+          },
+        },
+      };
+    }
+  }
+
+  const computeUnitFix = 4960;
+
+  // Buffer to make sure the transaction doesn't fail because of less compute units
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-    units: computeUnitFix * 1.25,
+    units: computeUnitFix * 1.1,
   });
 
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({

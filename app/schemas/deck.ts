@@ -1,5 +1,6 @@
 import { QuestionType, Token } from "@prisma/client";
 import { z } from "zod";
+
 import { IMAGE_VALID_TYPES, MAX_IMAGE_UPLOAD_SIZE } from "../constants/images";
 
 export const deckSchema = z
@@ -44,12 +45,12 @@ export const deckSchema = z
     description: z.string().min(5).optional().nullish().or(z.literal("")),
     footer: z.string().min(5).max(50).optional().nullish().or(z.literal("")),
     tagIds: z.number().array().default([]),
-    campaignId: z.number().optional().nullish(),
+    stackId: z.number().optional().nullish(),
     revealToken: z.nativeEnum(Token),
     date: z.date().nullish(),
     activeFromDate: z.date().nullish(),
     revealTokenAmount: z.number().min(0),
-    revealAtDate: z.date().nullish(),
+    revealAtDate: z.date({ message: "Reveal at date is required" }),
     revealAtAnswerCount: z.number().min(0).nullish(),
     questions: z
       .object({
@@ -147,4 +148,13 @@ export const deckSchema = z
   })
   .refine((data) => data.date || data.activeFromDate, {
     message: "'date' or 'activeFromDate' must be set",
-  });
+  })
+  .refine(
+    (data) => {
+      const comparisonDate = data.date ?? data.activeFromDate;
+      return comparisonDate && data.revealAtDate >= comparisonDate;
+    },
+    {
+      message: "'revealAtDate' cannot be before 'date' or 'activeFromDate'.",
+    },
+  );

@@ -1,10 +1,9 @@
 "use client";
 
-import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
-import * as React from "react";
-
 import { buttonVariants } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
+import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
+import * as React from "react";
 
 const AlertDialog = AlertDialogPrimitive.Root;
 
@@ -80,7 +79,7 @@ const AlertDialogTitle = React.forwardRef<
   <AlertDialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-[16px] font-semibold text-left text-purple-200",
+      "text-[16px] font-semibold text-left text-secondary",
       className,
     )}
     {...props}

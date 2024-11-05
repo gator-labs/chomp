@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
+
 import { Button } from "../app/components/Button/Button";
 import { ShareIcon } from "../app/components/Icons/ShareIcon";
 

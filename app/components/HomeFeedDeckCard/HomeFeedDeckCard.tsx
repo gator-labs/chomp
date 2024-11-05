@@ -1,7 +1,11 @@
 "use client";
 
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
+import { ANSWER_PATH, getDeckPath } from "@/lib/urls";
 import classNames from "classnames";
 import Image from "next/image";
+
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import CardsIcon from "../Icons/CardsIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
@@ -43,12 +47,18 @@ export function HomeFeedDeckCard({
 }: HomeFeedDeckCardProps) {
   return (
     <a
-      href={date ? `/daily-deck` : `application/decks/${deckId}`}
+      href={date ? ANSWER_PATH : getDeckPath(deckId)}
+      onClick={() => {
+        trackEvent(TRACKING_EVENTS.DECK_CLICKED, {
+          [TRACKING_METADATA.DECK_ID]: deckId,
+          [TRACKING_METADATA.DECK_NAME]: deck,
+          [TRACKING_METADATA.IS_DAILY_DECK]: date ? true : false,
+        });
+      }}
       className="bg-gray-700 border-gray-500 rounded-2xl p-4 flex gap-4 cursor-pointer h-full"
     >
       <div className="w-[90px] h-[90px] flex-shrink-0 relative">
         {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <>
             <CardsIcon className="absolute top-0 left-0 w-full h-full" />
             <Image

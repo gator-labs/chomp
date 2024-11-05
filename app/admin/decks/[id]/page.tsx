@@ -1,7 +1,7 @@
 import { editDeck } from "@/app/actions/deck/deck";
 import DeckForm from "@/app/components/DeckForm/DeckForm";
-import { getActiveAndInactiveCampaigns } from "@/app/queries/campaign";
 import { getDeckSchema } from "@/app/queries/deck";
+import { getActiveAndInactiveStacks } from "@/app/queries/stack";
 import { getTags } from "@/app/queries/tag";
 import { notFound } from "next/navigation";
 
@@ -14,13 +14,11 @@ type PageProps = {
 export default async function Page({ params: { id } }: PageProps) {
   const deck = await getDeckSchema(+id);
   const tags = await getTags();
-  const campaigns = await getActiveAndInactiveCampaigns();
+  const stacks = await getActiveAndInactiveStacks();
 
   if (!deck) {
     return notFound();
   }
 
-  return (
-    <DeckForm action={editDeck} deck={deck} tags={tags} campaigns={campaigns} />
-  );
+  return <DeckForm action={editDeck} deck={deck} tags={tags} stacks={stacks} />;
 }

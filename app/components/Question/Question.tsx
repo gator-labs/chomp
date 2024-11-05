@@ -1,16 +1,15 @@
 "use client";
-import { saveQuestion, SaveQuestionRequest } from "@/app/actions/answer";
+
+import { SaveQuestionRequest, saveQuestion } from "@/app/actions/answer";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
-import {
-  sendAnswerStatusToMixpanel,
-  sendAnswerToMixpanel,
-} from "@/app/utils/mixpanel";
 import { getAlphaIdentifier } from "@/app/utils/question";
+import { trackAnswerStatus, trackQuestionAnswer } from "@/app/utils/tracking";
 import { QuestionTag, QuestionType, Tag } from "@prisma/client";
 import dayjs from "dayjs";
 import { useRouter } from "next-nprogress-bar";
 import { useCallback, useEffect, useState } from "react";
+
 import { AnswerHeader } from "../AnswerHeader/AnswerHeader";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
@@ -81,10 +80,10 @@ export function Question({ question, returnUrl }: QuestionProps) {
       setCurrentQuestionStep(undefined);
       saveQuestion(answer ?? answerState)
         .then(() => {
-          sendAnswerStatusToMixpanel(answer ?? answerState, "SUCCEEDED");
+          trackAnswerStatus(answer ?? answerState, "SUCCEEDED");
         })
         .catch(() => {
-          sendAnswerStatusToMixpanel(answer ?? answerState, "FAILED");
+          trackAnswerStatus(answer ?? answerState, "FAILED");
         });
     },
     [setCurrentQuestionStep, answerState],
@@ -100,7 +99,7 @@ export function Question({ question, returnUrl }: QuestionProps) {
           question.questionOptions.findIndex((option) => option.id === number),
         );
         setAnswerState({ questionId: question.id, questionOptionId: number });
-        sendAnswerToMixpanel(
+        trackQuestionAnswer(
           question,
           "FIRST_ORDER",
           undefined,

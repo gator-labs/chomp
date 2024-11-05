@@ -1,13 +1,15 @@
 "use client";
-import { Button } from "@/app/components/ui/button";
+
 import { Deck, Question } from "@/app/components/Deck/Deck";
-import { useRouter } from "next-nprogress-bar";
-import { useState } from "react";
-import { CircleArrowRight } from 'lucide-react';
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
-import { MIX_PANEL_EVENTS, MIX_PANEL_METADATA } from "@/app/constants/mixpanel";
-import sendToMixpanel from "@/lib/mixpanel";
+import { Button } from "@/app/components/ui/button";
+import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
+import { CircleArrowRight } from "lucide-react";
+import { useRouter } from "next-nprogress-bar";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 type DeckScreenProps = {
   deckInfo: {
@@ -16,10 +18,11 @@ type DeckScreenProps = {
     footer: string | null;
     imageUrl: string | null;
     totalNumberOfQuestions: number;
+    revealAtDate?: Date | null;
   };
   questions: Question[];
   currentDeckId: number;
-  campaignImage: string;
+  stackImage: string;
   nextDeckId?: number;
   numberOfUserAnswers: number;
 };
@@ -29,35 +32,41 @@ const DeckScreen = ({
   questions,
   currentDeckId,
   nextDeckId,
-  campaignImage,
+  stackImage,
   numberOfUserAnswers,
 }: DeckScreenProps) => {
-  const [isDeckStarted, setIsDeckStarted] = useState(numberOfUserAnswers > 0);
+  const hasDeckInfo =
+    !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
+
+  const [isDeckStarted, setIsDeckStarted] = useState(
+    numberOfUserAnswers > 0 || !hasDeckInfo,
+  );
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <>
       {!isDeckStarted ? (
-        <div className="flex flex-col gap-4 h-full">
+        <div className="flex flex-col gap-4 h-full w-full">
           <Stepper
             numberOfSteps={questions.length}
             activeStep={-1}
             color="green"
             className="pt-0 px-0"
           />
-          <PreviewDeckCard
-            {...deckInfo}
-            campaignImage={campaignImage}
-            totalNumberOfQuestions={questions.length}
-            className="flex-1"
-          />
+          {hasDeckInfo && (
+            <PreviewDeckCard
+              {...deckInfo}
+              stackImage={stackImage}
+              totalNumberOfQuestions={questions.length}
+            />
+          )}
           <div className="flex flex-col gap-4 py-4">
             <Button
-              variant="primary"
               onClick={() => {
-                sendToMixpanel(MIX_PANEL_EVENTS.DECK_STARTED, {
-                  [MIX_PANEL_METADATA.DECK_ID]: currentDeckId,
-                  [MIX_PANEL_METADATA.IS_DAILY_DECK]: false,
+                trackEvent(TRACKING_EVENTS.DECK_STARTED, {
+                  [TRACKING_METADATA.DECK_ID]: currentDeckId,
+                  [TRACKING_METADATA.IS_DAILY_DECK]: false,
                 });
                 setIsDeckStarted(true);
               }}
@@ -67,9 +76,14 @@ const DeckScreen = ({
             </Button>
             <Button
               variant="outline"
-              onClick={() => router.back()}
+              onClick={() => {
+                if (pathname.endsWith("answer"))
+                  return router.replace("/application");
+
+                router.back();
+              }}
             >
-              Back
+              {pathname.endsWith("answer") ? "Home" : "Back"}
             </Button>
           </div>
         </div>

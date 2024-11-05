@@ -164,9 +164,14 @@ Demo environment is accessible on [app-demo.chomp.games](https://app-demo.chomp.
 
 To restore the database from the backup file, follow the below steps:
 
-First add a backup file in the scripts folder and change the filename in `scripts/restore-database.ts` file at line 17
+1. Add a backup file in the scripts folder
+2. Rename it to `backup.sql.gz`
+3. Make sure that DATABASE_URL env is set to the target database for restoration
+4. Verify that the DATABASE_URL is clean, without extra parameters (e.g., it should look like postgresql://postgres:postgres@localhost:5432/chomp-db). Please remove `?schema=public` too.
 
+**Run the following command**
 ```sh
-# run restore script
 yarn dev:restore-db
 ```
+
+If you see a “restore successful” message, you can safely ignore some errors. After verifying the restored database, don’t forget to remove the backup file.

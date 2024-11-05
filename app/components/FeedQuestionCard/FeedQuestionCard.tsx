@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { cloneElement, MouseEventHandler, ReactElement, useState } from "react";
+import { MouseEventHandler, ReactElement, cloneElement, useState } from "react";
+
 import { DeckIcon } from "../Icons/DeckIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
 
@@ -49,7 +50,7 @@ export function FeedQuestionCard({
               <div className="relative w-6 h-6 flex-shrink-0">
                 <Image
                   src={image}
-                  alt="campaign-image"
+                  alt="stack-image"
                   fill
                   className="rounded-full"
                 />

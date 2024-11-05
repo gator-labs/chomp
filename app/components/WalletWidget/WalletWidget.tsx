@@ -1,9 +1,11 @@
 "use client";
+
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { formatAddress } from "@/app/utils/wallet";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
+
 import { Button } from "../Button/Button";
 import { CopyIcon } from "../Icons/CopyIcon";
 import { ExitIcon } from "../Icons/ExitIcon";
@@ -32,9 +34,7 @@ export function WalletWidget({ address, className }: WalletWidgetProps) {
           className,
         )}
       >
-        <div className=" text-[#171616] text-base">
-          {formatAddress(address)}
-        </div>
+        <div className="text-gray-800 text-base">{formatAddress(address)}</div>
         <div className="flex gap-x-2">
           <Button
             isPill

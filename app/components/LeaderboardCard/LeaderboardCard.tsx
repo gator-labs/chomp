@@ -1,10 +1,10 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
 import useIsOverflowing from "@/app/hooks/useIsOverflowing";
 import Image from "next/image";
 import Link from "next/link";
 import { ReactNode, useRef } from "react";
+
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
 import Marquee from "../Marquee/Marquee";
@@ -40,6 +40,7 @@ const LeaderboardCard = ({
               src={imageSrc}
               alt={`${name}-logo`}
               className="object-cover w-full h-full rounded-full"
+              sizes="(max-width: 600px) 38px, (min-width: 601px) 50px"
             />
           )}
           {icon}

@@ -37,7 +37,7 @@ const Tooltip = ({
       {children}
       <div
         className={classNames(
-          "max-w-[250px] w-fit bg-[#575CDF] text-center opacity-0 p-4 rounded-lg absolute z-50 h-fit text-sm font-normal ",
+          "max-w-[250px] w-fit bg-purple-400 text-center opacity-0 p-4 rounded-lg absolute z-50 h-fit text-sm font-normal ",
           {
             "opacity-100": alwaysVisible || showTooltip,
             "left-0 -top-1 translate-y-[-100%]": position === "top-start",
@@ -65,13 +65,13 @@ const Tooltip = ({
         </p>
         <div
           className={classNames("w-0 h-0 absolute", {
-            "border-t-[18px] border-t-[#575CDF] border-l-[18px] border-l-[transparent] border-r-[18px] border-r-[transparent]":
+            "border-t-[18px] border-t-purple-400 border-l-[18px] border-l-[transparent] border-r-[18px] border-r-[transparent]":
               position.startsWith("top"),
-            "border-r-[18px] border-r-[#575CDF] border-t-[18px] border-t-[transparent] border-b-[18px] border-b-[transparent]":
+            "border-r-[18px] border-r-purple-400 border-t-[18px] border-t-[transparent] border-b-[18px] border-b-[transparent]":
               position.startsWith("right"),
-            "border-b-[18px] border-b-[#575CDF] border-l-[18px] border-l-[transparent] border-r-[18px] border-r-[transparent]":
+            "border-b-[18px] border-b-purple-400 border-l-[18px] border-l-[transparent] border-r-[18px] border-r-[transparent]":
               position.startsWith("bottom"),
-            "border-l-[18px] border-l-[#575CDF] border-t-[18px] border-t-[transparent] border-b-[18px] border-b-[transparent]":
+            "border-l-[18px] border-l-purple-400 border-t-[18px] border-t-[transparent] border-b-[18px] border-b-[transparent]":
               position.startsWith("left"),
             "left-[calc(40px-18px)] -bottom-3": position === "top-start",
             "left-[calc(50%-18px)] -bottom-3": position === "top",

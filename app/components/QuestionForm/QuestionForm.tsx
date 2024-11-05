@@ -8,6 +8,7 @@ import { useState } from "react";
 import DatePicker from "react-datepicker";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
+
 import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
@@ -84,7 +85,7 @@ export default function QuestionForm({
       <div className="mb-3">
         <label className="block mb-1">Question statement</label>
         <TextInput variant="secondary" {...register("question")} />
-        <div className="text-red">{errors.question?.message}</div>
+        <div className="text-destructive">{errors.question?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -103,7 +104,7 @@ export default function QuestionForm({
             </option>
           ))}
         </select>
-        <div className="text-red">{errors.type?.message}</div>
+        <div className="text-destructive">{errors.type?.message}</div>
       </div>
 
       <div className="mb-3 flex flex-col gap-2">
@@ -136,7 +137,7 @@ export default function QuestionForm({
                   </div>
                 )}
               </div>
-              <div className="text-red">
+              <div className="text-destructive">
                 {errors.questionOptions &&
                   errors.questionOptions[index]?.option?.message}
               </div>
@@ -153,7 +154,7 @@ export default function QuestionForm({
             </option>
           ))}
         </select>
-        <div className="text-red">{errors.revealToken?.message}</div>
+        <div className="text-destructive">{errors.revealToken?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -165,7 +166,9 @@ export default function QuestionForm({
             value: 5000,
           })}
         />
-        <div className="text-red">{errors.revealTokenAmount?.message}</div>
+        <div className="text-destructive">
+          {errors.revealTokenAmount?.message}
+        </div>
       </div>
 
       <div className="mb-3">
@@ -185,7 +188,7 @@ export default function QuestionForm({
             />
           )}
         />
-        <div className="text-red">{errors.revealAtDate?.message}</div>
+        <div className="text-destructive">{errors.revealAtDate?.message}</div>
       </div>
 
       <div className="mb-3">
@@ -196,7 +199,9 @@ export default function QuestionForm({
             setValueAs: (v) => (!v ? null : parseInt(v)),
           })}
         />
-        <div className="text-red">{errors.revealAtAnswerCount?.message}</div>
+        <div className="text-destructive">
+          {errors.revealAtAnswerCount?.message}
+        </div>
       </div>
 
       <div className="mb-4">

@@ -1,6 +1,5 @@
 "use server";
 
-import { Prisma } from ".prisma/client";
 import {
   Deck,
   DeckQuestion,
@@ -12,8 +11,11 @@ import {
 } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
+
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { getTotalNumberOfDeckQuestions } from "../utils/question";
+import { Prisma } from ".prisma/client";
 
 const questionDeckToRunInclude = {
   deckQuestions: {
@@ -89,7 +91,7 @@ export async function getDailyDeck() {
 
   return {
     questions,
-    campaignId: dailyDeck?.campaignId,
+    stackId: dailyDeck?.stackId,
     id: dailyDeck.id,
     date: dailyDeck.date,
   };
@@ -164,12 +166,33 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return null;
   }
 
+  const deckQuestions = await prisma.deckQuestion.findMany({
+    where: {
+      deckId: deckId,
+    },
+    include: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
+
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
       questions: deck?.deckQuestions,
       id: deck.id,
       date: deck.date,
       name: deck.deck,
+      totalDeckQuestions,
+      revealAtDate: deck.revealAtDate,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -180,7 +203,15 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       questions: [],
       id: deck.id,
       date: deck.date,
-      campaignId: deck.campaignId
+      revealAtDate: deck.revealAtDate,
+      stackId: deck.stackId,
+      totalDeckQuestions,
+      deckInfo: {
+        heading: deck.heading || deck.deck,
+        description: deck.description,
+        imageUrl: deck.imageUrl,
+        footer: deck.footer,
+      },
     };
   }
 
@@ -190,7 +221,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     questions,
     id: deck.id,
     date: deck.date,
-    campaignId: deck.campaignId,
+    stackId: deck.stackId,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
@@ -347,6 +378,7 @@ export async function getDeckSchema(id: number) {
 
   return {
     ...deck,
+    revealAtDate: deck.revealAtDate!,
     revealToken: deck.deckQuestions[0]?.question.revealToken,
     revealTokenAmount: deck.deckQuestions[0]?.question.revealTokenAmount,
     tagIds: deck.deckQuestions[0]?.question.questionTags.map((qt) => qt.tag.id),

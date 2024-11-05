@@ -1,7 +1,5 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element */
-
 import { getLeaderboard, getPreviousUserRank } from "@/app/actions/leaderboard";
 import useIsOverflowing from "@/app/hooks/useIsOverflowing";
 import { nthNumber } from "@/app/utils/number";
@@ -11,6 +9,7 @@ import { User } from "@prisma/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+
 import ActiveIndicator from "../ActiveIndicator/ActiveIndicator";
 import { Avatar } from "../Avatar/Avatar";
 import Chip from "../Chip/Chip";
@@ -24,9 +23,9 @@ import { FILTERS } from "./constants";
 
 interface Props {
   leaderboardName: string;
-  variant: "weekly" | "daily" | "campaign";
+  variant: "weekly" | "daily" | "stack" | "all-time";
   loggedUser: User;
-  campaignId?: number;
+  stackId?: number;
   leaderboardImage?: string;
   isLeaderboardActive?: boolean;
 }
@@ -39,25 +38,16 @@ export interface Ranking {
       createdAt: Date;
       updatedAt: Date;
     }[];
-  } & {
-    id: string;
-    isAdmin: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    firstName: string | null;
-    lastName: string | null;
-    username: string | null;
-    profileSrc: string | null;
-    tutorialCompletedAt: Date | null;
-  };
+  } & User;
   value: number;
   rank: number;
+  telegramUsername?: string | null;
 }
 
 const Leaderboard = ({
   leaderboardName,
   variant,
-  campaignId,
+  stackId,
   leaderboardImage,
   isLeaderboardActive = false,
   loggedUser,
@@ -89,14 +79,13 @@ const Leaderboard = ({
       const res = await getLeaderboard({
         filter,
         variant,
-        campaignId,
+        stackId,
       });
-
       setLoggedInUserScore(res?.loggedInUserScore);
       setRanking(res?.ranking || []);
       setIsLoading(false);
 
-      if (variant !== "campaign") {
+      if (variant !== "stack" && variant !== "all-time") {
         const rank = await getPreviousUserRank(variant, filter);
         setPreviousUserRank(rank);
       } else {
@@ -111,7 +100,7 @@ const Leaderboard = ({
         | "totalBonkClaimed"
         | "chompedQuestions",
     );
-  }, [activeFilter, campaignId]);
+  }, [activeFilter, stackId]);
 
   const rankDifference =
     previousUserRank && loggedInUserScore?.loggedInUserRank
@@ -132,6 +121,7 @@ const Leaderboard = ({
               src={leaderboardImage}
               alt={`${leaderboardName}-logo`}
               className="object-cover w-full h-full rounded-full"
+              sizes="(max-width: 600px) 38px, (min-width: 601px) 50px"
             />
           </div>
         )}
@@ -156,11 +146,13 @@ const Leaderboard = ({
         </div>
         <div className="flex flex-col gap-2 flex-1 justify-center">
           <span className="text-xs  text-gray-400">
-            {variant === "campaign"
+            {variant === "stack"
               ? "All time ranking"
               : variant === "daily"
                 ? "Today"
-                : "This week"}
+                : variant === "weekly"
+                  ? "This week"
+                  : "All time"}
           </span>
           {!!rankDifference && (
             <div className="flex gap-1 items-center">
@@ -172,7 +164,7 @@ const Leaderboard = ({
               <p
                 className={cn("text-sm  font-bold", {
                   "text-aqua": rankDifference > 0,
-                  "text-red": rankDifference < 0,
+                  "text-destructive": rankDifference < 0,
                 })}
               >
                 {Math.abs(rankDifference)}
@@ -189,11 +181,12 @@ const Leaderboard = ({
               >
                 {!!loggedInUserScore?.loggedInUserRank
                   ? `Ranking ${loggedInUserScore.loggedInUserRank}${nthNumber(loggedInUserScore.loggedInUserRank)} place`
-                  : "- No Ranking Yet"}
+                  : "Top 100 Users"}
               </p>
               {!loggedInUserScore?.loggedInUserRank && (
                 <p className="text-xs ">
-                  Your ranking will be displayed once ready!
+                  You&apos;re not in the top 100 yet. Keep CHOMPing to join the
+                  ranks!
                 </p>
               )}
             </div>

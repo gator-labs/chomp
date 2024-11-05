@@ -1,5 +1,6 @@
 import { QuestionAnswer } from "@prisma/client";
 import classNames from "classnames";
+
 import { OPTION_LABEL } from "./constants";
 
 type RadioInputProps = {
@@ -37,11 +38,11 @@ export function RadioInput({
           <button
             type="button"
             onClick={() => onOptionSelected(o.value)}
-            className="flex items-center space-x-2 gap-[14px] h-10 w-full"
+            className="flex items-stretch space-x-2 gap-[14px] min-h-10 w-full"
           >
             <div
               className={classNames(
-                "h-full w-10 bg-gray-600 rounded-lg flex items-center justify-center",
+                "w-10 bg-gray-600 rounded-lg flex items-center justify-center",
                 {
                   "!bg-purple-500": !showRevealData && value === o.value,
                   "!bg-aqua": showRevealData && value === o.value,
@@ -56,14 +57,13 @@ export function RadioInput({
                 {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
               </p>
             </div>
-            <div className="text-sm  font-light text-white h-full px-4 border-gray-500 border-[1px] rounded-lg flex items-center flex-1 !m-0 relative overflow-hidden">
+            <div className="text-sm font-light text-white px-4 border-gray-500 border-[1px] rounded-lg flex text-left items-center flex-1 !m-0 relative overflow-hidden">
               {randomOptionId === o.id && (
                 <div
                   className="absolute bg-purple-500 h-full left-0 -z-10"
                   style={{ width: `${randomOptionPercentage}%` }}
                 />
               )}
-
               {showRevealData && (
                 <>
                   <div
@@ -79,7 +79,6 @@ export function RadioInput({
                   </p>
                 </>
               )}
-
               {o.label}
             </div>
           </button>

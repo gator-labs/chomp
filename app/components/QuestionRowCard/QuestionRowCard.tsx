@@ -1,10 +1,10 @@
 import { revealQuestion } from "@/app/actions/chompResult";
 import { claimQuestions } from "@/app/actions/claim";
 import {
-  MIX_PANEL_EVENTS,
-  MIX_PANEL_METADATA,
   REVEAL_TYPE,
-} from "@/app/constants/mixpanel";
+  TRACKING_EVENTS,
+  TRACKING_METADATA,
+} from "@/app/constants/tracking";
 import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
@@ -14,18 +14,23 @@ import { QuestionHistory } from "@/app/queries/history";
 import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
 import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
-import sendToMixpanel from "@/lib/mixpanel";
+import trackEvent from "@/lib/trackEvent";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
 import Link from "next/link";
 import { forwardRef } from "react";
+
 import { Button } from "../Button/Button";
 import { ClockIcon } from "../Icons/ClockIcon";
 import { DollarIcon } from "../Icons/DollarIcon";
 import { EyeIcon } from "../Icons/EyeIcon";
 
-const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
+type QuestionRowCardProps = {
+  deckId?: string;
+} & QuestionHistory;
+
+const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
   (question, ref) => {
     const revealAtText = getRevealAtText(question.revealAtDate);
     const queryClient = useQueryClient();
@@ -43,10 +48,10 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
 
         setIsClaiming(true);
 
-        sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_STARTED, {
-          [MIX_PANEL_METADATA.QUESTION_ID]: [question.id],
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: [question.question],
-          [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+        trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
+          [TRACKING_METADATA.QUESTION_ID]: [question.id],
+          [TRACKING_METADATA.QUESTION_TEXT]: [question.question],
+          [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
         });
 
         const tx = await CONNECTION.getTransaction(transactionHash, {
@@ -62,15 +67,21 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           error: "Failed to claim rewards. Please try again.",
         })
           .then((res) => {
-            sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_SUCCEEDED, {
-              [MIX_PANEL_METADATA.QUESTION_ID]: res?.questionIds,
-              [MIX_PANEL_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-              [MIX_PANEL_METADATA.TRANSACTION_SIGNATURE]:
+            trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
+              [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
+              [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
+              [TRACKING_METADATA.TRANSACTION_SIGNATURE]:
                 res?.transactionSignature,
-              [MIX_PANEL_METADATA.QUESTION_TEXT]: res?.questions,
-              [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+              [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
+              [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
             });
-            queryClient.resetQueries({ queryKey: ["questions-history"] });
+            queryClient.resetQueries({
+              queryKey: [
+                question.deckId
+                  ? `questions-history-${question.deckId}`
+                  : "questions-history",
+              ],
+            });
             router.push("/application/answer/reveal/" + question.id);
             router.refresh();
             fire();
@@ -78,11 +89,11 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
           .finally(() => {
             setIsClaiming(false);
           });
-      } catch (error) {
-        sendToMixpanel(MIX_PANEL_EVENTS.CLAIM_FAILED, {
-          [MIX_PANEL_METADATA.QUESTION_ID]: [question.id],
-          [MIX_PANEL_METADATA.QUESTION_TEXT]: [question.question],
-          [MIX_PANEL_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
+      } catch {
+        trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+          [TRACKING_METADATA.QUESTION_ID]: [question.id],
+          [TRACKING_METADATA.QUESTION_TEXT]: [question.question],
+          [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
         });
         errorToast("Failed to claim rewards. Please try again.");
       }
@@ -101,7 +112,13 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
       openRevealModal({
         reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
           await revealQuestion(question.id, burnTx, nftAddress, nftType);
-          queryClient.resetQueries({ queryKey: ["questions-history"] });
+          queryClient.resetQueries({
+            queryKey: [
+              question.deckId
+                ? `questions-history-${question.deckId}`
+                : "questions-history",
+            ],
+          });
           router.push("/application/answer/reveal/" + question.id);
           router.refresh();
         },
@@ -122,9 +139,10 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionHistory>(
             <div className="relative w-6 h-6 flex-shrink-0">
               <Image
                 src={question.image}
-                alt="campaign-image"
+                alt="stack-image"
                 fill
                 className="rounded-full"
+                sizes="(max-width: 600px) 24px, (min-width: 601px) 36px"
               />
             </div>
           )}

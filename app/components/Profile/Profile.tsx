@@ -3,6 +3,7 @@ import { cn } from "@/app/utils/tailwind";
 import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
+
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
 import { PenIcon } from "../Icons/PenIcon";
@@ -69,7 +70,7 @@ export async function Profile({
           {showLeaderboardButton && (
             <Link href="/application/leaderboard" className="contents">
               <Button
-                className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-[#575CDF] !w-fit"
+                className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-purple-400 !w-fit"
                 isPill
                 size="small"
               >

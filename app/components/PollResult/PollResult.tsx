@@ -1,6 +1,7 @@
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import classNames from "classnames";
-import { cloneElement, ReactElement } from "react";
+import { ReactElement, cloneElement } from "react";
+
 import { Avatar } from "../Avatar/Avatar";
 
 type PollResultProps = {
@@ -40,7 +41,7 @@ export default function PollResult({
                   <div
                     className={classNames(
                       "text-aqua text-sm font-bold z-10 flex items-center gap-1",
-                      { "text-red": !isCorrect },
+                      { "text-destructive": !isCorrect },
                     )}
                   >
                     <div>You guessed {percentageSelected}% for </div>

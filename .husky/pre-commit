@@ -1,0 +1,22 @@
+echo 'Styling and testing before committing...'
+
+# Check Prettier standards
+yarn check-format || (
+    echo '❌ Prettier Check Failed. Run yarn format, add changes, and try to commit again.'
+    false
+)
+
+# Check ESLint standards
+yarn lint || (
+    echo '❌ ESLint Check Failed. Please fix the issues listed above, add changes, and try to commit again.'
+    false
+)
+
+# Check TypeScript types
+yarn check-types || (
+    echo '❌ TypeScript type check failed. Please resolve the errors and try to commit again.'
+    false
+)
+
+# If all checks pass, allow the commit
+echo '✅ All checks passed successfully!'

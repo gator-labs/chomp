@@ -1,4 +1,5 @@
 "use client";
+
 import { QuestionType } from "@prisma/client";
 import classNames from "classnames";
 import dayjs from "dayjs";
@@ -10,7 +11,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import gatorHeadImage from "../../../public/images/gator-head.png";
+
 import { useInterval } from "../../hooks/useInterval";
 import {
   ONE_SECOND_IN_MILLISECONDS,
@@ -18,6 +19,7 @@ import {
 } from "../../utils/dateUtils";
 import { CountdownIcon } from "../Icons/CountdownIcon";
 import { Modal } from "../Modal/Modal";
+import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
 type QuestionCardProps = {
   question: string;
@@ -42,7 +44,6 @@ export function QuestionCard({
   onDurationRanOut,
   style,
   isBlurred,
-  answer,
 }: QuestionCardProps) {
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
   const [dueAtFormatted, setDueAtFormatted] = useState<string>(
@@ -70,22 +71,13 @@ export function QuestionCard({
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILLISECONDS);
 
   return (
-    <div
-      className={classNames(
-        "questions-card p-4 pt-6 rounded-lg z-0 flex-grow h-full",
-        className,
-      )}
+    <QuestionCardLayout
+      className={className}
       style={{
         ...style,
         position: "relative",
       }}
     >
-      <Image
-        src={gatorHeadImage}
-        alt="gator-head"
-        className="absolute bottom-0 left-0 w-full"
-        style={{ zIndex: 1 }}
-      />
       <p
         className={classNames("text-white  text-2xl max-w-[330px] z-10", {
           "blur-sm": isBlurred,
@@ -131,6 +123,6 @@ export function QuestionCard({
           </div>
         )}
       </div>
-    </div>
+    </QuestionCardLayout>
   );
 }

@@ -5,8 +5,9 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { Row } from "@tanstack/react-table";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button } from "../Button/Button";
+
 import { Modal } from "../Modal/Modal";
+import { Button } from "../ui/button";
 import { QuestionRowType } from "./QuestionList";
 
 type Props = {
@@ -53,7 +54,7 @@ const Action = ({ row }: Props) => {
           </p>
           <div className="flex gap-2">
             <Button
-              variant="warning"
+              variant="destructive"
               disabled={isDeleting || isFetching}
               onClick={async () => {
                 setIsDeleting(true);
@@ -66,7 +67,6 @@ const Action = ({ row }: Props) => {
               {isDeleting ? "Deleting" : "Delete"}
             </Button>
             <Button
-              variant="primary"
               disabled={isDeleting || isFetching}
               onClick={() => setIsModalOpen(false)}
             >
@@ -76,12 +76,10 @@ const Action = ({ row }: Props) => {
         </div>
       </Modal>
       <Link href={`/admin/questions/${row.original.id}`}>
-        <Button variant="primary" isFullWidth={false}>
-          Edit
-        </Button>
+        <Button isFullWidth={false}>Edit</Button>
       </Link>
       <Button
-        variant="warning"
+        variant="destructive"
         isFullWidth={false}
         onClick={() => setIsModalOpen(true)}
       >
