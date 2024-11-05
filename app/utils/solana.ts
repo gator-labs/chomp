@@ -10,6 +10,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 
+import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 
 export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
@@ -55,17 +56,18 @@ export const genBonkBurnTx = async (
       estimateFee = {
         result: {
           priorityFeeLevels: {
-            high: 5000,
+            high: HIGH_PRIORITY_FEE,
           },
         },
       };
     }
   }
 
-  const computeUnitFix = 5000;
+  const computeUnitFix = 4794;
 
+  // Buffer to make sure the transaction doesn't fail because of less compute units
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-    units: computeUnitFix * 1.25,
+    units: computeUnitFix * 1.1,
   });
 
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({

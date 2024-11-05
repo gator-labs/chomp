@@ -12,6 +12,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
+import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { CONNECTION } from "./solana";
 
@@ -57,14 +58,15 @@ export const sendBonk = async (
 
   // Add the compute unit price instruction with the estimated fee
   const computeBudgetIx = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: estimateFee?.result?.priorityFeeLevels?.high || 50000,
+    microLamports:
+      estimateFee?.result?.priorityFeeLevels?.high || HIGH_PRIORITY_FEE,
   });
 
   // update the instructions with compute budget instruction.
   instructions.unshift(computeBudgetIx);
 
   const computeUnitFix = 4794;
-
+  // Buffer to make sure the transaction doesn't fail because of less compute units
   const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
     units: computeUnitFix * 1.1,
   });
