@@ -17,7 +17,7 @@ const ClaimPreviewImage = ({
   claimedAmount,
 }: ClaimPreviewImageProps) => {
   return (
-    <div className="p-3 bg-white mb-6 rounded-[8px] flex flex-col gap-2">
+    <div className="p-3 bg-white mb-6 rounded-[8px] flex flex-col gap-2 max-w-[358px] mx-auto">
       <div className="p-2 rounded-[8px] bg-primary relative gap-2 flex">
         <Image
           src={profileImg}
