@@ -164,6 +164,9 @@ export async function claimQuestions(questionIds: number[]) {
       ),
       transactionSignature: sendTx,
       questions: chompResults.map((cr) => cr.question),
+      correctAnswers: chompResults.filter(
+        (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
+      ).length,
     };
   } catch (e) {
     const claimError = new ClaimError(

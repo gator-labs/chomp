@@ -6,3 +6,8 @@ export const getDeckPath = (deckId: string | number) =>
 export const STACKS_PATH = "/stacks";
 export const LEADERBOARD_PATH = `${HOME_PATH}/leaderboard`;
 export const ANSWER_PATH = `${HOME_PATH}/answer`;
+export const getOgShareClaimAllPath = (startOfTxHash: string) =>
+  `/api/og/share-claim-all?startOfTxHash=${startOfTxHash}`;
+export const getClaimAllShareUrl = (startOfTxHash: string) => {
+  return `${window.location.origin}/a/${startOfTxHash}`;
+};
