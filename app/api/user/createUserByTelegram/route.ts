@@ -12,6 +12,7 @@
  *       id: string,
  *       isAdmin: boolean,
  *       telegramId: string,
+ *       telegramUsername: string,
  *       isBotSubscriber: boolean,
  *       username: string,
  *       wallets: Wallet[]
@@ -59,12 +60,14 @@ export async function POST(request: Request) {
       data: {
         id: randomUUID,
         telegramId: telegramUserData.id,
+        telegramUsername: telegramUserData.username,
         isBotSubscriber: true,
       },
       select: {
         id: true,
         isAdmin: true,
         telegramId: true,
+        telegramUsername: true,
         isBotSubscriber: true,
         username: true,
         wallets: true,
@@ -76,6 +79,7 @@ export async function POST(request: Request) {
       id: profile.id,
       isAdmin: profile.isAdmin,
       telegramId: profile.telegramId ? profile.telegramId.toString() : null,
+      telegramUsername: profile.telegramUsername,
       isBotSubscriber: profile.isBotSubscriber,
       username: profile.username,
       wallets: profile.wallets,

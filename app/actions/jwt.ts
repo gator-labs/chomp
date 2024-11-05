@@ -47,21 +47,69 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
       ? payload.verified_credentials?.[1]?.oauth_username
       : null;
 
-  const user = await prisma.user.upsert({
-    where: {
-      id: payload.sub,
-    },
-    create: {
-      id: payload.sub,
-      profileSrc: getRandomAvatarPath(),
-      telegramUsername: telegramUsername,
-    },
-    update: {},
-    include: {
-      wallets: true,
-      emails: true,
-    },
-  });
+  let user;
+
+  if (telegramUsername) {
+    // Check if any existing user has this Telegram username
+    const existingTelegramUser = await prisma.user.findFirst({
+      where: {
+        telegramUsername: telegramUsername,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    // If we found a user with this Telegram username and their ID differs from the JWT payload,
+    // update their ID to match the new JWT payload (effectively merging the accounts)
+    if (existingTelegramUser && existingTelegramUser.id !== payload.sub) {
+      user = await prisma.user.update({
+        where: {
+          id: existingTelegramUser.id,
+        },
+        data: {
+          id: payload.sub,
+        },
+        include: {
+          wallets: true,
+          emails: true,
+        },
+      });
+    } else {
+      // If no existing user was found or the IDs match, create/update the user record
+      user = await prisma.user.upsert({
+        where: {
+          id: payload.sub,
+        },
+        create: {
+          id: payload.sub,
+          profileSrc: getRandomAvatarPath(),
+          telegramUsername: telegramUsername,
+        },
+        update: {},
+        include: {
+          wallets: true,
+          emails: true,
+        },
+      });
+    }
+  } else {
+    user = await prisma.user.upsert({
+      where: {
+        id: payload.sub,
+      },
+      create: {
+        id: payload.sub,
+        profileSrc: getRandomAvatarPath(),
+        telegramUsername: telegramUsername,
+      },
+      update: {},
+      include: {
+        wallets: true,
+        emails: true,
+      },
+    });
+  }
 
   const walletAddresses = payload.verified_credentials
     .filter((vc) => vc.format === "blockchain" && vc.chain === "solana")

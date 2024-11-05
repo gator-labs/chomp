@@ -1,4 +1,4 @@
-import { POST } from "@/app/api/user/createUserByTelegramId/route";
+import { POST } from "@/app/api/user/createUserByTelegram/route";
 import prisma from "@/app/services/prisma";
 import { encodeTelegramPayload } from "@/app/utils/testHelper";
 import { NextRequest } from "next/server";

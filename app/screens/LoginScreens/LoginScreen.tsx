@@ -3,12 +3,12 @@
 import { setJwt } from "@/app/actions/jwt";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { TelegramAuthDataProps } from "@/app/login/page";
-// import { TelegramAuthDataProps } from "@/app/login/page";
 import { DynamicJwtPayload } from "@/lib/auth";
 import trackEvent from "@/lib/trackEvent";
-import { useIsLoggedIn, useTelegramLogin } from "@dynamic-labs/sdk-react-core";
 import {
-  useDynamicContext, // useTelegramLogin,
+  useDynamicContext,
+  useIsLoggedIn,
+  useTelegramLogin,
 } from "@dynamic-labs/sdk-react-core";
 import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";

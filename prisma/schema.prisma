@@ -17,7 +17,7 @@ model User {
   lastName                    String?
   username                    String?
   profileSrc                  String?
-  telegramId                  BigInt?
+  telegramId                  BigInt?                       @unique 
   wallets                     Wallet[]
   emails                      Email[]
   questionAnswers             QuestionAnswer[]
@@ -27,7 +27,7 @@ model User {
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
-  telegramUsername            String?
+  telegramUsername            String?                       @unique
   isBotSubscriber             Boolean                       @default(false)
 }
 

@@ -28,6 +28,7 @@ export async function GET() {
       },
       select: {
         telegramId: true,
+        telegramUsername: true,
         id: true,
       },
     });
