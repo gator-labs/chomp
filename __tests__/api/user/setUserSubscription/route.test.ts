@@ -1,8 +1,8 @@
 import { POST } from "@/app/api/user/setUserSubscription/route";
 import prisma from "@/app/services/prisma";
+import { encodeTelegramPayload } from "@/app/utils/testHelper";
+import { NextRequest } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-
-import { encodeTelegramPayload } from "../createUserByTelegramId/route.test";
 
 // Constants
 const VALID_API_KEY = process.env.BOT_API_KEY;
@@ -14,9 +14,6 @@ const TELEGRAM_USER_PAYLOAD = {
   photo_url: "",
   auth_date: String(Math.floor(new Date().getTime())),
 };
-const BASE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/user/setUserSubscription`
-  : "http://localhost:3000/api/user/setUserSubscription";
 
 // Mock setup
 let mockApiKey = VALID_API_KEY;
@@ -27,6 +24,8 @@ jest.mock("next/headers", () => ({
 }));
 
 describe("POST /api/user/setUserSubscription", () => {
+  let mockRequest: NextRequest;
+
   // Create a test user before all tests
   beforeAll(async () => {
     await prisma.user.deleteMany({
@@ -61,17 +60,18 @@ describe("POST /api/user/setUserSubscription", () => {
       const MOCK_TELEGRAM_AUTH_TOKEN = await encodeTelegramPayload(
         TELEGRAM_USER_PAYLOAD,
       );
-      const request = new Request(BASE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      mockRequest = {
+        json: jest.fn().mockResolvedValue({
           telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN,
           isBotSubscriber: false,
         }),
-      });
+        headers: new Headers({
+          "Content-Type": "application/json",
+        }),
+      } as unknown as NextRequest;
 
       // Act
-      const response = await POST(request);
+      const response = await POST(mockRequest);
       const data = await response.json();
 
       // Assert
@@ -90,17 +90,18 @@ describe("POST /api/user/setUserSubscription", () => {
       const MOCK_TELEGRAM_AUTH_TOKEN = await encodeTelegramPayload(
         TELEGRAM_USER_PAYLOAD,
       );
-      const request = new Request(BASE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      mockRequest = {
+        json: jest.fn().mockResolvedValue({
           telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN,
           isBotSubscriber: true,
         }),
-      });
+        headers: new Headers({
+          "Content-Type": "application/json",
+        }),
+      } as unknown as NextRequest;
 
       // Act
-      const response = await POST(request);
+      const response = await POST(mockRequest);
       const data = await response.json();
 
       // Assert
@@ -122,17 +123,18 @@ describe("POST /api/user/setUserSubscription", () => {
       const MOCK_TELEGRAM_AUTH_TOKEN = await encodeTelegramPayload(
         TELEGRAM_USER_PAYLOAD,
       );
-      const request = new Request(BASE_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      mockRequest = {
+        json: jest.fn().mockResolvedValue({
           telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN,
           isBotSubscriber: true,
         }),
-      });
+        headers: new Headers({
+          "Content-Type": "application/json",
+        }),
+      } as unknown as NextRequest;
 
       // Act
-      const response = await POST(request);
+      const response = await POST(mockRequest);
       const errorMessage = await response.text();
 
       // Assert
@@ -149,19 +151,18 @@ describe("POST /api/user/setUserSubscription", () => {
     it("should return 500 when telegram verification fails", async () => {
       // Arrange
       const MOCK_TELEGRAM_AUTH_TOKEN = "invalid-token";
-      const request = new Request(BASE_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      mockRequest = {
+        json: jest.fn().mockResolvedValue({
           telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN,
           isBotSubscriber: true,
         }),
-      });
+        headers: new Headers({
+          "Content-Type": "application/json",
+        }),
+      } as unknown as NextRequest;
 
       // Act
-      const response = await POST(request);
+      const response = await POST(mockRequest);
       const errorMessage = await response.text();
 
       // Assert

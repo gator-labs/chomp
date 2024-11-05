@@ -1,14 +1,11 @@
 import { POST } from "@/app/api/user/createUserByTelegramId/route";
 import prisma from "@/app/services/prisma";
-import * as nodeCrypto from "crypto";
-import * as jwt from "jsonwebtoken";
+import { encodeTelegramPayload } from "@/app/utils/testHelper";
+import { NextRequest } from "next/server";
 
 // Constants
 const VALID_API_KEY = process.env.BOT_API_KEY;
-const BOT_TOKEN = process.env.BOT_TOKEN ?? "";
-const BASE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}/api/user/createUserByTelegramId`
-  : "http://localhost:3000/api/user/createUserByTelegramId";
+
 const TELEGRAM_USER_PAYLOAD = {
   id: "705689",
   first_name: "John",
@@ -27,6 +24,7 @@ jest.mock("next/headers", () => ({
 
 describe("POST /api/user/createUserByTelegramId", () => {
   let createdUserId: string;
+  let mockRequest: NextRequest;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -49,16 +47,17 @@ describe("POST /api/user/createUserByTelegramId", () => {
       const MOCK_TELEGRAM_AUTH_TOKEN = await encodeTelegramPayload(
         TELEGRAM_USER_PAYLOAD,
       );
-      const request = new Request(BASE_URL, {
-        method: "POST",
-        headers: {
+      mockRequest = {
+        json: jest
+          .fn()
+          .mockResolvedValue({ telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN }),
+        headers: new Headers({
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN }),
-      });
+        }),
+      } as unknown as NextRequest;
 
       // Act
-      const response = await POST(request);
+      const response = await POST(mockRequest);
       const data = await response.json();
 
       // Assert
@@ -76,22 +75,22 @@ describe("POST /api/user/createUserByTelegramId", () => {
         where: { id: createdUserId },
       });
       expect(dbUser).toBeDefined();
+      expect(dbUser?.telegramId).toBe(BigInt(TELEGRAM_USER_PAYLOAD.id));
     });
   });
 
   describe("when telegram auth token is missing", () => {
     it("should return 400 with error message", async () => {
       // Arrange
-      const request = new Request(BASE_URL, {
-        method: "POST",
-        headers: {
+      mockRequest = {
+        json: jest.fn().mockResolvedValue({}),
+        headers: new Headers({
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({}),
-      });
+        }),
+      } as unknown as NextRequest;
 
       // Act
-      const response = await POST(request);
+      const response = await POST(mockRequest);
       const errorMessage = await response.json();
 
       // Assert
@@ -104,16 +103,17 @@ describe("POST /api/user/createUserByTelegramId", () => {
     it("should return 500 with error message", async () => {
       // Arrange
       const MOCK_TELEGRAM_AUTH_TOKEN = "invalid-token";
-      const request = new Request(BASE_URL, {
-        method: "POST",
-        headers: {
+      mockRequest = {
+        json: jest
+          .fn()
+          .mockResolvedValue({ telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN }),
+        headers: new Headers({
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ telegramAuthToken: MOCK_TELEGRAM_AUTH_TOKEN }),
-      });
+        }),
+      } as unknown as NextRequest;
 
       // Act
-      const response = await POST(request);
+      const response = await POST(mockRequest);
       const errorMessage = await response.text();
 
       // Assert
@@ -122,45 +122,3 @@ describe("POST /api/user/createUserByTelegramId", () => {
     });
   });
 });
-
-// Helper function to encode the Telegram payload
-export async function encodeTelegramPayload(TELEGRAM_USER_PAYLOAD: any) {
-  // Filter out undefined or empty values from the data object
-  const filteredUseData = Object.entries(TELEGRAM_USER_PAYLOAD).reduce(
-    (acc: { [key: string]: any }, [key, value]) => {
-      if (value) acc[key] = value;
-      return acc;
-    },
-    {} as { [key: string]: any },
-  );
-
-  // Sort the entries and create the data check string
-  const dataCheckArr = Object.entries(filteredUseData)
-    .map(([key, value]) => `${key}=${String(value)}`)
-    .sort((a, b) => a.localeCompare(b))
-    .join("\n");
-
-  // Create SHA-256 hash from the bot token
-  const TELEGRAM_SECRET = nodeCrypto
-    .createHash("sha256")
-    .update(BOT_TOKEN)
-    .digest();
-
-  // Generate HMAC-SHA256 hash from the data check string
-  const hash = nodeCrypto
-    .createHmac("sha256", new Uint8Array(TELEGRAM_SECRET))
-    .update(dataCheckArr)
-    .digest("hex");
-
-  // Create JWT with user data and hash
-  const telegramAuthToken = jwt.sign(
-    {
-      ...TELEGRAM_USER_PAYLOAD,
-      hash,
-    },
-    BOT_TOKEN, // Use the bot token to sign the JWT
-    { algorithm: "HS256" },
-  );
-
-  return encodeURIComponent(telegramAuthToken);
-}
