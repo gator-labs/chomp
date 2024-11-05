@@ -1,7 +1,28 @@
+import { VersionedTransaction } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
 import bs58 from "bs58";
 
-export const getRecentPrioritizationFees = async (tx: Transaction) => {
+/**
+ * Get dynamic priority fees for a transaction
+ * @param {Transaction | VersionedTransaction} tx - The transaction to process.
+ * @returns {{
+ *   jsonrpc: '2.0',
+ *   result: {
+ *     priorityFeeLevels: {
+ *       min: number,
+ *       low: number,
+ *       medium: number,
+ *       high: number,
+ *       veryHigh: number,
+ *       unsafeMax: number
+ *     }
+ *   } | null
+ * }} The result object containing priority fee levels or null.
+ */
+
+export const getRecentPrioritizationFees = async (
+  tx: Transaction | VersionedTransaction,
+) => {
   try {
     const response = await fetch(process.env.NEXT_PUBLIC_RPC_URL!, {
       method: "POST",
