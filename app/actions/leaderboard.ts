@@ -26,7 +26,7 @@ interface LeaderboardProps {
 }
 
 export const getPreviousUserRank = async (
-  variant: "weekly" | "daily" | "all-time",
+  variant: "weekly" | "daily",
   filter: "totalPoints" | "totalBonkClaimed" | "chompedQuestions",
 ) => {
   const today = new Date();
@@ -44,21 +44,15 @@ export const getPreviousUserRank = async (
     return;
 
   const currentUser = await getCurrentUser();
-  let dateFilter = {};
-  let expirationDate = subDays(new Date(), 1);
+  const dateRange = getDateRange(variant, true);
+  const { endDate: expirationDate } = getDateRange(variant)!;
 
-  if (variant !== "all-time") {
-    const dateRange = getDateRange(variant, true);
-    const { endDate } = getDateRange(variant)!;
-    expirationDate = endDate;
-
-    dateFilter = {
-      createdAt: {
-        gte: dateRange!.startDate,
-        lte: dateRange!.endDate,
-      },
-    };
-  }
+  const dateFilter = {
+    createdAt: {
+      gte: dateRange!.startDate,
+      lte: dateRange!.endDate,
+    },
+  };
 
   const key = `${variant}-${filter}`;
 
