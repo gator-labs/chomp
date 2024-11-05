@@ -11,11 +11,13 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
+import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { startTransition, useOptimistic } from "react";
+import { startTransition, useOptimistic, useState } from "react";
 
 import { Button } from "../../Button/Button";
+import ClaimShareDrawer from "../../ClaimShareDrawer/ClaimShareDrawer";
 
 type TotalRewardsClaimAllProps = {
   totalClaimableRewards?: {
@@ -35,6 +37,13 @@ export default function TotalRewardsClaimAll({
   const { fire } = useConfetti();
   const queryClient = useQueryClient();
   const { isClaiming, setIsClaiming } = useClaiming();
+  const [claimResult, setClaimResult] = useState({
+    claimedAmount: 0,
+    correctAnswers: 0,
+    questionsAnswered: 0,
+    transactionHash: "",
+  });
+  const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
 
   const onClaimAll = async () => {
     try {
@@ -43,6 +52,9 @@ export default function TotalRewardsClaimAll({
       trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
+        ),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
           (q) => q?.question,
@@ -72,13 +84,26 @@ export default function TotalRewardsClaimAll({
       fire();
       successToast(
         "Claimed!",
-        `You have successfully claimed ${numberToCurrencyFormatter.format(totalClaimableRewards?.totalClaimableRewards || 0)} BONK!`,
+        `You have successfully claimed ${numberToCurrencyFormatter.format(
+          totalClaimableRewards?.totalClaimableRewards || 0,
+        )} BONK!`,
       );
       setIsClaiming(false);
-    } catch {
+      setIsClaimShareDrawerOpen(true);
+      setClaimResult({
+        claimedAmount: res!.claimedAmount,
+        correctAnswers: res!.correctAnswers,
+        questionsAnswered: res!.questions.length,
+        transactionHash: res!.transactionSignature,
+      });
+    } catch (error) {
+      console.error(error);
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
+        ),
+        [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
+          (q) => q?.question,
         ),
         [TRACKING_METADATA.QUESTION_TEXT]: totalClaimableRewards?.questions.map(
           (q) => q?.question,
@@ -110,6 +135,16 @@ export default function TotalRewardsClaimAll({
           Claim all
         </Button>
       )}
+
+      <ClaimShareDrawer
+        isOpen={isClaimShareDrawerOpen}
+        onClose={() => setIsClaimShareDrawerOpen(false)}
+        claimedAmount={claimResult.claimedAmount}
+        correctAnswers={claimResult.correctAnswers}
+        questionsAnswered={claimResult.questionsAnswered}
+        transactionHash={claimResult.transactionHash}
+        profileImg={AvatarPlaceholder.src}
+      />
     </div>
   );
 }
