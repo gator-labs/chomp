@@ -46,7 +46,7 @@ export function HomeFeedDeckCard({
 }: HomeFeedDeckCardProps) {
   return (
     <a
-      href={date ? `/daily-deck` : `application/decks/${deckId}`}
+      href={date ? `/application/answer` : `application/decks/${deckId}`}
       onClick={() => {
         trackEvent(TRACKING_EVENTS.DECK_CLICKED, {
           [TRACKING_METADATA.DECK_ID]: deckId,
