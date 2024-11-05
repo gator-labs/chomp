@@ -19,7 +19,6 @@ const patchedConfig = fixupConfigRules([
     "next",
     "next/core-web-vitals",
     "plugin:storybook/recommended",
-    // "next/typescript",
     "prettier",
   ),
 ]);
