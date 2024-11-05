@@ -19,6 +19,7 @@ import trackEvent from "@/lib/trackEvent";
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import classNames from "classnames";
 import dayjs from "dayjs";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
@@ -80,6 +81,7 @@ export function Deck({
   const [currentQuestionStep, setCurrentQuestionStep] = useState<QuestionStep>(
     QuestionStep.AnswerQuestion,
   );
+  const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(
     questions.findIndex((q) => q.status === undefined),
@@ -281,6 +283,9 @@ export function Deck({
       trackEvent(TRACKING_EVENTS.DECK_COMPLETED, {
         [TRACKING_METADATA.DECK_ID]: deckId,
         [TRACKING_METADATA.IS_DAILY_DECK]: deckVariant === "daily-deck",
+        [TRACKING_METADATA.SOURCE]: pathname.endsWith("answer")
+          ? TRACKING_METADATA.ANSWER_TAB
+          : "",
       });
     }
   }, [questions.length, hasReachedEnd, currentQuestionIndex]);
@@ -309,7 +314,7 @@ export function Deck({
       : question.questionOptions[random].option;
 
   return (
-    <div className="flex flex-col justify-start h-full pb-4">
+    <div className="flex flex-col justify-start h-full pb-4 w-full">
       <Stepper
         numberOfSteps={questions.length}
         activeStep={currentQuestionIndex}

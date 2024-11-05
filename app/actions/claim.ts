@@ -119,6 +119,10 @@ export async function claimQuestions(questionIds: number[]) {
       return;
     }
 
+    const sendTx = await handleSendBonk(chompResults, userWallet.address);
+
+    if (!sendTx) throw new Error("Send tx is missing");
+
     await prisma.chompResult.updateMany({
       where: {
         id: {
@@ -129,10 +133,6 @@ export async function claimQuestions(questionIds: number[]) {
         result: ResultType.Claimed,
       },
     });
-
-    const sendTx = await handleSendBonk(chompResults, userWallet.address);
-
-    if (!sendTx) throw new Error("Send tx is missing");
 
     await prisma.$transaction(
       async (tx) => {
