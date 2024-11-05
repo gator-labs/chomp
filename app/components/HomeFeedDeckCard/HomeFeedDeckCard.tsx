@@ -2,7 +2,7 @@
 
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
-import { ANSWER_PATH, DECK_PATH } from "@/lib/urls";
+import { ANSWER_PATH, getDeckPath } from "@/lib/urls";
 import classNames from "classnames";
 import Image from "next/image";
 
@@ -47,7 +47,7 @@ export function HomeFeedDeckCard({
 }: HomeFeedDeckCardProps) {
   return (
     <a
-      href={date ? ANSWER_PATH : DECK_PATH(deckId)}
+      href={date ? ANSWER_PATH : getDeckPath(deckId)}
       onClick={() => {
         trackEvent(TRACKING_EVENTS.DECK_CLICKED, {
           [TRACKING_METADATA.DECK_ID]: deckId,

@@ -6,4 +6,3 @@ export const getDeckPath = (deckId: string | number) =>
 export const STACKS_PATH = "/stacks";
 export const LEADERBOARD_PATH = `${HOME_PATH}/leaderboard`;
 export const ANSWER_PATH = `${HOME_PATH}/answer`;
-export const DECK_PATH = (deckId: number) => `${HOME_PATH}/decks/${deckId}`;
