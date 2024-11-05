@@ -1,7 +1,7 @@
 import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
-import { ISolana } from "@dynamic-labs/solana";
+import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
@@ -260,7 +260,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
         // This try catch is to catch Dynamic related issues to narrow down the error
         try {
-          const signer = await wallet!.connector.getSigner<ISolana>();
+          if (!wallet || !isSolanaWallet(wallet)) {
+            return;
+          }
+          const signer = await wallet!.getSigner();
 
           const tx = await genBonkBurnTx(
             address!,
