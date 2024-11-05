@@ -180,11 +180,12 @@ const Leaderboard = ({
               >
                 {!!loggedInUserScore?.loggedInUserRank
                   ? `Ranking ${loggedInUserScore.loggedInUserRank}${nthNumber(loggedInUserScore.loggedInUserRank)} place`
-                  : "- No Ranking Yet"}
+                  : "Top 100 Users"}
               </p>
               {!loggedInUserScore?.loggedInUserRank && (
                 <p className="text-xs ">
-                  Your ranking will be displayed once ready!
+                  You&apos;re not in the top 100 yet. Keep CHOMPing to join the
+                  ranks!
                 </p>
               )}
             </div>
