@@ -63,7 +63,7 @@ export const genBonkBurnTx = async (
     }
   }
 
-  const computeUnitFix = 4794;
+  const computeUnitFix = 4960;
 
   // Buffer to make sure the transaction doesn't fail because of less compute units
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
