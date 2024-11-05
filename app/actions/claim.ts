@@ -7,7 +7,7 @@ import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 
 import prisma from "../services/prisma";
-import { sendBonk } from "../utils/bonk";
+import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { ClaimError } from "../utils/error";
 import { acquireMutex } from "../utils/mutex";

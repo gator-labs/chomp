@@ -57,19 +57,19 @@ export const sendBonk = async (
 
   // Add the compute unit price instruction with the estimated fee
   const computeBudgetIx = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: estimateFee?.result?.priorityFeeLevels?.high || 5000,
+    microLamports: estimateFee?.result?.priorityFeeLevels?.high || 50000,
   });
 
   // update the instructions with compute budget instruction.
   instructions.unshift(computeBudgetIx);
 
-  const computeUnitFix = 5000;
+  const computeUnitFix = 4794;
 
   const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
     units: computeUnitFix * 1.1,
   });
 
-  // update the instructions with compute unit instruction.
+  // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
   instructions.unshift(computeUnitsIx);
 
   const v0updatedMessage = new TransactionMessage({
