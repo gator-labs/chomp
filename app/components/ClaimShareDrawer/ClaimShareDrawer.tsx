@@ -89,7 +89,7 @@ const ClaimShareDrawer = ({
           className="h-[50px] mb-2 font-bold"
         >
           <a
-            href={`https://x.com/intent/tweet?text=${claimUrl}&hashtags=chompchomp&via=chompdotgames`}
+            href={`https://x.com/intent/post?url=${claimUrl}&text=chomp+chomp+mfs&hashtags=chompchomp&via=chompdotgames`}
             target="_blank"
             rel="noreferrer"
           >
