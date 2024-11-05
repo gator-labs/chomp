@@ -65,6 +65,7 @@ export const sendBonk = async (
   // update the instructions with compute budget instruction.
   instructions.unshift(computeBudgetIx);
 
+  //refered from past transaction
   const computeUnitFix = 4794;
   // Buffer to make sure the transaction doesn't fail because of less compute units
   const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
