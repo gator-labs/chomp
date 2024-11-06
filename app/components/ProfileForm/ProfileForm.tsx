@@ -16,6 +16,7 @@ import { Button } from "../Button/Button";
 import { ChompBackgroundProfileIcon } from "../Icons/ChompBackgroundProfileIcon";
 import { CloseIcon } from "../Icons/CloseIcon";
 import { PencilEditIcon } from "../Icons/PencilEditIcon";
+import { MultiWalletPoc } from "../MultiWalletPoc/MultiWalletPoc";
 import Sheet from "../Sheet/Sheet";
 import { TextInput } from "../TextInput/TextInput";
 
@@ -165,6 +166,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         >
           Go home
         </Button>
+        <MultiWalletPoc />
       </div>
       <Sheet
         isOpen={isConfirmModalOpen}

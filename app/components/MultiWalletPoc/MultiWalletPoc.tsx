@@ -1,5 +1,6 @@
 "use client";
 
+import { formatAddress } from "@/app/utils/wallet";
 import { ProviderEnum } from "@dynamic-labs/sdk-api-core";
 import {
   useSocialAccounts,
@@ -15,11 +16,12 @@ export function MultiWalletPoc() {
   const { linkSocialAccount } = useSocialAccounts();
 
   return (
-    <div className="flex flex-col gap-2 mx-5 my-3">
+    <div className="flex flex-col gap-4">
       <Button
         onClick={async () => {
           linkSocialAccount(ProviderEnum.Telegram);
         }}
+        isPill
       >
         Click me to link telegram
       </Button>
@@ -28,9 +30,9 @@ export function MultiWalletPoc() {
           variant="outline"
           key={wallet.id}
           onClick={() => switchWallet(wallet.id)}
+          isPill
         >
-          Click me to connect {wallet.address.slice(0, 4)}...
-          {wallet.address.slice(-4)} for txn
+          Connect {formatAddress(wallet.address)} for Transaction
         </Button>
       ))}
     </div>
