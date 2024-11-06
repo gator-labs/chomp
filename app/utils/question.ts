@@ -205,9 +205,8 @@ export const getTotalNumberOfDeckQuestions = (
   return deckQuestions.filter((dq) =>
     dq.question.questionOptions.every((qo) => {
       return (
-        qo.questionAnswers.length >=
-        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION) /
-          dq.question.questionOptions.length
+        qo.questionAnswers.length / dq.question.questionOptions.length >=
+        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)
       );
     }),
   ).length;
