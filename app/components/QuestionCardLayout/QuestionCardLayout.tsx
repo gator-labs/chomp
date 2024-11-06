@@ -17,7 +17,7 @@ function QuestionCardLayout({
   return (
     <div
       className={classNames(
-        "bg-gray-700 h-[350px] w-full max-w-[480px] rounded-xl pt-6 pl-4 pr-4 flex flex-col justify-between border border-gray-500 text-white relative mb-[4px] overflow-scroll",
+        "bg-gray-700 h-[350px] w-full max-w-[480px] rounded-xl pt-6 px-4 pb-4 flex flex-col justify-between border border-gray-500 text-white relative mb-[4px] overflow-y-scroll",
         className,
       )}
       style={style}
