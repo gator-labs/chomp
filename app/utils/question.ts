@@ -202,12 +202,14 @@ export const getTotalNumberOfDeckQuestions = (
     };
   })[],
 ) => {
-  return deckQuestions.filter((dq) =>
-    dq.question.questionOptions.every((qo) => {
-      return (
-        qo.questionAnswers.length / dq.question.questionOptions.length >=
-        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)
-      );
-    }),
-  ).length;
+  return deckQuestions.filter((dq) => {
+    const numberOfAnswers = dq.question.questionOptions
+      .flatMap((qo) => qo.questionAnswers)
+      .filter(
+        (item, index, self) =>
+          index === self.findIndex((el) => el.userId === item.userId),
+      ).length;
+
+    return numberOfAnswers >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION);
+  }).length;
 };
