@@ -1,5 +1,5 @@
 /**
- * API route to retrieve user profile data by Telegram Username
+ * API route to retrieve user profile data by Telegram ID
  *
  * @route GET /api/user/getUserByTelegram
  * @security Requires BOT_API_KEY in headers
@@ -51,7 +51,7 @@ export async function GET(req: Request) {
 
     const profile = await prisma.user.findFirst({
       where: {
-        telegramUsername: telegramUserData.username,
+        telegramId: telegramUserData.id,
       },
       select: {
         id: true,

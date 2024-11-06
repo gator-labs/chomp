@@ -29,7 +29,11 @@ export const getJwtPayload = async () => {
   }
 };
 
-export const setJwt = async (token: string, nextPath?: string | null) => {
+export const setJwt = async (
+  token: string,
+  nextPath?: string | null,
+  telegramId?: number | null,
+) => {
   if (!token) {
     clearJwt();
     return;
@@ -49,11 +53,11 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
 
   let user;
 
-  if (telegramUsername) {
+  if (telegramId) {
     // Check if any existing user has this Telegram username
     const existingTelegramUser = await prisma.user.findFirst({
       where: {
-        telegramUsername: telegramUsername,
+        telegramId,
       },
       select: {
         id: true,
@@ -69,6 +73,8 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
         },
         data: {
           id: payload.sub,
+          profileSrc: getRandomAvatarPath(),
+          telegramUsername: telegramUsername,
         },
         include: {
           wallets: true,

@@ -44,7 +44,7 @@ export const getPreviousUserRank = async (
     return;
 
   const currentUser = await getCurrentUser();
-  
+
   const dateRange = getDateRange(variant, true);
   const { endDate: expirationDate } = getDateRange(variant)!;
 

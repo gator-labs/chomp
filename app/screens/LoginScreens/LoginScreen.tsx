@@ -44,7 +44,7 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
     setIsLoading(true);
 
     if (authToken) {
-      setJwt(authToken);
+      setJwt(authToken, null, telegramAuthData?.id);
     }
 
     if (telegramAuthData) {
