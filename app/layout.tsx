@@ -44,7 +44,7 @@ export default async function RootLayout({
 
   const user = await getCurrentUser();
 
-  const address = user?.wallets[0].address || "";
+  const address = user?.wallets?.[0]?.address || "";
 
   const bonkBalance = await getBonkBalance(address);
 
