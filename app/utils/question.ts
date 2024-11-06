@@ -203,10 +203,12 @@ export const getTotalNumberOfDeckQuestions = (
   })[],
 ) => {
   return deckQuestions.filter((dq) =>
-    dq.question.questionOptions.every(
-      (qo) =>
+    dq.question.questionOptions.every((qo) => {
+      return (
         qo.questionAnswers.length >=
-        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION),
-    ),
+        Number(process.env.MINIMAL_ANSWERS_PER_QUESTION) /
+          dq.question.questionOptions.length
+      );
+    }),
   ).length;
 };
