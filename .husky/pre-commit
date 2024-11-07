@@ -1,7 +1,7 @@
 echo 'Styling and testing before committing...'
 
 # Check Prettier standards
-yarn format || (
+yarn check-format || (
     echo '❌ Prettier Check Failed. Run yarn format, add changes, and try to commit again.'
     false
 )
