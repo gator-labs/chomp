@@ -4,6 +4,7 @@ import { ChompResult, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
+import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
 import prisma from "../services/prisma";
@@ -109,6 +110,20 @@ export async function claimQuestions(questionIds: number[]) {
       },
     });
 
+    const burnTxHashes = _.uniq(
+      chompResults.map((cr) => cr.burnTransactionSignature!),
+    );
+
+    const numberOfAnsweredQuestions = (
+      await prisma.chompResult.findMany({
+        where: {
+          burnTransactionSignature: {
+            in: burnTxHashes,
+          },
+        },
+      })
+    ).length;
+
     const userWallet = await prisma.wallet.findFirst({
       where: {
         userId: payload.sub,
@@ -167,6 +182,7 @@ export async function claimQuestions(questionIds: number[]) {
       correctAnswers: chompResults.filter(
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
+      numberOfAnsweredQuestions,
     };
   } catch (e) {
     const claimError = new ClaimError(
