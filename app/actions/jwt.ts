@@ -54,7 +54,7 @@ export const setJwt = async (
   let user;
 
   if (telegramId) {
-    // Check if any existing user has this Telegram username
+    // Check if any existing user has this Telegram ID
     const existingTelegramUser = await prisma.user.findFirst({
       where: {
         telegramId,
@@ -64,13 +64,41 @@ export const setJwt = async (
       },
     });
 
-    // If we found a user with this Telegram username and their ID differs from the JWT payload,
-    // update their ID to match the new JWT payload (effectively merging the accounts)
-    if (existingTelegramUser && existingTelegramUser.id !== payload.sub) {
-      user = await prisma.user.update({
-        where: {
-          id: existingTelegramUser.id,
-        },
+    /* If it finds a user with this Telegram ID and their Dynamic ID differs from the JWT payload,
+       then update their Dynamic ID to match the new JWT payload (effectively merging the accounts) */
+    if (existingTelegramUser) {
+      if (existingTelegramUser.id !== payload.sub) {
+        user = await prisma.user.update({
+          where: {
+            id: existingTelegramUser.id,
+          },
+          data: {
+            id: payload.sub,
+            telegramUsername: telegramUsername,
+          },
+          include: {
+            wallets: true,
+            emails: true,
+          },
+        });
+      } else {
+        // If the user's Dynamic ID matches the JWT payload, then update their Telegram username incase user may have changed it
+        user = await prisma.user.update({
+          where: {
+            id: existingTelegramUser.id,
+          },
+          data: {
+            telegramUsername: telegramUsername,
+          },
+          include: {
+            wallets: true,
+            emails: true,
+          },
+        });
+      }
+    } else {
+      // If no existing user was found or the IDs match, create the user record
+      user = await prisma.user.create({
         data: {
           id: payload.sub,
           profileSrc: getRandomAvatarPath(),
@@ -81,25 +109,9 @@ export const setJwt = async (
           emails: true,
         },
       });
-    } else {
-      // If no existing user was found or the IDs match, create/update the user record
-      user = await prisma.user.upsert({
-        where: {
-          id: payload.sub,
-        },
-        create: {
-          id: payload.sub,
-          profileSrc: getRandomAvatarPath(),
-          telegramUsername: telegramUsername,
-        },
-        update: {},
-        include: {
-          wallets: true,
-          emails: true,
-        },
-      });
     }
   } else {
+    // If no telegramId was found, upsert the user record
     user = await prisma.user.upsert({
       where: {
         id: payload.sub,
@@ -107,7 +119,6 @@ export const setJwt = async (
       create: {
         id: payload.sub,
         profileSrc: getRandomAvatarPath(),
-        telegramUsername: telegramUsername,
       },
       update: {},
       include: {

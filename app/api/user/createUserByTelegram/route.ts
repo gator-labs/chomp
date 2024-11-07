@@ -27,6 +27,7 @@
 import verifyTelegramAuthToken from "@/app/actions/bot";
 import { TelegramAuthDataProps } from "@/app/bot/page";
 import prisma from "@/app/services/prisma";
+import { getRandomAvatarPath } from "@/app/utils/avatar";
 import { headers } from "next/headers";
 import { v4 as uuidv4 } from "uuid";
 
@@ -62,6 +63,7 @@ export async function POST(request: Request) {
         telegramId: telegramUserData.id,
         telegramUsername: telegramUserData.username,
         isBotSubscriber: true,
+        profileSrc: getRandomAvatarPath(),
       },
       select: {
         id: true,
