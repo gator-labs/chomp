@@ -188,7 +188,7 @@ model FungibleAssetTransactionLog {
   deck       Deck?              @relation(fields: [deckId], references: [id])
   deckId     Int?
 
-  @@unique([userId, questionId])  // Enforce unique combination of userId and questionId
+  @@unique([type, userId, questionId])  // Enforce unique combination of userId and questionId
   @@unique([deckId, userId])      // Enforce unique combination of deckId and userId
 
 }

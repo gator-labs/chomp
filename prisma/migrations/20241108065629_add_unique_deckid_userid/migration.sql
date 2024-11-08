@@ -6,7 +6,7 @@
 
 */
 -- CreateIndex
-CREATE UNIQUE INDEX "FungibleAssetTransactionLog_userId_questionId_key" ON "FungibleAssetTransactionLog"("userId", "questionId");
+CREATE UNIQUE INDEX "FungibleAssetTransactionLog_type_userId_questionId_key" ON "FungibleAssetTransactionLog"("type", "userId", "questionId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "FungibleAssetTransactionLog_deckId_userId_key" ON "FungibleAssetTransactionLog"("deckId", "userId");
