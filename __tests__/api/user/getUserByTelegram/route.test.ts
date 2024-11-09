@@ -4,7 +4,7 @@ import prisma from "@/app/services/prisma";
 
 // Constants
 const VALID_API_KEY = process.env.BOT_API_KEY;
-const BASE_URL = 'http://mock.example';
+const BASE_URL = "http://mock.example";
 const MOCK_TELEGRAM_AUTH_TOKEN = "valid-auth-token";
 const TELEGRAM_USER_PAYLOAD = {
   id: "705689",

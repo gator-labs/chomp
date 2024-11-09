@@ -36,18 +36,9 @@ export async function POST(request: Request) {
       telegramAuthToken,
     )) as TelegramAuthDataProps;
 
-    const user = await prisma.user.findFirst({
-      where: { telegramId: telegramUserData.id },
-      select: {
-        id: true,
-      },
-    });
-
     await prisma.user.update({
       where: {
-        telegramUsername: telegramUserData.username,
         telegramId: telegramUserData.id,
-        id: user?.id,
       },
       data: { isBotSubscriber },
     });
