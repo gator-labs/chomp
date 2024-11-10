@@ -2,8 +2,7 @@
 
 import { trackQuestionAnswer } from "@/app/utils/tracking";
 import { QuestionType } from "@prisma/client";
-import debounce from "lodash/debounce";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 import { Button } from "../Button/Button";
 import { Question } from "../Deck/Deck";
@@ -52,28 +51,6 @@ export function QuestionAction({
       setIsSliderTouched(true);
     }
   };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedTrackAnswer = useCallback(
-    debounce(
-      (
-        question: Question,
-        deckId?: number,
-        deckVariant?: string,
-        value?: number,
-      ) => {
-        trackQuestionAnswer(
-          question,
-          "SECOND_ORDER",
-          deckId,
-          deckVariant,
-          value,
-        );
-      },
-      500,
-    ),
-    [],
-  );
 
   if (type === "BinaryQuestion" && step === QuestionStep.AnswerQuestion) {
     return (
@@ -124,8 +101,6 @@ export function QuestionAction({
                 if (setPercentage) {
                   setPercentage(value);
                 }
-                if (question)
-                  debouncedTrackAnswer(question, deckId, deckVariant, value);
               }}
               labelLeft="No one"
               labelRight="Everyone"

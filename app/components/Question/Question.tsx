@@ -130,6 +130,13 @@ export function Question({ question, returnUrl }: QuestionProps) {
       }
 
       if (currentQuestionStep === QuestionStep.PickPercentage) {
+        trackQuestionAnswer(
+          question,
+          "SECOND_ORDER",
+          undefined,
+          undefined,
+          optionPercentage,
+        );
         handleSaveQuestion({
           ...answerState,
           percentageGiven: optionPercentage,
