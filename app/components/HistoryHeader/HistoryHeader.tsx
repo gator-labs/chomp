@@ -1,3 +1,5 @@
+// ts-ignore
+
 import { Question } from "@prisma/client";
 
 import PotentialRewardsRevealAll from "../History/PotentialRewardsRevealAll/PotentialRewardsRevealAll";
@@ -9,7 +11,7 @@ interface Props {
     totalClaimableRewards: number;
   };
   revealableQuestions: {
-    id: number;
+    id: any;
     revealTokenAmount: number;
     question: string;
   }[];
