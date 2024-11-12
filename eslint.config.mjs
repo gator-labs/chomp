@@ -51,6 +51,7 @@ const config = [
       ".*",
       "yarn.lock",
       "*.md",
+      "app/components/HistoryHeader/HistoryHeader.tsx",
     ],
   },
 ];
