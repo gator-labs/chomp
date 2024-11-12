@@ -54,7 +54,6 @@ export function QuestionCard({
   const handleDueAtFormatted = useCallback(() => {
     if (!dueAt || hasDurationRanOut) return;
 
-    setDueAtFormatted(getDueAtString(dueAt));
     if (dayjs(dueAt).diff(new Date(), "seconds") <= 0) {
       if (onDurationRanOut) {
         onDurationRanOut();
@@ -62,6 +61,12 @@ export function QuestionCard({
       }
     }
   }, [dueAt, onDurationRanOut, hasDurationRanOut]);
+
+  useEffect(() => {
+    if (dueAt) {
+      setDueAtFormatted(getDueAtString(dueAt));
+    }
+  }, [dueAt]);
 
   useEffect(() => {
     // Reset the hasDurationRanOut state when the question changes
