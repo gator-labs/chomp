@@ -3,7 +3,7 @@ import { useCallback, useMemo, useRef } from "react";
 
 import { getQuestionsHistory } from "../actions/history";
 
-export default function useInfiniteQuestionsHistory(deckId?: string) {
+export default function useInfiniteQuestionsHistory(deckId?: number) {
   const observer = useRef<IntersectionObserver>();
 
   const {
