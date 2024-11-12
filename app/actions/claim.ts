@@ -6,10 +6,10 @@ import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
 import { revalidatePath } from "next/cache";
 
+import { ClaimError } from "../../lib/error";
 import prisma from "../services/prisma";
 import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
-import { ClaimError } from "../utils/error";
 import { acquireMutex } from "../utils/mutex";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";

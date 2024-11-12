@@ -6,9 +6,9 @@ import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { SolanaWalletConnectors } from "@dynamic-labs/solana";
 import * as Sentry from "@sentry/nextjs";
 
+import { LoginError } from "../../lib/error";
 import { clearJwt } from "../actions/jwt";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "../constants/tracking";
-import { LoginError } from "../utils/error";
 
 export default function DynamicProvider({
   children,
