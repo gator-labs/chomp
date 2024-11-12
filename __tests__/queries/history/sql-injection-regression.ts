@@ -8,7 +8,7 @@ describe("SQL injection regression", () => {
 			"11111111-1111-1111-1111-111111111111",
 			100,
 			1,
-			// @ts-ignore
+			// @ts-expect-error
 			'\'',
 		)).rejects.not.toThrow(/unterminated quoted string/);
 	});
