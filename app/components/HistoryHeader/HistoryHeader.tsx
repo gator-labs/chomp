@@ -9,7 +9,7 @@ interface Props {
     totalClaimableRewards: number;
   };
   revealableQuestions: {
-    id: any;
+    id: number;
     revealTokenAmount: number;
     question: string;
   }[];
