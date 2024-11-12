@@ -1,3 +1,5 @@
+// ts-ignore
+
 import { Question } from "@prisma/client";
 
 import PotentialRewardsRevealAll from "../History/PotentialRewardsRevealAll/PotentialRewardsRevealAll";
