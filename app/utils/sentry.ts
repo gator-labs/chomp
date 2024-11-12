@@ -7,4 +7,6 @@ export const ignoreErrors = [
   "Non-Error exception captured",
   "Non-Error promise rejection captured",
   "Cannot destructure property 'address' of '(intermediate value)' as it is undefined.",
+  "t.json is not a function. (In 't.json()', 't.json' is undefined)",
+  "User is having trouble logging in: [object Object]",
 ];
