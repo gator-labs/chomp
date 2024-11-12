@@ -65,13 +65,13 @@ export async function getQuestionsHistoryQuery(
   userId: string,
   pageSize: number,
   currentPage: number,
-  deckId?: string,
+  deckId?: number,
 ): Promise<QuestionHistory[]> {
   const offset = (currentPage - 1) * pageSize;
 
-  const deckHistoryCondition: string = `AND dq."deckId" = ${deckId}`;
+  const getAllDecks = !deckId;
 
-  const query = `
+  const historyResult: QuestionHistory[] = await prisma.$queryRaw`
   SELECT 
     q.id, 
     q.question,
@@ -107,13 +107,13 @@ export async function getQuestionsHistoryQuery(
   JOIN 
     public."QuestionOption" qo ON qo."questionId" = q.id 
   LEFT JOIN 
-    public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = '${userId}'
+    public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId}
   LEFT JOIN 
-    public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = '${userId}' AND cr."questionId" IS NOT NULL
+    public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = ${userId} AND cr."questionId" IS NOT NULL
   FULL JOIN public."Stack" c on c.id = q."stackId"
   JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
   WHERE 
-    q."revealAtDate" IS NOT NULL ${deckId ? deckHistoryCondition : ""}
+    q."revealAtDate" IS NOT NULL AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
   GROUP BY 
     q.id, cr."rewardTokenAmount", cr."burnTransactionSignature", c."image"
   HAVING 
@@ -126,8 +126,6 @@ export async function getQuestionsHistoryQuery(
   ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
-
-  const historyResult: QuestionHistory[] = await prisma.$queryRawUnsafe(query);
 
   return historyResult.map((hr) => ({
     ...hr,
@@ -143,15 +141,14 @@ export async function getAllQuestionsReadyForReveal(): Promise<
 
   const userId = payload.sub;
 
-  const questions = await prisma.$queryRawUnsafe<
+  const questions = await prisma.$queryRaw<
     {
       id: number;
       revealTokenAmount: number;
       answerCount: number;
       question: string;
     }[]
-  >(
-    `
+  >`
 		SELECT 
     q.id,
     q.question,
@@ -185,8 +182,7 @@ WHERE
     AND q."revealAtDate" < NOW()
     AND qa.selected = TRUE
     AND qa."userId" = '${userId}';
-	`,
-  );
+	`;
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
 }
@@ -198,15 +194,14 @@ export async function getAllDeckQuestionsReadyForReveal(
 
   const userId = payload.sub;
 
-  const questions = await prisma.$queryRawUnsafe<
+  const questions = await prisma.$queryRaw<
     {
       id: number;
       revealTokenAmount: number;
       answerCount: number;
       question: string;
     }[]
-  >(
-    `
+  >`
 		SELECT 
     q.id,
     q.question,
@@ -243,8 +238,7 @@ WHERE
     AND qa.selected = TRUE
     AND qa."userId" = '${userId}'
     AND dc."deckId" = ${deckId};
-	`,
-  );
+	`;
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
 }
