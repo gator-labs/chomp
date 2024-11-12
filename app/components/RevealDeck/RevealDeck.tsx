@@ -61,7 +61,7 @@ const RevealDeck = async ({
         profileImg={profileImg}
         totalClaimableRewards={totalClaimableRewards}
       />
-      <History deckId={`${deckId}`} />
+      <History deckId={deckId} />
     </div>
   );
 };
