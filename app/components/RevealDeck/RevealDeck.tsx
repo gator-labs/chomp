@@ -62,7 +62,7 @@ const RevealDeck = async ({
         totalClaimableRewards={totalClaimableRewards}
         deckId={deckId}
       />
-      <History deckId={`${deckId}`} />
+      <History deckId={deckId} />
     </div>
   );
 };
