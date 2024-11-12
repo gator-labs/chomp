@@ -170,7 +170,7 @@ FROM
     public."Question" q
 LEFT JOIN 
     public."ChompResult" cr ON cr."questionId" = q.id
-    AND cr."userId" = '${userId}'
+    AND cr."userId" = ${userId}
     AND cr."transactionStatus" IN ('Completed', 'Pending')
 JOIN 
     public."QuestionOption" qo ON q.id = qo."questionId"
@@ -181,7 +181,7 @@ WHERE
     AND q."revealAtDate" IS NOT NULL
     AND q."revealAtDate" < NOW()
     AND qa.selected = TRUE
-    AND qa."userId" = '${userId}';
+    AND qa."userId" = ${userId};
 	`;
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
@@ -224,7 +224,7 @@ FROM
     public."Question" q
 LEFT JOIN 
     "ChompResult" cr ON cr."questionId" = q.id
-    AND cr."userId" = '${userId}'
+    AND cr."userId" = ${userId}
     AND cr."transactionStatus" IN ('Completed', 'Pending')
 JOIN 
     "QuestionOption" qo ON q.id = qo."questionId"
@@ -236,7 +236,7 @@ WHERE
     AND q."revealAtDate" IS NOT NULL
     AND q."revealAtDate" < NOW()
     AND qa.selected = TRUE
-    AND qa."userId" = '${userId}'
+    AND qa."userId" = ${userId}
     AND dc."deckId" = ${deckId};
 	`;
 
