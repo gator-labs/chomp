@@ -29,7 +29,6 @@ const ClaimShareDrawer = ({
 }: ClaimShareDrawerProps) => {
   const { infoToast } = useToast();
   const [ogImageUrl, setOgImageUrl] = useState("");
-  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const claimUrl = transactionHash
     ? getClaimAllShareUrl(transactionHash.substring(0, 10))
@@ -57,7 +56,7 @@ const ClaimShareDrawer = ({
 
   return (
     <Drawer
-      open={isOpen && isImageLoaded}
+      open={isOpen}
       onOpenChange={async (open: boolean) => {
         if (!open) {
           trackEvent(TRACKING_EVENTS.SHARE_ALL_DIALOG_CLOSED);
@@ -83,7 +82,6 @@ const ClaimShareDrawer = ({
         </p>
 
         <Image
-          onLoadingComplete={() => setIsImageLoaded(true)}
           src={ogImageUrl}
           sizes="100vw"
           className="w-full mb-6 max-w-[358px] mx-auto rounded-[8px] aspect-[1.49:1]"
