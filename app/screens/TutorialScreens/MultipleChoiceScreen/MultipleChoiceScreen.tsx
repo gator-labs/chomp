@@ -1,10 +1,10 @@
 import { Button } from "@/app/components/Button/Button";
-import { QuestionStep } from "@/app/components/Question/Question";
 import { QuestionAction } from "@/app/components/QuestionAction/QuestionAction";
 import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
+import { QuestionStep } from "@/types/question";
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";

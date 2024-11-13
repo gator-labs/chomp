@@ -1,4 +1,4 @@
-import { QuestionStep } from "@/app/components/Question/Question";
+import { QuestionStep } from "@/types/question";
 
 export const STEPS = [
   {

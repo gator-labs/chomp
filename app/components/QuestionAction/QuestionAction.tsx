@@ -1,13 +1,13 @@
 "use client";
 
 import { trackQuestionAnswer } from "@/app/utils/tracking";
+import { QuestionStep } from "@/types/question";
 import { QuestionType } from "@prisma/client";
 import { Dispatch, SetStateAction, useState } from "react";
 
 import { Button } from "../Button/Button";
 import { Question } from "../Deck/Deck";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
-import { QuestionStep } from "../Question/Question";
 import { TrueFalseScale } from "../TrueFalseScale/TrueFalseScale";
 import { BINARY_QUESTION_ICON } from "./constants";
 
