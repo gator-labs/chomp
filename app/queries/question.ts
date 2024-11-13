@@ -1,13 +1,4 @@
-import {
-  AnswerStatus,
-  Deck,
-  DeckQuestion,
-  Prisma,
-  Question,
-  QuestionOption,
-  QuestionTag,
-  Tag,
-} from "@prisma/client";
+import { AnswerStatus, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
 
@@ -25,58 +16,6 @@ export enum ElementType {
   Question = "Question",
   Deck = "Deck",
 }
-
-export async function getQuestionForAnswerById(questionId: number) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  const question = await prisma.question.findFirst({
-    where: { id: { equals: questionId } },
-    include: {
-      deckQuestions: { include: { deck: true } },
-      questionOptions: true,
-      questionTags: {
-        include: {
-          tag: true,
-        },
-      },
-    },
-  });
-  if (!question) {
-    return null;
-  }
-
-  const mappedQuestion = mapToViewModelQuestion(question);
-  return mappedQuestion;
-}
-
-const mapToViewModelQuestion = (
-  question: Question & {
-    questionOptions: QuestionOption[];
-    questionTags: (QuestionTag & { tag: Tag })[];
-    deckQuestions: Array<DeckQuestion & { deck: Deck }>;
-  },
-) => ({
-  id: question.id,
-  durationMiliseconds: Number(question.durationMiliseconds) ?? 0,
-  question: question.question,
-  questionOptions: question.questionOptions.map((qo) => ({
-    id: qo.id,
-    option: qo.option,
-    isLeft: qo.isLeft,
-  })),
-  questionTags: question.questionTags,
-  type: question.type,
-  imageUrl: question.imageUrl ?? undefined,
-  revealAtDate: question.revealAtDate
-    ? question.revealAtDate
-    : question.deckQuestions.length > 0
-      ? question.deckQuestions[0].deck.revealAtDate
-      : null,
-});
 
 export async function getQuestions() {
   const questions = await prisma.question.findMany({
