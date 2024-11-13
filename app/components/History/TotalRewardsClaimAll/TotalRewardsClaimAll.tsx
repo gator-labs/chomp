@@ -11,7 +11,6 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic, useState } from "react";
@@ -24,11 +23,13 @@ type TotalRewardsClaimAllProps = {
     questions: (Question | null)[];
     totalClaimableRewards: number;
   };
+  profileImg: string;
   deckId?: number;
 };
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
+  profileImg,
   deckId,
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
@@ -98,7 +99,7 @@ export default function TotalRewardsClaimAll({
       setClaimResult({
         claimedAmount: res!.claimedAmount,
         correctAnswers: res!.correctAnswers,
-        questionsAnswered: res!.questions.length,
+        questionsAnswered: res!.numberOfAnsweredQuestions,
         transactionHash: res!.transactionSignature,
       });
     } catch (error) {
@@ -148,7 +149,7 @@ export default function TotalRewardsClaimAll({
         correctAnswers={claimResult.correctAnswers}
         questionsAnswered={claimResult.questionsAnswered}
         transactionHash={claimResult.transactionHash}
-        profileImg={AvatarPlaceholder.src}
+        profileImg={profileImg}
       />
     </div>
   );

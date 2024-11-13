@@ -13,18 +13,27 @@ interface Props {
     revealTokenAmount: number;
     question: string;
   }[];
+  profileImg: string;
   deckId?: number;
 }
 
 const HistoryHeader = ({
   totalClaimableRewards,
   revealableQuestions,
-  deckId
+  profileImg,
+  deckId,
 }: Props) => {
   return (
     <div className="py-4 flex flex-col gap-4">
-      <PotentialRewardsRevealAll revealableQuestions={revealableQuestions} deckId={deckId}  />
-      <TotalRewardsClaimAll totalClaimableRewards={totalClaimableRewards} deckId={deckId}  />
+      <PotentialRewardsRevealAll
+        revealableQuestions={revealableQuestions}
+        deckId={deckId}
+      />
+      <TotalRewardsClaimAll
+        profileImg={profileImg}
+        totalClaimableRewards={totalClaimableRewards}
+        deckId={deckId}
+      />
     </div>
   );
 };

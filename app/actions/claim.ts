@@ -4,12 +4,13 @@ import { ChompResult, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
+import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
+import { ClaimError } from "../../lib/error";
 import prisma from "../services/prisma";
 import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
-import { ClaimError } from "../utils/error";
 import { acquireMutex } from "../utils/mutex";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
@@ -109,6 +110,20 @@ export async function claimQuestions(questionIds: number[]) {
       },
     });
 
+    const burnTxHashes = _.uniq(
+      chompResults.map((cr) => cr.burnTransactionSignature!),
+    );
+
+    const numberOfAnsweredQuestions = (
+      await prisma.chompResult.findMany({
+        where: {
+          burnTransactionSignature: {
+            in: burnTxHashes,
+          },
+        },
+      })
+    ).length;
+
     const userWallet = await prisma.wallet.findFirst({
       where: {
         userId: payload.sub,
@@ -167,6 +182,7 @@ export async function claimQuestions(questionIds: number[]) {
       correctAnswers: chompResults.filter(
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
+      numberOfAnsweredQuestions,
     };
   } catch (e) {
     const claimError = new ClaimError(
@@ -192,14 +208,14 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
   if (
     treasurySolBalance < 0.1 ||
     // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
-    (treasuryBonkBalance < 10000000 && treasuryBonkBalance > 0)
+    (treasuryBonkBalance < 25000000 && treasuryBonkBalance > 0)
   ) {
     Sentry.captureMessage(
       `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
       {
         level: "fatal",
         tags: {
-          category: "feedback", // Custom tag to categorize as feedback
+          category: "treasury-low-alert", // Custom tag to catch on Sentry
         },
         extra: {
           treasurySolBalance,

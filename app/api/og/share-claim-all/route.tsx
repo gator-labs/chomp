@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { ChompyGuitarIcon } from "@/app/components/Icons/ChompyGuitarIcon";
 import prisma from "@/app/services/prisma";
+import _ from "lodash";
 import { ImageResponse } from "next/og";
 
 export async function GET(request: Request) {
@@ -11,18 +12,30 @@ export async function GET(request: Request) {
 
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
 
-  const results = startOfTxHash
-    ? await prisma.chompResult.findMany({
-        where: {
-          sendTransactionSignature: {
-            startsWith: startOfTxHash,
-          },
+  const results = await prisma.chompResult.findMany({
+    where: {
+      sendTransactionSignature: {
+        startsWith: startOfTxHash,
+      },
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  const burnTxHashes = _.uniq(
+    results.map((cr) => cr.burnTransactionSignature!),
+  );
+
+  const numAnswered = (
+    await prisma.chompResult.findMany({
+      where: {
+        burnTransactionSignature: {
+          in: burnTxHashes,
         },
-        include: {
-          user: true,
-        },
-      })
-    : [];
+      },
+    })
+  ).length;
 
   const bonkClaimedRaw = results.reduce(
     (sum, item) => sum + (item.rewardTokenAmount?.toNumber() || 0),
@@ -35,8 +48,6 @@ export async function GET(request: Request) {
         item.rewardTokenAmount && item.rewardTokenAmount?.toNumber() > 0,
     )
     .length.toLocaleString("en-US");
-
-  const numAnswered = results.length.toLocaleString("en-US");
 
   const satoshiBlack = await fetch(
     new URL(`${APP_URL}/fonts/satoshi/Satoshi-Black.otf`, import.meta.url),

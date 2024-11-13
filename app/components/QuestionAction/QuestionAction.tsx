@@ -101,14 +101,6 @@ export function QuestionAction({
                 if (setPercentage) {
                   setPercentage(value);
                 }
-                if (question)
-                  trackQuestionAnswer(
-                    question,
-                    "SECOND_ORDER",
-                    deckId,
-                    deckVariant,
-                    value,
-                  );
               }}
               labelLeft="No one"
               labelRight="Everyone"

@@ -30,7 +30,7 @@ export default function Bot({
   useEffect(() => {
     if (!sdkHasLoaded) return;
 
-    if (authToken) setJwt(authToken);
+    if (authToken) setJwt(authToken, null, telegramAuthData?.id);
 
     if (telegramAuthData) {
       trackEvent(TRACKING_EVENTS.TELEGRAM_USER_MINIAPP_OPENED, {
