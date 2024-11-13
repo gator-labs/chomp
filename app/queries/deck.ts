@@ -15,24 +15,6 @@ import dayjs from "dayjs";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { getTotalNumberOfDeckQuestions } from "../utils/question";
-import { Prisma } from ".prisma/client";
-
-const questionDeckToRunInclude = {
-  deckQuestions: {
-    include: {
-      question: {
-        include: {
-          questionOptions: true,
-          questionTags: {
-            include: {
-              tag: true,
-            },
-          },
-        },
-      },
-    },
-  },
-} satisfies Prisma.DeckInclude;
 
 export async function getDailyDeck() {
   const currentDayStart = dayjs(new Date()).subtract(1, "day").toDate();
@@ -92,37 +74,6 @@ export async function getDailyDeck() {
   return {
     questions,
     stackId: dailyDeck?.stackId,
-    id: dailyDeck.id,
-    date: dailyDeck.date,
-  };
-}
-
-/**
- * Get the daily deck for Farcaster Frame.
- * There is no logged in user in this context.
- */
-export async function getDailyDeckForFrame() {
-  // const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  // const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
-
-  const dailyDeck = await prisma.deck.findFirst({
-    where: {
-      date: { not: null }, //, gte: currentDayStart, lte: currentDayEnd }
-    },
-    orderBy: {
-      date: "desc",
-    },
-    include: questionDeckToRunInclude,
-  });
-
-  if (!dailyDeck) {
-    return { questions: [] };
-  }
-
-  const questions = mapQuestionFromDeck(dailyDeck);
-
-  return {
-    questions,
     id: dailyDeck.id,
     date: dailyDeck.date,
   };

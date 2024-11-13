@@ -1,4 +1,4 @@
-import { QuestionStep } from "@/app/components/Question/Question";
+import { QuestionStep } from "@/types/question";
 import { QuestionType } from "@prisma/client";
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";

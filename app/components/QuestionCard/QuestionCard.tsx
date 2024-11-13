@@ -46,13 +46,13 @@ export function QuestionCard({
   isBlurred,
 }: QuestionCardProps) {
   const [isViewImageOpen, setIsViewImageOpen] = useState(false);
-  const [dueAtFormatted, setDueAtFormatted] = useState<string>(
-    dueAt ? getDueAtString(dueAt) : "",
-  );
+  const [dueAtFormatted, setDueAtFormatted] = useState<string>("");
   const [hasDurationRanOut, setHasDurationRanOut] = useState(false);
 
   const handleDueAtFormatted = useCallback(() => {
     if (!dueAt || hasDurationRanOut) return;
+
+    setDueAtFormatted(getDueAtString(dueAt));
 
     if (dayjs(dueAt).diff(new Date(), "seconds") <= 0) {
       if (onDurationRanOut) {
@@ -63,6 +63,7 @@ export function QuestionCard({
   }, [dueAt, onDurationRanOut, hasDurationRanOut]);
 
   useEffect(() => {
+    // Set initial dueAtFormatted only on the client side after mount
     if (dueAt) {
       setDueAtFormatted(getDueAtString(dueAt));
     }
@@ -71,7 +72,7 @@ export function QuestionCard({
   useEffect(() => {
     // Reset the hasDurationRanOut state when the question changes
     setHasDurationRanOut(false);
-  }, [question]); // This effect depends on the question prop
+  }, [question]);
 
   useInterval(handleDueAtFormatted, ONE_SECOND_IN_MILLISECONDS);
 
@@ -96,10 +97,10 @@ export function QuestionCard({
       <div className="relative z-50 flex justify-between items-end">
         <div className="flex items-center justify-between z-10">
           <div className="flex justify-start items-center gap-x-1 w-full z-10">
-            {!!dueAt && (
+            {!!dueAt && dueAtFormatted && (
               <>
                 <CountdownIcon fill="#999" />
-                <span className="text-white  text-sm font-light">
+                <span className="text-white text-sm font-light">
                   {dueAtFormatted}
                 </span>
               </>
@@ -116,7 +117,6 @@ export function QuestionCard({
               width={56}
               height={56}
             />
-
             <Modal
               isOpen={isViewImageOpen}
               onClose={() => setIsViewImageOpen(false)}
