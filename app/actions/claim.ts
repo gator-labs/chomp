@@ -205,10 +205,17 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
 
+  const minTreasurySolBalance = parseFloat(
+    process.env.MIN_TREASURY_SOL_BALANCE || "0.01",
+  );
+  const minTreasuryBonkBalance = parseFloat(
+    process.env.MIN_TREASURY_BONK_BALANCE || "1000000",
+  );
+
   if (
-    treasurySolBalance < 0.1 ||
+    treasurySolBalance < minTreasurySolBalance ||
     // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
-    (treasuryBonkBalance < 25000000 && treasuryBonkBalance > 0)
+    (treasuryBonkBalance < minTreasuryBonkBalance && treasuryBonkBalance > 0)
   ) {
     Sentry.captureMessage(
       `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
