@@ -90,6 +90,7 @@ const ClaimShareDrawer = ({
           alt="og-image"
           priority
           placeholder="blur"
+          quality={65}
         />
 
         <Button
