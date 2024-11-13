@@ -360,9 +360,6 @@ export function Deck({
         percentage={optionPercentage}
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
-        question={question}
-        deckId={deckId}
-        deckVariant={deckVariant || ""}
       />
       {currentQuestionStep !== QuestionStep.PickPercentage && (
         <div

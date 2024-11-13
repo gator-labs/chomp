@@ -195,7 +195,6 @@ export function Question({ question, returnUrl }: QuestionProps) {
           randomQuestionMarker={randomQuestionMarker}
           percentage={optionPercentage}
           setPercentage={setOptionPercentage}
-          question={question}
         />
       </div>
     </div>
