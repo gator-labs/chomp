@@ -87,6 +87,7 @@ const ClaimShareDrawer = ({
           width={500}
           height={500}
           alt="og-image"
+          priority
         />
 
         <Button

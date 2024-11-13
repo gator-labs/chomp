@@ -29,7 +29,6 @@ type TotalRewardsClaimAllProps = {
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
-  profileImg,
   deckId,
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
