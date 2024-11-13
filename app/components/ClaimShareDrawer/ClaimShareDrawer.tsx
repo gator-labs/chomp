@@ -42,7 +42,6 @@ const ClaimShareDrawer = ({
   useEffect(() => {
     const fetchLinkPreview = async () => {
       const linkPreview = await getLinkPreview(claimUrl);
-      console.log({ linkPreview });
       setOgImageUrl((linkPreview as { images: string[] }).images[0]);
     };
 
@@ -52,8 +51,6 @@ const ClaimShareDrawer = ({
 
     if (!!claimUrl) fetchLinkPreview();
   }, [isOpen, claimUrl]);
-
-  console.log({ ogImageUrl });
 
   if (!ogImageUrl) return;
 
@@ -91,6 +88,7 @@ const ClaimShareDrawer = ({
           height={240}
           alt="og-image"
           priority
+          placeholder="blur"
         />
 
         <Button
