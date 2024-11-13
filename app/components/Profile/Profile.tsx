@@ -22,7 +22,7 @@ export async function Profile({
 }: ProfileProps) {
   const user = await getCurrentUser();
   const username = user?.username || "";
-  const address = user?.wallets[0].address || "";
+  const address = user?.wallets?.[0]?.address || "";
   const avatarSrc = user?.profileSrc || AvatarPlaceholder.src;
 
   return (

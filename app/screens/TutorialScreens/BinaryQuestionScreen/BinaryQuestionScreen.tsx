@@ -2,12 +2,12 @@
 
 import { Button } from "@/app/components/Button/Button";
 import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
-import { QuestionStep } from "@/app/components/Question/Question";
 import { QuestionAction } from "@/app/components/QuestionAction/QuestionAction";
 import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
+import { QuestionStep } from "@/types/question";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";

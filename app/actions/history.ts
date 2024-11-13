@@ -25,7 +25,7 @@ export const getQuestionsHistory = async ({
   deckId,
 }: {
   pageParam: number;
-  deckId?: string;
+  deckId?: number;
 }): Promise<QuestionHistory[]> => {
   const payload = await getJwtPayload();
 
