@@ -11,7 +11,6 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
-import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic, useState } from "react";
@@ -140,10 +139,8 @@ export default function TotalRewardsClaimAll({
         isOpen={isClaimShareDrawerOpen}
         onClose={() => setIsClaimShareDrawerOpen(false)}
         claimedAmount={claimResult.claimedAmount}
-        correctAnswers={claimResult.correctAnswers}
         questionsAnswered={claimResult.questionsAnswered}
         transactionHash={claimResult.transactionHash}
-        profileImg={AvatarPlaceholder.src}
       />
     </div>
   );
