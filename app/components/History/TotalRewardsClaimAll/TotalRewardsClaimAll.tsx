@@ -24,11 +24,13 @@ type TotalRewardsClaimAllProps = {
     totalClaimableRewards: number;
   };
   profileImg: string;
+  deckId?: number;
 };
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
   profileImg,
+  deckId,
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
     totalClaimableRewards?.totalClaimableRewards || 0,
@@ -80,8 +82,11 @@ export default function TotalRewardsClaimAll({
       startTransition(() => {
         claimOptimistic(0);
       });
-      queryClient.resetQueries({ queryKey: ["questions-history"] });
-
+      queryClient.resetQueries({
+        queryKey: [
+          deckId ? `questions-history-${deckId}` : "questions-history",
+        ],
+      });
       fire();
       successToast(
         "Claimed!",
