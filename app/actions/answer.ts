@@ -12,11 +12,11 @@ import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { release } from "os";
 
+import { AnswerError } from "../../lib/error";
 import { pointsPerAction } from "../constants/points";
 import { hasAnsweredQuestion } from "../queries/question";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
-import { AnswerError } from "../utils/error";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 

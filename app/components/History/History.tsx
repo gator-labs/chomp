@@ -7,7 +7,7 @@ import QuestionRowCard from "../QuestionRowCard/QuestionRowCard";
 import Skeleton from "../Skeleton/Skeleton";
 
 interface HistoryProps {
-  deckId?: string;
+  deckId?: number;
 }
 
 export default function History({ deckId }: HistoryProps) {
