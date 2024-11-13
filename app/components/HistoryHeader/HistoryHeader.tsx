@@ -21,21 +21,19 @@ const HistoryHeader = ({
   totalClaimableRewards,
   revealableQuestions,
   profileImg,
-  deckId
+  deckId,
 }: Props) => {
   return (
     <div className="py-4 flex flex-col gap-4">
-      <PotentialRewardsRevealAll revealableQuestions={revealableQuestions} />
+      <PotentialRewardsRevealAll
+        revealableQuestions={revealableQuestions}
+        deckId={deckId}
+      />
       <TotalRewardsClaimAll
         totalClaimableRewards={totalClaimableRewards}
+        deckId={deckId}
         profileImg={profileImg}
       />
-  deckId
-}: Props) => {
-  return (
-    <div className="py-4 flex flex-col gap-4">
-      <PotentialRewardsRevealAll revealableQuestions={revealableQuestions} deckId={deckId}  />
-      <TotalRewardsClaimAll totalClaimableRewards={totalClaimableRewards} deckId={deckId}  />
     </div>
   );
 };
