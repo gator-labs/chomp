@@ -87,8 +87,8 @@ const ClaimShareDrawer = ({
         <Image
           src={ogImageUrl}
           className="w-full mb-6 max-w-[358px] mx-auto rounded-[8px] aspect-[1.49:1]"
-          width={500}
-          height={500}
+          width={358}
+          height={240}
           alt="og-image"
           priority
         />
