@@ -27,7 +27,7 @@ import { DollarIcon } from "../Icons/DollarIcon";
 import { EyeIcon } from "../Icons/EyeIcon";
 
 type QuestionRowCardProps = {
-  deckId?: string;
+  deckId?: number;
 } & QuestionHistory;
 
 const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(

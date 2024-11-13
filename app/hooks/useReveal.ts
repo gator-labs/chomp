@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 
+import { BurnError, DynamicRevealError, RevealError } from "../../lib/error";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
@@ -27,7 +28,6 @@ import {
   TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
-import { BurnError, DynamicRevealError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {

@@ -219,6 +219,13 @@ export function Deck({
       }
 
       if (currentQuestionStep === QuestionStep.PickPercentage) {
+        trackQuestionAnswer(
+          question,
+          "SECOND_ORDER",
+          deckId,
+          deckVariant,
+          optionPercentage,
+        );
         setDeckResponse((prev) => {
           const newResponses = [...prev];
           const response = newResponses.pop();
