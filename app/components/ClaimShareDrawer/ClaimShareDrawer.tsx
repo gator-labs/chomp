@@ -5,6 +5,7 @@ import trackEvent from "@/lib/trackEvent";
 import { getClaimAllShareUrl } from "@/lib/urls";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { getLinkPreview } from "link-preview-js";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { CloseIcon } from "../Icons/CloseIcon";
@@ -80,9 +81,12 @@ const ClaimShareDrawer = ({
           {questionsAnswered} cards!
         </p>
 
-        <img
+        <Image
           src={ogImageUrl}
           className="w-full mb-6 max-w-[358px] mx-auto rounded-[8px] aspect-[1.49:1]"
+          width={500}
+          height={500}
+          alt="og-image"
         />
 
         <Button
