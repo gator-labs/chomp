@@ -27,5 +27,5 @@ jobs:
           KV_REST_API_URL: ${{ secrets.KV_REST_API_URL_DEMO }}
           KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN_DEMO }}
           MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
-          BOT_API_KEY: ${{ secrets.BOT_API_KEY }}
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          BOT_API_KEY: "foobar"
+          BOT_TOKEN: "barfoo"
