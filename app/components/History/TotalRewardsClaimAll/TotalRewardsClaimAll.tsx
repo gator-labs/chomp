@@ -29,7 +29,6 @@ type TotalRewardsClaimAllProps = {
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
-  profileImg,
   deckId,
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
@@ -146,10 +145,8 @@ export default function TotalRewardsClaimAll({
         isOpen={isClaimShareDrawerOpen}
         onClose={() => setIsClaimShareDrawerOpen(false)}
         claimedAmount={claimResult.claimedAmount}
-        correctAnswers={claimResult.correctAnswers}
         questionsAnswered={claimResult.questionsAnswered}
         transactionHash={claimResult.transactionHash}
-        profileImg={profileImg}
       />
     </div>
   );

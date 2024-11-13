@@ -4,9 +4,10 @@ import { copyTextToClipboard } from "@/app/utils/clipboard";
 import trackEvent from "@/lib/trackEvent";
 import { getClaimAllShareUrl } from "@/lib/urls";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { useEffect } from "react";
+import { getLinkPreview } from "link-preview-js";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
-import ClaimPreviewImage from "../ClaimPreviewImage/ClaimPreviewImage";
 import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";
@@ -15,8 +16,6 @@ type ClaimShareDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   questionsAnswered: number;
-  correctAnswers: number;
-  profileImg: string;
   claimedAmount: number;
   transactionHash?: string;
 };
@@ -25,12 +24,11 @@ const ClaimShareDrawer = ({
   isOpen,
   onClose,
   claimedAmount,
-  correctAnswers,
-  profileImg,
   questionsAnswered,
   transactionHash,
 }: ClaimShareDrawerProps) => {
   const { infoToast } = useToast();
+  const [ogImageUrl, setOgImageUrl] = useState("");
 
   const claimUrl = transactionHash
     ? getClaimAllShareUrl(transactionHash.substring(0, 10))
@@ -42,10 +40,19 @@ const ClaimShareDrawer = ({
   };
 
   useEffect(() => {
+    const fetchLinkPreview = async () => {
+      const linkPreview = await getLinkPreview(claimUrl);
+      setOgImageUrl((linkPreview as { images: string[] }).images[0]);
+    };
+
     if (isOpen) {
       trackEvent(TRACKING_EVENTS.SHARE_ALL_DIALOG_LOADED);
     }
-  }, [isOpen]);
+
+    if (!!claimUrl) fetchLinkPreview();
+  }, [isOpen, claimUrl]);
+
+  if (!ogImageUrl) return;
 
   return (
     <Drawer
@@ -74,11 +81,16 @@ const ClaimShareDrawer = ({
           {questionsAnswered} cards!
         </p>
 
-        <ClaimPreviewImage
-          claimedAmount={claimedAmount}
-          correctAnswers={correctAnswers}
-          profileImg={profileImg}
-          questionsAnswered={questionsAnswered}
+        <Image
+          src={ogImageUrl}
+          sizes="100vw"
+          className="w-full mb-6 max-w-[358px] mx-auto rounded-[8px] aspect-[1.49:1]"
+          width={358}
+          height={240}
+          alt="og-image"
+          priority
+          placeholder="blur"
+          quality={65}
         />
 
         <Button
