@@ -28,7 +28,7 @@ const StackPage = async () => {
           />
         </div>
         <div className="flex flex-col">
-          <h1 className="text-base mb-3">Daily Deck</h1>
+          <h1 className="text-base mb-3">Daily Decks</h1>
           <p className="text-xs mb-6">
             {decks.length} deck{decks.length === 1 ? "" : "s"},{" "}
             {totalNumberOfCards} cards
