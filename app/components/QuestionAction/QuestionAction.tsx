@@ -62,7 +62,7 @@ export function QuestionAction({
               {qo.option}
               {
                 BINARY_QUESTION_ICON[
-                  qo.option.toUpperCase() as keyof typeof BINARY_QUESTION_ICON
+                qo.option.toUpperCase() as keyof typeof BINARY_QUESTION_ICON
                 ]
               }
             </Button>
@@ -153,7 +153,7 @@ export function QuestionAction({
           </div>
           <Button
             onClick={() => onButtonClick(percentage)}
-            disabled={!isSliderTouched}
+            disabled={!isSliderTouched || disabled}
             variant="purple"
             size="normal"
             className="w-max py-6 !rounded-2xl self-stretch"
