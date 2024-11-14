@@ -144,6 +144,47 @@ export async function getAllStacks() {
   }));
 }
 
+export async function getDailyDecks() {
+  const payload = await getJwtPayload();
+
+  const userId = payload?.sub;
+
+  const dailyDecks = await prisma.deck.findMany({
+    where: {
+      date: { not: null },
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: {
+                    where: {
+                      userId,
+                    },
+                  },
+                },
+              },
+              chompResults: {
+                where: {
+                  userId,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return dailyDecks;
+}
+
 function getDecksToAnswer(
   decks: (Deck & {
     deckQuestions: (DeckQuestion & {

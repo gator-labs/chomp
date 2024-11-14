@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
 
 type StackCardProps = {
-  id: number;
+  id: number | string;
   imageSrc: string;
   name: string;
   numberOfDecks: number;
