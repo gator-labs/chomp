@@ -189,7 +189,7 @@ model FungibleAssetTransactionLog {
   deckId     Int?
 
   @@unique([type, userId, questionId])  // Enforce unique combination of userId and questionId
-  @@unique([deckId, userId])      // Enforce unique combination of deckId and userId
+  @@unique([type, deckId, userId])      // Enforce unique combination of deckId and userId
 
 }
 
