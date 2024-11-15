@@ -40,11 +40,11 @@ export const sendBonk = async (
 
   instructions.push(instruction);
 
-  const blockhash = await CONNECTION.getLatestBlockhash();
+  let blockhashResponse = await CONNECTION.getLatestBlockhash();
 
   const v0message = new TransactionMessage({
     payerKey: fromWallet.publicKey,
-    recentBlockhash: blockhash.blockhash,
+    recentBlockhash: blockhashResponse.blockhash,
     instructions,
   }).compileToV0Message();
 
@@ -74,9 +74,11 @@ export const sendBonk = async (
   // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
   instructions.unshift(computeUnitsIx);
 
+  blockhashResponse = await CONNECTION.getLatestBlockhash();
+
   const v0updatedMessage = new TransactionMessage({
     payerKey: fromWallet.publicKey,
-    recentBlockhash: blockhash.blockhash,
+    recentBlockhash: blockhashResponse.blockhash,
     instructions,
   }).compileToV0Message();
 
@@ -96,7 +98,7 @@ export const sendBonk = async (
   await CONNECTION.confirmTransaction(
     {
       signature,
-      ...blockhash,
+      ...blockhashResponse,
     },
     "confirmed",
   );

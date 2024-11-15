@@ -62,7 +62,7 @@ export function QuestionAction({
               {qo.option}
               {
                 BINARY_QUESTION_ICON[
-                qo.option.toUpperCase() as keyof typeof BINARY_QUESTION_ICON
+                  qo.option.toUpperCase() as keyof typeof BINARY_QUESTION_ICON
                 ]
               }
             </Button>
