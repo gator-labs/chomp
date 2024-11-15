@@ -41,5 +41,5 @@ CREATE UNIQUE INDEX "FungibleAssetTransactionLog_type_userId_questionId_key"
 ON "FungibleAssetTransactionLog"("type", "userId", "questionId");
 
 -- Create unique index for `type`, `deckId`, and `userId`
-CREATE UNIQUE INDEX "FungibleAssetTransactionLog_deckId_userId_key" 
+CREATE UNIQUE INDEX "FungibleAssetTransactionLog_type_deckId_userId_key" 
 ON "FungibleAssetTransactionLog"("type", "deckId", "userId");
