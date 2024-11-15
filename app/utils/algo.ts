@@ -238,6 +238,7 @@ export const calculateReward = async (
       second_order_estimate: 0,
       second_order_mean: 0,
       second_order_estimates: [0],
+      question_cost: 0,
     };
 
     const correctOptionIndex = question.questionOptions.findIndex(
@@ -279,6 +280,7 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
+        question_cost: question.revealTokenAmount,
       };
     }
 
@@ -313,6 +315,7 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
+        question_cost: question.revealTokenAmount,
       };
     }
 
