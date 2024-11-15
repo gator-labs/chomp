@@ -25,6 +25,7 @@ interface RewardShowProps {
   questionIds: number[];
   status: "claimable" | "claimed";
   questions: string[];
+  revealAmount: number;
 }
 
 const RewardShow = ({
@@ -32,6 +33,7 @@ const RewardShow = ({
   questionIds,
   status,
   questions,
+  revealAmount,
 }: RewardShowProps) => {
   const { isClaiming, setIsClaiming } = useClaiming();
   const queryClient = useQueryClient();
@@ -85,7 +87,9 @@ const RewardShow = ({
       <div className="flex bg-gray-700 p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold text-left">
-            {rewardAmount === 5000 ? "Well done!" : "Congrats, you won!"}
+            {rewardAmount === revealAmount
+              ? "Well done!"
+              : "Congrats, you won!"}
           </span>
           <div className="h-[1px] w-full bg-gray-500" />
           <div className="flex items-center gap-1 justify-between">

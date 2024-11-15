@@ -204,7 +204,11 @@ export const calculateReward = async (
     },
   });
 
-  const questionRewards: { questionId: number; rewardAmount: number }[] = [];
+  const questionRewards: {
+    questionId: number;
+    rewardAmount: number;
+    revealAmount: number;
+  }[] = [];
 
   for (const question of questions) {
     const optionsList = question.questionOptions.map((option) => option.id);
@@ -220,7 +224,11 @@ export const calculateReward = async (
       .find((answer) => answer.userId === userId && answer.selected);
 
     if (!userAnswer) {
-      questionRewards.push({ questionId: question.id, rewardAmount: 0 });
+      questionRewards.push({
+        questionId: question.id,
+        rewardAmount: 0,
+        revealAmount: 0,
+      });
       continue;
     }
 
@@ -322,6 +330,7 @@ export const calculateReward = async (
     questionRewards.push({
       questionId: question.id,
       rewardAmount: Number(rewards) || 0,
+      revealAmount: question.revealTokenAmount,
     });
 
     console.log(
