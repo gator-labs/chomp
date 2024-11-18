@@ -17,7 +17,7 @@ model User {
   lastName                    String?
   username                    String?
   profileSrc                  String?
-  telegramId                  BigInt?                       @unique 
+  telegramId                  BigInt?                       @unique
   wallets                     Wallet[]
   emails                      Email[]
   questionAnswers             QuestionAnswer[]
@@ -29,6 +29,7 @@ model User {
   tutorialCompletedAt         DateTime?
   telegramUsername            String?                       @unique
   isBotSubscriber             Boolean                       @default(false)
+  MysteryBox                  MysteryBox[]
 }
 
 model Wallet {
@@ -66,6 +67,7 @@ model Question {
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
+  MysteryBox                  MysteryBox?
 }
 
 model QuestionOption {
@@ -119,6 +121,7 @@ model Deck {
   description                 String?
   heading                     String?
   footer                      String?                       @db.VarChar(50)
+  MysteryBox                  MysteryBox?
 }
 
 model UserDeck {
@@ -231,6 +234,66 @@ model Banner {
   image     String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model MysteryBox {
+  id              String           @id @default(uuid())
+  triggerType     BoxTriggerType
+  status          MysteryBoxStatus @default(New)
+  userId          String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @default(now()) @updatedAt
+  question        Question?        @relation(fields: [questionId], references: [id])
+  questionId      Int?             @unique
+  deck            Deck?            @relation(fields: [deckId], references: [id])
+  deckId          Int?             @unique
+  user            User             @relation(fields: [userId], references: [id])
+  MysteryBoxPrize MysteryBoxPrize?
+}
+
+model MysteryBoxPrize {
+  id                String         @id @default(uuid())
+  status            BoxPrizeStatus @default(UnClaimed)
+  size              BoxSize
+  prizeType         BoxPrizeType
+  amount            String
+  claimHash         String?
+  rewardAmount      Decimal?
+  claimFungibleTxId String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now()) @updatedAt
+  claimedAt         DateTime       @default(now())
+
+  mysteryBox   MysteryBox @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId String     @unique
+}
+
+enum MysteryBoxStatus {
+  New
+  Opened
+  UnOpened
+}
+
+enum BoxTriggerType {
+  ClaimAll
+  DailyDeckCompleted
+}
+
+enum BoxPrizeStatus {
+  UnClaimed
+  Claimed
+}
+
+enum BoxSize {
+  Small
+  Medium
+  Large
+}
+
+enum BoxPrizeType {
+  Token
+  Credits
+  Points
 }
 
 enum QuestionType {
