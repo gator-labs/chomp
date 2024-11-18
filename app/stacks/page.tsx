@@ -1,7 +1,6 @@
 import StackCard from "@/app/components/StackCard/StackCard";
 import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
 import { getAllStacks, getDailyDecks } from "@/app/queries/stack";
-import { isAfter, isBefore } from "date-fns";
 
 const StacksPage = async () => {
   const [stacks, dailyDecks] = await Promise.all([
@@ -15,30 +14,8 @@ const StacksPage = async () => {
       <ul className="flex flex-col gap-2 pb-2 overflow-auto">
         <StackCard
           imageSrc={"/images/chompy.png"}
-          decksToAnswer={
-            dailyDecks.filter(
-              (deck) =>
-                isBefore(deck.activeFromDate!, new Date()) &&
-                isAfter(deck.revealAtDate!, new Date()) &&
-                deck.deckQuestions.flatMap((dq) => dq.question.questionOptions)
-                  .length !==
-                  deck.deckQuestions.flatMap((dq) =>
-                    dq.question.questionOptions.flatMap(
-                      (qo) => qo.questionAnswers,
-                    ),
-                  ).length,
-            ).length
-          }
-          decksToReveal={
-            dailyDecks.filter(
-              (deck) =>
-                isAfter(new Date(), deck.revealAtDate!) &&
-                deck.deckQuestions.map((dq) => dq.question).length !==
-                  deck.deckQuestions.flatMap((dq) =>
-                    dq.question.chompResults.map((cr) => cr),
-                  ).length,
-            ).length
-          }
+          decksToAnswer={dailyDecks.decksToAnswer?.length}
+          decksToReveal={dailyDecks.decksToReveal?.length}
           name="Daily Decks"
           id="daily-deck"
           numberOfDecks={dailyDecks.length}

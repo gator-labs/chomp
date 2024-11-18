@@ -182,7 +182,11 @@ export async function getDailyDecks() {
     },
   });
 
-  return dailyDecks;
+  return {
+    ...dailyDecks,
+    decksToAnswer: !!userId ? getDecksToAnswer(dailyDecks) : undefined,
+    decksToReveal: !!userId ? getDecksToReveal(dailyDecks) : undefined,
+  };
 }
 
 function getDecksToAnswer(
