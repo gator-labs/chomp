@@ -1,6 +1,6 @@
 "use server";
 
-import { ChompResult, ResultType } from "@prisma/client";
+import { BoxTriggerType, ChompResult, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
@@ -13,6 +13,7 @@ import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
+import { rewardMysteryBox } from "./box";
 import { getJwtPayload } from "./jwt";
 
 export async function claimQuestion(questionId: number) {
@@ -171,6 +172,8 @@ export async function claimQuestions(questionIds: number[]) {
     release();
     revalidatePath("/application");
     revalidatePath("/application/history");
+
+    await rewardMysteryBox({ triggerType: BoxTriggerType.ClaimAll });
     return {
       questionIds,
       claimedAmount: chompResults.reduce(
