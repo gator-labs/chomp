@@ -154,6 +154,9 @@ describe("getQuestionsHistoryQuery", () => {
       await tx.questionAnswer.deleteMany({
         where: { userId: { equals: user1.id } },
       });
+      await tx.questionAnswer.deleteMany({
+        where: { userId: { in: otherUsers.map((user) => user.id) } },
+      });
       await tx.questionOption.deleteMany({
         where: { questionId: { in: questionIds } },
       });
