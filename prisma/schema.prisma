@@ -262,7 +262,6 @@ model MysteryBoxPrize {
   claimFungibleTxId String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @default(now()) @updatedAt
-  claimedAt         DateTime       @default(now())
 
   mysteryBox   MysteryBox @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId String     @unique
