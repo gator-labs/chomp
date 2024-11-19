@@ -1,11 +1,11 @@
 "use client";
 
 import { trackQuestionAnswer } from "@/app/utils/tracking";
+import { QuestionStep } from "@/types/question";
 import { QuestionAnswer, QuestionType } from "@prisma/client";
 
 import { AnswerResult } from "../AnswerResult/AnswerResult";
 import { Question } from "../Deck/Deck";
-import { QuestionStep } from "../Question/Question";
 import { RadioInput } from "../RadioInput/RadioInput";
 
 type QuestionOption = {

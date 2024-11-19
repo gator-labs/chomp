@@ -9,7 +9,7 @@ type RevealPointResult = {
 };
 
 export const calculateRevealPoints = async (
-  rewards: { questionId: number; rewardAmount: number }[],
+  rewards: { questionId: number; rewardAmount: number; revealAmount: number }[],
 ): Promise<RevealPointResult[]> => {
   const revealPoints = [];
 
@@ -20,7 +20,7 @@ export const calculateRevealPoints = async (
       type: TransactionLogType.RevealAnswer,
     });
 
-    if (reward.rewardAmount >= 5000) {
+    if (reward.rewardAmount >= reward.revealAmount) {
       revealPoints.push({
         questionId: reward.questionId,
         amount: pointsPerAction[TransactionLogType.CorrectFirstOrder],
@@ -28,7 +28,7 @@ export const calculateRevealPoints = async (
       });
     }
 
-    if (reward.rewardAmount > 5000) {
+    if (reward.rewardAmount > reward.revealAmount) {
       revealPoints.push({
         questionId: reward.questionId,
         amount: pointsPerAction[TransactionLogType.CorrectSecondOrder],

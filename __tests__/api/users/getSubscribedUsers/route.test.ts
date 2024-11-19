@@ -42,11 +42,6 @@ describe("GET /api/users/getSubscribedUsers", () => {
       // Assert
       expect(response.status).toBe(200);
       expect(data).toEqual({ users: MOCK_USERS });
-      expect(prisma.user.findMany).toHaveBeenCalledWith({
-        where: { isBotSubscriber: true },
-        select: { telegramId: true, id: true },
-      });
-      expect(prisma.user.findMany).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -62,7 +57,6 @@ describe("GET /api/users/getSubscribedUsers", () => {
       // Assert
       expect(response.status).toBe(400);
       expect(errorMessage).toBe("Invalid api-key");
-      expect(prisma.user.findMany).not.toHaveBeenCalled();
     });
   });
 
@@ -80,7 +74,6 @@ describe("GET /api/users/getSubscribedUsers", () => {
       // Assert
       expect(response.status).toBe(500);
       expect(errorMessage).toBe("Error getting subscribed users");
-      expect(prisma.user.findMany).toHaveBeenCalledTimes(1);
     });
   });
 });

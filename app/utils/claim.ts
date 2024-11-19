@@ -21,9 +21,7 @@ export const sendBonk = async (
   toWallet: PublicKey,
   amount: number,
 ) => {
-  const bonkMint = new PublicKey(
-    "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-  );
+  const bonkMint = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
   const fromTokenAccount = await getAssociatedTokenAddress(
     bonkMint,
@@ -42,11 +40,11 @@ export const sendBonk = async (
 
   instructions.push(instruction);
 
-  const blockhash = await CONNECTION.getLatestBlockhash();
+  let blockhashResponse = await CONNECTION.getLatestBlockhash();
 
   const v0message = new TransactionMessage({
     payerKey: fromWallet.publicKey,
-    recentBlockhash: blockhash.blockhash,
+    recentBlockhash: blockhashResponse.blockhash,
     instructions,
   }).compileToV0Message();
 
@@ -58,8 +56,9 @@ export const sendBonk = async (
 
   // Add the compute unit price instruction with the estimated fee
   const computeBudgetIx = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports:
+    microLamports: Math.round(
       estimateFee?.result?.priorityFeeLevels?.high || HIGH_PRIORITY_FEE,
+    ),
   });
 
   // update the instructions with compute budget instruction.
@@ -69,15 +68,17 @@ export const sendBonk = async (
   const computeUnitFix = 4794;
   // Buffer to make sure the transaction doesn't fail because of less compute units
   const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
-    units: computeUnitFix * 1.1,
+    units: Math.round(computeUnitFix * 1.1),
   });
 
   // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
   instructions.unshift(computeUnitsIx);
 
+  blockhashResponse = await CONNECTION.getLatestBlockhash();
+
   const v0updatedMessage = new TransactionMessage({
     payerKey: fromWallet.publicKey,
-    recentBlockhash: blockhash.blockhash,
+    recentBlockhash: blockhashResponse.blockhash,
     instructions,
   }).compileToV0Message();
 
@@ -97,7 +98,7 @@ export const sendBonk = async (
   await CONNECTION.confirmTransaction(
     {
       signature,
-      ...blockhash,
+      ...blockhashResponse,
     },
     "confirmed",
   );

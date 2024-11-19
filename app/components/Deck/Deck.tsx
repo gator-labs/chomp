@@ -16,6 +16,7 @@ import {
 } from "@/app/utils/question";
 import { trackAnswerStatus, trackQuestionAnswer } from "@/app/utils/tracking";
 import trackEvent from "@/lib/trackEvent";
+import { QuestionStep } from "@/types/question";
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import classNames from "classnames";
 import dayjs from "dayjs";
@@ -23,7 +24,6 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
-import { QuestionStep } from "../Question/Question";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
 import { QuestionCardContent } from "../QuestionCardContent/QuestionCardContent";
@@ -360,9 +360,6 @@ export function Deck({
         percentage={optionPercentage}
         setPercentage={setOptionPercentage}
         disabled={isSubmitting}
-        question={question}
-        deckId={deckId}
-        deckVariant={deckVariant || ""}
       />
       {currentQuestionStep !== QuestionStep.PickPercentage && (
         <div
