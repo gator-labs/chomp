@@ -1,5 +1,6 @@
 import { getQuestionsHistoryQuery } from "@/app/queries/history";
 import prisma from "@/app/services/prisma";
+import { generateUsers } from "@/scripts/utils";
 import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
@@ -12,6 +13,7 @@ describe("getQuestionsHistoryQuery", () => {
 
   let deckId: number;
   let questionIds: number[] = [];
+  let otherUsers: { id: string; username: string }[] = [];
 
   beforeAll(async () => {
     const futureDate = dayjs().add(1, "day").toDate();
@@ -119,6 +121,30 @@ describe("getQuestionsHistoryQuery", () => {
           })),
         ),
       });
+
+      const minAnswersPerQuestion = Number(
+        process.env.MINIMAL_ANSWERS_PER_QUESTION ?? 0,
+      );
+
+      if (minAnswersPerQuestion > 0) {
+        otherUsers = await generateUsers(minAnswersPerQuestion);
+
+        await tx.user.createMany({
+          data: otherUsers,
+        });
+
+        for (let userIdx = 0; userIdx < minAnswersPerQuestion; userIdx++) {
+          await tx.questionAnswer.createMany({
+            data: questions.flatMap((question) =>
+              question.questionOptions.map((qo, i) => ({
+                questionOptionId: qo.id,
+                userId: otherUsers[userIdx].id,
+                selected: i === 0,
+              })),
+            ),
+          });
+        }
+      }
     });
   });
 
@@ -141,6 +167,12 @@ describe("getQuestionsHistoryQuery", () => {
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { equals: deckId } } });
       await tx.user.deleteMany({ where: { id: { equals: user1.id } } });
+
+      if (otherUsers.length > 0) {
+        await tx.user.deleteMany({
+          where: { id: { in: otherUsers.map((user) => user.id) } },
+        });
+      }
     });
   });
 
