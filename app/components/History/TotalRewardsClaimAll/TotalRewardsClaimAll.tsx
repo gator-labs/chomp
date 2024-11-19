@@ -17,7 +17,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic, useState } from "react";
 
 import { Button } from "../../Button/Button";
-import ClaimPreviewImage from "../../ClaimPreviewImage/ClaimPreviewImage";
 import ClaimShareDrawer from "../../ClaimShareDrawer/ClaimShareDrawer";
 
 type TotalRewardsClaimAllProps = {
@@ -26,11 +25,12 @@ type TotalRewardsClaimAllProps = {
     totalClaimableRewards: number;
   };
   profileImg: string;
+  deckId?: number;
 };
 
 export default function TotalRewardsClaimAll({
   totalClaimableRewards,
-  profileImg,
+  deckId,
 }: TotalRewardsClaimAllProps) {
   const [optimisticAmount, claimOptimistic] = useOptimistic(
     totalClaimableRewards?.totalClaimableRewards || 0,
@@ -82,8 +82,11 @@ export default function TotalRewardsClaimAll({
       startTransition(() => {
         claimOptimistic(0);
       });
-      queryClient.resetQueries({ queryKey: ["questions-history"] });
-
+      queryClient.resetQueries({
+        queryKey: [
+          deckId ? `questions-history-${deckId}` : "questions-history",
+        ],
+      });
       fire();
       successToast(
         "Claimed!",
@@ -96,7 +99,7 @@ export default function TotalRewardsClaimAll({
       setClaimResult({
         claimedAmount: res!.claimedAmount,
         correctAnswers: res!.correctAnswers,
-        questionsAnswered: res!.questions.length,
+        questionsAnswered: res!.numberOfAnsweredQuestions,
         transactionHash: res!.transactionSignature,
       });
     } catch (error) {
@@ -148,16 +151,8 @@ export default function TotalRewardsClaimAll({
         isOpen={isClaimShareDrawerOpen}
         copyUrl={copyUrl}
         onClose={() => setIsClaimShareDrawerOpen(false)}
-        description={`You just claimed ${Math.round(claimResult.claimedAmount).toLocaleString("en-US")}{" "}
-          BONK from ${claimResult.questionsAnswered} cards!`}
-        previewImage={
-          <ClaimPreviewImage
-            claimedAmount={claimResult.claimedAmount}
-            correctAnswers={claimResult.correctAnswers}
-            profileImg={profileImg}
-            questionsAnswered={claimResult.questionsAnswered}
-          />
-        }
+        description={`You just claimed ${claimResult.claimedAmount.toLocaleString("en-US")} BONK from{" "}
+          ${claimResult.questionsAnswered} cards!`}
       />
     </div>
   );

@@ -21,7 +21,7 @@ export default async function Layout({ children }: PageLayoutProps) {
     getTransactionHistory(),
   ]);
 
-  const address = user?.wallets[0].address || "";
+  const address = user?.wallets?.[0]?.address || "";
 
   const [bonkBalance, solBalance] = await Promise.all([
     getBonkBalance(address),

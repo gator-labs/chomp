@@ -7,7 +7,6 @@ import { useState } from "react";
 
 import ClaimShareDrawer from "../ClaimShareDrawer/ClaimShareDrawer";
 import { ShareV2Icon } from "../Icons/ShareV2Icon";
-import SingleClaimPreviewImage from "../SingleClaimPreviewImage/SingleClaimPreviewImage";
 import { Button } from "../ui/button";
 
 type ShareResultProps = {
@@ -25,11 +24,7 @@ type ShareResultProps = {
 
 const ShareResult = ({
   claimedAmount,
-  options,
-  selectedOptionId,
-  question,
   transactionHash,
-  imageUrl,
   questionId,
 }: ShareResultProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -57,15 +52,6 @@ const ShareResult = ({
         copyUrl={copyUrl}
         onClose={() => setIsOpen(false)}
         description={`You won ${Math.round(claimedAmount).toLocaleString("en-US")} BONK for your correct answer.`}
-        previewImage={
-          <SingleClaimPreviewImage
-            options={options}
-            selectedOptionId={selectedOptionId}
-            claimedAmount={claimedAmount}
-            question={question}
-            imageUrl={imageUrl}
-          />
-        }
       />
     </>
   );

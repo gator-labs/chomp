@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 
+import { BurnError, DynamicRevealError, RevealError } from "../../lib/error";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
@@ -27,7 +28,6 @@ import {
   TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
-import { BurnError, DynamicRevealError, RevealError } from "../utils/error";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
 type UseRevealProps = {
@@ -256,8 +256,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       }
 
       if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
-        const blockhash = await CONNECTION.getLatestBlockhash();
-
         // This try catch is to catch Dynamic related issues to narrow down the error
         try {
           if (!wallet || !isSolanaWallet(wallet)) {
@@ -265,11 +263,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           }
           const signer = await wallet!.getSigner();
 
-          const tx = await genBonkBurnTx(
-            address!,
-            blockhash.blockhash,
-            reveal?.amount ?? 0,
-          );
+          const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
           setBurnState("burning");
 
           try {
@@ -321,8 +315,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
           const res = await CONNECTION.confirmTransaction(
             {
-              blockhash: blockhash.blockhash,
-              lastValidBlockHeight: blockhash.lastValidBlockHeight,
+              blockhash: tx.recentBlockhash!,
+              lastValidBlockHeight: tx.lastValidBlockHeight!,
               signature,
             },
             "confirmed",

@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Custom errors classes for the app
  */

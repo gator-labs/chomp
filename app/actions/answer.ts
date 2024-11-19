@@ -8,15 +8,13 @@ import {
   TransactionLogType,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import dayjs from "dayjs";
 import { revalidatePath } from "next/cache";
 import { release } from "os";
 
+import { AnswerError } from "../../lib/error";
 import { pointsPerAction } from "../constants/points";
-import { hasAnsweredQuestion } from "../queries/question";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
-import { AnswerError } from "../utils/error";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 
@@ -175,97 +173,6 @@ export async function answerQuestion(request: SaveQuestionRequest) {
 
       await Promise.all(fungibleAssetRevealTasks);
     });
-  } catch (error) {
-    const answerError = new AnswerError(
-      `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,
-      { cause: error },
-    );
-    Sentry.captureException(answerError);
-    release();
-    throw error;
-  }
-}
-
-export async function saveQuestion(request: SaveQuestionRequest) {
-  const payload = await getJwtPayload();
-
-  if (
-    request.percentageGiven === undefined ||
-    !request.questionOptionId ||
-    !payload
-  ) {
-    return;
-  }
-
-  try {
-    const userId = payload?.sub ?? "";
-
-    const hasAnswered = await hasAnsweredQuestion(
-      request.questionId,
-      userId,
-      true,
-    );
-
-    if (hasAnswered) {
-      return;
-    }
-
-    const question = await prisma.question.findFirst({
-      where: { id: { equals: request.questionId } },
-    });
-
-    if (
-      question?.revealAtDate &&
-      dayjs(question?.revealAtDate).isBefore(new Date())
-    ) {
-      return;
-    }
-
-    const questionOptions = await prisma.questionOption.findMany({
-      where: { questionId: request.questionId },
-      include: { question: true },
-    });
-
-    const questionAnswers = questionOptions.map((qo) => {
-      const isOptionSelected = qo.id === request?.questionOptionId;
-
-      const percentageForQuestionOption =
-        request?.percentageGivenForAnswerId === qo.id
-          ? request.percentageGiven
-          : undefined;
-
-      const percentage =
-        qo.question.type === QuestionType.BinaryQuestion &&
-        !percentageForQuestionOption
-          ? 100 - request!.percentageGiven!
-          : percentageForQuestionOption;
-
-      return {
-        selected: isOptionSelected,
-        percentage,
-        questionOptionId: qo.id,
-        timeToAnswer: request?.timeToAnswerInMiliseconds
-          ? BigInt(request?.timeToAnswerInMiliseconds)
-          : null,
-        userId,
-      } as QuestionAnswer;
-    });
-
-    await prisma.$transaction(async (tx) => {
-      await tx.questionAnswer.createMany({
-        data: questionAnswers,
-      });
-
-      await incrementFungibleAssetBalance({
-        asset: FungibleAsset.Point,
-        amount: pointsPerAction[TransactionLogType.AnswerQuestion],
-        transactionLogType: TransactionLogType.AnswerQuestion,
-        injectedPrisma: tx,
-        questionIds: [request.questionId],
-      });
-    });
-
-    revalidatePath("/application");
   } catch (error) {
     const answerError = new AnswerError(
       `User with id: ${payload?.sub} is having trouble answering question with id: ${request.questionId}`,

@@ -20,7 +20,6 @@ const DECIMALS = 5;
 
 export const genBonkBurnTx = async (
   ownerAddress: string,
-  blockhash: string,
   tokenAmount: number,
 ) => {
   const burnFromPublic = new PublicKey(ownerAddress); // user address
@@ -37,9 +36,6 @@ export const genBonkBurnTx = async (
     tokenAmount * 10 ** DECIMALS,
     DECIMALS,
   );
-
-  tx.recentBlockhash = blockhash;
-  tx.feePayer = burnFromPublic;
 
   let estimateFee = await getRecentPrioritizationFees(tx);
 
@@ -67,12 +63,18 @@ export const genBonkBurnTx = async (
 
   // Buffer to make sure the transaction doesn't fail because of less compute units
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-    units: computeUnitFix * 1.1,
+    units: Math.round(computeUnitFix * 1.1),
   });
 
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: estimateFee?.result?.priorityFeeLevels?.high,
+    microLamports: Math.round(estimateFee?.result?.priorityFeeLevels?.high),
   });
+  const { blockhash, lastValidBlockHeight } =
+    await CONNECTION.getLatestBlockhash();
+
+  tx.recentBlockhash = blockhash;
+  tx.lastValidBlockHeight = lastValidBlockHeight;
+  tx.feePayer = burnFromPublic;
 
   tx.add(modifyComputeUnits);
   tx.add(addPriorityFee);
