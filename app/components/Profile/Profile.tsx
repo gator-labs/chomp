@@ -81,9 +81,11 @@ export async function Profile({
           )}
         </div>
       </div>
-      <div className="border border-solid rounded-[8px] border-gray-500">
-        <DynamicWidget />
-      </div>
+      {process.env.FF_CHOMP_BOT && (
+        <div className="border border-solid rounded-[8px] border-gray-500">
+          <DynamicWidget />
+        </div>
+      )}
     </div>
   );
 }
