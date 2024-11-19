@@ -26,9 +26,8 @@ type StackDeckCardProps = {
   numberOfQuestionsOptions: number;
   numberOfUserQuestionsAnswers: number;
   activeFromDate: Date;
-  chompResults: (Omit<ChompResult, "rewardTokenAmount"> & {
+  chompResults: (ChompResult & {
     question: Question;
-    rewardTokenAmount: number;
   })[];
   deckQuestions: Question[];
   userId?: string;
@@ -60,11 +59,11 @@ const StackDeckCard = ({
 
   const claimableAmount = chompResults
     .filter((cr) => cr.result === ResultType.Revealed)
-    .reduce((acc, cur) => acc + (cur.rewardTokenAmount ?? 0), 0);
+    .reduce((acc, cur) => acc + Number(cur.rewardTokenAmount ?? 0), 0);
 
   const claimedAmount = chompResults
     .filter((cr) => cr.result === ResultType.Claimed)
-    .reduce((acc, cur) => acc + (cur.rewardTokenAmount ?? 0), 0);
+    .reduce((acc, cur) => acc + Number(cur.rewardTokenAmount ?? 0), 0);
 
   const revealedAtTimeString = chompResults[0]?.createdAt
     ? getTimeString(chompResults[0].createdAt)

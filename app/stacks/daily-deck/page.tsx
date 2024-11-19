@@ -3,7 +3,6 @@ import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
 import { getDailyDecks } from "@/app/queries/stack";
 import { getCurrentUser } from "@/app/queries/user";
 import { getTotalNumberOfDeckQuestions } from "@/app/utils/question";
-import { ChompResult, Question } from "@prisma/client";
 import Image from "next/image";
 
 const StackPage = async () => {
@@ -47,17 +46,12 @@ const StackPage = async () => {
           <StackDeckCard
             key={deck.id}
             deckId={deck.id}
-            chompResults={
-              deck.deckQuestions
-                .flatMap((dq) => dq.question.chompResults)
-                .map((cr) => ({
-                  ...cr,
-                  rewardTokenAmount: Number(cr.rewardTokenAmount),
-                })) as (Omit<ChompResult, "rewardTokenAmount"> & {
-                rewardTokenAmount: number;
-                question: Question;
-              })[]
-            }
+            chompResults={deck.deckQuestions.flatMap((dq) =>
+              dq.question.chompResults.map((cr) => ({
+                ...cr,
+                question: dq.question,
+              })),
+            )}
             deckQuestions={deck.deckQuestions.map((dq) => ({
               ...dq.question,
               chompResults: undefined,
