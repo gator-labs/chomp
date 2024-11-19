@@ -7,10 +7,13 @@ import { ChompResult, Question } from "@prisma/client";
 import Image from "next/image";
 
 const StackPage = async () => {
-  const [user, decks] = await Promise.all([getCurrentUser(), getDailyDecks()]);
+  const [user, dailyDecks] = await Promise.all([
+    getCurrentUser(),
+    getDailyDecks(),
+  ]);
 
   const totalNumberOfCards = getTotalNumberOfDeckQuestions(
-    decks.flatMap((d) => d.deckQuestions),
+    dailyDecks.decks.flatMap((d) => d.deckQuestions),
   );
 
   return (
@@ -30,8 +33,9 @@ const StackPage = async () => {
         <div className="flex flex-col">
           <h1 className="text-base mb-3">Daily Decks</h1>
           <p className="text-xs mb-6">
-            {decks.length} deck{decks.length === 1 ? "" : "s"},{" "}
-            {totalNumberOfCards} cards
+            {dailyDecks.decks.length} deck
+            {dailyDecks.decks.length === 1 ? "" : "s"}, {totalNumberOfCards}{" "}
+            cards
           </p>
         </div>
       </div>
@@ -39,7 +43,7 @@ const StackPage = async () => {
         <p className="text-sm">Decks</p>
       </div>
       <ul className="flex flex-col gap-2 px-4 overflow-auto">
-        {decks.map((deck) => (
+        {dailyDecks.decks.map((deck) => (
           <StackDeckCard
             key={deck.id}
             deckId={deck.id}

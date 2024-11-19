@@ -18,7 +18,7 @@ const StacksPage = async () => {
           decksToReveal={dailyDecks.decksToReveal?.length}
           name="Daily Decks"
           id="daily-deck"
-          numberOfDecks={dailyDecks.length}
+          numberOfDecks={dailyDecks.decks.length}
         />
         {stacks.map((stack) => (
           <StackCard
