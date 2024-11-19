@@ -1,6 +1,4 @@
-import { DOUBLE } from "./constants";
-
-export function getSmallestRevealTokenAmount(
+export function getTotalRevealTokenAmount(
   revealableQuestions: {
     id: number;
     revealTokenAmount: number;
@@ -12,12 +10,7 @@ export function getSmallestRevealTokenAmount(
   }
 
   return revealableQuestions.reduce(
-    (min, question) =>
-      question.revealTokenAmount < min ? question.revealTokenAmount : min,
-    revealableQuestions[0].revealTokenAmount,
+    (acc, curr) => (acc += curr.revealTokenAmount),
+    0,
   );
-}
-
-export function getMaxRewardPerQuestion(revealAmount: number) {
-  return DOUBLE * revealAmount;
 }
