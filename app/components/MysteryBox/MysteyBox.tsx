@@ -1,3 +1,5 @@
+import { openMysteryBox } from "@/app/actions/box";
+import { useToast } from "@/app/providers/ToastProvider";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import React from "react";
 
@@ -8,9 +10,22 @@ import { Drawer, DrawerContent } from "../ui/drawer";
 type MysteryBoxProps = {
   isOpen: boolean;
   closeBoxDialog: () => void;
+  boxPrizeId: string;
 };
 
-function MysteyBox({ isOpen, closeBoxDialog }: MysteryBoxProps) {
+function MysteyBox({ isOpen, closeBoxDialog, boxPrizeId }: MysteryBoxProps) {
+  const { promiseToast } = useToast();
+  const openBox = async () => {
+    try {
+      await promiseToast(openMysteryBox(boxPrizeId), {
+        loading: "Opening Mystery Box. Please wait...",
+        success: "Mystery Box opened successfully! 🎉",
+        error: "Failed to open the Mystery Box. Please try again later. 😔",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <Drawer
       open={isOpen}
@@ -29,7 +44,9 @@ function MysteyBox({ isOpen, closeBoxDialog }: MysteryBoxProps) {
             </div>
           </div>
         </DialogTitle>
-        <Button variant={"primary"}>Open Box</Button>
+        <Button variant={"primary"} onClick={openBox}>
+          Open Box
+        </Button>
       </DrawerContent>
     </Drawer>
   );

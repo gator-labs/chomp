@@ -173,7 +173,9 @@ export async function claimQuestions(questionIds: number[]) {
     revalidatePath("/application");
     revalidatePath("/application/history");
 
-    await rewardMysteryBox({ triggerType: BoxTriggerType.ClaimAll });
+    const prizeId = await rewardMysteryBox({
+      triggerType: BoxTriggerType.ClaimAll,
+    });
     return {
       questionIds,
       claimedAmount: chompResults.reduce(
@@ -186,6 +188,7 @@ export async function claimQuestions(questionIds: number[]) {
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
       numberOfAnsweredQuestions,
+      mysterBoxPrizeId: prizeId,
     };
   } catch (e) {
     const claimError = new ClaimError(

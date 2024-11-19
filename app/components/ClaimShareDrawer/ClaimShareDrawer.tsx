@@ -19,6 +19,7 @@ type ClaimShareDrawerProps = {
   questionsAnswered: number;
   claimedAmount: number;
   transactionHash?: string;
+  boxPrizeId: string;
 };
 
 const ClaimShareDrawer = ({
@@ -27,6 +28,7 @@ const ClaimShareDrawer = ({
   claimedAmount,
   questionsAnswered,
   transactionHash,
+  boxPrizeId,
 }: ClaimShareDrawerProps) => {
   const { infoToast } = useToast();
   const [ogImageUrl, setOgImageUrl] = useState("");
@@ -64,6 +66,7 @@ const ClaimShareDrawer = ({
           closeBoxDialog={() => {
             setShowMysterBox(false);
           }}
+          boxPrizeId={boxPrizeId}
         />
       ) : (
         <Drawer

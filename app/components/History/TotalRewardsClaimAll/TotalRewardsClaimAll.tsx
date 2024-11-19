@@ -46,6 +46,7 @@ export default function TotalRewardsClaimAll({
     transactionHash: "",
   });
   const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
+  const [boxPrizeId, setBoxPrizeId] = useState("");
 
   const onClaimAll = async () => {
     try {
@@ -69,6 +70,10 @@ export default function TotalRewardsClaimAll({
         success: "Funds are transferred!",
         error: "Issue transferring funds.",
       });
+
+      if (res?.mysterBoxPrizeId) {
+        setBoxPrizeId(res?.mysterBoxPrizeId);
+      }
 
       trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
         [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
@@ -147,6 +152,7 @@ export default function TotalRewardsClaimAll({
         claimedAmount={claimResult.claimedAmount}
         questionsAnswered={claimResult.questionsAnswered}
         transactionHash={claimResult.transactionHash}
+        boxPrizeId={boxPrizeId}
       />
     </div>
   );

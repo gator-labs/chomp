@@ -339,3 +339,11 @@ export const calculateReward = async (
 
   return questionRewards;
 };
+
+export const calculateMysteryBoxReward = async () => {
+  const res = await getMechanismEngineResponse("mystery-box", {
+    event_type: "share",
+  });
+
+  return res;
+};
