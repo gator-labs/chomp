@@ -10,7 +10,7 @@ export function getTotalRevealTokenAmount(
   }
 
   return revealableQuestions.reduce(
-    (acc, curr) => (acc += curr.revealTokenAmount),
+    (acc, curr) => acc + curr.revealTokenAmount,
     0,
   );
 }
