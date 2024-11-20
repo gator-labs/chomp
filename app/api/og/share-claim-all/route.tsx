@@ -36,20 +36,18 @@ export async function GET(request: Request) {
   const numAnswered = (
     await prisma.chompResult.findMany({
       where: {
-        ...(!!burnTxHashes.length
-          ? {
-              burnTransactionSignature: {
-                in: burnTxHashes,
-              },
-            }
-          : {}),
-        ...(!!nftIds.length
-          ? {
-              revealNftId: {
-                in: nftIds,
-              },
-            }
-          : {}),
+        OR: [
+          {
+            burnTransactionSignature: {
+              in: burnTxHashes,
+            },
+          },
+          {
+            revealNftId: {
+              in: nftIds,
+            },
+          },
+        ],
       },
     })
   ).length;

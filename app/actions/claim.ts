@@ -149,12 +149,18 @@ export async function claimQuestions(questionIds: number[]) {
     const numberOfAnsweredQuestions = (
       await prisma.chompResult.findMany({
         where: {
-          burnTransactionSignature: {
-            in: burnTxHashes,
-          },
-          revealNftId: {
-            in: revealNftIds,
-          },
+          OR: [
+            {
+              burnTransactionSignature: {
+                in: burnTxHashes,
+              },
+            },
+            {
+              revealNftId: {
+                in: revealNftIds,
+              },
+            },
+          ],
         },
       })
     ).length;
