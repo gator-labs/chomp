@@ -24,10 +24,14 @@ export async function GET(request: Request) {
   });
 
   const burnTxHashes = _.uniq(
-    results.map((cr) => cr.burnTransactionSignature!),
+    results
+      .filter((r) => !!r.burnTransactionSignature)
+      .map((cr) => cr.burnTransactionSignature!),
   );
 
-  const nftIds = _.uniq(results.map((cr) => cr.revealNftId!));
+  const nftIds = _.uniq(
+    results.filter((r) => !!r.revealNftId).map((cr) => cr.revealNftId!),
+  );
 
   const numAnswered = (
     await prisma.chompResult.findMany({
@@ -42,7 +46,7 @@ export async function GET(request: Request) {
         ...(!!nftIds.length
           ? {
               revealNftId: {
-                in: burnTxHashes,
+                in: nftIds,
               },
             }
           : {}),
