@@ -175,6 +175,7 @@ export async function claimQuestions(questionIds: number[]) {
 
     const prizeId = await rewardMysteryBox({
       triggerType: BoxTriggerType.ClaimAll,
+      questionIds,
     });
     return {
       questionIds,

@@ -3,8 +3,8 @@
 import {
   BoxPrizeStatus,
   BoxPrizeType,
-  BoxSize,
   BoxTriggerType,
+  MysteryBoxStatus,
 } from "@prisma/client";
 
 import prisma from "../services/prisma";
@@ -13,9 +13,13 @@ import { getJwtPayload } from "./jwt";
 
 type MysteryBoxProps = {
   triggerType: BoxTriggerType;
+  questionIds: number[];
 };
 
-export async function rewardMysteryBox({ triggerType }: MysteryBoxProps) {
+export async function rewardMysteryBox({
+  triggerType,
+  questionIds,
+}: MysteryBoxProps) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -25,25 +29,38 @@ export async function rewardMysteryBox({ triggerType }: MysteryBoxProps) {
   const userId = payload?.sub ?? "";
 
   try {
+    const calculatedReward = await calculateMysteryBoxReward();
+    const tokenAddress = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263";
     const res = await prisma.mysteryBox.create({
       data: {
         triggerType,
         userId: userId,
+        questions: {
+          createMany: {
+            data: questionIds.map((questionId) => ({
+              questionId,
+            })),
+          },
+        },
+        MysteryBoxPrize: {
+          create: {
+            status: BoxPrizeStatus.UnClaimed,
+            size: calculatedReward.box_type,
+            prizeType: BoxPrizeType.Token,
+            tokenAddress,
+            amount: String(calculatedReward?.bonk),
+          },
+        },
+      },
+      include: {
+        MysteryBoxPrize: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
-
-    const calculatedReward = await calculateMysteryBoxReward();
-
-    const prize = await prisma.mysteryBoxPrize.create({
-      data: {
-        mysteryBoxId: res.id, // Ensure res.id exists and is correct
-        status: BoxPrizeStatus.UnClaimed, // Assuming the status is always 'UnClaimed' for now
-        size: BoxSize.Medium,
-        prizeType: BoxPrizeType.Token,
-        amount: String(calculatedReward?.bonk),
-      },
-    });
-    return prize.id;
+    return res.id;
   } catch (e) {
     console.log(e);
   }
@@ -57,12 +74,19 @@ export async function openMysteryBox(id: string) {
   }
 
   try {
-    await prisma.mysteryBoxPrize.update({
+    await prisma.mysteryBox.update({
       where: {
         id: id,
       },
       data: {
-        status: BoxPrizeStatus.Claimed,
+        status: MysteryBoxStatus.Opened,
+        MysteryBoxPrize: {
+          update: {
+            data: {
+              status: BoxPrizeStatus.Claimed,
+            },
+          },
+        },
       },
     });
   } catch (e) {

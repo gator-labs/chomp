@@ -9,7 +9,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { CloseIcon } from "../Icons/CloseIcon";
-import MysteyBox from "../MysteryBox/MysteyBox";
+import MysteryBox from "../MysteryBox/MysteryBox";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";
 
@@ -61,7 +61,7 @@ const ClaimShareDrawer = ({
   return (
     <>
       {FF_MYSTERY_BOX && showMysterBox ? (
-        <MysteyBox
+        <MysteryBox
           isOpen={showMysterBox}
           closeBoxDialog={() => {
             setShowMysterBox(false);

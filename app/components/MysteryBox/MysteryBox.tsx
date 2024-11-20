@@ -13,7 +13,7 @@ type MysteryBoxProps = {
   boxPrizeId: string;
 };
 
-function MysteyBox({ isOpen, closeBoxDialog, boxPrizeId }: MysteryBoxProps) {
+function MysteryBox({ isOpen, closeBoxDialog, boxPrizeId }: MysteryBoxProps) {
   const { promiseToast } = useToast();
   const openBox = async () => {
     try {
@@ -22,8 +22,10 @@ function MysteyBox({ isOpen, closeBoxDialog, boxPrizeId }: MysteryBoxProps) {
         success: "Mystery Box opened successfully! 🎉",
         error: "Failed to open the Mystery Box. Please try again later. 😔",
       });
+      closeBoxDialog();
     } catch (error) {
       console.log(error);
+      closeBoxDialog();
     }
   };
   return (
@@ -52,4 +54,4 @@ function MysteyBox({ isOpen, closeBoxDialog, boxPrizeId }: MysteryBoxProps) {
   );
 }
 
-export default MysteyBox;
+export default MysteryBox;

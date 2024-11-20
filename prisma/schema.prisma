@@ -67,7 +67,9 @@ model Question {
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
-  MysteryBox                  MysteryBox?
+  MysteryBox                  MysteryBox?                   @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId                String?
+  MysteryBoxTrigger           MysteryBoxTrigger?
 }
 
 model QuestionOption {
@@ -241,18 +243,27 @@ model Banner {
 }
 
 model MysteryBox {
-  id              String           @id @default(uuid())
+  id              String              @id @default(uuid())
   triggerType     BoxTriggerType
-  status          MysteryBoxStatus @default(New)
+  status          MysteryBoxStatus    @default(New)
   userId          String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  question        Question?        @relation(fields: [questionId], references: [id])
-  questionId      Int?             @unique
-  deck            Deck?            @relation(fields: [deckId], references: [id])
-  deckId          Int?             @unique
-  user            User             @relation(fields: [userId], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @default(now()) @updatedAt
+  questions       MysteryBoxTrigger[]
+  deck            Deck?               @relation(fields: [deckId], references: [id])
+  deckId          Int?                @unique
+  user            User                @relation(fields: [userId], references: [id])
   MysteryBoxPrize MysteryBoxPrize?
+  Question        Question[]
+}
+
+model MysteryBoxTrigger {
+  id String @id @default(uuid())
+
+  question     Question?   @relation(fields: [questionId], references: [id])
+  questionId   Int?        @unique
+  MysteryBox   MysteryBox? @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId String?
 }
 
 model MysteryBoxPrize {
@@ -260,6 +271,7 @@ model MysteryBoxPrize {
   status            BoxPrizeStatus @default(UnClaimed)
   size              BoxSize
   prizeType         BoxPrizeType
+  tokenAddress      String?
   amount            String
   claimHash         String?
   rewardAmount      Decimal?
@@ -288,9 +300,9 @@ enum BoxPrizeStatus {
 }
 
 enum BoxSize {
-  Small
-  Medium
-  Large
+  small
+  medium
+  large
 }
 
 enum BoxPrizeType {
