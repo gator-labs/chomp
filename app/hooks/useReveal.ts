@@ -313,24 +313,28 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
           pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
 
-          const res = await CONNECTION.confirmTransaction(
-            {
-              blockhash: tx.recentBlockhash!,
-              lastValidBlockHeight: tx.lastValidBlockHeight!,
-              signature,
-            },
-            "confirmed",
-          );
-
-          if (!!res.value.err) {
+          try {
+            await CONNECTION.confirmTransaction(
+              {
+                blockhash: tx.recentBlockhash!,
+                lastValidBlockHeight: tx.lastValidBlockHeight!,
+                signature,
+              },
+              "confirmed",
+            );
+          } catch (error) {
             errorToast(
               "Error while confirming transaction. Bonk was not burned. Try again.",
             );
-            const burnError = new BurnError(
-              `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-              { cause: res.value.err },
-            );
-            Sentry.captureException(burnError);
+
+            if (error instanceof Error) {
+              const burnError = new BurnError(
+                `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+                { cause: error.message },
+              );
+              Sentry.captureException(burnError);
+            }
+
             await deleteQuestionChompResults(pendingChompResultIds);
           }
         } catch (error) {

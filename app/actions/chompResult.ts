@@ -173,6 +173,9 @@ export async function revealQuestions(
       revealNftId = revealNft.nftId;
     }
 
+    if (!revealNftId && !burnTx)
+      throw new Error("Nft or transaction hash is missing!");
+
     await tx.chompResult.createMany({
       data: [
         ...questionRewards.map((questionReward) => ({
