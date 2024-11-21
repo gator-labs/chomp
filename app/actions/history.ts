@@ -30,6 +30,7 @@ export const getQuestionsHistory = async ({
   const payload = await getJwtPayload();
 
   if (!payload?.sub) {
+    console.log("no payload");
     return [];
   }
 

@@ -71,6 +71,8 @@ export async function getQuestionsHistoryQuery(
 
   const getAllDecks = !deckId;
 
+  console.log({ userId, pageSize, currentPage, deckId });
+
   const historyResult: QuestionHistory[] = await prisma.$queryRaw`
   SELECT 
     q.id, 
@@ -126,6 +128,8 @@ export async function getQuestionsHistoryQuery(
   ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
+
+  console.log({ historyResult });
 
   return historyResult.map((hr) => ({
     ...hr,
