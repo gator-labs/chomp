@@ -122,7 +122,7 @@ export async function getQuestionsHistoryQuery(
       FROM public."QuestionOption" qo
       JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
       WHERE qo."questionId" = q."id"
-    ) >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)}
+    ) >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION || 0)}
   ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
