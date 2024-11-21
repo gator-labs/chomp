@@ -29,8 +29,26 @@ export const getQuestionsHistory = async ({
 }): Promise<QuestionHistory[]> => {
   const payload = await getJwtPayload();
 
+  console.log({ payload });
+
   if (!payload?.sub) {
-    return [];
+    return [
+      {
+        id: 1525,
+        question: "nov19f: Lorem ipsum?",
+        revealAtDate: new Date(),
+        claimedAmount: 0,
+        burnTransactionSignature: undefined,
+        image: undefined,
+        revealTokenAmount: 10,
+        isAnswered: false,
+        isClaimed: false,
+        isRevealed: false,
+        isClaimable: false,
+        isRevealable: true,
+        answerCount: 0,
+      },
+    ];
   }
 
   return getQuestionsHistoryQuery(payload.sub, PAGE_SIZE, pageParam, deckId);
