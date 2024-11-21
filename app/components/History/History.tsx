@@ -14,8 +14,6 @@ export default function History({ deckId }: HistoryProps) {
   const { data, isFetchingNextPage, lastElementRef, isLoading } =
     useInfiniteQuestionsHistory(deckId);
 
-  console.log({ data, isFetchingNextPage });
-
   if (isLoading) return <HistoryListSkeleton />;
 
   return (
