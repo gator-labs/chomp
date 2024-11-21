@@ -71,8 +71,6 @@ export async function getQuestionsHistoryQuery(
 
   const getAllDecks = !deckId;
 
-  console.log({ userId, pageSize, currentPage, deckId });
-
   const historyResult: QuestionHistory[] = await prisma.$queryRaw`
   SELECT 
     q.id, 
@@ -118,16 +116,16 @@ export async function getQuestionsHistoryQuery(
     q."revealAtDate" IS NOT NULL AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
   GROUP BY 
     q.id, cr."rewardTokenAmount", cr."burnTransactionSignature", c."image"
+  HAVING 
+    (
+      SELECT COUNT(distinct concat(qa."userId", qo."questionId"))
+      FROM public."QuestionOption" qo
+      JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+      WHERE qo."questionId" = q."id"
+    ) >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION || 0)}
   ORDER BY q."revealAtDate" DESC, q."id"
   LIMIT ${pageSize} OFFSET ${offset}
 `;
-
-  console.log({
-    historyResult,
-    MINIMAL_ANSWERS_PER_QUESTION: Number(
-      process.env.MINIMAL_ANSWERS_PER_QUESTION,
-    ),
-  });
 
   return historyResult.map((hr) => ({
     ...hr,
