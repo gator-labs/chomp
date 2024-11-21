@@ -28,6 +28,7 @@ model User {
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
   telegramUsername            String?                       @unique
+  twitterUsername             String?                       @unique 
   isBotSubscriber             Boolean                       @default(false)
 }
 
