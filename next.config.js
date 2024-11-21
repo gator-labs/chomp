@@ -31,10 +31,10 @@ const nextConfig = {
     },
     serverComponentsExternalPackages: ["@aws-sdk"],
   },
-  compiler: {
-    removeConsole:
-      process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
-  },
+  // compiler: {
+  //   removeConsole:
+  //     process.env.NODE_ENV === "production" ? { exclude: ["error"] } : false,
+  // },
   images: {
     remotePatterns: [
       {
