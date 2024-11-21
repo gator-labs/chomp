@@ -23,11 +23,8 @@ export default function PotentialRewardsRevealAll({
   revealableQuestions,
   deckId,
 }: PotentialRewardsRevealAllProps) {
-  const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
-  const maxRewardPerQuestion = totalRevealTokenAmount * 2;
-
-  const [optimisticMaxRewardPerQuestion, revealOptimistic] = useOptimistic(
-    maxRewardPerQuestion,
+  const [optimisticRevealableQuestionsLength, revealOptimistic] = useOptimistic(
+    revealableQuestions.length,
     (_, optimisticValue: number) => optimisticValue,
   );
 
@@ -77,16 +74,21 @@ export default function PotentialRewardsRevealAll({
     [],
   );
 
+  const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
+  const maxRewardPerQuestion = totalRevealTokenAmount * 2;
+
   return (
     <div className="flex justify-between ">
       <div className="flex flex-col justify-between gap-[10px]">
         <div className="text-xs text-white  ">Potential Rewards</div>
         <div className="text-base text-white  font-semibold ">
-          {numberToCurrencyFormatter.format(optimisticMaxRewardPerQuestion)}{" "}
+          {numberToCurrencyFormatter.format(
+            optimisticRevealableQuestionsLength * maxRewardPerQuestion,
+          )}{" "}
           BONK
         </div>
       </div>
-      {optimisticMaxRewardPerQuestion !== 0 && (
+      {optimisticRevealableQuestionsLength * maxRewardPerQuestion !== 0 && (
         <Button
           onClick={handleRevealAll}
           disabled={isLoading}
