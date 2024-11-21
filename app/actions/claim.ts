@@ -1,5 +1,6 @@
 "use server";
 
+import { getUsername } from "@/app/queries/profile";
 import { ChompResult, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
@@ -186,7 +187,7 @@ export async function claimQuestions(questionIds: number[]) {
     };
   } catch (e) {
     const claimError = new ClaimError(
-      `User with id: ${payload.sub} is having trouble claiming for questions ids: ${questionIds}`,
+      `User with id: ${payload.sub} (username: ${getUsername()} is having trouble claiming for questions ids: ${questionIds}`,
       { cause: e },
     );
     Sentry.captureException(claimError);
