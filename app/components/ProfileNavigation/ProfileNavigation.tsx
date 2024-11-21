@@ -1,5 +1,6 @@
 "use client";
 
+import useInfiniteQuestionsHistory from "@/app/_reactQuery/useInfiniteQuestionsHistory";
 import { cn } from "@/app/utils/tailwind";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -8,6 +9,9 @@ import { PROFILE_LINKS } from "./constants";
 
 const ProfileNavigation = () => {
   const pathname = usePathname();
+  const { data } = useInfiniteQuestionsHistory(undefined);
+
+  console.log({ data });
 
   return (
     <ul className="p-1 gap-2 bg-gray-700 rounded-[48px] grid grid-cols-3 my-4">
