@@ -85,7 +85,7 @@ export function SocialAuth() {
           icon={<TelegramIconBlue width={24} height={24} />}
           username={userTelegramInfo?.username}
           disconnectHandler={() => {
-            unlinkSocialAccount(ProviderEnum.Instagram);
+            unlinkSocialAccount(ProviderEnum.Telegram);
             setUserTwitterInfo(null);
           }}
           socialName="Telegram"
