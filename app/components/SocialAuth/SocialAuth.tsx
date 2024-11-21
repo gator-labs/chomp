@@ -17,7 +17,7 @@ import Spinner from "../Spinner/Spinner";
 import { Button } from "../ui/button";
 
 export function SocialAuth() {
-  const { successToast, errorToast } = useToast();
+  const { errorToast } = useToast();
 
   const [userTwitterInfo, setUserTwitterInfo] =
     useState<SocialAccountInformation | null>();
