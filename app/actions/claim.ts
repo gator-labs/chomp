@@ -86,6 +86,8 @@ export async function claimAllAvailable() {
 
 export async function claimQuestions(questionIds: number[]) {
   const payload = await getJwtPayload();
+  let sendTx: string | null = null;
+  let resultIds: number[] = [];
 
   if (!payload) {
     return null;
@@ -134,7 +136,12 @@ export async function claimQuestions(questionIds: number[]) {
       return;
     }
 
-    const sendTx = await handleSendBonk(chompResults, userWallet.address);
+    resultIds = chompResults.map((r) => r.id);
+    sendTx = await handleSendBonk(
+      chompResults,
+      questionIds,
+      userWallet.address,
+    );
 
     if (!sendTx) throw new Error("Send tx is missing");
 
@@ -189,13 +196,23 @@ export async function claimQuestions(questionIds: number[]) {
       `User with id: ${payload.sub} is having trouble claiming for questions ids: ${questionIds}`,
       { cause: e },
     );
-    Sentry.captureException(claimError);
+    Sentry.captureException(claimError, {
+      extra: {
+        questionIds,
+        chompResults: resultIds,
+        transactionHash: sendTx,
+      },
+    });
     release();
     throw e;
   }
 }
 
-async function handleSendBonk(chompResults: ChompResult[], address: string) {
+async function handleSendBonk(
+  chompResults: ChompResult[],
+  questionIds: number[],
+  address: string,
+) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -246,6 +263,8 @@ async function handleSendBonk(chompResults: ChompResult[], address: string) {
       treasuryWallet,
       new PublicKey(address),
       Math.round(tokenAmount * 10 ** 5),
+      chompResults,
+      questionIds,
     );
   }
 

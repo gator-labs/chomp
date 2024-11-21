@@ -1,5 +1,7 @@
 "use server";
 
+import { ChompResult } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import {
   createTransferInstruction,
   getAssociatedTokenAddress,
@@ -12,6 +14,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
+import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { CONNECTION } from "./solana";
@@ -20,6 +23,8 @@ export const sendBonk = async (
   fromWallet: Keypair,
   toWallet: PublicKey,
   amount: number,
+  chompResults: ChompResult[],
+  questionIds: number[],
 ) => {
   const bonkMint = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
@@ -95,13 +100,43 @@ export const sendBonk = async (
     },
   );
 
-  await CONNECTION.confirmTransaction(
-    {
-      signature,
-      ...blockhashResponse,
-    },
-    "confirmed",
-  );
+  const payload = await getJwtPayload();
+
+  try {
+    await CONNECTION.confirmTransaction(
+      {
+        signature,
+        ...blockhashResponse,
+      },
+      "confirmed",
+    );
+  } catch {
+    // If the claim transaction is not confirmed in first trial, try again with a latest blockhash
+    const blockhashResponse = await CONNECTION.getLatestBlockhash();
+    try {
+      await CONNECTION.confirmTransaction(
+        {
+          signature,
+          ...blockhashResponse,
+        },
+        "confirmed",
+      );
+    } catch {
+      // Record the error and send message to Slack
+      Sentry.captureMessage(
+        `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
+        {
+          tags: {
+            category: "claim-tx-confirmation-error",
+          },
+          extra: {
+            chompResults: chompResults.map((r) => r.id),
+            transactionHash: signature,
+          },
+        },
+      );
+    }
+  }
 
   return signature;
 };
