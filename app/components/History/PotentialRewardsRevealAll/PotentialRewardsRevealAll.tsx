@@ -5,7 +5,7 @@ import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { useQueryClient } from "@tanstack/react-query";
-import { startTransition, useCallback, useOptimistic, useState } from "react";
+import { useCallback, useState } from "react";
 
 import { Button } from "../../Button/Button";
 import { getTotalRevealTokenAmount } from "./helpers";
@@ -26,10 +26,10 @@ export default function PotentialRewardsRevealAll({
   const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
   const maxRewardPerQuestion = totalRevealTokenAmount * 2;
 
-  const [optimisticMaxRewardPerQuestion, revealOptimistic] = useOptimistic(
-    maxRewardPerQuestion,
-    (_, optimisticValue: number) => optimisticValue,
-  );
+  // const [optimisticMaxRewardPerQuestion, revealOptimistic] = useOptimistic(
+  //   maxRewardPerQuestion,
+  //   (_, optimisticValue: number) => optimisticValue,
+  // );
 
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -48,9 +48,9 @@ export default function PotentialRewardsRevealAll({
         ) || []),
       ]);
 
-      startTransition(() => {
-        revealOptimistic(0);
-      });
+      // startTransition(() => {
+      //   revealOptimistic(0);
+      // });
 
       queryClient.resetQueries({
         queryKey: [
@@ -82,11 +82,10 @@ export default function PotentialRewardsRevealAll({
       <div className="flex flex-col justify-between gap-[10px]">
         <div className="text-xs text-white  ">Potential Rewards</div>
         <div className="text-base text-white  font-semibold ">
-          {numberToCurrencyFormatter.format(optimisticMaxRewardPerQuestion)}{" "}
-          BONK
+          {numberToCurrencyFormatter.format(maxRewardPerQuestion)} BONK
         </div>
       </div>
-      {optimisticMaxRewardPerQuestion !== 0 && (
+      {maxRewardPerQuestion !== 0 && (
         <Button
           onClick={handleRevealAll}
           disabled={isLoading}
