@@ -20,6 +20,11 @@ describe("queryExpiringDecks", () => {
 
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
+      // Ensure there are no expiring decks already in the system
+      await tx.$queryRaw`
+        UPDATE "Deck" SET "revealAtDate" = "revealAtDate" - INTERVAL '5 years'
+      `;
+
       // Create decks
       const decks = await Promise.all([
         tx.deck.create({
@@ -163,6 +168,11 @@ describe("queryExpiringDecks", () => {
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { in: deckIds } } });
       await tx.user.deleteMany({ where: { id: { in: [user1.id, user2.id] } } });
+
+      // Reset dates that were changed for the test
+      await tx.$queryRaw`
+        UPDATE "Deck" SET "revealAtDate" = "revealAtDate" + INTERVAL '5 years'
+      `;
     });
   });
 
