@@ -126,6 +126,7 @@ export const sendBonk = async (
       Sentry.captureMessage(
         `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
         {
+          level: "fatal",
           tags: {
             category: "claim-tx-confirmation-error",
           },
