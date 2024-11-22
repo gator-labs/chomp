@@ -1,4 +1,3 @@
-import { getUsername } from "@/app/queries/profile";
 import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
@@ -328,7 +327,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
               "Error while confirming transaction. Bonk was not burned. Try again.",
             );
             const burnError = new BurnError(
-              `User with id: ${payload?.sub} (wallet: ${address}, username: ${getUsername()}) is having trouble burning questions with ids: ${revealQuestionIds}`,
+              `User with id: ${payload?.sub} (wallet: ${address}) is having trouble burning questions with ids: ${revealQuestionIds}`,
               { cause: res.value.err },
             );
             Sentry.captureException(burnError);
@@ -337,7 +336,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         } catch (error) {
           errorToast("Error happened while revealing question. Try again.");
           const dynamicRevealError = new DynamicRevealError(
-            `User with id: ${payload?.sub} (wallet: ${address}, username: ${getUsername()}) is having trouble revealing questions with question ids: ${questionIds}`,
+            `User with id: ${payload?.sub} (wallet: ${address}) is having trouble revealing questions with question ids: ${questionIds}`,
             { cause: error },
           );
           Sentry.captureException(dynamicRevealError);
@@ -392,7 +391,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       });
       errorToast("Error happened while revealing question. Try again.");
       const revealError = new RevealError(
-        `User with id: ${payload?.sub} (wallet: ${address}, username: ${getUsername()}) is having trouble revealing questions with question ids: ${questionIds}`,
+        `User with id: ${payload?.sub} (wallet: ${address}) is having trouble revealing questions with question ids: ${questionIds}`,
         { cause: error },
       );
       Sentry.captureException(revealError);
