@@ -67,9 +67,7 @@ model Question {
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
-  MysteryBox                  MysteryBox?                   @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId                String?
-  MysteryBoxTrigger           MysteryBoxTrigger?
+  MysteryBoxTrigger           MysteryBoxTrigger[]
 }
 
 model QuestionOption {
@@ -123,7 +121,7 @@ model Deck {
   description                 String?
   heading                     String?
   footer                      String?                       @db.VarChar(50)
-  MysteryBox                  MysteryBox?
+  MysteryBoxTrigger           MysteryBoxTrigger[]
 }
 
 model UserDeck {
@@ -243,69 +241,76 @@ model Banner {
 
 model MysteryBox {
   id              String              @id @default(uuid())
-  triggerType     BoxTriggerType
-  status          MysteryBoxStatus    @default(New)
+  status          EMysteryBoxStatus   @default(New)
   userId          String
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @default(now()) @updatedAt
-  questions       MysteryBoxTrigger[]
-  deck            Deck?               @relation(fields: [deckId], references: [id])
-  deckId          Int?                @unique
+  triggers        MysteryBoxTrigger[]
   user            User                @relation(fields: [userId], references: [id])
-  MysteryBoxPrize MysteryBoxPrize?
-  Question        Question[]
+  MysteryBoxPrize MysteryBoxPrize[]
 }
 
 model MysteryBoxTrigger {
-  id String @id @default(uuid())
+  id          String          @id @default(uuid())
+  triggerType EBoxTriggerType
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
 
-  question     Question?   @relation(fields: [questionId], references: [id])
-  questionId   Int?        @unique
+  question   Question? @relation(fields: [questionId], references: [id])
+  questionId Int       @unique
+  deck       Deck?     @relation(fields: [deckId], references: [id])
+  deckId     Int       @unique
+
   MysteryBox   MysteryBox? @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId String?
+
+  @@unique([questionId, triggerType])
+  @@unique([deckId, triggerType])
 }
 
 model MysteryBoxPrize {
-  id                String         @id @default(uuid())
-  status            BoxPrizeStatus @default(UnClaimed)
-  size              BoxSize
-  prizeType         BoxPrizeType
+  id                String          @id @default(uuid())
+  status            EBoxPrizeStatus @default(Unclaimed)
+  size              EPrizeSize
+  prizeType         EBoxPrizeType
   tokenAddress      String?
   amount            String
   claimHash         String?
   rewardAmount      Decimal?
-  claimFungibleTxId String?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @default(now()) @updatedAt
+  claimFungibleTxId Int?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
+
+  claimedAt DateTime
 
   mysteryBox   MysteryBox @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId String     @unique
+  mysteryBoxId String
 }
 
-enum MysteryBoxStatus {
+enum EMysteryBoxStatus {
   New
   Opened
-  UnOpened
+  Unopened
 }
 
-enum BoxTriggerType {
+enum EBoxTriggerType {
   ClaimAll
   DailyDeckCompleted
 }
 
-enum BoxPrizeStatus {
+enum EBoxPrizeStatus {
   Dismissed
-  UnClaimed
+  Unclaimed
   Claimed
 }
 
-enum BoxSize {
-  small
-  medium
-  large
+enum EPrizeSize {
+  Small
+  Medium
+  Large
 }
 
-enum BoxPrizeType {
+enum EBoxPrizeType {
   Token
   Credits
   Points

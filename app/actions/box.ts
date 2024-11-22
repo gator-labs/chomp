@@ -30,12 +30,12 @@ export async function rewardMysteryBox({
 
   try {
     const calculatedReward = await calculateMysteryBoxReward();
-    const tokenAddress = "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263";
+    const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
     const res = await prisma.mysteryBox.create({
       data: {
         triggerType,
         userId: userId,
-        questions: {
+        triggers: {
           createMany: {
             data: questionIds.map((questionId) => ({
               questionId,
