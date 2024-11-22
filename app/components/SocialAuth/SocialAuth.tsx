@@ -99,7 +99,7 @@ export function SocialAuth() {
           className="bg-gray-700 hover:bg-gray-700"
         >
           <TelegramIconBlue width={24} height={24} />
-          <p className="pl-4">Connect X</p>
+          <p className="pl-4">Connect Telegram</p>
         </Button>
       )}
     </div>
