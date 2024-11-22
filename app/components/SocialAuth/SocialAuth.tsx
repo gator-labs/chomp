@@ -24,7 +24,7 @@ export function SocialAuth() {
   const [userTelegramInfo, setUserTelegramInfo] =
     useState<SocialAccountInformation | null>();
 
-  const { sdkHasLoaded } = useDynamicContext();
+  const { sdkHasLoaded, primaryWallet } = useDynamicContext();
 
   const {
     linkSocialAccount,
@@ -33,12 +33,7 @@ export function SocialAuth() {
     error,
     isLinked,
   } = useSocialAccounts();
-
   useEffect(() => {
-    if (error) {
-      errorToast("Could not connect account", error.message);
-    }
-
     const twitterInfo = getLinkedAccountInformation(ProviderEnum.Twitter);
     setUserTwitterInfo(twitterInfo);
 
@@ -49,6 +44,9 @@ export function SocialAuth() {
       twitterInfo?.username ?? null,
       telegramInfo?.username ?? null,
     );
+    if (error) {
+      errorToast("Could not connect account", error.message);
+    }
   }, [sdkHasLoaded, isLinked, error]);
 
   if (!sdkHasLoaded) {
@@ -84,8 +82,12 @@ export function SocialAuth() {
         <DisconnectSocial
           icon={<TelegramIconBlue width={24} height={24} />}
           username={userTelegramInfo?.username}
-          disconnectHandler={() => {
-            unlinkSocialAccount(ProviderEnum.Telegram);
+          disconnectHandler={async () => {
+            if (primaryWallet?.connector.isEmbeddedWallet) {
+              errorToast("Cannot unlink primary connection method");
+              return;
+            }
+            await unlinkSocialAccount(ProviderEnum.Telegram);
             setUserTwitterInfo(null);
           }}
           socialName="Telegram"
@@ -94,7 +96,7 @@ export function SocialAuth() {
         <Button
           type="button"
           onClick={async () => {
-            linkSocialAccount(ProviderEnum.Telegram);
+            await linkSocialAccount(ProviderEnum.Telegram);
           }}
           className="bg-gray-700 hover:bg-gray-700"
         >
