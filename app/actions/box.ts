@@ -4,7 +4,6 @@ import {
   EBoxPrizeStatus,
   EBoxPrizeType,
   EBoxTriggerType,
-  EMysteryBoxStatus,
 } from "@prisma/client";
 
 import prisma from "../services/prisma";

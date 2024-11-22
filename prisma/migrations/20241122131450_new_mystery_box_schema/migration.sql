@@ -21,7 +21,8 @@ CREATE TABLE "MysteryBox" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "MysteryBox_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "MysteryBox_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "MysteryBox_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -34,7 +35,12 @@ CREATE TABLE "MysteryBoxTrigger" (
     "deckId" INTEGER,
     "mysteryBoxId" TEXT,
 
-    CONSTRAINT "MysteryBoxTrigger_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "MysteryBoxTrigger_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "MysteryBoxTrigger_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "MysteryBoxTrigger_deckId_fkey" FOREIGN KEY ("deckId") REFERENCES "Deck"("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "MysteryBoxTrigger_mysteryBoxId_fkey" FOREIGN KEY ("mysteryBoxId") REFERENCES "MysteryBox"("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    UNIQUE ("questionId", "triggerType"),
+    UNIQUE ("deckId", "triggerType")
 );
 
 -- CreateTable
@@ -53,26 +59,6 @@ CREATE TABLE "MysteryBoxPrize" (
     "claimedAt" TIMESTAMP(3),
     "mysteryBoxId" TEXT NOT NULL,
 
-    CONSTRAINT "MysteryBoxPrize_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "MysteryBoxPrize_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "MysteryBoxPrize_mysteryBoxId_fkey" FOREIGN KEY ("mysteryBoxId") REFERENCES "MysteryBox"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "MysteryBoxTrigger_questionId_triggerType_key" ON "MysteryBoxTrigger"("questionId", "triggerType");
-
--- CreateIndex
-CREATE UNIQUE INDEX "MysteryBoxTrigger_deckId_triggerType_key" ON "MysteryBoxTrigger"("deckId", "triggerType");
-
--- AddForeignKey
-ALTER TABLE "MysteryBox" ADD CONSTRAINT "MysteryBox_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "MysteryBoxTrigger" ADD CONSTRAINT "MysteryBoxTrigger_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "MysteryBoxTrigger" ADD CONSTRAINT "MysteryBoxTrigger_deckId_fkey" FOREIGN KEY ("deckId") REFERENCES "Deck"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "MysteryBoxTrigger" ADD CONSTRAINT "MysteryBoxTrigger_mysteryBoxId_fkey" FOREIGN KEY ("mysteryBoxId") REFERENCES "MysteryBox"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "MysteryBoxPrize" ADD CONSTRAINT "MysteryBoxPrize_mysteryBoxId_fkey" FOREIGN KEY ("mysteryBoxId") REFERENCES "MysteryBox"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
