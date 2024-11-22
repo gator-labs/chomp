@@ -16,4 +16,4 @@ export const getClaimSingleShareUrl = (txHashAndQId: string) => {
   return `${window.location.origin}/s/${txHashAndQId}`;
 };
 export const getOgShareClaimSinglePath = (txHashAndQId: string) =>
-  `/api/og/share-claim-single?startOfTxHash=${txHashAndQId}`;
+  `/api/og/share-claim-single?txHashAndQId=${txHashAndQId}`;
