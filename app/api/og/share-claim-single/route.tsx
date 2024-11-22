@@ -31,7 +31,7 @@ export async function GET(request: Request) {
   const result = txHash
     ? await prisma.chompResult.findFirst({
         where: {
-          sendTransactionSignature: {
+          burnTransactionSignature: {
             startsWith: txHash,
           },
           questionId: Number(questionId),

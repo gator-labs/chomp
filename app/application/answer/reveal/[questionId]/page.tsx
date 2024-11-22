@@ -295,22 +295,23 @@ const RevealAnswerPage = async ({ params }: Props) => {
         questions={[questionResponse.question]}
         revealNftId={questionResponse.chompResults[0].revealNftId}
       />
-      {!!questionResponse.chompResults[0].sendTransactionSignature && (
-        <ShareResult
-          claimedAmount={questionResponse.chompResults[0].rewardTokenAmount!}
-          options={questionResponse.questionOptions.map((qo) => ({
-            id: qo.id,
-            option: qo.option,
-          }))}
-          question={questionResponse.question}
-          selectedOptionId={answerSelected?.questionOption?.id!}
-          transactionHash={
-            questionResponse.chompResults[0].sendTransactionSignature
-          }
-          imageUrl={questionResponse.imageUrl!}
-          questionId={questionResponse.id}
-        />
-      )}
+      {!!questionResponse.chompResults[0].rewardTokenAmount &&
+        questionResponse.chompResults[0].burnTransactionSignature && (
+          <ShareResult
+            claimedAmount={questionResponse.chompResults[0].rewardTokenAmount!}
+            options={questionResponse.questionOptions.map((qo) => ({
+              id: qo.id,
+              option: qo.option,
+            }))}
+            question={questionResponse.question}
+            selectedOptionId={answerSelected?.questionOption?.id!}
+            transactionHash={
+              questionResponse.chompResults[0].burnTransactionSignature
+            }
+            imageUrl={questionResponse.imageUrl!}
+            questionId={questionResponse.id}
+          />
+        )}
       {sendTransactionSignature && (
         <a
           className="text-sm font-bold underline flex items-center justify-center gap-1 w-fit mx-auto"
