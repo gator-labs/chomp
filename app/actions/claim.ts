@@ -1,6 +1,6 @@
 "use server";
 
-import { BoxTriggerType, ChompResult, ResultType } from "@prisma/client";
+import { ChompResult, EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
@@ -174,7 +174,7 @@ export async function claimQuestions(questionIds: number[]) {
     revalidatePath("/application/history");
 
     const prizeId = await rewardMysteryBox({
-      triggerType: BoxTriggerType.ClaimAll,
+      triggerType: EBoxTriggerType.ClaimAll,
       questionIds,
     });
     return {

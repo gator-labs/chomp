@@ -1,10 +1,10 @@
 "use server";
 
 import {
-  BoxPrizeStatus,
-  BoxPrizeType,
-  BoxTriggerType,
-  MysteryBoxStatus,
+  EBoxPrizeStatus,
+  EBoxPrizeType,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
 } from "@prisma/client";
 
 import prisma from "../services/prisma";
@@ -12,7 +12,7 @@ import { calculateMysteryBoxReward } from "../utils/algo";
 import { getJwtPayload } from "./jwt";
 
 type MysteryBoxProps = {
-  triggerType: BoxTriggerType;
+  triggerType: EBoxTriggerType;
   questionIds: number[];
 };
 
@@ -33,20 +33,20 @@ export async function rewardMysteryBox({
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
     const res = await prisma.mysteryBox.create({
       data: {
-        triggerType,
         userId: userId,
         triggers: {
           createMany: {
             data: questionIds.map((questionId) => ({
               questionId,
+              triggerType,
             })),
           },
         },
         MysteryBoxPrize: {
           create: {
-            status: BoxPrizeStatus.UnClaimed,
+            status: EBoxPrizeStatus.Unclaimed,
             size: calculatedReward.box_type,
-            prizeType: BoxPrizeType.Token,
+            prizeType: EBoxPrizeType.Token,
             tokenAddress,
             amount: String(calculatedReward?.bonk),
           },
@@ -74,21 +74,30 @@ export async function openMysteryBox(id: string) {
   }
 
   try {
-    await prisma.mysteryBox.update({
+    const mysteryBox = await prisma.mysteryBox.findUnique({
       where: {
         id: id,
       },
-      data: {
-        status: MysteryBoxStatus.Opened,
-        MysteryBoxPrize: {
-          update: {
-            data: {
-              status: BoxPrizeStatus.Claimed,
-            },
-          },
-        },
-      },
     });
+    console.log(mysteryBox);
+    // await prisma.mysteryBox.update({
+    //   where: {
+    //     id: id,
+    //   },
+    //   data: {
+    //     status: EMysteryBoxStatus.Opened,
+    //     MysteryBoxPrize: {
+    //       update: {
+    //         where: {
+    //           id: id,
+    //         },
+    //         data: {
+    //           status: EBoxPrizeStatus.Claimed,
+    //         },
+    //       },
+    //     },
+    //   },
+    // });
   } catch (e) {
     console.log(e);
   }

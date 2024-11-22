@@ -257,9 +257,9 @@ model MysteryBoxTrigger {
   updatedAt   DateTime        @default(now()) @updatedAt
 
   question   Question? @relation(fields: [questionId], references: [id])
-  questionId Int       @unique
+  questionId Int?
   deck       Deck?     @relation(fields: [deckId], references: [id])
-  deckId     Int       @unique
+  deckId     Int?
 
   MysteryBox   MysteryBox? @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId String?
@@ -281,7 +281,7 @@ model MysteryBoxPrize {
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @default(now()) @updatedAt
 
-  claimedAt DateTime
+  claimedAt DateTime?
 
   mysteryBox   MysteryBox @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId String
