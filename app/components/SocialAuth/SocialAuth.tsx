@@ -1,6 +1,6 @@
 "use client";
 
-import { addUserSocials } from "@/app/actions/user";
+import { addUserSocials } from "@/app/actions/addUserSocials";
 import { useToast } from "@/app/providers/ToastProvider";
 import { ProviderEnum } from "@dynamic-labs/sdk-api-core";
 import {
