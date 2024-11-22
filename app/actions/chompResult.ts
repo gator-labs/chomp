@@ -1,11 +1,13 @@
 "use server";
 
+import { RevealError } from "@/lib/error";
 import {
   FungibleAsset,
   NftType,
   ResultType,
   TransactionStatus,
 } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
@@ -173,8 +175,14 @@ export async function revealQuestions(
       revealNftId = revealNft.nftId;
     }
 
-    if (!revealNftId && !burnTx)
-      throw new Error("Nft or transaction hash is missing!");
+    if (!revealNftId && !burnTx) {
+      const revealError = new RevealError(
+        `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
+      );
+      Sentry.captureException(revealError);
+
+      return null;
+    }
 
     await tx.chompResult.createMany({
       data: [
