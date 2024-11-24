@@ -23,7 +23,6 @@ model User {
   questionAnswers             QuestionAnswer[]
   userDeck                    UserDeck[]
   chompResults                ChompResult[]
-  fungibleAssetBalance        FungibleAssetBalance[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
@@ -195,15 +194,6 @@ model FungibleAssetTransactionLog {
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
-}
-
-model FungibleAssetBalance {
-  asset  FungibleAsset
-  amount Decimal
-  userId String
-  user   User          @relation(fields: [userId], references: [id])
-
-  @@id([asset, userId])
 }
 
 model RevealNft {
