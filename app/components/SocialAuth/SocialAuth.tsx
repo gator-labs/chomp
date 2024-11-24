@@ -25,7 +25,6 @@ export function SocialAuth() {
     useState<SocialAccountInformation | null>();
 
   const { sdkHasLoaded, primaryWallet } = useDynamicContext();
-
   const {
     linkSocialAccount,
     unlinkSocialAccount,
@@ -33,6 +32,7 @@ export function SocialAuth() {
     error,
     isLinked,
   } = useSocialAccounts();
+
   useEffect(() => {
     const twitterInfo = getLinkedAccountInformation(ProviderEnum.Twitter);
     setUserTwitterInfo(twitterInfo);
@@ -88,7 +88,7 @@ export function SocialAuth() {
               return;
             }
             await unlinkSocialAccount(ProviderEnum.Telegram);
-            setUserTwitterInfo(null);
+            setUserTelegramInfo(null);
           }}
           socialName="Telegram"
         />
