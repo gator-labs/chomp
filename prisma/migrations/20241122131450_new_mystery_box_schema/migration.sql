@@ -38,9 +38,7 @@ CREATE TABLE "MysteryBoxTrigger" (
     CONSTRAINT "MysteryBoxTrigger_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "MysteryBoxTrigger_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "Question"("id") ON DELETE SET NULL ON UPDATE CASCADE,
     CONSTRAINT "MysteryBoxTrigger_deckId_fkey" FOREIGN KEY ("deckId") REFERENCES "Deck"("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "MysteryBoxTrigger_mysteryBoxId_fkey" FOREIGN KEY ("mysteryBoxId") REFERENCES "MysteryBox"("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    UNIQUE ("questionId", "triggerType"),
-    UNIQUE ("deckId", "triggerType")
+    CONSTRAINT "MysteryBoxTrigger_mysteryBoxId_fkey" FOREIGN KEY ("mysteryBoxId") REFERENCES "MysteryBox"("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -62,3 +60,9 @@ CREATE TABLE "MysteryBoxPrize" (
     CONSTRAINT "MysteryBoxPrize_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "MysteryBoxPrize_mysteryBoxId_fkey" FOREIGN KEY ("mysteryBoxId") REFERENCES "MysteryBox"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MysteryBoxTrigger_questionId_triggerType_key" ON "MysteryBoxTrigger"("questionId", "triggerType");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MysteryBoxTrigger_deckId_triggerType_key" ON "MysteryBoxTrigger"("deckId", "triggerType");

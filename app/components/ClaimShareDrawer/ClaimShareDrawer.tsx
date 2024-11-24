@@ -32,7 +32,7 @@ const ClaimShareDrawer = ({
 }: ClaimShareDrawerProps) => {
   const { infoToast } = useToast();
   const [ogImageUrl, setOgImageUrl] = useState("");
-  const [showMysterBox, setShowMysterBox] = useState(false);
+  const [showMysteryBox, setShowMysteryBox] = useState(false);
 
   const claimUrl = transactionHash
     ? getClaimAllShareUrl(transactionHash.substring(0, 10))
@@ -60,11 +60,11 @@ const ClaimShareDrawer = ({
   const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
   return (
     <>
-      {FF_MYSTERY_BOX && showMysterBox ? (
+      {FF_MYSTERY_BOX && showMysteryBox ? (
         <MysteryBox
-          isOpen={showMysterBox}
+          isOpen={showMysteryBox}
           closeBoxDialog={() => {
-            setShowMysterBox(false);
+            setShowMysteryBox(false);
           }}
           boxPrizeId={boxPrizeId}
         />
@@ -74,7 +74,7 @@ const ClaimShareDrawer = ({
           onOpenChange={async (open: boolean) => {
             if (!open) {
               trackEvent(TRACKING_EVENTS.SHARE_ALL_DIALOG_CLOSED);
-              setShowMysterBox(true);
+              setShowMysteryBox(true);
               onClose();
             }
           }}
@@ -88,7 +88,7 @@ const ClaimShareDrawer = ({
                 <div
                   onClick={() => {
                     onClose();
-                    setShowMysterBox(true);
+                    setShowMysteryBox(true);
                   }}
                 >
                   <CloseIcon width={16} height={16} />
