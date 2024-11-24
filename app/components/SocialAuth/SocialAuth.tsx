@@ -58,7 +58,7 @@ export function SocialAuth() {
       {userTwitterInfo ? (
         <DisconnectSocial
           icon={<XIconWhite width={14} height={14} />}
-          username={userTwitterInfo?.displayName}
+          username={userTwitterInfo?.username}
           disconnectHandler={async () => {
             await unlinkSocialAccount(ProviderEnum.Twitter);
             setUserTwitterInfo(null);
