@@ -52,13 +52,6 @@ export async function rewardMysteryBox({
           },
         },
       },
-      include: {
-        MysteryBoxPrize: {
-          select: {
-            id: true,
-          },
-        },
-      },
     });
     return res.id;
   } catch (e) {

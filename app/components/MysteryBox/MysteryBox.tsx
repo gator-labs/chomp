@@ -10,14 +10,14 @@ import { Drawer, DrawerContent } from "../ui/drawer";
 type MysteryBoxProps = {
   isOpen: boolean;
   closeBoxDialog: () => void;
-  boxPrizeId: string;
+  mysteryBoxId: string;
 };
 
-function MysteryBox({ isOpen, closeBoxDialog, boxPrizeId }: MysteryBoxProps) {
+function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const { promiseToast } = useToast();
   const openBox = async () => {
     try {
-      await promiseToast(openMysteryBox(boxPrizeId), {
+      await promiseToast(openMysteryBox(mysteryBoxId), {
         loading: "Opening Mystery Box. Please wait...",
         success: "Mystery Box opened successfully! 🎉",
         error: "Failed to open the Mystery Box. Please try again later. 😔",

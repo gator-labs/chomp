@@ -82,10 +82,18 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  return claimQuestions(claimableQuestionIds);
+  const mysteryBoxId = await rewardMysteryBox({
+    triggerType: EBoxTriggerType.ClaimAll,
+    questionIds: claimableQuestionIds,
+  });
+
+  return claimQuestions(claimableQuestionIds, mysteryBoxId);
 }
 
-export async function claimQuestions(questionIds: number[]) {
+export async function claimQuestions(
+  questionIds: number[],
+  mysteryBoxId?: string | null,
+) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -173,10 +181,6 @@ export async function claimQuestions(questionIds: number[]) {
     revalidatePath("/application");
     revalidatePath("/application/history");
 
-    const prizeId = await rewardMysteryBox({
-      triggerType: EBoxTriggerType.ClaimAll,
-      questionIds,
-    });
     return {
       questionIds,
       claimedAmount: chompResults.reduce(
@@ -189,7 +193,7 @@ export async function claimQuestions(questionIds: number[]) {
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
       numberOfAnsweredQuestions,
-      mysterBoxPrizeId: prizeId,
+      mysteryBoxId: mysteryBoxId,
     };
   } catch (e) {
     const claimError = new ClaimError(
