@@ -254,8 +254,8 @@ model MysteryBoxTrigger {
   MysteryBox   MysteryBox? @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId String?
 
-  @@unique([questionId, triggerType])
-  @@unique([deckId, triggerType])
+  @@unique([mysteryBoxId, questionId, triggerType])
+  @@unique([mysteryBoxId, deckId, triggerType])
 }
 
 model MysteryBoxPrize {
