@@ -43,3 +43,10 @@ export class ClaimError extends Error {
     this.name = "ClaimError";
   }
 }
+
+export class ClaimMysteryBoxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "ClaimMysteryBoxError";
+  }
+}
