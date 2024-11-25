@@ -82,6 +82,12 @@ export async function openMysteryBox(mysteryBoxId: string) {
     data: { userId: payload.sub },
   });
 
+  const userWallet = await prisma.wallet.findFirst({
+    where: {
+      userId: payload.sub,
+    },
+  });
+
   try {
     const reward = await prisma.mysteryBox.findUnique({
       where: {
@@ -94,12 +100,6 @@ export async function openMysteryBox(mysteryBoxId: string) {
             amount: true,
           },
         },
-      },
-    });
-
-    const userWallet = await prisma.wallet.findFirst({
-      where: {
-        userId: payload.sub,
       },
     });
 
@@ -169,7 +169,7 @@ export async function openMysteryBox(mysteryBoxId: string) {
       },
     });
     const claimMysteryBoxError = new ClaimMysteryBoxError(
-      `User with id: ${payload.sub} is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
+      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
       { cause: e },
     );
     Sentry.captureException(claimMysteryBoxError);
