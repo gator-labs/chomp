@@ -1,6 +1,5 @@
 "use server";
 
-import { Decimal } from "@prisma/client/runtime/library";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
@@ -14,20 +13,6 @@ export type Streak = {
   streakStartDate: Date;
   streakEndDate: Date;
   streakLength: number;
-};
-
-type UserStatistics = {
-  cardsChomped: string;
-  averageTimeToAnswer: string;
-  daysStreak: string;
-  totalPointsEarned: string;
-};
-
-type UserStatisticsQueryResult = {
-  cardsChomped?: number;
-  averageTimeToAnswer?: Decimal;
-  daysStreak?: number;
-  totalPointsEarned?: Decimal;
 };
 
 export type RevealedQuestion = {
@@ -282,55 +267,6 @@ async function queryQuestionsForReadyToReveal(
   `;
 
   return revealQuestions;
-}
-
-export async function getUserStatistics(): Promise<UserStatistics> {
-  const payload = await authGuard();
-
-  const stats = await queryUserStatistics(payload.sub);
-
-  return stats;
-}
-
-async function queryUserStatistics(userId: string): Promise<UserStatistics> {
-  const questionOptionPercentagesQueryResult: UserStatisticsQueryResult[] =
-    await prisma.$queryRaw`
-  select 
-    (
-      select count(distinct qo."questionId") from public."QuestionAnswer" qa
-      inner join public."QuestionOption" qo ON qo.id = qa."questionOptionId" 
-      where qa.selected = true and qa."status" = 'Submitted' and qa."userId" = u."id"
-    ) as "cardsChomped",
-    (
-      select avg(qa."timeToAnswer") from public."QuestionAnswer" qa 
-      where qa."userId" = u."id" and qa."timeToAnswer" is not null
-      limit 1
-    ) as "averageTimeToAnswer",
-    (
-      select
-        fab."amount"
-      from public."FungibleAssetBalance" fab
-      where fab."userId" = u."id" and fab."asset" = 'Point'
-      limit 1
-    ) as "totalPointsEarned"
-  from public."User" u
-  where u."id" = ${userId}
-  limit 1`;
-
-  const result = questionOptionPercentagesQueryResult[0];
-
-  return {
-    averageTimeToAnswer: result?.averageTimeToAnswer
-      ? dayjs
-          .duration(result?.averageTimeToAnswer.toNumber(), "milliseconds")
-          .format("m:ss")
-      : "-",
-    cardsChomped: result?.cardsChomped ? result?.cardsChomped.toString() : "0",
-    daysStreak: result?.daysStreak ? result?.daysStreak.toString() : "0",
-    totalPointsEarned: result?.totalPointsEarned
-      ? result?.totalPointsEarned.toString()
-      : "0",
-  };
 }
 
 export async function getUsersLatestStreak(): Promise<number> {

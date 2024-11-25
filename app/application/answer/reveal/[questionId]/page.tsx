@@ -30,8 +30,6 @@ interface Props {
   };
 }
 
-const BONK_REWARD_AMOUNT_FOR_FIRST_ORDER_CORRECT = 5000;
-
 const RevealAnswerPage = async ({ params }: Props) => {
   const [questionResponse, user] = await Promise.all([
     getQuestionWithUserAnswer(Number(params.questionId)),
@@ -59,7 +57,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
     questionResponse.correctAnswer?.id === answerSelected?.questionOptionId;
   const isSecondOrderCorrect =
     (questionResponse.chompResults[0]?.rewardTokenAmount ?? 0) >
-    BONK_REWARD_AMOUNT_FOR_FIRST_ORDER_CORRECT;
+    questionResponse.revealTokenAmount;
   let questionContent = <></>;
 
   if (isBinary) {
@@ -276,6 +274,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           }
           questionIds={[questionResponse.id]}
           questions={[questionResponse.question]}
+          revealAmount={questionResponse.revealTokenAmount}
         />
       )}
       {questionContent}

@@ -1,21 +1,13 @@
 "use server";
 
-import {
-  AnswerStatus,
-  FungibleAsset,
-  QuestionAnswer,
-  QuestionType,
-  TransactionLogType,
-} from "@prisma/client";
+import { AnswerStatus, QuestionAnswer, QuestionType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { release } from "os";
 
 import { AnswerError } from "../../lib/error";
-import { pointsPerAction } from "../constants/points";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 
 export type SaveQuestionRequest = {
@@ -27,42 +19,7 @@ export type SaveQuestionRequest = {
   deckId?: number;
 };
 
-export async function addTutorialPoints(
-  isCorrectFirstOrderMultipleQuestion: boolean,
-) {
-  const totalNumberOfTutorialQuestions = 2;
-
-  const fungibleAssetRevealTasks = [
-    incrementFungibleAssetBalance({
-      asset: FungibleAsset.Point,
-      amount:
-        totalNumberOfTutorialQuestions *
-        pointsPerAction[TransactionLogType.AnswerQuestion],
-      transactionLogType: TransactionLogType.AnswerQuestion,
-    }),
-    incrementFungibleAssetBalance({
-      asset: FungibleAsset.Point,
-      amount: pointsPerAction[TransactionLogType.AnswerDeck],
-      transactionLogType: TransactionLogType.AnswerDeck,
-    }),
-
-    incrementFungibleAssetBalance({
-      asset: FungibleAsset.Point,
-      amount: pointsPerAction[TransactionLogType.RevealAnswer],
-      transactionLogType: TransactionLogType.RevealAnswer,
-    }),
-  ];
-
-  if (isCorrectFirstOrderMultipleQuestion)
-    fungibleAssetRevealTasks.push(
-      incrementFungibleAssetBalance({
-        asset: FungibleAsset.Point,
-        amount: pointsPerAction[TransactionLogType.CorrectFirstOrder],
-        transactionLogType: TransactionLogType.CorrectFirstOrder,
-      }),
-    );
-
-  await Promise.all(fungibleAssetRevealTasks);
+export async function addTutorialPoints() {
   await addUserTutorialTimestamp();
   revalidatePath("/tutorial");
 }
@@ -118,60 +75,6 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       await tx.questionAnswer.createMany({
         data: questionAnswers,
       });
-
-      const deckQuestions = await tx.deckQuestion.findMany({
-        where: {
-          deckId: request.deckId,
-        },
-        include: {
-          deck: true,
-          question: {
-            include: {
-              questionOptions: {
-                include: {
-                  questionAnswers: {
-                    where: {
-                      userId,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
-
-      const allQuestionOptions = deckQuestions.flatMap((dq) =>
-        dq.question.questionOptions.map((qo) => qo),
-      );
-
-      const allQuestionAnswers = allQuestionOptions.flatMap((qo) =>
-        qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
-      );
-
-      const fungibleAssetRevealTasks = [
-        incrementFungibleAssetBalance({
-          asset: FungibleAsset.Point,
-          amount: pointsPerAction[TransactionLogType.AnswerQuestion],
-          transactionLogType: TransactionLogType.AnswerQuestion,
-          injectedPrisma: tx,
-          questionIds: [request.questionId],
-        }),
-      ];
-
-      if (allQuestionOptions.length === allQuestionAnswers.length) {
-        fungibleAssetRevealTasks.push(
-          incrementFungibleAssetBalance({
-            asset: FungibleAsset.Point,
-            amount: pointsPerAction[TransactionLogType.AnswerDeck],
-            transactionLogType: TransactionLogType.AnswerDeck,
-            injectedPrisma: tx,
-            deckIds: [request.deckId!],
-          }),
-        );
-      }
-
-      await Promise.all(fungibleAssetRevealTasks);
     });
   } catch (error) {
     const answerError = new AnswerError(

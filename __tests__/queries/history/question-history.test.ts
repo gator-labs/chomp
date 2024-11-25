@@ -1,49 +1,35 @@
-import { queryExpiringDecks } from "@/app/queries/home";
+import { getQuestionsHistoryQuery } from "@/app/queries/history";
 import prisma from "@/app/services/prisma";
+import { generateUsers } from "@/scripts/utils";
 import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
 
-describe("queryExpiringDecks", () => {
+describe("getQuestionsHistoryQuery", () => {
   const user1 = {
     id: uuidv4(),
     username: `user1`,
   };
 
-  const user2 = {
-    id: uuidv4(),
-    username: `user2`,
-  };
-
-  let deckIds: number[] = [];
+  let deckId: number;
   let questionIds: number[] = [];
+  let otherUsers: { id: string; username: string }[] = [];
 
   beforeAll(async () => {
+    const futureDate = dayjs().add(1, "day").toDate();
+    const pastDate = dayjs().subtract(1, "day").toDate();
+
     await prisma.$transaction(async (tx) => {
-      // Ensure there are no expiring decks already in the system
-      await tx.$queryRaw`
-        UPDATE "Deck" SET "revealAtDate" = "revealAtDate" - INTERVAL '5 years'
-      `;
+      // Create deck
+      const deck = await tx.deck.create({
+        data: {
+          deck: "Deck 1",
+          date: new Date(),
+          revealAtDate: futureDate,
+        },
+      });
 
-      // Create decks
-      const decks = await Promise.all([
-        tx.deck.create({
-          data: {
-            deck: "Deck 1",
-            date: new Date(),
-            revealAtDate: dayjs().add(1, "day").toDate(),
-          },
-        }),
-        tx.deck.create({
-          data: {
-            deck: "Deck 2",
-            date: new Date(),
-            revealAtDate: dayjs().add(1, "day").toDate(),
-          },
-        }),
-      ]);
-
-      deckIds = decks.map((deck) => deck.id);
+      deckId = deck.id;
 
       // Create questions for decks
       const questions = await Promise.all([
@@ -51,7 +37,7 @@ describe("queryExpiringDecks", () => {
           data: {
             question: "Is the sky blue?",
             type: QuestionType.BinaryQuestion,
-            revealAtDate: new Date("2024-10-11 16:00:00.000"),
+            revealAtDate: futureDate,
             revealToken: Token.Bonk,
             revealTokenAmount: 5000,
             questionOptions: {
@@ -83,7 +69,7 @@ describe("queryExpiringDecks", () => {
           data: {
             question: "Is water wet?",
             type: QuestionType.BinaryQuestion,
-            revealAtDate: new Date("2024-10-12 16:00:00.000"),
+            revealAtDate: pastDate,
             revealToken: Token.Bonk,
             revealTokenAmount: 5000,
             questionOptions: {
@@ -117,16 +103,13 @@ describe("queryExpiringDecks", () => {
 
       await tx.deckQuestion.createMany({
         data: [
-          { deckId: decks[0].id, questionId: questions[0].id },
-          { deckId: decks[1].id, questionId: questions[1].id },
+          { deckId: deckId, questionId: questions[0].id },
+          { deckId: deckId, questionId: questions[1].id },
         ],
       });
 
       // Create users
-      await Promise.all([
-        tx.user.create({ data: user1 }),
-        tx.user.create({ data: user2 }),
-      ]);
+      await Promise.all([tx.user.create({ data: user1 })]);
 
       // Create answers for user1
       await tx.questionAnswer.createMany({
@@ -139,13 +122,29 @@ describe("queryExpiringDecks", () => {
         ),
       });
 
-      await tx.questionAnswer.createMany({
-        data: questions[0].questionOptions.map((qo, i) => ({
-          questionOptionId: qo.id,
-          userId: user2.id,
-          selected: i === 0,
-        })),
-      });
+      const minAnswersPerQuestion = Number(
+        process.env.MINIMAL_ANSWERS_PER_QUESTION ?? 0,
+      );
+
+      if (minAnswersPerQuestion > 0) {
+        otherUsers = await generateUsers(minAnswersPerQuestion);
+
+        await tx.user.createMany({
+          data: otherUsers,
+        });
+
+        for (let userIdx = 0; userIdx < minAnswersPerQuestion; userIdx++) {
+          await tx.questionAnswer.createMany({
+            data: questions.flatMap((question) =>
+              question.questionOptions.map((qo, i) => ({
+                questionOptionId: qo.id,
+                userId: otherUsers[userIdx].id,
+                selected: i === 0,
+              })),
+            ),
+          });
+        }
+      }
     });
   });
 
@@ -153,7 +152,10 @@ describe("queryExpiringDecks", () => {
     // Clean up the data after the test
     await prisma.$transaction(async (tx) => {
       await tx.questionAnswer.deleteMany({
-        where: { userId: { in: [user1.id, user2.id] } },
+        where: { userId: { equals: user1.id } },
+      });
+      await tx.questionAnswer.deleteMany({
+        where: { userId: { in: otherUsers.map((user) => user.id) } },
       });
       await tx.questionOption.deleteMany({
         where: { questionId: { in: questionIds } },
@@ -166,30 +168,39 @@ describe("queryExpiringDecks", () => {
         },
       });
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
-      await tx.deck.deleteMany({ where: { id: { in: deckIds } } });
-      await tx.user.deleteMany({ where: { id: { in: [user1.id, user2.id] } } });
+      await tx.deck.deleteMany({ where: { id: { equals: deckId } } });
+      await tx.user.deleteMany({ where: { id: { equals: user1.id } } });
 
-      // Reset dates that were changed for the test
-      await tx.$queryRaw`
-        UPDATE "Deck" SET "revealAtDate" = "revealAtDate" + INTERVAL '5 years'
-      `;
+      if (otherUsers.length > 0) {
+        await tx.user.deleteMany({
+          where: { id: { in: otherUsers.map((user) => user.id) } },
+        });
+      }
     });
   });
 
-  it("should return decks expiring today with unanswered questions for user2", async () => {
-    const result = await queryExpiringDecks(user2.id);
+  it("should return ready-to-reveal question for user1", async () => {
+    const result = await getQuestionsHistoryQuery(
+      user1.id,
+      100,
+      1,
+      deckId,
+      "isRevealable",
+    );
 
-    console.log(result);
-
-    expect(result.length).toBe(1); // Only Deck 2 has unanswered questions for user2
-    expect(result[0].deck).toBe("Deck 2");
+    expect(result.length).toBe(1);
+    expect(result.every((r) => r.isRevealable)).toBeTruthy();
   });
 
-  it("should return an empty array for user1 as all questions are answered", async () => {
-    const result = await queryExpiringDecks(user1.id);
+  it("should return both questions for user1", async () => {
+    const result = await getQuestionsHistoryQuery(
+      user1.id,
+      100,
+      1,
+      deckId,
+      "all",
+    );
 
-    console.log(result);
-
-    expect(result.length).toBe(0); // user1 has answered all the questions in both decks
+    expect(result.length).toBe(2);
   });
 });

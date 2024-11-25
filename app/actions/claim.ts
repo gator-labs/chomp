@@ -36,6 +36,18 @@ export async function getClaimableQuestionIds(): Promise<number[]> {
       rewardTokenAmount: {
         gt: 0,
       },
+      OR: [
+        {
+          burnTransactionSignature: {
+            not: null,
+          },
+        },
+        {
+          revealNftId: {
+            not: null,
+          },
+        },
+      ],
     },
     select: {
       questionId: true,
@@ -104,6 +116,18 @@ export async function claimQuestions(questionIds: number[]) {
           in: questionIds,
         },
         result: ResultType.Revealed,
+        OR: [
+          {
+            burnTransactionSignature: {
+              not: null,
+            },
+          },
+          {
+            revealNftId: {
+              not: null,
+            },
+          },
+        ],
       },
       include: {
         question: true,
@@ -111,15 +135,32 @@ export async function claimQuestions(questionIds: number[]) {
     });
 
     const burnTxHashes = _.uniq(
-      chompResults.map((cr) => cr.burnTransactionSignature!),
+      chompResults
+        .filter((cr) => !!cr.burnTransactionSignature)
+        .map((cr) => cr.burnTransactionSignature!),
+    );
+
+    const revealNftIds = _.uniq(
+      chompResults
+        .filter((cr) => !!cr.revealNftId)
+        .map((cr) => cr.revealNftId!),
     );
 
     const numberOfAnsweredQuestions = (
       await prisma.chompResult.findMany({
         where: {
-          burnTransactionSignature: {
-            in: burnTxHashes,
-          },
+          OR: [
+            {
+              burnTransactionSignature: {
+                in: burnTxHashes,
+              },
+            },
+            {
+              revealNftId: {
+                in: revealNftIds,
+              },
+            },
+          ],
         },
       })
     ).length;

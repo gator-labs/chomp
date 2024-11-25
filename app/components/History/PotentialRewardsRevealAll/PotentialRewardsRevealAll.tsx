@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useCallback, useOptimistic, useState } from "react";
 
 import { Button } from "../../Button/Button";
+import { getTotalRevealTokenAmount } from "./helpers";
 
 type PotentialRewardsRevealAllProps = {
   revealableQuestions: {
@@ -22,8 +23,10 @@ export default function PotentialRewardsRevealAll({
   revealableQuestions,
   deckId,
 }: PotentialRewardsRevealAllProps) {
-  const [optimisticRevealableQuestionsLength, revealOptimistic] = useOptimistic(
-    revealableQuestions.length,
+  const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
+  const maxRewardPerQuestion = totalRevealTokenAmount * 2;
+  const [optimisticMaxRewardPerQuestion, revealOptimistic] = useOptimistic(
+    maxRewardPerQuestion,
     (_, optimisticValue: number) => optimisticValue,
   );
 
@@ -78,13 +81,11 @@ export default function PotentialRewardsRevealAll({
       <div className="flex flex-col justify-between gap-[10px]">
         <div className="text-xs text-white  ">Potential Rewards</div>
         <div className="text-base text-white  font-semibold ">
-          {numberToCurrencyFormatter.format(
-            optimisticRevealableQuestionsLength * 10000,
-          )}{" "}
+          {numberToCurrencyFormatter.format(optimisticMaxRewardPerQuestion)}{" "}
           BONK
         </div>
       </div>
-      {optimisticRevealableQuestionsLength * 10000 !== 0 && (
+      {optimisticMaxRewardPerQuestion !== 0 && (
         <Button
           onClick={handleRevealAll}
           disabled={isLoading}
