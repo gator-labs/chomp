@@ -17,7 +17,7 @@ model User {
   lastName                    String?
   username                    String?
   profileSrc                  String?
-  telegramId                  BigInt?                       @unique 
+  telegramId                  BigInt?                       @unique
   wallets                     Wallet[]
   emails                      Email[]
   questionAnswers             QuestionAnswer[]
@@ -175,6 +175,9 @@ model ChompResult {
   revealNft   RevealNft? @relation(fields: [revealNftId], references: [nftId])
 
   @@unique([userId, questionId])
+  @@index([burnTransactionSignature])
+  @@index([sendTransactionSignature])
+  @@index([revealNftId])
 }
 
 model FungibleAssetTransactionLog {
@@ -190,9 +193,8 @@ model FungibleAssetTransactionLog {
   deck       Deck?              @relation(fields: [deckId], references: [id])
   deckId     Int?
 
-  @@unique([type, userId, questionId])  // Enforce unique combination of userId and questionId
-  @@unique([type, deckId, userId])      // Enforce unique combination of deckId and userId
-
+  @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
+  @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
 }
 
 model FungibleAssetBalance {
