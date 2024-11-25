@@ -62,6 +62,24 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       } as QuestionAnswer;
     });
 
+    const userQuestionAnswers = await prisma.questionAnswer.findMany({
+      where: {
+        questionOption: {
+          questionId: request.questionId,
+        },
+        userId,
+      },
+    });
+
+    if (
+      userQuestionAnswers.length &&
+      userQuestionAnswers.some((qa) => qa.status === AnswerStatus.Submitted)
+    ) {
+      throw new Error(
+        `User with id: ${payload?.sub} has already answered question with id: ${request.questionId}`,
+      );
+    }
+
     await prisma.$transaction(async (tx) => {
       await tx.questionAnswer.deleteMany({
         where: {
