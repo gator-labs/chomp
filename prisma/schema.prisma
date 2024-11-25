@@ -241,17 +241,15 @@ model MysteryBox {
 }
 
 model MysteryBoxTrigger {
-  id          String          @id @default(uuid())
-  triggerType EBoxTriggerType
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @default(now()) @updatedAt
-
-  question   Question? @relation(fields: [questionId], references: [id])
-  questionId Int?
-  deck       Deck?     @relation(fields: [deckId], references: [id])
-  deckId     Int?
-
-  MysteryBox   MysteryBox? @relation(fields: [mysteryBoxId], references: [id])
+  id           String          @id @default(uuid())
+  triggerType  EBoxTriggerType
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now()) @updatedAt
+  question     Question?       @relation(fields: [questionId], references: [id])
+  questionId   Int?
+  deck         Deck?           @relation(fields: [deckId], references: [id])
+  deckId       Int?
+  MysteryBox   MysteryBox?     @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId String?
 
   @@unique([mysteryBoxId, questionId, triggerType])
@@ -269,11 +267,9 @@ model MysteryBoxPrize {
   claimFungibleTxId Int?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @default(now()) @updatedAt
-
-  claimedAt DateTime?
-
-  mysteryBox   MysteryBox @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId String
+  claimedAt         DateTime?
+  mysteryBox        MysteryBox      @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId      String
 }
 
 enum EMysteryBoxStatus {

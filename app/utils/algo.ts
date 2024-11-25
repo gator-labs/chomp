@@ -1,6 +1,6 @@
 import { QuestionType } from "@prisma/client";
 
-import { MysteryBoxEventsType } from "../enums/events";
+import { MysteryBoxEventsType } from "../../types/mysteryBox";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
 import { getAverage } from "./array";
