@@ -25,10 +25,7 @@ interface Props {
   currentUser: User;
 }
 
-const RevealScreen = ({
-  isCorrectFirstOrderMultipleQuestion,
-  currentUser,
-}: Props) => {
+const RevealScreen = ({ currentUser }: Props) => {
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<"reveal" | "claim">(
     "reveal",
@@ -44,7 +41,7 @@ const RevealScreen = ({
   const handleClaim = async () => {
     setIsClaiming(true);
     fire();
-    await addTutorialPoints(isCorrectFirstOrderMultipleQuestion);
+    await addTutorialPoints();
     successToast("Claimed!", "You have successfully claimed!");
 
     setActiveClaimScreenStep("final-step");

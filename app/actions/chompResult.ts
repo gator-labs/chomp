@@ -145,8 +145,6 @@ export async function revealQuestions(
 
   const revealPoints = await calculateRevealPoints(questionRewards);
 
-  const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
-
   await prisma.$transaction(async (tx) => {
     await tx.chompResult.deleteMany({
       where: {
@@ -196,25 +194,6 @@ export async function revealQuestions(
           revealNftId,
         })),
       ],
-    });
-
-    await tx.fungibleAssetBalance.upsert({
-      where: {
-        asset_userId: {
-          asset: FungibleAsset.Point,
-          userId: payload.sub,
-        },
-      },
-      update: {
-        amount: {
-          increment: pointsAmount,
-        },
-      },
-      create: {
-        userId: payload.sub,
-        asset: FungibleAsset.Point,
-        amount: pointsAmount,
-      },
     });
 
     await tx.fungibleAssetTransactionLog.createMany({
