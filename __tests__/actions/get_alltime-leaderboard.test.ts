@@ -92,6 +92,9 @@ describe("Get All-time leaderboard data", () => {
 
     let secondOrderOptionIndex = 0;
 
+    const qaData = [];
+    const fatlData = [];
+
     for (const user of users) {
       const selectedOption = questionOptions[Math.floor(Math.random() * 4)];
       const secondOrderOption = questionOptions[secondOrderOptionIndex];
@@ -103,29 +106,29 @@ describe("Get All-time leaderboard data", () => {
             ? Math.floor(Math.random() * 100)
             : null;
 
-        await prisma.questionAnswer.create({
-          data: {
-            userId: user.id,
-            questionOptionId: option.id,
-            percentage: percentage,
-            selected: isSelectedOption,
-            timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
-          },
+        qaData.push({
+          userId: user.id,
+          questionOptionId: option.id,
+          percentage: percentage,
+          selected: isSelectedOption,
+          timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
         });
 
-        await prisma.fungibleAssetTransactionLog.create({
-          data: {
-            userId: user.id,
-            questionId: option.questionId,
-            asset: FungibleAsset.Point,
-            change: Math.floor(Math.random() * 100),
-            type: TransactionLogType.AnswerQuestion,
-          },
+        fatlData.push({
+          userId: user.id,
+          questionId: option.questionId,
+          asset: FungibleAsset.Point,
+          change: Math.floor(Math.random() * 100),
+          type: TransactionLogType.AnswerQuestion,
         });
       }
+
       secondOrderOptionIndex =
         secondOrderOptionIndex === 3 ? 0 : secondOrderOptionIndex + 1;
     }
+
+    await prisma.questionAnswer.createMany({ data: qaData });
+    await prisma.fungibleAssetTransactionLog.createMany({ data: fatlData });
 
     const getDeck = await getDeckSchema(deckId);
 

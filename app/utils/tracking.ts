@@ -1,7 +1,7 @@
 import trackEvent from "@/lib/trackEvent";
 
 import { SaveQuestionRequest } from "../actions/answer";
-import { Question } from "../components/Question/Question";
+import { Question } from "../components/Deck/Deck";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "../constants/tracking";
 
 export function trackQuestionAnswer(

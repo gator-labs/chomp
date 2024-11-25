@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/app/queries/user";
 import { cn } from "@/app/utils/tailwind";
 import { formatAddress } from "@/app/utils/wallet";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import Link from "next/link";
 
 import { Avatar } from "../Avatar/Avatar";
@@ -80,6 +81,11 @@ export async function Profile({
           )}
         </div>
       </div>
+      {process.env.FF_CHOMP_BOT && (
+        <div className="border border-solid rounded-[8px] border-gray-500">
+          <DynamicWidget />
+        </div>
+      )}
     </div>
   );
 }

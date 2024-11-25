@@ -8,13 +8,13 @@ import { DollarIcon } from "@/app/components/Icons/DollarIcon";
 import { EyeIcon } from "@/app/components/Icons/EyeIcon";
 import { HalfArrowRightIcon } from "@/app/components/Icons/HalfArrowRightIcon";
 import Trophy from "@/app/components/Icons/Trophy";
-import { QuestionStep } from "@/app/components/Question/Question";
 import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Spinner from "@/app/components/Spinner/Spinner";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
+import { QuestionStep } from "@/types/question";
 import { QuestionType, User } from "@prisma/client";
 import classNames from "classnames";
 import Link from "next/link";
@@ -25,10 +25,7 @@ interface Props {
   currentUser: User;
 }
 
-const RevealScreen = ({
-  isCorrectFirstOrderMultipleQuestion,
-  currentUser,
-}: Props) => {
+const RevealScreen = ({ currentUser }: Props) => {
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [currentScreen, setCurrentScreen] = useState<"reveal" | "claim">(
     "reveal",
@@ -44,7 +41,7 @@ const RevealScreen = ({
   const handleClaim = async () => {
     setIsClaiming(true);
     fire();
-    await addTutorialPoints(isCorrectFirstOrderMultipleQuestion);
+    await addTutorialPoints();
     successToast("Claimed!", "You have successfully claimed!");
 
     setActiveClaimScreenStep("final-step");

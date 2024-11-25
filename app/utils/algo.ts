@@ -1,5 +1,6 @@
 import { QuestionType } from "@prisma/client";
 
+import { MysteryBoxEventsType } from "../../types/mysteryBox";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
 import { getAverage } from "./array";
@@ -204,7 +205,11 @@ export const calculateReward = async (
     },
   });
 
-  const questionRewards: { questionId: number; rewardAmount: number }[] = [];
+  const questionRewards: {
+    questionId: number;
+    rewardAmount: number;
+    revealAmount: number;
+  }[] = [];
 
   for (const question of questions) {
     const optionsList = question.questionOptions.map((option) => option.id);
@@ -220,7 +225,11 @@ export const calculateReward = async (
       .find((answer) => answer.userId === userId && answer.selected);
 
     if (!userAnswer) {
-      questionRewards.push({ questionId: question.id, rewardAmount: 0 });
+      questionRewards.push({
+        questionId: question.id,
+        rewardAmount: 0,
+        revealAmount: 0,
+      });
       continue;
     }
 
@@ -230,6 +239,7 @@ export const calculateReward = async (
       second_order_estimate: 0,
       second_order_mean: 0,
       second_order_estimates: [0],
+      question_cost: 0,
     };
 
     const correctOptionIndex = question.questionOptions.findIndex(
@@ -271,6 +281,7 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
+        question_cost: question.revealTokenAmount,
       };
     }
 
@@ -305,6 +316,7 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
+        question_cost: question.revealTokenAmount,
       };
     }
 
@@ -322,6 +334,7 @@ export const calculateReward = async (
     questionRewards.push({
       questionId: question.id,
       rewardAmount: Number(rewards) || 0,
+      revealAmount: question.revealTokenAmount,
     });
 
     console.log(
@@ -338,4 +351,12 @@ export const calculateReward = async (
   console.log("user", userId, "for questions ", questionIds);
 
   return questionRewards;
+};
+
+export const calculateMysteryBoxReward = async () => {
+  const res = await getMechanismEngineResponse("mystery-box", {
+    event_type: MysteryBoxEventsType.SHARE,
+  });
+
+  return res;
 };

@@ -12,7 +12,6 @@ import {
   useTelegramLogin,
 } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
-import { Connection } from "@solana/web3.js";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -42,7 +41,6 @@ export default function Bot({
     }
 
     const signIn = async () => {
-      console.log("user", user);
       if (!user) {
         await telegramSignIn({ forceCreateUser: true });
       }
@@ -57,16 +55,9 @@ export default function Bot({
       return;
     }
 
-    const connection: Connection = await primaryWallet.getConnection();
-    const blockhash = await connection.getLatestBlockhash();
-
     const signer = await primaryWallet.getSigner();
 
-    const tx = await genBonkBurnTx(
-      primaryWallet.address,
-      blockhash.blockhash,
-      BONK_AMOUNT,
-    );
+    const tx = await genBonkBurnTx(primaryWallet.address, BONK_AMOUNT);
 
     signer.signAndSendTransaction(tx);
   };

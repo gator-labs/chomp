@@ -17,18 +17,19 @@ model User {
   lastName                    String?
   username                    String?
   profileSrc                  String?
-  telegramId                  BigInt?                       @unique 
+  telegramId                  BigInt?                       @unique
   wallets                     Wallet[]
   emails                      Email[]
   questionAnswers             QuestionAnswer[]
   userDeck                    UserDeck[]
   chompResults                ChompResult[]
-  fungibleAssetBalance        FungibleAssetBalance[]
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   revealNfts                  RevealNft[]
   tutorialCompletedAt         DateTime?
   telegramUsername            String?                       @unique
+  twitterUsername             String?                       @unique 
   isBotSubscriber             Boolean                       @default(false)
+  MysteryBox                  MysteryBox[]
 }
 
 model Wallet {
@@ -66,6 +67,7 @@ model Question {
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
+  MysteryBoxTrigger           MysteryBoxTrigger[]
 }
 
 model QuestionOption {
@@ -119,6 +121,7 @@ model Deck {
   description                 String?
   heading                     String?
   footer                      String?                       @db.VarChar(50)
+  MysteryBoxTrigger           MysteryBoxTrigger[]
 }
 
 model UserDeck {
@@ -175,6 +178,9 @@ model ChompResult {
   revealNft   RevealNft? @relation(fields: [revealNftId], references: [nftId])
 
   @@unique([userId, questionId])
+  @@index([burnTransactionSignature])
+  @@index([sendTransactionSignature])
+  @@index([revealNftId])
 }
 
 model FungibleAssetTransactionLog {
@@ -189,15 +195,9 @@ model FungibleAssetTransactionLog {
   questionId Int?
   deck       Deck?              @relation(fields: [deckId], references: [id])
   deckId     Int?
-}
 
-model FungibleAssetBalance {
-  asset  FungibleAsset
-  amount Decimal
-  userId String
-  user   User          @relation(fields: [userId], references: [id])
-
-  @@id([asset, userId])
+  @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
+  @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
 }
 
 model RevealNft {
@@ -231,6 +231,78 @@ model Banner {
   image     String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model MysteryBox {
+  id              String              @id @default(uuid())
+  status          EMysteryBoxStatus   @default(New)
+  userId          String
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @default(now()) @updatedAt
+  triggers        MysteryBoxTrigger[]
+  user            User                @relation(fields: [userId], references: [id])
+  MysteryBoxPrize MysteryBoxPrize[]
+}
+
+model MysteryBoxTrigger {
+  id           String          @id @default(uuid())
+  triggerType  EBoxTriggerType
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now()) @updatedAt
+  question     Question?       @relation(fields: [questionId], references: [id])
+  questionId   Int?
+  deck         Deck?           @relation(fields: [deckId], references: [id])
+  deckId       Int?
+  MysteryBox   MysteryBox?     @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId String?
+
+  @@unique([mysteryBoxId, questionId, triggerType])
+  @@unique([mysteryBoxId, deckId, triggerType])
+}
+
+model MysteryBoxPrize {
+  id                String          @id @default(uuid())
+  status            EBoxPrizeStatus @default(Unclaimed)
+  size              EPrizeSize
+  prizeType         EBoxPrizeType
+  tokenAddress      String?
+  amount            String
+  claimHash         String?
+  claimFungibleTxId Int?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @default(now()) @updatedAt
+  claimedAt         DateTime?
+  mysteryBox        MysteryBox      @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId      String
+}
+
+enum EMysteryBoxStatus {
+  New
+  Opened
+  Unopened
+}
+
+enum EBoxTriggerType {
+  ClaimAll
+  DailyDeckCompleted
+}
+
+enum EBoxPrizeStatus {
+  Dismissed
+  Unclaimed
+  Claimed
+}
+
+enum EPrizeSize {
+  Small
+  Medium
+  Large
+}
+
+enum EBoxPrizeType {
+  Token
+  Credits
+  Points
 }
 
 enum QuestionType {
