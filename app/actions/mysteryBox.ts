@@ -62,17 +62,11 @@ export async function rewardMysteryBox({
           },
         },
       },
-      include: {
-        MysteryBoxPrize: {
-          select: {
-            id: true,
-          },
-        },
-      },
     });
     return res.id;
   } catch (e) {
     console.log(e);
+    return null;
   }
 }
 
@@ -166,7 +160,6 @@ export async function openMysteryBox(mysteryBoxId: string) {
       transactionSignature: sendTx,
     };
   } catch (e) {
-    console.log(e);
     await prisma.mysteryBox.update({
       where: {
         id: mysteryBoxId,
@@ -180,8 +173,9 @@ export async function openMysteryBox(mysteryBoxId: string) {
       { cause: e },
     );
     Sentry.captureException(claimMysteryBoxError);
-    release();
     throw e;
+  } finally {
+    release();
   }
 }
 
@@ -225,14 +219,15 @@ export async function handleSendBonk(rewardAmount: number, address: string) {
     );
   }
 
-  let sendTx: string | null = null;
   if (rewardAmount > 0) {
-    sendTx = await sendBonk(
+    const sendTx = await sendBonk(
       treasuryWallet,
       new PublicKey(address),
       Math.round(rewardAmount * 10 ** 5),
     );
+
+    return sendTx;
   }
 
-  return sendTx;
+  return null;
 }
