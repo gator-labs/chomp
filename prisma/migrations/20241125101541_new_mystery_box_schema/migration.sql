@@ -50,7 +50,6 @@ CREATE TABLE "MysteryBoxPrize" (
     "tokenAddress" TEXT,
     "amount" TEXT NOT NULL,
     "claimHash" TEXT,
-    "rewardAmount" DECIMAL(65,30),
     "claimFungibleTxId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

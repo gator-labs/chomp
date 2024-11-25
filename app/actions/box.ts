@@ -4,6 +4,7 @@ import {
   EBoxPrizeStatus,
   EBoxPrizeType,
   EBoxTriggerType,
+  EMysteryBoxStatus,
 } from "@prisma/client";
 
 import prisma from "../services/prisma";
@@ -77,26 +78,32 @@ export async function openMysteryBox(id: string) {
       where: {
         id: id,
       },
+      include: {
+        MysteryBoxPrize: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
-    console.log(mysteryBox);
-    // await prisma.mysteryBox.update({
-    //   where: {
-    //     id: id,
-    //   },
-    //   data: {
-    //     status: EMysteryBoxStatus.Opened,
-    //     MysteryBoxPrize: {
-    //       update: {
-    //         where: {
-    //           id: id,
-    //         },
-    //         data: {
-    //           status: EBoxPrizeStatus.Claimed,
-    //         },
-    //       },
-    //     },
-    //   },
-    // });
+    await prisma.mysteryBox.update({
+      where: {
+        id: id,
+      },
+      data: {
+        status: EMysteryBoxStatus.Opened,
+        MysteryBoxPrize: {
+          update: {
+            where: {
+              id: mysteryBox?.MysteryBoxPrize[0].id,
+            },
+            data: {
+              status: EBoxPrizeStatus.Claimed,
+            },
+          },
+        },
+      },
+    });
   } catch (e) {
     console.log(e);
   }

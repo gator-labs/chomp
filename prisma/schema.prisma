@@ -266,7 +266,6 @@ model MysteryBoxPrize {
   tokenAddress      String?
   amount            String
   claimHash         String?
-  rewardAmount      Decimal?
   claimFungibleTxId Int?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @default(now()) @updatedAt
