@@ -57,6 +57,18 @@ export async function getTotalClaimableRewards() {
       rewardTokenAmount: {
         gt: 0,
       },
+      OR: [
+        {
+          burnTransactionSignature: {
+            not: null,
+          },
+        },
+        {
+          revealNftId: {
+            not: null,
+          },
+        },
+      ],
     },
     include: {
       question: true,
