@@ -1,4 +1,4 @@
-import { openMysteryBox } from "@/app/actions/box";
+import { openMysteryBox } from "@/app/actions/mysteryBox";
 import { useToast } from "@/app/providers/ToastProvider";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import React from "react";

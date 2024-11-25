@@ -13,8 +13,8 @@ import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
-import { rewardMysteryBox } from "./box";
 import { getJwtPayload } from "./jwt";
+import { rewardMysteryBox } from "./mysteryBox";
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
@@ -202,7 +202,10 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(chompResults: ChompResult[], address: string) {
+export async function handleSendBonk(
+  chompResults: ChompResult[],
+  address: string,
+) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
