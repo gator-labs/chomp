@@ -13,6 +13,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
+import pRetry from "p-retry";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
@@ -103,40 +104,40 @@ export const sendBonk = async (
   const payload = await getJwtPayload();
 
   try {
-    await CONNECTION.confirmTransaction(
-      {
-        signature,
-        ...blockhashResponse,
+    await pRetry(
+      async () => {
+        const currentBlockhash = await CONNECTION.getLatestBlockhash();
+        await CONNECTION.confirmTransaction(
+          {
+            signature,
+            ...currentBlockhash,
+          },
+          "confirmed",
+        );
       },
-      "confirmed",
+      {
+        retries: 2,
+        onFailedAttempt: (error) => {
+          console.log(
+            `Attempt ${error.attemptNumber} failed. ${error.retriesLeft} retries left.`,
+          );
+        },
+      },
     );
   } catch {
-    // If the claim transaction is not confirmed in first trial, try again with a latest blockhash
-    const blockhashResponse = await CONNECTION.getLatestBlockhash();
-    try {
-      await CONNECTION.confirmTransaction(
-        {
-          signature,
-          ...blockhashResponse,
+    Sentry.captureException(
+      `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
+      {
+        level: "fatal",
+        tags: {
+          category: "claim-tx-confirmation-error",
         },
-        "confirmed",
-      );
-    } catch {
-      // Record the error and send message to Slack
-      Sentry.captureMessage(
-        `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
-        {
-          level: "fatal",
-          tags: {
-            category: "claim-tx-confirmation-error",
-          },
-          extra: {
-            chompResults: chompResults.map((r) => r.id),
-            transactionHash: signature,
-          },
+        extra: {
+          chompResults: chompResults.map((r) => r.id),
+          transactionHash: signature,
         },
-      );
-    }
+      },
+    );
   }
 
   return signature;
