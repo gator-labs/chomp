@@ -1,6 +1,6 @@
 "use server";
 
-import { ChompResult, ResultType } from "@prisma/client";
+import { ChompResult, EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
@@ -14,6 +14,7 @@ import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
+import { rewardMysteryBox } from "./mysteryBox";
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
@@ -93,10 +94,18 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  return claimQuestions(claimableQuestionIds);
+  const mysteryBoxId = await rewardMysteryBox({
+    triggerType: EBoxTriggerType.ClaimAll,
+    questionIds: claimableQuestionIds,
+  });
+
+  return claimQuestions(claimableQuestionIds, mysteryBoxId);
 }
 
-export async function claimQuestions(questionIds: number[]) {
+export async function claimQuestions(
+  questionIds: number[],
+  mysteryBoxId?: string | null,
+) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -212,6 +221,7 @@ export async function claimQuestions(questionIds: number[]) {
     release();
     revalidatePath("/application");
     revalidatePath("/application/history");
+
     return {
       questionIds,
       claimedAmount: chompResults.reduce(
@@ -224,6 +234,7 @@ export async function claimQuestions(questionIds: number[]) {
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
       numberOfAnsweredQuestions,
+      mysteryBoxId: mysteryBoxId,
     };
   } catch (e) {
     const claimError = new ClaimError(
@@ -236,7 +247,10 @@ export async function claimQuestions(questionIds: number[]) {
   }
 }
 
-async function handleSendBonk(chompResults: ChompResult[], address: string) {
+export async function handleSendBonk(
+  chompResults: ChompResult[],
+  address: string,
+) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );

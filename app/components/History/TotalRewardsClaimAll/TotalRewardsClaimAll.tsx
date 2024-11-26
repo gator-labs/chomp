@@ -47,6 +47,7 @@ export default function TotalRewardsClaimAll({
     transactionHash: "",
   });
   const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
+  const [mysteryBoxId, setMysteryBoxId] = useState("");
 
   const onClaimAll = async () => {
     try {
@@ -70,6 +71,10 @@ export default function TotalRewardsClaimAll({
         success: "Funds are transferred!",
         error: "Issue transferring funds.",
       });
+
+      if (res?.mysteryBoxId) {
+        setMysteryBoxId(res?.mysteryBoxId);
+      }
 
       trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
         [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
@@ -153,6 +158,7 @@ export default function TotalRewardsClaimAll({
         onClose={() => setIsClaimShareDrawerOpen(false)}
         description={`You just claimed ${claimResult.claimedAmount.toLocaleString("en-US")} BONK from{" "}
           ${claimResult.questionsAnswered} cards!`}
+        mysteryBoxId={mysteryBoxId}
       />
     </div>
   );

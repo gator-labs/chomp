@@ -1,5 +1,6 @@
 import { QuestionType } from "@prisma/client";
 
+import { MysteryBoxEventsType } from "../../types/mysteryBox";
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
 import { getAverage } from "./array";
@@ -350,4 +351,12 @@ export const calculateReward = async (
   console.log("user", userId, "for questions ", questionIds);
 
   return questionRewards;
+};
+
+export const calculateMysteryBoxReward = async () => {
+  const res = await getMechanismEngineResponse("mystery-box", {
+    event_type: MysteryBoxEventsType.SHARE,
+  });
+
+  return res;
 };
