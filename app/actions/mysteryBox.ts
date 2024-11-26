@@ -18,7 +18,6 @@ import { calculateMysteryBoxReward } from "../utils/algo";
 import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
-import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 
 type MysteryBoxProps = {
@@ -112,16 +111,11 @@ export async function openMysteryBox(mysteryBoxId: string) {
       userWallet.address,
     );
 
-    if (!sendTx) throw new Error("Send tx is missing");
-
-    await prisma.mysteryBoxPrize.update({
-      where: {
-        id: reward?.MysteryBoxPrize[0].id,
-      },
-      data: {
-        status: EBoxPrizeStatus.Claimed,
-      },
-    });
+    if (!sendTx) {
+      throw new Error(
+        `Failed to send BONK reward of Mystery box for userId: ${payload.sub}, wallet: ${userWallet.address}, amount: ${reward?.MysteryBoxPrize[0]?.amount} BONK`,
+      );
+    }
 
     await prisma.$transaction(
       async (tx) => {
@@ -130,6 +124,7 @@ export async function openMysteryBox(mysteryBoxId: string) {
             id: reward?.MysteryBoxPrize[0].id,
           },
           data: {
+            status: EBoxPrizeStatus.Claimed,
             claimHash: sendTx,
             claimedAt: new Date(),
           },
@@ -152,7 +147,6 @@ export async function openMysteryBox(mysteryBoxId: string) {
 
     release();
     revalidatePath("/application");
-    revalidatePath("/application/history");
 
     return {
       mysteryBoxId,
@@ -183,41 +177,6 @@ export async function handleSendBonk(rewardAmount: number, address: string) {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
-
-  const treasuryAddress = treasuryWallet.publicKey.toString();
-
-  const treasurySolBalance = await getSolBalance(treasuryAddress);
-  const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
-
-  const minTreasurySolBalance = parseFloat(
-    process.env.MIN_TREASURY_SOL_BALANCE || "0.01",
-  );
-  const minTreasuryBonkBalance = parseFloat(
-    process.env.MIN_TREASURY_BONK_BALANCE || "1000000",
-  );
-
-  if (
-    treasurySolBalance < minTreasurySolBalance ||
-    // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
-    (treasuryBonkBalance < minTreasuryBonkBalance && treasuryBonkBalance > 0)
-  ) {
-    Sentry.captureMessage(
-      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
-      {
-        level: "fatal",
-        tags: {
-          category: "treasury-low-alert", // Custom tag to catch on Sentry
-        },
-        extra: {
-          treasurySolBalance,
-          treasuryBonkBalance,
-          Refill: treasuryAddress,
-          Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
-          Solscan: `https://solscan.io/account/${treasuryAddress}#transfers `,
-        },
-      },
-    );
-  }
 
   if (rewardAmount > 0) {
     const sendTx = await sendBonk(

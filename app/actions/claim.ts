@@ -12,7 +12,6 @@ import prisma from "../services/prisma";
 import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
-import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 import { rewardMysteryBox } from "./mysteryBox";
 
@@ -186,18 +185,10 @@ export async function claimQuestions(
 
     const sendTx = await handleSendBonk(chompResults, userWallet.address);
 
-    if (!sendTx) throw new Error("Send tx is missing");
-
-    await prisma.chompResult.updateMany({
-      where: {
-        id: {
-          in: chompResults.map((r) => r.id),
-        },
-      },
-      data: {
-        result: ResultType.Claimed,
-      },
-    });
+    if (!sendTx)
+      throw new Error(
+        `Failed to send bonk for questions: ${questionIds} with userId: ${payload.sub} and wallet: ${userWallet.address}`,
+      );
 
     await prisma.$transaction(
       async (tx) => {
@@ -208,6 +199,7 @@ export async function claimQuestions(
             },
           },
           data: {
+            result: ResultType.Claimed,
             sendTransactionSignature: sendTx,
           },
         });
@@ -254,41 +246,6 @@ export async function handleSendBonk(
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
-
-  const treasuryAddress = treasuryWallet.publicKey.toString();
-
-  const treasurySolBalance = await getSolBalance(treasuryAddress);
-  const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
-
-  const minTreasurySolBalance = parseFloat(
-    process.env.MIN_TREASURY_SOL_BALANCE || "0.01",
-  );
-  const minTreasuryBonkBalance = parseFloat(
-    process.env.MIN_TREASURY_BONK_BALANCE || "1000000",
-  );
-
-  if (
-    treasurySolBalance < minTreasurySolBalance ||
-    // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
-    (treasuryBonkBalance < minTreasuryBonkBalance && treasuryBonkBalance > 0)
-  ) {
-    Sentry.captureMessage(
-      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
-      {
-        level: "fatal",
-        tags: {
-          category: "treasury-low-alert", // Custom tag to catch on Sentry
-        },
-        extra: {
-          treasurySolBalance,
-          treasuryBonkBalance,
-          Refill: treasuryAddress,
-          Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
-          Solscan: `https://solscan.io/account/${treasuryAddress}#transfers `,
-        },
-      },
-    );
-  }
 
   const tokenAmount = chompResults.reduce(
     (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
