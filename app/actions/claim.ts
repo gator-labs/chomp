@@ -1,5 +1,6 @@
 "use server";
 
+import { ClaimError, SendBonkError } from "@/lib/error";
 import { ChompResult, EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { Keypair, PublicKey } from "@solana/web3.js";
@@ -7,7 +8,6 @@ import base58 from "bs58";
 import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
-import { ClaimError } from "../../lib/error";
 import prisma from "../services/prisma";
 import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
@@ -192,10 +192,13 @@ export async function claimQuestions(
       userWallet.address,
     );
 
-    if (!sendTx)
-      throw new Error(
-        `Failed to send bonk for questions: ${questionIds} with userId: ${payload.sub} and wallet: ${userWallet.address}`,
+    if (!sendTx) {
+      const sendBonkError = new SendBonkError(
+        `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for questions: ${questionIds}`,
+        { cause: "Failed to send bonk" },
       );
+      Sentry.captureException(sendBonkError);
+    }
 
     await prisma.$transaction(
       async (tx) => {

@@ -1,6 +1,6 @@
 "use server";
 
-import { ClaimMysteryBoxError } from "@/lib/error";
+import { ClaimMysteryBoxError, SendBonkError } from "@/lib/error";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
@@ -112,9 +112,11 @@ export async function openMysteryBox(mysteryBoxId: string) {
     );
 
     if (!sendTx) {
-      throw new Error(
-        `Failed to send BONK reward of Mystery box for userId: ${payload.sub}, wallet: ${userWallet.address}, amount: ${reward?.MysteryBoxPrize[0]?.amount} BONK`,
+      const sendBonkError = new SendBonkError(
+        `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+        { cause: "Failed to send bonk" },
       );
+      Sentry.captureException(sendBonkError);
     }
 
     await prisma.$transaction(
