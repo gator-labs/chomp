@@ -99,13 +99,15 @@ export async function claimAllAvailable() {
     questionIds: claimableQuestionIds,
   });
 
-  return claimQuestions(claimableQuestionIds, mysteryBoxId);
+  const claimResult = await claimQuestions(claimableQuestionIds);
+
+  return {
+    ...claimResult,
+    mysteryBoxId: mysteryBoxId,
+  };
 }
 
-export async function claimQuestions(
-  questionIds: number[],
-  mysteryBoxId?: string | null,
-) {
+export async function claimQuestions(questionIds: number[]) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -234,7 +236,6 @@ export async function claimQuestions(
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
       numberOfAnsweredQuestions,
-      mysteryBoxId: mysteryBoxId,
     };
   } catch (e) {
     const claimError = new ClaimError(
