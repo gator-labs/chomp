@@ -67,7 +67,7 @@ const ClaimButton = ({
       });
 
       if (!revealNftId) {
-        const tx = await CONNECTION.getTransaction(transactionHash!, {
+        const tx = await CONNECTION.getTransaction("sadadfssdfa", {
           commitment: "confirmed",
           maxSupportedTransactionVersion: 0,
         });
@@ -130,8 +130,16 @@ const ClaimButton = ({
 
       errorToast(
         <div>
-          <p>Claim failed with transaction ${transactionHash}</p>
           <p>
+            Claim failed with transaction{" "}
+            <Link
+              href={`https://explorer.solana.com/tx/${transactionHash}?cluster=mainnet-beta`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-200 hover:underline"
+            >
+              {`${transactionHash?.slice(0, 4)}...${transactionHash?.slice(-4)}. `}
+            </Link>
             Please try claiming again. If this issue persist, let us know on{" "}
             <Link
               href={TELEGRAM_SUPPORT_LINK}
