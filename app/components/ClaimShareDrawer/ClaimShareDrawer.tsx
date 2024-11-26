@@ -20,7 +20,7 @@ type ClaimShareDrawerProps = {
   description: string;
   copyUrl: string;
   variant: "single" | "all";
-  mysteryBoxId: string;
+  mysteryBoxId?: string;
 };
 
 const ClaimShareDrawer = ({
@@ -62,7 +62,7 @@ const ClaimShareDrawer = ({
 
   return (
     <>
-      {FF_MYSTERY_BOX && showMysteryBox ? (
+      {FF_MYSTERY_BOX && showMysteryBox && mysteryBoxId ? (
         <MysteryBox
           isOpen={showMysteryBox}
           closeBoxDialog={() => {
