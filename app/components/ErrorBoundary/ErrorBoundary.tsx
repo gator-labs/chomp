@@ -1,5 +1,6 @@
 "use client";
 
+import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import { HOME_PATH } from "@/lib/urls";
 import * as Sentry from "@sentry/nextjs";
 import { ArrowLeft } from "lucide-react";
@@ -43,7 +44,7 @@ function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
         <p className="text-[14px] font-normal mb-2">
           Please let us know on{" "}
           <Link
-            href="https://t.me/+8ffiqdoGLAIyZmNl"
+            href={TELEGRAM_SUPPORT_LINK}
             target="_blank"
             rel="noopener noreferrer"
             className="text-purple-200 hover:underline"
