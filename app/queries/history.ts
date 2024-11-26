@@ -128,10 +128,10 @@ export async function getQuestionsHistoryQuery(
           WHERE qo."questionId" = q."id"
         ) >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION ?? 3)}
       ORDER BY q."revealAtDate" DESC, q."id"
-      LIMIT ${pageSize} OFFSET ${offset}
   ) WHERE (
       ${filter} = 'all' OR (${filter} = 'isRevealable' AND "isRevealable" IS true)
   )
+  LIMIT ${pageSize} OFFSET ${offset}
 `;
 
   return historyResult.map((hr) => ({
