@@ -29,6 +29,13 @@ export const genBonkBurnTx = async (
 
   const tx = new Transaction();
 
+  const { blockhash, lastValidBlockHeight } =
+    await CONNECTION.getLatestBlockhash();
+
+  tx.recentBlockhash = blockhash;
+  tx.lastValidBlockHeight = lastValidBlockHeight;
+  tx.feePayer = burnFromPublic;
+
   const burnTxInstruction = createBurnCheckedInstruction(
     ata,
     bonkPublic,
@@ -69,16 +76,13 @@ export const genBonkBurnTx = async (
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
     microLamports: Math.round(estimateFee?.result?.priorityFeeLevels?.high),
   });
-  const { blockhash, lastValidBlockHeight } =
-    await CONNECTION.getLatestBlockhash();
-
-  tx.recentBlockhash = blockhash;
-  tx.lastValidBlockHeight = lastValidBlockHeight;
-  tx.feePayer = burnFromPublic;
 
   tx.add(modifyComputeUnits);
   tx.add(addPriorityFee);
   tx.add(burnTxInstruction);
+
+  // Add latest blockhash
+  tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
 
   return tx;
 };
