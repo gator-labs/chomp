@@ -13,11 +13,13 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
+import base58 from "bs58";
 import pRetry from "p-retry";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
+import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { CONNECTION } from "./solana";
 
 export const sendBonk = async (
@@ -27,6 +29,45 @@ export const sendBonk = async (
   chompResults?: ChompResult[],
   questionIds?: number[],
 ) => {
+  const treasuryWallet = Keypair.fromSecretKey(
+    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
+  );
+
+  const treasuryAddress = treasuryWallet.publicKey.toString();
+
+  const treasurySolBalance = await getSolBalance(treasuryAddress);
+  const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
+
+  const minTreasurySolBalance = parseFloat(
+    process.env.MIN_TREASURY_SOL_BALANCE || "0.01",
+  );
+  const minTreasuryBonkBalance = parseFloat(
+    process.env.MIN_TREASURY_BONK_BALANCE || "1000000",
+  );
+
+  if (
+    treasurySolBalance < minTreasurySolBalance ||
+    // getBonkBalance returns 0 for RPC errors, so we don't trigger Sentry if low balance is just RPC failure
+    (treasuryBonkBalance < minTreasuryBonkBalance && treasuryBonkBalance > 0)
+  ) {
+    Sentry.captureMessage(
+      `Treasury balance low: ${treasurySolBalance} SOL, ${treasuryBonkBalance} BONK. Squads: https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home , Solscan: https://solscan.io/account/${treasuryAddress}#transfers`,
+      {
+        level: "fatal",
+        tags: {
+          category: "treasury-low-alert", // Custom tag to catch on Sentry
+        },
+        extra: {
+          treasurySolBalance,
+          treasuryBonkBalance,
+          Refill: treasuryAddress,
+          Squads: `https://v4.squads.so/squads/${process.env.CHOMP_SQUADS}/home`,
+          Solscan: `https://solscan.io/account/${treasuryAddress}#transfers `,
+        },
+      },
+    );
+  }
+
   const bonkMint = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
   const fromTokenAccount = await getAssociatedTokenAddress(

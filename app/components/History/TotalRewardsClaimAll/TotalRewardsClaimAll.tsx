@@ -104,7 +104,7 @@ export default function TotalRewardsClaimAll({
         claimedAmount: res!.claimedAmount,
         correctAnswers: res!.correctAnswers,
         questionsAnswered: res!.numberOfAnsweredQuestions,
-        transactionHash: res!.transactionSignature,
+        transactionHash: res!.transactionSignature ?? "",
       });
     } catch (error) {
       console.error(error);
