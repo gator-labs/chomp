@@ -283,7 +283,7 @@ enum EMysteryBoxStatus {
 }
 
 enum EBoxTriggerType {
-  ClaimAll
+  ClaimAllCompleted
   DailyDeckCompleted
 }
 

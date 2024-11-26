@@ -95,7 +95,7 @@ export async function claimAllAvailable() {
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
   const mysteryBoxId = await rewardMysteryBox({
-    triggerType: EBoxTriggerType.ClaimAll,
+    triggerType: EBoxTriggerType.ClaimAllCompleted,
     questionIds: claimableQuestionIds,
   });
 

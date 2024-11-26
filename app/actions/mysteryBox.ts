@@ -1,6 +1,7 @@
 "use server";
 
-import { ClaimMysteryBoxError } from "@/lib/error";
+import { ClaimMysteryBoxError, MysteryBoxError } from "@/lib/error";
+import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
@@ -39,7 +40,9 @@ export async function rewardMysteryBox({
   const userId = payload?.sub ?? "";
 
   try {
-    const calculatedReward = await calculateMysteryBoxReward();
+    const calculatedReward = await calculateMysteryBoxReward(
+      MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+    );
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
     const res = await prisma.mysteryBox.create({
       data: {
@@ -65,7 +68,11 @@ export async function rewardMysteryBox({
     });
     return res.id;
   } catch (e) {
-    console.log(e);
+    const mysteryBoxError = new MysteryBoxError(
+      `Trouble creating ${triggerType} mystery box for User id: ${payload.sub} and questions ids: ${questionIds}`,
+      { cause: e },
+    );
+    Sentry.captureException(mysteryBoxError);
     return null;
   }
 }
