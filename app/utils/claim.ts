@@ -1,5 +1,6 @@
 "use server";
 
+import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
   createTransferInstruction,
@@ -13,7 +14,9 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
+import pRetry from "p-retry";
 
+import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
@@ -23,6 +26,8 @@ export const sendBonk = async (
   fromWallet: Keypair,
   toWallet: PublicKey,
   amount: number,
+  chompResults?: ChompResult[],
+  questionIds?: number[],
 ) => {
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
@@ -137,13 +142,44 @@ export const sendBonk = async (
     },
   );
 
-  await CONNECTION.confirmTransaction(
-    {
-      signature,
-      ...blockhashResponse,
-    },
-    "confirmed",
-  );
+  const payload = await getJwtPayload();
+
+  try {
+    await pRetry(
+      async () => {
+        const currentBlockhash = await CONNECTION.getLatestBlockhash();
+        await CONNECTION.confirmTransaction(
+          {
+            signature,
+            ...currentBlockhash,
+          },
+          "confirmed",
+        );
+      },
+      {
+        retries: 2,
+        onFailedAttempt: (error) => {
+          console.log(
+            `Attempt ${error.attemptNumber} failed. ${error.retriesLeft} retries left.`,
+          );
+        },
+      },
+    );
+  } catch {
+    Sentry.captureException(
+      `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
+      {
+        level: "fatal",
+        tags: {
+          category: "claim-tx-confirmation-error",
+        },
+        extra: {
+          chompResults: chompResults?.map((r) => r.id),
+          transactionHash: signature,
+        },
+      },
+    );
+  }
 
   return signature;
 };

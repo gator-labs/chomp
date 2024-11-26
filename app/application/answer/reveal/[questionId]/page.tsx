@@ -292,6 +292,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
         }
         questions={[questionResponse.question]}
         revealNftId={questionResponse.chompResults[0].revealNftId}
+        resultIds={questionResponse.chompResults.map((r) => r.id)}
+        userId={questionResponse.chompResults[0].userId}
       />
       {sendTransactionSignature && (
         <a
