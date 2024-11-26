@@ -41,7 +41,6 @@ export default function Bot({
     }
 
     const signIn = async () => {
-      console.log("user", user);
       if (!user) {
         await telegramSignIn({ forceCreateUser: true });
       }

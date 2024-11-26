@@ -1,11 +1,13 @@
 "use server";
 
+import { RevealError } from "@/lib/error";
 import {
   FungibleAsset,
   NftType,
   ResultType,
   TransactionStatus,
 } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
@@ -143,8 +145,6 @@ export async function revealQuestions(
 
   const revealPoints = await calculateRevealPoints(questionRewards);
 
-  const pointsAmount = revealPoints.reduce((acc, cur) => acc + cur.amount, 0);
-
   await prisma.$transaction(async (tx) => {
     await tx.chompResult.deleteMany({
       where: {
@@ -173,6 +173,15 @@ export async function revealQuestions(
       revealNftId = revealNft.nftId;
     }
 
+    if (!revealNftId && !burnTx) {
+      const revealError = new RevealError(
+        `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
+      );
+      Sentry.captureException(revealError);
+
+      return null;
+    }
+
     await tx.chompResult.createMany({
       data: [
         ...questionRewards.map((questionReward) => ({
@@ -185,25 +194,6 @@ export async function revealQuestions(
           revealNftId,
         })),
       ],
-    });
-
-    await tx.fungibleAssetBalance.upsert({
-      where: {
-        asset_userId: {
-          asset: FungibleAsset.Point,
-          userId: payload.sub,
-        },
-      },
-      update: {
-        amount: {
-          increment: pointsAmount,
-        },
-      },
-      create: {
-        userId: payload.sub,
-        asset: FungibleAsset.Point,
-        amount: pointsAmount,
-      },
     });
 
     await tx.fungibleAssetTransactionLog.createMany({
