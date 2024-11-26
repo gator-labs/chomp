@@ -67,7 +67,7 @@ const ClaimButton = ({
       });
 
       if (!revealNftId) {
-        const tx = await CONNECTION.getTransaction("sadadfssdfa", {
+        const tx = await CONNECTION.getTransaction(transactionHash!, {
           commitment: "confirmed",
           maxSupportedTransactionVersion: 0,
         });
