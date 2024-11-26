@@ -6,4 +6,6 @@ export const pointsPerAction = {
   [TransactionLogType.CorrectSecondOrder]: 15,
   [TransactionLogType.AnswerDeck]: 20,
   [TransactionLogType.AnswerQuestion]: 10,
+  [TransactionLogType.ConnectX]: 20,
+  [TransactionLogType.ConnectTelegram]: 20,
 };

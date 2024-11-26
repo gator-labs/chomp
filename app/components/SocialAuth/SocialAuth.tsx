@@ -1,6 +1,7 @@
 "use client";
 
 import { addUserSocials } from "@/app/actions/addUserSocials";
+import { addTelegramPoints, addXPoints } from "@/app/actions/fungible-asset";
 import { useToast } from "@/app/providers/ToastProvider";
 import { ProviderEnum } from "@dynamic-labs/sdk-api-core";
 import {
@@ -36,9 +37,11 @@ export function SocialAuth() {
   useEffect(() => {
     const twitterInfo = getLinkedAccountInformation(ProviderEnum.Twitter);
     setUserTwitterInfo(twitterInfo);
+    if (!!twitterInfo) addXPoints();
 
     const telegramInfo = getLinkedAccountInformation(ProviderEnum.Telegram);
     setUserTelegramInfo(telegramInfo);
+    if (!!telegramInfo) addTelegramPoints();
 
     addUserSocials(
       twitterInfo?.username ?? null,
@@ -75,7 +78,7 @@ export function SocialAuth() {
           className="bg-gray-700 hover:bg-gray-700"
         >
           <XIconWhite width={14} height={14} />
-          <p className="pl-4">Connect X</p>
+          <p className="pl-4">Connect X for 20 points</p>
         </Button>
       )}
       {userTelegramInfo ? (
@@ -101,9 +104,11 @@ export function SocialAuth() {
           className="bg-gray-700 hover:bg-gray-700"
         >
           <TelegramIconBlue width={24} height={24} />
-          <p className="pl-4">Connect Telegram</p>
+          <p className="pl-4">Connect Telegram for 20 points</p>
         </Button>
       )}
+
+      <div onClick={addXPoints}>click</div>
     </div>
   );
 }
