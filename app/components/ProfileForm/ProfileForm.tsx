@@ -17,6 +17,7 @@ import { ChompBackgroundProfileIcon } from "../Icons/ChompBackgroundProfileIcon"
 import { CloseIcon } from "../Icons/CloseIcon";
 import { PencilEditIcon } from "../Icons/PencilEditIcon";
 import Sheet from "../Sheet/Sheet";
+import { SocialAuth } from "../SocialAuth/SocialAuth";
 import { TextInput } from "../TextInput/TextInput";
 
 type ProfileFormProps = {
@@ -149,6 +150,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             {...register("username")}
           />
         </div>
+        <SocialAuth />
         <Button
           variant="white"
           type="submit"

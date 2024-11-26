@@ -24,8 +24,8 @@ export const sendBonk = async (
   fromWallet: Keypair,
   toWallet: PublicKey,
   amount: number,
-  chompResults: ChompResult[],
-  questionIds: number[],
+  chompResults?: ChompResult[],
+  questionIds?: number[],
 ) => {
   const bonkMint = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
@@ -133,7 +133,7 @@ export const sendBonk = async (
           category: "claim-tx-confirmation-error",
         },
         extra: {
-          chompResults: chompResults.map((r) => r.id),
+          chompResults: chompResults?.map((r) => r.id),
           transactionHash: signature,
         },
       },

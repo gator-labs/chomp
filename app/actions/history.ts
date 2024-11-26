@@ -33,7 +33,13 @@ export const getQuestionsHistory = async ({
     return [];
   }
 
-  return getQuestionsHistoryQuery(payload.sub, PAGE_SIZE, pageParam, deckId);
+  return getQuestionsHistoryQuery(
+    payload.sub,
+    PAGE_SIZE,
+    pageParam,
+    deckId,
+    "isRevealable",
+  );
 };
 
 export async function getTotalClaimableRewards() {
@@ -51,6 +57,18 @@ export async function getTotalClaimableRewards() {
       rewardTokenAmount: {
         gt: 0,
       },
+      OR: [
+        {
+          burnTransactionSignature: {
+            not: null,
+          },
+        },
+        {
+          revealNftId: {
+            not: null,
+          },
+        },
+      ],
     },
     include: {
       question: true,

@@ -313,30 +313,34 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
           pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
 
-          const res = await CONNECTION.confirmTransaction(
-            {
-              blockhash: tx.recentBlockhash!,
-              lastValidBlockHeight: tx.lastValidBlockHeight!,
-              signature,
-            },
-            "confirmed",
-          );
-
-          if (!!res.value.err) {
+          try {
+            await CONNECTION.confirmTransaction(
+              {
+                blockhash: tx.recentBlockhash!,
+                lastValidBlockHeight: tx.lastValidBlockHeight!,
+                signature,
+              },
+              "confirmed",
+            );
+          } catch (error) {
             errorToast(
               "Error while confirming transaction. Bonk was not burned. Try again.",
             );
-            const burnError = new BurnError(
-              `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-              { cause: res.value.err },
-            );
-            Sentry.captureException(burnError);
+
+            if (error instanceof Error) {
+              const burnError = new BurnError(
+                `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+                { cause: error.message },
+              );
+              Sentry.captureException(burnError);
+            }
+
             await deleteQuestionChompResults(pendingChompResultIds);
           }
         } catch (error) {
           errorToast("Error happened while revealing question. Try again.");
           const dynamicRevealError = new DynamicRevealError(
-            `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+            `User with id: ${payload?.sub} (wallet: ${address}) is having trouble revealing questions with question ids: ${questionIds}`,
             { cause: error },
           );
           Sentry.captureException(dynamicRevealError);
@@ -391,7 +395,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       });
       errorToast("Error happened while revealing question. Try again.");
       const revealError = new RevealError(
-        `User with id: ${payload?.sub} is having trouble revealing questions with question ids: ${questionIds}`,
+        `User with id: ${payload?.sub} (wallet: ${address}) is having trouble revealing questions with question ids: ${questionIds}`,
         { cause: error },
       );
       Sentry.captureException(revealError);
