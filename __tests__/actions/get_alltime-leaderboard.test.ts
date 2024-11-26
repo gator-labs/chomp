@@ -113,15 +113,15 @@ describe("Get All-time leaderboard data", () => {
           selected: isSelectedOption,
           timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
         });
-
-        fatlData.push({
-          userId: user.id,
-          questionId: option.questionId,
-          asset: FungibleAsset.Point,
-          change: Math.floor(Math.random() * 100),
-          type: TransactionLogType.AnswerQuestion,
-        });
       }
+
+      fatlData.push({
+        userId: user.id,
+        questionId: questionOptions[0].questionId,
+        asset: FungibleAsset.Point,
+        change: Math.floor(Math.random() * 100),
+        type: TransactionLogType.AnswerQuestion,
+      });
 
       secondOrderOptionIndex =
         secondOrderOptionIndex === 3 ? 0 : secondOrderOptionIndex + 1;

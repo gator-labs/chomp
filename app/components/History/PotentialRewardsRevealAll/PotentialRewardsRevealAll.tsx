@@ -25,6 +25,7 @@ export default function PotentialRewardsRevealAll({
 }: PotentialRewardsRevealAllProps) {
   const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
   const maxRewardPerQuestion = totalRevealTokenAmount * 2;
+
   const [optimisticMaxRewardPerQuestion, revealOptimistic] = useOptimistic(
     maxRewardPerQuestion,
     (_, optimisticValue: number) => optimisticValue,
