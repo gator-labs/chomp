@@ -1,6 +1,7 @@
 "use client";
 
 import { claimQuestions } from "@/app/actions/claim";
+import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   REVEAL_TYPE,
   TRACKING_EVENTS,
@@ -11,7 +12,9 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { CONNECTION } from "@/app/utils/solana";
+import { RevealConfirmationError } from "@/lib/error";
 import trackEvent from "@/lib/trackEvent";
+import * as Sentry from "@sentry/nextjs";
 import { useQueryClient } from "@tanstack/react-query";
 import classNames from "classnames";
 import Link from "next/link";
@@ -30,6 +33,8 @@ interface ClaimButtonProps {
   questions?: string[];
   transactionHash?: string;
   revealNftId?: string | null;
+  resultIds: number[];
+  userId: string;
 }
 
 const ClaimButton = ({
@@ -41,6 +46,8 @@ const ClaimButton = ({
   transactionHash,
   questions,
   revealNftId,
+  resultIds,
+  userId,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
@@ -60,7 +67,7 @@ const ClaimButton = ({
       });
 
       if (!revealNftId) {
-        const tx = await CONNECTION.getTransaction(transactionHash!, {
+        const tx = await CONNECTION.getTransaction("sadadfssdfa", {
           commitment: "confirmed",
           maxSupportedTransactionVersion: 0,
         });
@@ -77,7 +84,7 @@ const ClaimButton = ({
             <p>
               Please try again. If this issue keeps happening, let us know on{" "}
               <Link
-                href="https://t.me/+8ffiqdoGLAIyZmNl"
+                href={TELEGRAM_SUPPORT_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-purple-200 hover:underline"
@@ -103,13 +110,48 @@ const ClaimButton = ({
         .finally(() => {
           setIsClaiming(false);
         });
-    } catch {
+    } catch (e) {
+      const revealConfirmationError = new RevealConfirmationError(
+        `Trouble confirming reveal hash while claiming for user id: ${userId} and questions ids: ${questionIds}`,
+        { cause: e },
+      );
+      Sentry.captureException(revealConfirmationError, {
+        extra: {
+          questionIds,
+          chompResults: resultIds,
+          transactionHash: transactionHash,
+        },
+      });
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: questions,
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
       });
-      errorToast("Failed to claim rewards. Please try again.");
+
+      errorToast(
+        <div>
+          <p>
+            Claim failed with transaction{" "}
+            <Link
+              href={`https://explorer.solana.com/tx/${transactionHash}?cluster=mainnet-beta`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-200 hover:underline"
+            >
+              {`${transactionHash?.slice(0, 4)}...${transactionHash?.slice(-4)}. `}
+            </Link>
+            Please try claiming again. If this issue persist, let us know on{" "}
+            <Link
+              href={TELEGRAM_SUPPORT_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-200 hover:underline"
+            >
+              Telegram
+            </Link>
+          </p>
+        </div>,
+      );
     }
   };
 

@@ -12,7 +12,7 @@ import { SuccessIcon } from "../components/Icons/ToastIcons/SuccessIcon";
 type ToastContextType = {
   successToast: (message: string, description?: string) => void;
   infoToast: (message: string, description?: string) => void;
-  errorToast: (message: string, description?: string) => void;
+  errorToast: (message: string | ReactNode, description?: string) => void;
   defaultToast: (message: string) => void;
   promiseToast: <T>(
     promise: Promise<T>,
@@ -103,7 +103,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     toast(infoToastLayout(message, description), toastOptions);
   };
 
-  const errorToast = (message: string, description?: string) => {
+  const errorToast = (message: string | ReactNode, description?: string) => {
     const toastId = toast(errorToastLayout(message, description), {
       ...toastOptions,
     });
