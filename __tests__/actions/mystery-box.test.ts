@@ -15,6 +15,7 @@ jest.mock("next/navigation", () => ({
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
+jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
 describe("Create mystery box", () => {
   const currentDate = new Date();
