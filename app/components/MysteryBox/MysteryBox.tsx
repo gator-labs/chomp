@@ -40,7 +40,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       <DrawerContent className="p-6 px-4 flex flex-col">
         <DialogTitle>
           <div className="flex justify-between items-center mb-6">
-            <p className="text-base text-secondary font-bold">Myster Box</p>
+            <p className="text-base text-secondary font-bold">Mystery Box</p>
             <div onClick={closeBoxDialog}>
               <CloseIcon width={16} height={16} />
             </div>

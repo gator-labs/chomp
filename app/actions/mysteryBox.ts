@@ -1,6 +1,11 @@
 "use server";
 
-import { ClaimMysteryBoxError, SendBonkError } from "@/lib/error";
+import {
+  CreateMysteryBoxError,
+  OpenMysteryBoxError,
+  SendBonkError,
+} from "@/lib/error";
+import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
@@ -38,7 +43,9 @@ export async function rewardMysteryBox({
   const userId = payload?.sub ?? "";
 
   try {
-    const calculatedReward = await calculateMysteryBoxReward();
+    const calculatedReward = await calculateMysteryBoxReward(
+      MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+    );
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
     const res = await prisma.mysteryBox.create({
       data: {
@@ -64,7 +71,11 @@ export async function rewardMysteryBox({
     });
     return res.id;
   } catch (e) {
-    console.log(e);
+    const createMysteryBoxError = new CreateMysteryBoxError(
+      `Trouble creating ${triggerType} mystery box for User id: ${payload.sub} and questions ids: ${questionIds}`,
+      { cause: e },
+    );
+    Sentry.captureException(createMysteryBoxError);
     return null;
   }
 }
@@ -113,7 +124,7 @@ export async function openMysteryBox(mysteryBoxId: string) {
 
     if (!sendTx) {
       const sendBonkError = new SendBonkError(
-        `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+        `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
         { cause: "Failed to send bonk" },
       );
       Sentry.captureException(sendBonkError);
@@ -164,11 +175,11 @@ export async function openMysteryBox(mysteryBoxId: string) {
         status: EMysteryBoxStatus.Unopened,
       },
     });
-    const claimMysteryBoxError = new ClaimMysteryBoxError(
+    const openMysteryBoxError = new OpenMysteryBoxError(
       `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
       { cause: e },
     );
-    Sentry.captureException(claimMysteryBoxError);
+    Sentry.captureException(openMysteryBoxError);
     throw e;
   } finally {
     release();
