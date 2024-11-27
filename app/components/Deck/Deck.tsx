@@ -232,7 +232,10 @@ export function Deck({
           if (response) {
             response.percentageGiven = optionPercentage;
             response.percentageGivenForAnswerId =
-              question.questionOptions[random]?.id;
+              random !== undefined
+                ? question.questionOptions[random]?.id
+                : undefined;
+
             response.timeToAnswerInMiliseconds = getTimePassedSinceStart();
             newResponses.push(response);
           }
@@ -261,6 +264,7 @@ export function Deck({
       handleNextIndex,
       currentOptionSelected,
       optionPercentage,
+      random,
     ],
   );
 
@@ -316,9 +320,11 @@ export function Deck({
 
   // get random option for 2nd order question.
   const randomQuestionMarker =
-    question?.type === QuestionType.MultiChoice
-      ? getAlphaIdentifier(random)
-      : question.questionOptions[random].option;
+    random === undefined
+      ? undefined
+      : question?.type === QuestionType.MultiChoice
+        ? getAlphaIdentifier(random)
+        : question.questionOptions[random].option;
 
   return (
     <div className="flex flex-col justify-start h-full pb-4 w-full">
@@ -343,7 +349,11 @@ export function Deck({
               type={question.type}
               step={currentQuestionStep}
               questionOptions={question.questionOptions}
-              randomOptionId={question.questionOptions[random]?.id}
+              randomOptionId={
+                random !== undefined
+                  ? question.questionOptions[random]?.id
+                  : undefined
+              }
               percentage={optionPercentage}
               question={question}
             />

@@ -37,6 +37,13 @@ export class AnswerError extends Error {
   }
 }
 
+export class RevealConfirmationError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "RevealConfirmationError";
+  }
+}
+
 export class ClaimError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
@@ -48,5 +55,12 @@ export class ClaimMysteryBoxError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "ClaimMysteryBoxError";
+  }
+}
+
+export class SendBonkError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "SendBonkError";
   }
 }
