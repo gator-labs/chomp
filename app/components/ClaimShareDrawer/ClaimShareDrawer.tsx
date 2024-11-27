@@ -45,8 +45,12 @@ const ClaimShareDrawer = ({
 
   useEffect(() => {
     const fetchLinkPreview = async () => {
-      const linkPreview = await getLinkPreview(claimUrl);
-      setOgImageUrl((linkPreview as { images: string[] }).images[0]);
+      try {
+        const linkPreview = await getLinkPreview(claimUrl);
+        setOgImageUrl((linkPreview as { images: string[] }).images[0]);
+      } catch {
+        console.log("Failed to fetch share claim all preview");
+      }
     };
 
     if (isOpen) {

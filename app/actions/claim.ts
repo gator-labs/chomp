@@ -196,7 +196,7 @@ export async function claimQuestions(questionIds: number[]) {
 
     if (!sendTx) {
       const sendBonkError = new SendBonkError(
-        `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for questions: ${questionIds}`,
+        `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for questions: ${questionIds}`,
         { cause: "Failed to send bonk" },
       );
       Sentry.captureException(sendBonkError);
@@ -270,16 +270,16 @@ async function handleSendBonk(
     0,
   );
 
-  let sendTx: string | null = null;
   if (tokenAmount > 0) {
-    sendTx = await sendBonk(
+    const sendTx = await sendBonk(
       treasuryWallet,
       new PublicKey(address),
       Math.round(tokenAmount * 10 ** 5),
       chompResults,
       questionIds,
     );
+    return sendTx;
   }
 
-  return sendTx;
+  return null;
 }

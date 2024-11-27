@@ -124,7 +124,7 @@ export async function openMysteryBox(mysteryBoxId: string) {
 
     if (!sendTx) {
       const sendBonkError = new SendBonkError(
-        `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+        `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
         { cause: "Failed to send bonk" },
       );
       Sentry.captureException(sendBonkError);
