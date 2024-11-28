@@ -56,13 +56,11 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   };
 
   const handleClose = () => {
-    if (!open) {
-      setTokensReceived(0);
-      setCreditsReceived(0);
-      setStep("initial");
+    setTokensReceived(0);
+    setCreditsReceived(0);
+    setStep("initial");
 
-      if (closeBoxDialog) closeBoxDialog();
-    }
+    if (closeBoxDialog) closeBoxDialog();
   };
 
   const handleGoToAnswering = () => {
@@ -73,7 +71,6 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     if (closeBoxDialog) closeBoxDialog();
 
     router.push("/application/answer");
-    router.refresh();
   };
 
   const prizeCount =
