@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
   if (!txHashAndQId) return;
 
-  const [txHash, questionId] = txHashAndQId.split("&");
+  const [txHash, questionId] = txHashAndQId.split("_");
 
   if (!txHash || !questionId) return;
 

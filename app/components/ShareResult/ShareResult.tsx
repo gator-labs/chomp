@@ -30,7 +30,7 @@ const ShareResult = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const copyUrl = getClaimSingleShareUrl(
-    transactionHash.substring(0, 10) + `&${questionId}`,
+    transactionHash.substring(0, 10) + `_${questionId}`,
   );
 
   return (
