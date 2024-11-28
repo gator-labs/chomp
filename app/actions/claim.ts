@@ -94,17 +94,19 @@ export async function claimAllAvailable() {
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
   const mysteryBoxId = await rewardMysteryBox({
-    triggerType: EBoxTriggerType.ClaimAll,
+    triggerType: EBoxTriggerType.ClaimAllCompleted,
     questionIds: claimableQuestionIds,
   });
 
-  return claimQuestions(claimableQuestionIds, mysteryBoxId);
+  const claimResult = await claimQuestions(claimableQuestionIds);
+
+  return {
+    ...claimResult,
+    mysteryBoxId: mysteryBoxId,
+  };
 }
 
-export async function claimQuestions(
-  questionIds: number[],
-  mysteryBoxId?: string | null,
-) {
+export async function claimQuestions(questionIds: number[]) {
   const payload = await getJwtPayload();
   let sendTx: string | null = null;
   let resultIds: number[] = [];
@@ -194,7 +196,7 @@ export async function claimQuestions(
 
     if (!sendTx) {
       const sendBonkError = new SendBonkError(
-        `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for questions: ${questionIds}`,
+        `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for questions: ${questionIds}`,
         { cause: "Failed to send bonk" },
       );
       Sentry.captureException(sendBonkError);
@@ -236,7 +238,6 @@ export async function claimQuestions(
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
       numberOfAnsweredQuestions,
-      mysteryBoxId: mysteryBoxId,
     };
   } catch (e) {
     const claimError = new ClaimError(
@@ -269,16 +270,16 @@ async function handleSendBonk(
     0,
   );
 
-  let sendTx: string | null = null;
   if (tokenAmount > 0) {
-    sendTx = await sendBonk(
+    const sendTx = await sendBonk(
       treasuryWallet,
       new PublicKey(address),
       Math.round(tokenAmount * 10 ** 5),
       chompResults,
       questionIds,
     );
+    return sendTx;
   }
 
-  return sendTx;
+  return null;
 }

@@ -51,10 +51,10 @@ export class ClaimError extends Error {
   }
 }
 
-export class ClaimMysteryBoxError extends Error {
+export class OpenMysteryBoxError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
-    this.name = "ClaimMysteryBoxError";
+    this.name = "OpenMysteryBoxError";
   }
 }
 
@@ -62,5 +62,11 @@ export class SendBonkError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "SendBonkError";
+  }
+}
+export class CreateMysteryBoxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "CreateMysteryBoxError";
   }
 }

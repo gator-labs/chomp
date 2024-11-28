@@ -42,8 +42,12 @@ const ClaimShareDrawer = ({
 
   useEffect(() => {
     const fetchLinkPreview = async () => {
-      const linkPreview = await getLinkPreview(copyUrl);
-      setOgImageUrl((linkPreview as { images: string[] }).images[0]);
+      try {
+        const linkPreview = await getLinkPreview(copyUrl);
+        setOgImageUrl((linkPreview as { images: string[] }).images[0]);
+      } catch {
+        console.log("Failed to fetch share claim all preview");
+      }
     };
 
     if (isOpen) {
@@ -56,8 +60,6 @@ const ClaimShareDrawer = ({
 
     if (!!copyUrl) fetchLinkPreview();
   }, [isOpen, copyUrl]);
-
-  if (!ogImageUrl) return;
   const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
 
   return (
@@ -103,45 +105,47 @@ const ClaimShareDrawer = ({
             </DialogTitle>
 
             <p className="text-sm mb-6">{description}</p>
-
-            <Image
-              src={ogImageUrl}
-              sizes="100vw"
-              className="w-full mb-6 max-w-[358px] mx-auto rounded-[8px] aspect-[1.49:1]"
-              width={358}
-              height={240}
-              alt="og-image"
-              priority
-              placeholder="blur"
-              quality={65}
-            />
-
-            <Button
-              asChild
-              onClick={() => {
-                trackEvent(
-                  variant === "all"
-                    ? TRACKING_EVENTS.SHARE_ALL_X_BUTTON_CLICKED
-                    : TRACKING_EVENTS.SHARE_X_BUTTON_CLICKED,
-                );
-              }}
-              className="h-[50px] mb-2 font-bold"
-            >
-              <a
-                href={`https://x.com/intent/post?url=${copyUrl}&text=chomp%20chomp%20mfs&hashtags=chompchomp&via=chompdotgames`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Share on X
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleCopy}
-              className="h-[50px] font-bold"
-            >
-              Copy Link
-            </Button>
+            {ogImageUrl && (
+              <>
+                <Image
+                  src={ogImageUrl}
+                  sizes="100vw"
+                  className="w-full mb-6 max-w-[358px] mx-auto rounded-[8px] aspect-[1.49:1]"
+                  width={358}
+                  height={240}
+                  alt="og-image"
+                  priority
+                  placeholder="blur"
+                  quality={65}
+                />
+                <Button
+                  asChild
+                  onClick={() => {
+                    trackEvent(
+                      variant === "all"
+                        ? TRACKING_EVENTS.SHARE_ALL_X_BUTTON_CLICKED
+                        : TRACKING_EVENTS.SHARE_X_BUTTON_CLICKED,
+                    );
+                  }}
+                  className="h-[50px] mb-2 font-bold"
+                >
+                  <a
+                    href={`https://x.com/intent/post?url=${copyUrl}&text=chomp%20chomp%20mfs&hashtags=chompchomp&via=chompdotgames`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Share on X
+                  </a>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleCopy}
+                  className="h-[50px] font-bold"
+                >
+                  Copy Link
+                </Button>
+              </>
+            )}
           </DrawerContent>
         </Drawer>
       )}
