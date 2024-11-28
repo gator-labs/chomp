@@ -46,7 +46,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
       setTokensReceived(box?.rewardAmount ?? 0);
       setCreditsReceived(0);
-      setTotalBonkWon(0); // TODO: pull real amount
+      setTotalBonkWon(box?.totalBonkWon ?? 0);
       setStep("opened");
     } catch (error) {
       console.log(error);

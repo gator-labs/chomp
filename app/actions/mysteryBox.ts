@@ -158,6 +158,11 @@ export async function openMysteryBox(mysteryBoxId: string) {
       },
     });
 
+    const totalBonkWon = await calculateTotalPrizeTokens(
+      payload.sub,
+      process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
+    );
+
     release();
     revalidatePath("/application");
 
@@ -165,6 +170,7 @@ export async function openMysteryBox(mysteryBoxId: string) {
       mysteryBoxId,
       rewardAmount: Number(reward?.MysteryBoxPrize[0]?.amount),
       transactionSignature: sendTx,
+      totalBonkWon,
     };
   } catch (e) {
     await prisma.mysteryBox.update({
@@ -202,4 +208,23 @@ export async function handleSendBonk(rewardAmount: number, address: string) {
   }
 
   return null;
+}
+
+export async function calculateTotalPrizeTokens(
+  userId: string,
+  tokenAddress: string,
+) {
+  const result = (await prisma.$queryRaw`
+    SELECT SUM(CAST(amount AS NUMERIC)) FROM
+      "MysteryBoxPrize" mbp
+      LEFT JOIN
+      "MysteryBox" mb
+      ON mbp."mysteryBoxId" = mb."id"
+      WHERE mb."userId" = ${userId}
+      AND mbp."prizeType" = 'Token'
+      AND mbp."status" = 'Claimed'
+      AND mbp."tokenAddress" = ${tokenAddress}
+    `) as { sum: number }[];
+
+  return result?.[0]?.sum ?? 0;
 }
