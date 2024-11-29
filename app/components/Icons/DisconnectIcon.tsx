@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { IconProps } from ".";
 
 function DisconnectIcon({ width = 38, height = 38 }: IconProps) {

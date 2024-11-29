@@ -2,7 +2,7 @@
 CREATE TYPE "EMysteryBoxStatus" AS ENUM ('New', 'Opened', 'Unopened');
 
 -- CreateEnum
-CREATE TYPE "EBoxTriggerType" AS ENUM ('ClaimAll', 'DailyDeckCompleted');
+CREATE TYPE "EBoxTriggerType" AS ENUM ('ClaimAllCompleted', 'DailyDeckCompleted');
 
 -- CreateEnum
 CREATE TYPE "EBoxPrizeStatus" AS ENUM ('Dismissed', 'Unclaimed', 'Claimed');

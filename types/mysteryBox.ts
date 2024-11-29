@@ -1,3 +1,4 @@
 export enum MysteryBoxEventsType {
-  SHARE = "share",
+  CLAIM_ALL_COMPLETED = "ClaimAllCompleted",
+  DAILY_DECK_COMPLETED = "DailyDeckCompleted",
 }

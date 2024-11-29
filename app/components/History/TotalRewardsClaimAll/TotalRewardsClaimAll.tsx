@@ -71,10 +71,6 @@ export default function TotalRewardsClaimAll({
         error: "Issue transferring funds.",
       });
 
-      if (res?.mysteryBoxId) {
-        setMysteryBoxId(res?.mysteryBoxId);
-      }
-
       trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
         [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
         [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
@@ -100,12 +96,29 @@ export default function TotalRewardsClaimAll({
       );
       setIsClaiming(false);
       setIsClaimShareDrawerOpen(true);
-      setClaimResult({
-        claimedAmount: res!.claimedAmount,
-        correctAnswers: res!.correctAnswers,
-        questionsAnswered: res!.numberOfAnsweredQuestions,
-        transactionHash: res!.transactionSignature,
-      });
+      if (res?.mysteryBoxId) {
+        setMysteryBoxId(res.mysteryBoxId);
+      }
+
+      if (
+        res?.claimedAmount &&
+        res?.correctAnswers &&
+        res?.numberOfAnsweredQuestions &&
+        res?.transactionSignature
+      ) {
+        const {
+          claimedAmount,
+          correctAnswers,
+          numberOfAnsweredQuestions,
+          transactionSignature,
+        } = res;
+        setClaimResult({
+          claimedAmount,
+          correctAnswers,
+          questionsAnswered: numberOfAnsweredQuestions,
+          transactionHash: transactionSignature,
+        });
+      }
     } catch (error) {
       console.error(error);
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {

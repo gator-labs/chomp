@@ -99,7 +99,7 @@ export const deckSchema = z
         questionOptions: z
           .object({
             id: z.number().optional(),
-            option: z.string().min(1),
+            option: z.string().min(1).max(40),
             isCorrect: z.boolean().optional(),
             isLeft: z.boolean(),
           })
