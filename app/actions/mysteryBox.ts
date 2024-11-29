@@ -30,6 +30,14 @@ type MysteryBoxProps = {
   questionIds: number[];
 };
 
+export type MysteryBoxResult = {
+  mysteryBoxId: string;
+  tokensReceived: number;
+  creditsReceived: number;
+  transactionSignature: string | null;
+  totalBonkWon: number;
+};
+
 export async function rewardMysteryBox({
   triggerType,
   questionIds,
@@ -80,7 +88,9 @@ export async function rewardMysteryBox({
   }
 }
 
-export async function openMysteryBox(mysteryBoxId: string) {
+export async function openMysteryBox(
+  mysteryBoxId: string,
+): Promise<MysteryBoxResult | null> {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -114,7 +124,7 @@ export async function openMysteryBox(mysteryBoxId: string) {
     });
 
     if (!userWallet) {
-      return;
+      return null;
     }
 
     const sendTx = await handleSendBonk(
@@ -168,7 +178,8 @@ export async function openMysteryBox(mysteryBoxId: string) {
 
     return {
       mysteryBoxId,
-      rewardAmount: Number(reward?.MysteryBoxPrize[0]?.amount),
+      tokensReceived: Number(reward?.MysteryBoxPrize[0]?.amount ?? 0),
+      creditsReceived: 0,
       transactionSignature: sendTx,
       totalBonkWon,
     };
