@@ -1,10 +1,13 @@
 // import { rewardMysteryBox } from "@/app/actions/box";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { rewardMysteryBox } from "@/app/actions/mysteryBox";
+import {
+  calculateTotalPrizeTokens,
+  rewardMysteryBox,
+} from "@/app/actions/mysteryBox";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
-import { EBoxTriggerType } from "@prisma/client";
+import { EBoxPrizeStatus, EBoxTriggerType } from "@prisma/client";
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
@@ -17,6 +20,33 @@ jest.mock("next/cache", () => ({
 }));
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
+async function deleteMysteryBox(mysteryBoxId: string) {
+  const mysteryBoxRes = await prisma.mysteryBox.findUnique({
+    where: {
+      id: mysteryBoxId,
+    },
+    include: {
+      triggers: true,
+      MysteryBoxPrize: true,
+    },
+  });
+  await prisma.mysteryBoxPrize.delete({
+    where: {
+      id: mysteryBoxRes?.MysteryBoxPrize[0].id,
+    },
+  });
+  await prisma.mysteryBoxTrigger.delete({
+    where: {
+      id: mysteryBoxRes?.triggers[0].id,
+    },
+  });
+  await prisma.mysteryBox.delete({
+    where: {
+      id: mysteryBoxId,
+    },
+  });
+}
+
 describe("Create mystery box", () => {
   const currentDate = new Date();
 
@@ -24,6 +54,8 @@ describe("Create mystery box", () => {
   let questionId: number;
   let deckId: number;
   let mysteryBoxId: string | null;
+  let mysteryBoxId2: string | null;
+
   beforeAll(async () => {
     const deck = await prisma.deck.create({
       data: {
@@ -86,37 +118,18 @@ describe("Create mystery box", () => {
     await deleteDeck(deckId);
 
     if (mysteryBoxId) {
-      const mysteryBoxRes = await prisma.mysteryBox.findUnique({
-        where: {
-          id: mysteryBoxId,
-        },
-        include: {
-          triggers: true,
-          MysteryBoxPrize: true,
-        },
-      });
-      await prisma.mysteryBoxPrize.delete({
-        where: {
-          id: mysteryBoxRes?.MysteryBoxPrize[0].id,
-        },
-      });
-      await prisma.mysteryBoxTrigger.delete({
-        where: {
-          id: mysteryBoxRes?.triggers[0].id,
-        },
-      });
-      await prisma.mysteryBox.delete({
-        where: {
-          id: mysteryBoxId,
-        },
-      });
+      await deleteMysteryBox(mysteryBoxId);
     }
+
+    if (mysteryBoxId2) {
+      await deleteMysteryBox(mysteryBoxId2);
+    }
+
     await prisma.user.delete({
       where: {
         id: user[0].id,
       },
     });
-    mysteryBoxId = null;
   });
 
   it("Should create a new mystery box with triggers and prizes", async () => {
@@ -143,5 +156,33 @@ describe("Create mystery box", () => {
       expect(res?.triggers).toHaveLength(1);
       expect(res?.MysteryBoxPrize).toHaveLength(1);
     }
+  });
+
+  it("Should calculate the user's total token winnings", async () => {
+    // Create a second box
+    const mockPayload = { sub: user[0].id };
+    (getJwtPayload as jest.Mock).mockResolvedValue(mockPayload);
+    mysteryBoxId2 = await rewardMysteryBox({
+      triggerType: EBoxTriggerType.ClaimAllCompleted,
+      questionIds: [questionId],
+    });
+
+    if (!mysteryBoxId || !mysteryBoxId2)
+      throw new Error("Missing mystery box id(s)");
+
+    await prisma.mysteryBoxPrize.updateMany({
+      where: { mysteryBoxId: { in: [mysteryBoxId, mysteryBoxId2] } },
+      data: {
+        status: EBoxPrizeStatus.Claimed,
+        amount: "2300",
+      },
+    });
+
+    const totalWon = await calculateTotalPrizeTokens(
+      user[0].id,
+      process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
+    );
+
+    expect(Number(totalWon)).toEqual(4600);
   });
 });
