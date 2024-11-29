@@ -39,7 +39,7 @@ function MysteryBoxPrize({ type, amount }: MysteryBoxPrizeProps) {
       <MysteryBoxAmount
         type={type}
         amount={amount}
-        units={type == "credits" ? "Credits" : " BONK"}
+        units={type == "credits" ? "Credits" : "BONK"}
         className="w-full"
       />
     </div>
