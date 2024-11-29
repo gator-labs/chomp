@@ -20,7 +20,7 @@ import MysteryBoxPrize from "./MysteryBoxPrize";
 type MysteryBoxProps = {
   isOpen: boolean;
   closeBoxDialog: () => void;
-  mysteryBoxId: string;
+  mysteryBoxId: string | null;
 };
 
 const IMAGES: Record<MysteryBoxOpenImage, any> = {
@@ -59,6 +59,8 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   }, [isOpen]);
 
   const openBox = async () => {
+    if (!mysteryBoxId) return;
+
     setIsSubmitting(true);
 
     try {
@@ -115,7 +117,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     ? 0
     : (box.creditsReceived > 0 ? 1 : 0) + (box.tokensReceived > 0 ? 1 : 0);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mysteryBoxId) return null;
 
   return (
     <>

@@ -46,7 +46,7 @@ export default function TotalRewardsClaimAll({
     transactionHash: "",
   });
   const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
-  const [mysteryBoxId, setMysteryBoxId] = useState("");
+  const [mysteryBoxId, setMysteryBoxId] = useState<string | null>(null);
 
   const onClaimAll = async () => {
     try {
