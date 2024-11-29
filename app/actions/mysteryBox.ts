@@ -55,7 +55,7 @@ export async function rewardMysteryBox({
     const calculatedReward = await calculateMysteryBoxReward(
       MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
     );
-    const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ? "";
+    const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
     const res = await prisma.mysteryBox.create({
       data: {
         userId: userId,
