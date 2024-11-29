@@ -1,4 +1,8 @@
-import { MysteryBoxResult, openMysteryBox } from "@/app/actions/mysteryBox";
+import {
+  MysteryBoxResult,
+  dismissMysteryBox,
+  openMysteryBox,
+} from "@/app/actions/mysteryBox";
 import {
   MysteryBoxOpenImage,
   MysteryBoxOpenMessage,
@@ -95,10 +99,16 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     if (closeBoxDialog) closeBoxDialog();
   };
 
-  const handleSkip = () => {
-    setBox(null);
+  const handleSkip = async () => {
+    try {
+      if (mysteryBoxId) await dismissMysteryBox(mysteryBoxId);
+    } catch (e) {
+      console.log(e);
+    }
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
+
+    setBox(null);
 
     if (closeBoxDialog) closeBoxDialog();
   };
