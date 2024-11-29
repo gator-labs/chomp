@@ -46,8 +46,9 @@ export async function answerQuestion(request: SaveQuestionRequest) {
     });
 
     if (!questionOptions.length) {
-      throw new Error(`
-      Question with id: ${request.questionId} does not exist or it is revealed and cannot be answered.`);
+      throw new Error(
+        `Question with id: ${request.questionId} does not exist or it is revealed and cannot be answered.`,
+      );
     }
 
     const questionAnswers = questionOptions.map((qo) => {
