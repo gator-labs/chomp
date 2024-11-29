@@ -34,6 +34,10 @@ export const TRACKING_EVENTS = {
   SHARE_ALL_DIALOG_CLOSED: "ShareAllDialogClosed",
   SHARE_ALL_X_BUTTON_CLICKED: "ShareAllXButtonClicked",
   TELEGRAM_USER_MINIAPP_OPENED: "TelegramUserMiniAppOpened",
+  MYSTERY_BOX_DIALOG_OPENED: "MysteryBoxDialogOpened",
+  MYSTERY_BOX_DIALOG_CLOSED: "MysteryBoxDialogClosed",
+  MYSTERY_BOX_OPENED: "MysteryBoxOpened",
+  MYSTERY_BOX_SKIPPED: "MysteryBoxSkipped",
 } as const;
 
 export const TRACKING_METADATA = {

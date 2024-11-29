@@ -4,12 +4,14 @@ import {
   MysteryBoxOpenMessage,
   OPEN_MESSAGES,
 } from "@/app/constants/mysteryBox";
+import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
+import trackEvent from "@/lib/trackEvent";
 import openChestImage from "@/public/images/open-chest.png";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import { Button } from "../ui/button";
 import MysteryBoxAmount from "./MysteryBoxAmount";
@@ -28,12 +30,12 @@ const IMAGES: Record<MysteryBoxOpenImage, any> = {
 function buildMessage(lines: string[]) {
   return lines.map((line, index) =>
     index < lines.length - 1 ? (
-      <>
+      <Fragment key={index}>
         {line}
         <br />
-      </>
+      </Fragment>
     ) : (
-      <>{line}</>
+      <Fragment>{line}</Fragment>
     ),
   );
 }
@@ -49,6 +51,13 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const message: MysteryBoxOpenMessage = "REGULAR";
 
   const { promiseToast } = useToast();
+
+  useEffect(() => {
+    if (isOpen) {
+      trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_OPENED);
+    }
+  }, [isOpen]);
+
   const openBox = async () => {
     setIsSubmitting(true);
 
@@ -76,11 +85,23 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const handleClose = () => {
     setBox(null);
 
+    trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
+
+    if (closeBoxDialog) closeBoxDialog();
+  };
+
+  const handleSkip = () => {
+    setBox(null);
+
+    trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
+
     if (closeBoxDialog) closeBoxDialog();
   };
 
   const handleGoToAnswering = () => {
     setBox(null);
+
+    trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
 
     if (closeBoxDialog) closeBoxDialog();
 
@@ -121,7 +142,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               Open Now
             </Button>
 
-            <div className="text-sm cursor-pointer" onClick={handleClose}>
+            <div className="text-sm cursor-pointer" onClick={handleSkip}>
               Skip and miss out on your mystery box
             </div>
           </div>
