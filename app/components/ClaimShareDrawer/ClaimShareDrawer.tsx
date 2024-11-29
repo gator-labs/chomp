@@ -19,7 +19,7 @@ type ClaimShareDrawerProps = {
   questionsAnswered: number;
   claimedAmount: number;
   transactionHash?: string;
-  mysteryBoxId: string;
+  mysteryBoxId: string | null;
 };
 
 const ClaimShareDrawer = ({
@@ -90,7 +90,7 @@ const ClaimShareDrawer = ({
                 <div
                   onClick={() => {
                     onClose();
-                    setShowMysteryBox(true);
+                    if (mysteryBoxId) setShowMysteryBox(true);
                   }}
                 >
                   <CloseIcon width={16} height={16} />
