@@ -184,20 +184,26 @@ export async function openMysteryBox(
       totalBonkWon,
     };
   } catch (e) {
-    await prisma.mysteryBox.update({
-      where: {
-        id: mysteryBoxId,
-      },
-      data: {
-        status: EMysteryBoxStatus.Unopened,
-      },
-    });
+    try {
+      await prisma.mysteryBox.update({
+        where: {
+          id: mysteryBoxId,
+        },
+        data: {
+          status: EMysteryBoxStatus.Unopened,
+        },
+      });
+    } catch (e) {
+      Sentry.captureException(e);
+    }
+
     const openMysteryBoxError = new OpenMysteryBoxError(
       `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
       { cause: e },
     );
     Sentry.captureException(openMysteryBoxError);
-    throw e;
+
+    throw new Error('Error opening mystery box');
   } finally {
     release();
   }
