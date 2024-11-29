@@ -124,6 +124,7 @@ export async function openMysteryBox(
     });
 
     if (!userWallet) {
+      release();
       return null;
     }
 
