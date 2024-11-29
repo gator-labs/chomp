@@ -203,7 +203,7 @@ export async function openMysteryBox(
     );
     Sentry.captureException(openMysteryBoxError);
 
-    throw new Error('Error opening mystery box');
+    throw new Error("Error opening mystery box");
   } finally {
     release();
   }
