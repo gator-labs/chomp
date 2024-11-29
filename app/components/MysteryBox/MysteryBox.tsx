@@ -50,7 +50,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const image: MysteryBoxOpenImage = "TreasureChest";
   const message: MysteryBoxOpenMessage = "REGULAR";
 
-  const { promiseToast } = useToast();
+  const { promiseToast, errorToast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -69,7 +69,10 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       });
 
       if (!newBox) {
-        console.error("Mystery box was not opened");
+        errorToast(
+          "Failed to open the Mystery Box. Please try again later. 😔",
+        );
+        console.log("Open mystery box response was null");
         return;
       }
 
