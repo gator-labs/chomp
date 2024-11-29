@@ -53,6 +53,8 @@ describe("Create mystery box", () => {
 
   let user: { id: string; username: string }[];
   let questionId: number;
+  let questionId2: number;
+  let questionId3: number;
   let deckId: number;
   let mysteryBoxId: string | null;
   let mysteryBoxId2: string | null;
@@ -65,42 +67,116 @@ describe("Create mystery box", () => {
         revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         stackId: null,
         deckQuestions: {
-          create: {
-            question: {
-              create: {
-                stackId: null,
-                question: "Bonkaton question?",
-                type: "MultiChoice",
-                revealTokenAmount: 10,
-                revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                durationMiliseconds: BigInt(60000),
-                questionOptions: {
-                  create: [
-                    {
-                      option: "A",
-                      isCorrect: true,
-                      isLeft: false,
-                    },
-                    {
-                      option: "B",
-                      isCorrect: false,
-                      isLeft: false,
-                    },
-                    {
-                      option: "C",
-                      isCorrect: false,
-                      isLeft: false,
-                    },
-                    {
-                      option: "D",
-                      isCorrect: false,
-                      isLeft: false,
-                    },
-                  ],
+          create: [
+            {
+              question: {
+                create: {
+                  stackId: null,
+                  question: "Bonkaton question?",
+                  type: "MultiChoice",
+                  revealTokenAmount: 10,
+                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  durationMiliseconds: BigInt(60000),
+                  questionOptions: {
+                    create: [
+                      {
+                        option: "A",
+                        isCorrect: true,
+                        isLeft: false,
+                      },
+                      {
+                        option: "B",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                      {
+                        option: "C",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                      {
+                        option: "D",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                    ],
+                  },
                 },
               },
             },
-          },
+            {
+              question: {
+                create: {
+                  stackId: null,
+                  question: "Bonkaton question?",
+                  type: "MultiChoice",
+                  revealTokenAmount: 10,
+                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  durationMiliseconds: BigInt(60000),
+                  questionOptions: {
+                    create: [
+                      {
+                        option: "A",
+                        isCorrect: true,
+                        isLeft: false,
+                      },
+                      {
+                        option: "B",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                      {
+                        option: "C",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                      {
+                        option: "D",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+            {
+              question: {
+                create: {
+                  stackId: null,
+                  question: "Bonkaton question?",
+                  type: "MultiChoice",
+                  revealTokenAmount: 10,
+                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  durationMiliseconds: BigInt(60000),
+                  questionOptions: {
+                    create: [
+                      {
+                        option: "A",
+                        isCorrect: true,
+                        isLeft: false,
+                      },
+                      {
+                        option: "B",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                      {
+                        option: "C",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                      {
+                        option: "D",
+                        isCorrect: false,
+                        isLeft: false,
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          ],
         },
       },
       include: {
@@ -109,6 +185,8 @@ describe("Create mystery box", () => {
     });
 
     questionId = deck.deckQuestions[0].id;
+    questionId2 = deck.deckQuestions[1].id;
+    questionId3 = deck.deckQuestions[2].id;
     deckId = deck.id;
     user = await generateUsers(1);
     await prisma.user.createMany({
@@ -170,7 +248,7 @@ describe("Create mystery box", () => {
     (getJwtPayload as jest.Mock).mockResolvedValue(mockPayload);
     mysteryBoxId2 = await rewardMysteryBox({
       triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionId],
+      questionIds: [questionId2],
     });
 
     if (!mysteryBoxId || !mysteryBoxId2)
@@ -198,7 +276,7 @@ describe("Create mystery box", () => {
     (getJwtPayload as jest.Mock).mockResolvedValue(mockPayload);
     mysteryBoxId3 = await rewardMysteryBox({
       triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionId],
+      questionIds: [questionId3],
     });
 
     if (!mysteryBoxId3) throw new Error("Error creating mystery box");
