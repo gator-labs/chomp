@@ -28,5 +28,6 @@ jobs:
           KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN_DEMO }}
           MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
           MINIMAL_ANSWERS_PER_QUESTION: 3
+          NEXT_PUBLIC_BONK_ADDRESS: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
           BOT_API_KEY: "foobar"
           BOT_TOKEN: "barfoo"
