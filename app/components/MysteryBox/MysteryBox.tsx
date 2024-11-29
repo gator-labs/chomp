@@ -35,7 +35,7 @@ function buildMessage(lines: string[]) {
         <br />
       </Fragment>
     ) : (
-      <Fragment>{line}</Fragment>
+      <Fragment key={index}>{line}</Fragment>
     ),
   );
 }
