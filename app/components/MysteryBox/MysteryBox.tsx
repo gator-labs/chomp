@@ -128,7 +128,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
             </div>
 
             <Image
-              src={openChestImage}
+              src={IMAGES[image]}
               alt="Treasure Chest"
               title="Treasure Chest"
               className="my-16"
@@ -155,7 +155,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
             </h1>
 
             <Image
-              src={openChestImage}
+              src={IMAGES[image]}
               alt="Treasure Chest"
               title="Treasure Chest"
             />
