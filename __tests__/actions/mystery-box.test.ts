@@ -3,6 +3,7 @@ import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import {
   calculateTotalPrizeTokens,
+  dismissMysteryBox,
   rewardMysteryBox,
 } from "@/app/actions/mysteryBox";
 import prisma from "@/app/services/prisma";
@@ -55,6 +56,7 @@ describe("Create mystery box", () => {
   let deckId: number;
   let mysteryBoxId: string | null;
   let mysteryBoxId2: string | null;
+  let mysteryBoxId3: string | null;
 
   beforeAll(async () => {
     const deck = await prisma.deck.create({
@@ -125,6 +127,10 @@ describe("Create mystery box", () => {
       await deleteMysteryBox(mysteryBoxId2);
     }
 
+    if (mysteryBoxId3) {
+      await deleteMysteryBox(mysteryBoxId3);
+    }
+
     await prisma.user.delete({
       where: {
         id: user[0].id,
@@ -184,5 +190,53 @@ describe("Create mystery box", () => {
     );
 
     expect(Number(totalWon)).toEqual(4600);
+  });
+
+  it("Should dismiss a mystery box", async () => {
+    // Create a second box
+    const mockPayload = { sub: user[0].id };
+    (getJwtPayload as jest.Mock).mockResolvedValue(mockPayload);
+    mysteryBoxId3 = await rewardMysteryBox({
+      triggerType: EBoxTriggerType.ClaimAllCompleted,
+      questionIds: [questionId],
+    });
+
+    if (!mysteryBoxId3) throw new Error("Error creating mystery box");
+
+    await dismissMysteryBox(mysteryBoxId3);
+
+    const res = await prisma.mysteryBox.findUnique({
+      where: {
+        id: mysteryBoxId3,
+      },
+      include: {
+        triggers: true,
+        MysteryBoxPrize: true,
+      },
+    });
+
+    expect(res).toBeDefined();
+    expect(res?.id).toBe(mysteryBoxId3);
+    expect(res?.status).toBe("Unopened");
+    expect(res?.MysteryBoxPrize[0].status).toBe("Dismissed");
+
+    // Check we didn't affect other boxes
+
+    if (!mysteryBoxId2) throw new Error("MysteryBox 2 is null");
+
+    const res2 = await prisma.mysteryBox.findUnique({
+      where: {
+        id: mysteryBoxId2,
+      },
+      include: {
+        triggers: true,
+        MysteryBoxPrize: true,
+      },
+    });
+
+    expect(res2).toBeDefined();
+    expect(res2?.id).toBe(mysteryBoxId2);
+    expect(res2?.status).not.toBe("Unopened");
+    expect(res2?.MysteryBoxPrize[0].status).not.toBe("Dismissed");
   });
 });
