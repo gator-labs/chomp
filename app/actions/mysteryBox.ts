@@ -80,6 +80,8 @@ export async function rewardMysteryBox({
     });
     return res.id;
   } catch (e) {
+    console.log(e);
+
     const createMysteryBoxError = new CreateMysteryBoxError(
       `Trouble creating ${triggerType} mystery box for User id: ${payload.sub} and questions ids: ${questionIds}`,
       { cause: e },
@@ -244,6 +246,8 @@ export async function dismissMysteryBox(mysteryBoxId: string) {
       }
     });
   } catch (e) {
+    console.log(e);
+
     const dismissMysteryBoxError = new DismissMysteryBoxError(
       `Failed to dismiss mysterybox: user: ${payload.sub}, mysteryBoxId: ${mysteryBoxId}`,
       { cause: e },
