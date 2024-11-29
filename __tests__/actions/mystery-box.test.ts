@@ -184,9 +184,9 @@ describe("Create mystery box", () => {
       },
     });
 
-    questionId = deck.deckQuestions[0].id;
-    questionId2 = deck.deckQuestions[1].id;
-    questionId3 = deck.deckQuestions[2].id;
+    questionId = deck.deckQuestions[0].questionId;
+    questionId2 = deck.deckQuestions[1].questionId;
+    questionId3 = deck.deckQuestions[2].questionId;
     deckId = deck.id;
     user = await generateUsers(1);
     await prisma.user.createMany({
