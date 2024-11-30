@@ -148,7 +148,8 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               src={IMAGES[image]}
               alt="Treasure Chest"
               title="Treasure Chest"
-              className="my-16"
+              className="my-16 cursor-pointer"
+              onClick={openBox}
             />
 
             <div className="grow-[2] w-full flex flex-col gap-8">
