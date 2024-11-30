@@ -232,6 +232,7 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[0].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature: "0123",
           },
         }),
         tx.chompResult.create({
@@ -241,6 +242,7 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[1].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature: "0123",
           },
         }),
         tx.chompResult.create({
@@ -250,6 +252,7 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[2].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature: "0123",
           },
         }),
       ]);
@@ -263,6 +266,7 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[0].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature: "0123",
           },
         }),
         tx.chompResult.create({
@@ -272,6 +276,7 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[1].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature: "0123",
           },
         }),
         // User 2 does not reveal question on October 13
@@ -282,6 +287,7 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[2].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature: "0123",
           },
         }),
       ]);
@@ -294,6 +300,7 @@ describe("getUsersLatestStreak", () => {
           questionId: questions[0].id,
           createdAt: new Date(),
           transactionStatus: TransactionStatus.Completed,
+          burnTransactionSignature: "0123",
         },
       });
     });
