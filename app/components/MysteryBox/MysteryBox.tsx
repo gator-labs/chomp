@@ -133,13 +133,15 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     <>
       <div className="fixed inset-0 z-50 bg-black/90 mt-[3em] z-0 flex justify-center">
         {!box && (
-          <div className="fixed z-100 flex flex-col items-center justify-center content-between my-16 gap-10">
-            <h1 className={`text-[#DBFC8D] text-2xl font-bold`}>
-              You earned a mystery box!
-            </h1>
+          <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[calc(100%_-_5.5em)] absolute">
+            <div className="w-full grow-[2] flex flex-col gap-8 justify-center">
+              <h1 className={`text-[#DBFC8D] text-2xl font-bold`}>
+                You earned a mystery box!
+              </h1>
 
-            <div className="text-center">
-              {buildMessage(OPEN_MESSAGES[message].subText)}
+              <div className="text-center text-sm">
+                {buildMessage(OPEN_MESSAGES[message].subText)}
+              </div>
             </div>
 
             <Image
@@ -149,63 +151,81 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               className="my-16"
             />
 
-            <Button
-              variant={"primary"}
-              onClick={openBox}
-              disabled={isSubmitting}
-            >
-              Open Now
-            </Button>
+            <div className="grow-[2] w-full flex flex-col gap-8">
+              <Button
+                variant={"primary"}
+                onClick={openBox}
+                disabled={isSubmitting}
+              >
+                Open Now
+              </Button>
 
-            <div className="text-sm cursor-pointer" onClick={handleSkip}>
-              Skip and miss out on your mystery box
+              <div
+                className="text-sm cursor-pointer text-center"
+                onClick={handleSkip}
+              >
+                Skip and miss out on your mystery box
+              </div>
             </div>
           </div>
         )}
 
         {box && (
-          <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[75%] gap-10">
-            <h1 className={`text-[#DBFC8D] text-2xl font-bold`}>
-              CHOMP, CHOMP HOORAY!
-            </h1>
+          <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[calc(100%_-_5.5em)] absolute">
+            <div className="w-full grow-[2] flex flex-col gap-8 justify-center">
+              <h1 className={`text-[#DBFC8D] text-2xl font-bold`}>
+                CHOMP, CHOMP HOORAY!
+              </h1>
+            </div>
 
-            <Image
-              src={IMAGES[image]}
-              alt="Treasure Chest"
-              title="Treasure Chest"
-            />
+            <div className="flex flex-col gap-4 grow-[2] items-center">
+              <Image
+                src={IMAGES[image]}
+                alt="Treasure Chest"
+                title="Treasure Chest"
+                className="transform scale-[0.7]"
+              />
 
-            <div className="flex flex-col gap-6 items-center">
-              <div className={cn("grid gap-6", "grid-cols-" + prizeCount)}>
+              <div className="flex flex-col gap-6 items-center">
+                <div className={cn("grid gap-5", "grid-cols-" + prizeCount)}>
+                  {box.creditsReceived > 0 && (
+                    <MysteryBoxPrize
+                      type="credits"
+                      amount={box.creditsReceived}
+                    />
+                  )}
+                  {box.tokensReceived > 0 && (
+                    <MysteryBoxPrize
+                      type="tokens"
+                      amount={box.tokensReceived}
+                    />
+                  )}
+                </div>
+
                 {box.creditsReceived > 0 && (
-                  <MysteryBoxPrize
-                    type="credits"
-                    amount={box.creditsReceived}
-                  />
-                )}
-                {box.tokensReceived > 0 && (
-                  <MysteryBoxPrize type="tokens" amount={box.tokensReceived} />
+                  <div className="text-sm text-center">
+                    Learn more about credits
+                  </div>
                 )}
               </div>
 
-              {box.creditsReceived > 0 && (
-                <div className="text-sm text-center">
-                  Learn more about credits
-                </div>
-              )}
+              <div className="flex items-start items-center w-full content-center justify-center gap-2">
+                <span className="text-sm grow-3">Total $BONK won to date</span>
+                <MysteryBoxAmount type="tokens" amount={box.totalBonkWon} />
+              </div>
             </div>
 
-            <div className="flex items-start items-center w-full content-center justify-center gap-2">
-              <span className="text-sm grow-3">Total $BONK won to date</span>
-              <MysteryBoxAmount type="tokens" amount={box.totalBonkWon} />
-            </div>
+            <div className="grow-[2] w-full flex flex-col gap-8">
+              <Button variant={"primary"} onClick={handleGoToAnswering}>
+                CHOMP on more decks →
+              </Button>
 
-            <Button variant={"primary"} onClick={handleGoToAnswering}>
-              CHOMP on more decks →
-            </Button>
-
-            <div className="text-sm cursor-pointer" onClick={handleClose}>
-              Close
+              <div
+                className="text-sm cursor-pointer text-center"
+                onClick={handleClose}
+              >
+                Close
+              </div>
             </div>
           </div>
         )}
