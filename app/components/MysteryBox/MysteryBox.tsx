@@ -1,8 +1,8 @@
+import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
 import {
   MysteryBoxResult,
-  dismissMysteryBox,
   openMysteryBox,
-} from "@/app/actions/mysteryBox";
+} from "@/app/actions/mysteryBox/open";
 import {
   MysteryBoxOpenImage,
   MysteryBoxOpenMessage,

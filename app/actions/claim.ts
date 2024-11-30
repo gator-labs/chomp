@@ -1,19 +1,17 @@
 "use server";
 
+import { sendClaimedBonkFromTreasury } from "@/lib/claim";
 import { ClaimError, SendBonkError } from "@/lib/error";
-import { ChompResult, EBoxTriggerType, ResultType } from "@prisma/client";
+import { EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import { Keypair, PublicKey } from "@solana/web3.js";
-import base58 from "bs58";
 import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
 import prisma from "../services/prisma";
-import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 import { getJwtPayload } from "./jwt";
-import { rewardMysteryBox } from "./mysteryBox";
+import { rewardMysteryBox } from "./mysteryBox/reward";
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
@@ -188,7 +186,7 @@ export async function claimQuestions(questionIds: number[]) {
     }
 
     resultIds = chompResults.map((r) => r.id);
-    sendTx = await handleSendBonk(
+    sendTx = await sendClaimedBonkFromTreasury(
       chompResults,
       questionIds,
       userWallet.address,
@@ -254,32 +252,4 @@ export async function claimQuestions(questionIds: number[]) {
     release();
     throw e;
   }
-}
-
-async function handleSendBonk(
-  chompResults: ChompResult[],
-  questionIds: number[],
-  address: string,
-) {
-  const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
-  );
-
-  const tokenAmount = chompResults.reduce(
-    (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
-    0,
-  );
-
-  if (tokenAmount > 0) {
-    const sendTx = await sendBonk(
-      treasuryWallet,
-      new PublicKey(address),
-      Math.round(tokenAmount * 10 ** 5),
-      chompResults,
-      questionIds,
-    );
-    return sendTx;
-  }
-
-  return null;
 }

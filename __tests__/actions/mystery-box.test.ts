@@ -1,12 +1,10 @@
 // import { rewardMysteryBox } from "@/app/actions/box";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
-import {
-  calculateTotalPrizeTokens,
-  dismissMysteryBox,
-  rewardMysteryBox,
-} from "@/app/actions/mysteryBox";
+import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
+import { rewardMysteryBox } from "@/app/actions/mysteryBox/reward";
 import prisma from "@/app/services/prisma";
+import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
 import { EBoxPrizeStatus, EBoxTriggerType } from "@prisma/client";
 
