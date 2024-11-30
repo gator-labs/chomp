@@ -18,8 +18,8 @@ function MysteryBoxPrize({ type, amount }: MysteryBoxPrizeProps) {
       className={cn(
         "w-[117px] h-[142px] rounded-xl p-1 flex flex-col items-center justify-around",
         {
-          "bg-[#89E0CD]": type == "credits",
-          "bg-[#F0B392]": type == "tokens",
+          "bg-chomp-blue-dark": type == "credits",
+          "bg-chomp-orange-light": type == "tokens",
         },
       )}
     >

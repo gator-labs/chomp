@@ -135,7 +135,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
         {!box && (
           <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[calc(100%_-_5.5em)] absolute">
             <div className="w-full grow-[2] flex flex-col gap-8 justify-center">
-              <h1 className={`text-[#DBFC8D] text-2xl font-bold`}>
+              <h1 className={`text-chomp-green-light text-2xl font-bold`}>
                 You earned a mystery box!
               </h1>
 
@@ -174,7 +174,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
         {box && (
           <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[calc(100%_-_5.5em)] absolute">
             <div className="w-full grow-[2] flex flex-col gap-8 justify-center">
-              <h1 className={`text-[#DBFC8D] text-2xl font-bold`}>
+              <h1 className={`text-chomp-green-light text-2xl font-bold`}>
                 CHOMP, CHOMP HOORAY!
               </h1>
             </div>
@@ -188,7 +188,12 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               />
 
               <div className="flex flex-col gap-6 items-center">
-                <div className={cn("grid gap-5", "grid-cols-" + prizeCount)}>
+                <div
+                  className={cn(
+                    "grid gap-5",
+                    prizeCount == 2 ? "grid-cols-2" : "grid-cols-1",
+                  )}
+                >
                   {box.creditsReceived > 0 && (
                     <MysteryBoxPrize
                       type="credits"

@@ -46,6 +46,20 @@ const colors = {
     800: "#161452",
     900: "#0B0A29",
   },
+
+  chomp: {
+    blue: {
+      dark: "#89E0CD",
+      light: "#D6FCF4",
+    },
+    orange: {
+      dark: "#DD7944",
+      light: "#F0B392",
+    },
+    green: {
+      light: "#DBFC8D",
+    },
+  },
 };
 
 module.exports = {

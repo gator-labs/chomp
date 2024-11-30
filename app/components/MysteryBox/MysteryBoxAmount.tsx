@@ -22,8 +22,8 @@ function MysteryBoxAmount({
         "text-sm font-bold p-1 px-2 rounded-[2em] flex items-center justify-center text-center",
         className,
         {
-          "bg-[#D6FCF4] text-black font-bold": type == "credits",
-          "bg-[#DD7944]": type == "tokens",
+          "bg-chomp-blue-light text-black font-bold": type == "credits",
+          "bg-chomp-orange-dark": type == "tokens",
         },
       )}
     >
