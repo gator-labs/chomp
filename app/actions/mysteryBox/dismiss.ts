@@ -7,6 +7,14 @@ import * as Sentry from "@sentry/nextjs";
 import prisma from "../../services/prisma";
 import { getJwtPayload } from "../jwt";
 
+/**
+ * Dismisses a mystery box - a user signals that they don't wish
+ * to immediately open a box that is presented to them. This is
+ * an explicit refusal, as opposed to just navigating away.
+ *
+ * @param mysteryBoxId The box to dismiss. Must be owned by the
+ *                     user and in the New state.
+ */
 export async function dismissMysteryBox(mysteryBoxId: string) {
   const payload = await getJwtPayload();
 
@@ -48,6 +56,6 @@ export async function dismissMysteryBox(mysteryBoxId: string) {
     );
     Sentry.captureException(dismissMysteryBoxError);
 
-    throw new Error("Error dmismissing mystery box");
+    throw new Error("Error dismissing mystery box");
   }
 }

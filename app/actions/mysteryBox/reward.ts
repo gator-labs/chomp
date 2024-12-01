@@ -18,14 +18,12 @@ type MysteryBoxProps = {
   questionIds: number[];
 };
 
-export type MysteryBoxResult = {
-  mysteryBoxId: string;
-  tokensReceived: number;
-  creditsReceived: number;
-  transactionSignature: string | null;
-  totalBonkWon: number;
-};
-
+/**
+ * Gives the currently authenticated user a mystery box.
+ *
+ * @param triggerType Trigger type.
+ * @param questionIds Array of question IDs for the trigger.
+ */
 export async function rewardMysteryBox({
   triggerType,
   questionIds,
@@ -36,8 +34,6 @@ export async function rewardMysteryBox({
     return null;
   }
 
-  const userId = payload?.sub ?? "";
-
   try {
     const calculatedReward = await calculateMysteryBoxReward(
       MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
@@ -45,7 +41,7 @@ export async function rewardMysteryBox({
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
     const res = await prisma.mysteryBox.create({
       data: {
-        userId: userId,
+        userId: payload.sub,
         triggers: {
           createMany: {
             data: questionIds.map((questionId) => ({
