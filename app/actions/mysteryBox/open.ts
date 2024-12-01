@@ -22,6 +22,15 @@ export type MysteryBoxResult = {
   totalBonkWon: number;
 };
 
+/**
+ * Opens a previously-rewarded mystery box
+ *
+ * Currently we refuse to open dismissed boxes or prizes in the
+ * "unopened" state (boxes start as "new").
+ *
+ * @param mysteryBoxId The ID of a mystery box that is owned by the
+ *                     authenticated user and in the new state.
+ */
 export async function openMysteryBox(
   mysteryBoxId: string,
 ): Promise<MysteryBoxResult | null> {
