@@ -40,6 +40,8 @@ export async function openMysteryBox(
     return null;
   }
 
+  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
+
   const release = await acquireMutex({
     identifier: "CLAIM",
     data: { userId: payload.sub },
@@ -51,57 +53,80 @@ export async function openMysteryBox(
     },
   });
 
+  if (!userWallet) {
+    release();
+    return null;
+  }
+
   try {
+    let bonkReceived = 0;
+    let bonkTx = null;
+
     const reward = await prisma.mysteryBox.findUnique({
       where: {
         id: mysteryBoxId,
+        userId: payload.sub,
+        status: EMysteryBoxStatus.New,
       },
       include: {
         MysteryBoxPrize: {
           select: {
             id: true,
             amount: true,
+            tokenAddress: true,
+          },
+          where: {
+            status: EBoxPrizeStatus.Unclaimed,
           },
         },
       },
     });
 
-    if (!userWallet) {
-      release();
-      return null;
-    }
+    if (!reward) throw new Error("Reward not found or not in openable state");
 
-    const sendTx = await sendBonkFromTreasury(
-      Number(reward?.MysteryBoxPrize[0]?.amount),
-      userWallet.address,
-    );
+    for (const prize of reward.MysteryBoxPrize) {
+      if (prize.tokenAddress != bonkAddress)
+        throw new Error(
+          `Don't know how to send prize for mystery box ${mysteryBoxId}, token ${prize.tokenAddress}`,
+        );
 
-    if (!sendTx) {
-      const sendBonkError = new SendBonkError(
-        `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
-        { cause: "Failed to send bonk" },
+      const prizeAmount = Number(prize.amount);
+
+      const sendTx = await sendBonkFromTreasury(
+        prizeAmount,
+        userWallet.address,
       );
-      Sentry.captureException(sendBonkError);
-    }
 
-    await prisma.$transaction(
-      async (tx) => {
-        await tx.mysteryBoxPrize.update({
-          where: {
-            id: reward?.MysteryBoxPrize[0].id,
-          },
-          data: {
-            status: EBoxPrizeStatus.Claimed,
-            claimHash: sendTx,
-            claimedAt: new Date(),
-          },
-        });
-      },
-      {
-        isolationLevel: "Serializable",
-        timeout: ONE_MINUTE_IN_MILLISECONDS,
-      },
-    );
+      if (!sendTx) {
+        const sendBonkError = new SendBonkError(
+          `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+          { cause: "Failed to send bonk" },
+        );
+        Sentry.captureException(sendBonkError);
+      }
+
+      bonkReceived = prizeAmount;
+      bonkTx = sendTx;
+
+      await prisma.$transaction(
+        async (tx) => {
+          await tx.mysteryBoxPrize.update({
+            where: {
+              id: prize.id,
+            },
+            data: {
+              status: EBoxPrizeStatus.Claimed,
+              claimHash: sendTx,
+              claimedAt: new Date(),
+            },
+          });
+        },
+        {
+          isolationLevel: "Serializable",
+          timeout: ONE_MINUTE_IN_MILLISECONDS,
+        },
+      );
+    }
 
     await prisma.mysteryBox.update({
       where: {
@@ -112,19 +137,18 @@ export async function openMysteryBox(
       },
     });
 
-    const totalBonkWon = await calculateTotalPrizeTokens(
-      payload.sub,
-      process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
-    );
+    const totalBonkWon = bonkAddress
+      ? await calculateTotalPrizeTokens(payload.sub, bonkAddress)
+      : 0;
 
     release();
     revalidatePath("/application");
 
     return {
       mysteryBoxId,
-      tokensReceived: Number(reward?.MysteryBoxPrize[0]?.amount ?? 0),
+      tokensReceived: bonkReceived,
       creditsReceived: 0,
-      transactionSignature: sendTx,
+      transactionSignature: bonkTx,
       totalBonkWon,
     };
   } catch (e) {
