@@ -3,6 +3,7 @@
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
+import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import { ShareClaimAllError } from "@/lib/error";
 import trackEvent from "@/lib/trackEvent";
 import { DialogTitle } from "@radix-ui/react-dialog";
@@ -12,7 +13,6 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { CloseIcon } from "../Icons/CloseIcon";
-import MysteryBox from "../MysteryBox/MysteryBox";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";
 
@@ -22,7 +22,7 @@ type ClaimShareDrawerProps = {
   description: string;
   copyUrl: string;
   variant: "single" | "all";
-  mysteryBoxId?: string;
+  mysteryBoxId?: string | null;
 };
 
 const ClaimShareDrawer = ({
@@ -102,7 +102,7 @@ const ClaimShareDrawer = ({
                 <div
                   onClick={() => {
                     onClose();
-                    setShowMysteryBox(true);
+                    if (mysteryBoxId) setShowMysteryBox(true);
                   }}
                 >
                   <CloseIcon width={16} height={16} />
