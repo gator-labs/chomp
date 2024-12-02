@@ -20,7 +20,7 @@ type ClaimShareDrawerProps = {
   description: string;
   copyUrl: string;
   variant: "single" | "all";
-  mysteryBoxId: string | null;
+  mysteryBoxId?: string | null;
 };
 
 const ClaimShareDrawer = ({
