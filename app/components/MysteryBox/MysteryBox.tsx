@@ -215,7 +215,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
                 )}
               </div>
 
-              <div className="flex items-start items-center w-full content-center justify-center gap-2">
+              <div className="flex items-start items-center w-full content-center justify-center gap-2 mt-[1em]">
                 <span className="text-sm grow-3">Total $BONK won to date</span>
                 <MysteryBoxAmount type="tokens" amount={box.totalBonkWon} />
               </div>
