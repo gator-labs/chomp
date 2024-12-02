@@ -159,6 +159,18 @@ export async function revealQuestions(
       },
     });
 
+    await tx.fungibleAssetTransactionLog.deleteMany({
+      where: {
+        userId: payload.sub,
+        questionId: {
+          in: revealableQuestionIds,
+        },
+        type: {
+          in: ["RevealAnswer", "CorrectFirstOrder", "CorrectSecondOrder"],
+        },
+      },
+    });
+
     let revealNftId = null;
 
     if (isRevealedWithNft) {
