@@ -19,6 +19,7 @@ import { Fragment, useEffect, useState } from "react";
 
 import { Button } from "../ui/button";
 import MysteryBoxAmount from "./MysteryBoxAmount";
+import MysteryBoxOverlay from "./MysteryBoxOverlay";
 import MysteryBoxPrize from "./MysteryBoxPrize";
 
 type MysteryBoxProps = {
@@ -131,7 +132,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/90 mt-[3em] z-0 flex justify-center">
+      <MysteryBoxOverlay>
         {!box && (
           <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[calc(100%_-_5.5em)] absolute">
             <div className="w-full grow-[2] flex flex-col gap-8 justify-center">
@@ -235,7 +236,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
             </div>
           </div>
         )}
-      </div>
+      </MysteryBoxOverlay>
     </>
   );
 }
