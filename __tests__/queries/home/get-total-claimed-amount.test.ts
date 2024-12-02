@@ -39,7 +39,6 @@ describe("getUsersTotalClaimedAmount", () => {
             result: ResultType.Claimed,
             rewardTokenAmount: 100,
             transactionStatus: TransactionStatus.Completed,
-            burnTransactionSignature: "0123",
             createdAt: new Date(),
             burnTransactionSignature:
               "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD1",
@@ -51,7 +50,6 @@ describe("getUsersTotalClaimedAmount", () => {
             result: ResultType.Claimed,
             rewardTokenAmount: 50,
             transactionStatus: TransactionStatus.Completed,
-            burnTransactionSignature: "0123",
             createdAt: new Date(),
             burnTransactionSignature:
               "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD2",
@@ -63,7 +61,6 @@ describe("getUsersTotalClaimedAmount", () => {
             result: ResultType.Claimed,
             rewardTokenAmount: 200,
             transactionStatus: TransactionStatus.Completed,
-            burnTransactionSignature: "0123",
             createdAt: new Date(),
             burnTransactionSignature:
               "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD3",
@@ -75,7 +72,6 @@ describe("getUsersTotalClaimedAmount", () => {
             result: ResultType.Claimed,
             rewardTokenAmount: 300,
             transactionStatus: TransactionStatus.Completed,
-            burnTransactionSignature: "0123",
             createdAt: new Date(),
             burnTransactionSignature:
               "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD4",
