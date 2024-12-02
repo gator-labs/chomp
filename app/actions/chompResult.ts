@@ -159,20 +159,6 @@ export async function revealQuestions(
       },
     });
 
-    await tx.fungibleAssetTransactionLog.deleteMany({
-      where: {
-        AND: {
-          userId: payload.sub,
-          questionId: {
-            in: revealableQuestionIds,
-          },
-          type: {
-            in: ["RevealAnswer", "CorrectFirstOrder", "CorrectSecondOrder"],
-          },
-        },
-      },
-    });
-
     let revealNftId = null;
 
     if (isRevealedWithNft) {
@@ -209,8 +195,10 @@ export async function revealQuestions(
         })),
       ],
     });
+  });
 
-    await tx.fungibleAssetTransactionLog.createMany({
+  try {
+    await prisma.fungibleAssetTransactionLog.createMany({
       data: revealPoints.map((revealPointsTx) => ({
         asset: FungibleAsset.Point,
         type: revealPointsTx.type,
@@ -219,7 +207,13 @@ export async function revealQuestions(
         questionId: revealPointsTx.questionId,
       })),
     });
-  });
+  } catch (error) {
+    const revealError = new RevealError(
+      `Reveal point error for User id: ${payload?.sub} and ${questionIds}`,
+      { cause: error },
+    );
+    Sentry.captureException(revealError);
+  }
 
   release();
   revalidatePath("/application");
