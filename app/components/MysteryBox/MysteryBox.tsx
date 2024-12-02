@@ -163,7 +163,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               </Button>
 
               <div
-                className="text-sm cursor-pointer text-center"
+                className="text-sm cursor-pointer text-center text-chomp-grey-a1 underline"
                 onClick={handleSkip}
               >
                 Skip and miss out on your mystery box
@@ -228,7 +228,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               </Button>
 
               <div
-                className="text-sm cursor-pointer text-center"
+                className="text-sm cursor-pointer text-center text-chomp-grey-a1"
                 onClick={handleClose}
               >
                 Close

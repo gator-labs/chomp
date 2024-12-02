@@ -59,6 +59,9 @@ const colors = {
     green: {
       light: "#DBFC8D",
     },
+    grey: {
+      a1: "#B3B3B3",
+    },
   },
 };
 
