@@ -11,6 +11,7 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
+import { getClaimAllShareUrl } from "@/lib/urls";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic, useState } from "react";
@@ -138,6 +139,10 @@ export default function TotalRewardsClaimAll({
     }
   };
 
+  const copyUrl = getClaimAllShareUrl(
+    claimResult.transactionHash.substring(0, 10),
+  );
+
   return (
     <div className="flex justify-between">
       <div className="flex flex-col justify-between gap-[10px]">
@@ -160,11 +165,12 @@ export default function TotalRewardsClaimAll({
       )}
 
       <ClaimShareDrawer
+        variant="all"
         isOpen={isClaimShareDrawerOpen}
+        copyUrl={copyUrl}
         onClose={() => setIsClaimShareDrawerOpen(false)}
-        claimedAmount={claimResult.claimedAmount}
-        questionsAnswered={claimResult.questionsAnswered}
-        transactionHash={claimResult.transactionHash}
+        description={`You just claimed ${claimResult.claimedAmount.toLocaleString("en-US")} BONK from{" "}
+          ${claimResult.questionsAnswered} cards!`}
         mysteryBoxId={mysteryBoxId}
       />
     </div>

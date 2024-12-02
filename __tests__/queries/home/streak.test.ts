@@ -232,6 +232,8 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[0].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD1",
           },
         }),
         tx.chompResult.create({
@@ -241,6 +243,8 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[1].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD2",
           },
         }),
         tx.chompResult.create({
@@ -250,6 +254,8 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[2].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD3",
           },
         }),
       ]);
@@ -263,6 +269,8 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[0].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD4",
           },
         }),
         tx.chompResult.create({
@@ -272,6 +280,8 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[1].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD5",
           },
         }),
         // User 2 does not reveal question on October 13
@@ -282,6 +292,8 @@ describe("getUsersLatestStreak", () => {
             questionId: questions[2].id,
             createdAt: new Date(),
             transactionStatus: TransactionStatus.Completed,
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD6",
           },
         }),
       ]);
@@ -294,6 +306,8 @@ describe("getUsersLatestStreak", () => {
           questionId: questions[0].id,
           createdAt: new Date(),
           transactionStatus: TransactionStatus.Completed,
+          burnTransactionSignature:
+            "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD7",
         },
       });
     });

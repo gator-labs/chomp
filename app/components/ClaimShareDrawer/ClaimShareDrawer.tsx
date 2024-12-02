@@ -1,8 +1,9 @@
+"use client";
+
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
 import trackEvent from "@/lib/trackEvent";
-import { getClaimAllShareUrl } from "@/lib/urls";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { getLinkPreview } from "link-preview-js";
 import Image from "next/image";
@@ -16,37 +17,33 @@ import { Drawer, DrawerContent } from "../ui/drawer";
 type ClaimShareDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
-  questionsAnswered: number;
-  claimedAmount: number;
-  transactionHash?: string;
-  mysteryBoxId: string;
+  description: string;
+  copyUrl: string;
+  variant: "single" | "all";
+  mysteryBoxId?: string;
 };
 
 const ClaimShareDrawer = ({
   isOpen,
   onClose,
-  claimedAmount,
-  questionsAnswered,
-  transactionHash,
+  copyUrl,
+  variant,
+  description,
   mysteryBoxId,
 }: ClaimShareDrawerProps) => {
   const { infoToast } = useToast();
   const [ogImageUrl, setOgImageUrl] = useState("");
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 
-  const claimUrl = transactionHash
-    ? getClaimAllShareUrl(transactionHash.substring(0, 10))
-    : "";
-
   const handleCopy = async () => {
-    await copyTextToClipboard(claimUrl);
+    await copyTextToClipboard(copyUrl);
     infoToast("Link copied!");
   };
 
   useEffect(() => {
     const fetchLinkPreview = async () => {
       try {
-        const linkPreview = await getLinkPreview(claimUrl);
+        const linkPreview = await getLinkPreview(copyUrl);
         setOgImageUrl((linkPreview as { images: string[] }).images[0]);
       } catch {
         console.log("Failed to fetch share claim all preview");
@@ -54,15 +51,20 @@ const ClaimShareDrawer = ({
     };
 
     if (isOpen) {
-      trackEvent(TRACKING_EVENTS.SHARE_ALL_DIALOG_LOADED);
+      trackEvent(
+        variant === "all"
+          ? TRACKING_EVENTS.SHARE_ALL_DIALOG_LOADED
+          : TRACKING_EVENTS.SHARE_DIALOG_LOADED,
+      );
     }
 
-    if (!!claimUrl) fetchLinkPreview();
-  }, [isOpen, claimUrl]);
+    if (!!copyUrl) fetchLinkPreview();
+  }, [isOpen, copyUrl]);
   const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
+
   return (
     <>
-      {FF_MYSTERY_BOX && showMysteryBox ? (
+      {FF_MYSTERY_BOX && showMysteryBox && mysteryBoxId ? (
         <MysteryBox
           isOpen={showMysteryBox}
           closeBoxDialog={() => {
@@ -75,7 +77,11 @@ const ClaimShareDrawer = ({
           open={isOpen}
           onOpenChange={async (open: boolean) => {
             if (!open) {
-              trackEvent(TRACKING_EVENTS.SHARE_ALL_DIALOG_CLOSED);
+              trackEvent(
+                variant === "all"
+                  ? TRACKING_EVENTS.SHARE_ALL_DIALOG_CLOSED
+                  : TRACKING_EVENTS.SHARE_DIALOG_CLOSED,
+              );
               setShowMysteryBox(true);
               onClose();
             }
@@ -98,13 +104,9 @@ const ClaimShareDrawer = ({
               </div>
             </DialogTitle>
 
-            <p className="text-sm mb-6">
-              You just claimed {claimedAmount.toLocaleString("en-US")} BONK from{" "}
-              {questionsAnswered} cards!
-            </p>
+            <p className="text-sm mb-6">{description}</p>
             {ogImageUrl && (
               <>
-                {" "}
                 <Image
                   src={ogImageUrl}
                   sizes="100vw"
@@ -119,12 +121,16 @@ const ClaimShareDrawer = ({
                 <Button
                   asChild
                   onClick={() => {
-                    trackEvent(TRACKING_EVENTS.SHARE_ALL_X_BUTTON_CLICKED);
+                    trackEvent(
+                      variant === "all"
+                        ? TRACKING_EVENTS.SHARE_ALL_X_BUTTON_CLICKED
+                        : TRACKING_EVENTS.SHARE_X_BUTTON_CLICKED,
+                    );
                   }}
                   className="h-[50px] mb-2 font-bold"
                 >
                   <a
-                    href={`https://x.com/intent/post?url=${claimUrl}&text=chomp%20chomp%20mfs&hashtags=chompchomp&via=chompdotgames`}
+                    href={`https://x.com/intent/post?url=${copyUrl}&text=chomp%20chomp%20mfs&hashtags=chompchomp&via=chompdotgames`}
                     target="_blank"
                     rel="noreferrer"
                   >
