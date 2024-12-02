@@ -3,8 +3,10 @@
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
+import { ShareClaimAllError } from "@/lib/error";
 import trackEvent from "@/lib/trackEvent";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import * as Sentry from "@sentry/nextjs";
 import { getLinkPreview } from "link-preview-js";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -45,8 +47,12 @@ const ClaimShareDrawer = ({
       try {
         const linkPreview = await getLinkPreview(copyUrl);
         setOgImageUrl((linkPreview as { images: string[] }).images[0]);
-      } catch {
-        console.log("Failed to fetch share claim all preview");
+      } catch (error) {
+        const shareClaimAllError = new ShareClaimAllError(
+          "Failed to fetch link preview",
+          { cause: error },
+        );
+        Sentry.captureException(shareClaimAllError);
       }
     };
 
