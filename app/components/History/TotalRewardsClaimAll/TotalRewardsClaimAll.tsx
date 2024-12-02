@@ -169,8 +169,7 @@ export default function TotalRewardsClaimAll({
         isOpen={isClaimShareDrawerOpen}
         copyUrl={copyUrl}
         onClose={() => setIsClaimShareDrawerOpen(false)}
-        description={`You just claimed ${claimResult.claimedAmount.toLocaleString("en-US")} BONK from{" "}
-          ${claimResult.questionsAnswered} cards!`}
+        description={`You just claimed ${claimResult.claimedAmount.toLocaleString("en-US")} BONK from ${claimResult.questionsAnswered} cards!`}
         mysteryBoxId={mysteryBoxId}
       />
     </div>
