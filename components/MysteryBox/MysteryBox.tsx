@@ -3,6 +3,7 @@ import {
   MysteryBoxResult,
   openMysteryBox,
 } from "@/app/actions/mysteryBox/open";
+import { Button } from "@/app/components/ui/button";
 import {
   MysteryBoxOpenImage,
   MysteryBoxOpenMessage,
@@ -17,7 +18,6 @@ import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
 import { Fragment, useEffect, useState } from "react";
 
-import { Button } from "../ui/button";
 import MysteryBoxAmount from "./MysteryBoxAmount";
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
 import MysteryBoxPrize from "./MysteryBoxPrize";
