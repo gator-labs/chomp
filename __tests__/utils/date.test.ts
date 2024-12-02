@@ -9,7 +9,6 @@ import { endOfWeek } from "date-fns";
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
-
 jest.mock("@/app/utils/auth", () => ({
   authGuard: jest.fn(),
 }));
@@ -214,7 +213,6 @@ describe("Time-Based Chomp Actions", () => {
       const mockPayload = { sub: user[0].id };
       (authGuard as jest.Mock).mockResolvedValue(mockPayload);
       const streak = await getUsersLatestStreak();
-      console.log(streak);
 
       expect(streak).toBe(0);
     });
