@@ -5,7 +5,11 @@ import {
   calculateTotalPrizeTokens,
   sendBonkFromTreasury,
 } from "@/lib/mysteryBox";
-import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EBoxPrizeType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 
@@ -60,7 +64,8 @@ export async function openMysteryBox(
 
   try {
     let bonkReceived = 0;
-    let bonkTx = null;
+    const creditsReceived = 0;
+    let bonkTx: string | null = null;
 
     const reward = await prisma.mysteryBox.findUnique({
       where: {
@@ -72,11 +77,13 @@ export async function openMysteryBox(
         MysteryBoxPrize: {
           select: {
             id: true,
+            prizeType: true,
             amount: true,
             tokenAddress: true,
           },
           where: {
             status: EBoxPrizeStatus.Unclaimed,
+            prizeType: EBoxPrizeType.Token,
           },
         },
       },
@@ -85,24 +92,30 @@ export async function openMysteryBox(
     if (!reward) throw new Error("Reward not found or not in openable state");
 
     for (const prize of reward.MysteryBoxPrize) {
-      if (prize.tokenAddress != bonkAddress)
+      if (
+        prize.prizeType != EBoxPrizeType.Token ||
+        prize.tokenAddress != bonkAddress
+      )
         throw new Error(
-          `Don't know how to send prize for mystery box ${mysteryBoxId}, token ${prize.tokenAddress}`,
+          `Don't know how to send prize for mystery box ${mysteryBoxId}, type ${prize.prizeType} token ${prize.tokenAddress}`,
         );
 
-      const prizeAmount = Number(prize.amount);
+      const prizeAmount = Number(prize.amount ?? 0);
 
-      const sendTx = await sendBonkFromTreasury(
-        prizeAmount,
-        userWallet.address,
-      );
+      let sendTx: string | null;
 
-      if (!sendTx) {
-        const sendBonkError = new SendBonkError(
-          `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
-          { cause: "Failed to send bonk" },
-        );
-        Sentry.captureException(sendBonkError);
+      if (prizeAmount > 0) {
+        sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
+
+        if (!sendTx) {
+          const sendBonkError = new SendBonkError(
+            `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+            { cause: "Failed to send bonk" },
+          );
+          Sentry.captureException(sendBonkError);
+        }
+      } else {
+        sendTx = null;
       }
 
       bonkReceived = prizeAmount;
@@ -147,7 +160,7 @@ export async function openMysteryBox(
     return {
       mysteryBoxId,
       tokensReceived: bonkReceived,
-      creditsReceived: 0,
+      creditsReceived,
       transactionSignature: bonkTx,
       totalBonkWon,
     };
