@@ -50,9 +50,10 @@ const ClaimShareDrawer = ({
       try {
         const linkPreview = await getLinkPreview(claimUrl);
         setOgImageUrl((linkPreview as { images: string[] }).images[0]);
-      } catch {
+      } catch (error) {
         const shareClaimAllError = new ShareClaimAllError(
           "Failed to fetch link preview",
+          { cause: error },
         );
         Sentry.captureException(shareClaimAllError);
       }
