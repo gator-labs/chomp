@@ -200,7 +200,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
                       amount={box.creditsReceived}
                     />
                   )}
-                  {box.tokensReceived > 0 && (
+                  {(box.tokensReceived > 0 || prizeCount == 0) && (
                     <MysteryBoxPrize
                       type="tokens"
                       amount={box.tokensReceived}
