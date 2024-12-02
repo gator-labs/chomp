@@ -32,7 +32,7 @@ function MysteryBoxPrize({ type, amount }: MysteryBoxPrizeProps) {
           }
           alt={type == "credits" ? "Credits" : "Tokens"}
           title={type == "credits" ? "Credits" : "Tokens"}
-          className="rounded-2xl"
+          className="rounded-2xl w-[106px]"
         />
       </div>
 

@@ -149,7 +149,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               src={IMAGES[image]}
               alt="Treasure Chest"
               title="Treasure Chest"
-              className="my-16 cursor-pointer"
+              className="my-16 cursor-pointer w-[212px]"
               onClick={openBox}
             />
 
@@ -185,7 +185,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
                 src={IMAGES[image]}
                 alt="Treasure Chest"
                 title="Treasure Chest"
-                className="transform scale-[0.7]"
+                className="transform scale-[0.7] w-[212px]"
               />
 
               <div className="flex flex-col gap-6 items-center">
