@@ -157,7 +157,7 @@ export const sendBonk = async (
         );
       },
       {
-        retries: 2,
+        retries: 1,
         onFailedAttempt: (error) => {
           console.log(
             `Attempt ${error.attemptNumber} failed. ${error.retriesLeft} retries left.`,

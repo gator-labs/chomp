@@ -11,6 +11,7 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
+import { getClaimAllShareUrl } from "@/lib/urls";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useOptimistic, useState } from "react";
@@ -46,7 +47,7 @@ export default function TotalRewardsClaimAll({
     transactionHash: "",
   });
   const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
-  const [mysteryBoxId, setMysteryBoxId] = useState("");
+  const [mysteryBoxId, setMysteryBoxId] = useState<string | null>(null);
 
   const onClaimAll = async () => {
     try {
@@ -70,10 +71,6 @@ export default function TotalRewardsClaimAll({
         success: "Funds are transferred!",
         error: "Issue transferring funds.",
       });
-
-      if (res?.mysteryBoxId) {
-        setMysteryBoxId(res?.mysteryBoxId);
-      }
 
       trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
         [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
@@ -100,12 +97,29 @@ export default function TotalRewardsClaimAll({
       );
       setIsClaiming(false);
       setIsClaimShareDrawerOpen(true);
-      setClaimResult({
-        claimedAmount: res!.claimedAmount,
-        correctAnswers: res!.correctAnswers,
-        questionsAnswered: res!.numberOfAnsweredQuestions,
-        transactionHash: res!.transactionSignature ?? "",
-      });
+      if (res?.mysteryBoxId) {
+        setMysteryBoxId(res.mysteryBoxId);
+      }
+
+      if (
+        res?.claimedAmount &&
+        res?.correctAnswers &&
+        res?.numberOfAnsweredQuestions &&
+        res?.transactionSignature
+      ) {
+        const {
+          claimedAmount,
+          correctAnswers,
+          numberOfAnsweredQuestions,
+          transactionSignature,
+        } = res;
+        setClaimResult({
+          claimedAmount,
+          correctAnswers,
+          questionsAnswered: numberOfAnsweredQuestions,
+          transactionHash: transactionSignature,
+        });
+      }
     } catch (error) {
       console.error(error);
       trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
@@ -124,6 +138,10 @@ export default function TotalRewardsClaimAll({
       setIsClaiming(false);
     }
   };
+
+  const copyUrl = getClaimAllShareUrl(
+    claimResult.transactionHash.substring(0, 10),
+  );
 
   return (
     <div className="flex justify-between">
@@ -147,11 +165,11 @@ export default function TotalRewardsClaimAll({
       )}
 
       <ClaimShareDrawer
+        variant="all"
         isOpen={isClaimShareDrawerOpen}
+        copyUrl={copyUrl}
         onClose={() => setIsClaimShareDrawerOpen(false)}
-        claimedAmount={claimResult.claimedAmount}
-        questionsAnswered={claimResult.questionsAnswered}
-        transactionHash={claimResult.transactionHash}
+        description={`You just claimed ${claimResult.claimedAmount.toLocaleString("en-US")} BONK from ${claimResult.questionsAnswered} cards!`}
         mysteryBoxId={mysteryBoxId}
       />
     </div>

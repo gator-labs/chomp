@@ -1,19 +1,17 @@
 "use server";
 
+import { sendClaimedBonkFromTreasury } from "@/lib/claim";
 import { ClaimError, SendBonkError } from "@/lib/error";
-import { ChompResult, EBoxTriggerType, ResultType } from "@prisma/client";
+import { EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import { Keypair, PublicKey } from "@solana/web3.js";
-import base58 from "bs58";
 import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
 import prisma from "../services/prisma";
-import { sendBonk } from "../utils/claim";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 import { getJwtPayload } from "./jwt";
-import { rewardMysteryBox } from "./mysteryBox";
+import { rewardMysteryBox } from "./mysteryBox/reward";
 
 export async function claimQuestion(questionId: number) {
   console.log("claim questions fired");
@@ -94,17 +92,19 @@ export async function claimAllAvailable() {
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
   const mysteryBoxId = await rewardMysteryBox({
-    triggerType: EBoxTriggerType.ClaimAll,
+    triggerType: EBoxTriggerType.ClaimAllCompleted,
     questionIds: claimableQuestionIds,
   });
 
-  return claimQuestions(claimableQuestionIds, mysteryBoxId);
+  const claimResult = await claimQuestions(claimableQuestionIds);
+
+  return {
+    ...claimResult,
+    mysteryBoxId: mysteryBoxId,
+  };
 }
 
-export async function claimQuestions(
-  questionIds: number[],
-  mysteryBoxId?: string | null,
-) {
+export async function claimQuestions(questionIds: number[]) {
   const payload = await getJwtPayload();
   let sendTx: string | null = null;
   let resultIds: number[] = [];
@@ -186,7 +186,7 @@ export async function claimQuestions(
     }
 
     resultIds = chompResults.map((r) => r.id);
-    sendTx = await handleSendBonk(
+    sendTx = await sendClaimedBonkFromTreasury(
       chompResults,
       questionIds,
       userWallet.address,
@@ -194,7 +194,7 @@ export async function claimQuestions(
 
     if (!sendTx) {
       const sendBonkError = new SendBonkError(
-        `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for questions: ${questionIds}`,
+        `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for questions: ${questionIds}`,
         { cause: "Failed to send bonk" },
       );
       Sentry.captureException(sendBonkError);
@@ -236,7 +236,6 @@ export async function claimQuestions(
         (cr) => (cr.rewardTokenAmount?.toNumber() ?? 0) > 0,
       ).length,
       numberOfAnsweredQuestions,
-      mysteryBoxId: mysteryBoxId,
     };
   } catch (e) {
     const claimError = new ClaimError(
@@ -253,32 +252,4 @@ export async function claimQuestions(
     release();
     throw e;
   }
-}
-
-async function handleSendBonk(
-  chompResults: ChompResult[],
-  questionIds: number[],
-  address: string,
-) {
-  const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
-  );
-
-  const tokenAmount = chompResults.reduce(
-    (acc, cur) => acc + (cur.rewardTokenAmount?.toNumber() ?? 0),
-    0,
-  );
-
-  let sendTx: string | null = null;
-  if (tokenAmount > 0) {
-    sendTx = await sendBonk(
-      treasuryWallet,
-      new PublicKey(address),
-      Math.round(tokenAmount * 10 ** 5),
-      chompResults,
-      questionIds,
-    );
-  }
-
-  return sendTx;
 }
