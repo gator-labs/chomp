@@ -209,7 +209,7 @@ export async function revealQuestions(
     });
   } catch (error) {
     const questionIds = questionRewards.map((item) => item.questionId);
-    const ExistingFatl = await prisma.fungibleAssetTransactionLog.findMany({
+    const existingFatl = await prisma.fungibleAssetTransactionLog.findMany({
       where: {
         questionId: {
           in: questionIds,
@@ -230,8 +230,8 @@ export async function revealQuestions(
     );
     Sentry.captureException(revealError, {
       extra: {
-        ExistingFatl: ExistingFatl,
-        NewFatl: revealPoints,
+        existingFatl: existingFatl,
+        newFatl: revealPoints,
       },
     });
   }
