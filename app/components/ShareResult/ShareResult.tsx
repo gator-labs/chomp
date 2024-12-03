@@ -3,7 +3,7 @@
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
 import { getClaimSingleShareUrl } from "@/lib/urls";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import ClaimShareDrawer from "../ClaimShareDrawer/ClaimShareDrawer";
 import { ShareV2Icon } from "../Icons/ShareV2Icon";
@@ -28,10 +28,15 @@ const ShareResult = ({
   questionId,
 }: ShareResultProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [copyUrl, setCopyUrl] = useState<string>("");
 
-  const copyUrl = getClaimSingleShareUrl(
-    transactionHash.substring(0, 10) + `_${questionId}`,
-  );
+  useEffect(() => {
+    setCopyUrl(
+      getClaimSingleShareUrl(
+        transactionHash.substring(0, 10) + `_${questionId}`,
+      ),
+    );
+  }, [transactionHash, questionId]);
 
   return (
     <>
