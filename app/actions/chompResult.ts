@@ -138,12 +138,16 @@ export async function revealQuestions(
 
   const revealableQuestionIds = revealableQuestions.map((q) => q.id);
 
-  const questionRewards = await calculateReward(
-    payload.sub,
-    revealableQuestionIds,
-  );
+  let questionRewards: {
+    questionId: number;
+    rewardAmount: number;
+    revealAmount: number;
+  }[];
+  let revealPoints;
 
-  const revealPoints = await calculateRevealPoints(questionRewards);
+  questionRewards = await calculateReward(payload.sub, revealableQuestionIds);
+
+  revealPoints = await calculateRevealPoints(questionRewards);
 
   await prisma.$transaction(async (tx) => {
     await tx.chompResult.deleteMany({
@@ -199,7 +203,7 @@ export async function revealQuestions(
 
   try {
     await prisma.fungibleAssetTransactionLog.createMany({
-      data: revealPoints.map((revealPointsTx) => ({
+      data: revealPoints?.map((revealPointsTx) => ({
         asset: FungibleAsset.Point,
         type: revealPointsTx.type,
         change: revealPointsTx.amount,
@@ -208,8 +212,22 @@ export async function revealQuestions(
       })),
     });
   } catch (error) {
+    const questionIds = questionRewards.map((item) => item.questionId);
+    const ExistingFatl = await prisma.fungibleAssetTransactionLog.findMany({
+      where: {
+        questionId: {
+          in: questionIds,
+        },
+      },
+      select: {
+        id: true,
+        type: true,
+        createdAt: true,
+        questionId: true,
+      },
+    });
     const revealError = new RevealError(
-      `Reveal point error for User id: ${payload?.sub} and ${questionIds}`,
+      `Reveal warning for user ${payload?.sub} and ${questionIds}. Reveal will continue successfully, but unable to create new FATL. Existing FATL ${ExistingFatl}. New FATL ${revealPoints}`,
       { cause: error },
     );
     Sentry.captureException(revealError);
