@@ -134,8 +134,8 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     <>
       <MysteryBoxOverlay>
         {!box && (
-          <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[calc(100%_-_5.5em)] absolute">
-            <div className="w-full grow-[2] flex flex-col gap-8 justify-center">
+          <div className="fixed z-100 flex flex-col items-center m-auto content-between h-full absolute">
+            <div className="w-full flex flex-col gap-8 justify-center mt-[2em]">
               <h1 className={`text-chomp-green-light text-2xl font-bold`}>
                 You earned a mystery box!
               </h1>
@@ -149,11 +149,11 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               src={IMAGES[image]}
               alt="Treasure Chest"
               title="Treasure Chest"
-              className="my-16 cursor-pointer w-[212px]"
+              className="my-20 cursor-pointer w-[212px]"
               onClick={openBox}
             />
 
-            <div className="grow-[2] w-full flex flex-col gap-8">
+            <div className="w-full flex flex-col gap-8">
               <Button
                 variant={"primary"}
                 onClick={openBox}
@@ -173,14 +173,14 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
         )}
 
         {box && (
-          <div className="fixed z-100 flex flex-col items-center justify-center content-between h-[calc(100%_-_5.5em)] absolute">
-            <div className="w-full grow-[2] flex flex-col gap-8 justify-center">
+          <div className="fixed z-100 flex flex-col items-center m-auto content-between h-full absolute gap-4">
+            <div className="w-full flex flex-col gap-8 justify-center mt-[2em]">
               <h1 className={`text-chomp-green-light text-2xl font-bold`}>
                 CHOMP, CHOMP HOORAY!
               </h1>
             </div>
 
-            <div className="flex flex-col gap-4 grow-[2] items-center">
+            <div className="flex flex-col gap-4 items-center">
               <Image
                 src={IMAGES[image]}
                 alt="Treasure Chest"
