@@ -107,8 +107,6 @@ export function SocialAuth() {
           <p className="pl-4">Connect Telegram for 20 points</p>
         </Button>
       )}
-
-      <div onClick={addXPoints}>click</div>
     </div>
   );
 }
