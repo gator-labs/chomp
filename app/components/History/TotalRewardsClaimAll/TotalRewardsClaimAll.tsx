@@ -14,7 +14,7 @@ import trackEvent from "@/lib/trackEvent";
 import { getClaimAllShareUrl } from "@/lib/urls";
 import { Question } from "@prisma/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { startTransition, useEffect, useOptimistic, useState } from "react";
+import { startTransition, useOptimistic, useState } from "react";
 
 import { Button } from "../../Button/Button";
 import ClaimShareDrawer from "../../ClaimShareDrawer/ClaimShareDrawer";
@@ -48,7 +48,6 @@ export default function TotalRewardsClaimAll({
   });
   const [isClaimShareDrawerOpen, setIsClaimShareDrawerOpen] = useState(false);
   const [mysteryBoxId, setMysteryBoxId] = useState<string | null>(null);
-  const [copyUrl, setCopyUrl] = useState<string>("");
 
   const onClaimAll = async () => {
     try {
@@ -140,11 +139,9 @@ export default function TotalRewardsClaimAll({
     }
   };
 
-  useEffect(() => {
-    setCopyUrl(
-      getClaimAllShareUrl(claimResult.transactionHash.substring(0, 10)),
-    );
-  }, [claimResult]);
+  const copyUrl = getClaimAllShareUrl(
+    claimResult.transactionHash.substring(0, 10),
+  );
 
   return (
     <div className="flex justify-between">

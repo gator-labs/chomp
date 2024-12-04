@@ -9,11 +9,11 @@ export const ANSWER_PATH = `${HOME_PATH}/answer`;
 export const getOgShareClaimAllPath = (startOfTxHash: string) =>
   `/api/og/share-claim-all?startOfTxHash=${startOfTxHash}`;
 export const getClaimAllShareUrl = (startOfTxHash: string) => {
-  return `${window?.location?.origin ?? ""}/a/${startOfTxHash}`;
+  return `${window.location.origin}/a/${startOfTxHash}`;
 };
 
 export const getClaimSingleShareUrl = (txHashAndQId: string) => {
-  return `${window?.location?.origin ?? ""}/s/${txHashAndQId}`;
+  return `${window.location.origin}/s/${txHashAndQId}`;
 };
 export const getOgShareClaimSinglePath = (txHashAndQId: string) =>
   `/api/og/share-claim-single?txHashAndQId=${txHashAndQId}`;
