@@ -134,26 +134,26 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     <>
       <MysteryBoxOverlay>
         {!box && (
-          <div className="fixed z-100 flex flex-col items-center m-auto content-between h-full absolute">
-            <div className="w-full flex flex-col gap-8 justify-center mt-[2em]">
-              <h1 className={`text-chomp-green-light text-2xl font-bold`}>
-                You earned a mystery box!
-              </h1>
+          <div className="fixed z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
+            <h1 className="text-chomp-green-light text-2xl font-bold">
+              You earned a mystery box!
+            </h1>
 
-              <div className="text-center text-sm">
-                {buildMessage(OPEN_MESSAGES[message].subText)}
-              </div>
+            <div className="text-center text-sm">
+              {buildMessage(OPEN_MESSAGES[message].subText)}
             </div>
 
-            <Image
-              src={IMAGES[image]}
-              alt="Treasure Chest"
-              title="Treasure Chest"
-              className="my-20 cursor-pointer w-[212px]"
-              onClick={openBox}
-            />
+            <div className="py-[35px]">
+              <Image
+                src={IMAGES[image]}
+                alt="Treasure Chest"
+                title="Treasure Chest"
+                className="cursor-pointer w-[182px] h-[182px]"
+                onClick={openBox}
+              />
+            </div>
 
-            <div className="w-full flex flex-col gap-8">
+            <div className="w-full">
               <Button
                 variant={"primary"}
                 onClick={openBox}
@@ -161,78 +161,66 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               >
                 Open Now
               </Button>
+            </div>
 
-              <div
-                className="text-sm cursor-pointer text-center text-chomp-grey-a1 underline"
-                onClick={handleSkip}
-              >
-                Skip and miss out on your mystery box
-              </div>
+            <div
+              className="text-xs cursor-pointer text-center text-chomp-grey-a1 underline"
+              onClick={handleSkip}
+            >
+              Skip and miss out on your mystery box
             </div>
           </div>
         )}
 
         {box && (
-          <div className="fixed z-100 flex flex-col items-center m-auto content-between h-full absolute gap-4">
-            <div className="w-full flex flex-col gap-8 justify-center mt-[2em]">
-              <h1 className={`text-chomp-green-light text-2xl font-bold`}>
-                CHOMP, CHOMP HOORAY!
-              </h1>
+          <div className="fixed z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
+            <h1 className="text-chomp-green-light text-2xl font-bold">
+              CHOMP, CHOMP HOORAY!
+            </h1>
+
+            <Image
+              src={IMAGES[image]}
+              alt="Treasure Chest"
+              title="Treasure Chest"
+              className="transform h-[120px] w-[120px] m-4"
+            />
+
+            <div
+              className={cn(
+                "grid gap-5",
+                prizeCount == 2 ? "grid-cols-2" : "grid-cols-1",
+              )}
+            >
+              {box.creditsReceived > 0 && (
+                <MysteryBoxPrize type="credits" amount={box.creditsReceived} />
+              )}
+              {(box.tokensReceived > 0 || prizeCount == 0) && (
+                <MysteryBoxPrize type="tokens" amount={box.tokensReceived} />
+              )}
             </div>
 
-            <div className="flex flex-col gap-4 items-center">
-              <Image
-                src={IMAGES[image]}
-                alt="Treasure Chest"
-                title="Treasure Chest"
-                className="transform scale-[0.7] w-[212px]"
-              />
-
-              <div className="flex flex-col gap-6 items-center">
-                <div
-                  className={cn(
-                    "grid gap-5",
-                    prizeCount == 2 ? "grid-cols-2" : "grid-cols-1",
-                  )}
-                >
-                  {box.creditsReceived > 0 && (
-                    <MysteryBoxPrize
-                      type="credits"
-                      amount={box.creditsReceived}
-                    />
-                  )}
-                  {(box.tokensReceived > 0 || prizeCount == 0) && (
-                    <MysteryBoxPrize
-                      type="tokens"
-                      amount={box.tokensReceived}
-                    />
-                  )}
-                </div>
-
-                {box.creditsReceived > 0 && (
-                  <div className="text-sm text-center">
-                    Learn more about credits
-                  </div>
-                )}
+            {box.creditsReceived > 0 && (
+              <div className="text-sm text-center">
+                Learn more about credits
               </div>
+            )}
 
-              <div className="flex items-start items-center w-full content-center justify-center gap-2 mt-[1em]">
-                <span className="text-sm grow-3">Total $BONK won to date</span>
-                <MysteryBoxAmount type="tokens" amount={box.totalBonkWon} />
-              </div>
+            <div className="flex items-start items-center w-full content-center justify-center gap-2 mt-[1em]">
+              <span className="text-sm grow-3">Total $BONK won to date</span>
+              <MysteryBoxAmount type="tokens" amount={box.totalBonkWon} />
             </div>
 
-            <div className="grow-[2] w-full flex flex-col gap-8">
+            <div className="w-full">
               <Button variant={"primary"} onClick={handleGoToAnswering}>
                 CHOMP on more decks →
               </Button>
+            </div>
 
-              <div
-                className="text-sm cursor-pointer text-center text-chomp-grey-a1"
-                onClick={handleClose}
-              >
-                Close
-              </div>
+            <div
+              className="text-sm cursor-pointer text-center text-chomp-grey-a1"
+              onClick={handleClose}
+            >
+              Close
             </div>
           </div>
         )}
