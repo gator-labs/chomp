@@ -102,7 +102,7 @@ describe("Validate points logs for completing questions and decks", () => {
     });
 
     // answer question using action
-    answerQuestion({
+    await answerQuestion({
       questionId: deck.deckQuestions[0].id,
       questionOptionId: questionOptions[1].id,
       percentageGiven: 50,
