@@ -19,7 +19,9 @@ import {
 
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
-  sendBonkFromTreasury: jest.fn(() => faker.string.hexadecimal({ length: 88 })),
+  sendBonkFromTreasury: jest.fn(async () =>
+    faker.string.hexadecimal({ length: 88 }),
+  ),
 }));
 
 jest.mock("@/app/actions/jwt", () => ({
@@ -314,7 +316,7 @@ describe("Create mystery box", () => {
   it("Should fail to open another user's mystery box", async () => {
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
 
-    expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
+    await expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
 
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user0.id });
   });
@@ -345,6 +347,6 @@ describe("Create mystery box", () => {
   });
 
   it("Should disallow opening an opened mystery box", async () => {
-    expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
+    await expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
   });
 });

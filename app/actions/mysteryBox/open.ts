@@ -62,8 +62,10 @@ export async function openMysteryBox(
     return null;
   }
 
+  let reward;
+
   try {
-    const reward = await prisma.mysteryBox.findUnique({
+    reward = await prisma.mysteryBox.findUnique({
       where: {
         id: mysteryBoxId,
         userId: payload.sub,
@@ -84,9 +86,21 @@ export async function openMysteryBox(
         },
       },
     });
+  } catch (e) {
+    const openMysteryBoxError = new OpenMysteryBoxError(
+      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
+      { cause: e },
+    );
+    Sentry.captureException(openMysteryBoxError);
 
-    if (!reward) throw new Error("Reward not found or not in openable state");
+    throw new Error("Error opening mystery box");
+  } finally {
+    release();
+  }
 
+  if (!reward) throw new Error("Reward not found or not in openable state");
+
+  try {
     for (const prize of reward.MysteryBoxPrize) {
       if (
         prize.prizeType != EBoxPrizeType.Token ||
