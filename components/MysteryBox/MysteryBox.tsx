@@ -14,9 +14,11 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
 import trackEvent from "@/lib/trackEvent";
 import openChestImage from "@/public/images/open-chest.png";
+import animationData from "@/public/lottie/chomp_box_bonk.json";
+import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
 import MysteryBoxAmount from "./MysteryBoxAmount";
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
@@ -47,7 +49,7 @@ function buildMessage(lines: string[]) {
 
 function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const router = useRouter();
-
+  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [box, setBox] = useState<MysteryBoxResult | null>(null);
@@ -65,6 +67,8 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
   const openBox = async () => {
     if (!mysteryBoxId) return;
+
+    lottieRef.current?.play();
 
     setIsSubmitting(true);
 
@@ -145,19 +149,20 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               </div>
             </div>
 
-            <Image
-              src={IMAGES[image]}
-              alt="Treasure Chest"
-              title="Treasure Chest"
-              className="my-16 cursor-pointer w-[212px]"
+            <Lottie
+              animationData={animationData}
+              loop={false}
+              lottieRef={lottieRef}
+              autoplay={false}
+              style={{ width: "300px", height: "300px" }}
               onClick={openBox}
+              disabled={isSubmitting || !!box}
             />
-
             <div className="grow-[2] w-full flex flex-col gap-8">
               <Button
                 variant={"primary"}
                 onClick={openBox}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !!box}
               >
                 Open Now
               </Button>
