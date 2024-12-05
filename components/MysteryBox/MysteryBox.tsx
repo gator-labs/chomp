@@ -150,7 +150,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     <>
       <MysteryBoxOverlay>
         {!box && (
-          <div className="fixed z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
+          <div className="z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
             <h1 className="text-chomp-green-light text-2xl font-bold">
               You earned a mystery box!
             </h1>
@@ -189,7 +189,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
         )}
 
         {box && (
-          <div className="fixed z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
+          <div className="z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
             <h1 className="text-chomp-green-light text-2xl font-bold">
               CHOMP, CHOMP HOORAY!
             </h1>
@@ -221,7 +221,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               </div>
             )}
 
-            <div className="flex items-start items-center w-full content-center justify-center gap-2 my-2">
+            <div className="flex items-center w-full content-center justify-center gap-2 my-2">
               <span className="text-xs grow-3">Total $BONK won to date</span>
               <MysteryBoxAmount type="tokens" amount={box.totalBonkWon} />
             </div>
