@@ -143,7 +143,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               {buildMessage(OPEN_MESSAGES[message].subText)}
             </div>
 
-            <div className="py-[35px]">
+            <div className="py-9">
               <Image
                 src={IMAGES[image]}
                 alt="Treasure Chest"

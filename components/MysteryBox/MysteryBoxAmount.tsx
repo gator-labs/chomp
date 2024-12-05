@@ -19,7 +19,7 @@ function MysteryBoxAmount({
   return (
     <div
       className={cn(
-        "text-xs font-bold p-1 px-3 rounded-[2em] flex items-center justify-center text-center",
+        "text-xs font-bold p-1 px-3 rounded-full flex items-center justify-center text-center",
         className,
         {
           "bg-chomp-blue-light text-black font-bold": type == "credits",
