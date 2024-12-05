@@ -152,6 +152,8 @@ describe("Create mystery box", () => {
         { userId: user1.id, address: user1.wallet },
       ],
     });
+
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user0.id });
   });
 
   afterAll(async () => {
@@ -177,8 +179,6 @@ describe("Create mystery box", () => {
   });
 
   it("Should create a new mystery box with triggers and prizes", async () => {
-    const mockPayload = { sub: user0.id };
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
     mysteryBoxId = await rewardMysteryBox({
       triggerType: EBoxTriggerType.ClaimAllCompleted,
       questionIds: [questionIds[0]],
@@ -204,8 +204,6 @@ describe("Create mystery box", () => {
 
   it("Should calculate the user's total token winnings", async () => {
     // Create a second box
-    const mockPayload = { sub: user0.id };
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
     mysteryBoxId2 = await rewardMysteryBox({
       triggerType: EBoxTriggerType.ClaimAllCompleted,
       questionIds: [questionIds[1]],
@@ -232,8 +230,6 @@ describe("Create mystery box", () => {
 
   it("Should dismiss a mystery box", async () => {
     // Create a second box
-    const mockPayload = { sub: user0.id };
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
     mysteryBoxId3 = await rewardMysteryBox({
       triggerType: EBoxTriggerType.ClaimAllCompleted,
       questionIds: [questionIds[2]],
@@ -241,7 +237,6 @@ describe("Create mystery box", () => {
 
     if (!mysteryBoxId3) throw new Error("Error creating mystery box");
 
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
     await dismissMysteryBox(mysteryBoxId3);
 
     const res = await prisma.mysteryBox.findUnique({
@@ -280,9 +275,6 @@ describe("Create mystery box", () => {
   });
 
   it("Should reveal a mystery box", async () => {
-    const mockPayload = { sub: user0.id };
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
-
     const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
     const res = await prisma.mysteryBox.create({
@@ -320,16 +312,14 @@ describe("Create mystery box", () => {
   });
 
   it("Should fail to open another user's mystery box", async () => {
-    const mockPayload = { sub: user1.id };
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
 
     expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
+
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user0.id });
   });
 
   it("Should open a mystery box", async () => {
-    const mockPayload = { sub: user0.id };
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
-
     expect(jest.isMockFunction(sendBonkFromTreasury)).toBeTruthy();
 
     const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
@@ -355,9 +345,6 @@ describe("Create mystery box", () => {
   });
 
   it("Should disallow opening an opened mystery box", async () => {
-    const mockPayload = { sub: user0.id };
-    (getJwtPayload as jest.Mock).mockResolvedValueOnce(mockPayload);
-
     expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
   });
 });
