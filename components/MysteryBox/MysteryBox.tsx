@@ -1,8 +1,9 @@
 import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
+import { openMysteryBox } from "@/app/actions/mysteryBox/open";
 import {
   MysteryBoxResult,
-  openMysteryBox,
-} from "@/app/actions/mysteryBox/open";
+  revealMysteryBox,
+} from "@/app/actions/mysteryBox/reveal";
 import { Button } from "@/app/components/ui/button";
 import {
   MysteryBoxOpenImage,
@@ -46,6 +47,8 @@ function buildMessage(lines: string[]) {
 }
 
 function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
+  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+
   const router = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -55,7 +58,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const image: MysteryBoxOpenImage = "TreasureChest";
   const message: MysteryBoxOpenMessage = "REGULAR";
 
-  const { promiseToast, errorToast } = useToast();
+  const { promiseToast, successToast, errorToast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -69,9 +72,14 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     setIsSubmitting(true);
 
     try {
-      const newBox = await promiseToast(openMysteryBox(mysteryBoxId), {
+      // TODO: this process is a bit "toasty" - could probably
+      // be a bit more sophisticated here and show a single toast
+      // in some cases (e.g. for credits-only boxes)
+
+      const newBox = await promiseToast(revealMysteryBox(mysteryBoxId), {
         loading: "Opening Mystery Box. Please wait...",
-        success: "Mystery Box opened successfully! 🎉",
+        success:
+          "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
         error: "Failed to open the Mystery Box. Please try again later. 😔",
       });
 
@@ -79,14 +87,22 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
         errorToast(
           "Failed to open the Mystery Box. Please try again later. 😔",
         );
-        console.log("Open mystery box response was null");
         return;
       }
 
       setBox(newBox);
-    } catch (error) {
+
+      if (newBox) {
+        openMysteryBox(mysteryBoxId)
+          .then(() => {
+            successToast("Your prizes are on the way!");
+          })
+          .catch(() => {
+            errorToast("Failed to send prizes");
+          });
+      }
+    } catch {
       setBox(null);
-      console.log(error);
     }
 
     setIsSubmitting(false);
@@ -103,9 +119,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const handleSkip = async () => {
     try {
       if (mysteryBoxId) await dismissMysteryBox(mysteryBoxId);
-    } catch (e) {
-      console.log(e);
-    }
+    } catch {}
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
 
@@ -124,9 +138,11 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     router.push("/application/answer");
   };
 
+  const bonkReceived = box?.tokensReceived?.[bonkAddress] ?? 0;
+
   const prizeCount = !box
     ? 0
-    : (box.creditsReceived > 0 ? 1 : 0) + (box.tokensReceived > 0 ? 1 : 0);
+    : (box.creditsReceived > 0 ? 1 : 0) + (bonkReceived > 0 ? 1 : 0);
 
   if (!isOpen || !mysteryBoxId) return null;
 
@@ -194,8 +210,8 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               {box.creditsReceived > 0 && (
                 <MysteryBoxPrize type="credits" amount={box.creditsReceived} />
               )}
-              {(box.tokensReceived > 0 || prizeCount == 0) && (
-                <MysteryBoxPrize type="tokens" amount={box.tokensReceived} />
+              {(bonkReceived > 0 || prizeCount == 0) && (
+                <MysteryBoxPrize type="tokens" amount={bonkReceived} />
               )}
             </div>
 
