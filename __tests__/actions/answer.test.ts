@@ -4,7 +4,6 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 
-// mock unrealted implementations
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
@@ -136,12 +135,13 @@ describe("Validate points logs for completing questions and decks", () => {
       },
     });
 
-    const hasAnswerQuestion = res.some(
-      (entry) => entry.type === "AnswerQuestion",
-    );
-    const hasAnswerDeck = res.some((entry) => entry.type === "AnswerDeck");
+    const answerQuestion = res.find((entry) => entry.type === "AnswerQuestion");
 
-    expect(hasAnswerQuestion).toBe(true);
-    expect(hasAnswerDeck).toBe(true);
+    expect(answerQuestion?.type).toBe("AnswerQuestion");
+    expect(Number(answerQuestion?.change)).toBe(10);
+
+    const answerDeck = res.find((entry) => entry.type === "AnswerDeck");
+    expect(answerDeck?.type).toBe("AnswerDeck");
+    expect(Number(answerDeck?.change)).toBe(20);
   });
 });
