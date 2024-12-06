@@ -30,11 +30,7 @@ export const genBonkBurnTx = async (
   const tx = new Transaction();
 
   const { blockhash, lastValidBlockHeight } =
-    await CONNECTION.getLatestBlockhash();
-
-  tx.recentBlockhash = blockhash;
-  tx.lastValidBlockHeight = lastValidBlockHeight;
-  tx.feePayer = burnFromPublic;
+    await CONNECTION.getLatestBlockhash("confirmed");
 
   const burnTxInstruction = createBurnCheckedInstruction(
     ata,
@@ -43,6 +39,12 @@ export const genBonkBurnTx = async (
     tokenAmount * 10 ** DECIMALS,
     DECIMALS,
   );
+
+  // required to get the appropriate priority fees
+  tx.recentBlockhash = blockhash;
+  tx.lastValidBlockHeight = lastValidBlockHeight;
+  tx.feePayer = burnFromPublic;
+  tx.add(burnTxInstruction);
 
   let estimateFee = await getRecentPrioritizationFees(tx);
 
@@ -79,11 +81,15 @@ export const genBonkBurnTx = async (
 
   tx.add(modifyComputeUnits);
   tx.add(addPriorityFee);
-  tx.add(burnTxInstruction);
 
-  // Add latest blockhash
-  tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
+  // Add latest blockhash and block height to make sure tx success rate
+  const {
+    blockhash: newBlockhash,
+    lastValidBlockHeight: newLastValidBlockHeight,
+  } = await CONNECTION.getLatestBlockhash("finalized");
 
+  tx.recentBlockhash = newBlockhash;
+  tx.lastValidBlockHeight = newLastValidBlockHeight;
   return tx;
 };
 
