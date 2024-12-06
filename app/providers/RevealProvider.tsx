@@ -1,6 +1,7 @@
 "use client";
 
 import trackEvent from "@/lib/trackEvent";
+import { RevealCallbackProps } from "@/types/reveal";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import Link from "next/link";
@@ -17,7 +18,7 @@ import {
   TRACKING_EVENTS,
   TRACKING_METADATA,
 } from "../constants/tracking";
-import { RevealCallbackProps, useReveal } from "../hooks/useReveal";
+import { useReveal } from "../hooks/useReveal";
 import { numberToCurrencyFormatter } from "../utils/currency";
 
 interface RevealContextState {
@@ -26,8 +27,8 @@ interface RevealContextState {
 }
 
 const initialContextValue: RevealContextState = {
-  openRevealModal: () => {},
-  closeRevealModal: () => {},
+  openRevealModal: () => { },
+  closeRevealModal: () => { },
 };
 
 export const RevealedContext =
