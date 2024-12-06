@@ -191,8 +191,6 @@ WHERE
     AND qa."userId" = ${userId};
 	`;
 
-  console.log(questions, "q");
-
   return filterQuestionsByMinimalNumberOfAnswers(questions);
 }
 
