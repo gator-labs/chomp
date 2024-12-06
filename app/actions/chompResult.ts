@@ -195,9 +195,11 @@ export async function revealQuestions(
         })),
       ],
     });
+  });
 
-    await tx.fungibleAssetTransactionLog.createMany({
-      data: revealPoints.map((revealPointsTx) => ({
+  try {
+    await prisma.fungibleAssetTransactionLog.createMany({
+      data: revealPoints?.map((revealPointsTx) => ({
         asset: FungibleAsset.Point,
         type: revealPointsTx.type,
         change: revealPointsTx.amount,
@@ -205,7 +207,34 @@ export async function revealQuestions(
         questionId: revealPointsTx.questionId,
       })),
     });
-  });
+  } catch (error) {
+    const questionIds = questionRewards.map((item) => item.questionId);
+    const existingFatl = await prisma.fungibleAssetTransactionLog.findMany({
+      where: {
+        questionId: {
+          in: questionIds,
+        },
+      },
+      select: {
+        id: true,
+        type: true,
+        createdAt: true,
+        questionId: true,
+      },
+    });
+    const revealError = new RevealError(
+      `Reveal warning for user ${payload?.sub} and ${questionIds}. Reveal will continue successfully, but unable to create new FATL.`,
+      {
+        cause: error,
+      },
+    );
+    Sentry.captureException(revealError, {
+      extra: {
+        existingFatl: existingFatl,
+        newFatl: revealPoints,
+      },
+    });
+  }
 
   release();
   revalidatePath("/application");

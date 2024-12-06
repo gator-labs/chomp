@@ -3103,6 +3103,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@faker-js/faker@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "@faker-js/faker@npm:9.3.0"
+  checksum: 6528e2f0bf0abc315780024534074a449e01e7f581f1a50a20ee7103d29d842e1c4d7dd6b27aa173f668308bf55a1d64c2547286c0c4e5a8e08d0b8269aaedc7
+  languageName: node
+  linkType: hard
+
 "@floating-ui/core@npm:^1.6.0":
   version: 1.6.8
   resolution: "@floating-ui/core@npm:1.6.8"
@@ -11434,7 +11441,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decimal.js@npm:^10.2.0, decimal.js@npm:^10.4.2":
+"decimal.js@npm:^10.2.0, decimal.js@npm:^10.4.2, decimal.js@npm:^10.4.3":
   version: 10.4.3
   resolution: "decimal.js@npm:10.4.3"
   checksum: 6d60206689ff0911f0ce968d40f163304a6c1bc739927758e6efc7921cfa630130388966f16bf6ef6b838cb33679fbe8e7a78a2f3c478afce841fd55ac8fb8ee
@@ -13363,6 +13370,7 @@ __metadata:
     "@eslint/compat": "npm:^1.2.0"
     "@eslint/eslintrc": "npm:^3.1.0"
     "@eslint/js": "npm:^9.12.0"
+    "@faker-js/faker": "npm:^9.3.0"
     "@hookform/resolvers": "npm:^3.3.4"
     "@metaplex-foundation/digital-asset-standard-api": "npm:^1.0.3"
     "@metaplex-foundation/umi": "npm:^0.9.1"
@@ -13413,6 +13421,7 @@ __metadata:
     clsx: "npm:^2.1.1"
     date-fns: "npm:^3.6.0"
     dayjs: "npm:^1.11.10"
+    decimal.js: "npm:^10.4.3"
     dotenv-cli: "npm:^7.4.1"
     eslint: "npm:^9.12.0"
     eslint-config-next: "npm:^14.2.15"

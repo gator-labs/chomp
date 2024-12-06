@@ -40,9 +40,24 @@ export async function answerQuestion(request: SaveQuestionRequest) {
 
   try {
     const questionOptions = await prisma.questionOption.findMany({
-      where: { questionId: request.questionId },
-      include: { question: true },
+      where: {
+        questionId: request.questionId,
+        question: {
+          revealAtDate: {
+            gte: new Date(),
+          },
+        },
+      },
+      include: {
+        question: true,
+      },
     });
+
+    if (!questionOptions.length) {
+      throw new Error(
+        `Question with id: ${request.questionId} does not exist or it is revealed and cannot be answered.`,
+      );
+    }
 
     const questionAnswers = questionOptions.map((qo) => {
       const isOptionSelected = qo.id === request?.questionOptionId;
