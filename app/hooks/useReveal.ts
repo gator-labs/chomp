@@ -1,15 +1,18 @@
 import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
-import { Wallet } from "@dynamic-labs/sdk-react-core";
+import {
+  RevealCallbackProps,
+  RevealState,
+  UseRevealProps,
+} from "@/types/reveal";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { release } from "os";
-import pRetry from "p-retry";
 import { useCallback, useEffect, useState } from "react";
 
-import { BurnError, DynamicRevealError, RevealError } from "../../lib/error";
+import { DynamicRevealError, RevealError } from "../../lib/error";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
@@ -30,56 +33,6 @@ import {
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
-
-type UseRevealProps = {
-  wallet: Wallet | null;
-  address?: string;
-  bonkBalance: number;
-};
-
-interface RevealCallbackBaseProps {
-  reveal: ({
-    burnTx,
-    nftAddress,
-    nftType,
-    revealQuestionIds,
-  }: RevealProps) => Promise<void>;
-  amount: number;
-  dialogLabel?: string;
-}
-
-interface RevealCallbackMultipleQuestions extends RevealCallbackBaseProps {
-  questionIds: number[];
-  questionId?: never;
-  questions: string[];
-}
-
-interface RevealCallbackSingleQuestion extends RevealCallbackBaseProps {
-  questionId: number;
-  questionIds?: never;
-  questions: string[];
-}
-
-export interface RevealProps {
-  burnTx?: string;
-  nftAddress?: string;
-  nftType?: NftType;
-  revealQuestionIds?: number[];
-  pendingChompResults?: { id: number; burnTx: string }[];
-}
-
-export type RevealCallbackProps =
-  | RevealCallbackSingleQuestion
-  | RevealCallbackMultipleQuestions;
-
-type RevealState = {
-  amount: number;
-  reveal: ({ burnTx, nftAddress, nftType }: RevealProps) => Promise<void>;
-  questionIds: number[];
-  questions: string[];
-  genesisNft?: string;
-  dialogLabel?: string;
-};
 
 const INITIAL_BURN_STATE = "idle";
 
@@ -257,7 +210,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       }
 
       if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
-        // This try catch is to catch Dynamic related issues to narrow down the error
+        // Try catch is to catch Dynamic related issues to narrow down the error
         try {
           if (!wallet || !isSolanaWallet(wallet)) {
             return;
@@ -314,55 +267,55 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
           pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
 
-          try {
-            let blockhash = tx.recentBlockhash;
-            await pRetry(
-              async (attempt) => {
-                const latestBlockhash = await CONNECTION.getLatestBlockhash();
-                if (attempt === 2) {
-                  blockhash = latestBlockhash.blockhash;
-                }
-                await CONNECTION.confirmTransaction(
-                  {
-                    blockhash: blockhash!,
-                    lastValidBlockHeight: tx.lastValidBlockHeight!,
-                    signature: signature || "",
-                  },
-                  "confirmed",
-                );
-              },
-              {
-                retries: 1,
-                onFailedAttempt: (error) => {
-                  console.log(
-                    `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
-                  );
-                },
-              },
-            );
-          } catch (error) {
-            errorToast(
-              "Error while confirming transaction. Bonk was not burned. Try again.",
-            );
+          // try {
+          //   let blockhash = tx.recentBlockhash;
+          //   await pRetry(
+          //     async (attempt) => {
+          //       const latestBlockhash = await CONNECTION.getLatestBlockhash();
+          //       if (attempt === 2) {
+          //         blockhash = latestBlockhash.blockhash;
+          //       }
+          //       await CONNECTION.confirmTransaction(
+          //         {
+          //           blockhash: blockhash!,
+          //           lastValidBlockHeight: tx.lastValidBlockHeight!,
+          //           signature: signature || "",
+          //         },
+          //         "confirmed",
+          //       );
+          //     },
+          //     {
+          //       retries: 1,
+          //       onFailedAttempt: (error) => {
+          //         console.log(
+          //           `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
+          //         );
+          //       },
+          //     },
+          //   );
+          // } catch (error) {
+          //   errorToast(
+          //     "Error while confirming transaction. Bonk was not burned. Try again.",
+          //   );
 
-            if (error instanceof Error) {
-              const burnError = new BurnError(
-                `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-                { cause: error.message },
-              );
-              Sentry.captureException(burnError, {
-                level: "fatal",
-                tags: {
-                  category: "reveal-tx-confirmation-error",
-                },
-                extra: {
-                  transactionHash: signature,
-                },
-              });
-            }
+          //   if (error instanceof Error) {
+          //     const burnError = new BurnError(
+          //       `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
+          //       { cause: error.message },
+          //     );
+          //     Sentry.captureException(burnError, {
+          //       level: "fatal",
+          //       tags: {
+          //         category: "reveal-tx-confirmation-error",
+          //       },
+          //       extra: {
+          //         transactionHash: signature,
+          //       },
+          //     });
+          //   }
 
-            await deleteQuestionChompResults(pendingChompResultIds);
-          }
+          //   await deleteQuestionChompResults(pendingChompResultIds);
+          // }
         } catch (error) {
           errorToast("Error happened while revealing question. Try again.");
           const dynamicRevealError = new DynamicRevealError(
