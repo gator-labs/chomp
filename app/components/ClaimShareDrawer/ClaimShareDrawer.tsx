@@ -1,5 +1,6 @@
 "use client";
 
+import { isUserInAllowlist } from "@/app/actions/claim";
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
@@ -36,6 +37,7 @@ const ClaimShareDrawer = ({
   const { infoToast } = useToast();
   const [ogImageUrl, setOgImageUrl] = useState("");
   const [showMysteryBox, setShowMysteryBox] = useState(false);
+  const [isUserWhitelisted, setIsUserWhitelisted] = useState(false);
 
   const handleCopy = async () => {
     await copyTextToClipboard(copyUrl);
@@ -66,11 +68,19 @@ const ClaimShareDrawer = ({
 
     if (!!copyUrl) fetchLinkPreview();
   }, [isOpen, copyUrl]);
-  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
+
+  const checkAllowlist = async () => {
+    const isAllowlisted = await isUserInAllowlist();
+    setIsUserWhitelisted(isAllowlisted);
+  };
+
+  useEffect(() => {
+    checkAllowlist();
+  }, []);
 
   return (
     <>
-      {FF_MYSTERY_BOX && showMysteryBox && mysteryBoxId ? (
+      {isUserWhitelisted && showMysteryBox && mysteryBoxId ? (
         <MysteryBox
           isOpen={showMysteryBox}
           closeBoxDialog={() => {
