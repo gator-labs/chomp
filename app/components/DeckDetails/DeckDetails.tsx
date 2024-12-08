@@ -1,13 +1,13 @@
 "use client";
 
 import { revealDeck } from "@/app/actions/chompResult";
-import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import {
   DeckQuestionIncludes,
   getDeckState,
   getQuestionState,
 } from "@/app/utils/question";
+import { RevealProps } from "@/types/reveal";
 import { ChompResult, Deck } from "@prisma/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

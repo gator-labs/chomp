@@ -1,6 +1,6 @@
 "use server";
 
-import { RevealError } from "@/lib/error";
+import { BurnError, RevealConfirmationError, RevealError } from "@/lib/error";
 import {
   FungibleAsset,
   NftType,
@@ -280,6 +280,52 @@ export async function createQuestionChompResults(
   if (!payload) {
     return null;
   }
+  const questionIds = questionChomps.map((qid) => qid.questionId);
+  // const attempts = 0;
+  // const retryCount = 2;
+
+  // while (attempts < retryCount) {
+  try {
+    const latestBlockhash = await CONNECTION.getLatestBlockhash();
+
+    await CONNECTION.confirmTransaction(
+      {
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+        signature: questionChomps[0].burnTx,
+      },
+      "confirmed",
+    );
+    console.log("run");
+  } catch (error) {
+    // attempts++;
+
+    console.log("error");
+
+    // if (attempts >= retryCount) {
+    if (error instanceof Error) {
+      const burnError = new BurnError(
+        `User with id: ${payload?.sub} is having trouble burning questions with ids: ${questionIds}`,
+        { cause: error },
+      );
+      Sentry.captureException(burnError, {
+        level: "fatal",
+        tags: {
+          category: "reveal-tx-confirmation-error",
+        },
+        extra: {
+          transactionHash: questionChomps[0].burnTx,
+        },
+      });
+    }
+
+    return null; // Return null after all retries failed
+    // }
+
+    //add a delay between retries
+    // await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay before retry
+    // }
+  }
 
   return await prisma.$transaction(
     questionChomps.map((qc) =>
@@ -346,6 +392,7 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
   });
 }
 
+// tx validation with 5 retries with a delay of 1s
 async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
@@ -410,6 +457,15 @@ async function hasBonkBurnedCorrectly(
   );
 
   if (!burnInstruction) {
+    const revealError = new RevealConfirmationError(
+      `Unable to validate tx for User id: ${userId} and (wallet: ${wallets})`,
+    );
+    Sentry.captureException(revealError, {
+      tags: {
+        category: "reveal-tx-confirmation-error",
+      },
+      extra: { burnInstruction: burnInstruction },
+    });
     return false;
   }
 
