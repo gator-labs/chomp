@@ -125,15 +125,11 @@ export async function revealQuestions(
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
   if (bonkToBurn > 0) {
-    const isSuccessful = await hasBonkBurnedCorrectly(
-      burnTx,
-      bonkToBurn,
-      payload.sub,
-    );
+    await hasBonkBurnedCorrectly(burnTx, bonkToBurn, payload.sub);
 
-    if (!isSuccessful) {
-      return null;
-    }
+    // if (!isSuccessful) {
+    //   return null;
+    // }
   }
 
   const revealableQuestionIds = revealableQuestions.map((q) => q.id);
