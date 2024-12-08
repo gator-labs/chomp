@@ -34,7 +34,7 @@ import {
 import { useToast } from "../providers/ToastProvider";
 import { CONNECTION, genBonkBurnTx } from "../utils/solana";
 
-const INITIAL_BURN_STATE = "idle";
+const BURN_STATE_IDLE = "idle";
 
 const createGetTransactionTask = async (signature: string): Promise<void> => {
   await CONNECTION.getTransaction(signature, {
@@ -59,7 +59,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
   const [burnState, setBurnState] = useState<
     "burning" | "error" | "idle" | "skipburn"
-  >(INITIAL_BURN_STATE);
+  >(BURN_STATE_IDLE);
 
   const hasPendingTransactions = pendingChompResults.length > 0;
   const insufficientFunds =
@@ -158,7 +158,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       questions,
       dialogLabel,
     }: RevealCallbackProps) => {
-      setBurnState(INITIAL_BURN_STATE);
+      setBurnState(BURN_STATE_IDLE);
       setReveal({
         reveal,
         amount,
@@ -182,7 +182,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const resetReveal = useCallback(() => {
     setReveal(undefined);
     setIsRevealModalOpen(false);
-    setBurnState(INITIAL_BURN_STATE);
+    setBurnState(BURN_STATE_IDLE);
   }, [setReveal, setIsRevealModalOpen, setBurnState]);
 
   const onReveal = useCallback(async () => {
