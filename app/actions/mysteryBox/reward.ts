@@ -1,5 +1,6 @@
 "use server";
 
+import { getCurrentUser } from "@/app/queries/user";
 import { CreateMysteryBoxError } from "@/lib/error";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import {
@@ -29,6 +30,7 @@ export async function rewardMysteryBox({
   questionIds,
 }: MysteryBoxProps) {
   const payload = await getJwtPayload();
+  const user = await getCurrentUser();
 
   if (!payload) {
     return null;
@@ -47,6 +49,7 @@ export async function rewardMysteryBox({
             data: questionIds.map((questionId) => ({
               questionId,
               triggerType,
+              mysteryBoxAllowlistId: user?.wallets[0].address ?? "",
             })),
           },
         },

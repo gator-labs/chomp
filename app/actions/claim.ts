@@ -2,6 +2,7 @@
 
 import { sendClaimedBonkFromTreasury } from "@/lib/claim";
 import { ClaimError, SendBonkError } from "@/lib/error";
+import { isUserInAllowlist } from "@/lib/mysteryBox";
 import { EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import _ from "lodash";
@@ -91,9 +92,9 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
+  const isAllowlisted = await isUserInAllowlist();
 
-  const mysteryBoxId = FF_MYSTERY_BOX
+  const mysteryBoxId = isAllowlisted
     ? await rewardMysteryBox({
         triggerType: EBoxTriggerType.ClaimAllCompleted,
         questionIds: claimableQuestionIds,

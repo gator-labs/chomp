@@ -1,3 +1,5 @@
+import { getJwtPayload } from "@/app/actions/jwt";
+import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { sendBonk } from "@/app/utils/claim";
 import { Keypair } from "@solana/web3.js";
@@ -42,4 +44,29 @@ export async function sendBonkFromTreasury(
   }
 
   return null;
+}
+
+export async function isUserInAllowlist(): Promise<boolean> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return false;
+  }
+
+  try {
+    const user = await getCurrentUser();
+
+    const allowlist = await prisma.mysteryBoxAllowlist.findFirst({
+      where: {
+        address: {
+          in: user?.wallets.map((wallet) => wallet.address) || [],
+        },
+      },
+    });
+
+    return !!allowlist;
+  } catch (e) {
+    console.log("Error in isUserInAllowlist", e);
+    return false;
+  }
 }
