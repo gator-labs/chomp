@@ -2,12 +2,12 @@
 
 import { sendClaimedBonkFromTreasury } from "@/lib/claim";
 import { ClaimError, SendBonkError } from "@/lib/error";
+import { isUserInAllowlist } from "@/lib/mysteryBox";
 import { EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
-import { getCurrentUser } from "../queries/user";
 import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
@@ -256,28 +256,5 @@ export async function claimQuestions(questionIds: number[]) {
     });
     release();
     throw e;
-  }
-}
-
-export async function isUserInAllowlist(): Promise<boolean> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return false;
-  }
-
-  try {
-    const user = await getCurrentUser();
-
-    const allowlist = await prisma.mysteryBoxAllowlist.findFirst({
-      where: {
-        address: user?.wallets[0].address,
-      },
-    });
-
-    return !!allowlist;
-  } catch (e) {
-    console.log("Error in isUserInAllowlist", e);
-    return false;
   }
 }
