@@ -281,57 +281,50 @@ export async function createQuestionChompResults(
     return null;
   }
   const questionIds = questionChomps.map((qid) => qid.questionId);
-  let attempts = 0;
-  const retryCount = 2;
+  // const attempts = 0;
+  // const retryCount = 2;
 
-  while (attempts < retryCount) {
-    try {
-      const latestBlockhash = await CONNECTION.getLatestBlockhash();
+  // while (attempts < retryCount) {
+  try {
+    const latestBlockhash = await CONNECTION.getLatestBlockhash();
 
-      if (
-        !latestBlockhash?.blockhash ||
-        !latestBlockhash?.lastValidBlockHeight
-      ) {
-        throw new Error("Failed to retrieve latest blockhash or block height.");
-      }
+    await CONNECTION.confirmTransaction(
+      {
+        blockhash: latestBlockhash.blockhash,
+        lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+        signature: questionChomps[0].burnTx,
+      },
+      "confirmed",
+    );
+    console.log("run");
+  } catch (error) {
+    // attempts++;
 
-      await CONNECTION.confirmTransaction(
-        {
-          blockhash: latestBlockhash.blockhash,
-          lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
-          signature: questionChomps[0].burnTx,
-        },
-        "confirmed",
+    console.log("error");
+
+    // if (attempts >= retryCount) {
+    if (error instanceof Error) {
+      const burnError = new BurnError(
+        `User with id: ${payload?.sub} is having trouble burning questions with ids: ${questionIds}`,
+        { cause: error },
       );
-
-      // If transaction confirmed, return success
-      return true;
-    } catch (error) {
-      attempts++;
-
-      if (attempts >= retryCount) {
-        if (error instanceof Error) {
-          const burnError = new BurnError(
-            `User with id: ${payload?.sub} is having trouble burning questions with ids: ${questionIds}`,
-            { cause: error },
-          );
-          Sentry.captureException(burnError, {
-            level: "fatal",
-            tags: {
-              category: "reveal-tx-confirmation-error",
-            },
-            extra: {
-              transactionHash: questionChomps[0].burnTx,
-            },
-          });
-        }
-
-        return null; // Return null after all retries failed
-      }
-
-      //add a delay between retries
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay before retry
+      Sentry.captureException(burnError, {
+        level: "fatal",
+        tags: {
+          category: "reveal-tx-confirmation-error",
+        },
+        extra: {
+          transactionHash: questionChomps[0].burnTx,
+        },
+      });
     }
+
+    return null; // Return null after all retries failed
+    // }
+
+    //add a delay between retries
+    // await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay before retry
+    // }
   }
 
   return await prisma.$transaction(
