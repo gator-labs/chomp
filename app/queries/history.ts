@@ -160,7 +160,7 @@ export async function getAllQuestionsReadyForReveal(): Promise<
     q.id,
     q.question,
     CASE 
-        WHEN cr."transactionStatus" = 'Completed' THEN 0
+        WHEN cr."transactionStatus" = 'Completed' OR cr."transactionStatus" = 'Pending' THEN 0
         ELSE q."revealTokenAmount"
     END AS "revealTokenAmount",
     (
