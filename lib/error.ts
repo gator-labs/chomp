@@ -71,6 +71,13 @@ export class CreateMysteryBoxError extends Error {
   }
 }
 
+export class RevealMysteryBoxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "RevealMysteryBoxError";
+  }
+}
+
 export class DismissMysteryBoxError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);

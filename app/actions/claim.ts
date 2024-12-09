@@ -91,10 +91,14 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  const mysteryBoxId = await rewardMysteryBox({
-    triggerType: EBoxTriggerType.ClaimAllCompleted,
-    questionIds: claimableQuestionIds,
-  });
+  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
+
+  const mysteryBoxId = FF_MYSTERY_BOX
+    ? await rewardMysteryBox({
+        triggerType: EBoxTriggerType.ClaimAllCompleted,
+        questionIds: claimableQuestionIds,
+      })
+    : null;
 
   const claimResult = await claimQuestions(claimableQuestionIds);
 
