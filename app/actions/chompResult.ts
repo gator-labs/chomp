@@ -1,6 +1,6 @@
 "use server";
 
-import { RevealError } from "@/lib/error";
+import { RevealConfirmationError, RevealError } from "@/lib/error";
 import {
   FungibleAsset,
   NftType,
@@ -280,7 +280,6 @@ export async function createQuestionChompResults(
   if (!payload) {
     return null;
   }
-
   return await prisma.$transaction(
     questionChomps.map((qc) =>
       prisma.chompResult.create({
@@ -346,6 +345,7 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
   });
 }
 
+// tx validation with 5 retries with a delay of 1s
 async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
@@ -410,6 +410,15 @@ async function hasBonkBurnedCorrectly(
   );
 
   if (!burnInstruction) {
+    const revealError = new RevealConfirmationError(
+      `Unable to validate tx for User id: ${userId} and (wallet: ${wallets})`,
+    );
+    Sentry.captureException(revealError, {
+      tags: {
+        category: "reveal-tx-confirmation-error",
+      },
+      extra: { burnInstruction: burnInstruction },
+    });
     return false;
   }
 
