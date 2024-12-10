@@ -1,11 +1,10 @@
-// import { rewardMysteryBox } from "@/app/actions/box";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
 import { openMysteryBox } from "@/app/actions/mysteryBox/open";
 import { revealMysteryBox } from "@/app/actions/mysteryBox/reveal";
-import { rewardMysteryBox } from "@/app/actions/mysteryBox/reward";
 import prisma from "@/app/services/prisma";
+import { rewardMysteryBox } from "@/lib/mysteryBox";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
@@ -181,10 +180,11 @@ describe("Create mystery box", () => {
   });
 
   it("Should create a new mystery box with triggers and prizes", async () => {
-    mysteryBoxId = await rewardMysteryBox({
-      triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionIds[0]],
-    });
+    mysteryBoxId = await rewardMysteryBox(
+      user0.id,
+      EBoxTriggerType.ClaimAllCompleted,
+      [questionIds[0]],
+    );
     if (mysteryBoxId) {
       const res = await prisma.mysteryBox.findUnique({
         where: {
@@ -206,10 +206,11 @@ describe("Create mystery box", () => {
 
   it("Should calculate the user's total token winnings", async () => {
     // Create a second box
-    mysteryBoxId2 = await rewardMysteryBox({
-      triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionIds[1]],
-    });
+    mysteryBoxId2 = await rewardMysteryBox(
+      user0.id,
+      EBoxTriggerType.ClaimAllCompleted,
+      [questionIds[1]],
+    );
 
     if (!mysteryBoxId || !mysteryBoxId2)
       throw new Error("Missing mystery box id(s)");
@@ -232,10 +233,11 @@ describe("Create mystery box", () => {
 
   it("Should dismiss a mystery box", async () => {
     // Create a second box
-    mysteryBoxId3 = await rewardMysteryBox({
-      triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionIds[2]],
-    });
+    mysteryBoxId3 = await rewardMysteryBox(
+      user0.id,
+      EBoxTriggerType.ClaimAllCompleted,
+      [questionIds[2]],
+    );
 
     if (!mysteryBoxId3) throw new Error("Error creating mystery box");
 
