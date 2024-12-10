@@ -2,9 +2,12 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { sendBonk } from "@/app/utils/claim";
+import * as Sentry from "@sentry/nextjs";
 import { Keypair } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
 import base58 from "bs58";
+
+import { UserAllowlistError } from "./error";
 
 export async function calculateTotalPrizeTokens(
   userId: string,
@@ -53,9 +56,9 @@ export async function isUserInAllowlist(): Promise<boolean> {
     return false;
   }
 
-  try {
-    const user = await getCurrentUser();
+  const user = await getCurrentUser();
 
+  try {
     const allowlist = await prisma.mysteryBoxAllowlist.findFirst({
       where: {
         address: {
@@ -65,8 +68,12 @@ export async function isUserInAllowlist(): Promise<boolean> {
     });
 
     return !!allowlist;
-  } catch (e) {
-    console.log("Error in isUserInAllowlist", e);
+  } catch (error) {
+    const checkUserInAllowlistError = new UserAllowlistError(
+      `Failed to check if user with id: ${payload.sub} is in the allowlist`,
+      { cause: error },
+    );
+    Sentry.captureException(checkUserInAllowlistError);
     return false;
   }
 }

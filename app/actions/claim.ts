@@ -15,7 +15,6 @@ import { getJwtPayload } from "./jwt";
 import { rewardMysteryBox } from "./mysteryBox/reward";
 
 export async function claimQuestion(questionId: number) {
-  console.log("claim questions fired");
   const questions = await claimQuestions([questionId]);
   return questions ? questions : null;
 }

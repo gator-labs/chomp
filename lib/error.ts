@@ -91,3 +91,10 @@ export class ShareClaimAllError extends Error {
     this.name = "ShareClaimAllError";
   }
 }
+
+export class UserAllowlistError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "UserAllowlistError";
+  }
+}
