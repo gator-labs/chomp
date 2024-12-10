@@ -93,20 +93,12 @@ export async function claimAllAvailable() {
 
   const isAllowlisted = await isUserInAllowlist();
 
-<<<<<<< HEAD
   const mysteryBoxId = isAllowlisted
-    ? await rewardMysteryBox({
-        triggerType: EBoxTriggerType.ClaimAllCompleted,
-        questionIds: claimableQuestionIds,
-      })
-=======
-  const mysteryBoxId = FF_MYSTERY_BOX
     ? await rewardMysteryBox(
         payload.sub,
         EBoxTriggerType.ClaimAllCompleted,
         claimableQuestionIds,
       )
->>>>>>> PROD-510/protect-mystery-box-endpoints
     : null;
 
   const claimResult = await claimQuestions(claimableQuestionIds);
