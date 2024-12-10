@@ -255,8 +255,8 @@ model MysteryBoxTrigger {
   deckId       Int?
   MysteryBox   MysteryBox?         @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId String
-  allowlist    MysteryBoxAllowlist @relation(fields: [mysteryBoxAllowlistId], references: [address])
-  mysteryBoxAllowlistId  String
+  allowlist    MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
+  mysteryBoxAllowlistId  String?
 
   @@unique([mysteryBoxId, questionId, triggerType])
   @@unique([mysteryBoxId, deckId, triggerType])
