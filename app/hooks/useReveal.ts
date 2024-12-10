@@ -266,56 +266,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           );
 
           pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
-
-          // try {
-          //   let blockhash = tx.recentBlockhash;
-          //   await pRetry(
-          //     async (attempt) => {
-          //       const latestBlockhash = await CONNECTION.getLatestBlockhash();
-          //       if (attempt === 2) {
-          //         blockhash = latestBlockhash.blockhash;
-          //       }
-          //       await CONNECTION.confirmTransaction(
-          //         {
-          //           blockhash: blockhash!,
-          //           lastValidBlockHeight: tx.lastValidBlockHeight!,
-          //           signature: signature || "",
-          //         },
-          //         "confirmed",
-          //       );
-          //     },
-          //     {
-          //       retries: 1,
-          //       onFailedAttempt: (error) => {
-          //         console.log(
-          //           `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
-          //         );
-          //       },
-          //     },
-          //   );
-          // } catch (error) {
-          //   errorToast(
-          //     "Error while confirming transaction. Bonk was not burned. Try again.",
-          //   );
-
-          //   if (error instanceof Error) {
-          //     const burnError = new BurnError(
-          //       `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-          //       { cause: error.message },
-          //     );
-          //     Sentry.captureException(burnError, {
-          //       level: "fatal",
-          //       tags: {
-          //         category: "reveal-tx-confirmation-error",
-          //       },
-          //       extra: {
-          //         transactionHash: signature,
-          //       },
-          //     });
-          //   }
-
-          //   await deleteQuestionChompResults(pendingChompResultIds);
-          // }
         } catch (error) {
           errorToast("Error happened while revealing question. Try again.");
           const dynamicRevealError = new DynamicRevealError(
