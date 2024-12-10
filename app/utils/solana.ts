@@ -32,6 +32,20 @@ export const genBonkBurnTx = async (
   const { blockhash, lastValidBlockHeight } =
     await CONNECTION.getLatestBlockhash("confirmed");
 
+  // required to get the appropriate priority fees
+  tx.recentBlockhash = blockhash;
+  tx.lastValidBlockHeight = lastValidBlockHeight;
+  tx.feePayer = burnFromPublic;
+
+  // It is recommended to add the compute limit instruction before adding other instructions
+  const computeUnitFix = 4960;
+
+  // Buffer to make sure the transaction doesn't fail because of less compute units
+  const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+    units: Math.round(computeUnitFix * 1.1),
+  });
+  tx.add(modifyComputeUnits);
+
   const burnTxInstruction = createBurnCheckedInstruction(
     ata,
     bonkPublic,
@@ -39,11 +53,6 @@ export const genBonkBurnTx = async (
     tokenAmount * 10 ** DECIMALS,
     DECIMALS,
   );
-
-  // required to get the appropriate priority fees
-  tx.recentBlockhash = blockhash;
-  tx.lastValidBlockHeight = lastValidBlockHeight;
-  tx.feePayer = burnFromPublic;
   tx.add(burnTxInstruction);
 
   let estimateFee = await getRecentPrioritizationFees(tx);
@@ -68,18 +77,10 @@ export const genBonkBurnTx = async (
     }
   }
 
-  const computeUnitFix = 4960;
-
-  // Buffer to make sure the transaction doesn't fail because of less compute units
-  const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-    units: Math.round(computeUnitFix * 1.1),
-  });
-
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
     microLamports: Math.round(estimateFee?.result?.priorityFeeLevels?.high),
   });
 
-  tx.add(modifyComputeUnits);
   tx.add(addPriorityFee);
 
   // Add latest blockhash and block height to make sure tx success rate
