@@ -6,7 +6,6 @@ import {
 } from "@/app/actions/mysteryBox/reveal";
 import { Button } from "@/app/components/ui/button";
 import {
-  MysteryBoxOpenImage,
   MysteryBoxOpenMessage,
   OPEN_MESSAGES,
 } from "@/app/constants/mysteryBox";
@@ -14,24 +13,20 @@ import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
 import trackEvent from "@/lib/trackEvent";
-import openChestImage from "@/public/images/open-chest.png";
+import Coins from "@/public/images/coins.png";
+import animationData from "@/public/lottie/chomp_box_bonk.json";
+import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 
-import MysteryBoxAmount from "./MysteryBoxAmount";
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
-import MysteryBoxPrize from "./MysteryBoxPrize";
 
 type MysteryBoxProps = {
   isOpen: boolean;
   closeBoxDialog: () => void;
   mysteryBoxId: string | null;
 };
-
-const IMAGES: Record<MysteryBoxOpenImage, any> = {
-  TreasureChest: openChestImage,
-} as const;
 
 function buildMessage(lines: string[]) {
   return lines.map((line, index) =>
@@ -46,16 +41,18 @@ function buildMessage(lines: string[]) {
   );
 }
 
+type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
+
 function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
   const router = useRouter();
-
+  const lottieRef = useRef<LottieRefCurrentProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
 
   const [box, setBox] = useState<MysteryBoxResult | null>(null);
 
-  const image: MysteryBoxOpenImage = "TreasureChest";
   const message: MysteryBoxOpenMessage = "REGULAR";
 
   const { promiseToast, successToast, errorToast } = useToast();
@@ -68,7 +65,6 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
   const openBox = async () => {
     if (!mysteryBoxId) return;
-
     setIsSubmitting(true);
 
     try {
@@ -82,6 +78,19 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
           "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
         error: "Failed to open the Mystery Box. Please try again later. 😔",
       });
+
+      setStatus("Opening");
+
+      setTimeout(() => {
+        lottieRef.current?.play();
+      }, 500);
+
+      setTimeout(
+        () => {
+          setStatus("Closing");
+        },
+        lottieRef!.current!.getDuration()! * 1000 + 500,
+      );
 
       if (!newBox) {
         errorToast(
@@ -103,9 +112,9 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       }
     } catch {
       setBox(null);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setIsSubmitting(false);
   };
 
   const handleClose = () => {
@@ -140,106 +149,138 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
   const bonkReceived = box?.tokensReceived?.[bonkAddress] ?? 0;
 
-  const prizeCount = !box
-    ? 0
-    : (box.creditsReceived > 0 ? 1 : 0) + (bonkReceived > 0 ? 1 : 0);
-
   if (!isOpen || !mysteryBoxId) return null;
 
+  const getTitle = (status: MysteryBoxStatus) => {
+    if (status === "Idle" || status === "Opening")
+      return "You earned a mystery box!";
+
+    return "CHOMP, CHOMP HOORAY!";
+  };
   return (
     <>
       <MysteryBoxOverlay>
-        {!box && (
-          <div className="z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
-            <h1 className="text-chomp-green-light text-2xl font-bold">
-              You earned a mystery box!
-            </h1>
-
-            <div className="text-center text-sm">
-              {buildMessage(OPEN_MESSAGES[message].subText)}
-            </div>
-
-            <div className="py-9">
-              <Image
-                src={IMAGES[image]}
-                alt="Treasure Chest"
-                title="Treasure Chest"
-                className="cursor-pointer w-[182px] h-[182px]"
-                onClick={openBox}
-              />
-            </div>
-
-            <div className="w-full">
-              <Button
-                variant={"primary"}
-                onClick={openBox}
-                disabled={isSubmitting}
-              >
-                Open Now
-              </Button>
-            </div>
-
-            <div
-              className="text-xs cursor-pointer text-center text-chomp-grey-a1 underline"
-              onClick={handleSkip}
+        <div className="flex flex-col items-center justify-between content-between absolute pt-[88px] pb-[115px] w-full max-w-[326px] h-full">
+          <div
+            className={cn(
+              "w-full flex flex-col gap-8 transition-all duration-150 items-center",
+              {
+                "opacity-0": status === "Opening",
+              },
+            )}
+          >
+            <h1
+              className={cn(
+                "text-chomp-green-light text-2xl font-bold transition-all duration-150",
+                {
+                  "opacity-0": status === "Opening",
+                },
+              )}
             >
-              Skip and miss out on your mystery box
-            </div>
-          </div>
-        )}
-
-        {box && (
-          <div className="z-100 flex flex-col items-center m-auto justify-between h-full absolute pt-10 pb-10">
-            <h1 className="text-chomp-green-light text-2xl font-bold">
-              CHOMP, CHOMP HOORAY!
+              {getTitle(status)}
             </h1>
 
-            <Image
-              src={IMAGES[image]}
-              alt="Treasure Chest"
-              title="Treasure Chest"
-              className="transform h-[120px] w-[120px] m-4"
+            {status !== "Closing" && (
+              <div
+                className={cn(
+                  "text-center text-sm transition-all duration-150 opacity-0",
+                  {
+                    "opacity-100": status === "Idle",
+                  },
+                )}
+              >
+                {buildMessage(OPEN_MESSAGES[message].subText)}
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col max-h-[500px]">
+            <Lottie
+              animationData={animationData}
+              loop={false}
+              lottieRef={lottieRef}
+              autoplay={false}
+              style={{
+                width: "280px",
+                height: "280px",
+                transformOrigin: "5% top",
+                transition: "all 0.5s ease",
+                scale:
+                  status === "Opening"
+                    ? "1.5"
+                    : status === "Closing"
+                      ? "0.8"
+                      : "1",
+                zIndex: 999,
+                transform: `translateY(${status === "Closing" ? -118 : -70}%) translateX(-43%)`,
+              }}
+              className="absolute top-1/2 left-1/2"
+              onClick={openBox}
+              disabled={isSubmitting || !!box}
             />
 
             <div
               className={cn(
-                "grid gap-5",
-                prizeCount == 2 ? "grid-cols-2" : "grid-cols-1",
+                "py-2 px-1.5 rounded-[14px] bg-chomp-orange-light mb-8 transition-all duration-150 opacity-0",
+                {
+                  "opacity-100": status === "Closing",
+                },
               )}
             >
-              {box.creditsReceived > 0 && (
-                <MysteryBoxPrize type="credits" amount={box.creditsReceived} />
-              )}
-              {(bonkReceived > 0 || prizeCount == 0) && (
-                <MysteryBoxPrize type="tokens" amount={bonkReceived} />
-              )}
-            </div>
-
-            {box.creditsReceived > 0 && (
-              <div className="text-sm text-center">
-                Learn more about credits
+              <div className="w-full relative aspect-square rounded-[12px] overflow-hidden mix-blend-hard-light mb-2">
+                <Image
+                  src={Coins.src}
+                  alt="coins"
+                  fill
+                  className="object-cover"
+                />
               </div>
-            )}
-
-            <div className="flex items-center w-full content-center justify-center gap-2 my-2">
-              <span className="text-xs grow-3">Total $BONK won to date</span>
-              <MysteryBoxAmount type="tokens" amount={box.totalBonkWon} />
-            </div>
-
-            <div className="w-full">
-              <Button variant={"primary"} onClick={handleGoToAnswering}>
-                CHOMP on more decks →
-              </Button>
+              <div className="w-full bg-chomp-orange-dark text-xs rounded-[56px] py-2 px-4">
+                {bonkReceived.toLocaleString("en-US")} BONK
+              </div>
             </div>
 
             <div
-              className="text-sm cursor-pointer text-center text-chomp-grey-a1"
-              onClick={handleClose}
+              className={cn(
+                "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
+                {
+                  "opacity-100": status === "Closing",
+                },
+              )}
             >
-              Close
+              <p>Total $BONK won to date</p>
+              <div className="bg-chomp-orange-dark rounded-[56px] py-2 px-4 w-fit">
+                {box?.totalBonkWon.toLocaleString("en-US")} BONK
+              </div>
             </div>
           </div>
-        )}
+
+          <div
+            className={cn(
+              "w-full flex flex-col gap-10 transition-all duration-150",
+              {
+                "opacity-0": status === "Opening",
+              },
+            )}
+          >
+            <Button
+              variant={"primary"}
+              onClick={status === "Closing" ? handleGoToAnswering : openBox}
+              disabled={isSubmitting}
+            >
+              {status === "Closing" ? "CHOMP on more decks →" : "Open Now"}
+            </Button>
+
+            <div
+              className="text-sm cursor-pointer text-center text-chomp-grey-a1 underline"
+              onClick={status === "Closing" ? handleClose : handleSkip}
+            >
+              {status === "Closing"
+                ? "Close"
+                : "Skip and miss out on your mystery box"}
+            </div>
+          </div>
+        </div>
       </MysteryBoxOverlay>
     </>
   );
