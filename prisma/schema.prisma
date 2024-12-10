@@ -297,6 +297,7 @@ enum EMysteryBoxStatus {
 enum EBoxTriggerType {
   ClaimAllCompleted
   DailyDeckCompleted
+  ChompmasStreakAttained
 }
 
 enum EBoxPrizeStatus {
