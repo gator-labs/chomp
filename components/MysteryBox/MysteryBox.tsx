@@ -214,7 +214,9 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
                 zIndex: 999,
                 transform: `translateY(${status === "Closing" ? -118 : -70}%) translateX(-43%)`,
               }}
-              className="absolute top-1/2 left-1/2"
+              className={cn("absolute top-1/2 left-1/2", {
+                "cursor-pointer": !isSubmitting || !box,
+              })}
               onClick={openBox}
               disabled={isSubmitting || !!box}
             />
