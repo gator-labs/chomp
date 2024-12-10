@@ -3,8 +3,6 @@ import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxReward } from "@/app/utils/algo";
 import { sendBonk } from "@/app/utils/claim";
-<<<<<<< HEAD
-=======
 import { CreateMysteryBoxError } from "@/lib/error";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import {
@@ -12,7 +10,6 @@ import {
   EBoxPrizeType,
   EBoxTriggerType,
 } from "@prisma/client";
->>>>>>> PROD-510/protect-mystery-box-endpoints
 import * as Sentry from "@sentry/nextjs";
 import { Keypair } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
@@ -70,6 +67,10 @@ export async function isUserInAllowlist(): Promise<boolean> {
 
   const user = await getCurrentUser();
 
+  if (!user) {
+    return false;
+  }
+
   try {
     const allowlist = await prisma.mysteryBoxAllowlist.findFirst({
       where: {
@@ -115,6 +116,7 @@ export async function rewardMysteryBox(
             data: questionIds.map((questionId) => ({
               questionId,
               triggerType,
+              mysteryBoxAllowlistId: user?.wallets[0].address ?? "",
             })),
           },
         },
