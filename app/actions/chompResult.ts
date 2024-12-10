@@ -8,6 +8,8 @@ import {
   TransactionStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import { TransactionSignature } from "@solana/web3.js";
+import { TransactionExpiredBlockheightExceededError } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
@@ -16,6 +18,7 @@ import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
 import { calculateRevealPoints } from "../utils/points";
 import { isEntityRevealable } from "../utils/question";
+import { sleep } from "../utils/sleep";
 import { CONNECTION } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 import { checkNft } from "./revealNft";
@@ -125,14 +128,13 @@ export async function revealQuestions(
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
   if (bonkToBurn > 0) {
-    const isSuccessful = await hasBonkBurnedCorrectly(
-      burnTx,
-      bonkToBurn,
+    const txStatus = await pollTransactionConfirmation(
+      burnTx || "",
+      questionIds,
       payload.sub,
     );
-
-    if (!isSuccessful) {
-      return null;
+    if (!txStatus) {
+      throw new Error("Tx validation failed");
     }
   }
 
@@ -346,11 +348,17 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
 }
 
 // tx validation with 5 retries with a delay of 1s
-async function hasBonkBurnedCorrectly(
+export async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
   userId: string,
 ): Promise<boolean> {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return false;
+  }
+
   if (!burnTx) {
     return false;
   }
@@ -380,7 +388,7 @@ async function hasBonkBurnedCorrectly(
 
     if (!transaction) {
       attempts++;
-      await new Promise((resolve) => setTimeout(resolve, interval));
+      await sleep(interval);
     }
   }
 
@@ -423,6 +431,82 @@ async function hasBonkBurnedCorrectly(
   }
 
   return true;
+}
+
+async function pollTransactionConfirmation(
+  txtSig: TransactionSignature,
+  pendingChompResultIds: number[],
+  userId: string,
+): Promise<boolean> {
+  const timeout = 15000; // 15 seconds
+  const interval = 5000; // 5 seconds
+  let elapsed = 0;
+
+  const { blockhash, lastValidBlockHeight } =
+    await CONNECTION.getLatestBlockhash();
+
+  // Step 1: Confirm Transaction
+  try {
+    await CONNECTION.confirmTransaction(
+      {
+        blockhash,
+        lastValidBlockHeight,
+        signature: txtSig,
+      },
+      "confirmed",
+    );
+  } catch (error) {
+    // Explicit handling for transaction expiration
+    if (error instanceof TransactionExpiredBlockheightExceededError) {
+      console.log(
+        "Transaction expired due to block height exceeded, deleting ChompResult...",
+      );
+      // delete pending chomp results
+      await deleteQuestionChompResults(pendingChompResultIds);
+      return false; // Do not continue
+    }
+
+    // Log other confirmation errors and proceed
+    console.error("Error during confirmation:", error);
+  }
+  // Step 2: Poll Transaction Status
+  return new Promise<boolean>((resolve) => {
+    const intervalId = setInterval(async () => {
+      elapsed += interval;
+
+      if (elapsed >= timeout) {
+        clearInterval(intervalId);
+        resolve(false); // Return false on timeout
+        return;
+      }
+
+      try {
+        const status = await CONNECTION.getSignatureStatuses([txtSig]);
+
+        if (
+          status?.value[0]?.confirmationStatus === "confirmed" ||
+          status?.value[0]?.confirmationStatus === "finalized"
+        ) {
+          clearInterval(intervalId);
+          resolve(true); // Return true if confirmed or finalized
+        }
+      } catch (error) {
+        console.error("Error checking transaction status:", error);
+
+        const revealError = new RevealConfirmationError(
+          `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultIds}})`,
+          { cause: error },
+        );
+        Sentry.captureException(revealError, {
+          tags: {
+            category: "reveal-tx-confirmation-error",
+          },
+        });
+        clearInterval(intervalId);
+        resolve(false); // Return false if an error occurs
+      }
+    }, interval);
+  });
 }
 
 async function handleFirstRevealToPopulateSubjectiveQuestion(
