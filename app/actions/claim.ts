@@ -8,11 +8,11 @@ import * as Sentry from "@sentry/nextjs";
 import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
+import { rewardMysteryBox } from "../../lib/mysteryBox";
 import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 import { getJwtPayload } from "./jwt";
-import { rewardMysteryBox } from "./mysteryBox/reward";
 
 export async function claimQuestion(questionId: number) {
   const questions = await claimQuestions([questionId]);
@@ -93,11 +93,20 @@ export async function claimAllAvailable() {
 
   const isAllowlisted = await isUserInAllowlist();
 
+<<<<<<< HEAD
   const mysteryBoxId = isAllowlisted
     ? await rewardMysteryBox({
         triggerType: EBoxTriggerType.ClaimAllCompleted,
         questionIds: claimableQuestionIds,
       })
+=======
+  const mysteryBoxId = FF_MYSTERY_BOX
+    ? await rewardMysteryBox(
+        payload.sub,
+        EBoxTriggerType.ClaimAllCompleted,
+        claimableQuestionIds,
+      )
+>>>>>>> PROD-510/protect-mystery-box-endpoints
     : null;
 
   const claimResult = await claimQuestions(claimableQuestionIds);
