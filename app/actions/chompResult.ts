@@ -511,7 +511,7 @@ async function pollTransactionConfirmation(
         console.error("Error checking transaction status:", error);
 
         const revealError = new RevealConfirmationError(
-          `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultIds}})`,
+          `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultQuestionIds}})`,
           { cause: error },
         );
         Sentry.captureException(revealError, {
