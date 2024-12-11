@@ -5,6 +5,7 @@ import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { release } from "os";
 import pRetry from "p-retry";
 import { useCallback, useEffect, useState } from "react";
@@ -29,7 +30,11 @@ import {
   TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
-import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import {
+  CONNECTION,
+  MINIMUM_SOL_BALANCE_FOR_TRANSACTION,
+  genBonkBurnTx,
+} from "../utils/solana";
 
 type UseRevealProps = {
   wallet: Wallet | null;
@@ -264,7 +269,35 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           }
           const signer = await wallet!.getSigner();
 
+          const solBalance = await wallet.getBalance();
+
+          if (!solBalance) {
+            return errorToast(
+              `We could not read your SOL balance, please try again!`,
+            );
+          }
+
           const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
+          const estimatedFee = await tx.getEstimatedFee(CONNECTION);
+
+          if (!estimatedFee) {
+            return errorToast(
+              `We could not read fee for this transaction, please try again!`,
+            );
+          }
+
+          const estimatedFeeInSol = estimatedFee / LAMPORTS_PER_SOL;
+
+          if (
+            estimatedFeeInSol > Number(solBalance) ||
+            MINIMUM_SOL_BALANCE_FOR_TRANSACTION > Number(solBalance)
+          ) {
+            return errorToast(
+              `You don't have enough sol to cover transaction fee!`,
+            );
+          }
+
           setBurnState("burning");
 
           try {
