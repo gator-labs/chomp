@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
+import { TELEGRAM_SUPPORT_LINK } from '@/app/constants/support';
+
 import { Button } from "../Button/Button";
 import { Flyout } from "../Flyout/Flyout";
 import { HalfArrowRightIcon } from "../Icons/HalfArrowRightIcon";
@@ -68,7 +70,7 @@ export function QuickViewProfile({
         <div className="flex gap-2 items-center mt-auto">
           <div className="p-2 rounded-lg bg-gray-500 flex gap-2">
             <a
-              href="https://t.me/+BN0ZDiUhTUkxNzZl"
+              href={TELEGRAM_SUPPORT_LINK}
               target="_blank"
               rel="noopener noreferrer"
             >
