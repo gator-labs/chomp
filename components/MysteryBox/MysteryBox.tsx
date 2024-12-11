@@ -13,11 +13,9 @@ import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
 import trackEvent from "@/lib/trackEvent";
-import Coins from "@/public/images/coins.png";
 import animationData from "@/public/lottie/chomp_box_bonk.json";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
-import Image from "next/image";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
@@ -155,7 +153,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     if (status === "Idle" || status === "Opening")
       return "You earned a mystery box!";
 
-    return "CHOMP, CHOMP HOORAY!";
+    return `You won ${bonkReceived.toLocaleString("en-US")} BONK!`;
   };
   return (
     <>
@@ -194,7 +192,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
             )}
           </div>
 
-          <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col max-h-[500px]">
+          <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
               animationData={animationData}
               loop={false}
@@ -220,27 +218,6 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               onClick={openBox}
               disabled={isSubmitting || !!box}
             />
-
-            <div
-              className={cn(
-                "py-2 px-1.5 rounded-[14px] bg-chomp-orange-light mb-8 transition-all duration-150 opacity-0",
-                {
-                  "opacity-100": status === "Closing",
-                },
-              )}
-            >
-              <div className="w-full relative aspect-square rounded-[12px] overflow-hidden mix-blend-hard-light mb-2">
-                <Image
-                  src={Coins.src}
-                  alt="coins"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="w-full bg-chomp-orange-dark text-xs rounded-[56px] py-2 px-4">
-                {bonkReceived.toLocaleString("en-US")} BONK
-              </div>
-            </div>
 
             <div
               className={cn(
