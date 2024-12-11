@@ -436,7 +436,7 @@ export async function hasBonkBurnedCorrectly(
 
   if (!burnInstruction) {
     const revealError = new RevealConfirmationError(
-      `Unable to validate tx for User id: ${userId} and (wallet: ${wallets})`,
+      `Unable to validate tx for User id: ${userId} and (wallet: ${JSON.stringify(wallets)})`,
     );
     Sentry.captureException(revealError, {
       tags: {
@@ -451,7 +451,7 @@ export async function hasBonkBurnedCorrectly(
 }
 
 async function pollTransactionConfirmation(
-  txtSig: TransactionSignature,
+  txnSig: TransactionSignature,
   pendingChompResultQuestionIds: number[],
   userId: string,
 ): Promise<boolean> {
@@ -468,7 +468,7 @@ async function pollTransactionConfirmation(
       {
         blockhash,
         lastValidBlockHeight,
-        signature: txtSig,
+        signature: txnSig,
       },
       "confirmed",
     );
@@ -498,7 +498,7 @@ async function pollTransactionConfirmation(
       }
 
       try {
-        const status = await CONNECTION.getSignatureStatuses([txtSig]);
+        const status = await CONNECTION.getSignatureStatuses([txnSig]);
 
         if (
           status?.value[0]?.confirmationStatus === "confirmed" ||
