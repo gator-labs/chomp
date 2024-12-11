@@ -287,9 +287,10 @@ export async function getUsersLatestStreakAndMysteryBox(): Promise<
 
   const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
 
-  const mysteryBoxId = (FF_MYSTERY_BOX && await isUserInAllowlist())
-    ? await getChompmasMysteryBox(payload.sub, longestStreak)
-    : null;
+  const mysteryBoxId =
+    FF_MYSTERY_BOX && (await isUserInAllowlist())
+      ? await getChompmasMysteryBox(payload.sub, longestStreak)
+      : null;
 
   return [longestStreak, mysteryBoxId];
 }
