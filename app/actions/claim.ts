@@ -2,7 +2,6 @@
 
 import { sendClaimedBonkFromTreasury } from "@/lib/claim";
 import { ClaimError, SendBonkError } from "@/lib/error";
-import { isUserInAllowlist } from "@/lib/mysteryBox";
 import { EBoxTriggerType, ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import _ from "lodash";
