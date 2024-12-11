@@ -35,8 +35,7 @@ export async function validateBonkBurned(
       "parsed" in instruction &&
       instruction.parsed.type === "burnChecked" &&
       wallets.includes(instruction.parsed.info.authority) &&
-      instruction.parsed.info.mint ===
-        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      instruction.parsed.info.mint === process.env.NEXT_PUBLIC_BONK_ADDRESS,
   );
 
   if (!burnInstruction) {
