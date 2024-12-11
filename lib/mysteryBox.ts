@@ -166,10 +166,9 @@ export async function rewardMysteryBox(
 /**
  * Gives the currently authenticated user a mystery box.
  *
- * User must be whitelisted as a pre-condition.
+ * User must be allowlisted as a pre-condition.
  *
  * @param userId      User who gets the mystery box.
- * @param triggerType Trigger type.
  *
  * @return mysteryBoxId New box ID.
  */
