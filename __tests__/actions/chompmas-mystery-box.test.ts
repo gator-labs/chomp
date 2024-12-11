@@ -1,28 +1,9 @@
-import { getJwtPayload } from "@/app/actions/jwt";
-import { openMysteryBox } from "@/app/actions/mysteryBox/open";
 import prisma from "@/app/services/prisma";
-import {
-  findMysteryBox,
-  rewardChompmasBox,
-  rewardMysteryBox,
-} from "@/lib/mysteryBox";
+import { findMysteryBox, rewardChompmasBox } from "@/lib/mysteryBox";
 import { getChompmasMysteryBox } from "@/lib/mysteryBox";
-import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
-import {
-  AnswerStatus,
-  QuestionType,
-  ResultType,
-  Token,
-  TransactionStatus,
-} from "@prisma/client";
-import {
-  EBoxPrizeStatus,
-  EBoxTriggerType,
-  EMysteryBoxStatus,
-} from "@prisma/client";
-import { subDays } from "date-fns";
+import { EBoxTriggerType, EMysteryBoxStatus } from "@prisma/client";
 
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
