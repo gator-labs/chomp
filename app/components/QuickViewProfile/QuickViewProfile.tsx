@@ -1,10 +1,9 @@
 "use client";
 
+import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-
-import { TELEGRAM_SUPPORT_LINK } from '@/app/constants/support';
 
 import { Button } from "../Button/Button";
 import { Flyout } from "../Flyout/Flyout";
