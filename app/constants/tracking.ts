@@ -31,9 +31,17 @@ export const TRACKING_EVENTS = {
   WELCOME_BACK_REVEAL_BUTTON_CLICKED: "WelcomeBackRevealButtonClicked",
   DECK_CLICKED: "DeckClicked",
   SHARE_ALL_DIALOG_LOADED: "ShareAllDialogLoaded",
+  SHARE_DIALOG_LOADED: "ShareDialogLoaded",
   SHARE_ALL_DIALOG_CLOSED: "ShareAllDialogClosed",
+  SHARE_DIALOG_CLOSED: "ShareDialogClosed",
   SHARE_ALL_X_BUTTON_CLICKED: "ShareAllXButtonClicked",
+  SHARE_X_BUTTON_CLICKED: "ShareXButtonClicked",
+  SHARE_BUTTON_CLICKED: "ShareButtonClicked",
   TELEGRAM_USER_MINIAPP_OPENED: "TelegramUserMiniAppOpened",
+  MYSTERY_BOX_DIALOG_OPENED: "MysteryBoxDialogOpened",
+  MYSTERY_BOX_DIALOG_CLOSED: "MysteryBoxDialogClosed",
+  MYSTERY_BOX_OPENED: "MysteryBoxOpened",
+  MYSTERY_BOX_SKIPPED: "MysteryBoxSkipped",
 } as const;
 
 export const TRACKING_METADATA = {

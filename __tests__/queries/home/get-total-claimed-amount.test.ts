@@ -40,6 +40,8 @@ describe("getUsersTotalClaimedAmount", () => {
             rewardTokenAmount: 100,
             transactionStatus: TransactionStatus.Completed,
             createdAt: new Date(),
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD1",
           },
         }),
         tx.chompResult.create({
@@ -49,6 +51,8 @@ describe("getUsersTotalClaimedAmount", () => {
             rewardTokenAmount: 50,
             transactionStatus: TransactionStatus.Completed,
             createdAt: new Date(),
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD2",
           },
         }),
         tx.chompResult.create({
@@ -58,6 +62,8 @@ describe("getUsersTotalClaimedAmount", () => {
             rewardTokenAmount: 200,
             transactionStatus: TransactionStatus.Completed,
             createdAt: new Date(),
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD3",
           },
         }),
         tx.chompResult.create({
@@ -67,6 +73,8 @@ describe("getUsersTotalClaimedAmount", () => {
             rewardTokenAmount: 300,
             transactionStatus: TransactionStatus.Completed,
             createdAt: new Date(),
+            burnTransactionSignature:
+              "49azuPTnLn64D8wZbygWqdvyuzgJtfdYKL76vfsKLUQkaf27wQbfZCdbVxj2VvrgG2eRoEZwLqFPGVK7aYwZGyD4",
           },
         }),
       ]);

@@ -12,6 +12,7 @@ import QuestionAnswerLabel from "@/app/components/QuestionAnswerLabel/QuestionAn
 import QuestionAnswerPreviewBinary from "@/app/components/QuestionAnswerPreviewBinary/QuestionAnswerPreviewBinary";
 import QuestionAnswerPreviewMultipleChoice from "@/app/components/QuestionAnswerPreviewMultipleChoice/QuestionAnswerPreviewMultipleChoice";
 import RewardShow from "@/app/components/RewardShow/RewardShow";
+import ShareResult from "@/app/components/ShareResult/ShareResult";
 import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { getCurrentUser } from "@/app/queries/user";
@@ -295,6 +296,23 @@ const RevealAnswerPage = async ({ params }: Props) => {
         resultIds={questionResponse.chompResults.map((r) => r.id)}
         userId={questionResponse.chompResults[0].userId}
       />
+      {!!questionResponse.chompResults[0].rewardTokenAmount &&
+        questionResponse.chompResults[0].burnTransactionSignature && (
+          <ShareResult
+            claimedAmount={questionResponse.chompResults[0].rewardTokenAmount!}
+            options={questionResponse.questionOptions.map((qo) => ({
+              id: qo.id,
+              option: qo.option,
+            }))}
+            question={questionResponse.question}
+            selectedOptionId={answerSelected?.questionOption?.id!}
+            transactionHash={
+              questionResponse.chompResults[0].burnTransactionSignature
+            }
+            imageUrl={questionResponse.imageUrl!}
+            questionId={questionResponse.id}
+          />
+        )}
       {sendTransactionSignature && (
         <a
           className="text-sm font-bold underline flex items-center justify-center gap-1 w-fit mx-auto"
