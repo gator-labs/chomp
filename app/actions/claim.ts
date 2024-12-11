@@ -91,7 +91,7 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  const isAllowlisted = await isUserInAllowlist();
+  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
 
   const mysteryBoxId = FF_MYSTERY_BOX
     ? await rewardMysteryBox(
