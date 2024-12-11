@@ -19,6 +19,11 @@ import "server-only";
 
 import { UserAllowlistError } from "./error";
 
+export type FindMysteryBoxResult = {
+  id: string;
+  status: EMysteryBoxStatus;
+};
+
 export async function calculateTotalPrizeTokens(
   userId: string,
   tokenAddress: string,
@@ -161,6 +166,8 @@ export async function rewardMysteryBox(
 /**
  * Gives the currently authenticated user a mystery box.
  *
+ * User must be whitelisted as a pre-condition.
+ *
  * @param userId      User who gets the mystery box.
  * @param triggerType Trigger type.
  *
@@ -216,8 +223,7 @@ export async function rewardChompmasBox(
 }
 
 /**
- * Returns the ID of an existing unclaimed mystery box if
- * the user has one.
+ * Returns the ID of an existing mystery box if the user has one.
  *
  * @param userId      User who gets the mystery box.
  * @param triggerType Trigger type.
@@ -225,12 +231,11 @@ export async function rewardChompmasBox(
 export async function findMysteryBox(
   userId: string,
   triggerType: EBoxTriggerType,
-): Promise<string | null> {
+): Promise<FindMysteryBoxResult | null> {
   try {
     const box = await prisma.mysteryBox.findFirst({
       where: {
         userId,
-        status: EMysteryBoxStatus.New,
       },
       include: {
         MysteryBoxPrize: {
@@ -246,7 +251,12 @@ export async function findMysteryBox(
       },
     });
 
-    return box?.id ?? null;
+    if (!box?.id) return null;
+
+    return {
+      id: box.id,
+      status: box.status,
+    };
   } catch (e) {
     const findMysteryBoxError = new FindMysteryBoxError(
       `User with id: ${userId}: failed to check Mystery Box status`,
@@ -272,12 +282,15 @@ export async function getChompmasMysteryBox(
   userId: string,
   longestStreak: number,
 ): Promise<string | null> {
-  const mysteryBoxId = await findMysteryBox(
+  const box = await findMysteryBox(
     userId,
     EBoxTriggerType.ChompmasStreakAttained,
   );
 
-  if (mysteryBoxId) return mysteryBoxId;
+  if (box) {
+    if (box.status == EMysteryBoxStatus.New) return box.id;
+    else return null;
+  }
 
   // We only check this after looking for an existing box so a user
   // doesn't lose their already-awarded box.
