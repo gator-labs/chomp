@@ -1,5 +1,6 @@
 "use server";
 
+import { getChompmasMysteryBox, isUserInAllowlist } from "@/lib/mysteryBox";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
@@ -275,6 +276,20 @@ export async function getUsersLatestStreak(): Promise<number> {
   const longestStreak = await queryUsersLatestStreak(payload.sub);
 
   return longestStreak;
+}
+
+export async function getUsersLatestStreakAndMysteryBox(): Promise<
+  [number, string | null]
+> {
+  const payload = await authGuard();
+
+  const longestStreak = await queryUsersLatestStreak(payload.sub);
+
+  const mysteryBoxId = (await isUserInAllowlist())
+    ? await getChompmasMysteryBox(payload.sub, longestStreak)
+    : null;
+
+  return [longestStreak, mysteryBoxId];
 }
 
 async function queryUsersLatestStreak(userId: string): Promise<number> {
