@@ -272,7 +272,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             `User with id: ${payload?.sub} (wallet: ${address}) is having trouble revealing questions with question ids: ${questionIds}`,
             { cause: error },
           );
-          Sentry.captureException(dynamicRevealError);
+          Sentry.captureException(dynamicRevealError, {
+            tags: {
+              category: "burn-error",
+            },
+          });
           release();
           resetReveal();
           return;

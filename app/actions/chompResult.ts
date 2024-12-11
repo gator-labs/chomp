@@ -117,6 +117,7 @@ export async function revealQuestions(
   );
 
   if (!revealableQuestions.length) {
+    release();
     throw new Error("No revealable questions available");
   }
 
@@ -134,7 +135,8 @@ export async function revealQuestions(
       payload.sub,
     );
     if (!txStatus) {
-      throw new Error("Tx validation failed");
+      release();
+      return null;
     }
   }
 
@@ -180,7 +182,7 @@ export async function revealQuestions(
         `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
       );
       Sentry.captureException(revealError);
-
+      release();
       return null;
     }
 
@@ -325,6 +327,21 @@ export async function deleteQuestionChompResults(ids: number[]) {
   });
 }
 
+export async function deleteChompResultsWithQuestionId(ids: number[]) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  await prisma.chompResult.deleteMany({
+    where: {
+      questionId: { in: ids },
+      userId: payload.sub,
+    },
+  });
+}
+
 export async function deleteQuestionChompResult(id: number) {
   return await deleteQuestionChompResults([id]);
 }
@@ -435,7 +452,7 @@ export async function hasBonkBurnedCorrectly(
 
 async function pollTransactionConfirmation(
   txtSig: TransactionSignature,
-  pendingChompResultIds: number[],
+  pendingChompResultQuestionIds: number[],
   userId: string,
 ): Promise<boolean> {
   const timeout = 15000; // 15 seconds
@@ -462,7 +479,7 @@ async function pollTransactionConfirmation(
         "Transaction expired due to block height exceeded, deleting ChompResult...",
       );
       // delete pending chomp results
-      await deleteQuestionChompResults(pendingChompResultIds);
+      await deleteChompResultsWithQuestionId(pendingChompResultQuestionIds);
       return false; // Do not continue
     }
 
