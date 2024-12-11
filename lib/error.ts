@@ -71,6 +71,20 @@ export class CreateMysteryBoxError extends Error {
   }
 }
 
+export class RevealMysteryBoxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "RevealMysteryBoxError";
+  }
+}
+
+export class FindMysteryBoxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "FindMysteryBoxError";
+  }
+}
+
 export class DismissMysteryBoxError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
@@ -82,5 +96,12 @@ export class ShareClaimAllError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "ShareClaimAllError";
+  }
+}
+
+export class UserAllowlistError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "UserAllowlistError";
   }
 }

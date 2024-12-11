@@ -1,6 +1,6 @@
 import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import {
-  getUsersLatestStreak,
+  getUsersLatestStreakAndMysteryBox,
   getUsersTotalClaimedAmount,
   getUsersTotalRevealedCards,
 } from "@/app/queries/home";
@@ -12,16 +12,19 @@ import LatestStreakBox from "../LatestStreakBox/LatestStreakBox";
 import { StatsBox } from "../StatsBox/StatsBox";
 
 export async function DashboardUserStats() {
-  const [latestStreak, totalClaimedAmount, totalRevealedCards] =
+  const [[latestStreak, mysteryBoxId], totalClaimedAmount, totalRevealedCards] =
     await Promise.all([
-      getUsersLatestStreak(),
+      getUsersLatestStreakAndMysteryBox(),
       getUsersTotalClaimedAmount(),
       getUsersTotalRevealedCards(),
     ]);
 
   return (
     <div className="flex flex-col gap-2">
-      <LatestStreakBox latestStreak={latestStreak} />
+      <LatestStreakBox
+        latestStreak={latestStreak}
+        mysteryBoxId={mysteryBoxId}
+      />
       <div className="flex w-full gap-2">
         <StatsBox
           title={totalClaimedAmount.toLocaleString("en-US")}

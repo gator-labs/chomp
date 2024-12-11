@@ -175,3 +175,18 @@ yarn dev:restore-db
 ```
 
 If you see a “restore successful” message, you can safely ignore some errors. After verifying the restored database, don’t forget to remove the backup file.
+
+## Add Users in MysteryBox Allowlist
+
+1. Add a csv file in the scripts folder (only addresses, no header)
+2. Make sure the name of file is `allowlist.csv`
+3. Verify the DATABASE_URL env
+
+**Run the following command**
+```sh
+yarn dev:add-allowlist-users
+```
+
+> Tag: It's entitled to certain campaign or group.
+
+Input any tags if you want else you can skip by enter. You will receive success message.
