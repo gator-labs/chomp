@@ -3,5 +3,11 @@
     "app/**/*": {
       "maxDuration": 300
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/process-pending-transaction",
+      "schedule": "*/10 * * * *"
+    }
+  ]
 }
