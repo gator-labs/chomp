@@ -1,15 +1,15 @@
-import { validateBonkBurned } from "@/app/actions/validateBonkBurn";
 import prisma from "@/app/services/prisma";
 import { calculateReward } from "@/app/utils/algo";
 import { RevealConfirmationError } from "@/lib/error";
+import { validateBonkBurned } from "@/lib/validateBonkBurn";
 import { ResultType, TransactionStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { startOfDay, sub } from "date-fns";
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
-  const SECRET = process.env.CRON_SECRET || "";
-  if (authHeader !== `Bearer ${SECRET}`) {
+  const secret = process.env.CRON_SECRET || "";
+  if (authHeader !== `Bearer ${secret}`) {
     return new Response("Unauthorized", {
       status: 401,
     });
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
         })
       ).map((wallet) => wallet.address);
 
-      const isValid = await validateBonkBurned(burnTx, wallets, SECRET);
+      const isValid = await validateBonkBurned(burnTx, wallets);
 
       if (isValid) {
         const questionRewards = await calculateReward(

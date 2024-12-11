@@ -1,15 +1,10 @@
-import { sleep } from "../utils/sleep";
-import { CONNECTION } from "../utils/solana";
+import { sleep } from "../app/utils/sleep";
+import { CONNECTION } from "../app/utils/solana";
 
 export async function validateBonkBurned(
   burnTx: string,
   wallets: string[],
-  SECRET: string,
 ): Promise<boolean> {
-  if (!burnTx && SECRET !== process.env.CRON_SECRET) {
-    return false;
-  }
-
   let transaction;
   const interval = 1000;
   const maxRetries = 5;

@@ -181,8 +181,8 @@ export async function revealQuestions(
       const revealError = new RevealError(
         `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
       );
-      Sentry.captureException(revealError);
       release();
+      Sentry.captureException(revealError);
       return null;
     }
 
