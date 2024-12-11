@@ -93,7 +93,7 @@ export async function claimAllAvailable() {
 
   const isAllowlisted = await isUserInAllowlist();
 
-  const mysteryBoxId = isAllowlisted
+  const mysteryBoxId = FF_MYSTERY_BOX
     ? await rewardMysteryBox(
         payload.sub,
         EBoxTriggerType.ClaimAllCompleted,
