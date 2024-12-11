@@ -5,7 +5,6 @@ import {
   TRACKING_EVENTS,
   TRACKING_METADATA,
 } from "@/app/constants/tracking";
-import { RevealProps } from "@/app/hooks/useReveal";
 import { useClaiming } from "@/app/providers/ClaimingProvider";
 import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
@@ -15,6 +14,7 @@ import { getQuestionStatus, getRevealAtText } from "@/app/utils/history";
 import { CONNECTION } from "@/app/utils/solana";
 import { cn } from "@/app/utils/tailwind";
 import trackEvent from "@/lib/trackEvent";
+import { RevealProps } from "@/types/reveal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next-nprogress-bar";
 import Image from "next/image";

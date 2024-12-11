@@ -1,9 +1,9 @@
 "use client";
 
 import { revealQuestion } from "@/app/actions/chompResult";
-import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { isSameURL } from "@/app/utils/isSameUrl";
+import { RevealProps } from "@/types/reveal";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
