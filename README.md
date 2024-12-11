@@ -184,7 +184,7 @@ If you see a “restore successful” message, you can safely ignore some errors
 
 **Run the following command**
 ```sh
-yarn dev:add-mystery-box
+yarn dev:add-allowlist-users
 ```
 
 > Tag: It's entitled to certain campaign or group.
