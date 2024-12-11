@@ -56,7 +56,7 @@ const LatestStreakBox = ({
         </div>
       </div>
       <StatsDrawer
-        isOpen={isOpen && !mysteryBoxId && !mysteryBoxClosed}
+        isOpen={isOpen && (!mysteryBoxId || mysteryBoxClosed)}
         onClose={() => setIsOpen(false)}
         title="Streak"
         description="Keep going! Streaks track consecutive days you've answered or
