@@ -26,6 +26,7 @@ export async function GET(request: Request) {
           gte: startOfDay(oneWeekAgo), // Start of the day 7 days ago
           lte: tenMinutesAgo, // 10 minutes ago
         },
+        needsManualReview: null,
       },
       include: {
         question: {
@@ -108,7 +109,7 @@ export async function GET(request: Request) {
             userId: userId,
           },
           data: {
-            transactionStatus: TransactionStatus.Failed,
+            needsManualReview: true,
           },
         });
         const revealError = new RevealConfirmationError(
@@ -121,7 +122,7 @@ export async function GET(request: Request) {
         });
       }
     }
-    return new Response("Processed", { status: 200 });
+    return new Response("Ok", { status: 200 });
   } catch (error) {
     console.error("Database error:", error);
     return new Response("Internal Server Error", { status: 500 });
