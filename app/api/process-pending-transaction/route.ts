@@ -67,12 +67,12 @@ export async function GET(request: Request) {
       ).map((wallet) => wallet.address);
 
       const isValid = await validateBonkBurned(burnTx, wallets, SECRET);
-      const questionRewards = await calculateReward(
-        userId,
-        revealableQuestionIds,
-      );
 
       if (isValid) {
+        const questionRewards = await calculateReward(
+          userId,
+          revealableQuestionIds,
+        );
         await prisma.$transaction(async (tx) => {
           await tx.chompResult.deleteMany({
             where: {
@@ -104,11 +104,11 @@ export async function GET(request: Request) {
         await prisma.chompResult.updateMany({
           where: {
             burnTransactionSignature: burnTx,
-            transactionStatus: "Pending",
+            transactionStatus: TransactionStatus.Pending,
             userId: userId,
           },
           data: {
-            transactionStatus: "Failed",
+            transactionStatus: TransactionStatus.Failed,
           },
         });
         const revealError = new RevealConfirmationError(
@@ -121,6 +121,7 @@ export async function GET(request: Request) {
         });
       }
     }
+    return new Response("Processed", { status: 200 });
   } catch (error) {
     console.error("Database error:", error);
     return new Response("Internal Server Error", { status: 500 });

@@ -21,8 +21,8 @@ export async function validateBonkBurned(
         commitment: "confirmed",
         maxSupportedTransactionVersion: 0,
       });
-    } catch (error) {
-      console.error("Error fetching transaction, retrying...", error);
+    } catch {
+      console.error("Error fetching transaction, retrying...");
     }
 
     if (!transaction) {
