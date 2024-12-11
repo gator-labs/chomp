@@ -289,7 +289,7 @@ describe("Create mystery box", () => {
             data: {
               questionId: questionIds[3],
               triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
-              mysteryBoxAllowlistId: "1",
+              mysteryBoxAllowlistId: null,
             },
           },
         },
