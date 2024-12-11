@@ -115,6 +115,8 @@ export async function rewardMysteryBox(
       throw new Error(`Unimplemented trigger type: ${triggerType}`);
     }
 
+    if (!calculatedReward?.bonk) throw new Error("No BONK in mystery box");
+
     const userWallet = await prisma.wallet.findFirst({ where: { userId } });
 
     if (!userWallet) return null;
@@ -171,6 +173,8 @@ export async function rewardChompmasBox(
     const calculatedReward = await calculateMysteryBoxReward(
       MysteryBoxEventsType.CHOMPMAS,
     );
+
+    if (!calculatedReward?.bonk) throw new Error("No BONK in mystery box");
 
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
