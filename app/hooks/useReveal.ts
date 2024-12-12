@@ -199,6 +199,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     const revealQuestionIds = reveal!.questionIds.filter(
       (id) => !pendingChompResultIds.includes(id),
     );
+    console.log("burnAndReveal", {
+      ignoreNft,
+      revealQuestionIds,
+      pendingChompResultIds,
+    });
 
     const payload = await getJwtPayload();
 
@@ -209,6 +214,12 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await createGetTransactionTask(signature);
       }
 
+      console.log("burnAndReveal", {
+        isRevealWithNftMode,
+        revealNft,
+        isMultiple,
+        burnState,
+      });
       if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
         // Try catch is to catch Dynamic related issues to narrow down the error
         try {

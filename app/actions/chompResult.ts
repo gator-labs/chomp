@@ -81,6 +81,12 @@ export async function revealQuestions(
   nftAddress?: string,
   nftType?: NftType,
 ) {
+  console.log("revealQuestions", {
+    questionIds,
+    burnTx,
+    nftAddress,
+    nftType,
+  });
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -92,6 +98,7 @@ export async function revealQuestions(
     data: { userId: payload.sub },
   });
 
+  console.log("acquired mutex");
   await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
   const questionsFilteredForUser = await prisma.question.findMany({
     where: {
@@ -106,7 +113,7 @@ export async function revealQuestions(
     },
   });
   const questionAnswersCount = await questionAnswerCountQuery(questionIds);
-
+  console.log("questionAnswersCount", questionAnswersCount);
   const revealableQuestions = questionsFilteredForUser.filter((question) =>
     isEntityRevealable({
       revealAtAnswerCount: question.revealAtAnswerCount,
@@ -128,12 +135,14 @@ export async function revealQuestions(
     .slice(isRevealedWithNft ? 1 : 0) // skip bonk burn for first question if nft is supplied
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
+  console.log("bonkToBurn", bonkToBurn);
   if (bonkToBurn > 0) {
     const txStatus = await pollTransactionConfirmation(
       burnTx || "",
       questionIds,
       payload.sub,
     );
+
     if (!txStatus) {
       release();
       return null;
@@ -141,12 +150,12 @@ export async function revealQuestions(
   }
 
   const revealableQuestionIds = revealableQuestions.map((q) => q.id);
-
+  console.log("revealableQuestionIds", revealableQuestionIds);
   const questionRewards = await calculateReward(
     payload.sub,
     revealableQuestionIds,
   );
-
+  console.log("questionRewards", questionRewards);
   const revealPoints = await calculateRevealPoints(questionRewards);
 
   await prisma.$transaction(async (tx) => {
@@ -165,6 +174,7 @@ export async function revealQuestions(
 
     let revealNftId = null;
 
+    console.log("isRevealedWithNft", isRevealedWithNft);
     if (isRevealedWithNft) {
       const revealNft = await prisma.revealNft.create({
         data: {
@@ -186,6 +196,19 @@ export async function revealQuestions(
       return null;
     }
 
+    console.log("createMany", {
+      data: [
+        ...questionRewards.map((questionReward) => ({
+          questionId: questionReward.questionId,
+          userId: payload.sub,
+          result: ResultType.Revealed,
+          burnTransactionSignature: burnTx,
+          rewardTokenAmount: questionReward.rewardAmount,
+          transactionStatus: TransactionStatus.Completed,
+          revealNftId,
+        })),
+      ],
+    });
     await tx.chompResult.createMany({
       data: [
         ...questionRewards.map((questionReward) => ({
@@ -458,34 +481,13 @@ async function pollTransactionConfirmation(
   const timeout = 15000; // 15 seconds
   const interval = 5000; // 5 seconds
   let elapsed = 0;
+  console.log("polling transaction confirmation", {
+    txnSig,
+    pendingChompResultQuestionIds,
+    userId,
+  });
+  // DELETED CODE HERE
 
-  const { blockhash, lastValidBlockHeight } =
-    await CONNECTION.getLatestBlockhash();
-
-  // Step 1: Confirm Transaction
-  try {
-    await CONNECTION.confirmTransaction(
-      {
-        blockhash,
-        lastValidBlockHeight,
-        signature: txnSig,
-      },
-      "confirmed",
-    );
-  } catch (error) {
-    // Explicit handling for transaction expiration
-    if (error instanceof TransactionExpiredBlockheightExceededError) {
-      console.log(
-        "Transaction expired due to block height exceeded, deleting ChompResult...",
-      );
-      // delete pending chomp results
-      await deleteChompResultsWithQuestionId(pendingChompResultQuestionIds);
-      return false; // Do not continue
-    }
-
-    // Log other confirmation errors and proceed
-    console.error("Error during confirmation:", error);
-  }
   // Step 2: Poll Transaction Status
   return new Promise<boolean>((resolve) => {
     const intervalId = setInterval(async () => {
@@ -499,6 +501,10 @@ async function pollTransactionConfirmation(
 
       try {
         const status = await CONNECTION.getSignatureStatuses([txnSig]);
+        console.log("polling transaction status", {
+          txnSig,
+          status,
+        });
 
         if (
           status?.value[0]?.confirmationStatus === "confirmed" ||

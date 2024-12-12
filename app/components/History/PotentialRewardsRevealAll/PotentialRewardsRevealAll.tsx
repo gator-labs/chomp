@@ -38,6 +38,11 @@ export default function PotentialRewardsRevealAll({
   const revealAll = useCallback(
     async ({ burnTx, revealQuestionIds, pendingChompResults }: RevealProps) => {
       setIsLoading(true);
+      console.log("revealAll", {
+        burnTx,
+        revealQuestionIds,
+        pendingChompResults,
+      });
 
       await Promise.all([
         ...(revealQuestionIds
@@ -47,7 +52,7 @@ export default function PotentialRewardsRevealAll({
           revealQuestion(result.id, result.burnTx),
         ) || []),
       ]);
-
+      console.log("revealAll done");
       startTransition(() => {
         revealOptimistic(0);
       });
@@ -57,25 +62,28 @@ export default function PotentialRewardsRevealAll({
           deckId ? `questions-history-${deckId}` : "questions-history",
         ],
       });
+      console.log("resetQueries done");
       closeRevealModal();
       setIsLoading(false);
     },
     [],
   );
 
-  const handleRevealAll = useCallback(
-    () =>
-      openRevealModal({
-        reveal: revealAll,
-        amount: revealableQuestions.reduce(
-          (curr, acc) => curr + acc.revealTokenAmount,
-          0,
-        ),
-        questionIds: revealableQuestions.map((q) => q.id),
-        questions: revealableQuestions.map((q) => q.question),
-      }),
-    [],
-  );
+  const handleRevealAll = useCallback(() => {
+    console.log("handleRevealAll", {
+      revealableQuestions,
+      optimisticMaxRewardPerQuestion,
+    });
+    openRevealModal({
+      reveal: revealAll,
+      amount: revealableQuestions.reduce(
+        (curr, acc) => curr + acc.revealTokenAmount,
+        0,
+      ),
+      questionIds: revealableQuestions.map((q) => q.id),
+      questions: revealableQuestions.map((q) => q.question),
+    });
+  }, []);
 
   return (
     <div className="flex justify-between ">

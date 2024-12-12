@@ -13,6 +13,12 @@ export default async function Page() {
       getProfileImage(),
     ]);
 
+  console.log("history page", {
+    revealableQuestions,
+    totalClaimableRewards,
+    profileImg,
+  });
+
   return (
     <>
       <div className="flex flex-col gap-4 overflow-hidden">
