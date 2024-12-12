@@ -128,9 +128,13 @@ describe("Chompmas mystery boxes", () => {
       });
 
       expect(res).toBeDefined();
+      expect(res?.userId).toEqual(user1.id);
       expect(res?.id).toBe(mysteryBoxId);
       expect(res?.status).toBe("New");
       expect(res?.triggers).toHaveLength(1);
+      expect(res?.triggers?.[0]?.triggerType).toEqual(
+        EBoxTriggerType.ChompmasStreakAttained,
+      );
       expect(res?.MysteryBoxPrize).toHaveLength(1);
     }
   });
@@ -215,6 +219,7 @@ describe("Chompmas mystery boxes", () => {
 
     expect(boxId).not.toEqual(mysteryBoxId);
 
-    await deleteMysteryBoxes([mysteryBoxId]);
+    if (boxId) await deleteMysteryBoxes([boxId]);
+    if (mysteryBoxId) await deleteMysteryBoxes([mysteryBoxId]);
   });
 });
