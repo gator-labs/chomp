@@ -14,7 +14,6 @@ import { acquireMutex } from "../utils/mutex";
 import { getJwtPayload } from "./jwt";
 
 export async function claimQuestion(questionId: number) {
-  console.log("claim questions fired");
   const questions = await claimQuestions([questionId]);
   return questions ? questions : null;
 }

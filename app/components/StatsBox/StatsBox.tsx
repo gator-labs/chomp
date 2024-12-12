@@ -31,10 +31,6 @@ export function StatsBox({
 
   const getTitleColor = (title: string) => {
     switch (title.toLowerCase()) {
-      case "streak":
-        return "text-secondary";
-      case "no-streak":
-        return "text-destructive";
       case "claimed":
         return "text-chomp-orange-light";
       case "points":
