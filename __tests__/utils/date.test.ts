@@ -24,6 +24,9 @@ jest.mock("next/headers", () => ({
     set: jest.fn(),
   })),
 }));
+jest.mock("p-retry", () => ({
+  retry: jest.fn((fn) => fn()),
+}));
 
 describe("Time-Based Chomp Actions", () => {
   const currentDate = new Date();
