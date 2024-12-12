@@ -114,8 +114,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   >(INITIAL_BURN_STATE);
 
   const hasPendingTransactions = pendingChompResults.length > 0;
-  const insufficientFunds =
-    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions;
+  const [insufficientFunds, setInsufficientFunds] = useState(
+    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions,
+  );
+
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
   const isRevealWithNftMode =
     revealNft && !isMultiple && burnState !== "burning";
@@ -293,9 +295,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             estimatedFeeInSol > Number(solBalance) ||
             MINIMUM_SOL_BALANCE_FOR_TRANSACTION > Number(solBalance)
           ) {
-            return errorToast(
-              `You don't have enough sol to cover transaction fee!`,
-            );
+            return setInsufficientFunds(true);
           }
 
           setBurnState("burning");
