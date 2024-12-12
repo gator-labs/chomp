@@ -9,7 +9,6 @@ import {
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { TransactionSignature } from "@solana/web3.js";
-import { TransactionExpiredBlockheightExceededError } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
@@ -327,21 +326,6 @@ export async function deleteQuestionChompResults(ids: number[]) {
   });
 }
 
-export async function deleteChompResultsWithQuestionId(ids: number[]) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  await prisma.chompResult.deleteMany({
-    where: {
-      questionId: { in: ids },
-      userId: payload.sub,
-    },
-  });
-}
-
 export async function deleteQuestionChompResult(id: number) {
   return await deleteQuestionChompResults([id]);
 }
@@ -365,17 +349,12 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
 }
 
 // tx validation with 5 retries with a delay of 1s
-export async function hasBonkBurnedCorrectly(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
   userId: string,
 ): Promise<boolean> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return false;
-  }
-
   if (!burnTx) {
     return false;
   }
@@ -450,6 +429,18 @@ export async function hasBonkBurnedCorrectly(
   return true;
 }
 
+/**
+ * Validate transaction for chomp result to mark them as complete
+ * Run for 15s with an interval of 5s
+ *
+ * @param userId        User ID.
+ * @param txnSig      Burn Tx Sign
+ * @param pendingChompResultQuestionIds chompresults will be in pending state
+ * after user start reveal
+ *
+ *
+ * @return status boolean
+ */
 async function pollTransactionConfirmation(
   txnSig: TransactionSignature,
   pendingChompResultQuestionIds: number[],
@@ -459,34 +450,6 @@ async function pollTransactionConfirmation(
   const interval = 5000; // 5 seconds
   let elapsed = 0;
 
-  const { blockhash, lastValidBlockHeight } =
-    await CONNECTION.getLatestBlockhash();
-
-  // Step 1: Confirm Transaction
-  try {
-    await CONNECTION.confirmTransaction(
-      {
-        blockhash,
-        lastValidBlockHeight,
-        signature: txnSig,
-      },
-      "confirmed",
-    );
-  } catch (error) {
-    // Explicit handling for transaction expiration
-    if (error instanceof TransactionExpiredBlockheightExceededError) {
-      console.log(
-        "Transaction expired due to block height exceeded, deleting ChompResult...",
-      );
-      // delete pending chomp results
-      await deleteChompResultsWithQuestionId(pendingChompResultQuestionIds);
-      return false; // Do not continue
-    }
-
-    // Log other confirmation errors and proceed
-    console.error("Error during confirmation:", error);
-  }
-  // Step 2: Poll Transaction Status
   return new Promise<boolean>((resolve) => {
     const intervalId = setInterval(async () => {
       elapsed += interval;
