@@ -4,6 +4,10 @@ import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
 
+jest.mock("p-retry", () => ({
+  retry: jest.fn((fn) => fn()),
+}));
+
 describe("queryExpiringDecks", () => {
   const user1 = {
     id: uuidv4(),
