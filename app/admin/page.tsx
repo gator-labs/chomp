@@ -12,17 +12,27 @@ export default async function Page() {
         Staging Database Commands
       </h1>
 
-      {/* Binary Question Generator Form */}
-      <div className="space-y-6">
-        <AdminBinaryQuestionGeneratorForm action={generateBinaryTestQuestion} />
-      </div>
+      {process.env.FF_ALLOW_TEST_QUESTIONS === "true" ? (
+        <>
+          {/* Binary Question Generator Form */}
+          <div className="space-y-6">
+            <AdminBinaryQuestionGeneratorForm
+              action={generateBinaryTestQuestion}
+            />
+          </div>
 
-      {/* Multiple Choice Question Generator Form */}
-      <div className="space-y-6">
-        <AdminMultiChoiceQuestionGeneratorForm
-          action={generateMultipleChoiceTestQuestion}
-        />
-      </div>
+          {/* Multiple Choice Question Generator Form */}
+          <div className="space-y-6">
+            <AdminMultiChoiceQuestionGeneratorForm
+              action={generateMultipleChoiceTestQuestion}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-center">Test creation features are turned off</p>
+        </>
+      )}
     </div>
   );
 }
