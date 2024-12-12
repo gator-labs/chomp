@@ -1,3 +1,4 @@
+import { getTotalPoints } from "@/app/actions/leaderboard";
 import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import {
   getUsersLatestStreakAndMysteryBox,
@@ -9,10 +10,12 @@ import LatestStreakBox from "../LatestStreakBox/LatestStreakBox";
 import { StatsBox } from "../StatsBox/StatsBox";
 
 export async function DashboardUserStats() {
-  const [[latestStreak, mysteryBoxId], totalClaimedAmount] = await Promise.all([
-    getUsersLatestStreakAndMysteryBox(),
-    getUsersTotalClaimedAmount(),
-  ]);
+  const [[latestStreak, mysteryBoxId], totalClaimedAmount, points] =
+    await Promise.all([
+      getUsersLatestStreakAndMysteryBox(),
+      getUsersTotalClaimedAmount(),
+      getTotalPoints(),
+    ]);
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -33,7 +36,7 @@ export async function DashboardUserStats() {
         titleColor="claimed"
       />
       <StatsBox
-        title={`0 Points`}
+        title={`${points?.loggedInUserScore.loggedInUserPoints ?? 0} Points`}
         description="Earned to date"
         icon={<Goal width={25} height={25} />}
         drawerProps={{

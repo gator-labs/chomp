@@ -200,7 +200,7 @@ const getNumberOfChompedQuestions = async (
   return mapLeaderboardData(leaderboard, userIds);
 };
 
-const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
+export const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
   const whereStackClause = !!stackId
     ? {
         OR: [{ question: { stackId } }, { deck: { stackId } }],
