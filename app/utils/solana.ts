@@ -17,6 +17,7 @@ export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;
 const DECIMALS = 5;
+export const MINIMUM_SOL_BALANCE_FOR_TRANSACTION = 0.000005;
 
 export const genBonkBurnTx = async (
   ownerAddress: string,
