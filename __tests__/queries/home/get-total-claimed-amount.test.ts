@@ -5,6 +5,9 @@ import { ResultType, TransactionStatus } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 jest.mock("@/app/utils/auth");
+jest.mock("p-retry", () => ({
+  retry: jest.fn((fn) => fn()),
+}));
 
 describe("getUsersTotalClaimedAmount", () => {
   const user1 = {
