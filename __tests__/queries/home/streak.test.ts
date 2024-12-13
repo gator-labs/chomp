@@ -12,6 +12,9 @@ import { subDays } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
 
 jest.mock("@/app/utils/auth");
+jest.mock("p-retry", () => ({
+  retry: jest.fn((fn) => fn()),
+}));
 
 describe("getUsersLatestStreak", () => {
   const user1 = {
