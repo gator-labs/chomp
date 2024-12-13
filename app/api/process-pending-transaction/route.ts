@@ -32,6 +32,7 @@ export async function GET(request: Request) {
   try {
     // Fetch all pending transactions within specific date range
     const pendingTransactions = await prisma.chompResult.findMany({
+      take: 10,
       where: {
         transactionStatus: "Pending",
         createdAt: {
