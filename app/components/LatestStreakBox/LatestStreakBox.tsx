@@ -25,7 +25,10 @@ const LatestStreakBox = ({
     setMysteryBoxClosed(false);
   }, [mysteryBoxId]);
 
-  if (!!mysteryBoxId && latestStreak >= 7)
+  if (
+    !!mysteryBoxId &&
+    latestStreak >= Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK!)
+  )
     return (
       <>
         <AnimatedGradientBorder
