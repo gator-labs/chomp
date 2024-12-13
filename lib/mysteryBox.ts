@@ -236,7 +236,7 @@ export async function findMysteryBox(
     const box = await prisma.mysteryBox.findFirst({
       where: {
         userId,
-        triggers: { every: { triggerType } },
+        triggers: { some: { triggerType } },
       },
       include: {
         triggers: true,
