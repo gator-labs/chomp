@@ -134,8 +134,15 @@ export async function revealQuestions(
       payload.sub,
     );
     if (!txStatus) {
-      release();
-      return null;
+      const pendingTxStatus = await hasBonkBurnedCorrectly(
+        burnTx,
+        bonkToBurn,
+        payload.sub,
+      );
+      if (!pendingTxStatus) {
+        release();
+        return null;
+      }
     }
   }
 
@@ -349,7 +356,6 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
 }
 
 // tx validation with 5 retries with a delay of 1s
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
@@ -409,8 +415,7 @@ async function hasBonkBurnedCorrectly(
         bonkToBurn * 10 ** 5 * (burnTransactionCount + 1) &&
       instruction.parsed.type === "burnChecked" &&
       wallets.includes(instruction.parsed.info.authority) &&
-      instruction.parsed.info.mint ===
-        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      instruction.parsed.info.mint === process.env.NEXT_PUBLIC_BONK_ADDRESS,
   );
 
   if (!burnInstruction) {
