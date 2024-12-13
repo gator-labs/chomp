@@ -27,6 +27,9 @@ export type MysteryBoxRewardRewardTxHashes = TokenTxHashes;
  * @param mysteryBoxId The ID of a mystery box that is owned by the
  *                     authenticated user and in the new state.
  *
+ * @param isDismissed Whether the mystery box has been dismissed
+ *                    (Reopen).
+ *
  * @return tokenTxHashes Map of tx hashes for each rewarded token
  *                       (if any), or null if user is not
  *                       authenticated / has no wallet address.
@@ -35,6 +38,7 @@ export type MysteryBoxRewardRewardTxHashes = TokenTxHashes;
  */
 export async function openMysteryBox(
   mysteryBoxId: string,
+  isDismissed: boolean,
 ): Promise<TokenTxHashes | null> {
   const payload = await getJwtPayload();
 
@@ -69,7 +73,9 @@ export async function openMysteryBox(
       where: {
         id: mysteryBoxId,
         userId: payload.sub,
-        status: EMysteryBoxStatus.New,
+        status: isDismissed
+          ? EMysteryBoxStatus.Unopened
+          : EMysteryBoxStatus.New,
       },
       include: {
         MysteryBoxPrize: {
@@ -80,7 +86,11 @@ export async function openMysteryBox(
             tokenAddress: true,
           },
           where: {
-            status: EBoxPrizeStatus.Unclaimed,
+            // We check for Unclaimed/Dismissed status here since boxes may be stuck in
+            // Unclaimed state if a previous reveal attempt failed
+            status: {
+              in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
+            },
             prizeType: EBoxPrizeType.Token,
           },
         },

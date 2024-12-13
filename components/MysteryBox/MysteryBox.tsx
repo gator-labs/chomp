@@ -24,6 +24,7 @@ type MysteryBoxProps = {
   isOpen: boolean;
   closeBoxDialog: () => void;
   mysteryBoxId: string | null;
+  isDismissed: boolean;
 };
 
 function buildMessage(lines: string[]) {
@@ -41,7 +42,12 @@ function buildMessage(lines: string[]) {
 
 type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
 
-function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
+function MysteryBox({
+  isOpen,
+  closeBoxDialog,
+  mysteryBoxId,
+  isDismissed,
+}: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
   const router = useRouter();
@@ -70,12 +76,15 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       // be a bit more sophisticated here and show a single toast
       // in some cases (e.g. for credits-only boxes)
 
-      const newBox = await promiseToast(revealMysteryBox(mysteryBoxId), {
-        loading: "Opening Mystery Box. Please wait...",
-        success:
-          "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
-        error: "Failed to open the Mystery Box. Please try again later. 😔",
-      });
+      const newBox = await promiseToast(
+        revealMysteryBox(mysteryBoxId, isDismissed),
+        {
+          loading: "Opening Mystery Box. Please wait...",
+          success:
+            "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
+          error: "Failed to open the Mystery Box. Please try again later. 😔",
+        },
+      );
 
       setStatus("Opening");
 
@@ -100,7 +109,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       setBox(newBox);
 
       if (newBox) {
-        openMysteryBox(mysteryBoxId)
+        openMysteryBox(mysteryBoxId, isDismissed)
           .then(() => {
             successToast("Your prizes are on the way!");
           })

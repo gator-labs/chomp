@@ -105,3 +105,10 @@ export class UserAllowlistError extends Error {
     this.name = "UserAllowlistError";
   }
 }
+
+export class GetUnopenedMysteryBoxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "GetUnopenedMysteryBoxError";
+  }
+}
