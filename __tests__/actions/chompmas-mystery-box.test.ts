@@ -153,7 +153,7 @@ describe("Chompmas mystery boxes", () => {
   it("Should refuse a chompmas box for user without a streak", async () => {
     const boxId = await getChompmasMysteryBox(
       user2.id,
-      Number(process.env.CHOMPMAS_MIN_STREAK!) - 1,
+      Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK!) - 1,
     );
 
     expect(boxId).toBeNull();
@@ -162,7 +162,7 @@ describe("Chompmas mystery boxes", () => {
   it("Should create a chompmas box for user with a streak", async () => {
     mysteryBoxId = await getChompmasMysteryBox(
       user1.id,
-      Number(process.env.CHOMPMAS_MIN_STREAK!),
+      Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK!),
     );
 
     expect(mysteryBoxId).toBeDefined();
@@ -190,7 +190,7 @@ describe("Chompmas mystery boxes", () => {
   it("Should return the existing box", async () => {
     const boxId = await getChompmasMysteryBox(
       user1.id,
-      Number(process.env.CHOMPMAS_MIN_STREAK!),
+      Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK!),
     );
 
     expect(boxId).toEqual(mysteryBoxId);
@@ -210,7 +210,7 @@ describe("Chompmas mystery boxes", () => {
 
     const boxId = await getChompmasMysteryBox(
       user1.id,
-      Number(process.env.CHOMPMAS_MIN_STREAK!),
+      Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK!),
     );
 
     expect(boxId).not.toEqual(mysteryBoxId);
