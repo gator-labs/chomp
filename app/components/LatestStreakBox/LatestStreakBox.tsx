@@ -1,18 +1,28 @@
 "use client";
 
 import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
+import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import { cn } from "@/lib/utils";
 import { Goal } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import StatsDrawer from "../StatsDrawer/StatsDrawer";
 
 type LatestStreakBoxProps = {
   latestStreak: number;
+  mysteryBoxId?: string | null;
 };
 
-const LatestStreakBox = ({ latestStreak }: LatestStreakBoxProps) => {
+const LatestStreakBox = ({
+  latestStreak,
+  mysteryBoxId,
+}: LatestStreakBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [mysteryBoxClosed, setMysteryBoxClosed] = useState<boolean>(false);
+
+  useEffect(() => {
+    setMysteryBoxClosed(false);
+  }, [mysteryBoxId]);
 
   return (
     <>
@@ -46,7 +56,7 @@ const LatestStreakBox = ({ latestStreak }: LatestStreakBoxProps) => {
         </div>
       </div>
       <StatsDrawer
-        isOpen={isOpen}
+        isOpen={isOpen && (!mysteryBoxId || mysteryBoxClosed)}
         onClose={() => setIsOpen(false)}
         title="Streak"
         description="Keep going! Streaks track consecutive days you've answered or
@@ -55,6 +65,16 @@ const LatestStreakBox = ({ latestStreak }: LatestStreakBoxProps) => {
           HOME_STAT_CARD_TYPE.CARDS_REVEALED as keyof typeof HOME_STAT_CARD_TYPE
         }
       />
+      {mysteryBoxId && !mysteryBoxClosed && (
+        <MysteryBox
+          isOpen={isOpen}
+          closeBoxDialog={() => {
+            setIsOpen(false);
+            setMysteryBoxClosed(true);
+          }}
+          mysteryBoxId={mysteryBoxId}
+        />
+      )}
     </>
   );
 };
