@@ -389,5 +389,5 @@ async function queryUsersLongestStreak(userId: string): Promise<number> {
   LIMIT 1
   `;
 
-  return streaks[0].streakLength;
+  return Number(streaks?.[0]?.streakLength || 0);
 }
