@@ -28,7 +28,6 @@ export async function GET(request: Request) {
 
   const currentTime = new Date();
   const oneWeekAgo = sub(currentTime, { days: 7 });
-  const tenMinutesAgo = sub(currentTime, { minutes: 10 });
 
   try {
     // Fetch all pending transactions within specific date range
@@ -37,7 +36,6 @@ export async function GET(request: Request) {
         transactionStatus: "Pending",
         createdAt: {
           gte: startOfDay(oneWeekAgo), // Start of the day 7 days ago
-          lte: tenMinutesAgo, // 10 minutes ago
         },
         needsManualReview: null,
       },
