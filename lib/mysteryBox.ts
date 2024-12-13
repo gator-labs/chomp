@@ -236,18 +236,10 @@ export async function findMysteryBox(
     const box = await prisma.mysteryBox.findFirst({
       where: {
         userId,
+        triggers: { every: { triggerType } },
       },
       include: {
-        MysteryBoxPrize: {
-          where: {
-            status: EBoxPrizeStatus.Unclaimed,
-          },
-        },
-        triggers: {
-          where: {
-            triggerType,
-          },
-        },
+        triggers: true,
       },
     });
 
