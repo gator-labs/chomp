@@ -2,10 +2,10 @@
 
 import { dismissQuestion, revealQuestion } from "@/app/actions/chompResult";
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
-import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { RevealedQuestion } from "@/app/queries/home";
+import { RevealProps } from "@/types/reveal";
 import { useRouter } from "next-nprogress-bar";
 
 import { FeedQuestionCard } from "../FeedQuestionCard/FeedQuestionCard";
