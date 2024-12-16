@@ -1,5 +1,6 @@
 "use server";
 
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { OpenMysteryBoxError, SendBonkError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import {
@@ -194,6 +195,7 @@ export async function openMysteryBox(
     throw new Error("Error opening mystery box");
   } finally {
     release();
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
   }
 
   return txHashes;
