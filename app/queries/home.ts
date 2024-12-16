@@ -284,13 +284,12 @@ export async function getUsersLatestStreakAndMysteryBox(): Promise<
   const payload = await authGuard();
 
   const latestStreak = await queryUsersLatestStreak(payload.sub);
-  const longestStreak = await queryUsersLongestStreak(payload.sub);
 
   const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
 
   const mysteryBoxId =
     FF_MYSTERY_BOX && (await isUserInAllowlist())
-      ? await getChompmasMysteryBox(payload.sub, longestStreak)
+      ? await getChompmasMysteryBox(payload.sub, latestStreak)
       : null;
 
   return [latestStreak, mysteryBoxId];

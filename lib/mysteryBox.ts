@@ -263,15 +263,15 @@ export async function findMysteryBox(
  * If a user has an existing unopened Chompmas box, return
  * it, else reward one and return the ID.
  *
- * @param userId        User ID.
- * @param longestStreak User's current longest streak (assumed to already
- *                      be validated).
+ * @param userId       User ID.
+ * @param latestStreak User's current latest streak (assumed to already
+ *                     be validated).
  *
  * @return mysteryBoxId New or existing mystery box ID.
  */
 export async function getChompmasMysteryBox(
   userId: string,
-  longestStreak: number,
+  latestStreak: number,
 ): Promise<string | null> {
   const box = await findMysteryBox(
     userId,
@@ -285,7 +285,7 @@ export async function getChompmasMysteryBox(
 
   // We only check this after looking for an existing box so a user
   // doesn't lose their already-awarded box.
-  if (longestStreak < Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK ?? 7))
+  if (latestStreak < Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK ?? 7))
     return null;
 
   return await rewardChompmasBox(userId);
