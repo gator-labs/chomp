@@ -23,8 +23,9 @@ jest.mock("next/cache", () => ({
 
 describe("Validate points logs for completing questions and decks", () => {
   const currentDate = new Date();
-  let user: { id: string; username: string }[];
+  let userId: string;
   let deckId: number;
+  let deckQuestionId: number;
   beforeAll(async () => {
     // create a new deck
     const deck = await prisma.deck.create({
@@ -75,39 +76,13 @@ describe("Validate points logs for completing questions and decks", () => {
         deckQuestions: true,
       },
     });
+    deckQuestionId = deck.id;
     deckId = deck.id;
     // create a new user
-    user = await generateUsers(1);
+    const user = await generateUsers(1);
+    userId = user[0].id;
     await prisma.user.createMany({
       data: user,
-    });
-
-    //find question options
-    const questionOptions = await prisma.questionOption.findMany({
-      where: {
-        question: {
-          deckQuestions: {
-            some: {
-              deckId: deck.id,
-            },
-          },
-        },
-      },
-    });
-
-    // Mock the return value of getJwtPayload to simulate the user context
-    (getJwtPayload as jest.Mock).mockReturnValue({
-      sub: user[0].id,
-    });
-
-    // answer question using action
-    await answerQuestion({
-      questionId: deck.deckQuestions[0].id,
-      questionOptionId: questionOptions[1].id,
-      percentageGiven: 50,
-      percentageGivenForAnswerId: questionOptions[1].id,
-      timeToAnswerInMiliseconds: 3638,
-      deckId: deckId,
     });
   });
 
@@ -117,21 +92,91 @@ describe("Validate points logs for completing questions and decks", () => {
 
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: {
-        userId: user[0].id,
+        userId: userId,
       },
     });
 
     await prisma.user.delete({
       where: {
-        id: user[0].id,
+        id: userId,
       },
     });
+  });
+
+  test("should allow a user to answer a question once", async () => {
+    //find question options
+    const questionOptions = await prisma.questionOption.findMany({
+      where: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
+      },
+    });
+
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: userId,
+    });
+
+    await answerQuestion({
+      questionId: deckQuestionId,
+      questionOptionId: questionOptions[1].id,
+      percentageGiven: 50,
+      percentageGivenForAnswerId: questionOptions[1].id,
+      timeToAnswerInMiliseconds: 3638,
+      deckId: deckId,
+    });
+    const questionAnswer = await prisma.questionAnswer.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+    expect(questionAnswer).toHaveLength(4);
+  });
+
+  test("should not allow a user to answer the same question twice", async () => {
+    //find question options
+    const questionOptions = await prisma.questionOption.findMany({
+      where: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
+      },
+    });
+
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: userId,
+    });
+
+    try {
+      await answerQuestion({
+        questionId: deckQuestionId,
+        questionOptionId: questionOptions[1].id,
+        percentageGiven: 50,
+        percentageGivenForAnswerId: questionOptions[1].id,
+        timeToAnswerInMiliseconds: 3638,
+        deckId: deckId,
+      });
+    } catch (error: any) {
+      expect(error.message).toBe(
+        `User with id: ${userId} has already answered question with id: ${deckQuestionId}`,
+      );
+    }
   });
 
   test("Records points correctly for deck and question completion", async () => {
     const res = await prisma.fungibleAssetTransactionLog.findMany({
       where: {
-        userId: user[0].id,
+        userId: userId,
       },
     });
 
