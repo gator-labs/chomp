@@ -245,16 +245,18 @@ model MysteryBox {
 }
 
 model MysteryBoxTrigger {
-  id           String          @id @default(uuid())
+  id           String              @id @default(uuid())
   triggerType  EBoxTriggerType
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @default(now()) @updatedAt
-  question     Question?       @relation(fields: [questionId], references: [id])
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @default(now()) @updatedAt
+  question     Question?           @relation(fields: [questionId], references: [id])
   questionId   Int?
-  deck         Deck?           @relation(fields: [deckId], references: [id])
+  deck         Deck?               @relation(fields: [deckId], references: [id])
   deckId       Int?
-  MysteryBox   MysteryBox?     @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId String?
+  MysteryBox   MysteryBox?         @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId String
+  allowlist    MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
+  mysteryBoxAllowlistId  String?
 
   @@unique([mysteryBoxId, questionId, triggerType])
   @@unique([mysteryBoxId, deckId, triggerType])
@@ -278,6 +280,14 @@ model MysteryBoxPrize {
   @@unique([mysteryBoxId, tokenAddress])
 }
 
+model MysteryBoxAllowlist {
+  address           String              @id @unique
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now()) @updatedAt
+  tags              String?
+  MysteryBoxTrigger MysteryBoxTrigger[]
+}
+
 enum EMysteryBoxStatus {
   New
   Opened
@@ -287,6 +297,7 @@ enum EMysteryBoxStatus {
 enum EBoxTriggerType {
   ClaimAllCompleted
   DailyDeckCompleted
+  ChompmasStreakAttained
 }
 
 enum EBoxPrizeStatus {
