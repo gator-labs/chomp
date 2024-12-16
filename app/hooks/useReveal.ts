@@ -9,6 +9,7 @@ import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 
@@ -32,7 +33,11 @@ import {
   TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
-import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import {
+  CONNECTION,
+  MINIMUM_SOL_BALANCE_FOR_TRANSACTION,
+  genBonkBurnTx,
+} from "../utils/solana";
 
 const BURN_STATE_IDLE = "idle";
 
@@ -43,7 +48,12 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
   });
 };
 
-export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
+export function useReveal({
+  wallet,
+  address,
+  bonkBalance,
+  solBalance,
+}: UseRevealProps) {
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
@@ -62,8 +72,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   >(BURN_STATE_IDLE);
 
   const hasPendingTransactions = pendingChompResults.length > 0;
-  const insufficientFunds =
-    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions;
+  const [insufficientFunds, setInsufficientFunds] = useState(
+    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions,
+  );
+
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
   const isRevealWithNftMode =
     revealNft && !isMultiple && burnState !== "burning";
@@ -115,6 +127,35 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             id: genesisNft.id,
             type: NftType.Genesis,
           });
+        }
+
+        if (!wallet || !isSolanaWallet(wallet)) {
+          return;
+        }
+
+        const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
+        const estimatedFee = await tx.getEstimatedFee(CONNECTION);
+
+        if (!estimatedFee) {
+          return errorToast(
+            `We could not read fee for this transaction, please try again!`,
+          );
+        }
+
+        const estimatedFeeInSol = estimatedFee / LAMPORTS_PER_SOL;
+
+        if (
+          estimatedFeeInSol > Number(solBalance) ||
+          MINIMUM_SOL_BALANCE_FOR_TRANSACTION > Number(solBalance)
+        ) {
+          setInsufficientFunds(true);
+        } else {
+          setInsufficientFunds(
+            !!reveal?.amount &&
+              reveal.amount > bonkBalance &&
+              !hasPendingTransactions,
+          );
         }
       } catch (error) {
         console.error(error);
@@ -218,6 +259,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           const signer = await wallet!.getSigner();
 
           const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
           setBurnState("burning");
 
           try {

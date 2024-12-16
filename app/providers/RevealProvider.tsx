@@ -37,9 +37,11 @@ export const RevealedContext =
 export function RevealContextProvider({
   children,
   bonkBalance,
+  solBalance,
 }: {
   children: ReactNode;
   bonkBalance: number;
+  solBalance: number;
 }) {
   const { primaryWallet } = useDynamicContext();
   const {
@@ -62,6 +64,7 @@ export function RevealContextProvider({
     bonkBalance,
     address: primaryWallet?.address,
     wallet: primaryWallet,
+    solBalance,
   });
 
   const hasPendingTransactions = pendingTransactions > 0;
