@@ -25,6 +25,7 @@ type MysteryBoxProps = {
   closeBoxDialog: () => void;
   mysteryBoxId: string | null;
   isDismissed: boolean;
+  skipAction: MysteryBoxSkipAction;
 };
 
 function buildMessage(lines: string[]) {
@@ -41,12 +42,14 @@ function buildMessage(lines: string[]) {
 }
 
 type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
+type MysteryBoxSkipAction = "Dismiss" | "Close";
 
 function MysteryBox({
   isOpen,
   closeBoxDialog,
   mysteryBoxId,
   isDismissed,
+  skipAction,
 }: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
@@ -142,7 +145,8 @@ function MysteryBox({
     if (isSubmitting) return;
 
     try {
-      if (mysteryBoxId) await dismissMysteryBox(mysteryBoxId);
+      if (mysteryBoxId && skipAction == 'Dismiss')
+          await dismissMysteryBox(mysteryBoxId);
     } catch {}
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
