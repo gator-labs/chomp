@@ -19,6 +19,7 @@ export const ReopenMysteryBox = ({
         }}
         mysteryBoxId={mysteryBoxId}
         isDismissed={true}
+        skipAction={"Close"}
       />
     </>
   );

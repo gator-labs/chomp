@@ -6,14 +6,15 @@ import { getAllQuestionsReadyForReveal } from "@/app/queries/history";
 import { getUnopenedMysteryBox } from "@/app/queries/mysteryBox";
 import { getProfileImage } from "@/app/queries/profile";
 import { ReopenMysteryBox } from "@/components/MysteryBox/ReopenMysteryBox";
+import { EBoxTriggerType } from "@prisma/client";
 
 export default async function Page() {
-  const [revealableQuestions, totalClaimableRewards, profileImg, mysteryBox] =
+  const [revealableQuestions, totalClaimableRewards, profileImg, mysteryBoxId] =
     await Promise.all([
       getAllQuestionsReadyForReveal(),
       getTotalClaimableRewards(),
       getProfileImage(),
-      getUnopenedMysteryBox(),
+      getUnopenedMysteryBox(EBoxTriggerType.ClaimAllCompleted),
     ]);
 
   return (
@@ -27,7 +28,7 @@ export default async function Page() {
         />
         <History />
       </div>
-      {mysteryBox && <ReopenMysteryBox mysteryBoxId={mysteryBox.id} />}
+      {mysteryBoxId && <ReopenMysteryBox mysteryBoxId={mysteryBoxId} />}
     </>
   );
 }
