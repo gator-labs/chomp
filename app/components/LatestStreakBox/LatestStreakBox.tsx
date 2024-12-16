@@ -61,6 +61,7 @@ const LatestStreakBox = ({
               setIsMysteryBoxSeen(true);
             }}
             mysteryBoxId={mysteryBoxId}
+            skipAction={"Close"}
             isDismissed={false}
           />
         )}
