@@ -236,7 +236,7 @@ export async function findMysteryBox(
     const box = await prisma.mysteryBox.findFirst({
       where: {
         userId,
-        triggers: { every: { triggerType } },
+        triggers: { some: { triggerType } },
       },
       include: {
         triggers: true,
@@ -286,7 +286,8 @@ export async function getChompmasMysteryBox(
 
   // We only check this after looking for an existing box so a user
   // doesn't lose their already-awarded box.
-  if (longestStreak < Number(process.env.CHOMPMAS_MIN_STREAK ?? 7)) return null;
+  if (longestStreak < Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK ?? 7))
+    return null;
 
   return await rewardChompmasBox(userId);
 }

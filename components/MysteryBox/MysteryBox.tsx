@@ -24,6 +24,7 @@ type MysteryBoxProps = {
   isOpen: boolean;
   closeBoxDialog: () => void;
   mysteryBoxId: string | null;
+  isDismissed: boolean;
 };
 
 function buildMessage(lines: string[]) {
@@ -41,14 +42,18 @@ function buildMessage(lines: string[]) {
 
 type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
 
-function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
+function MysteryBox({
+  isOpen,
+  closeBoxDialog,
+  mysteryBoxId,
+  isDismissed,
+}: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
   const router = useRouter();
   const lottieRef = useRef<LottieRefCurrentProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
-
   const [box, setBox] = useState<MysteryBoxResult | null>(null);
 
   const message: MysteryBoxOpenMessage = "REGULAR";
@@ -63,19 +68,21 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
   const openBox = async () => {
     if (!mysteryBoxId) return;
-    setIsSubmitting(true);
 
     try {
       // TODO: this process is a bit "toasty" - could probably
       // be a bit more sophisticated here and show a single toast
       // in some cases (e.g. for credits-only boxes)
 
-      const newBox = await promiseToast(revealMysteryBox(mysteryBoxId), {
-        loading: "Opening Mystery Box. Please wait...",
-        success:
-          "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
-        error: "Failed to open the Mystery Box. Please try again later. 😔",
-      });
+      const newBox = await promiseToast(
+        revealMysteryBox(mysteryBoxId, isDismissed),
+        {
+          loading: "Opening Mystery Box. Please wait...",
+          success:
+            "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
+          error: "Failed to open the Mystery Box. Please try again later. 😔",
+        },
+      );
 
       setStatus("Opening");
 
@@ -100,7 +107,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       setBox(newBox);
 
       if (newBox) {
-        openMysteryBox(mysteryBoxId)
+        openMysteryBox(mysteryBoxId, isDismissed)
           .then(() => {
             successToast("Your prizes are on the way!");
           })
@@ -111,7 +118,9 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     } catch {
       setBox(null);
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 3000);
     }
   };
 
@@ -203,19 +212,18 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
                 height: "280px",
                 transformOrigin: "5% top",
                 transition: "all 0.5s ease",
-                scale:
-                  status === "Opening"
-                    ? "1.5"
-                    : status === "Closing"
-                      ? "0.6"
-                      : "1",
+                scale: status === "Opening" ? "1.5" : "1.2",
                 zIndex: 999,
-                transform: `translateY(${status === "Closing" ? -118 : -70}%) translateX(${status === "Closing" ? -48 : -43}%)`,
+                transform: `translateY(-75%) translateX(-43%)`,
               }}
               className={cn("absolute top-1/2 left-1/2", {
                 "cursor-pointer": !isSubmitting || !box,
               })}
-              onClick={openBox}
+              onClick={() => {
+                if (isSubmitting) return;
+                setIsSubmitting(true);
+                openBox();
+              }}
               disabled={isSubmitting || !!box}
             />
 

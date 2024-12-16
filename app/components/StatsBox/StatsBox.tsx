@@ -27,6 +27,19 @@ export function StatsBox({
 }: StatsBoxProps) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const getTitleColor = (type: keyof typeof HOME_STAT_CARD_TYPE) => {
+    switch (type) {
+      case HOME_STAT_CARD_TYPE.BONK_CLAIMED:
+        return "text-chomp-orange-light";
+      case HOME_STAT_CARD_TYPE.POINTS_EARNED:
+        return "text-chomp-green-light";
+      case HOME_STAT_CARD_TYPE.CREDITS_EARNED:
+        return "text-chomp-blue-light";
+      default:
+        return "text-white";
+    }
+  };
+
   return (
     <>
       <StatsDrawer
@@ -37,7 +50,7 @@ export function StatsBox({
       <div
         onClick={() => setIsOpen(true)}
         className={cn(
-          "w-full rounded-[8px] border-[0.5px] border-solid p-4 border-gray-500 bg-gray-700 flex flex-col gap-4 transition-all duration-200 hover:bg-gray-600 cursor-pointer",
+          "w-full rounded-[8px] border-[0.5px] border-solid p-4 border-gray-600 bg-gray-800 flex flex-col gap-2 transition-all duration-200 hover:bg-gray-700 cursor-pointer",
           {
             "bg-gray-600": isOpen,
           },
@@ -45,10 +58,12 @@ export function StatsBox({
         )}
       >
         <div className="flex justify-between items-center basis-full">
-          <p className="text-sm font-bold">{title}</p>
+          <p className={cn("font-bold", getTitleColor(drawerProps.type))}>
+            {title}
+          </p>
           <div>{icon}</div>
         </div>
-        <p className="text-sm font-medium">{description}</p>
+        <p className="text-sm text-gray-400 font-medium">{description}</p>
       </div>
     </>
   );
