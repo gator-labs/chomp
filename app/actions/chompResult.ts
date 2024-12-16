@@ -1,6 +1,6 @@
 "use server";
 
-import { RevealError } from "@/lib/error";
+import { RevealConfirmationError, RevealError } from "@/lib/error";
 import {
   FungibleAsset,
   NftType,
@@ -8,6 +8,7 @@ import {
   TransactionStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import { TransactionSignature } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
@@ -16,6 +17,7 @@ import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
 import { calculateRevealPoints } from "../utils/points";
 import { isEntityRevealable } from "../utils/question";
+import { sleep } from "../utils/sleep";
 import { CONNECTION } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 import { checkNft } from "./revealNft";
@@ -114,6 +116,7 @@ export async function revealQuestions(
   );
 
   if (!revealableQuestions.length) {
+    release();
     throw new Error("No revealable questions available");
   }
 
@@ -125,14 +128,21 @@ export async function revealQuestions(
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
   if (bonkToBurn > 0) {
-    const isSuccessful = await hasBonkBurnedCorrectly(
-      burnTx,
-      bonkToBurn,
+    const txStatus = await pollTransactionConfirmation(
+      burnTx || "",
+      questionIds,
       payload.sub,
     );
-
-    if (!isSuccessful) {
-      return null;
+    if (!txStatus) {
+      const pendingTxStatus = await hasBonkBurnedCorrectly(
+        burnTx,
+        bonkToBurn,
+        payload.sub,
+      );
+      if (!pendingTxStatus) {
+        release();
+        return null;
+      }
     }
   }
 
@@ -177,8 +187,8 @@ export async function revealQuestions(
       const revealError = new RevealError(
         `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
       );
+      release();
       Sentry.captureException(revealError);
-
       return null;
     }
 
@@ -280,7 +290,6 @@ export async function createQuestionChompResults(
   if (!payload) {
     return null;
   }
-
   return await prisma.$transaction(
     questionChomps.map((qc) =>
       prisma.chompResult.create({
@@ -346,6 +355,7 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
   });
 }
 
+// tx validation with 5 retries with a delay of 1s
 async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
@@ -380,7 +390,7 @@ async function hasBonkBurnedCorrectly(
 
     if (!transaction) {
       attempts++;
-      await new Promise((resolve) => setTimeout(resolve, interval));
+      await sleep(interval);
     }
   }
 
@@ -405,15 +415,83 @@ async function hasBonkBurnedCorrectly(
         bonkToBurn * 10 ** 5 * (burnTransactionCount + 1) &&
       instruction.parsed.type === "burnChecked" &&
       wallets.includes(instruction.parsed.info.authority) &&
-      instruction.parsed.info.mint ===
-        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      instruction.parsed.info.mint === process.env.NEXT_PUBLIC_BONK_ADDRESS,
   );
 
   if (!burnInstruction) {
+    const revealError = new RevealConfirmationError(
+      `Unable to validate tx for User id: ${userId} and (wallet: ${JSON.stringify(wallets)})`,
+    );
+    Sentry.captureException(revealError, {
+      tags: {
+        category: "reveal-tx-confirmation-error",
+      },
+      extra: { burnInstruction: burnInstruction },
+    });
     return false;
   }
 
   return true;
+}
+
+/**
+ * Validate transaction for chomp result to mark them as complete
+ * Run for 15s with an interval of 5s
+ *
+ * @param userId        User ID.
+ * @param txnSig      Burn Tx Sign
+ * @param pendingChompResultQuestionIds chompresults will be in pending state
+ * after user start reveal
+ *
+ *
+ * @return status boolean
+ */
+async function pollTransactionConfirmation(
+  txnSig: TransactionSignature,
+  pendingChompResultQuestionIds: number[],
+  userId: string,
+): Promise<boolean> {
+  const timeout = 15000; // 15 seconds
+  const interval = 5000; // 5 seconds
+  let elapsed = 0;
+
+  return new Promise<boolean>((resolve) => {
+    const intervalId = setInterval(async () => {
+      elapsed += interval;
+
+      if (elapsed >= timeout) {
+        clearInterval(intervalId);
+        resolve(false); // Return false on timeout
+        return;
+      }
+
+      try {
+        const status = await CONNECTION.getSignatureStatuses([txnSig]);
+
+        if (
+          status?.value[0]?.confirmationStatus === "confirmed" ||
+          status?.value[0]?.confirmationStatus === "finalized"
+        ) {
+          clearInterval(intervalId);
+          resolve(true); // Return true if confirmed or finalized
+        }
+      } catch (error) {
+        console.error("Error checking transaction status:", error);
+
+        const revealError = new RevealConfirmationError(
+          `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultQuestionIds}})`,
+          { cause: error },
+        );
+        Sentry.captureException(revealError, {
+          tags: {
+            category: "reveal-tx-confirmation-error",
+          },
+        });
+        clearInterval(intervalId);
+        resolve(false); // Return false if an error occurs
+      }
+    }, interval);
+  });
 }
 
 async function handleFirstRevealToPopulateSubjectiveQuestion(
