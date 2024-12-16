@@ -229,9 +229,9 @@ function MysteryBox({
               className={cn("absolute top-1/2 left-1/2", {
                 "cursor-pointer": !isSubmitting && box && status === "Idle",
               })}
-              onClick={() => {
-                !isSubmitting && box && status === "Idle" && openBox();
-              }}
+              onClick={() =>
+                !isSubmitting && box && status === "Idle" && openBox()
+              }
             />
 
             <div
