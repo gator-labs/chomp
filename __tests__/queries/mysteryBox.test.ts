@@ -3,7 +3,11 @@ import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { generateUsers } from "@/scripts/utils";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
-import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 
 import { deleteMysteryBoxes } from "../actions/mystery-box.test";
 
@@ -129,18 +133,19 @@ describe("getUnopenedMysteryBox", () => {
 
     (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
 
-    const result = await getUnopenedMysteryBox();
+    const result = await getUnopenedMysteryBox(
+      EBoxTriggerType.ClaimAllCompleted,
+    );
 
-    expect(result).toBeDefined();
-    expect(result?.id).toBe(mysteryBox1);
-    expect(result?.userId).toBe(user1.id);
-    expect(result?.MysteryBoxPrize).toHaveLength(1);
+    expect(result).toBe(mysteryBox1);
   });
 
   it("should return null when no unopened box exists", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user2.id });
 
-    const result = await getUnopenedMysteryBox();
+    const result = await getUnopenedMysteryBox(
+      EBoxTriggerType.ClaimAllCompleted,
+    );
 
     expect(result).toBeNull();
   });
