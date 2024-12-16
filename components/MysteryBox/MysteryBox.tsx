@@ -212,14 +212,9 @@ function MysteryBox({
                 height: "280px",
                 transformOrigin: "5% top",
                 transition: "all 0.5s ease",
-                scale:
-                  status === "Opening"
-                    ? "1.5"
-                    : status === "Closing"
-                      ? "0.6"
-                      : "1",
+                scale: status === "Opening" ? "1.5" : "1.2",
                 zIndex: 999,
-                transform: `translateY(${status === "Closing" ? -118 : -70}%) translateX(${status === "Closing" ? -48 : -43}%)`,
+                transform: `translateY(-75%) translateX(-43%)`,
               }}
               className={cn("absolute top-1/2 left-1/2", {
                 "cursor-pointer": !isSubmitting || !box,
