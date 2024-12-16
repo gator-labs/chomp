@@ -177,8 +177,7 @@ export async function rewardChompmasBox(
 ): Promise<string | null> {
   try {
     const calculatedReward = await calculateMysteryBoxReward(
-      // TODO: replace with .CHOMPMAS when mechanism engine PR lands
-      MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+      MysteryBoxEventsType.CHOMPMAS,
     );
 
     if (!calculatedReward?.bonk) throw new Error("No BONK in mystery box");
