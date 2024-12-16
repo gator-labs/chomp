@@ -1,9 +1,9 @@
 "use client";
 
 import { revealQuestion, revealQuestions } from "@/app/actions/chompResult";
-import { RevealProps } from "@/app/hooks/useReveal";
 import { useRevealedContext } from "@/app/providers/RevealProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
+import { RevealProps } from "@/types/reveal";
 import { useQueryClient } from "@tanstack/react-query";
 import { startTransition, useCallback, useOptimistic, useState } from "react";
 
@@ -35,13 +35,19 @@ export default function PotentialRewardsRevealAll({
   const [isLoading, setIsLoading] = useState(false);
   const { openRevealModal, closeRevealModal } = useRevealedContext();
 
+  // Data is passed from the useReveal hook, using reveal?.reveal(...data) for execution.
   const revealAll = useCallback(
-    async ({ burnTx, revealQuestionIds, pendingChompResults }: RevealProps) => {
+    async ({
+      burnTx,
+      revealQuestionIds,
+      pendingChompResults,
+      nftAddress,
+      nftType,
+    }: RevealProps) => {
       setIsLoading(true);
-
       await Promise.all([
         ...(revealQuestionIds
-          ? [revealQuestions(revealQuestionIds, burnTx)]
+          ? [revealQuestions(revealQuestionIds, burnTx, nftAddress, nftType)]
           : []),
         ...(pendingChompResults?.map((result) =>
           revealQuestion(result.id, result.burnTx),

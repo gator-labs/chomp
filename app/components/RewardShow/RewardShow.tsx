@@ -106,7 +106,9 @@ const RewardShow = ({
               })}
             >
               <p className="text-xs font-bold  text-center ">
-                {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
+                {numberToCurrencyFormatter.format(
+                  Math.round(rewardAmount || 0),
+                )}{" "}
                 BONK
               </p>
             </Pill>

@@ -17,6 +17,7 @@ export const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_URL!);
 
 const BONK_PUBLIC_ADDRESS = process.env.NEXT_PUBLIC_BONK_ADDRESS!;
 const DECIMALS = 5;
+export const MINIMUM_SOL_BALANCE_FOR_TRANSACTION = 0.000005;
 
 export const genBonkBurnTx = async (
   ownerAddress: string,
@@ -30,11 +31,21 @@ export const genBonkBurnTx = async (
   const tx = new Transaction();
 
   const { blockhash, lastValidBlockHeight } =
-    await CONNECTION.getLatestBlockhash();
+    await CONNECTION.getLatestBlockhash("confirmed");
 
+  // required to get the appropriate priority fees
   tx.recentBlockhash = blockhash;
   tx.lastValidBlockHeight = lastValidBlockHeight;
   tx.feePayer = burnFromPublic;
+
+  // It is recommended to add the compute limit instruction before adding other instructions
+  const computeUnitFix = 4960;
+
+  // Buffer to make sure the transaction doesn't fail because of less compute units
+  const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
+    units: Math.round(computeUnitFix * 1.1),
+  });
+  tx.add(modifyComputeUnits);
 
   const burnTxInstruction = createBurnCheckedInstruction(
     ata,
@@ -43,6 +54,7 @@ export const genBonkBurnTx = async (
     tokenAmount * 10 ** DECIMALS,
     DECIMALS,
   );
+  tx.add(burnTxInstruction);
 
   let estimateFee = await getRecentPrioritizationFees(tx);
 
@@ -66,24 +78,20 @@ export const genBonkBurnTx = async (
     }
   }
 
-  const computeUnitFix = 4960;
-
-  // Buffer to make sure the transaction doesn't fail because of less compute units
-  const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
-    units: Math.round(computeUnitFix * 1.1),
-  });
-
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
     microLamports: Math.round(estimateFee?.result?.priorityFeeLevels?.high),
   });
 
-  tx.add(modifyComputeUnits);
   tx.add(addPriorityFee);
-  tx.add(burnTxInstruction);
 
-  // Add latest blockhash
-  tx.recentBlockhash = (await CONNECTION.getLatestBlockhash()).blockhash;
+  // Add latest blockhash and block height to make sure tx success rate
+  const {
+    blockhash: newBlockhash,
+    lastValidBlockHeight: newLastValidBlockHeight,
+  } = await CONNECTION.getLatestBlockhash("finalized");
 
+  tx.recentBlockhash = newBlockhash;
+  tx.lastValidBlockHeight = newLastValidBlockHeight;
   return tx;
 };
 

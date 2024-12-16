@@ -1,12 +1,27 @@
-// import { rewardMysteryBox } from "@/app/actions/box";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
-import { rewardMysteryBox } from "@/app/actions/mysteryBox/reward";
+import { openMysteryBox } from "@/app/actions/mysteryBox/open";
+import { revealMysteryBox } from "@/app/actions/mysteryBox/reveal";
 import prisma from "@/app/services/prisma";
+import { rewardMysteryBox } from "@/lib/mysteryBox";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
+import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
-import { EBoxPrizeStatus, EBoxTriggerType } from "@prisma/client";
+import { MysteryBoxEventsType } from "@/types/mysteryBox";
+import { faker } from "@faker-js/faker";
+import {
+  EBoxPrizeStatus,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
+
+jest.mock("@/lib/mysteryBox", () => ({
+  ...jest.requireActual("@/lib/mysteryBox"),
+  sendBonkFromTreasury: jest.fn(async () =>
+    faker.string.hexadecimal({ length: 88 }),
+  ),
+}));
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
@@ -19,29 +34,33 @@ jest.mock("next/cache", () => ({
 }));
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
-async function deleteMysteryBox(mysteryBoxId: string) {
-  const mysteryBoxRes = await prisma.mysteryBox.findUnique({
+export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
+  const boxes = await prisma.mysteryBox.findMany({
     where: {
-      id: mysteryBoxId,
+      id: { in: mysteryBoxIds },
     },
     include: {
       triggers: true,
       MysteryBoxPrize: true,
     },
   });
-  await prisma.mysteryBoxPrize.delete({
+  await prisma.mysteryBoxPrize.deleteMany({
     where: {
-      id: mysteryBoxRes?.MysteryBoxPrize[0].id,
+      id: {
+        in: boxes.flatMap((box) =>
+          box.MysteryBoxPrize.map((prize) => prize.id),
+        ),
+      },
     },
   });
-  await prisma.mysteryBoxTrigger.delete({
+  await prisma.mysteryBoxTrigger.deleteMany({
     where: {
-      id: mysteryBoxRes?.triggers[0].id,
+      id: { in: boxes.flatMap((box) => box.triggers.map((prize) => prize.id)) },
     },
   });
-  await prisma.mysteryBox.delete({
+  await prisma.mysteryBox.deleteMany({
     where: {
-      id: mysteryBoxId,
+      id: { in: mysteryBoxIds },
     },
   });
 }
@@ -49,132 +68,58 @@ async function deleteMysteryBox(mysteryBoxId: string) {
 describe("Create mystery box", () => {
   const currentDate = new Date();
 
-  let user: { id: string; username: string }[];
-  let questionId: number;
-  let questionId2: number;
-  let questionId3: number;
+  let user0: { id: string; username: string; wallet: string };
+  let user1: { id: string; username: string; wallet: string };
+  let questionIds: number[];
   let deckId: number;
   let mysteryBoxId: string | null;
   let mysteryBoxId2: string | null;
   let mysteryBoxId3: string | null;
+  let mysteryBoxId4: string | null;
 
   beforeAll(async () => {
+    const question = {
+      create: {
+        stackId: null,
+        question: "Bonkaton question?",
+        type: "MultiChoice",
+        revealTokenAmount: 10,
+        revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        durationMiliseconds: BigInt(60000),
+        questionOptions: {
+          create: [
+            {
+              option: "A",
+              isCorrect: true,
+              isLeft: false,
+            },
+            {
+              option: "B",
+              isCorrect: false,
+              isLeft: false,
+            },
+            {
+              option: "C",
+              isCorrect: false,
+              isLeft: false,
+            },
+            {
+              option: "D",
+              isCorrect: false,
+              isLeft: false,
+            },
+          ],
+        },
+      },
+    };
+
     const deck = await prisma.deck.create({
       data: {
         deck: `deck ${currentDate}`,
         revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         stackId: null,
         deckQuestions: {
-          create: [
-            {
-              question: {
-                create: {
-                  stackId: null,
-                  question: "Bonkaton question?",
-                  type: "MultiChoice",
-                  revealTokenAmount: 10,
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  durationMiliseconds: BigInt(60000),
-                  questionOptions: {
-                    create: [
-                      {
-                        option: "A",
-                        isCorrect: true,
-                        isLeft: false,
-                      },
-                      {
-                        option: "B",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "C",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "D",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-            {
-              question: {
-                create: {
-                  stackId: null,
-                  question: "Bonkaton question?",
-                  type: "MultiChoice",
-                  revealTokenAmount: 10,
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  durationMiliseconds: BigInt(60000),
-                  questionOptions: {
-                    create: [
-                      {
-                        option: "A",
-                        isCorrect: true,
-                        isLeft: false,
-                      },
-                      {
-                        option: "B",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "C",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "D",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-            {
-              question: {
-                create: {
-                  stackId: null,
-                  question: "Bonkaton question?",
-                  type: "MultiChoice",
-                  revealTokenAmount: 10,
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  durationMiliseconds: BigInt(60000),
-                  questionOptions: {
-                    create: [
-                      {
-                        option: "A",
-                        isCorrect: true,
-                        isLeft: false,
-                      },
-                      {
-                        option: "B",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "C",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "D",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                    ],
-                  },
-                },
-              },
-            },
-          ],
+          create: Array(4).fill({ question }),
         },
       },
       include: {
@@ -182,45 +127,64 @@ describe("Create mystery box", () => {
       },
     });
 
-    questionId = deck.deckQuestions[0].questionId;
-    questionId2 = deck.deckQuestions[1].questionId;
-    questionId3 = deck.deckQuestions[2].questionId;
+    questionIds = deck.deckQuestions.map((q) => q.questionId);
     deckId = deck.id;
-    user = await generateUsers(1);
+
+    const users = await generateUsers(2);
+
+    user0 = {
+      id: users[0].id,
+      username: users[0].username,
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+    };
+    user1 = {
+      id: users[1].id,
+      username: users[1].username,
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+    };
+
     await prisma.user.createMany({
-      data: user,
+      data: users,
     });
+
+    await prisma.wallet.createMany({
+      data: [
+        { userId: user0.id, address: user0.wallet },
+        { userId: user1.id, address: user1.wallet },
+      ],
+    });
+
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user0.id });
   });
 
   afterAll(async () => {
     await deleteDeck(deckId);
 
-    if (mysteryBoxId) {
-      await deleteMysteryBox(mysteryBoxId);
-    }
+    await deleteMysteryBoxes(
+      [mysteryBoxId, mysteryBoxId2, mysteryBoxId3, mysteryBoxId4].filter(
+        (box) => box !== null && box !== undefined,
+      ),
+    );
 
-    if (mysteryBoxId2) {
-      await deleteMysteryBox(mysteryBoxId2);
-    }
-
-    if (mysteryBoxId3) {
-      await deleteMysteryBox(mysteryBoxId3);
-    }
-
-    await prisma.user.delete({
+    await prisma.wallet.deleteMany({
       where: {
-        id: user[0].id,
+        userId: { in: [user0.id, user1.id] },
+      },
+    });
+
+    await prisma.user.deleteMany({
+      where: {
+        id: { in: [user0.id, user1.id] },
       },
     });
   });
 
   it("Should create a new mystery box with triggers and prizes", async () => {
-    const mockPayload = { sub: user[0].id };
-    (getJwtPayload as jest.Mock).mockResolvedValue(mockPayload);
-    mysteryBoxId = await rewardMysteryBox({
-      triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionId],
-    });
+    mysteryBoxId = await rewardMysteryBox(
+      user0.id,
+      EBoxTriggerType.ClaimAllCompleted,
+      [questionIds[0]],
+    );
     if (mysteryBoxId) {
       const res = await prisma.mysteryBox.findUnique({
         where: {
@@ -242,12 +206,11 @@ describe("Create mystery box", () => {
 
   it("Should calculate the user's total token winnings", async () => {
     // Create a second box
-    const mockPayload = { sub: user[0].id };
-    (getJwtPayload as jest.Mock).mockResolvedValue(mockPayload);
-    mysteryBoxId2 = await rewardMysteryBox({
-      triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionId2],
-    });
+    mysteryBoxId2 = await rewardMysteryBox(
+      user0.id,
+      EBoxTriggerType.ClaimAllCompleted,
+      [questionIds[1]],
+    );
 
     if (!mysteryBoxId || !mysteryBoxId2)
       throw new Error("Missing mystery box id(s)");
@@ -261,7 +224,7 @@ describe("Create mystery box", () => {
     });
 
     const totalWon = await calculateTotalPrizeTokens(
-      user[0].id,
+      user0.id,
       process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
     );
 
@@ -270,12 +233,11 @@ describe("Create mystery box", () => {
 
   it("Should dismiss a mystery box", async () => {
     // Create a second box
-    const mockPayload = { sub: user[0].id };
-    (getJwtPayload as jest.Mock).mockResolvedValue(mockPayload);
-    mysteryBoxId3 = await rewardMysteryBox({
-      triggerType: EBoxTriggerType.ClaimAllCompleted,
-      questionIds: [questionId3],
-    });
+    mysteryBoxId3 = await rewardMysteryBox(
+      user0.id,
+      EBoxTriggerType.ClaimAllCompleted,
+      [questionIds[2]],
+    );
 
     if (!mysteryBoxId3) throw new Error("Error creating mystery box");
 
@@ -314,5 +276,80 @@ describe("Create mystery box", () => {
     expect(res2?.id).toBe(mysteryBoxId2);
     expect(res2?.status).not.toBe("Unopened");
     expect(res2?.MysteryBoxPrize[0].status).not.toBe("Dismissed");
+  });
+
+  it("Should reveal a mystery box", async () => {
+    const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+
+    const res = await prisma.mysteryBox.create({
+      data: {
+        userId: user0.id,
+        triggers: {
+          createMany: {
+            data: {
+              questionId: questionIds[3],
+              triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+              mysteryBoxAllowlistId: null,
+            },
+          },
+        },
+        MysteryBoxPrize: {
+          create: {
+            status: EBoxPrizeStatus.Unclaimed,
+            size: "Small",
+            prizeType: "Token",
+            tokenAddress: bonkAddress,
+            amount: "4500",
+          },
+        },
+      },
+    });
+
+    mysteryBoxId4 = res.id;
+
+    const box = await revealMysteryBox(mysteryBoxId4, false);
+
+    expect(box).toBeDefined();
+    expect(box?.mysteryBoxId).toBe(mysteryBoxId4);
+    expect(box?.totalBonkWon).toBeDefined();
+    expect(Object.keys(box?.tokensReceived ?? {}).length).toBe(1);
+    expect(box?.tokensReceived?.[bonkAddress]).toBe(4500);
+  });
+
+  it("Should fail to open another user's mystery box", async () => {
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
+
+    await expect(openMysteryBox(mysteryBoxId4!, false)).rejects.toThrow();
+
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user0.id });
+  });
+
+  it("Should open a mystery box", async () => {
+    expect(jest.isMockFunction(sendBonkFromTreasury)).toBeTruthy();
+
+    const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+
+    const txHashes = await openMysteryBox(mysteryBoxId4!, false);
+
+    expect(sendBonkFromTreasury).toHaveBeenCalledWith(4500, user0.wallet);
+
+    expect(Object.keys(txHashes ?? {}).length).toBe(1);
+    expect(txHashes?.[bonkAddress]).toBeDefined();
+
+    const box = await prisma.mysteryBox.findUnique({
+      where: {
+        id: mysteryBoxId4!,
+      },
+      include: {
+        MysteryBoxPrize: true,
+      },
+    });
+
+    expect(box?.status).toBe(EMysteryBoxStatus.Opened);
+    expect(box?.MysteryBoxPrize[0].status).toBe(EBoxPrizeStatus.Claimed);
+  });
+
+  it("Should disallow opening an opened mystery box", async () => {
+    await expect(openMysteryBox(mysteryBoxId4!, false)).rejects.toThrow();
   });
 });

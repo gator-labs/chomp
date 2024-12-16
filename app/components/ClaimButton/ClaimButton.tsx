@@ -179,7 +179,7 @@ const ClaimButton = ({
           </p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-xs font-bold text-left">
-              {numberToCurrencyFormatter.format(Math.floor(rewardAmount || 0))}{" "}
+              {numberToCurrencyFormatter.format(Math.round(rewardAmount || 0))}{" "}
               BONK
             </span>
           </Pill>

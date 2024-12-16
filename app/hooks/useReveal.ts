@@ -1,15 +1,19 @@
 import trackEvent from "@/lib/trackEvent";
 import { getUserAssets } from "@/lib/web3";
-import { Wallet } from "@dynamic-labs/sdk-react-core";
+import {
+  RevealCallbackProps,
+  RevealState,
+  UseRevealProps,
+} from "@/types/reveal";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { release } from "os";
-import pRetry from "p-retry";
 import { useCallback, useEffect, useState } from "react";
 
-import { BurnError, DynamicRevealError, RevealError } from "../../lib/error";
+import { DynamicRevealError, RevealError } from "../../lib/error";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
@@ -29,59 +33,13 @@ import {
   TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
-import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import {
+  CONNECTION,
+  MINIMUM_SOL_BALANCE_FOR_TRANSACTION,
+  genBonkBurnTx,
+} from "../utils/solana";
 
-type UseRevealProps = {
-  wallet: Wallet | null;
-  address?: string;
-  bonkBalance: number;
-};
-
-interface RevealCallbackBaseProps {
-  reveal: ({
-    burnTx,
-    nftAddress,
-    nftType,
-    revealQuestionIds,
-  }: RevealProps) => Promise<void>;
-  amount: number;
-  dialogLabel?: string;
-}
-
-interface RevealCallbackMultipleQuestions extends RevealCallbackBaseProps {
-  questionIds: number[];
-  questionId?: never;
-  questions: string[];
-}
-
-interface RevealCallbackSingleQuestion extends RevealCallbackBaseProps {
-  questionId: number;
-  questionIds?: never;
-  questions: string[];
-}
-
-export interface RevealProps {
-  burnTx?: string;
-  nftAddress?: string;
-  nftType?: NftType;
-  revealQuestionIds?: number[];
-  pendingChompResults?: { id: number; burnTx: string }[];
-}
-
-export type RevealCallbackProps =
-  | RevealCallbackSingleQuestion
-  | RevealCallbackMultipleQuestions;
-
-type RevealState = {
-  amount: number;
-  reveal: ({ burnTx, nftAddress, nftType }: RevealProps) => Promise<void>;
-  questionIds: number[];
-  questions: string[];
-  genesisNft?: string;
-  dialogLabel?: string;
-};
-
-const INITIAL_BURN_STATE = "idle";
+const BURN_STATE_IDLE = "idle";
 
 const createGetTransactionTask = async (signature: string): Promise<void> => {
   await CONNECTION.getTransaction(signature, {
@@ -90,7 +48,12 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
   });
 };
 
-export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
+export function useReveal({
+  wallet,
+  address,
+  bonkBalance,
+  solBalance,
+}: UseRevealProps) {
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
@@ -106,13 +69,15 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
   const [burnState, setBurnState] = useState<
     "burning" | "error" | "idle" | "skipburn"
-  >(INITIAL_BURN_STATE);
+  >(BURN_STATE_IDLE);
 
   const hasPendingTransactions = pendingChompResults.length > 0;
-  const insufficientFunds =
-    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions;
+  const [insufficientFunds, setInsufficientFunds] = useState(
+    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions,
+  );
+
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
-  const isRevealWithNftMode =
+  const isSingleQuestionWithNftReveal =
     revealNft && !isMultiple && burnState !== "burning";
 
   useEffect(() => {
@@ -163,6 +128,35 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
             type: NftType.Genesis,
           });
         }
+
+        if (!wallet || !isSolanaWallet(wallet)) {
+          return;
+        }
+
+        const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
+        const estimatedFee = await tx.getEstimatedFee(CONNECTION);
+
+        if (!estimatedFee) {
+          return errorToast(
+            `We could not read fee for this transaction, please try again!`,
+          );
+        }
+
+        const estimatedFeeInSol = estimatedFee / LAMPORTS_PER_SOL;
+
+        if (
+          estimatedFeeInSol > Number(solBalance) ||
+          MINIMUM_SOL_BALANCE_FOR_TRANSACTION > Number(solBalance)
+        ) {
+          setInsufficientFunds(true);
+        } else {
+          setInsufficientFunds(
+            !!reveal?.amount &&
+              reveal.amount > bonkBalance &&
+              !hasPendingTransactions,
+          );
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -205,7 +199,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       questions,
       dialogLabel,
     }: RevealCallbackProps) => {
-      setBurnState(INITIAL_BURN_STATE);
+      setBurnState(BURN_STATE_IDLE);
       setReveal({
         reveal,
         amount,
@@ -229,7 +223,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const resetReveal = useCallback(() => {
     setReveal(undefined);
     setIsRevealModalOpen(false);
-    setBurnState(INITIAL_BURN_STATE);
+    setBurnState(BURN_STATE_IDLE);
   }, [setReveal, setIsRevealModalOpen, setBurnState]);
 
   const onReveal = useCallback(async () => {
@@ -256,8 +250,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await createGetTransactionTask(signature);
       }
 
-      if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
-        // This try catch is to catch Dynamic related issues to narrow down the error
+      if (
+        (!isSingleQuestionWithNftReveal || ignoreNft) &&
+        !!revealQuestionIds.length
+      ) {
+        // Try catch is to catch Dynamic related issues to narrow down the error
         try {
           if (!wallet || !isSolanaWallet(wallet)) {
             return;
@@ -265,6 +262,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           const signer = await wallet!.getSigner();
 
           const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
           setBurnState("burning");
 
           try {
@@ -313,70 +311,25 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           );
 
           pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
-
-          try {
-            let blockhash = tx.recentBlockhash;
-            await pRetry(
-              async (attempt) => {
-                const latestBlockhash = await CONNECTION.getLatestBlockhash();
-                if (attempt === 2) {
-                  blockhash = latestBlockhash.blockhash;
-                }
-                await CONNECTION.confirmTransaction(
-                  {
-                    blockhash: blockhash!,
-                    lastValidBlockHeight: tx.lastValidBlockHeight!,
-                    signature: signature || "",
-                  },
-                  "confirmed",
-                );
-              },
-              {
-                retries: 1,
-                onFailedAttempt: (error) => {
-                  console.log(
-                    `Attempt ${error.attemptNumber} failed. There are ${error.retriesLeft} retries left.`,
-                  );
-                },
-              },
-            );
-          } catch (error) {
-            errorToast(
-              "Error while confirming transaction. Bonk was not burned. Try again.",
-            );
-
-            if (error instanceof Error) {
-              const burnError = new BurnError(
-                `User with id: ${payload?.sub} is having trouble burning questions with ids: ${revealQuestionIds}`,
-                { cause: error.message },
-              );
-              Sentry.captureException(burnError, {
-                level: "fatal",
-                tags: {
-                  category: "reveal-tx-confirmation-error",
-                },
-                extra: {
-                  transactionHash: signature,
-                },
-              });
-            }
-
-            await deleteQuestionChompResults(pendingChompResultIds);
-          }
         } catch (error) {
           errorToast("Error happened while revealing question. Try again.");
           const dynamicRevealError = new DynamicRevealError(
             `User with id: ${payload?.sub} (wallet: ${address}) is having trouble revealing questions with question ids: ${questionIds}`,
             { cause: error },
           );
-          Sentry.captureException(dynamicRevealError);
+          Sentry.captureException(dynamicRevealError, {
+            tags: {
+              category: "burn-error",
+            },
+          });
           release();
           resetReveal();
           return;
         }
       }
 
-      if (!isRevealWithNftMode) {
+      if (!isSingleQuestionWithNftReveal) {
+        // If the user doesn't have an NFT, or there are more than two questions ready to reveal, including pending ones.
         await reveal!.reveal({
           burnTx: signature,
           revealQuestionIds,
@@ -386,9 +339,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           })),
         });
       } else {
+        // If user have nft and question one question is ready to reveal.
         await reveal!.reveal({
           burnTx: signature,
           nftAddress: ignoreNft ? "" : revealNft!.id,
+          revealQuestionIds,
           nftType: ignoreNft ? undefined : revealNft!.type,
         });
       }
@@ -443,7 +398,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     isMultiple,
     revealPrice: reveal?.amount ?? 0,
     pendingTransactions: pendingChompResults.length,
-    isRevealWithNftMode,
+    isSingleQuestionWithNftReveal,
     nftType: revealNft?.type,
     burnAndReveal,
     onReveal,

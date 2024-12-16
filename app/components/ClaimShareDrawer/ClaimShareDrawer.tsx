@@ -66,17 +66,18 @@ const ClaimShareDrawer = ({
 
     if (!!copyUrl) fetchLinkPreview();
   }, [isOpen, copyUrl]);
-  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
 
   return (
     <>
-      {FF_MYSTERY_BOX && showMysteryBox && mysteryBoxId ? (
+      {showMysteryBox && mysteryBoxId ? (
         <MysteryBox
           isOpen={showMysteryBox}
           closeBoxDialog={() => {
             setShowMysteryBox(false);
           }}
           mysteryBoxId={mysteryBoxId}
+          isDismissed={false}
+          skipAction={"Dismiss"}
         />
       ) : (
         <Drawer

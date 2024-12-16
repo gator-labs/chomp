@@ -1,10 +1,8 @@
 "use server";
 
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { OpenMysteryBoxError, SendBonkError } from "@/lib/error";
-import {
-  calculateTotalPrizeTokens,
-  sendBonkFromTreasury,
-} from "@/lib/mysteryBox";
+import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
@@ -18,13 +16,8 @@ import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
 import { acquireMutex } from "../../utils/mutex";
 import { getJwtPayload } from "../jwt";
 
-export type MysteryBoxResult = {
-  mysteryBoxId: string;
-  tokensReceived: number;
-  creditsReceived: number;
-  transactionSignature: string | null;
-  totalBonkWon: number;
-};
+export type TokenTxHashes = Record<string, string>;
+export type MysteryBoxRewardRewardTxHashes = TokenTxHashes;
 
 /**
  * Opens a previously-rewarded mystery box
@@ -34,20 +27,32 @@ export type MysteryBoxResult = {
  *
  * @param mysteryBoxId The ID of a mystery box that is owned by the
  *                     authenticated user and in the new state.
+ *
+ * @param isDismissed Whether the mystery box has been dismissed
+ *                    (Reopen).
+ *
+ * @return tokenTxHashes Map of tx hashes for each rewarded token
+ *                       (if any), or null if user is not
+ *                       authenticated / has no wallet address.
+ *                       A tx hash is not guaranteed even if tokens
+ *                       were in the box (e.g. if the tx failed).
  */
 export async function openMysteryBox(
   mysteryBoxId: string,
-): Promise<MysteryBoxResult | null> {
+  isDismissed: boolean,
+): Promise<TokenTxHashes | null> {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return null;
   }
 
+  const txHashes: Record<string, string> = {};
+
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
 
   const release = await acquireMutex({
-    identifier: "CLAIM",
+    identifier: "OPEN_MYSTERY_BOX",
     data: { userId: payload.sub },
   });
 
@@ -62,16 +67,16 @@ export async function openMysteryBox(
     return null;
   }
 
-  try {
-    let bonkReceived = 0;
-    const creditsReceived = 0;
-    let bonkTx: string | null = null;
+  let reward;
 
-    const reward = await prisma.mysteryBox.findUnique({
+  try {
+    reward = await prisma.mysteryBox.findUnique({
       where: {
         id: mysteryBoxId,
         userId: payload.sub,
-        status: EMysteryBoxStatus.New,
+        status: isDismissed
+          ? EMysteryBoxStatus.Unopened
+          : EMysteryBoxStatus.New,
       },
       include: {
         MysteryBoxPrize: {
@@ -82,15 +87,31 @@ export async function openMysteryBox(
             tokenAddress: true,
           },
           where: {
-            status: EBoxPrizeStatus.Unclaimed,
+            // We check for Unclaimed/Dismissed status here since boxes may be stuck in
+            // Unclaimed state if a previous reveal attempt failed
+            status: {
+              in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
+            },
             prizeType: EBoxPrizeType.Token,
           },
         },
       },
     });
+  } catch (e) {
+    const openMysteryBoxError = new OpenMysteryBoxError(
+      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
+      { cause: e },
+    );
+    Sentry.captureException(openMysteryBoxError);
 
-    if (!reward) throw new Error("Reward not found or not in openable state");
+    throw new Error("Error opening mystery box");
+  } finally {
+    release();
+  }
 
+  if (!reward) throw new Error("Reward not found or not in openable state");
+
+  try {
     for (const prize of reward.MysteryBoxPrize) {
       if (
         prize.prizeType != EBoxPrizeType.Token ||
@@ -118,8 +139,7 @@ export async function openMysteryBox(
         sendTx = null;
       }
 
-      bonkReceived = prizeAmount;
-      bonkTx = sendTx;
+      if (sendTx) txHashes[prize.tokenAddress] = sendTx;
 
       await prisma.$transaction(
         async (tx) => {
@@ -150,20 +170,8 @@ export async function openMysteryBox(
       },
     });
 
-    const totalBonkWon = bonkAddress
-      ? await calculateTotalPrizeTokens(payload.sub, bonkAddress)
-      : 0;
-
     release();
     revalidatePath("/application");
-
-    return {
-      mysteryBoxId,
-      tokensReceived: bonkReceived,
-      creditsReceived,
-      transactionSignature: bonkTx,
-      totalBonkWon,
-    };
   } catch (e) {
     try {
       await prisma.mysteryBox.update({
@@ -187,5 +195,8 @@ export async function openMysteryBox(
     throw new Error("Error opening mystery box");
   } finally {
     release();
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
   }
+
+  return txHashes;
 }
