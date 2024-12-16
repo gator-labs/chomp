@@ -76,6 +76,7 @@ const ClaimShareDrawer = ({
             setShowMysteryBox(false);
           }}
           mysteryBoxId={mysteryBoxId}
+          isDismissed={false}
         />
       ) : (
         <Drawer

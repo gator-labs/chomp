@@ -60,6 +60,7 @@ const LatestStreakBox = ({
               setMysteryBoxClosed(true);
             }}
             mysteryBoxId={mysteryBoxId}
+            isDismissed={false}
           />
         )}
       </>
