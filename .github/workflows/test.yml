@@ -31,3 +31,4 @@ jobs:
           NEXT_PUBLIC_BONK_ADDRESS: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
           BOT_API_KEY: "foobar"
           BOT_TOKEN: "barfoo"
+          NEXT_PUBLIC_CHOMPMAS_MIN_STREAK: 7

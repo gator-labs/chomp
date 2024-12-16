@@ -1,5 +1,6 @@
 "use server";
 
+import { getChompmasMysteryBox, isUserInAllowlist } from "@/lib/mysteryBox";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
@@ -277,6 +278,24 @@ export async function getUsersLatestStreak(): Promise<number> {
   return longestStreak;
 }
 
+export async function getUsersLatestStreakAndMysteryBox(): Promise<
+  [number, string | null]
+> {
+  const payload = await authGuard();
+
+  const latestStreak = await queryUsersLatestStreak(payload.sub);
+  const longestStreak = await queryUsersLongestStreak(payload.sub);
+
+  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
+
+  const mysteryBoxId =
+    FF_MYSTERY_BOX && (await isUserInAllowlist())
+      ? await getChompmasMysteryBox(payload.sub, longestStreak)
+      : null;
+
+  return [latestStreak, mysteryBoxId];
+}
+
 async function queryUsersLatestStreak(userId: string): Promise<number> {
   const streaks: Streak[] = await prisma.$queryRaw`
   WITH userActivity AS (
@@ -335,21 +354,40 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
   return Number(result[0].totalClaimedAmount);
 }
 
-export async function getUsersTotalRevealedCards(): Promise<number> {
-  const payload = await authGuard();
-
-  const totalRevealedCards = await queryUsersTotalRevealedCards(payload.sub);
-
-  return totalRevealedCards;
-}
-
-async function queryUsersTotalRevealedCards(userId: string): Promise<number> {
-  const result: { totalRevealedCards: number }[] = await prisma.$queryRaw`
-  SELECT COUNT(*) AS "totalRevealedCards"
+async function queryUsersLongestStreak(userId: string): Promise<number> {
+  const streaks: Streak[] = await prisma.$queryRaw`
+  WITH userActivity AS (
+  SELECT DISTINCT DATE("createdAt") AS activityDate
   FROM public."ChompResult"
-  WHERE "result" != 'Dismissed' 
-  AND "userId" = ${userId}
+  WHERE "userId" = ${userId}  
+  UNION
+  SELECT DISTINCT DATE("createdAt") AS activityDate
+  FROM public."QuestionAnswer" qa
+  WHERE "userId" = ${userId}
+  and qa."status" = 'Submitted'
+  ),
+  consecutiveDays AS (
+    SELECT 
+      activityDate,
+      LAG(activityDate) OVER (ORDER BY activityDate) AS previousDate
+    FROM userActivity
+  ),
+  "streakGroups" AS (
+    SELECT 
+      activityDate,
+      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END) 
+      OVER (ORDER BY activityDate) AS "streakGroup"
+    FROM consecutiveDays
+  )
+  SELECT 
+    MIN(activityDate) AS "streakStartDate",
+    MAX(activityDate) AS "streakEndDate",
+    COUNT(*) AS "streakLength"
+  FROM "streakGroups"
+  GROUP BY "streakGroup"
+  ORDER BY "streakLength" DESC
+  LIMIT 1
   `;
 
-  return Number(result[0].totalRevealedCards);
+  return Number(streaks?.[0]?.streakLength || 0);
 }
