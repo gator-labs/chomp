@@ -40,6 +40,7 @@ type UseRevealProps = {
   wallet: Wallet | null;
   address?: string;
   bonkBalance: number;
+  solBalance: number;
 };
 
 interface RevealCallbackBaseProps {
@@ -95,7 +96,12 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
   });
 };
 
-export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
+export function useReveal({
+  wallet,
+  address,
+  bonkBalance,
+  solBalance,
+}: UseRevealProps) {
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
@@ -173,14 +179,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
 
         if (!wallet || !isSolanaWallet(wallet)) {
           return;
-        }
-
-        const solBalance = await wallet.getBalance();
-
-        if (!solBalance) {
-          return errorToast(
-            `We could not read your SOL balance, please try again!`,
-          );
         }
 
         const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
