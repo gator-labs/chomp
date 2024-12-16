@@ -19,10 +19,11 @@ const LatestStreakBox = ({
   mysteryBoxId,
 }: LatestStreakBoxProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [mysteryBoxClosed, setMysteryBoxClosed] = useState<boolean>(false);
+  const [isMysteryBoxOpen, setIsMysteryBoxOpen] = useState<boolean>(false);
+  const [isMysteryBoxSeen, setIsMysteryBoxSeen] = useState<boolean>(false);
 
   useEffect(() => {
-    setMysteryBoxClosed(false);
+    setIsMysteryBoxSeen(false);
   }, [mysteryBoxId]);
 
   if (
@@ -31,7 +32,10 @@ const LatestStreakBox = ({
   )
     return (
       <>
-        <AnimatedGradientBorder className="w-full rounded-[8px] bg-gray-800 flex flex-col gap-0 transition-all duration-200 hover:bg-gray-700 cursor-pointer">
+        <AnimatedGradientBorder
+          onClick={() => setIsMysteryBoxOpen(true)}
+          className="w-full rounded-[8px] bg-gray-800 flex flex-col gap-0 transition-all duration-200 hover:bg-gray-700 cursor-pointer"
+        >
           <div className="flex justify-between items-center basis-full w-full">
             <p
               className={cn("font-bold", {
@@ -49,12 +53,12 @@ const LatestStreakBox = ({
           </p>
         </AnimatedGradientBorder>
 
-        {!mysteryBoxClosed && (
+        {!isMysteryBoxSeen && (
           <MysteryBox
-            isOpen={isOpen}
+            isOpen={isMysteryBoxOpen}
             closeBoxDialog={() => {
-              setIsOpen(false);
-              setMysteryBoxClosed(true);
+              setIsMysteryBoxOpen(false);
+              setIsMysteryBoxSeen(true);
             }}
             mysteryBoxId={mysteryBoxId}
             isDismissed={false}
@@ -90,7 +94,7 @@ const LatestStreakBox = ({
         </p>
       </div>
       <StatsDrawer
-        isOpen={isOpen && (!mysteryBoxId || mysteryBoxClosed)}
+        isOpen={isOpen && !isMysteryBoxOpen}
         onClose={() => setIsOpen(false)}
         title="Streak"
         description="Keep going! Streaks track consecutive days you've answered or

@@ -69,6 +69,10 @@ function MysteryBox({
   const openBox = async () => {
     if (!mysteryBoxId) return;
 
+    if (isSubmitting || status != "Idle") return false;
+
+    setIsSubmitting(true);
+
     try {
       // TODO: this process is a bit "toasty" - could probably
       // be a bit more sophisticated here and show a single toast
@@ -125,6 +129,8 @@ function MysteryBox({
   };
 
   const handleClose = () => {
+    if (isSubmitting) return;
+
     setBox(null);
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
@@ -133,6 +139,8 @@ function MysteryBox({
   };
 
   const handleSkip = async () => {
+    if (isSubmitting) return;
+
     try {
       if (mysteryBoxId) await dismissMysteryBox(mysteryBoxId);
     } catch {}
@@ -145,6 +153,8 @@ function MysteryBox({
   };
 
   const handleGoToAnswering = () => {
+    if (isSubmitting) return;
+
     setBox(null);
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
@@ -217,14 +227,11 @@ function MysteryBox({
                 transform: `translateY(-75%) translateX(-43%)`,
               }}
               className={cn("absolute top-1/2 left-1/2", {
-                "cursor-pointer": !isSubmitting || !box,
+                "cursor-pointer": !isSubmitting && box && status === "Idle",
               })}
-              onClick={() => {
-                if (isSubmitting) return;
-                setIsSubmitting(true);
-                openBox();
-              }}
-              disabled={isSubmitting || !!box}
+              onClick={() =>
+                !isSubmitting && box && status === "Idle" && openBox()
+              }
             />
 
             <div
@@ -252,7 +259,9 @@ function MysteryBox({
           >
             <Button
               variant={"primary"}
-              onClick={status === "Closing" ? handleGoToAnswering : openBox}
+              onClick={() =>
+                status === "Closing" ? handleGoToAnswering() : openBox()
+              }
               disabled={isSubmitting}
             >
               {status === "Closing" ? "CHOMP on more decks →" : "Open Now"}
