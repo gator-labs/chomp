@@ -12,6 +12,7 @@ export type UseRevealProps = {
   wallet: Wallet | null;
   address?: string;
   bonkBalance: number;
+  solBalance: number;
 };
 
 interface RevealCallbackBaseProps {
