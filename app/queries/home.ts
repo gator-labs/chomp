@@ -1,11 +1,13 @@
 "use server";
 
 import { getChompmasMysteryBox, isUserInAllowlist } from "@/lib/mysteryBox";
+import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
+import { acquireMutex } from "../utils/mutex";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 dayjs.extend(duration);
@@ -283,17 +285,33 @@ export async function getUsersLatestStreakAndMysteryBox(): Promise<
 > {
   const payload = await authGuard();
 
-  const latestStreak = await queryUsersLatestStreak(payload.sub);
-  const longestStreak = await queryUsersLongestStreak(payload.sub);
+  const release = await acquireMutex({
+    identifier: "GET_CHOMPMAS_BOX",
+    data: { userId: payload.sub },
+  });
 
-  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
+  try {
+    const latestStreak = await queryUsersLatestStreak(payload.sub);
 
-  const mysteryBoxId =
-    FF_MYSTERY_BOX && (await isUserInAllowlist())
-      ? await getChompmasMysteryBox(payload.sub, longestStreak)
-      : null;
+    const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
 
-  return [latestStreak, mysteryBoxId];
+    const mysteryBoxId =
+      FF_MYSTERY_BOX && (await isUserInAllowlist())
+        ? await getChompmasMysteryBox(payload.sub, latestStreak)
+        : null;
+
+    return [latestStreak, mysteryBoxId];
+  } catch (e) {
+    const getStreakError = new Error(
+      `Error getting streak / chompmas box for user with id: ${payload.sub}`,
+      { cause: e },
+    );
+    Sentry.captureException(getStreakError);
+
+    throw new Error("Error opening mystery box");
+  } finally {
+    release();
+  }
 }
 
 async function queryUsersLatestStreak(userId: string): Promise<number> {
@@ -352,42 +370,4 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
   `;
 
   return Number(result[0].totalClaimedAmount);
-}
-
-async function queryUsersLongestStreak(userId: string): Promise<number> {
-  const streaks: Streak[] = await prisma.$queryRaw`
-  WITH userActivity AS (
-  SELECT DISTINCT DATE("createdAt") AS activityDate
-  FROM public."ChompResult"
-  WHERE "userId" = ${userId}  
-  UNION
-  SELECT DISTINCT DATE("createdAt") AS activityDate
-  FROM public."QuestionAnswer" qa
-  WHERE "userId" = ${userId}
-  and qa."status" = 'Submitted'
-  ),
-  consecutiveDays AS (
-    SELECT 
-      activityDate,
-      LAG(activityDate) OVER (ORDER BY activityDate) AS previousDate
-    FROM userActivity
-  ),
-  "streakGroups" AS (
-    SELECT 
-      activityDate,
-      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END) 
-      OVER (ORDER BY activityDate) AS "streakGroup"
-    FROM consecutiveDays
-  )
-  SELECT 
-    MIN(activityDate) AS "streakStartDate",
-    MAX(activityDate) AS "streakEndDate",
-    COUNT(*) AS "streakLength"
-  FROM "streakGroups"
-  GROUP BY "streakGroup"
-  ORDER BY "streakLength" DESC
-  LIMIT 1
-  `;
-
-  return Number(streaks?.[0]?.streakLength || 0);
 }
