@@ -35,12 +35,13 @@ export async function DashboardUserStats() {
         }}
       />
       <StatsBox
-        title={`${points?.loggedInUserScore.loggedInUserPoints ?? 0} Points`}
+        title={`${points?.loggedInUserScore?.loggedInUserPoints?.toLocaleString("en-US") ?? 0} Points`}
         description="Earned to date"
         icon={<Goal width={25} height={25} />}
         drawerProps={{
           title: "Points Earned",
-          description: "",
+          description:
+            "Points are a reflection of all your CHOMPing actions! See how your actions translate into points in the sidebar. ➡️\nRight now, every 10 points = 1 raffle ticket in the Weekly Rewards Pool raffle.\nBut could points be something more? 🤔 That's for us to build and for you to find out. 🔜",
           type: HOME_STAT_CARD_TYPE.POINTS_EARNED as keyof typeof HOME_STAT_CARD_TYPE,
         }}
       />
@@ -50,7 +51,8 @@ export async function DashboardUserStats() {
         icon={<CreditCardIcon width={25} height={25} />}
         drawerProps={{
           title: "Credits Earned",
-          description: "",
+          description:
+            "Credits? What could this be? 🤔\nChompy has the best answer for this (like they do with any question, of course), but it's not the right time to tell you yet. 😉\nGuess you better CHOMP around and find out. 🐊",
           type: HOME_STAT_CARD_TYPE.CREDITS_EARNED as keyof typeof HOME_STAT_CARD_TYPE,
         }}
       />
