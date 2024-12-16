@@ -48,7 +48,6 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   const lottieRef = useRef<LottieRefCurrentProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
-
   const [box, setBox] = useState<MysteryBoxResult | null>(null);
 
   const message: MysteryBoxOpenMessage = "REGULAR";
@@ -63,7 +62,6 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
   const openBox = async () => {
     if (!mysteryBoxId) return;
-    setIsSubmitting(true);
 
     try {
       // TODO: this process is a bit "toasty" - could probably
@@ -111,7 +109,9 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     } catch {
       setBox(null);
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 3000);
     }
   };
 
@@ -215,7 +215,11 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
               className={cn("absolute top-1/2 left-1/2", {
                 "cursor-pointer": !isSubmitting || !box,
               })}
-              onClick={openBox}
+              onClick={() => {
+                if (isSubmitting) return;
+                setIsSubmitting(true);
+                openBox();
+              }}
               disabled={isSubmitting || !!box}
             />
 
