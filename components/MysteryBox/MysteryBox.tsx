@@ -145,8 +145,8 @@ function MysteryBox({
     if (isSubmitting) return;
 
     try {
-      if (mysteryBoxId && skipAction == 'Dismiss')
-          await dismissMysteryBox(mysteryBoxId);
+      if (mysteryBoxId && skipAction == "Dismiss")
+        await dismissMysteryBox(mysteryBoxId);
     } catch {}
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);

@@ -1,5 +1,9 @@
 import { GetUnopenedMysteryBoxError } from "@/lib/error";
-import { EBoxPrizeStatus, EBoxTriggerType, EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 
 import prisma from "../services/prisma";
@@ -10,7 +14,9 @@ import { authGuard } from "../utils/auth";
  *
  * @returns The mystery box ID or null if no mystery box is found.
  */
-export const getUnopenedMysteryBox = async (triggerType: EBoxTriggerType): Promise<string|null> => {
+export const getUnopenedMysteryBox = async (
+  triggerType: EBoxTriggerType,
+): Promise<string | null> => {
   const payload = await authGuard();
 
   try {
