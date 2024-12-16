@@ -31,8 +31,11 @@ async function main() {
   const csv = fs.readFileSync(csvFilePath, "utf8");
   const rows = csv.split(/\r?\n/);
 
+  // Filter out empty rows before processing
+  const validRows = rows.filter((address: string) => address.trim().length > 0);
+
   await prisma.mysteryBoxAllowlist.createMany({
-    data: rows.map((address: string) => ({
+    data: validRows.map((address: string) => ({
       address: address.trim(),
       tags,
     })),
