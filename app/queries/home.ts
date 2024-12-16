@@ -1,11 +1,13 @@
 "use server";
 
 import { getChompmasMysteryBox, isUserInAllowlist } from "@/lib/mysteryBox";
+import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
+import { acquireMutex } from "../utils/mutex";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 dayjs.extend(duration);
@@ -283,16 +285,33 @@ export async function getUsersLatestStreakAndMysteryBox(): Promise<
 > {
   const payload = await authGuard();
 
-  const latestStreak = await queryUsersLatestStreak(payload.sub);
+  const release = await acquireMutex({
+    identifier: "GET_CHOMPMAS_BOX",
+    data: { userId: payload.sub },
+  });
 
-  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
+  try {
+    const latestStreak = await queryUsersLatestStreak(payload.sub);
 
-  const mysteryBoxId =
-    FF_MYSTERY_BOX && (await isUserInAllowlist())
-      ? await getChompmasMysteryBox(payload.sub, latestStreak)
-      : null;
+    const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
 
-  return [latestStreak, mysteryBoxId];
+    const mysteryBoxId =
+      FF_MYSTERY_BOX && (await isUserInAllowlist())
+        ? await getChompmasMysteryBox(payload.sub, latestStreak)
+        : null;
+
+    return [latestStreak, mysteryBoxId];
+  } catch (e) {
+    const getStreakError = new Error(
+      `Error getting streak / chompmas box for user with id: ${payload.sub}`,
+      { cause: e },
+    );
+    Sentry.captureException(getStreakError);
+
+    throw new Error("Error opening mystery box");
+  } finally {
+    release();
+  }
 }
 
 async function queryUsersLatestStreak(userId: string): Promise<number> {
