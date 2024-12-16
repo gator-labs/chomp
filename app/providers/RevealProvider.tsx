@@ -56,7 +56,7 @@ export function RevealContextProvider({
     insufficientFunds,
     revealPrice,
     pendingTransactions,
-    isRevealWithNftMode,
+    isSingleQuestionWithNftReveal,
     questionIds,
     questions,
     isLoading,
@@ -70,7 +70,7 @@ export function RevealContextProvider({
   const hasPendingTransactions = pendingTransactions > 0;
 
   const revealButtons = () => {
-    if (insufficientFunds && !isRevealWithNftMode) {
+    if (insufficientFunds && !isSingleQuestionWithNftReveal) {
       return (
         <>
           <Link
@@ -169,7 +169,7 @@ export function RevealContextProvider({
                 if (
                   !hasPendingTransactions &&
                   questionIds?.length &&
-                  !isRevealWithNftMode
+                  !isSingleQuestionWithNftReveal
                 )
                   trackEvent(TRACKING_EVENTS.REVEAL_STARTED, {
                     [TRACKING_METADATA.QUESTION_ID]: questionIds,
@@ -185,7 +185,7 @@ export function RevealContextProvider({
             >
               {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
-                : isRevealWithNftMode
+                : isSingleQuestionWithNftReveal
                   ? "Reveal with Chomp Collectible"
                   : "Reveal"}
             </Button>
@@ -193,7 +193,7 @@ export function RevealContextProvider({
               className="font-bold"
               variant="outline"
               onClick={() => {
-                if (isRevealWithNftMode) return burnAndReveal(true);
+                if (isSingleQuestionWithNftReveal) return burnAndReveal(true);
 
                 resetReveal();
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
@@ -206,7 +206,7 @@ export function RevealContextProvider({
                 });
               }}
             >
-              {isRevealWithNftMode
+              {isSingleQuestionWithNftReveal
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
@@ -243,7 +243,7 @@ export function RevealContextProvider({
       );
     }
 
-    if (isRevealWithNftMode) {
+    if (isSingleQuestionWithNftReveal) {
       return (
         <p className="text-sm">Chomp Collectible will be used for reveal</p>
       );
