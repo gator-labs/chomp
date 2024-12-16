@@ -31,10 +31,7 @@ const LatestStreakBox = ({
   )
     return (
       <>
-        <AnimatedGradientBorder
-          onClick={() => setIsOpen(true)}
-          className="w-full rounded-[8px] bg-gray-800 flex flex-col gap-0 transition-all duration-200 hover:bg-gray-700 cursor-pointer"
-        >
+        <AnimatedGradientBorder className="w-full rounded-[8px] bg-gray-800 flex flex-col gap-0 transition-all duration-200 hover:bg-gray-700 cursor-pointer">
           <div className="flex justify-between items-center basis-full w-full">
             <p
               className={cn("font-bold", {
