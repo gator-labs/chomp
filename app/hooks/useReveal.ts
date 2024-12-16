@@ -65,7 +65,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   const insufficientFunds =
     !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions;
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
-  const isRevealWithNftMode =
+  const isSingleQuestionWithNftReveal =
     revealNft && !isMultiple && burnState !== "burning";
 
   useEffect(() => {
@@ -209,7 +209,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await createGetTransactionTask(signature);
       }
 
-      if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
+      if (
+        (!isSingleQuestionWithNftReveal || ignoreNft) &&
+        !!revealQuestionIds.length
+      ) {
         // Try catch is to catch Dynamic related issues to narrow down the error
         try {
           if (!wallet || !isSolanaWallet(wallet)) {
@@ -283,7 +286,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         }
       }
 
-      if (!isRevealWithNftMode) {
+      if (!isSingleQuestionWithNftReveal) {
+        // If the user doesn't have an NFT, or there are more than two questions ready to reveal, including pending ones.
         await reveal!.reveal({
           burnTx: signature,
           revealQuestionIds,
@@ -293,9 +297,11 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           })),
         });
       } else {
+        // If user have nft and question one question is ready to reveal.
         await reveal!.reveal({
           burnTx: signature,
           nftAddress: ignoreNft ? "" : revealNft!.id,
+          revealQuestionIds,
           nftType: ignoreNft ? undefined : revealNft!.type,
         });
       }
@@ -350,7 +356,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     isMultiple,
     revealPrice: reveal?.amount ?? 0,
     pendingTransactions: pendingChompResults.length,
-    isRevealWithNftMode,
+    isSingleQuestionWithNftReveal,
     nftType: revealNft?.type,
     burnAndReveal,
     onReveal,
