@@ -4,7 +4,7 @@ import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import { cn } from "@/lib/utils";
 import { CalendarCheckIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState } from "react";
 
 import AnimatedGradientBorder from "../AnimatedGradientBorder";
 import StatsDrawer from "../StatsDrawer/StatsDrawer";
@@ -39,10 +39,16 @@ const LatestStreakBox = ({
         >
           <div className="flex justify-between items-center basis-full w-full">
             <p
-              className={cn("font-bold", {
-                "text-destructive": latestStreak === 0,
-                "text-secondary": latestStreak > 0,
-              })}
+              className="font-bold"
+              style={
+                {
+                  background:
+                    "linear-gradient(var(--angle), #F9F1FB 0%, #89C9FF 29%, #AF7CE7 60%, #FBD7FF 100%)",
+                  "-webkit-background-clip": "text",
+                  "-webkit-text-fill-color": "transparent",
+                  "--bg-color": "linear-gradient(#1B1B1B, #1B1B1B)",
+                } as CSSProperties
+              }
             >
               {latestStreak} Day{latestStreak === 1 ? "" : "s"} Streak
             </p>
