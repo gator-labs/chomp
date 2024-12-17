@@ -13,7 +13,8 @@ import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
 import trackEvent from "@/lib/trackEvent";
-import animationData from "@/public/lottie/chomp_box_bonk.json";
+import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
+import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -26,6 +27,7 @@ type MysteryBoxProps = {
   mysteryBoxId: string | null;
   isDismissed: boolean;
   skipAction: MysteryBoxSkipAction;
+  isChompmasBox?: boolean;
 };
 
 function buildMessage(lines: string[]) {
@@ -50,6 +52,7 @@ function MysteryBox({
   mysteryBoxId,
   isDismissed,
   skipAction,
+  isChompmasBox
 }: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
@@ -217,7 +220,7 @@ function MysteryBox({
 
           <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
-              animationData={animationData}
+              animationData={isChompmasBox ? animationDataSanta : animationDataRegular}
               loop={false}
               lottieRef={lottieRef}
               autoplay={false}

@@ -108,6 +108,7 @@ const LatestStreakBox = ({
           mysteryBoxId={mysteryBoxId}
           skipAction={"Close"}
           isDismissed={false}
+          isChompmasBox={true}
         />
       )}
     </>
