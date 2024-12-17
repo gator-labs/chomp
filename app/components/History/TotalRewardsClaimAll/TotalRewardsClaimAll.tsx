@@ -122,7 +122,7 @@ export default function TotalRewardsClaimAll({
       }
     } catch (error) {
       console.error(error);
-      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+      await trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: totalClaimableRewards?.questions.map(
           (q) => q?.id,
         ),

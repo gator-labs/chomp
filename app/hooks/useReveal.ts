@@ -26,6 +26,7 @@ import {
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import {
   REVEAL_DIALOG_TYPE,
   REVEAL_TYPE,
@@ -367,7 +368,7 @@ export function useReveal({
         await deleteQuestionChompResults(pendingChompResultIds);
       }
 
-      trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
+      await trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
         [TRACKING_METADATA.REVEAL_TYPE]:
           revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
         [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
@@ -383,6 +384,7 @@ export function useReveal({
       release();
     } finally {
       resetReveal();
+      await Sentry.flush(SENTRY_FLUSH_WAIT);
     }
   };
 
