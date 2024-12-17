@@ -103,7 +103,7 @@ describe("Validate points logs for completing questions and decks", () => {
     });
   });
 
-  test("should allow a user to answer a question once", async () => {
+  it("should allow a user to answer a question once", async () => {
     //find question options
     const questionOptions = await prisma.questionOption.findMany({
       where: {
@@ -138,7 +138,7 @@ describe("Validate points logs for completing questions and decks", () => {
     expect(questionAnswer).toHaveLength(4);
   });
 
-  test("should not allow a user to answer the same question twice", async () => {
+  it("should not allow a user to answer the same question twice", async () => {
     //find question options
     const questionOptions = await prisma.questionOption.findMany({
       where: {
@@ -173,7 +173,7 @@ describe("Validate points logs for completing questions and decks", () => {
     }
   });
 
-  test("Records points correctly for deck and question completion", async () => {
+  it("Records points correctly for deck and question completion", async () => {
     const res = await prisma.fungibleAssetTransactionLog.findMany({
       where: {
         userId: userId,
