@@ -52,7 +52,7 @@ function MysteryBox({
   mysteryBoxId,
   isDismissed,
   skipAction,
-  isChompmasBox
+  isChompmasBox,
 }: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
@@ -220,7 +220,9 @@ function MysteryBox({
 
           <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
-              animationData={isChompmasBox ? animationDataSanta : animationDataRegular}
+              animationData={
+                isChompmasBox ? animationDataSanta : animationDataRegular
+              }
               loop={false}
               lottieRef={lottieRef}
               autoplay={false}
