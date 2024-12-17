@@ -90,7 +90,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
             setIsClaiming(false);
           });
       } catch {
-        trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+        await trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
           [TRACKING_METADATA.QUESTION_ID]: [question.id],
           [TRACKING_METADATA.QUESTION_TEXT]: [question.question],
           [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,

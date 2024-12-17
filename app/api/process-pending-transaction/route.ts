@@ -1,3 +1,4 @@
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
 import { calculateReward } from "@/app/utils/algo";
 import { RevealConfirmationError } from "@/lib/error";
@@ -156,6 +157,7 @@ export async function GET(request: Request) {
             category: "reveal-tx-validation-error",
           },
         });
+        await Sentry.flush(SENTRY_FLUSH_WAIT);
       }
     }
     return new Response("Ok", { status: 200 });

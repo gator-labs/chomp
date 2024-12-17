@@ -11,6 +11,7 @@ import * as Sentry from "@sentry/nextjs";
 import { TransactionSignature } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
@@ -487,6 +488,8 @@ async function pollTransactionConfirmation(
             category: "reveal-tx-confirmation-error",
           },
         });
+
+        await Sentry.flush(SENTRY_FLUSH_WAIT);
         clearInterval(intervalId);
         resolve(false); // Return false if an error occurs
       }
