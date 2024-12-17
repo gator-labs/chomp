@@ -6,5 +6,5 @@
 -- the enum.
 
 
--- ALTER TYPE "TransactionLogType" ADD VALUE 'ConnectX';
--- ALTER TYPE "TransactionLogType" ADD VALUE 'ConnectTelegram';
+ALTER TYPE "TransactionLogType" ADD VALUE 'ConnectX';
+ALTER TYPE "TransactionLogType" ADD VALUE 'ConnectTelegram';
