@@ -88,8 +88,7 @@ function MysteryBox({
         revealMysteryBox(mysteryBoxId, isDismissed),
         {
           loading: "Opening Mystery Box. Please wait...",
-          success:
-            "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
+          success: "Mystery Box opened successfully! 🎉.",
           error: "Failed to open the Mystery Box. Please try again later. 😔",
         },
       );

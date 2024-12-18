@@ -8,17 +8,21 @@ import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealed
 import { Profile } from "../components/Profile/Profile";
 import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import Spinner from "../components/Spinner/Spinner";
+import TutorialMysteryBox from "../components/TutorialMysteryBox/TutorialMysteryBox";
 import { getActiveBanners } from "../queries/banner";
 import { getQuestionsForRevealedSection } from "../queries/home";
+import { isNewUserEligibleForMysteryBox } from "../queries/mysteryBox";
 
 export default async function Page() {
-  const [questionsRevealed, banners] = await Promise.all([
+  const [isNewUser, questionsRevealed, banners] = await Promise.all([
+    isNewUserEligibleForMysteryBox(),
     getQuestionsForRevealedSection(),
     getActiveBanners(),
   ]);
 
   return (
     <>
+      {isNewUser && <TutorialMysteryBox newUser={isNewUser} />}
       <div className="flex flex-col gap-4 px-4">
         <ProfileNavigation />
         <Suspense fallback={<Spinner />}>

@@ -6,6 +6,7 @@ import {
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 
+import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 
@@ -48,4 +49,22 @@ export const getUnopenedMysteryBox = async (
     Sentry.captureException(getUnopenedMysteryBoxError);
     return null;
   }
+};
+export const isNewUserEligibleForMysteryBox = async () => {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+  const isNewUser = payload?.new_user;
+  const res = await prisma.mysteryBoxTrigger.findMany({
+    where: {
+      triggerType: EBoxTriggerType.TutorialCompleted,
+    },
+  });
+
+  // If the user is new and has not been rewarded, return true; otherwise, return false.
+  const hasReward = res.length > 0;
+
+  return isNewUser && !hasReward;
 };

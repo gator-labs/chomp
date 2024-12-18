@@ -84,12 +84,14 @@ export async function revealMysteryBox(
               in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
             },
             // Until we implement credits and/or other tokens:
-            prizeType: EBoxPrizeType.Token,
-            tokenAddress: bonkAddress,
+            // prizeType: EBoxPrizeType.Token && EBoxPrizeType.Credits,
+            // tokenAddress: bonkAddress,
           },
         },
       },
     });
+
+    console.log(reward);
 
     if (!reward) throw new Error("Reward not found or not in openable state");
 
