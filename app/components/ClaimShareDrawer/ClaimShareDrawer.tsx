@@ -1,5 +1,6 @@
 "use client";
 
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
@@ -53,6 +54,7 @@ const ClaimShareDrawer = ({
           { cause: error },
         );
         Sentry.captureException(shareClaimAllError);
+        await Sentry.flush(SENTRY_FLUSH_WAIT);
       }
     };
 
