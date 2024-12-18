@@ -157,20 +157,7 @@ export async function revealQuestions(
   const revealPoints = await calculateRevealPoints(questionRewards);
 
   await prisma.$transaction(async (tx) => {
-    await tx.chompResult.deleteMany({
-      where: {
-        AND: {
-          userId: payload.sub,
-          questionId: {
-            in: revealableQuestionIds,
-          },
-          burnTransactionSignature: burnTx,
-          transactionStatus: TransactionStatus.Pending,
-        },
-      },
-    });
-
-    let revealNftId = null;
+    let revealNftId: string | null = null;
 
     if (isRevealedWithNft) {
       const revealNft = await prisma.revealNft.create({
@@ -192,20 +179,62 @@ export async function revealQuestions(
       Sentry.captureException(revealError);
       return null;
     }
-
-    await tx.chompResult.createMany({
-      data: [
-        ...questionRewards.map((questionReward) => ({
-          questionId: questionReward.questionId,
+    if (revealNftId) {
+      await tx.chompResult.createMany({
+        data: [
+          ...questionRewards.map((questionReward) => ({
+            questionId: questionReward.questionId,
+            userId: payload.sub,
+            result: ResultType.Revealed,
+            burnTransactionSignature: burnTx,
+            rewardTokenAmount: questionReward.rewardAmount,
+            transactionStatus: TransactionStatus.Completed,
+            revealNftId,
+          })),
+        ],
+      });
+    } else {
+      const pendingChompResults = await tx.chompResult.findMany({
+        where: {
           userId: payload.sub,
-          result: ResultType.Revealed,
+          questionId: {
+            in: revealableQuestionIds,
+          },
           burnTransactionSignature: burnTx,
-          rewardTokenAmount: questionReward.rewardAmount,
-          transactionStatus: TransactionStatus.Completed,
-          revealNftId,
-        })),
-      ],
-    });
+          transactionStatus: TransactionStatus.Pending,
+        },
+      });
+
+      const updatedRewards = questionRewards.map((reward) => {
+        const matchingResult = pendingChompResults.find(
+          (result) => result.questionId === reward.questionId,
+        );
+        return {
+          ...reward,
+          chompResultId: matchingResult ? matchingResult.id : undefined, // Add id if a match is found
+        };
+      });
+
+      await Promise.all(
+        updatedRewards.map((qr) =>
+          tx.chompResult.update({
+            where: {
+              id: qr.chompResultId,
+              userId: payload.sub,
+              questionId: qr.questionId,
+              burnTransactionSignature: burnTx,
+              transactionStatus: TransactionStatus.Pending,
+            },
+            data: {
+              burnTransactionSignature: burnTx,
+              rewardTokenAmount: qr.rewardAmount,
+              transactionStatus: TransactionStatus.Completed,
+              revealNftId,
+            },
+          }),
+        ),
+      );
+    }
   });
 
   try {
