@@ -8,7 +8,7 @@ jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
 
-describe.skip("queryExpiringDecks", () => {
+describe("queryExpiringDecks", () => {
   const user1 = {
     id: uuidv4(),
     username: `user1`,
