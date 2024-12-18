@@ -18,6 +18,7 @@ import pRetry from "p-retry";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { CONNECTION } from "./solana";
@@ -180,6 +181,7 @@ export const sendBonk = async (
       },
     );
   }
+  await Sentry.flush(SENTRY_FLUSH_WAIT);
 
   return signature;
 };

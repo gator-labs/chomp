@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { release } from "os";
 
 import { AnswerError } from "../../lib/error";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
@@ -115,6 +116,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       { cause: error },
     );
     Sentry.captureException(answerError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
     throw error;
   }

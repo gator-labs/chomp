@@ -1,4 +1,5 @@
 import { getJwtPayload } from "@/app/actions/jwt";
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxReward } from "@/app/utils/algo";
@@ -93,6 +94,7 @@ export async function isUserInAllowlist(): Promise<boolean> {
       { cause: error },
     );
     Sentry.captureException(checkUserInAllowlistError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return false;
   }
 }
@@ -159,6 +161,7 @@ export async function rewardMysteryBox(
       { cause: e },
     );
     Sentry.captureException(createMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
 }
@@ -217,6 +220,7 @@ export async function rewardChompmasBox(
       { cause: e },
     );
     Sentry.captureException(createMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
 }
@@ -254,6 +258,7 @@ export async function findMysteryBox(
       { cause: e },
     );
     Sentry.captureException(findMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
 
     return null;
   }

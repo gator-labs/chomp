@@ -190,6 +190,8 @@ export async function revealQuestions(
       );
       release();
       Sentry.captureException(revealError);
+      await Sentry.flush(SENTRY_FLUSH_WAIT);
+
       return null;
     }
 
@@ -245,6 +247,7 @@ export async function revealQuestions(
         newFatl: revealPoints,
       },
     });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
   }
 
   release();
@@ -429,6 +432,7 @@ async function hasBonkBurnedCorrectly(
       },
       extra: { burnInstruction: burnInstruction },
     });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return false;
   }
 

@@ -6,6 +6,7 @@ import {
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 
@@ -46,6 +47,7 @@ export const getUnopenedMysteryBox = async (
       { cause: error },
     );
     Sentry.captureException(getUnopenedMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
 };
