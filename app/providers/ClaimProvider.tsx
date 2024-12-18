@@ -75,7 +75,7 @@ const ClaimProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       });
       queryClient.resetQueries({ queryKey: ["questions-history"] });
     } catch {
-      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+      await trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: questions,
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,

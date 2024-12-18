@@ -8,6 +8,7 @@ import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
 import { rewardMysteryBox } from "../../lib/mysteryBox";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
@@ -253,6 +254,7 @@ export async function claimQuestions(questionIds: number[]) {
         transactionHash: sendTx,
       },
     });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
     throw e;
   }
