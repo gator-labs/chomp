@@ -126,6 +126,13 @@ describe("getUnopenedMysteryBox", () => {
         },
       },
     });
+    await prisma.deckQuestion.deleteMany({
+      where: {
+        questionId: {
+          in: questionIds,
+        },
+      },
+    });
     await prisma.question.deleteMany({
       where: {
         id: {
