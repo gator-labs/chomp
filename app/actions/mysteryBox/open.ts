@@ -3,13 +3,8 @@
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { OpenMysteryBoxError, SendBonkError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
-import {
-  EBoxPrizeStatus,
-  EBoxPrizeType,
-  EMysteryBoxStatus,
-} from "@prisma/client";
+import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import { revalidatePath } from "next/cache";
 
 import prisma from "../../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
@@ -92,7 +87,7 @@ export async function openMysteryBox(
             status: {
               in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
             },
-            prizeType: EBoxPrizeType.Token,
+            // prizeType: EBoxPrizeType.Token,
           },
         },
       },
@@ -113,19 +108,17 @@ export async function openMysteryBox(
 
   try {
     for (const prize of reward.MysteryBoxPrize) {
-      if (
-        prize.prizeType != EBoxPrizeType.Token ||
-        prize.tokenAddress != bonkAddress
-      )
-        throw new Error(
-          `Don't know how to send prize for mystery box ${mysteryBoxId}, type ${prize.prizeType} token ${prize.tokenAddress}`,
-        );
-
       const prizeAmount = Number(prize.amount ?? 0);
-
       let sendTx: string | null;
+      // if (
+      //   prize.prizeType != EBoxPrizeType.Token ||
+      //   prize.tokenAddress != bonkAddress
+      // )
+      //   throw new Error(
+      //     `Don't know how to send prize for mystery box ${mysteryBoxId}, type ${prize.prizeType} token ${prize.tokenAddress}`,
+      //   );
 
-      if (prizeAmount > 0) {
+      if (prizeAmount > 0 && prize.tokenAddress === bonkAddress) {
         sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
 
         if (!sendTx) {
@@ -134,12 +127,12 @@ export async function openMysteryBox(
             { cause: "Failed to send bonk" },
           );
           Sentry.captureException(sendBonkError);
+        } else {
+          txHashes[prize.tokenAddress] = sendTx;
         }
       } else {
         sendTx = null;
       }
-
-      if (sendTx) txHashes[prize.tokenAddress] = sendTx;
 
       await prisma.$transaction(
         async (tx) => {
@@ -171,7 +164,6 @@ export async function openMysteryBox(
     });
 
     release();
-    revalidatePath("/application");
   } catch (e) {
     try {
       await prisma.mysteryBox.update({
