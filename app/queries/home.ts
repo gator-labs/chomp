@@ -372,6 +372,11 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
   return Number(result[0].totalClaimedAmount);
 }
 
+/**
+ * Retrieves the total credit amount claimed by the user from mystery box prizes.
+ *
+ * @returns {Promise<number>} The total credit amount claimed by the user.
+ */
 export async function getUsersTotalCreditAmount() {
   const payload = await authGuard();
   const userId = payload?.sub;
@@ -386,5 +391,5 @@ export async function getUsersTotalCreditAmount() {
       AND mbp."status" = 'Claimed'
     `) as { sum: number }[];
 
-  return result?.[0]?.sum ?? 0;
+  return Number(result?.[0]?.sum) ?? 0;
 }
