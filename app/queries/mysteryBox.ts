@@ -52,12 +52,22 @@ export const getUnopenedMysteryBox = async (
     return null;
   }
 };
+/**
+ * Retrieves the mystery box ID for a new user if they are eligible.
+ *
+ * This function checks if the user is new and if they have completed the tutorial.
+ * If the user is new and has not yet triggered the tutorial completion mystery box,
+ * it rewards them with a mystery box and returns its ID.
+ *
+ * @returns {Promise<string | null>} The ID of the rewarded mystery box if the user is eligible, otherwise null.
+ */
 export const getNewUserMysterBoxId = async () => {
   const payload = await getJwtPayload();
 
   if (!payload) {
     return null;
   }
+  const userId = payload.sub;
   const isNewUser = payload?.new_user;
   const res = await prisma.mysteryBoxTrigger.findMany({
     where: {
@@ -67,21 +77,23 @@ export const getNewUserMysterBoxId = async () => {
 
   const isEligible = isNewUser && res.length === 0;
   if (isEligible) {
-    const mysteryBoxId = await rewardTutorialMysteryBox();
+    const mysteryBoxId = await rewardTutorialMysteryBox(userId);
     return mysteryBoxId;
   }
   return null;
 };
 
-async function rewardTutorialMysteryBox(): Promise<string | null> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  const userId = payload.sub;
-
+/**
+ * Rewards a user with a tutorial completion mystery box.
+ *
+ * @param userId - The ID of the user to reward.
+ * @returns A promise that resolves to the ID of the created mystery box, or null if the user wallet is not found or an error occurs.
+ *
+ * @throws {CreateMysteryBoxError} If there is an error creating the mystery box.
+ */
+async function rewardTutorialMysteryBox(
+  userId: string,
+): Promise<string | null> {
   try {
     // const calculatedReward = await calculateMysteryBoxReward(
     //   MysteryBoxEventsType.TUTORIAL_COMPLETED,

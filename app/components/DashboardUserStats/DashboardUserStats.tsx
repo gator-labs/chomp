@@ -3,7 +3,7 @@ import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import {
   getUsersLatestStreakAndMysteryBox,
   getUsersTotalClaimedAmount,
-  queryUsersTotalCreditAmount,
+  getUsersTotalCreditAmount,
 } from "@/app/queries/home";
 import { CreditCardIcon, Goal, InfoIcon } from "lucide-react";
 
@@ -20,7 +20,7 @@ export async function DashboardUserStats() {
     getUsersLatestStreakAndMysteryBox(),
     getUsersTotalClaimedAmount(),
     getTotalPoints(),
-    queryUsersTotalCreditAmount(),
+    getUsersTotalCreditAmount(),
   ]);
 
   return (

@@ -1,6 +1,6 @@
 "use server";
 
-import { queryUsersTotalCreditAmount } from "@/app/queries/home";
+import { getUsersTotalCreditAmount } from "@/app/queries/home";
 import { RevealMysteryBoxError } from "@/lib/error";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import {
@@ -121,7 +121,7 @@ export async function revealMysteryBox(
       .add(bonkReceived)
       .toNumber();
 
-    const oldTotalCreditWon = await queryUsersTotalCreditAmount();
+    const oldTotalCreditWon = await getUsersTotalCreditAmount();
 
     const totalCreditWon = new Decimal(oldTotalCreditWon)
       .add(creditsReceived)
