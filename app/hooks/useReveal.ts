@@ -17,6 +17,7 @@ import { DynamicRevealError, RevealError } from "../../lib/error";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
+  getRevealPending,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getJwtPayload } from "../actions/jwt";
@@ -349,16 +350,31 @@ export function useReveal({
         });
       }
 
-      trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
-        transactionSignature: signature,
-        nftAddress: revealNft?.id,
-        nftType: revealNft?.type,
-        burnedAmount: reveal?.amount,
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-      });
+      const revealResult = await getRevealPending(revealQuestionIds);
+
+      if (revealResult?.length !== 0) {
+        trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_PENDING, {
+          transactionSignature: signature,
+          nftAddress: revealNft?.id,
+          nftType: revealNft?.type,
+          burnedAmount: reveal?.amount,
+          [TRACKING_METADATA.REVEAL_TYPE]:
+            revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+        });
+      } else {
+        trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
+          transactionSignature: signature,
+          nftAddress: revealNft?.id,
+          nftType: revealNft?.type,
+          burnedAmount: reveal?.amount,
+          [TRACKING_METADATA.REVEAL_TYPE]:
+            revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+        });
+      }
 
       if (revealNft && !isMultiple) {
         setRevealNft(undefined);
