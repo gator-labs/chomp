@@ -76,8 +76,8 @@ describe("Validate points logs for completing questions and decks", () => {
         deckQuestions: true,
       },
     });
-    deckQuestionId = deck.id;
     deckId = deck.id;
+    deckQuestionId = deck.deckQuestions[0].questionId; // Fix: use the actual question ID
     // create a new user
     const user = await generateUsers(1);
     userId = user[0].id;
@@ -130,12 +130,16 @@ describe("Validate points logs for completing questions and decks", () => {
       timeToAnswerInMiliseconds: 3638,
       deckId: deckId,
     });
+
     const questionAnswer = await prisma.questionAnswer.findMany({
       where: {
         userId: userId,
+        questionOption: {
+          questionId: deckQuestionId,
+        },
       },
     });
-    expect(questionAnswer).toHaveLength(4);
+    expect(questionAnswer).toHaveLength(4); // We expect 4 answers because we created 4 options
   });
 
   it("should not allow a user to answer the same question twice", async () => {
@@ -177,11 +181,14 @@ describe("Validate points logs for completing questions and decks", () => {
     const res = await prisma.fungibleAssetTransactionLog.findMany({
       where: {
         userId: userId,
+        OR: [{ type: "AnswerQuestion" }, { type: "AnswerDeck" }],
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
     const answerQuestion = res.find((entry) => entry.type === "AnswerQuestion");
-
     expect(answerQuestion?.type).toBe("AnswerQuestion");
     expect(Number(answerQuestion?.change)).toBe(10);
 
