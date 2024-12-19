@@ -123,7 +123,13 @@ export function QuestionCard({
               title=""
               variant="image-only"
             >
-              <img alt="preview-image" src={viewImageSrc} />
+              <Image
+                alt="preview-image"
+                src={viewImageSrc}
+                width={800}
+                height={600}
+                className="max-w-full h-auto"
+              />
             </Modal>
           </div>
         )}
