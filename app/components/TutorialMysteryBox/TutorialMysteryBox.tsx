@@ -1,31 +1,23 @@
 "use client";
 
-import { rewardTutorialMysteryBox } from "@/app/actions/mysteryBox/tutorailMysteryBox";
 import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import React, { useEffect, useState } from "react";
 
 type TutorialMysteryBoxProps = {
-  newUser: boolean;
+  mysteryBoxId: string | null;
 };
 
-const TutorialMysteryBox = ({ newUser }: TutorialMysteryBoxProps) => {
-  const [mysteryBoxId, setMysteryBoxId] = useState<string | null>(null);
+const TutorialMysteryBox = ({ mysteryBoxId }: TutorialMysteryBoxProps) => {
   const [showMysteryBox, setShowMysteryBox] = useState(false);
 
-  const giftMysteryBox = async () => {
-    const mysteryBoxId = await rewardTutorialMysteryBox();
+  useEffect(() => {
     if (mysteryBoxId) {
-      setMysteryBoxId(mysteryBoxId);
       setShowMysteryBox(true);
     }
-  };
+  }, [mysteryBoxId]);
 
-  useEffect(() => {
-    giftMysteryBox();
-  }, []);
   return (
     <>
-      {" "}
       <MysteryBox
         isOpen={showMysteryBox}
         closeBoxDialog={() => {
@@ -34,6 +26,7 @@ const TutorialMysteryBox = ({ newUser }: TutorialMysteryBoxProps) => {
         mysteryBoxId={mysteryBoxId}
         isDismissed={false}
         skipAction={"Dismiss"}
+        isTutorialBox={true}
       />
     </>
   );
