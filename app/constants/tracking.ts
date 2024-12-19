@@ -10,6 +10,7 @@ export const TRACKING_EVENTS = {
   REVEAL_STARTED: "RevealStarted",
   REVEAL_TRANSACTION_SIGNED: "RevealTransactionSigned",
   REVEAL_TRANSACTION_CANCELLED: "RevealTransactionCancelled",
+  REVEAL_TRANSACTION_PENDING: "RevealTransactionPending",
   REVEAL_FAILED: "RevealFailed",
   LOGIN_STARTED: "LoginStarted",
   Login_Wallet_Selected: "LoginWalletSelected",
