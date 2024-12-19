@@ -4,7 +4,7 @@ import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 import { pointsPerAction } from "../constants/points";
-import prisma from "../services/prisma";
+import prisma, { PrismaTransactionClient } from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { getJwtPayload } from "./jwt";
 
@@ -23,6 +23,49 @@ export const getTransactionHistory = async () => {
   });
 
   return transactionHistory;
+};
+
+interface IncrementFungibleAssetBalanceProps {
+  asset: FungibleAsset;
+  amount: number;
+  transactionLogType: TransactionLogType;
+  injectedPrisma?: PrismaTransactionClient | undefined;
+  questionIds?: number[];
+  deckIds?: number[];
+}
+export const incrementFungibleAssetBalance = async ({
+  asset,
+  amount,
+  transactionLogType,
+  injectedPrisma = prisma,
+  questionIds,
+  deckIds,
+}: IncrementFungibleAssetBalanceProps) => {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub ?? "";
+  let transactionLogTask;
+  if (!!questionIds?.length)
+    transactionLogTask = injectedPrisma.fungibleAssetTransactionLog.createMany({
+      data: questionIds.map((questionId) => ({
+        asset: asset,
+        type: transactionLogType,
+        change: amount,
+        userId: userId,
+        questionId: questionId,
+      })),
+    });
+  if (!!deckIds?.length)
+    transactionLogTask = injectedPrisma.fungibleAssetTransactionLog.createMany({
+      data: deckIds.map((deckId) => ({
+        asset: asset,
+        type: transactionLogType,
+        change: amount,
+        userId: userId,
+        deckId: deckId,
+      })),
+    });
+  const result = await Promise.all([transactionLogTask]);
+  return result[0];
 };
 
 export const addXPoints = async () => {
