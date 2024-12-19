@@ -35,9 +35,14 @@ jest.mock("next/cache", () => ({
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
 export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
+  // Filter out null/undefined values and ensure valid mysteryBoxIds
+  const validBoxIds = mysteryBoxIds.filter(
+    (id): id is string => id !== null && id !== undefined,
+  );
+
   const boxes = await prisma.mysteryBox.findMany({
     where: {
-      id: { in: mysteryBoxIds },
+      id: { in: validBoxIds },
     },
     include: {
       triggers: true,
@@ -60,7 +65,7 @@ export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
   });
   await prisma.mysteryBox.deleteMany({
     where: {
-      id: { in: mysteryBoxIds },
+      id: { in: validBoxIds },
     },
   });
 }
