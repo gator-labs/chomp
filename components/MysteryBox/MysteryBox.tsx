@@ -14,21 +14,14 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
 import trackEvent from "@/lib/trackEvent";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
+import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
 import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
+import { EMysteryBoxType, MysteryBoxProps } from "@/types/mysteryBox";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
-
-type MysteryBoxProps = {
-  isOpen: boolean;
-  closeBoxDialog: () => void;
-  mysteryBoxId: string | null;
-  isDismissed: boolean;
-  skipAction: MysteryBoxSkipAction;
-  isChompmasBox?: boolean;
-};
 
 function buildMessage(lines: string[]) {
   return lines.map((line, index) =>
@@ -44,7 +37,6 @@ function buildMessage(lines: string[]) {
 }
 
 type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
-type MysteryBoxSkipAction = "Dismiss" | "Close";
 
 function MysteryBox({
   isOpen,
@@ -52,7 +44,7 @@ function MysteryBox({
   mysteryBoxId,
   isDismissed,
   skipAction,
-  isChompmasBox,
+  boxType = EMysteryBoxType.Regular,
 }: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
@@ -88,8 +80,7 @@ function MysteryBox({
         revealMysteryBox(mysteryBoxId, isDismissed),
         {
           loading: "Opening Mystery Box. Please wait...",
-          success:
-            "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
+          success: "Mystery Box opened successfully! ",
           error: "Failed to open the Mystery Box. Please try again later. 😔",
         },
       );
@@ -147,10 +138,8 @@ function MysteryBox({
   const handleSkip = async () => {
     if (isSubmitting) return;
 
-    try {
-      if (mysteryBoxId && skipAction == "Dismiss")
-        await dismissMysteryBox(mysteryBoxId);
-    } catch {}
+    if (mysteryBoxId && skipAction == "Dismiss")
+      await dismissMysteryBox(mysteryBoxId);
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
 
@@ -172,13 +161,16 @@ function MysteryBox({
   };
 
   const bonkReceived = box?.tokensReceived?.[bonkAddress] ?? 0;
+  const creditReceived = box?.creditsReceived ?? 0;
 
   if (!isOpen || !mysteryBoxId) return null;
 
   const getTitle = (status: MysteryBoxStatus) => {
     if (status === "Idle" || status === "Opening")
       return "You earned a mystery box!";
-
+    if (boxType === EMysteryBoxType.Tutorial) {
+      return `You won ${creditReceived.toLocaleString("en-US")} Credits!`;
+    }
     return `You won ${bonkReceived.toLocaleString("en-US")} BONK!`;
   };
   return (
@@ -221,7 +213,11 @@ function MysteryBox({
           <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
               animationData={
-                isChompmasBox ? animationDataSanta : animationDataRegular
+                boxType === EMysteryBoxType.Chompmas
+                  ? animationDataSanta
+                  : boxType === EMysteryBoxType.Tutorial
+                    ? animationDataCredits
+                    : animationDataRegular
               }
               loop={false}
               lottieRef={lottieRef}
@@ -251,9 +247,16 @@ function MysteryBox({
                 },
               )}
             >
-              <p>Total $BONK won to date</p>
+              <p>
+                Total{" "}
+                {boxType === EMysteryBoxType.Tutorial ? "Credits" : "$BONK"} won
+                to date
+              </p>
               <div className="bg-chomp-orange-dark rounded-[56px] py-2 px-4 w-fit">
-                {box?.totalBonkWon.toLocaleString("en-US")} BONK
+                {boxType === EMysteryBoxType.Tutorial
+                  ? box?.totalCreditWon.toLocaleString("en-US")
+                  : box?.totalBonkWon.toLocaleString("en-US")}{" "}
+                {boxType === EMysteryBoxType.Tutorial ? "Credits" : "BONK"}
               </div>
             </div>
           </div>

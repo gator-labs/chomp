@@ -1,6 +1,7 @@
 "use client";
 
 import MysteryBox from "@/components/MysteryBox/MysteryBox";
+import { EMysteryBoxType } from "@/types/mysteryBox";
 import { useState } from "react";
 
 export const ReopenMysteryBox = ({
@@ -19,7 +20,8 @@ export const ReopenMysteryBox = ({
         }}
         mysteryBoxId={mysteryBoxId}
         isDismissed={true}
-        skipAction={"Close"}
+        skipAction={"Dismiss"}
+        boxType={EMysteryBoxType.Regular}
       />
     </>
   );
