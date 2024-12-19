@@ -10,7 +10,11 @@ import {
 } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
-jest.mock("@/app/utils/auth");
+// Mock auth-related functions
+jest.mock("@/app/utils/auth", () => ({
+  authGuard: jest.fn().mockResolvedValue({ sub: "test-user-1" }),
+}));
+
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
@@ -63,12 +67,24 @@ describe("getUsersTotalCreditAmount", () => {
   });
 
   afterAll(async () => {
-    await deleteMysteryBoxes([mysteryBox1]);
-    await prisma.user.delete({
-      where: {
-        id: user1.id,
-      },
-    });
+    try {
+      await prisma.mysteryBoxPrize.deleteMany({
+        where: { mysteryBoxId: mysteryBox1 },
+      });
+      await prisma.mysteryBoxTrigger.deleteMany({
+        where: { mysteryBoxId: mysteryBox1 },
+      });
+      await deleteMysteryBoxes([mysteryBox1]);
+      await prisma.user.delete({
+        where: {
+          id: user1.id,
+        },
+      });
+    } catch (error) {
+      console.error("Cleanup error:", error);
+    } finally {
+      await prisma.$disconnect();
+    }
   });
 
   it("should return the total credit amount ", async () => {
