@@ -16,21 +16,12 @@ import trackEvent from "@/lib/trackEvent";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
 import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
 import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
+import { EMysteryBoxType, MysteryBoxProps } from "@/types/mysteryBox";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
-
-type MysteryBoxProps = {
-  isOpen: boolean;
-  closeBoxDialog: () => void;
-  mysteryBoxId: string | null;
-  isDismissed: boolean;
-  skipAction: MysteryBoxSkipAction;
-  isChompmasBox?: boolean;
-  isTutorialBox?: boolean;
-};
 
 function buildMessage(lines: string[]) {
   return lines.map((line, index) =>
@@ -46,7 +37,6 @@ function buildMessage(lines: string[]) {
 }
 
 type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
-type MysteryBoxSkipAction = "Dismiss" | "Close";
 
 function MysteryBox({
   isOpen,
@@ -54,8 +44,7 @@ function MysteryBox({
   mysteryBoxId,
   isDismissed,
   skipAction,
-  isChompmasBox,
-  isTutorialBox,
+  boxType = EMysteryBoxType.Regular,
 }: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
@@ -179,7 +168,7 @@ function MysteryBox({
   const getTitle = (status: MysteryBoxStatus) => {
     if (status === "Idle" || status === "Opening")
       return "You earned a mystery box!";
-    if (isTutorialBox) {
+    if (boxType === EMysteryBoxType.Tutorial) {
       return `You won ${creditReceived.toLocaleString("en-US")} Credits!`;
     }
     return `You won ${bonkReceived.toLocaleString("en-US")} BONK!`;
@@ -224,9 +213,9 @@ function MysteryBox({
           <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
               animationData={
-                isChompmasBox
+                boxType === EMysteryBoxType.Chompmas
                   ? animationDataSanta
-                  : isTutorialBox
+                  : boxType === EMysteryBoxType.Tutorial
                     ? animationDataCredits
                     : animationDataRegular
               }
@@ -258,12 +247,16 @@ function MysteryBox({
                 },
               )}
             >
-              <p>Total {isTutorialBox ? "Credits" : "$BONK"} won to date</p>
+              <p>
+                Total{" "}
+                {boxType === EMysteryBoxType.Tutorial ? "Credits" : "$BONK"} won
+                to date
+              </p>
               <div className="bg-chomp-orange-dark rounded-[56px] py-2 px-4 w-fit">
-                {isTutorialBox
+                {boxType === EMysteryBoxType.Tutorial
                   ? box?.totalCreditWon.toLocaleString("en-US")
                   : box?.totalBonkWon.toLocaleString("en-US")}{" "}
-                {isTutorialBox ? "Credits" : "BONK"}
+                {boxType === EMysteryBoxType.Tutorial ? "Credits" : "BONK"}
               </div>
             </div>
           </div>

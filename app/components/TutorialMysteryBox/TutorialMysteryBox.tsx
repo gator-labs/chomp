@@ -1,6 +1,7 @@
 "use client";
 
 import MysteryBox from "@/components/MysteryBox/MysteryBox";
+import { EMysteryBoxType } from "@/types/mysteryBox";
 import React, { useEffect, useState } from "react";
 
 type TutorialMysteryBoxProps = {
@@ -26,7 +27,7 @@ const TutorialMysteryBox = ({ mysteryBoxId }: TutorialMysteryBoxProps) => {
         mysteryBoxId={mysteryBoxId}
         isDismissed={false}
         skipAction={"Dismiss"}
-        isTutorialBox={true}
+        boxType={EMysteryBoxType.Tutorial}
       />
     </>
   );
