@@ -4,6 +4,7 @@ import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import { cn } from "@/lib/utils";
 import { CalendarCheckIcon } from "lucide-react";
+import { revalidatePath } from "next/cache";
 import { CSSProperties, useEffect, useState } from "react";
 
 import AnimatedGradientBorder from "../AnimatedGradientBorder";
@@ -110,6 +111,8 @@ const LatestStreakBox = ({
           closeBoxDialog={() => {
             setIsMysteryBoxOpen(false);
             setIsMysteryBoxSeen(true);
+            revalidatePath("/application");
+            revalidatePath("/tutorial");
           }}
           mysteryBoxId={mysteryBoxId}
           skipAction={"Close"}
