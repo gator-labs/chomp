@@ -2,6 +2,7 @@
 
 import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import { EMysteryBoxType } from "@/types/mysteryBox";
+import { revalidatePath } from "next/cache";
 import React, { useEffect, useState } from "react";
 
 type TutorialMysteryBoxProps = {
@@ -23,6 +24,8 @@ const TutorialMysteryBox = ({ mysteryBoxId }: TutorialMysteryBoxProps) => {
         isOpen={showMysteryBox}
         closeBoxDialog={() => {
           setShowMysteryBox(false);
+          revalidatePath("/application");
+          revalidatePath("/tutorial");
         }}
         mysteryBoxId={mysteryBoxId}
         isDismissed={false}
