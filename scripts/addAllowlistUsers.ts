@@ -31,8 +31,18 @@ async function main() {
   const csv = fs.readFileSync(csvFilePath, "utf8");
   const rows = csv.split(/\r?\n/);
 
-  // Filter out empty rows before processing
-  const validRows = rows.filter((address: string) => address.trim().length > 0);
+  // Filter out invalid addresses before adding to database
+  const validRows = rows.filter((address: string) => {
+    const trimmed = address.trim();
+    if (trimmed.length === 0) return false;
+
+    if (trimmed.length < 32 || trimmed.length > 44) {
+      throw new Error(
+        `Invalid address length: ${trimmed} (must be between 32-44 characters)`,
+      );
+    }
+    return true;
+  });
 
   await prisma.mysteryBoxAllowlist.createMany({
     data: validRows.map((address: string) => ({
