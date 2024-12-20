@@ -203,7 +203,6 @@ export async function claimQuestions(questionIds: number[]) {
         { cause: "Failed to send bonk" },
       );
       Sentry.captureException(sendBonkError);
-      await Sentry.flush(SENTRY_FLUSH_WAIT);
     }
 
     await prisma.$transaction(
