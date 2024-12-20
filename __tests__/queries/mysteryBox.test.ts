@@ -20,6 +20,7 @@ describe("getUnopenedMysteryBox", () => {
   let mysteryBox1: string;
   let mysteryBox2: string;
   let questionIds: number[];
+  let deckId: number;
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
   beforeAll(async () => {
@@ -81,6 +82,7 @@ describe("getUnopenedMysteryBox", () => {
     });
 
     questionIds = deck.deckQuestions.map((q) => q.questionId);
+    deckId = deck.id;
 
     const box1 = await prisma.mysteryBox.create({
       data: {
@@ -121,6 +123,32 @@ describe("getUnopenedMysteryBox", () => {
   // Clean up after all tests
   afterAll(async () => {
     await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
+    await prisma.questionOption.deleteMany({
+      where: {
+        questionId: {
+          in: questionIds,
+        },
+      },
+    });
+    await prisma.deckQuestion.deleteMany({
+      where: {
+        questionId: {
+          in: questionIds,
+        },
+      },
+    });
+    await prisma.question.deleteMany({
+      where: {
+        id: {
+          in: questionIds,
+        },
+      },
+    });
+    await prisma.deck.delete({
+      where: {
+        id: deckId,
+      },
+    });
     await prisma.user.deleteMany({
       where: {
         id: { in: [user1.id, user2.id] },

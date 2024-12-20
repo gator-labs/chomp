@@ -193,7 +193,8 @@ export function RevealContextProvider({
               className="font-bold"
               variant="outline"
               onClick={() => {
-                if (isSingleQuestionWithNftReveal) return burnAndReveal(true);
+                if (!insufficientFunds && isSingleQuestionWithNftReveal)
+                  return burnAndReveal(true);
 
                 resetReveal();
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
@@ -206,7 +207,7 @@ export function RevealContextProvider({
                 });
               }}
             >
-              {isSingleQuestionWithNftReveal
+              {!insufficientFunds && isSingleQuestionWithNftReveal
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
