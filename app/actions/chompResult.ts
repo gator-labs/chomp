@@ -156,86 +156,82 @@ export async function revealQuestions(
 
   const revealPoints = await calculateRevealPoints(questionRewards);
 
-  await prisma.$transaction(async (tx) => {
-    let revealNftId: string | null = null;
+  let revealNftId: string | null = null;
 
-    if (isRevealedWithNft) {
-      const revealNft = await prisma.revealNft.create({
-        data: {
-          userId: payload.sub,
-          nftType,
-          nftId: nftAddress,
+  if (isRevealedWithNft) {
+    const revealNft = await prisma.revealNft.create({
+      data: {
+        userId: payload.sub,
+        nftType,
+        nftId: nftAddress,
+      },
+    });
+    revealNftId = revealNft.nftId;
+  }
+
+  if (!revealNftId && !burnTx) {
+    const revealError = new RevealError(
+      `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
+    );
+    release();
+    Sentry.captureException(revealError);
+    return null;
+  }
+
+  if (revealNftId) {
+    await prisma.chompResult.createMany({
+      data: questionRewards.map((questionReward) => ({
+        questionId: questionReward.questionId,
+        userId: payload.sub,
+        result: ResultType.Revealed,
+        burnTransactionSignature: burnTx,
+        rewardTokenAmount: questionReward.rewardAmount,
+        transactionStatus: TransactionStatus.Completed,
+        revealNftId,
+      })),
+    });
+  } else {
+    const pendingChompResults = await prisma.chompResult.findMany({
+      where: {
+        userId: payload.sub,
+        questionId: {
+          in: revealableQuestionIds,
         },
-      });
+        burnTransactionSignature: burnTx,
+        transactionStatus: TransactionStatus.Pending,
+      },
+    });
 
-      revealNftId = revealNft.nftId;
-    }
-
-    if (!revealNftId && !burnTx) {
-      const revealError = new RevealError(
-        `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
+    const updatedRewards = questionRewards.map((reward) => {
+      const matchingResult = pendingChompResults.find(
+        (result) => result.questionId === reward.questionId,
       );
-      release();
-      Sentry.captureException(revealError);
-      return null;
-    }
-    if (revealNftId) {
-      await tx.chompResult.createMany({
-        data: [
-          ...questionRewards.map((questionReward) => ({
-            questionId: questionReward.questionId,
+      return {
+        ...reward,
+        chompResultId: matchingResult?.id,
+      };
+    });
+
+    await Promise.all(
+      updatedRewards.map((qr) =>
+        prisma.chompResult.update({
+          where: {
+            id: qr.chompResultId,
             userId: payload.sub,
-            result: ResultType.Revealed,
+            questionId: qr.questionId,
             burnTransactionSignature: burnTx,
-            rewardTokenAmount: questionReward.rewardAmount,
+            transactionStatus: TransactionStatus.Pending,
+          },
+          data: {
+            burnTransactionSignature: burnTx,
+            rewardTokenAmount: qr.rewardAmount,
             transactionStatus: TransactionStatus.Completed,
             revealNftId,
-          })),
-        ],
-      });
-    } else {
-      const pendingChompResults = await tx.chompResult.findMany({
-        where: {
-          userId: payload.sub,
-          questionId: {
-            in: revealableQuestionIds,
           },
-          burnTransactionSignature: burnTx,
-          transactionStatus: TransactionStatus.Pending,
-        },
-      });
-
-      const updatedRewards = questionRewards.map((reward) => {
-        const matchingResult = pendingChompResults.find(
-          (result) => result.questionId === reward.questionId,
-        );
-        return {
-          ...reward,
-          chompResultId: matchingResult ? matchingResult.id : undefined, // Add id if a match is found
-        };
-      });
-
-      await Promise.all(
-        updatedRewards.map((qr) =>
-          tx.chompResult.update({
-            where: {
-              id: qr.chompResultId,
-              userId: payload.sub,
-              questionId: qr.questionId,
-              burnTransactionSignature: burnTx,
-              transactionStatus: TransactionStatus.Pending,
-            },
-            data: {
-              burnTransactionSignature: burnTx,
-              rewardTokenAmount: qr.rewardAmount,
-              transactionStatus: TransactionStatus.Completed,
-              revealNftId,
-            },
-          }),
-        ),
-      );
-    }
-  });
+        }),
+      ),
+    );
+  }
 
   try {
     await prisma.fungibleAssetTransactionLog.createMany({
