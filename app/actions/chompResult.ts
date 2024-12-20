@@ -8,10 +8,10 @@ import {
   TransactionStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import { TransactionSignature } from "@solana/web3.js";
+// import { TransactionSignature } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
-import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
+// import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
@@ -129,21 +129,14 @@ export async function revealQuestions(
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
   if (bonkToBurn > 0) {
-    const txStatus = await pollTransactionConfirmation(
-      burnTx || "",
-      questionIds,
+    const pendingTxStatus = await hasBonkBurnedCorrectly(
+      burnTx,
+      bonkToBurn,
       payload.sub,
     );
-    if (!txStatus) {
-      const pendingTxStatus = await hasBonkBurnedCorrectly(
-        burnTx,
-        bonkToBurn,
-        payload.sub,
-      );
-      if (!pendingTxStatus) {
-        release();
-        return null;
-      }
+    if (!pendingTxStatus) {
+      release();
+      return null;
     }
   }
 
@@ -447,55 +440,56 @@ async function hasBonkBurnedCorrectly(
  *
  * @return status boolean
  */
-async function pollTransactionConfirmation(
-  txnSig: TransactionSignature,
-  pendingChompResultQuestionIds: number[],
-  userId: string,
-): Promise<boolean> {
-  const timeout = 15000; // 15 seconds
-  const interval = 5000; // 5 seconds
-  let elapsed = 0;
+// async function pollTransactionConfirmation(
+//   txnSig: TransactionSignature,
+//   pendingChompResultQuestionIds: number[],
+//   userId: string,
+// ): Promise<boolean> {
+//   const timeout = 15000; // 15 seconds
+//   const interval = 5000; // 5 seconds
+//   let elapsed = 0;
 
-  return new Promise<boolean>((resolve) => {
-    const intervalId = setInterval(async () => {
-      elapsed += interval;
+//   return new Promise<boolean>((resolve) => {
+//     const intervalId = setInterval(async () => {
+//       elapsed += interval;
 
-      if (elapsed >= timeout) {
-        clearInterval(intervalId);
-        resolve(false); // Return false on timeout
-        return;
-      }
+//       if (elapsed >= timeout) {
+//         clearInterval(intervalId);
+//         resolve(false); // Return false on timeout
+//         return;
+//       }
 
-      try {
-        const status = await CONNECTION.getSignatureStatuses([txnSig]);
+//       try {
+//         const status = await CONNECTION.getSignatureStatuses([txnSig]);
+//         console.log(status.value[0]?.err, status.value[0]?.slot);
 
-        if (
-          status?.value[0]?.confirmationStatus === "confirmed" ||
-          status?.value[0]?.confirmationStatus === "finalized"
-        ) {
-          clearInterval(intervalId);
-          resolve(true); // Return true if confirmed or finalized
-        }
-      } catch (error) {
-        console.error("Error checking transaction status:", error);
+//         if (
+//           status?.value[0]?.confirmationStatus === "confirmed" ||
+//           status?.value[0]?.confirmationStatus === "finalized"
+//         ) {
+//           clearInterval(intervalId);
+//           resolve(true); // Return true if confirmed or finalized
+//         }
+//       } catch (error) {
+//         console.error("Error checking transaction status:", error);
 
-        const revealError = new RevealConfirmationError(
-          `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultQuestionIds}})`,
-          { cause: error },
-        );
-        Sentry.captureException(revealError, {
-          tags: {
-            category: "reveal-tx-confirmation-error",
-          },
-        });
+//         const revealError = new RevealConfirmationError(
+//           `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultQuestionIds}})`,
+//           { cause: error },
+//         );
+//         Sentry.captureException(revealError, {
+//           tags: {
+//             category: "reveal-tx-confirmation-error",
+//           },
+//         });
 
-        await Sentry.flush(SENTRY_FLUSH_WAIT);
-        clearInterval(intervalId);
-        resolve(false); // Return false if an error occurs
-      }
-    }, interval);
-  });
-}
+//         await Sentry.flush(SENTRY_FLUSH_WAIT);
+//         clearInterval(intervalId);
+//         resolve(false); // Return false if an error occurs
+//       }
+//     }, interval);
+//   });
+// }
 
 async function handleFirstRevealToPopulateSubjectiveQuestion(
   questionIds: number[],
