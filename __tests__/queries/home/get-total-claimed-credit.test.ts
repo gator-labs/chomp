@@ -1,7 +1,7 @@
 import { deleteMysteryBoxes } from "@/__tests__/actions/mystery-box.test";
+import { getJwtPayload } from "@/app/actions/jwt";
 import { getUsersTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
-import { authGuard } from "@/app/utils/auth";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
@@ -9,11 +9,6 @@ import {
   EPrizeSize,
 } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
-
-// Mock auth-related functions
-jest.mock("@/app/utils/auth", () => ({
-  authGuard: jest.fn().mockResolvedValue({ sub: "test-user-1" }),
-}));
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
@@ -68,12 +63,6 @@ describe("getUsersTotalCreditAmount", () => {
 
   afterAll(async () => {
     try {
-      await prisma.mysteryBoxPrize.deleteMany({
-        where: { mysteryBoxId: mysteryBox1 },
-      });
-      await prisma.mysteryBoxTrigger.deleteMany({
-        where: { mysteryBoxId: mysteryBox1 },
-      });
       await deleteMysteryBoxes([mysteryBox1]);
       await prisma.user.delete({
         where: {
@@ -82,13 +71,11 @@ describe("getUsersTotalCreditAmount", () => {
       });
     } catch (error) {
       console.error("Cleanup error:", error);
-    } finally {
-      await prisma.$disconnect();
     }
   });
 
   it("should return the total credit amount ", async () => {
-    (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
     const totalClaimedAmount = await getUsersTotalCreditAmount();
 
     expect(totalClaimedAmount).toBe(100);

@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
+import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { acquireMutex } from "../utils/mutex";
@@ -378,7 +379,7 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
  * @returns {Promise<number>} The total credit amount claimed by the user.
  */
 export async function getUsersTotalCreditAmount() {
-  const payload = await authGuard();
+  const payload = await getJwtPayload();
   const userId = payload?.sub;
   const result = (await prisma.$queryRaw`
     SELECT SUM(CAST(amount AS NUMERIC)) FROM
