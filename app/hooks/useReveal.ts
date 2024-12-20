@@ -73,9 +73,7 @@ export function useReveal({
   >(BURN_STATE_IDLE);
 
   const hasPendingTransactions = pendingChompResults.length > 0;
-  const [insufficientFunds, setInsufficientFunds] = useState(
-    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions,
-  );
+  const [insufficientFunds, setInsufficientFunds] = useState(false);
 
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
   const isSingleQuestionWithNftReveal =
@@ -129,7 +127,9 @@ export function useReveal({
             type: NftType.Genesis,
           });
         }
-
+      } catch (error) {
+        console.error(error);
+      } finally {
         if (!wallet || !isSolanaWallet(wallet)) {
           return;
         }
@@ -158,9 +158,7 @@ export function useReveal({
               !hasPendingTransactions,
           );
         }
-      } catch (error) {
-        console.error(error);
-      } finally {
+
         trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_LOADED, {
           [TRACKING_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
             ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
@@ -263,6 +261,29 @@ export function useReveal({
           const signer = await wallet!.getSigner();
 
           const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
+          const estimatedFee = await tx.getEstimatedFee(CONNECTION);
+
+          if (!estimatedFee) {
+            return errorToast(
+              `We could not read fee for this transaction, please try again!`,
+            );
+          }
+
+          const estimatedFeeInSol = estimatedFee / LAMPORTS_PER_SOL;
+
+          if (
+            estimatedFeeInSol > Number(solBalance) ||
+            MINIMUM_SOL_BALANCE_FOR_TRANSACTION > Number(solBalance)
+          ) {
+            setInsufficientFunds(true);
+          } else {
+            setInsufficientFunds(
+              !!reveal?.amount &&
+                reveal.amount > bonkBalance &&
+                !hasPendingTransactions,
+            );
+          }
 
           setBurnState("burning");
 
