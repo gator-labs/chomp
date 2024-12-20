@@ -129,12 +129,12 @@ export async function revealQuestions(
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
   if (bonkToBurn > 0) {
-    const pendingTxStatus = await hasBonkBurnedCorrectly(
+    const bonkBurned = await hasBonkBurnedCorrectly(
       burnTx,
       bonkToBurn,
       payload.sub,
     );
-    if (!pendingTxStatus) {
+    if (!bonkBurned) {
       release();
       return null;
     }
