@@ -17,7 +17,6 @@ import { DynamicRevealError, RevealError } from "../../lib/error";
 import {
   createQuestionChompResults,
   deleteQuestionChompResults,
-  getRevealPending,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getJwtPayload } from "../actions/jwt";
@@ -350,9 +349,10 @@ export function useReveal({
         });
       }
 
-      const revealResult = await getRevealPending(revealQuestionIds);
+      const pendingResults =
+        await getUsersPendingChompResult(revealQuestionIds);
 
-      if (revealResult?.length !== 0) {
+      if (pendingResults?.length !== 0) {
         trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_PENDING, {
           transactionSignature: signature,
           nftAddress: revealNft?.id,

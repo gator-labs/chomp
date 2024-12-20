@@ -251,22 +251,6 @@ export async function revealQuestions(
   revalidatePath("/application");
 }
 
-export async function getRevealPending(questionIds: number[]) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  return prisma.chompResult.findMany({
-    where: {
-      userId: payload.sub,
-      questionId: { in: questionIds },
-      transactionStatus: TransactionStatus.Pending,
-    },
-  });
-}
-
 export async function dismissQuestion(questionId: number) {
   const payload = await getJwtPayload();
 
