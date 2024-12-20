@@ -428,69 +428,6 @@ async function hasBonkBurnedCorrectly(
   return true;
 }
 
-/**
- * Validate transaction for chomp result to mark them as complete
- * Run for 15s with an interval of 5s
- *
- * @param userId        User ID.
- * @param txnSig      Burn Tx Sign
- * @param pendingChompResultQuestionIds chompresults will be in pending state
- * after user start reveal
- *
- *
- * @return status boolean
- */
-// async function pollTransactionConfirmation(
-//   txnSig: TransactionSignature,
-//   pendingChompResultQuestionIds: number[],
-//   userId: string,
-// ): Promise<boolean> {
-//   const timeout = 15000; // 15 seconds
-//   const interval = 5000; // 5 seconds
-//   let elapsed = 0;
-
-//   return new Promise<boolean>((resolve) => {
-//     const intervalId = setInterval(async () => {
-//       elapsed += interval;
-
-//       if (elapsed >= timeout) {
-//         clearInterval(intervalId);
-//         resolve(false); // Return false on timeout
-//         return;
-//       }
-
-//       try {
-//         const status = await CONNECTION.getSignatureStatuses([txnSig]);
-//         console.log(status.value[0]?.err, status.value[0]?.slot);
-
-//         if (
-//           status?.value[0]?.confirmationStatus === "confirmed" ||
-//           status?.value[0]?.confirmationStatus === "finalized"
-//         ) {
-//           clearInterval(intervalId);
-//           resolve(true); // Return true if confirmed or finalized
-//         }
-//       } catch (error) {
-//         console.error("Error checking transaction status:", error);
-
-//         const revealError = new RevealConfirmationError(
-//           `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultQuestionIds}})`,
-//           { cause: error },
-//         );
-//         Sentry.captureException(revealError, {
-//           tags: {
-//             category: "reveal-tx-confirmation-error",
-//           },
-//         });
-
-//         await Sentry.flush(SENTRY_FLUSH_WAIT);
-//         clearInterval(intervalId);
-//         resolve(false); // Return false if an error occurs
-//       }
-//     }, interval);
-//   });
-// }
-
 async function handleFirstRevealToPopulateSubjectiveQuestion(
   questionIds: number[],
 ) {
