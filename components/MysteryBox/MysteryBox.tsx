@@ -227,13 +227,13 @@ function MysteryBox({
               lottieRef={lottieRef}
               autoplay={false}
               style={{
-                width: "280px",
-                height: "280px",
+                width: "250px",
+                height: "250px",
                 transformOrigin: "5% top",
                 transition: "all 0.5s ease",
-                scale: status === "Opening" ? "1.5" : "1.2",
+                scale: status === "Opening" ? "1.5" : "0.9",
                 zIndex: 999,
-                transform: `translateY(-75%) translateX(-43%)`,
+                transform: `translateY(-70%) translateX(-43%)`,
               }}
               className={cn("absolute top-1/2 left-1/2", {
                 "cursor-pointer": !isSubmitting && box && status === "Idle",
