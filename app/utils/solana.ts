@@ -139,7 +139,7 @@ export function isValidSignature(
 ): boolean {
   // Null is allowed but no empty string or random string
   if (signature === null || signature === undefined) return true;
-  if (signature.length < 85 || signature.length > 89 || signature === "")
+  if (signature.length < 85 || signature.length > 89)
     return false;
   try {
     // If it's a valid base58 encoded string, it will not throw an error
