@@ -19,7 +19,7 @@ const customJestConfig = {
   testEnvironment: "node",
   testTimeout: 20000,
   transformIgnorePatterns: [
-    "node_modules/(?!(@t3-oss/env-nextjs|@t3-oss/env-core)/.*)",
+    "node_modules/(?!(@t3-oss/env-nextjs|@t3-oss/env-core|@t3-oss/env-base)/.*)",
   ],
   extensionsToTreatAsEsm: [".ts", ".tsx"],
   transform: {
@@ -29,7 +29,7 @@ const customJestConfig = {
         useESM: true,
       },
     ],
-    "^.+\\.m?js$": "babel-jest",
+    "^.+\\.m?js$": ["babel-jest", { presets: ["@babel/preset-env"] }],
   },
 };
 
