@@ -52,7 +52,7 @@ export async function DashboardUserStats() {
         }}
       />
       <StatsBox
-        title={totalCredits.toLocaleString("en-US")}
+        title={`${totalCredits.toLocaleString("en-US")} Credits`}
         description="Earned to date"
         icon={<CreditCardIcon width={25} height={25} />}
         drawerProps={{

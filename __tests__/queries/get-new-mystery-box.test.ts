@@ -1,7 +1,7 @@
 import { EBoxTriggerType } from "@prisma/client";
 
 import { getJwtPayload } from "../../app/actions/jwt";
-import { getNewUserMysterBoxId } from "../../app/queries/mysteryBox";
+import { getNewUserMysteryBoxId } from "../../app/queries/mysteryBox";
 import prisma from "../../app/services/prisma";
 import { generateUsers } from "../../scripts/utils";
 
@@ -27,7 +27,7 @@ jest.mock("../../app/services/prisma", () => ({
   },
 }));
 
-describe("getNewUserMysterBoxId", () => {
+describe("getNewUserMysteryBoxId ", () => {
   let user: { id: string; username: string };
 
   beforeAll(async () => {
@@ -49,7 +49,7 @@ describe("getNewUserMysterBoxId", () => {
 
   it("should return null for unauthenticated user", async () => {
     (getJwtPayload as jest.Mock).mockResolvedValue(null);
-    const result = await getNewUserMysterBoxId();
+    const result = await getNewUserMysteryBoxId();
     expect(result).toBeNull();
     expect(getJwtPayload).toHaveBeenCalled();
   });
@@ -59,7 +59,7 @@ describe("getNewUserMysterBoxId", () => {
       sub: user.id,
       new_user: false,
     });
-    const result = await getNewUserMysterBoxId();
+    const result = await getNewUserMysteryBoxId();
     expect(result).toBeNull();
     expect(getJwtPayload).toHaveBeenCalled();
   });
@@ -73,7 +73,7 @@ describe("getNewUserMysterBoxId", () => {
       id: "trigger123",
       triggerType: EBoxTriggerType.TutorialCompleted,
     });
-    const result = await getNewUserMysterBoxId();
+    const result = await getNewUserMysteryBoxId();
     expect(result).toBeNull();
     expect(getJwtPayload).toHaveBeenCalled();
     expect(prisma.mysteryBoxTrigger.findFirst).toHaveBeenCalledWith({
@@ -98,7 +98,7 @@ describe("getNewUserMysterBoxId", () => {
       id: mockMysteryBoxId,
     });
 
-    const result = await getNewUserMysterBoxId();
+    const result = await getNewUserMysteryBoxId();
 
     expect(result).toBe(mockMysteryBoxId);
     expect(getJwtPayload).toHaveBeenCalled();

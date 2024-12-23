@@ -61,7 +61,7 @@ export const getUnopenedMysteryBox = async (
  *
  * @returns {Promise<string | null>} The ID of the rewarded mystery box if the user is eligible, otherwise null.
  */
-export const getNewUserMysterBoxId = async () => {
+export const getNewUserMysteryBoxId = async () => {
   const payload = await getJwtPayload();
 
   if (!payload) {

@@ -259,7 +259,7 @@ function MysteryBox({
               </p>
               <div className="bg-chomp-orange-dark rounded-[56px] py-2 px-4 w-fit">
                 {boxType === EMysteryBoxType.Tutorial
-                  ? box?.totalCreditWon.toLocaleString("en-US")
+                  ? box?.totalCreditsWon.toLocaleString("en-US")
                   : box?.totalBonkWon.toLocaleString("en-US")}{" "}
                 {boxType === EMysteryBoxType.Tutorial ? "Credits" : "BONK"}
               </div>

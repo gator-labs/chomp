@@ -11,13 +11,13 @@ import Spinner from "../components/Spinner/Spinner";
 import TutorialMysteryBox from "../components/TutorialMysteryBox/TutorialMysteryBox";
 import { getActiveBanners } from "../queries/banner";
 import { getQuestionsForRevealedSection } from "../queries/home";
-import { getNewUserMysterBoxId } from "../queries/mysteryBox";
+import { getNewUserMysteryBoxId } from "../queries/mysteryBox";
 
 export default async function Page() {
   const [questionsRevealed, banners, mysteryBoxId] = await Promise.all([
     getQuestionsForRevealedSection(),
     getActiveBanners(),
-    getNewUserMysterBoxId(),
+    getNewUserMysteryBoxId(),
   ]);
 
   return (
