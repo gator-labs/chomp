@@ -137,7 +137,10 @@ export const getSolBalance = async (address: string): Promise<number> => {
 export function isValidSignature(
   signature: string | null | undefined,
 ): boolean {
-  if (!signature) return true; // Null is allowed but no empty string or random string
+  // Null is allowed but no empty string or random string
+  if (signature === null || signature === undefined) return true;
+  if (signature.length < 85 || signature.length > 89 || signature === "")
+    return false;
   try {
     // If it's a valid base58 encoded string, it will not throw an error
     bs58.decode(signature);
