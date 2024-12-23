@@ -21,7 +21,7 @@ const customJestConfig = {
   transformIgnorePatterns: [
     "node_modules/(?!(@t3-oss/env-nextjs|@t3-oss/env-core)/.*)",
   ],
-  extensionsToTreatAsEsm: [".ts", ".tsx"],
+  extensionsToTreatAsEsm: [".ts", ".tsx", ".mjs"],
   transform: {
     "^.+\\.(t|j)sx?$": [
       "ts-jest",
@@ -29,12 +29,7 @@ const customJestConfig = {
         useESM: true,
       },
     ],
-    "^.+\\.m?js$": [
-      "ts-jest",
-      {
-        useESM: true,
-      },
-    ],
+    "^.+\\.m?js$": "babel-jest",
   },
 };
 
