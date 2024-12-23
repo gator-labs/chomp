@@ -42,7 +42,7 @@ const CreditsDrawer = ({ isOpen, onClose }: CreditsDrawerProps) => {
 
         <p className="text-sm mb-6">
           Chompy has the best answer for this (like they do with any question,
-          of course), but it's not the right time to tell you yet 😉.
+          of course), but it&apos;s not the right time to tell you yet 😉.
         </p>
 
         <p className="text-sm mb-6">
