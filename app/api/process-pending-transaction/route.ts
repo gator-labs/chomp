@@ -3,7 +3,7 @@ import prisma from "@/app/services/prisma";
 import { calculateReward } from "@/app/utils/algo";
 import { RevealConfirmationError } from "@/lib/error";
 import { validateBonkBurned } from "@/lib/validateBonkBurn";
-import { ResultType, TransactionStatus } from "@prisma/client";
+import { TransactionStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { startOfDay, sub } from "date-fns";
 
@@ -106,33 +106,45 @@ export async function GET(request: Request) {
           revealableQuestionIds,
         );
 
-        await prisma.$transaction(async (tx) => {
-          await tx.chompResult.deleteMany({
-            where: {
-              AND: {
-                userId: userId,
-                questionId: {
-                  in: revealableQuestionIds,
-                },
-                burnTransactionSignature: burnTx,
-                transactionStatus: TransactionStatus.Pending,
-              },
+        const pendingChompResults = await prisma.chompResult.findMany({
+          where: {
+            userId: userId,
+            questionId: {
+              in: revealableQuestionIds,
             },
-          });
-
-          await tx.chompResult.createMany({
-            data: [
-              ...questionRewards.map((questionReward) => ({
-                questionId: questionReward.questionId,
-                userId: userId,
-                result: ResultType.Revealed,
-                burnTransactionSignature: burnTx,
-                rewardTokenAmount: questionReward.rewardAmount,
-                transactionStatus: TransactionStatus.Completed,
-              })),
-            ],
-          });
+            burnTransactionSignature: burnTx,
+            transactionStatus: TransactionStatus.Pending,
+          },
         });
+
+        const updatedRewards = questionRewards.map((reward) => {
+          const matchingResult = pendingChompResults.find(
+            (result) => result.questionId === reward.questionId,
+          );
+          return {
+            ...reward,
+            chompResultId: matchingResult ? matchingResult.id : undefined, // Add id if a match is found
+          };
+        });
+
+        await Promise.all(
+          updatedRewards.map((qr) =>
+            prisma.chompResult.update({
+              where: {
+                id: qr.chompResultId,
+                userId: userId,
+                questionId: qr.questionId,
+                transactionStatus: TransactionStatus.Pending,
+                burnTransactionSignature: burnTx,
+              },
+              data: {
+                burnTransactionSignature: burnTx,
+                rewardTokenAmount: qr.rewardAmount,
+                transactionStatus: TransactionStatus.Completed,
+              },
+            }),
+          ),
+        );
       } else {
         /**
          * If the burnTxHash is invalid, result will be updated,
