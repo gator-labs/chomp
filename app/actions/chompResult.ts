@@ -11,7 +11,7 @@ import * as Sentry from "@sentry/nextjs";
 // import { TransactionSignature } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
-// import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
@@ -266,6 +266,7 @@ export async function revealQuestions(
   }
 
   release();
+  await Sentry.flush(SENTRY_FLUSH_WAIT);
   revalidatePath("/application");
 }
 

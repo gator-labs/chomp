@@ -13,6 +13,7 @@ import { release } from "os";
 
 import { AnswerError } from "../../lib/error";
 import { pointsPerAction } from "../constants/points";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
@@ -172,6 +173,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       { cause: error },
     );
     Sentry.captureException(answerError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
     throw error;
   }
