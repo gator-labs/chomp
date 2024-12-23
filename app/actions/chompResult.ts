@@ -96,6 +96,20 @@ export async function revealQuestions(
     data: { userId: payload.sub },
   });
 
+  if (!isValidSignature(burnTx)) {
+    const invalidBurnTxError = new InvalidBurnTxError(
+      `Invalid burn tx provided for user ${payload.sub}`,
+    );
+    Sentry.captureException(invalidBurnTxError, {
+      extra: {
+        questionIds,
+      },
+    });
+    release();
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+    return null;
+  }
+
   await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
   const questionsFilteredForUser = await prisma.question.findMany({
     where: {
@@ -173,18 +187,6 @@ export async function revealQuestions(
     release();
     Sentry.captureException(revealError);
     return null;
-  }
-
-  if (!isValidSignature(burnTx)) {
-    const invalidBurnTxError = new InvalidBurnTxError(
-      `Invalid burn tx provided for user ${payload.sub}`,
-    );
-    Sentry.captureException(invalidBurnTxError, {
-      extra: {
-        questionIds,
-      },
-    });
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
   }
 
   if (revealNftId) {
