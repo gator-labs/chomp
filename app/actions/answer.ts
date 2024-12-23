@@ -12,8 +12,8 @@ import { revalidatePath } from "next/cache";
 import { release } from "os";
 
 import { AnswerError } from "../../lib/error";
-import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { pointsPerAction } from "../constants/points";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
 import { incrementFungibleAssetBalance } from "./fungible-asset";
