@@ -12,6 +12,7 @@ import {
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
+import revalidateApplication from "@/lib/actions";
 import trackEvent from "@/lib/trackEvent";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
 import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
@@ -132,7 +133,10 @@ function MysteryBox({
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
 
-    if (closeBoxDialog) closeBoxDialog();
+    if (closeBoxDialog) {
+      closeBoxDialog();
+    }
+    revalidateApplication();
   };
 
   const handleSkip = async () => {
@@ -157,6 +161,7 @@ function MysteryBox({
 
     if (closeBoxDialog) closeBoxDialog();
 
+    revalidateApplication();
     router.push("/application/answer");
   };
 
