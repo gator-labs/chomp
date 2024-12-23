@@ -167,6 +167,18 @@ function MysteryBox({
     router.push("/application/answer");
   };
 
+  const handleGoToViewCredits = () => {
+    if (isSubmitting) return;
+
+    setBox(null);
+
+    trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
+
+    if (closeBoxDialog) closeBoxDialog();
+
+    router.push("/application");
+  };
+
   const bonkReceived = box?.tokensReceived?.[bonkAddress] ?? 0;
   const creditsReceived = box?.creditsReceived ?? 0;
 
@@ -334,7 +346,11 @@ function MysteryBox({
 
             <div className="flex flex-col gap-1">
               {status == "Closing" && (
-                <Button variant={"primary"} disabled={isSubmitting}>
+                <Button
+                  variant={"primary"}
+                  disabled={isSubmitting}
+                  onClick={handleGoToViewCredits}
+                >
                   View credits
                 </Button>
               )}
