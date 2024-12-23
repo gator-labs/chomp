@@ -1,6 +1,8 @@
 import { env } from "@/env.js";
 import { OpenAI } from "openai";
 
+import { notifySlack } from "./slackNotifications";
+
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: env.OPENAI_API_KEY,
@@ -23,8 +25,22 @@ interface DeckReviewData {
   }>;
 }
 
+/**
+ * Reviews deck content for issues using AI and sends notifications to Slack
+ *
+ * Note on Database Synchronization:
+ * While the database replica used for other operations is synced hourly,
+ * this review function operates on real-time data from the main database.
+ * This means the AI review is immediate, even though other operations may
+ * see deck updates with up to a 1-hour delay.
+ *
+ * @param deckData - The deck content to review
+ * @param deckId - Optional deck ID for Slack notifications
+ * @returns Array of issues found during review
+ */
 export async function aiReviewDeck(
   deckData: DeckReviewData,
+  deckId?: number,
 ): Promise<ReviewIssue[]> {
   const issues: ReviewIssue[] = [];
 
@@ -93,6 +109,11 @@ ${
       console.error(`Error reviewing ${field}:`, error);
       // Don't throw - we want to continue reviewing other fields
     }
+  }
+
+  // If issues were found and we have a deckId, notify via Slack
+  if (issues.length > 0 && deckId) {
+    await notifySlack(issues, deckId);
   }
 
   return issues;

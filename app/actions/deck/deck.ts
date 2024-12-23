@@ -246,16 +246,34 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
 
   revalidatePath("/admin/decks");
 
-  // Trigger AI review asynchronously after deck creation
-  void aiReviewDeck({
-    deckTitle: validatedFields.data.deck,
-    description: validatedFields.data.description,
-    footer: validatedFields.data.footer,
-    questions: validatedFields.data.questions.map((q) => ({
-      question: q.question,
-      options: q.questionOptions.map((opt) => opt.option),
-    })),
+  const createdDeck = await prisma.deck.create({
+    data: {
+      deck: validatedFields.data.deck,
+      imageUrl: validatedFields.data.imageUrl,
+      revealAtDate: validatedFields.data.revealAtDate,
+      revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+      date: validatedFields.data.date,
+      activeFromDate: validatedFields.data.activeFromDate,
+      stackId: validatedFields.data.stackId,
+      description: validatedFields.data.description,
+      footer: validatedFields.data.footer,
+      heading: validatedFields.data.heading,
+    },
   });
+
+  // Trigger AI review asynchronously after deck creation
+  void aiReviewDeck(
+    {
+      deckTitle: validatedFields.data.deck,
+      description: validatedFields.data.description,
+      footer: validatedFields.data.footer,
+      questions: validatedFields.data.questions.map((q) => ({
+        question: q.question,
+        options: q.questionOptions.map((opt) => opt.option),
+      })),
+    },
+    createdDeck.id,
+  );
 
   redirect("/admin/decks");
 }
@@ -577,15 +595,18 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   revalidatePath("/admin/decks");
 
   // Trigger AI review asynchronously after deck update
-  void aiReviewDeck({
-    deckTitle: validatedFields.data.deck,
-    description: validatedFields.data.description,
-    footer: validatedFields.data.footer,
-    questions: validatedFields.data.questions.map((q) => ({
-      question: q.question,
-      options: q.questionOptions.map((opt) => opt.option),
-    })),
-  });
+  void aiReviewDeck(
+    {
+      deckTitle: validatedFields.data.deck,
+      description: validatedFields.data.description,
+      footer: validatedFields.data.footer,
+      questions: validatedFields.data.questions.map((q) => ({
+        question: q.question,
+        options: q.questionOptions.map((opt) => opt.option),
+      })),
+    },
+    validatedFields.data.id,
+  );
 
   redirect("/admin/decks");
 }
