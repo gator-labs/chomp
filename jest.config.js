@@ -17,6 +17,9 @@ const customJestConfig = {
   preset: "ts-jest",
   testEnvironment: "node",
   testTimeout: 20000,
+  transformIgnorePatterns: [
+    "node_modules/(?!(@t3-oss/env-nextjs|@t3-oss/env-core)/.*)",
+  ],
 };
 
 module.exports = async () => ({
