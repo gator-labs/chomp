@@ -28,25 +28,49 @@ describe("POST /api/user/setUserSubscription", () => {
 
   // Create a test user before all tests
   beforeAll(async () => {
-    await prisma.user.deleteMany({
-      where: { telegramId: BigInt(TELEGRAM_USER_PAYLOAD.id) },
-    });
+    try {
+      // Clean up any existing test users
+      await prisma.user.deleteMany({
+        where: {
+          OR: [
+            { telegramId: BigInt(TELEGRAM_USER_PAYLOAD.id) },
+            { id: testUserId },
+          ],
+        },
+      });
 
-    const user = await prisma.user.create({
-      data: {
-        id: uuidv4(),
-        telegramId: BigInt(TELEGRAM_USER_PAYLOAD.id),
-        isBotSubscriber: true,
-      },
-    });
-    testUserId = user.id;
+      // Wait a bit to ensure cleanup is complete
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // Create new test user with only required fields
+      const user = await prisma.user.create({
+        data: {
+          id: uuidv4(),
+          telegramId: BigInt(TELEGRAM_USER_PAYLOAD.id),
+          isBotSubscriber: true,
+        },
+      });
+      testUserId = user.id;
+    } catch (error) {
+      console.error("Error in test setup:", error);
+      throw error;
+    }
   });
 
   // Clean up test user after all tests
   afterAll(async () => {
-    await prisma.user.deleteMany({
-      where: { telegramId: Number(TELEGRAM_USER_PAYLOAD.id) },
-    });
+    try {
+      await prisma.user.deleteMany({
+        where: {
+          OR: [
+            { telegramId: BigInt(TELEGRAM_USER_PAYLOAD.id) },
+            { id: testUserId },
+          ],
+        },
+      });
+    } catch (error) {
+      console.error("Error cleaning up test users:", error);
+    }
   });
 
   beforeEach(() => {

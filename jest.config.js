@@ -11,7 +11,11 @@ const customJestConfig = {
   coverageReporters: ["text", "lcov", "json"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@t3-oss/env-nextjs$":
+      "<rootDir>/node_modules/@t3-oss/env-nextjs/dist/index.js",
   },
+  transformIgnorePatterns: ["/node_modules/(?!@t3-oss/env-nextjs)"],
   modulePaths: ["<rootDir>"],
   verbose: true,
   testEnvironment: "node",

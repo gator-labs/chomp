@@ -33,10 +33,19 @@ describe("POST /api/user/createUserByTelegramId", () => {
 
   // Cleanup after each test
   afterEach(async () => {
-    if (createdUserId) {
-      await prisma.user.delete({
-        where: { id: createdUserId },
+    try {
+      // Clean up any test users by both ID and telegramId
+      await prisma.user.deleteMany({
+        where: {
+          OR: [
+            { id: createdUserId },
+            { telegramId: BigInt(TELEGRAM_USER_PAYLOAD.id) },
+          ],
+        },
       });
+    } catch (error) {
+      console.error("Error cleaning up test users:", error);
+    } finally {
       createdUserId = "";
     }
   });
