@@ -9,6 +9,7 @@ import {
   PublicKey,
   Transaction,
 } from "@solana/web3.js";
+import bs58 from "bs58";
 
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
@@ -132,3 +133,16 @@ export const getSolBalance = async (address: string): Promise<number> => {
 
   return balance / LAMPORTS_PER_SOL;
 };
+
+export function isValidSignature(
+  signature: string | null | undefined,
+): boolean {
+  if (!signature) return true; // Null is allowed but no empty string or random string
+  try {
+    // If it's a valid base58 encoded string, it will not throw an error
+    bs58.decode(signature);
+    return true;
+  } catch {
+    return false;
+  }
+}
