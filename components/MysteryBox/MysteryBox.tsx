@@ -161,7 +161,7 @@ function MysteryBox({
   };
 
   const bonkReceived = box?.tokensReceived?.[bonkAddress] ?? 0;
-  const creditReceived = box?.creditsReceived ?? 0;
+  const creditsReceived = box?.creditsReceived ?? 0;
 
   if (!isOpen || !mysteryBoxId) return null;
 
@@ -169,9 +169,36 @@ function MysteryBox({
     if (status === "Idle" || status === "Opening")
       return "You earned a mystery box!";
     if (boxType === EMysteryBoxType.Tutorial) {
-      return `You won ${creditReceived.toLocaleString("en-US")} Credits!`;
+      return `You won ${creditsReceived.toLocaleString("en-US")} Credits!`;
     }
-    return `You won ${bonkReceived.toLocaleString("en-US")} BONK!`;
+
+    if (bonkReceived > 0 && creditsReceived > 0) {
+      return (
+        <>
+          You won {creditsReceived.toLocaleString("en-US")} credits
+          <br />
+          and {bonkReceived.toLocaleString("en-US")} $BONK!
+        </>
+      );
+    } else if (creditsReceived > 0) {
+      return (
+        <>
+          You won {creditsReceived.toLocaleString("en-US")} credits!
+          <br />
+          No $BONK in this box ...
+        </>
+      );
+    } else if (bonkReceived > 0) {
+      return (
+        <>
+          You won {bonkReceived.toLocaleString("en-US")} $BONK!
+          <br />
+          No credits in this box ...
+        </>
+      );
+    } else {
+      return <>No $BONK in this box ... No credits in this box ...</>;
+    }
   };
   return (
     <>
@@ -187,7 +214,7 @@ function MysteryBox({
           >
             <h1
               className={cn(
-                "text-chomp-green-light text-2xl font-bold transition-all duration-150",
+                "text-chomp-green-light text-2xl font-bold transition-all duration-150 text-center",
                 {
                   "opacity-0": status === "Opening",
                 },
@@ -239,24 +266,35 @@ function MysteryBox({
               }
             />
 
-            <div
-              className={cn(
-                "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
-                {
-                  "opacity-100": status === "Closing",
-                },
+            <div className="flex flex-col gap-4">
+              {boxType !== EMysteryBoxType.Tutorial && (
+                <div
+                  className={cn(
+                    "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
+                    {
+                      "opacity-100": status === "Closing",
+                    },
+                  )}
+                >
+                  <p>Total $BONK won to date</p>
+                  <div className="bg-chomp-orange-dark rounded-full py-2 px-4 w-fit ml-2">
+                    {box?.totalBonkWon.toLocaleString("en-US")} BONK
+                  </div>
+                </div>
               )}
-            >
-              <p>
-                Total{" "}
-                {boxType === EMysteryBoxType.Tutorial ? "Credits" : "$BONK"} won
-                to date
-              </p>
-              <div className="bg-chomp-orange-dark rounded-[56px] py-2 px-4 w-fit">
-                {boxType === EMysteryBoxType.Tutorial
-                  ? box?.totalCreditWon.toLocaleString("en-US")
-                  : box?.totalBonkWon.toLocaleString("en-US")}{" "}
-                {boxType === EMysteryBoxType.Tutorial ? "Credits" : "BONK"}
+
+              <div
+                className={cn(
+                  "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
+                  {
+                    "opacity-100": status === "Closing",
+                  },
+                )}
+              >
+                <p>Total credits won to date</p>
+                <div className="bg-chomp-blue-dark rounded-full py-2 px-4 w-fit ml-2 text-black">
+                  {box?.totalCreditWon.toLocaleString("en-US")} credits
+                </div>
               </div>
             </div>
           </div>
@@ -269,15 +307,29 @@ function MysteryBox({
               },
             )}
           >
-            <Button
-              variant={"primary"}
-              onClick={() =>
-                status === "Closing" ? handleGoToAnswering() : openBox()
-              }
-              disabled={isSubmitting}
-            >
-              {status === "Closing" ? "CHOMP on more decks →" : "Open Now"}
-            </Button>
+            {status == "Closing" && (
+              <div className="text-sm underline text-center cursor-pointer">
+                Learn more about credits
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1">
+              {status == "Closing" && (
+                <Button variant={"primary"} disabled={isSubmitting}>
+                  View credits
+                </Button>
+              )}
+
+              <Button
+                variant={"outline"}
+                onClick={() =>
+                  status === "Closing" ? handleGoToAnswering() : openBox()
+                }
+                disabled={isSubmitting}
+              >
+                {status === "Closing" ? "Answer more decks →" : "Open Now"}
+              </Button>
+            </div>
 
             <div
               className="text-sm cursor-pointer text-center text-chomp-grey-a1 underline"
