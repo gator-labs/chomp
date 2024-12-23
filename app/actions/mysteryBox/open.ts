@@ -147,7 +147,7 @@ export async function openMysteryBox(
                 asset: FungibleAsset.Credit,
                 change: prize.amount,
                 userId: payload.sub,
-                mysteryBoxId,
+                mysteryBoxPrizeId: prize.id,
               },
             });
           }

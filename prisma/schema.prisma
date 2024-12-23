@@ -197,11 +197,10 @@ model FungibleAssetTransactionLog {
   questionId Int?
   deck       Deck?              @relation(fields: [deckId], references: [id])
   deckId     Int?
-  mysteryBox   MysteryBox?         @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId String?
+  mysteryBoxPrize   MysteryBoxPrize?         @relation(fields: [mysteryBoxPrizeId], references: [id])
+  mysteryBoxPrizeId String? @unique
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
-  @@unique([type, userId, mysteryBoxId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
 }
 
@@ -247,7 +246,6 @@ model MysteryBox {
   triggers        MysteryBoxTrigger[]
   user            User                @relation(fields: [userId], references: [id])
   MysteryBoxPrize MysteryBoxPrize[]
-  FungibleAssetTransactionLog FungibleAssetTransactionLog[]
 }
 
 model MysteryBoxTrigger {
@@ -282,6 +280,7 @@ model MysteryBoxPrize {
   claimedAt         DateTime?
   mysteryBox        MysteryBox      @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId      String
+  fungibleAssetTransactionLog FungibleAssetTransactionLog?
 
   @@unique([mysteryBoxId, tokenAddress])
 }

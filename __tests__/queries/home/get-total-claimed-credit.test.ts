@@ -81,13 +81,24 @@ describe("getUsersTotalCreditAmount", () => {
       mysteryBox1 = box.id;
       mysteryBox2 = box2.id;
 
+      const prizeId1 = (
+        await tx.mysteryBoxPrize.findFirstOrThrow({
+          where: { mysteryBoxId: box.id },
+        })
+      ).id;
+      const prizeId2 = (
+        await tx.mysteryBoxPrize.findFirstOrThrow({
+          where: { mysteryBoxId: box2.id },
+        })
+      ).id;
+
       await tx.fungibleAssetTransactionLog.create({
         data: {
           type: TransactionLogType.MysteryBox,
           asset: FungibleAsset.Credit,
           change: 100,
           userId: user1.id,
-          mysteryBoxId: mysteryBox1,
+          mysteryBoxPrizeId: prizeId1,
         },
       });
 
@@ -97,7 +108,7 @@ describe("getUsersTotalCreditAmount", () => {
           asset: FungibleAsset.Credit,
           change: 66,
           userId: user1.id,
-          mysteryBoxId: mysteryBox2,
+          mysteryBoxPrizeId: prizeId2,
         },
       });
     });
