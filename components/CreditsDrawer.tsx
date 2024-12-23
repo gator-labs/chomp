@@ -1,23 +1,17 @@
-import {
-  TRACKING_EVENTS,
-} from "@/app/constants/tracking";
-import trackEvent from "@/lib/trackEvent";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { useEffect } from "react";
-
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { Button } from "@/app/components/ui/button";
 import { Drawer, DrawerContent } from "@/app/components/ui/drawer";
+import { TRACKING_EVENTS } from "@/app/constants/tracking";
+import trackEvent from "@/lib/trackEvent";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import { useEffect } from "react";
 
 type CreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-const CreditsDrawer = ({
-  isOpen,
-  onClose,
-}: CreditsDrawerProps) => {
+const CreditsDrawer = ({ isOpen, onClose }: CreditsDrawerProps) => {
   useEffect(() => {
     if (isOpen) {
       trackEvent(TRACKING_EVENTS.MYSTERY_BOX_CREDITS_INFO_DIALOG_OPENED);

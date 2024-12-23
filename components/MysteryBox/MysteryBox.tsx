@@ -21,8 +21,7 @@ import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import { Fragment, useEffect, useRef, useState } from "react";
 
-import CreditsDrawer from '../CreditsDrawer';
-
+import CreditsDrawer from "../CreditsDrawer";
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
 
 function buildMessage(lines: string[]) {
@@ -56,7 +55,8 @@ function MysteryBox({
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
   const [box, setBox] = useState<MysteryBoxResult | null>(null);
 
-  const [isCreditsDrawerOpen, setIsCreditsDrawerOpen] = useState<boolean>(false);
+  const [isCreditsDrawerOpen, setIsCreditsDrawerOpen] =
+    useState<boolean>(false);
 
   const message: MysteryBoxOpenMessage = "REGULAR";
 
@@ -312,7 +312,10 @@ function MysteryBox({
             )}
           >
             {status == "Closing" && (
-              <div className="text-sm underline text-center cursor-pointer" onClick={() => setIsCreditsDrawerOpen(true)}>
+              <div
+                className="text-sm underline text-center cursor-pointer"
+                onClick={() => setIsCreditsDrawerOpen(true)}
+              >
                 Learn more about credits
               </div>
             )}
@@ -324,21 +327,25 @@ function MysteryBox({
                 </Button>
               )}
 
-              {status == "Idle" && <Button
-                variant={"primary"}
-                onClick={openBox}
-                disabled={isSubmitting}
-              >
-                {"Open Now"}
-              </Button>}
+              {status == "Idle" && (
+                <Button
+                  variant={"primary"}
+                  onClick={openBox}
+                  disabled={isSubmitting}
+                >
+                  {"Open Now"}
+                </Button>
+              )}
 
-              {status == "Closing" && <Button
-                variant={"outline"}
-                onClick={handleGoToAnswering}
-                disabled={isSubmitting}
-              >
-                {"Answer more decks →"}
-              </Button>}
+              {status == "Closing" && (
+                <Button
+                  variant={"outline"}
+                  onClick={handleGoToAnswering}
+                  disabled={isSubmitting}
+                >
+                  {"Answer more decks →"}
+                </Button>
+              )}
             </div>
 
             <div
