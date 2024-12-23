@@ -234,7 +234,7 @@ function MysteryBox({
                 transform: `translateY(-70%) translateX(-43%)`,
               }}
               className={cn(
-                "absolute top-1/2 left-1/2 w-[250px] md:w-[280px] h-[250px] md:h-[280px]",
+                "absolute top-1/2 left-1/2 w-[250px] md:w-[280px] lg:w-[300px] 2xl:w-[320px] h-[250px] md:h-[280px] lg:h-[300px] 2xl:h-[320px]",
                 {
                   "cursor-pointer": !isSubmitting && box && status === "Idle",
                 },
