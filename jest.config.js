@@ -20,6 +20,19 @@ const customJestConfig = {
   transformIgnorePatterns: [
     "node_modules/(?!(@t3-oss/env-nextjs|@t3-oss/env-core)/.*)",
   ],
+  extensionsToTreatAsEsm: [".ts", ".tsx", ".mjs"],
+  moduleNameMapper: {
+    "^@/(.*)$": "<rootDir>/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
+  transform: {
+    "^.+\\.(t|j)sx?$": [
+      "ts-jest",
+      {
+        useESM: true,
+      },
+    ],
+  },
 };
 
 module.exports = async () => ({
