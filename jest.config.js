@@ -12,6 +12,8 @@ const customJestConfig = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
     "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@t3-oss/env-nextjs$": require.resolve("@t3-oss/env-nextjs"),
+    "^@t3-oss/env-core$": require.resolve("@t3-oss/env-core"),
   },
   modulePaths: ["<rootDir>"],
   verbose: true,
@@ -42,7 +44,14 @@ const customJestConfig = {
     "^.+\\.m?js$": [
       "babel-jest",
       {
-        presets: ["@babel/preset-env"],
+        presets: [["@babel/preset-env", { modules: "commonjs" }]],
+        plugins: ["@babel/plugin-transform-modules-commonjs"],
+      },
+    ],
+    "node_modules/@t3-oss/.+\\.(j|t)sx?$": [
+      "babel-jest",
+      {
+        presets: [["@babel/preset-env", { modules: "commonjs" }]],
         plugins: ["@babel/plugin-transform-modules-commonjs"],
       },
     ],
