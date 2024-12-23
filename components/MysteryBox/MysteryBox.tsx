@@ -326,7 +326,7 @@ function MysteryBox({
               >
                 <p>Total credits won to date</p>
                 <div className="bg-chomp-blue-dark rounded-full py-2 px-4 w-fit ml-2 text-black">
-                  {box?.totalCreditWon.toLocaleString("en-US")} credits
+                  {box?.totalCreditsWon.toLocaleString("en-US")} credits
                 </div>
               </div>
             </div>

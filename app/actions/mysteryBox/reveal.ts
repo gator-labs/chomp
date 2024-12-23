@@ -20,7 +20,7 @@ export type MysteryBoxResult = {
   tokensReceived: Record<string, number>; // token address -> amount
   creditsReceived: number;
   totalBonkWon: number;
-  totalCreditWon: number;
+  totalCreditsWon: number;
 };
 
 /**
@@ -86,14 +86,6 @@ export async function revealMysteryBox(
             status: {
               in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
             },
-            // OR: [
-            //   {
-            //     // Until we implement credits and/or other tokens:
-            //     prizeType: EBoxPrizeType.Token,
-            //     tokenAddress: bonkAddress,
-            //   },
-            //   { prizeType: EBoxPrizeType.Credits },
-            // ],
           },
         },
       },
@@ -122,9 +114,9 @@ export async function revealMysteryBox(
       .add(bonkReceived)
       .toNumber();
 
-    const oldTotalCreditWon = await getUsersTotalCreditAmount();
+    const oldTotalCreditsWon = await getUsersTotalCreditAmount();
 
-    const totalCreditWon = new Decimal(oldTotalCreditWon)
+    const totalCreditsWon = new Decimal(oldTotalCreditsWon)
       .add(creditsReceived)
       .toNumber();
 
@@ -133,7 +125,7 @@ export async function revealMysteryBox(
       tokensReceived,
       creditsReceived,
       totalBonkWon,
-      totalCreditWon,
+      totalCreditsWon,
     };
   } catch (e) {
     const revealMysteryBoxError = new RevealMysteryBoxError(
