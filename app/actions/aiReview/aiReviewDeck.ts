@@ -1,5 +1,5 @@
-import { env } from "@/env.js";
-import { OpenAI } from "openai";
+const { env } = require("@/env.js");
+const { OpenAI } = require("openai");
 
 // Initialize OpenAI client
 const openai = new OpenAI({
