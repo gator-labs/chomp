@@ -79,6 +79,7 @@ export default function PotentialRewardsRevealAll({
         ),
         questionIds: revealableQuestions.map((q) => q.id),
         questions: revealableQuestions.map((q) => q.question),
+        isRevealAll: true,
       }),
     [],
   );

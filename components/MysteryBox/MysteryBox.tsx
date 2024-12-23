@@ -279,24 +279,23 @@ function MysteryBox({
               lottieRef={lottieRef}
               autoplay={false}
               style={{
-                width: "280px",
-                height: "280px",
                 transformOrigin: "5% top",
                 transition: "all 0.5s ease",
-                scale: status === "Opening" ? "1.5" : "1.2",
+                scale: status === "Opening" ? "1.5" : "0.9",
                 zIndex: 999,
-                transform: `translateY(-75%) translateX(-43%)`,
+                transform: `translateY(-70%) translateX(-43%)`,
               }}
-              className={cn("absolute top-1/2 left-1/2", {
-                "cursor-pointer": !isSubmitting && box && status === "Idle",
-                "opacity-0":
-                  status == "Closing" &&
-                  creditsReceived == 0 &&
-                  bonkReceived == 0,
-              })}
-              onClick={() =>
-                !isSubmitting && box && status === "Idle" && openBox()
-              }
+              className={cn(
+                "absolute top-1/2 left-1/2 w-[250px] md:w-[280px] lg:w-[300px] 2xl:w-[320px] h-[250px] md:h-[280px] lg:h-[300px] 2xl:h-[320px]",
+                {
+                  "cursor-pointer": !isSubmitting && box && status === "Idle",
+                  "opacity-0":
+                    status == "Closing" &&
+                    creditsReceived == 0 &&
+                    bonkReceived == 0,
+                },
+              )}
+              onClick={() => !isSubmitting && status === "Idle" && openBox()}
             />
 
             <div className="flex flex-col gap-4">
