@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 import { getJwtPayload } from "../actions/jwt";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { acquireMutex } from "../utils/mutex";
@@ -311,6 +312,7 @@ export async function getUsersLatestStreakAndMysteryBox(): Promise<
 
     throw new Error("Error opening mystery box");
   } finally {
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
   }
 }

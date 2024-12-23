@@ -1,6 +1,7 @@
 "use server";
 
 import { getUsersTotalCreditAmount } from "@/app/queries/home";
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { RevealMysteryBoxError } from "@/lib/error";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import {
@@ -140,6 +141,7 @@ export async function revealMysteryBox(
       { cause: e },
     );
     Sentry.captureException(revealMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
 
     throw new Error("Error revealing mystery box");
   }
