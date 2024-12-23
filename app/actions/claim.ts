@@ -91,9 +91,9 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  const isUserAllowed = await isUserInAllowlist();
+  const isEligibleForMysteryBox = await isUserInAllowlist();
 
-  const mysteryBoxId = isUserAllowed
+  const mysteryBoxId = isEligibleForMysteryBox
     ? await rewardMysteryBox(
         payload.sub,
         EBoxTriggerType.ClaimAllCompleted,
