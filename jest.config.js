@@ -11,49 +11,22 @@ const customJestConfig = {
   coverageReporters: ["text", "lcov", "json"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
-    "^(\\.{1,2}/.*)\\.js$": "$1",
-    "^@t3-oss/env-nextjs$": require.resolve("@t3-oss/env-nextjs"),
-    "^@t3-oss/env-core$": require.resolve("@t3-oss/env-core"),
   },
   modulePaths: ["<rootDir>"],
   verbose: true,
-  preset: "ts-jest",
   testEnvironment: "node",
   testTimeout: 20000,
-  transformIgnorePatterns: ["node_modules/(?!(@t3-oss|zod)/.*)"],
-  extensionsToTreatAsEsm: [".ts", ".tsx"],
   transform: {
-    "^.+\\.(t|j)sx?$": [
-      "@swc/jest",
+    "^.+\\.[tj]sx?$": [
+      "ts-jest",
       {
-        jsc: {
-          parser: {
-            syntax: "typescript",
-            tsx: true,
-          },
-          transform: {
-            react: {
-              runtime: "automatic",
-            },
-          },
-        },
-      },
-    ],
-    "^.+\\.m?js$": [
-      "babel-jest",
-      {
-        presets: [["@babel/preset-env", { modules: "commonjs" }]],
-        plugins: ["@babel/plugin-transform-modules-commonjs"],
-      },
-    ],
-    "node_modules/(@t3-oss|zod)/.+\\.(j|t)sx?$": [
-      "babel-jest",
-      {
-        presets: [["@babel/preset-env", { modules: "commonjs" }]],
-        plugins: ["@babel/plugin-transform-modules-commonjs"],
+        useESM: true,
+        tsconfig: "tsconfig.json",
       },
     ],
   },
+  extensionsToTreatAsEsm: [".ts", ".tsx", ".mjs"],
+  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
 };
 
 module.exports = async () => ({
