@@ -1,0 +1,58 @@
+name: Restore Latest Database Backup
+
+on:
+  schedule:
+    - cron: "43 * * * *" # Run every hour at :43
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  restore-latest-backup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt install -y postgresql-common
+          yes '' | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+          sudo apt-get install -y postgresql-client-16
+
+      - name: Configure AWS credentials from Action OIDC
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-north-1
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-session-name: GitHubActionSession
+
+      - name: Find and Download the Most Recent Backup
+        run: |
+          echo "Fetching the most recent backup from S3..."
+          # Find the latest .sql.gz file in the bucket
+          LATEST_BACKUP=$(aws s3 ls s3://backup.chomp.prod/ --recursive | grep '.sql.gz' | sort | tail -n 1 | awk '{print $4}')
+          
+          if [ -z "$LATEST_BACKUP" ]; then
+            echo "No backup file found. Exiting."
+            exit 1
+          fi
+
+          echo "Latest backup file: $LATEST_BACKUP"
+          aws s3 cp "s3://backup.chomp.prod/${LATEST_BACKUP}" ./latest-backup.sql.gz
+          echo "Backup file downloaded: latest-backup.sql.gz"
+
+      - name: Restore database
+        env:
+          DATABASE_REPLICA_URL: ${{ secrets.DATABASE_REPLICA_URL }}
+        run: |
+          echo "Dropping existing schema and creating a clean one..."
+          psql $DATABASE_REPLICA_URL -c "DROP SCHEMA public CASCADE;"
+          psql $DATABASE_REPLICA_URL -c "CREATE SCHEMA public;"
+          
+          echo "Restoring the database from the backup..."
+          gunzip -dc latest-backup.sql.gz | psql $DATABASE_REPLICA_URL
+          echo "Database restored successfully!"

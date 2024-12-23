@@ -37,9 +37,11 @@ export const RevealedContext =
 export function RevealContextProvider({
   children,
   bonkBalance,
+  solBalance,
 }: {
   children: ReactNode;
   bonkBalance: number;
+  solBalance: number;
 }) {
   const { primaryWallet } = useDynamicContext();
   const {
@@ -54,20 +56,22 @@ export function RevealContextProvider({
     insufficientFunds,
     revealPrice,
     pendingTransactions,
-    isRevealWithNftMode,
+    isSingleQuestionWithNftReveal,
     questionIds,
     questions,
     isLoading,
+    isRevealAll,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
     wallet: primaryWallet,
+    solBalance,
   });
 
   const hasPendingTransactions = pendingTransactions > 0;
 
   const revealButtons = () => {
-    if (insufficientFunds && !isRevealWithNftMode) {
+    if (insufficientFunds && !isSingleQuestionWithNftReveal) {
       return (
         <>
           <Link
@@ -85,8 +89,9 @@ export function RevealContextProvider({
               trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                 [TRACKING_METADATA.QUESTION_ID]: questionIds,
                 [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                [TRACKING_METADATA.REVEAL_TYPE]:
-                  questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+                [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                  ? REVEAL_TYPE.ALL
+                  : REVEAL_TYPE.SINGLE,
               });
               cancelReveal();
             }}
@@ -127,10 +132,9 @@ export function RevealContextProvider({
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [TRACKING_METADATA.QUESTION_ID]: questionIds,
                   [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                  [TRACKING_METADATA.REVEAL_TYPE]:
-                    questionIds.length > 1
-                      ? REVEAL_TYPE.ALL
-                      : REVEAL_TYPE.SINGLE,
+                  [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                    ? REVEAL_TYPE.ALL
+                    : REVEAL_TYPE.SINGLE,
                 });
                 cancelReveal();
               }}
@@ -166,15 +170,14 @@ export function RevealContextProvider({
                 if (
                   !hasPendingTransactions &&
                   questionIds?.length &&
-                  !isRevealWithNftMode
+                  !isSingleQuestionWithNftReveal
                 )
                   trackEvent(TRACKING_EVENTS.REVEAL_STARTED, {
                     [TRACKING_METADATA.QUESTION_ID]: questionIds,
                     [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                    [TRACKING_METADATA.REVEAL_TYPE]:
-                      questionIds.length > 1
-                        ? REVEAL_TYPE.ALL
-                        : REVEAL_TYPE.SINGLE,
+                    [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                      ? REVEAL_TYPE.ALL
+                      : REVEAL_TYPE.SINGLE,
                   });
 
                 burnAndReveal();
@@ -182,7 +185,7 @@ export function RevealContextProvider({
             >
               {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
-                : isRevealWithNftMode
+                : isSingleQuestionWithNftReveal
                   ? "Reveal with Chomp Collectible"
                   : "Reveal"}
             </Button>
@@ -190,20 +193,20 @@ export function RevealContextProvider({
               className="font-bold"
               variant="outline"
               onClick={() => {
-                if (isRevealWithNftMode) return burnAndReveal(true);
+                if (!insufficientFunds && isSingleQuestionWithNftReveal)
+                  return burnAndReveal(true);
 
                 resetReveal();
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [TRACKING_METADATA.QUESTION_ID]: questionIds,
                   [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                  [TRACKING_METADATA.REVEAL_TYPE]:
-                    questionIds.length > 1
-                      ? REVEAL_TYPE.ALL
-                      : REVEAL_TYPE.SINGLE,
+                  [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                    ? REVEAL_TYPE.ALL
+                    : REVEAL_TYPE.SINGLE,
                 });
               }}
             >
-              {isRevealWithNftMode
+              {!insufficientFunds && isSingleQuestionWithNftReveal
                 ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
                 : "Cancel"}
             </Button>
@@ -240,7 +243,7 @@ export function RevealContextProvider({
       );
     }
 
-    if (isRevealWithNftMode) {
+    if (isSingleQuestionWithNftReveal) {
       return (
         <p className="text-sm">Chomp Collectible will be used for reveal</p>
       );
@@ -260,8 +263,9 @@ export function RevealContextProvider({
     trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
       [TRACKING_METADATA.QUESTION_ID]: questionIds,
       [TRACKING_METADATA.QUESTION_TEXT]: questions,
-      [TRACKING_METADATA.REVEAL_TYPE]:
-        questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+      [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+        ? REVEAL_TYPE.ALL
+        : REVEAL_TYPE.SINGLE,
     });
     cancelReveal();
   };

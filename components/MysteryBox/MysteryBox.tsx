@@ -13,11 +13,10 @@ import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
 import trackEvent from "@/lib/trackEvent";
-import Coins from "@/public/images/coins.png";
-import animationData from "@/public/lottie/chomp_box_bonk.json";
+import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
+import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
-import Image from "next/image";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
@@ -26,6 +25,9 @@ type MysteryBoxProps = {
   isOpen: boolean;
   closeBoxDialog: () => void;
   mysteryBoxId: string | null;
+  isDismissed: boolean;
+  skipAction: MysteryBoxSkipAction;
+  isChompmasBox?: boolean;
 };
 
 function buildMessage(lines: string[]) {
@@ -42,15 +44,22 @@ function buildMessage(lines: string[]) {
 }
 
 type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
+type MysteryBoxSkipAction = "Dismiss" | "Close";
 
-function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
+function MysteryBox({
+  isOpen,
+  closeBoxDialog,
+  mysteryBoxId,
+  isDismissed,
+  skipAction,
+  isChompmasBox,
+}: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
   const router = useRouter();
   const lottieRef = useRef<LottieRefCurrentProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
-
   const [box, setBox] = useState<MysteryBoxResult | null>(null);
 
   const message: MysteryBoxOpenMessage = "REGULAR";
@@ -65,6 +74,9 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
 
   const openBox = async () => {
     if (!mysteryBoxId) return;
+
+    if (isSubmitting || status != "Idle") return false;
+
     setIsSubmitting(true);
 
     try {
@@ -72,12 +84,15 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       // be a bit more sophisticated here and show a single toast
       // in some cases (e.g. for credits-only boxes)
 
-      const newBox = await promiseToast(revealMysteryBox(mysteryBoxId), {
-        loading: "Opening Mystery Box. Please wait...",
-        success:
-          "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
-        error: "Failed to open the Mystery Box. Please try again later. 😔",
-      });
+      const newBox = await promiseToast(
+        revealMysteryBox(mysteryBoxId, isDismissed),
+        {
+          loading: "Opening Mystery Box. Please wait...",
+          success:
+            "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
+          error: "Failed to open the Mystery Box. Please try again later. 😔",
+        },
+      );
 
       setStatus("Opening");
 
@@ -102,7 +117,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
       setBox(newBox);
 
       if (newBox) {
-        openMysteryBox(mysteryBoxId)
+        openMysteryBox(mysteryBoxId, isDismissed)
           .then(() => {
             successToast("Your prizes are on the way!");
           })
@@ -113,11 +128,15 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     } catch {
       setBox(null);
     } finally {
-      setIsSubmitting(false);
+      setTimeout(() => {
+        setIsSubmitting(false);
+      }, 3000);
     }
   };
 
   const handleClose = () => {
+    if (isSubmitting) return;
+
     setBox(null);
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
@@ -126,8 +145,11 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   };
 
   const handleSkip = async () => {
+    if (isSubmitting) return;
+
     try {
-      if (mysteryBoxId) await dismissMysteryBox(mysteryBoxId);
+      if (mysteryBoxId && skipAction == "Dismiss")
+        await dismissMysteryBox(mysteryBoxId);
     } catch {}
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
@@ -138,6 +160,8 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
   };
 
   const handleGoToAnswering = () => {
+    if (isSubmitting) return;
+
     setBox(null);
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
@@ -155,7 +179,7 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
     if (status === "Idle" || status === "Opening")
       return "You earned a mystery box!";
 
-    return "CHOMP, CHOMP HOORAY!";
+    return `You won ${bonkReceived.toLocaleString("en-US")} BONK!`;
   };
   return (
     <>
@@ -194,53 +218,29 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
             )}
           </div>
 
-          <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col max-h-[500px]">
+          <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
-              animationData={animationData}
+              animationData={
+                isChompmasBox ? animationDataSanta : animationDataRegular
+              }
               loop={false}
               lottieRef={lottieRef}
               autoplay={false}
               style={{
-                width: "280px",
-                height: "280px",
                 transformOrigin: "5% top",
                 transition: "all 0.5s ease",
-                scale:
-                  status === "Opening"
-                    ? "1.5"
-                    : status === "Closing"
-                      ? "0.6"
-                      : "1",
+                scale: status === "Opening" ? "1.5" : "0.9",
                 zIndex: 999,
-                transform: `translateY(${status === "Closing" ? -118 : -70}%) translateX(${status === "Closing" ? -48 : -43}%)`,
+                transform: `translateY(-70%) translateX(-43%)`,
               }}
-              className={cn("absolute top-1/2 left-1/2", {
-                "cursor-pointer": !isSubmitting || !box,
-              })}
-              onClick={openBox}
-              disabled={isSubmitting || !!box}
-            />
-
-            <div
               className={cn(
-                "py-2 px-1.5 rounded-[14px] bg-chomp-orange-light mb-8 transition-all duration-150 opacity-0",
+                "absolute top-1/2 left-1/2 w-[250px] md:w-[280px] lg:w-[300px] 2xl:w-[320px] h-[250px] md:h-[280px] lg:h-[300px] 2xl:h-[320px]",
                 {
-                  "opacity-100": status === "Closing",
+                  "cursor-pointer": !isSubmitting && box && status === "Idle",
                 },
               )}
-            >
-              <div className="w-full relative aspect-square rounded-[12px] overflow-hidden mix-blend-hard-light mb-2">
-                <Image
-                  src={Coins.src}
-                  alt="coins"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="w-full bg-chomp-orange-dark text-xs rounded-[56px] py-2 px-4">
-                {bonkReceived.toLocaleString("en-US")} BONK
-              </div>
-            </div>
+              onClick={() => !isSubmitting && status === "Idle" && openBox()}
+            />
 
             <div
               className={cn(
@@ -267,7 +267,9 @@ function MysteryBox({ isOpen, closeBoxDialog, mysteryBoxId }: MysteryBoxProps) {
           >
             <Button
               variant={"primary"}
-              onClick={status === "Closing" ? handleGoToAnswering : openBox}
+              onClick={() =>
+                status === "Closing" ? handleGoToAnswering() : openBox()
+              }
               disabled={isSubmitting}
             >
               {status === "Closing" ? "CHOMP on more decks →" : "Open Now"}

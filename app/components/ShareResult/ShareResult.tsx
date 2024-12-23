@@ -1,6 +1,7 @@
 "use client";
 
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
+import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import trackEvent from "@/lib/trackEvent";
 import { getClaimSingleShareUrl } from "@/lib/urls";
 import { useState } from "react";
@@ -51,7 +52,7 @@ const ShareResult = ({
         isOpen={isOpen}
         copyUrl={copyUrl}
         onClose={() => setIsOpen(false)}
-        description={`You won ${Math.round(claimedAmount).toLocaleString("en-US")} BONK for your correct answer.`}
+        description={`You won ${numberToCurrencyFormatter.format(Math.round(claimedAmount || 0))} BONK for your correct answer.`}
       />
     </>
   );

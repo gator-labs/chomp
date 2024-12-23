@@ -8,10 +8,10 @@ import {
   TransactionStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import { TransactionSignature } from "@solana/web3.js";
-import { TransactionExpiredBlockheightExceededError } from "@solana/web3.js";
+// import { TransactionSignature } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
@@ -129,12 +129,12 @@ export async function revealQuestions(
     .reduce((acc, cur) => acc + cur.revealTokenAmount, 0);
 
   if (bonkToBurn > 0) {
-    const txStatus = await pollTransactionConfirmation(
-      burnTx || "",
-      questionIds,
+    const bonkBurned = await hasBonkBurnedCorrectly(
+      burnTx,
+      bonkToBurn,
       payload.sub,
     );
-    if (!txStatus) {
+    if (!bonkBurned) {
       release();
       return null;
     }
@@ -149,57 +149,82 @@ export async function revealQuestions(
 
   const revealPoints = await calculateRevealPoints(questionRewards);
 
-  await prisma.$transaction(async (tx) => {
-    await tx.chompResult.deleteMany({
+  let revealNftId: string | null = null;
+
+  if (isRevealedWithNft) {
+    const revealNft = await prisma.revealNft.create({
+      data: {
+        userId: payload.sub,
+        nftType,
+        nftId: nftAddress,
+      },
+    });
+    revealNftId = revealNft.nftId;
+  }
+
+  if (!revealNftId && !burnTx) {
+    const revealError = new RevealError(
+      `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
+    );
+    release();
+    Sentry.captureException(revealError);
+    return null;
+  }
+
+  if (revealNftId) {
+    await prisma.chompResult.createMany({
+      data: questionRewards.map((questionReward) => ({
+        questionId: questionReward.questionId,
+        userId: payload.sub,
+        result: ResultType.Revealed,
+        burnTransactionSignature: burnTx,
+        rewardTokenAmount: questionReward.rewardAmount,
+        transactionStatus: TransactionStatus.Completed,
+        revealNftId,
+      })),
+    });
+  } else {
+    const pendingChompResults = await prisma.chompResult.findMany({
       where: {
-        AND: {
-          userId: payload.sub,
-          questionId: {
-            in: revealableQuestionIds,
-          },
-          burnTransactionSignature: burnTx,
-          transactionStatus: TransactionStatus.Pending,
+        userId: payload.sub,
+        questionId: {
+          in: revealableQuestionIds,
         },
+        burnTransactionSignature: burnTx,
+        transactionStatus: TransactionStatus.Pending,
       },
     });
 
-    let revealNftId = null;
-
-    if (isRevealedWithNft) {
-      const revealNft = await prisma.revealNft.create({
-        data: {
-          userId: payload.sub,
-          nftType,
-          nftId: nftAddress,
-        },
-      });
-
-      revealNftId = revealNft.nftId;
-    }
-
-    if (!revealNftId && !burnTx) {
-      const revealError = new RevealError(
-        `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
+    const updatedRewards = questionRewards.map((reward) => {
+      const matchingResult = pendingChompResults.find(
+        (result) => result.questionId === reward.questionId,
       );
-      release();
-      Sentry.captureException(revealError);
-      return null;
-    }
-
-    await tx.chompResult.createMany({
-      data: [
-        ...questionRewards.map((questionReward) => ({
-          questionId: questionReward.questionId,
-          userId: payload.sub,
-          result: ResultType.Revealed,
-          burnTransactionSignature: burnTx,
-          rewardTokenAmount: questionReward.rewardAmount,
-          transactionStatus: TransactionStatus.Completed,
-          revealNftId,
-        })),
-      ],
+      return {
+        ...reward,
+        chompResultId: matchingResult?.id,
+      };
     });
-  });
+
+    await Promise.all(
+      updatedRewards.map((qr) =>
+        prisma.chompResult.update({
+          where: {
+            id: qr.chompResultId,
+            userId: payload.sub,
+            questionId: qr.questionId,
+            burnTransactionSignature: burnTx,
+            transactionStatus: TransactionStatus.Pending,
+          },
+          data: {
+            burnTransactionSignature: burnTx,
+            rewardTokenAmount: qr.rewardAmount,
+            transactionStatus: TransactionStatus.Completed,
+            revealNftId,
+          },
+        }),
+      ),
+    );
+  }
 
   try {
     await prisma.fungibleAssetTransactionLog.createMany({
@@ -241,6 +266,7 @@ export async function revealQuestions(
   }
 
   release();
+  await Sentry.flush(SENTRY_FLUSH_WAIT);
   revalidatePath("/application");
 }
 
@@ -327,21 +353,6 @@ export async function deleteQuestionChompResults(ids: number[]) {
   });
 }
 
-export async function deleteChompResultsWithQuestionId(ids: number[]) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
-  await prisma.chompResult.deleteMany({
-    where: {
-      questionId: { in: ids },
-      userId: payload.sub,
-    },
-  });
-}
-
 export async function deleteQuestionChompResult(id: number) {
   return await deleteQuestionChompResults([id]);
 }
@@ -365,17 +376,11 @@ export async function getUsersPendingChompResult(questionIds: number[]) {
 }
 
 // tx validation with 5 retries with a delay of 1s
-export async function hasBonkBurnedCorrectly(
+async function hasBonkBurnedCorrectly(
   burnTx: string | undefined,
   bonkToBurn: number,
   userId: string,
 ): Promise<boolean> {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return false;
-  }
-
   if (!burnTx) {
     return false;
   }
@@ -430,8 +435,7 @@ export async function hasBonkBurnedCorrectly(
         bonkToBurn * 10 ** 5 * (burnTransactionCount + 1) &&
       instruction.parsed.type === "burnChecked" &&
       wallets.includes(instruction.parsed.info.authority) &&
-      instruction.parsed.info.mint ===
-        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      instruction.parsed.info.mint === process.env.NEXT_PUBLIC_BONK_ADDRESS,
   );
 
   if (!burnInstruction) {
@@ -448,82 +452,6 @@ export async function hasBonkBurnedCorrectly(
   }
 
   return true;
-}
-
-async function pollTransactionConfirmation(
-  txnSig: TransactionSignature,
-  pendingChompResultQuestionIds: number[],
-  userId: string,
-): Promise<boolean> {
-  const timeout = 15000; // 15 seconds
-  const interval = 5000; // 5 seconds
-  let elapsed = 0;
-
-  const { blockhash, lastValidBlockHeight } =
-    await CONNECTION.getLatestBlockhash();
-
-  // Step 1: Confirm Transaction
-  try {
-    await CONNECTION.confirmTransaction(
-      {
-        blockhash,
-        lastValidBlockHeight,
-        signature: txnSig,
-      },
-      "confirmed",
-    );
-  } catch (error) {
-    // Explicit handling for transaction expiration
-    if (error instanceof TransactionExpiredBlockheightExceededError) {
-      console.log(
-        "Transaction expired due to block height exceeded, deleting ChompResult...",
-      );
-      // delete pending chomp results
-      await deleteChompResultsWithQuestionId(pendingChompResultQuestionIds);
-      return false; // Do not continue
-    }
-
-    // Log other confirmation errors and proceed
-    console.error("Error during confirmation:", error);
-  }
-  // Step 2: Poll Transaction Status
-  return new Promise<boolean>((resolve) => {
-    const intervalId = setInterval(async () => {
-      elapsed += interval;
-
-      if (elapsed >= timeout) {
-        clearInterval(intervalId);
-        resolve(false); // Return false on timeout
-        return;
-      }
-
-      try {
-        const status = await CONNECTION.getSignatureStatuses([txnSig]);
-
-        if (
-          status?.value[0]?.confirmationStatus === "confirmed" ||
-          status?.value[0]?.confirmationStatus === "finalized"
-        ) {
-          clearInterval(intervalId);
-          resolve(true); // Return true if confirmed or finalized
-        }
-      } catch (error) {
-        console.error("Error checking transaction status:", error);
-
-        const revealError = new RevealConfirmationError(
-          `Unable to validate tx for User id: ${userId} and (questionIds: ${pendingChompResultQuestionIds}})`,
-          { cause: error },
-        );
-        Sentry.captureException(revealError, {
-          tags: {
-            category: "reveal-tx-confirmation-error",
-          },
-        });
-        clearInterval(intervalId);
-        resolve(false); // Return false if an error occurs
-      }
-    }, interval);
-  });
 }
 
 async function handleFirstRevealToPopulateSubjectiveQuestion(
