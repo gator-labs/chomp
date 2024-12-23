@@ -92,7 +92,10 @@ function MysteryBox({
       setStatus("Opening");
 
       setTimeout(() => {
-        lottieRef.current?.play();
+        const bonkReceived = newBox?.tokensReceived?.[bonkAddress] ?? 0;
+        const creditsReceived = newBox?.creditsReceived ?? 0;
+
+        if (creditsReceived > 0 || bonkReceived > 0) lottieRef.current?.play();
       }, 500);
 
       setTimeout(
@@ -201,7 +204,12 @@ function MysteryBox({
         </>
       );
     } else {
-      return <>No $BONK in this box ... No credits in this box ...</>;
+      return (
+        <>
+          No $BONK in this box ...
+          <br /> No credits in this box ...
+        </>
+      );
     }
   };
   return (
@@ -246,7 +254,7 @@ function MysteryBox({
               animationData={
                 boxType === EMysteryBoxType.Chompmas
                   ? animationDataSanta
-                  : boxType === EMysteryBoxType.Tutorial
+                  : creditsReceived > 0
                     ? animationDataCredits
                     : animationDataRegular
               }
@@ -264,6 +272,10 @@ function MysteryBox({
               }}
               className={cn("absolute top-1/2 left-1/2", {
                 "cursor-pointer": !isSubmitting && box && status === "Idle",
+                "opacity-0":
+                  status == "Closing" &&
+                  creditsReceived == 0 &&
+                  bonkReceived == 0,
               })}
               onClick={() =>
                 !isSubmitting && box && status === "Idle" && openBox()
