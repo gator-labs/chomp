@@ -1,8 +1,8 @@
-import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import { deleteMysteryBoxes } from "@/__tests__/actions/mystery-box.test";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { getUsersTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
+import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
@@ -106,7 +106,7 @@ describe("getUsersTotalCreditAmount", () => {
   afterAll(async () => {
     try {
       await prisma.fungibleAssetTransactionLog.deleteMany({
-        where: { userId: user1.id }
+        where: { userId: user1.id },
       });
       await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
       await prisma.user.delete({
