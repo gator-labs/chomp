@@ -11,7 +11,7 @@ export enum MysteryBoxEventsType {
   TUTORIAL_COMPLETED = "TutorialCompleted",
 }
 
-export type MysteryBoxSkipAction = "Skip" | "Dismiss";
+export type MysteryBoxSkipAction = "Skip" | "Dismiss" | "Close";
 
 export interface MysteryBoxProps {
   isOpen: boolean;
