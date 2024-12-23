@@ -24,7 +24,12 @@ describe("GET /api/process-pending-transaction", () => {
     id: uuidv4(),
     username: `user1`,
   };
-  const address = "G726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc7";
+  const user2 = {
+    id: uuidv4(),
+    username: `user2`,
+  };
+  const address1 = "G726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc7";
+  const address2 = "a726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc8";
   let deckId: number;
   let questionId: number;
   const currentDate = new Date();
@@ -86,10 +91,19 @@ describe("GET /api/process-pending-transaction", () => {
         tx.user.create({
           data: user1,
         }),
+        tx.user.create({
+          data: user2,
+        }),
         tx.wallet.create({
           data: {
             userId: user1.id,
-            address,
+            address: address1,
+          },
+        }),
+        tx.wallet.create({
+          data: {
+            userId: user2.id,
+            address: address2,
           },
         }),
       ]);
@@ -109,6 +123,19 @@ describe("GET /api/process-pending-transaction", () => {
               "gMaLBbAbCvBCjmBEacJy5tDvh3BSaTPznr2Y8nBTcmtHnYyhw3NEMHoVSPLz4kYo2h9CuSKXXkKkh5eDi61pXmU",
           },
         }),
+        tx.chompResult.create({
+          data: {
+            userId: user2.id,
+            result: ResultType.Revealed,
+            rewardTokenAmount: 10,
+            questionId,
+            transactionStatus: TransactionStatus.Pending,
+            createdAt: new Date(),
+            needsManualReview: null,
+            burnTransactionSignature:
+              "gaLBbAbCvBCjmBEacJy5tDvh3BSaTPznr2Y8nBTcmtHnYyhw3NEMHoVSPLz4kYo2h9CuSKXXkKkh5eDi61pXmd",
+          },
+        }),
       ]);
     });
   });
@@ -118,16 +145,17 @@ describe("GET /api/process-pending-transaction", () => {
 
     await prisma.wallet.deleteMany({
       where: {
-        userId: { in: [user1.id] },
+        userId: { in: [user1.id, user2.id] },
       },
     });
 
     await prisma.user.deleteMany({
       where: {
-        id: { in: [user1.id] },
+        id: { in: [user1.id, user2.id] },
       },
     });
   });
+
   it("should have transactionStatus as completed", async () => {
     // Act
     const mockHeaders = {
@@ -148,26 +176,9 @@ describe("GET /api/process-pending-transaction", () => {
     // Assert
     expect(res[0].transactionStatus).toBe("Completed");
   });
+
   it("should have transactionStatus as pending", async () => {
     // Act
-    const result = await prisma.chompResult.findMany({
-      where: {
-        userId: user1.id,
-      },
-    });
-
-    await prisma.chompResult.update({
-      where: {
-        userId: user1.id,
-        id: result[0].id,
-      },
-      data: {
-        transactionStatus: TransactionStatus.Pending,
-        burnTransactionSignature:
-          "z8G5GJzde1CPq19i4y2yX3dgFnMJEqxacatwyK4Y8dYy2wdrs3pUoR7",
-      },
-    });
-
     const mockHeaders = {
       get: jest.fn().mockReturnValue(`Bearer ${secret}`),
     };
@@ -179,7 +190,7 @@ describe("GET /api/process-pending-transaction", () => {
 
     const res = await prisma.chompResult.findMany({
       where: {
-        userId: user1.id,
+        userId: user2.id,
       },
     });
 
