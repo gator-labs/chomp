@@ -112,13 +112,6 @@ export async function openMysteryBox(
     for (const prize of reward.MysteryBoxPrize) {
       const prizeAmount = Number(prize.amount ?? 0);
       let sendTx: string | null;
-      // if (
-      //   prize.prizeType != EBoxPrizeType.Token ||
-      //   prize.tokenAddress != bonkAddress
-      // )
-      //   throw new Error(
-      //     `Don't know how to send prize for mystery box ${mysteryBoxId}, type ${prize.prizeType} token ${prize.tokenAddress}`,
-      //   );
 
       if (prizeAmount > 0 && prize.tokenAddress === bonkAddress) {
         sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
