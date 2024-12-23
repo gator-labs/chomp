@@ -20,9 +20,7 @@ const customJestConfig = {
   preset: "ts-jest",
   testEnvironment: "node",
   testTimeout: 20000,
-  transformIgnorePatterns: [
-    "node_modules/(?!(@t3-oss/env-nextjs|@t3-oss/env-core|@t3-oss/env-base|@t3-oss/env-base|zod)/.*)",
-  ],
+  transformIgnorePatterns: ["node_modules/(?!(@t3-oss|zod)/.*)"],
   extensionsToTreatAsEsm: [".ts", ".tsx"],
   transform: {
     "^.+\\.(t|j)sx?$": [
@@ -48,7 +46,7 @@ const customJestConfig = {
         plugins: ["@babel/plugin-transform-modules-commonjs"],
       },
     ],
-    "node_modules/@t3-oss/.+\\.(j|t)sx?$": [
+    "node_modules/(@t3-oss|zod)/.+\\.(j|t)sx?$": [
       "babel-jest",
       {
         presets: [["@babel/preset-env", { modules: "commonjs" }]],
