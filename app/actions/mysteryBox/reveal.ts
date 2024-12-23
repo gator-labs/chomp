@@ -1,7 +1,7 @@
 "use server";
 
-import { getUsersTotalCreditAmount } from "@/app/queries/home";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
+import { getUsersTotalCreditAmount } from "@/app/queries/home";
 import { RevealMysteryBoxError } from "@/lib/error";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import {
