@@ -1,3 +1,4 @@
+import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import { deleteMysteryBoxes } from "@/__tests__/actions/mystery-box.test";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { getUsersTotalCreditAmount } from "@/app/queries/home";
@@ -28,6 +29,7 @@ describe("getUsersTotalCreditAmount", () => {
     id: uuidv4(),
   };
   let mysteryBox1: string;
+  let mysteryBox2: string;
 
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
@@ -57,13 +59,56 @@ describe("getUsersTotalCreditAmount", () => {
         },
       });
 
+      const box2 = await tx.mysteryBox.create({
+        data: {
+          userId: user1.id,
+          triggers: {
+            create: {
+              triggerType: EBoxTriggerType.TutorialCompleted,
+            },
+          },
+          MysteryBoxPrize: {
+            create: {
+              prizeType: EBoxPrizeType.Credits,
+              amount: "66",
+              size: EPrizeSize.Small,
+              status: EBoxPrizeStatus.Claimed,
+            },
+          },
+        },
+      });
+
       mysteryBox1 = box.id;
+      mysteryBox2 = box2.id;
+
+      await tx.fungibleAssetTransactionLog.create({
+        data: {
+          type: TransactionLogType.MysteryBox,
+          asset: FungibleAsset.Credit,
+          change: 100,
+          userId: user1.id,
+          mysteryBoxId: mysteryBox1,
+        },
+      });
+
+      await tx.fungibleAssetTransactionLog.create({
+        data: {
+          type: TransactionLogType.MysteryBox,
+          asset: FungibleAsset.Credit,
+          change: 66,
+          userId: user1.id,
+          mysteryBoxId: mysteryBox2,
+        },
+      });
     });
   });
 
   afterAll(async () => {
     try {
-      await deleteMysteryBoxes([mysteryBox1]);
+      await prisma.fungibleAssetTransactionLog.deleteMany({
+        where: { userId: user1.id }
+      });
+      await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
       await prisma.user.delete({
         where: {
           id: user1.id,
@@ -78,6 +123,6 @@ describe("getUsersTotalCreditAmount", () => {
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
     const totalClaimedAmount = await getUsersTotalCreditAmount();
 
-    expect(totalClaimedAmount).toBe(100);
+    expect(totalClaimedAmount).toBe(166);
   });
 });
