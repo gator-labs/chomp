@@ -56,6 +56,7 @@ model Question {
   revealToken                 Token                         @default(Bonk)
   revealTokenAmount           Int                           @default(0)
   revealAtDate                DateTime?
+  creditCostPerQuestion       Int?
   revealAtAnswerCount         Int?
   imageUrl                    String?
   createdAt                   DateTime                      @default(now())
@@ -109,6 +110,7 @@ model Deck {
   date                        DateTime?
   activeFromDate              DateTime?
   revealAtDate                DateTime?
+  creditCostPerQuestion       Int?
   revealAtAnswerCount         Int?
   imageUrl                    String?
   createdAt                   DateTime                      @default(now())

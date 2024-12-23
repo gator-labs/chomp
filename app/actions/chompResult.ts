@@ -284,6 +284,7 @@ export async function revealQuestions(
   }
 
   release();
+  await Sentry.flush(SENTRY_FLUSH_WAIT);
   revalidatePath("/application");
 }
 
