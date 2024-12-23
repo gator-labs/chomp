@@ -3,7 +3,12 @@
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { OpenMysteryBoxError, SendBonkError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
-import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
+import { FungibleAsset, TransactionLogType } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EBoxPrizeType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 
 import prisma from "../../services/prisma";
@@ -87,7 +92,9 @@ export async function openMysteryBox(
             status: {
               in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
             },
-            // prizeType: EBoxPrizeType.Token,
+            prizeType: {
+              in: [EBoxPrizeType.Token, EBoxPrizeType.Credits],
+            },
           },
         },
       },
@@ -113,24 +120,38 @@ export async function openMysteryBox(
       const prizeAmount = Number(prize.amount ?? 0);
       let sendTx: string | null;
 
-      if (prizeAmount > 0 && prize.tokenAddress === bonkAddress) {
-        sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
+      if (prize.prizeType == EBoxPrizeType.Token) {
+        if (prizeAmount > 0 && prize.tokenAddress === bonkAddress) {
+          sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
 
-        if (!sendTx) {
-          const sendBonkError = new SendBonkError(
-            `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
-            { cause: "Failed to send bonk" },
-          );
-          Sentry.captureException(sendBonkError);
+          if (!sendTx) {
+            const sendBonkError = new SendBonkError(
+              `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+              { cause: "Failed to send bonk" },
+            );
+            Sentry.captureException(sendBonkError);
+          } else {
+            txHashes[prize.tokenAddress] = sendTx;
+          }
         } else {
-          txHashes[prize.tokenAddress] = sendTx;
+          sendTx = null;
         }
-      } else {
-        sendTx = null;
       }
 
       await prisma.$transaction(
         async (tx) => {
+          if (prize.prizeType == EBoxPrizeType.Credits) {
+            await tx.fungibleAssetTransactionLog.create({
+              data: {
+                type: TransactionLogType.MysteryBox,
+                asset: FungibleAsset.Credit,
+                change: prize.amount,
+                userId: payload.sub,
+                mysteryBoxId,
+              },
+            });
+          }
+
           await tx.mysteryBoxPrize.update({
             where: {
               id: prize.id,

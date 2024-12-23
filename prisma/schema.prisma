@@ -197,8 +197,11 @@ model FungibleAssetTransactionLog {
   questionId Int?
   deck       Deck?              @relation(fields: [deckId], references: [id])
   deckId     Int?
+  mysteryBox   MysteryBox?         @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId String?
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
+  @@unique([type, userId, mysteryBoxId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
 }
 
@@ -244,21 +247,22 @@ model MysteryBox {
   triggers        MysteryBoxTrigger[]
   user            User                @relation(fields: [userId], references: [id])
   MysteryBoxPrize MysteryBoxPrize[]
+  FungibleAssetTransactionLog FungibleAssetTransactionLog[]
 }
 
 model MysteryBoxTrigger {
-  id                    String               @id @default(uuid())
-  triggerType           EBoxTriggerType
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @default(now()) @updatedAt
-  question              Question?            @relation(fields: [questionId], references: [id])
-  questionId            Int?
-  deck                  Deck?                @relation(fields: [deckId], references: [id])
-  deckId                Int?
-  MysteryBox            MysteryBox?          @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId          String
-  allowlist             MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
-  mysteryBoxAllowlistId String?
+  id           String              @id @default(uuid())
+  triggerType  EBoxTriggerType
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @default(now()) @updatedAt
+  question     Question?           @relation(fields: [questionId], references: [id])
+  questionId   Int?
+  deck         Deck?               @relation(fields: [deckId], references: [id])
+  deckId       Int?
+  MysteryBox   MysteryBox?         @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId String
+  allowlist    MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
+  mysteryBoxAllowlistId  String?
 
   @@unique([mysteryBoxId, questionId, triggerType])
   @@unique([mysteryBoxId, deckId, triggerType])
@@ -332,6 +336,7 @@ enum Token {
 
 enum FungibleAsset {
   Point
+  Credit
 }
 
 enum TransactionLogType {
@@ -342,6 +347,7 @@ enum TransactionLogType {
   AnswerQuestion
   ConnectX
   ConnectTelegram
+  MysteryBox
 }
 
 enum ResultType {

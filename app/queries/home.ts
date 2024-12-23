@@ -1,6 +1,7 @@
 "use server";
 
 import { getChompmasMysteryBox, isUserInAllowlist } from "@/lib/mysteryBox";
+import { FungibleAsset } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -378,21 +379,23 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
 /**
  * Retrieves the total credit amount claimed by the user from mystery box prizes.
  *
- * @returns {Promise<number>} The total credit amount claimed by the user.
+ * @returns The total credit amount claimed by the user.
  */
 export async function getUsersTotalCreditAmount() {
   const payload = await getJwtPayload();
   const userId = payload?.sub;
-  const result = (await prisma.$queryRaw`
-    SELECT SUM(CAST(amount AS NUMERIC)) FROM
-      "MysteryBoxPrize" mbp
-      LEFT JOIN
-      "MysteryBox" mb
-      ON mbp."mysteryBoxId" = mb."id"
-      WHERE mb."userId" = ${userId}
-      AND mbp."prizeType" = 'Credits'
-      AND mbp."status" = 'Claimed'
-    `) as { sum: number }[];
 
-  return Number(result?.[0]?.sum) ?? 0;
+  const res = await prisma.fungibleAssetTransactionLog.aggregate({
+    where: {
+      asset: FungibleAsset.Credit,
+      userId,
+    },
+    _sum: {
+      change: true,
+    },
+  });
+
+  if (!res?._sum?.change) return 0;
+
+  return res._sum.change.toNumber();
 }
