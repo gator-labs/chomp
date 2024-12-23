@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
+import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { acquireMutex } from "../utils/mutex";
@@ -370,4 +371,26 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
   `;
 
   return Number(result[0].totalClaimedAmount);
+}
+
+/**
+ * Retrieves the total credit amount claimed by the user from mystery box prizes.
+ *
+ * @returns {Promise<number>} The total credit amount claimed by the user.
+ */
+export async function getUsersTotalCreditAmount() {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub;
+  const result = (await prisma.$queryRaw`
+    SELECT SUM(CAST(amount AS NUMERIC)) FROM
+      "MysteryBoxPrize" mbp
+      LEFT JOIN
+      "MysteryBox" mb
+      ON mbp."mysteryBoxId" = mb."id"
+      WHERE mb."userId" = ${userId}
+      AND mbp."prizeType" = 'Credits'
+      AND mbp."status" = 'Claimed'
+    `) as { sum: number }[];
+
+  return Number(result?.[0]?.sum) ?? 0;
 }

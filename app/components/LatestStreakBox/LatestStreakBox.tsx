@@ -3,6 +3,7 @@
 import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import { cn } from "@/lib/utils";
+import { EMysteryBoxType } from "@/types/mysteryBox";
 import { CalendarCheckIcon } from "lucide-react";
 import { CSSProperties, useEffect, useState } from "react";
 
@@ -112,9 +113,9 @@ const LatestStreakBox = ({
             setIsMysteryBoxSeen(true);
           }}
           mysteryBoxId={mysteryBoxId}
-          skipAction={"Close"}
+          skipAction={"Dismiss"}
           isDismissed={false}
-          isChompmasBox={true}
+          boxType={EMysteryBoxType.Chompmas}
         />
       )}
     </>
