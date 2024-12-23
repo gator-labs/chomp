@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/env.js";
 import { OpenAI } from "openai";
 
 // Initialize OpenAI client
