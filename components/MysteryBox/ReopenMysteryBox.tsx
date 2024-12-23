@@ -20,7 +20,7 @@ export const ReopenMysteryBox = ({
         }}
         mysteryBoxId={mysteryBoxId}
         isDismissed={true}
-        skipAction={"Dismiss"}
+        skipAction={"Close"}
         boxType={EMysteryBoxType.Regular}
       />
     </>

@@ -113,7 +113,7 @@ const LatestStreakBox = ({
             setIsMysteryBoxSeen(true);
           }}
           mysteryBoxId={mysteryBoxId}
-          skipAction={"Dismiss"}
+          skipAction={"Close"}
           isDismissed={false}
           boxType={EMysteryBoxType.Chompmas}
         />
