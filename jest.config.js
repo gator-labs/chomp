@@ -11,6 +11,7 @@ const customJestConfig = {
   coverageReporters: ["text", "lcov", "json"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
+    "^(\\.{1,2}/.*)\\.js$": "$1",
   },
   modulePaths: ["<rootDir>"],
   verbose: true,
@@ -20,11 +21,7 @@ const customJestConfig = {
   transformIgnorePatterns: [
     "node_modules/(?!(@t3-oss/env-nextjs|@t3-oss/env-core)/.*)",
   ],
-  extensionsToTreatAsEsm: [".ts", ".tsx", ".mjs"],
-  moduleNameMapper: {
-    "^@/(.*)$": "<rootDir>/$1",
-    "^(\\.{1,2}/.*)\\.js$": "$1",
-  },
+  extensionsToTreatAsEsm: [".ts", ".tsx"],
   transform: {
     "^.+\\.(t|j)sx?$": [
       "ts-jest",
