@@ -93,6 +93,8 @@ export async function openMysteryBox(
       },
     });
   } catch (e) {
+    release();
+
     const openMysteryBoxError = new OpenMysteryBoxError(
       `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
       { cause: e },
@@ -100,11 +102,12 @@ export async function openMysteryBox(
     Sentry.captureException(openMysteryBoxError);
 
     throw new Error("Error opening mystery box");
-  } finally {
-    release();
   }
 
-  if (!reward) throw new Error("Reward not found or not in openable state");
+  if (!reward) {
+    release();
+    throw new Error("Reward not found or not in openable state");
+  }
 
   try {
     for (const prize of reward.MysteryBoxPrize) {
