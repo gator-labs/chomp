@@ -74,7 +74,7 @@ const RewardShow = ({
           setIsClaiming(false);
         });
     } catch {
-      trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
+      await trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: questions,
         [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
@@ -106,7 +106,9 @@ const RewardShow = ({
               })}
             >
               <p className="text-xs font-bold  text-center ">
-                {numberToCurrencyFormatter.format(Math.floor(rewardAmount))}{" "}
+                {numberToCurrencyFormatter.format(
+                  Math.round(rewardAmount || 0),
+                )}{" "}
                 BONK
               </p>
             </Pill>

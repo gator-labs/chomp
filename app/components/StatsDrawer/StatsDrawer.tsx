@@ -34,6 +34,14 @@ const StatsDrawer = ({
     }
   }, [isOpen]);
 
+  const descriptionSections = description.split("\n").map((section, index) => {
+    return (
+      <p key={index} className="text-sm mb-6">
+        {section}
+      </p>
+    );
+  });
+
   return (
     <Drawer
       open={isOpen}
@@ -55,7 +63,7 @@ const StatsDrawer = ({
             </div>
           </div>
         </DialogTitle>
-        <p className="text-sm mb-6">{description}</p>
+        {descriptionSections}
 
         <Button onClick={onClose} className="h-[50px] mt-2 font-bold">
           Close

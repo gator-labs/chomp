@@ -13,7 +13,7 @@ import ReactQueryProvider from "./providers/ReactQueryProvider";
 import { RevealContextProvider } from "./providers/RevealProvider";
 import { ToastProvider } from "./providers/ToastProvider";
 import { getCurrentUser } from "./queries/user";
-import { getBonkBalance } from "./utils/solana";
+import { getBonkBalance, getSolBalance } from "./utils/solana";
 
 export const viewport: Viewport = {
   minimumScale: 1,
@@ -46,7 +46,10 @@ export default async function RootLayout({
 
   const address = user?.wallets?.[0]?.address || "";
 
-  const bonkBalance = await getBonkBalance(address);
+  const [bonkBalance, solBalance] = await Promise.all([
+    getBonkBalance(address),
+    getSolBalance(address),
+  ]);
 
   return (
     <html lang="en" className={`${satoshi.variable} h-full`}>
@@ -61,7 +64,10 @@ export default async function RootLayout({
           <DynamicProvider>
             <ToastProvider>
               <ClaimProvider>
-                <RevealContextProvider bonkBalance={bonkBalance}>
+                <RevealContextProvider
+                  bonkBalance={bonkBalance}
+                  solBalance={solBalance}
+                >
                   <MobileChromeDetector>{children}</MobileChromeDetector>
                 </RevealContextProvider>
               </ClaimProvider>

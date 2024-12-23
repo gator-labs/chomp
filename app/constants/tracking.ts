@@ -10,6 +10,7 @@ export const TRACKING_EVENTS = {
   REVEAL_STARTED: "RevealStarted",
   REVEAL_TRANSACTION_SIGNED: "RevealTransactionSigned",
   REVEAL_TRANSACTION_CANCELLED: "RevealTransactionCancelled",
+  REVEAL_TRANSACTION_PENDING: "RevealTransactionPending",
   REVEAL_FAILED: "RevealFailed",
   LOGIN_STARTED: "LoginStarted",
   Login_Wallet_Selected: "LoginWalletSelected",
@@ -78,7 +79,8 @@ export const TRACKING_METADATA = {
 export const HOME_STAT_CARD_TYPE = {
   STREAK: "Streak",
   BONK_CLAIMED: "BonkClaimed",
-  CARDS_REVEALED: "CardsRevealed",
+  CREDITS_EARNED: "CreditsEarned",
+  POINTS_EARNED: "PointsEarned",
 };
 
 export const REVEAL_TYPE = {

@@ -1,6 +1,17 @@
 import { sleep } from "../app/utils/sleep";
 import { CONNECTION } from "../app/utils/solana";
 
+/**
+ * Validate pending transactions by fetching the parsed tx
+ * Run for 5times with an interval of 1s
+ *
+ * @param txnSig  Burn Tx Sign
+ * @param wallets user wallet address to validate burn instruction
+ *
+ *
+ *
+ * @return status boolean
+ */
 export async function validateBonkBurned(
   burnTx: string,
   wallets: string[],
@@ -35,8 +46,7 @@ export async function validateBonkBurned(
       "parsed" in instruction &&
       instruction.parsed.type === "burnChecked" &&
       wallets.includes(instruction.parsed.info.authority) &&
-      instruction.parsed.info.mint ===
-        "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      instruction.parsed.info.mint === process.env.NEXT_PUBLIC_BONK_ADDRESS,
   );
 
   if (!burnInstruction) {

@@ -34,7 +34,7 @@ jest.mock("next/cache", () => ({
 }));
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
-async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
+export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
   const boxes = await prisma.mysteryBox.findMany({
     where: {
       id: { in: mysteryBoxIds },
@@ -289,6 +289,7 @@ describe("Create mystery box", () => {
             data: {
               questionId: questionIds[3],
               triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+              mysteryBoxAllowlistId: null,
             },
           },
         },
@@ -306,7 +307,7 @@ describe("Create mystery box", () => {
 
     mysteryBoxId4 = res.id;
 
-    const box = await revealMysteryBox(mysteryBoxId4);
+    const box = await revealMysteryBox(mysteryBoxId4, false);
 
     expect(box).toBeDefined();
     expect(box?.mysteryBoxId).toBe(mysteryBoxId4);
@@ -318,7 +319,7 @@ describe("Create mystery box", () => {
   it("Should fail to open another user's mystery box", async () => {
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
 
-    await expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
+    await expect(openMysteryBox(mysteryBoxId4!, false)).rejects.toThrow();
 
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user0.id });
   });
@@ -328,7 +329,7 @@ describe("Create mystery box", () => {
 
     const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
-    const txHashes = await openMysteryBox(mysteryBoxId4!);
+    const txHashes = await openMysteryBox(mysteryBoxId4!, false);
 
     expect(sendBonkFromTreasury).toHaveBeenCalledWith(4500, user0.wallet);
 
@@ -349,6 +350,6 @@ describe("Create mystery box", () => {
   });
 
   it("Should disallow opening an opened mystery box", async () => {
-    await expect(openMysteryBox(mysteryBoxId4!)).rejects.toThrow();
+    await expect(openMysteryBox(mysteryBoxId4!, false)).rejects.toThrow();
   });
 });

@@ -28,6 +28,9 @@ type DeckFormProps = {
   ) => Promise<{ errorMessage?: string } | void>;
 };
 
+const CREDIT_COST_FEATURE_FLAG =
+  process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION;
+
 export default function DeckForm({
   deck,
   tags,
@@ -101,6 +104,9 @@ export default function DeckForm({
       stackId: data.stackId,
       id: deck?.id,
       imageUrl,
+      creditCostPerQuestion: CREDIT_COST_FEATURE_FLAG
+        ? data.creditCostPerQuestion
+        : null,
       file: undefined,
     });
 
@@ -489,6 +495,26 @@ export default function DeckForm({
           {errors.revealAtAnswerCount?.message}
         </div>
       </div>
+      {CREDIT_COST_FEATURE_FLAG && (
+        <div className="mb-3">
+          <label className="block mb-1">
+            Credit cost per question (optional)
+          </label>
+          <select
+            className="text-gray-800 w-full"
+            {...register("creditCostPerQuestion", {
+              setValueAs: (v) => (!v ? null : parseInt(v)),
+            })}
+          >
+            <option value="">None</option>
+            {Array.from({ length: 6 }, (_, i) => i).map((i) => (
+              <option value={i} key={i}>
+                {i}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className="mb-4">
         <label className="block mb-1">Tags (optional)</label>
         <div className="flex gap-2">

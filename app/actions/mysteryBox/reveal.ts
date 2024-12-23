@@ -1,5 +1,6 @@
 "use server";
 
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { RevealMysteryBoxError } from "@/lib/error";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import {
@@ -26,10 +27,14 @@ export type MysteryBoxResult = {
  * @param mysteryBoxId The ID of a mystery box that is owned by the
  *                     authenticated user and in the new state.
  *
+ * @param isDismissed Whether the mystery box has been dismissed
+ *                    (Reopen).
+ *
  * @return mysteryBox  Mystery box contents, or null if unauthorised.
  */
 export async function revealMysteryBox(
   mysteryBoxId: string,
+  isDismissed: boolean,
 ): Promise<MysteryBoxResult | null> {
   const payload = await getJwtPayload();
 
@@ -61,7 +66,9 @@ export async function revealMysteryBox(
       where: {
         id: mysteryBoxId,
         userId: payload.sub,
-        status: EMysteryBoxStatus.New,
+        status: isDismissed
+          ? EMysteryBoxStatus.Unopened
+          : EMysteryBoxStatus.New,
       },
       include: {
         MysteryBoxPrize: {
@@ -72,7 +79,11 @@ export async function revealMysteryBox(
             tokenAddress: true,
           },
           where: {
-            status: EBoxPrizeStatus.Unclaimed,
+            // We check for Unclaimed/Dismissed status here since boxes may be stuck in
+            // Unclaimed state if a previous reveal attempt failed
+            status: {
+              in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
+            },
             // Until we implement credits and/or other tokens:
             prizeType: EBoxPrizeType.Token,
             tokenAddress: bonkAddress,
@@ -113,6 +124,7 @@ export async function revealMysteryBox(
       { cause: e },
     );
     Sentry.captureException(revealMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
 
     throw new Error("Error revealing mystery box");
   }

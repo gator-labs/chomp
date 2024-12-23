@@ -1,13 +1,22 @@
 "use server";
 
-import { AnswerStatus, QuestionAnswer, QuestionType } from "@prisma/client";
+import {
+  AnswerStatus,
+  FungibleAsset,
+  QuestionAnswer,
+  QuestionType,
+  TransactionLogType,
+} from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { release } from "os";
 
 import { AnswerError } from "../../lib/error";
+import { pointsPerAction } from "../constants/points";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
+import { incrementFungibleAssetBalance } from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 
 export type SaveQuestionRequest = {
@@ -108,6 +117,55 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       await tx.questionAnswer.createMany({
         data: questionAnswers,
       });
+
+      const deckQuestions = await tx.deckQuestion.findMany({
+        where: {
+          deckId: request.deckId,
+        },
+        include: {
+          deck: true,
+          question: {
+            include: {
+              questionOptions: {
+                include: {
+                  questionAnswers: {
+                    where: {
+                      userId,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      const allQuestionOptions = deckQuestions.flatMap((dq) =>
+        dq.question.questionOptions.map((qo) => qo),
+      );
+      const allQuestionAnswers = allQuestionOptions.flatMap((qo) =>
+        qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
+      );
+      const fungibleAssetRevealTasks = [
+        incrementFungibleAssetBalance({
+          asset: FungibleAsset.Point,
+          amount: pointsPerAction[TransactionLogType.AnswerQuestion],
+          transactionLogType: TransactionLogType.AnswerQuestion,
+          injectedPrisma: tx,
+          questionIds: [request.questionId],
+        }),
+      ];
+      if (allQuestionOptions.length === allQuestionAnswers.length) {
+        fungibleAssetRevealTasks.push(
+          incrementFungibleAssetBalance({
+            asset: FungibleAsset.Point,
+            amount: pointsPerAction[TransactionLogType.AnswerDeck],
+            transactionLogType: TransactionLogType.AnswerDeck,
+            injectedPrisma: tx,
+            deckIds: [request.deckId!],
+          }),
+        );
+      }
+      await Promise.all(fungibleAssetRevealTasks);
     });
   } catch (error) {
     const answerError = new AnswerError(
@@ -115,6 +173,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       { cause: error },
     );
     Sentry.captureException(answerError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
     throw error;
   }

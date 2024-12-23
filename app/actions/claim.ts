@@ -7,14 +7,14 @@ import * as Sentry from "@sentry/nextjs";
 import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
-import { rewardMysteryBox } from "../../lib/mysteryBox";
+import { isUserInAllowlist, rewardMysteryBox } from "../../lib/mysteryBox";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
 import { acquireMutex } from "../utils/mutex";
 import { getJwtPayload } from "./jwt";
 
 export async function claimQuestion(questionId: number) {
-  console.log("claim questions fired");
   const questions = await claimQuestions([questionId]);
   return questions ? questions : null;
 }
@@ -91,9 +91,9 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CLAIM_ALL;
+  const isEligibleForMysteryBox = await isUserInAllowlist();
 
-  const mysteryBoxId = FF_MYSTERY_BOX
+  const mysteryBoxId = isEligibleForMysteryBox
     ? await rewardMysteryBox(
         payload.sub,
         EBoxTriggerType.ClaimAllCompleted,
@@ -254,6 +254,7 @@ export async function claimQuestions(questionIds: number[]) {
         transactionHash: sendTx,
       },
     });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
     throw e;
   }

@@ -31,7 +31,10 @@ export default async function Layout({ children }: PageLayoutProps) {
   return (
     <ConfettiProvider>
       <ClaimingProvider>
-        <RevealContextProvider bonkBalance={bonkBalance}>
+        <RevealContextProvider
+          bonkBalance={bonkBalance}
+          solBalance={solBalance}
+        >
           <div className="flex flex-col min-h-screen">
             <Main userId={user?.id}>
               <Navbar

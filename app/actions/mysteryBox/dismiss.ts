@@ -1,5 +1,6 @@
 "use server";
 
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { DismissMysteryBoxError } from "@/lib/error";
 import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
@@ -55,6 +56,7 @@ export async function dismissMysteryBox(mysteryBoxId: string) {
       { cause: e },
     );
     Sentry.captureException(dismissMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
 
     throw new Error("Error dismissing mystery box");
   }

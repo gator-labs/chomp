@@ -9,6 +9,7 @@ import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 
@@ -25,6 +26,7 @@ import {
   getUnusedGenesisNft,
   getUnusedGlowburgerNft,
 } from "../actions/revealNft";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import {
   REVEAL_DIALOG_TYPE,
   REVEAL_TYPE,
@@ -32,7 +34,11 @@ import {
   TRACKING_METADATA,
 } from "../constants/tracking";
 import { useToast } from "../providers/ToastProvider";
-import { CONNECTION, genBonkBurnTx } from "../utils/solana";
+import {
+  CONNECTION,
+  MINIMUM_SOL_BALANCE_FOR_TRANSACTION,
+  genBonkBurnTx,
+} from "../utils/solana";
 
 const BURN_STATE_IDLE = "idle";
 
@@ -43,7 +49,12 @@ const createGetTransactionTask = async (signature: string): Promise<void> => {
   });
 };
 
-export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
+export function useReveal({
+  wallet,
+  address,
+  bonkBalance,
+  solBalance,
+}: UseRevealProps) {
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
@@ -62,10 +73,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
   >(BURN_STATE_IDLE);
 
   const hasPendingTransactions = pendingChompResults.length > 0;
-  const insufficientFunds =
-    !!reveal?.amount && reveal.amount > bonkBalance && !hasPendingTransactions;
+  const [insufficientFunds, setInsufficientFunds] = useState(false);
+
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
-  const isRevealWithNftMode =
+  const isSingleQuestionWithNftReveal =
     revealNft && !isMultiple && burnState !== "burning";
 
   useEffect(() => {
@@ -119,16 +130,44 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       } catch (error) {
         console.error(error);
       } finally {
+        if (!wallet || !isSolanaWallet(wallet)) {
+          return;
+        }
+
+        const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
+        const estimatedFee = await tx.getEstimatedFee(CONNECTION);
+
+        if (!estimatedFee) {
+          return errorToast(
+            `We could not read fee for this transaction, please try again!`,
+          );
+        }
+
+        const estimatedFeeInSol = estimatedFee / LAMPORTS_PER_SOL;
+
+        if (
+          estimatedFeeInSol > Number(solBalance) ||
+          MINIMUM_SOL_BALANCE_FOR_TRANSACTION > Number(solBalance)
+        ) {
+          setInsufficientFunds(true);
+        } else {
+          setInsufficientFunds(
+            !!reveal?.amount &&
+              reveal.amount > bonkBalance &&
+              !hasPendingTransactions,
+          );
+        }
+
         trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_LOADED, {
           [TRACKING_METADATA.REVEAL_DIALOG_TYPE]: insufficientFunds
             ? REVEAL_DIALOG_TYPE.INSUFFICIENT_FUNDS
             : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
           [TRACKING_METADATA.QUESTION_ID]: reveal.questionIds,
           [TRACKING_METADATA.QUESTION_TEXT]: reveal.questions,
-          [TRACKING_METADATA.REVEAL_TYPE]:
-            reveal.questionIds.length > 1
-              ? REVEAL_TYPE.ALL
-              : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.REVEAL_TYPE]: reveal.isRevealAll
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
         });
         setIsLoading(false);
       }
@@ -157,6 +196,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       reveal,
       questions,
       dialogLabel,
+      isRevealAll,
     }: RevealCallbackProps) => {
       setBurnState(BURN_STATE_IDLE);
       setReveal({
@@ -165,13 +205,13 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         questionIds: questionIds ?? [questionId],
         questions,
         dialogLabel,
+        isRevealAll,
       });
       setIsRevealModalOpen(true);
       trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_OPENED, {
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          (questionIds ?? [questionId])?.length > 1
-            ? REVEAL_TYPE.ALL
-            : REVEAL_TYPE.SINGLE,
+        [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+          ? REVEAL_TYPE.ALL
+          : REVEAL_TYPE.SINGLE,
         [TRACKING_METADATA.QUESTION_ID]: questionIds ?? [questionId],
         [TRACKING_METADATA.QUESTION_TEXT]: questions,
       });
@@ -209,7 +249,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await createGetTransactionTask(signature);
       }
 
-      if ((!isRevealWithNftMode || ignoreNft) && !!revealQuestionIds.length) {
+      if (
+        (!isSingleQuestionWithNftReveal || ignoreNft) &&
+        !!revealQuestionIds.length
+      ) {
         // Try catch is to catch Dynamic related issues to narrow down the error
         try {
           if (!wallet || !isSolanaWallet(wallet)) {
@@ -218,6 +261,30 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           const signer = await wallet!.getSigner();
 
           const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
+          const estimatedFee = await tx.getEstimatedFee(CONNECTION);
+
+          if (!estimatedFee) {
+            return errorToast(
+              `We could not read fee for this transaction, please try again!`,
+            );
+          }
+
+          const estimatedFeeInSol = estimatedFee / LAMPORTS_PER_SOL;
+
+          if (
+            estimatedFeeInSol > Number(solBalance) ||
+            MINIMUM_SOL_BALANCE_FOR_TRANSACTION > Number(solBalance)
+          ) {
+            setInsufficientFunds(true);
+          } else {
+            setInsufficientFunds(
+              !!reveal?.amount &&
+                reveal.amount > bonkBalance &&
+                !hasPendingTransactions,
+            );
+          }
+
           setBurnState("burning");
 
           try {
@@ -234,20 +301,18 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
               [TRACKING_METADATA.TRANSACTION_SIGNATURE]: sn,
               [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
               [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-              [TRACKING_METADATA.REVEAL_TYPE]:
-                revealQuestionIds.length > 1
-                  ? REVEAL_TYPE.ALL
-                  : REVEAL_TYPE.SINGLE,
+              [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+                ? REVEAL_TYPE.ALL
+                : REVEAL_TYPE.SINGLE,
             });
 
             signature = sn;
           } catch (error) {
             if ((error as any)?.message === "User rejected the request.")
               trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
-                [TRACKING_METADATA.REVEAL_TYPE]:
-                  revealQuestionIds.length > 1
-                    ? REVEAL_TYPE.ALL
-                    : REVEAL_TYPE.SINGLE,
+                [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+                  ? REVEAL_TYPE.ALL
+                  : REVEAL_TYPE.SINGLE,
                 [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
                 [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
               });
@@ -283,7 +348,8 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         }
       }
 
-      if (!isRevealWithNftMode) {
+      if (!isSingleQuestionWithNftReveal) {
+        // If the user doesn't have an NFT, or there are more than two questions ready to reveal, including pending ones.
         await reveal!.reveal({
           burnTx: signature,
           revealQuestionIds,
@@ -293,23 +359,43 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
           })),
         });
       } else {
+        // If user have nft and question one question is ready to reveal.
         await reveal!.reveal({
           burnTx: signature,
           nftAddress: ignoreNft ? "" : revealNft!.id,
+          revealQuestionIds,
           nftType: ignoreNft ? undefined : revealNft!.type,
         });
       }
 
-      trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
-        transactionSignature: signature,
-        nftAddress: revealNft?.id,
-        nftType: revealNft?.type,
-        burnedAmount: reveal?.amount,
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-      });
+      const pendingResults =
+        await getUsersPendingChompResult(revealQuestionIds);
+
+      if (pendingResults?.length !== 0) {
+        trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_PENDING, {
+          transactionSignature: signature,
+          nftAddress: revealNft?.id,
+          nftType: revealNft?.type,
+          burnedAmount: reveal?.amount,
+          [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+        });
+      } else {
+        trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
+          transactionSignature: signature,
+          nftAddress: revealNft?.id,
+          nftType: revealNft?.type,
+          burnedAmount: reveal?.amount,
+          [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+        });
+      }
 
       if (revealNft && !isMultiple) {
         setRevealNft(undefined);
@@ -319,9 +405,10 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
         await deleteQuestionChompResults(pendingChompResultIds);
       }
 
-      trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+      await trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
+        [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+          ? REVEAL_TYPE.ALL
+          : REVEAL_TYPE.SINGLE,
         [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
         error,
@@ -335,6 +422,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
       release();
     } finally {
       resetReveal();
+      await Sentry.flush(SENTRY_FLUSH_WAIT);
     }
   };
 
@@ -350,7 +438,7 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     isMultiple,
     revealPrice: reveal?.amount ?? 0,
     pendingTransactions: pendingChompResults.length,
-    isRevealWithNftMode,
+    isSingleQuestionWithNftReveal,
     nftType: revealNft?.type,
     burnAndReveal,
     onReveal,
@@ -362,5 +450,6 @@ export function useReveal({ wallet, address, bonkBalance }: UseRevealProps) {
     questions: reveal?.questions,
     isLoading,
     dialogLabel: reveal?.dialogLabel,
+    isRevealAll: reveal?.isRevealAll,
   };
 }
