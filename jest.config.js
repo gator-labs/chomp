@@ -29,6 +29,12 @@ const customJestConfig = {
         useESM: true,
       },
     ],
+    "^.+\\.m?js$": [
+      "ts-jest",
+      {
+        useESM: true,
+      },
+    ],
   },
 };
 
