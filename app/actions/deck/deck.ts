@@ -13,6 +13,7 @@ import { deckSchema } from "../../schemas/deck";
 import prisma from "../../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
 import { formatErrorsToString } from "../../utils/zod";
+import { aiReviewDeck } from "../aiReview/aiReviewDeck";
 import {
   handleAddNewQuestionOptionsConcurrently,
   handleUpsertingQuestionOptionsConcurrently,
@@ -244,6 +245,18 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
   });
 
   revalidatePath("/admin/decks");
+
+  // Trigger AI review asynchronously after deck creation
+  void aiReviewDeck({
+    deckTitle: validatedFields.data.deck,
+    description: validatedFields.data.description,
+    footer: validatedFields.data.footer,
+    questions: validatedFields.data.questions.map((q) => ({
+      question: q.question,
+      options: q.questionOptions.map((opt) => opt.option),
+    })),
+  });
+
   redirect("/admin/decks");
 }
 
@@ -562,6 +575,18 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
   );
 
   revalidatePath("/admin/decks");
+
+  // Trigger AI review asynchronously after deck update
+  void aiReviewDeck({
+    deckTitle: validatedFields.data.deck,
+    description: validatedFields.data.description,
+    footer: validatedFields.data.footer,
+    questions: validatedFields.data.questions.map((q) => ({
+      question: q.question,
+      options: q.questionOptions.map((opt) => opt.option),
+    })),
+  });
+
   redirect("/admin/decks");
 }
 
