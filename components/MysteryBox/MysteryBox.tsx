@@ -320,15 +320,25 @@ function MysteryBox({
                 </Button>
               )}
 
-              <Button
-                variant={"outline"}
-                onClick={() =>
-                  status === "Closing" ? handleGoToAnswering() : openBox()
-                }
-                disabled={isSubmitting}
-              >
-                {status === "Closing" ? "Answer more decks →" : "Open Now"}
-              </Button>
+              {status == "Idle" && (
+                <Button
+                  variant={"primary"}
+                  onClick={openBox}
+                  disabled={isSubmitting}
+                >
+                  {"Open Now"}
+                </Button>
+              )}
+
+              {status == "Closing" && (
+                <Button
+                  variant={"outline"}
+                  onClick={handleGoToAnswering}
+                  disabled={isSubmitting}
+                >
+                  {"Answer more decks →"}
+                </Button>
+              )}
             </div>
 
             <div
