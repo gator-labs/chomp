@@ -1,7 +1,7 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+const { createEnv } = require("@t3-oss/env-nextjs");
+const { z } = require("zod");
 
-export const env = createEnv({
+const env = createEnv({
   server: {
     OPENAI_API_KEY: z.string().min(1),
     SLACK_WEBHOOK_URL: z.string().url(),
@@ -16,3 +16,5 @@ export const env = createEnv({
     // ... other existing env vars would go here
   },
 });
+
+module.exports = { env };
