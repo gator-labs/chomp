@@ -4,7 +4,7 @@ import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
   createTransferInstruction,
-  getAssociatedTokenAddress,
+  getAssociatedTokenAddress, // getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
@@ -13,6 +13,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
+// import { Connection } from "@solana/web3.js";
 import base58 from "bs58";
 import pRetry from "p-retry";
 
@@ -24,17 +25,16 @@ import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { CONNECTION } from "./solana";
 
 export const sendBonk = async (
-  fromWallet: Keypair,
   toWallet: PublicKey,
   amount: number,
   chompResults?: ChompResult[],
   questionIds?: number[],
 ) => {
-  const treasuryWallet = Keypair.fromSecretKey(
+  const fromWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
 
-  const treasuryAddress = treasuryWallet.publicKey.toString();
+  const treasuryAddress = fromWallet.publicKey.toString();
 
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
@@ -75,7 +75,17 @@ export const sendBonk = async (
     bonkMint,
     fromWallet.publicKey,
   );
+
   const toTokenAccount = await getAssociatedTokenAddress(bonkMint, toWallet);
+
+  // const claimIssue = await getOrCreateAssociatedTokenAccount(
+  //   new Connection(process.env.NEXT_PUBLIC_RPC_URL!),
+  //   fromWallet,
+  //   bonkMint,
+  //   toWallet,
+  // );
+
+  // console.log(claimIssue);
 
   const instruction = createTransferInstruction(
     fromTokenAccount,
@@ -168,7 +178,7 @@ export const sendBonk = async (
     );
   } catch {
     Sentry.captureException(
-      `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
+      `User with id: ${payload?.sub} and address: ${toWallet} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
       {
         level: "fatal",
         tags: {
