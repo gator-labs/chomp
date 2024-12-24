@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/nextjs";
 import {
   createTransferInstruction,
   getAssociatedTokenAddress,
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
@@ -24,17 +25,16 @@ import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { CONNECTION } from "./solana";
 
 export const sendBonk = async (
-  fromWallet: Keypair,
   toWallet: PublicKey,
   amount: number,
   chompResults?: ChompResult[],
   questionIds?: number[],
 ) => {
-  const treasuryWallet = Keypair.fromSecretKey(
+  const fromWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
 
-  const treasuryAddress = treasuryWallet.publicKey.toString();
+  const treasuryAddress = fromWallet.publicKey.toString();
 
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
@@ -75,11 +75,18 @@ export const sendBonk = async (
     bonkMint,
     fromWallet.publicKey,
   );
-  const toTokenAccount = await getAssociatedTokenAddress(bonkMint, toWallet);
+
+  // It will create bonk mint account for the destination wallet if doesn't exist
+  const destinationAccount = await getOrCreateAssociatedTokenAccount(
+    CONNECTION,
+    fromWallet,
+    bonkMint,
+    toWallet,
+  );
 
   const instruction = createTransferInstruction(
     fromTokenAccount,
-    toTokenAccount,
+    destinationAccount.address,
     fromWallet.publicKey,
     amount,
   );
@@ -168,7 +175,7 @@ export const sendBonk = async (
     );
   } catch {
     Sentry.captureException(
-      `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
+      `User with id: ${payload?.sub} and address: ${toWallet} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
       {
         level: "fatal",
         tags: {
