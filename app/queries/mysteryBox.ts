@@ -77,7 +77,9 @@ export const getNewUserMysteryBoxId = async () => {
     },
   });
 
-  const isEligible = isNewUser && !res;
+  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_NEW_USER;
+
+  const isEligible = isNewUser && !res && FF_MYSTERY_BOX;
   if (isEligible) {
     const mysteryBoxId = await rewardTutorialMysteryBox(userId);
     return mysteryBoxId;
