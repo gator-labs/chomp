@@ -1,7 +1,7 @@
 "use server";
 
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
-import { getUsersTotalCreditAmount } from "@/app/queries/home";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import { RevealMysteryBoxError } from "@/lib/error";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import {
@@ -114,7 +114,7 @@ export async function revealMysteryBox(
       .add(bonkReceived)
       .toNumber();
 
-    const oldTotalCreditsWon = await getUsersTotalCreditAmount();
+    const oldTotalCreditsWon = await getUserTotalCreditAmount();
 
     const totalCreditsWon = new Decimal(oldTotalCreditsWon)
       .add(creditsReceived)

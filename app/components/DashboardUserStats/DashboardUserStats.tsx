@@ -1,9 +1,9 @@
-import { getTotalPoints } from "@/app/actions/leaderboard";
 import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import {
+  getUserTotalCreditAmount,
+  getUserTotalPoints,
   getUsersLatestStreakAndMysteryBox,
   getUsersTotalClaimedAmount,
-  getUsersTotalCreditAmount,
 } from "@/app/queries/home";
 import { CreditCardIcon, Goal, InfoIcon } from "lucide-react";
 
@@ -19,8 +19,8 @@ export async function DashboardUserStats() {
   ] = await Promise.all([
     getUsersLatestStreakAndMysteryBox(),
     getUsersTotalClaimedAmount(),
-    getTotalPoints(),
-    getUsersTotalCreditAmount(),
+    getUserTotalPoints(),
+    getUserTotalCreditAmount(),
   ]);
 
   return (
@@ -41,7 +41,7 @@ export async function DashboardUserStats() {
         }}
       />
       <StatsBox
-        title={`${points?.loggedInUserScore?.loggedInUserPoints?.toLocaleString("en-US") ?? 0} Points`}
+        title={`${points.toLocaleString("en-US") ?? 0} Points`}
         description="Earned to date"
         icon={<Goal width={25} height={25} />}
         drawerProps={{
