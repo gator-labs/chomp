@@ -192,6 +192,12 @@ describe("Create mystery box", () => {
         id: { in: [user0.id, user1.id] },
       },
     });
+
+    await prisma.mysteryBoxAllowlist.deleteMany({
+      where: {
+        address: { in: [user0.wallet, user1.wallet] },
+      },
+    });
   });
 
   it("Should create a new mystery box with triggers and prizes", async () => {
