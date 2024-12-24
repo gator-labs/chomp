@@ -3,6 +3,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
 import { openMysteryBox } from "@/app/actions/mysteryBox/open";
 import { revealMysteryBox } from "@/app/actions/mysteryBox/reveal";
+import { getUsersTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { rewardMysteryBox } from "@/lib/mysteryBox";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
@@ -35,9 +36,14 @@ jest.mock("next/cache", () => ({
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
 export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
+  // Filter out null/undefined values and ensure valid mysteryBoxIds
+  const validBoxIds = mysteryBoxIds.filter(
+    (id): id is string => id !== null && id !== undefined,
+  );
+
   const boxes = await prisma.mysteryBox.findMany({
     where: {
-      id: { in: mysteryBoxIds },
+      id: { in: validBoxIds },
     },
     include: {
       triggers: true,
@@ -60,7 +66,7 @@ export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
   });
   await prisma.mysteryBox.deleteMany({
     where: {
-      id: { in: mysteryBoxIds },
+      id: { in: validBoxIds },
     },
   });
 }
@@ -76,6 +82,7 @@ describe("Create mystery box", () => {
   let mysteryBoxId2: string | null;
   let mysteryBoxId3: string | null;
   let mysteryBoxId4: string | null;
+  let mysteryBoxId5: string | null;
 
   beforeAll(async () => {
     const question = {
@@ -119,7 +126,7 @@ describe("Create mystery box", () => {
         revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         stackId: null,
         deckQuestions: {
-          create: Array(4).fill({ question }),
+          create: Array(5).fill({ question }),
         },
       },
       include: {
@@ -158,12 +165,20 @@ describe("Create mystery box", () => {
   });
 
   afterAll(async () => {
+    await prisma.fungibleAssetTransactionLog.deleteMany({
+      where: { userId: user0.id },
+    });
+
     await deleteDeck(deckId);
 
     await deleteMysteryBoxes(
-      [mysteryBoxId, mysteryBoxId2, mysteryBoxId3, mysteryBoxId4].filter(
-        (box) => box !== null && box !== undefined,
-      ),
+      [
+        mysteryBoxId,
+        mysteryBoxId2,
+        mysteryBoxId3,
+        mysteryBoxId4,
+        mysteryBoxId5,
+      ].filter((box) => box !== null && box !== undefined),
     );
 
     await prisma.wallet.deleteMany({
@@ -351,5 +366,52 @@ describe("Create mystery box", () => {
 
   it("Should disallow opening an opened mystery box", async () => {
     await expect(openMysteryBox(mysteryBoxId4!, false)).rejects.toThrow();
+  });
+
+  it("Should open a credits mystery box and distribute the credits", async () => {
+    const res = await prisma.mysteryBox.create({
+      data: {
+        userId: user0.id,
+        triggers: {
+          createMany: {
+            data: {
+              questionId: questionIds[4],
+              triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+              mysteryBoxAllowlistId: null,
+            },
+          },
+        },
+        MysteryBoxPrize: {
+          create: {
+            status: EBoxPrizeStatus.Unclaimed,
+            size: "Small",
+            prizeType: "Credits",
+            amount: "560",
+          },
+        },
+      },
+    });
+
+    mysteryBoxId5 = res.id;
+
+    const txHashes = await openMysteryBox(mysteryBoxId5!, false);
+
+    expect(Object.keys(txHashes ?? {}).length).toBe(0);
+
+    const box = await prisma.mysteryBox.findUnique({
+      where: {
+        id: mysteryBoxId5!,
+      },
+      include: {
+        MysteryBoxPrize: true,
+      },
+    });
+
+    expect(box?.status).toBe(EMysteryBoxStatus.Opened);
+    expect(box?.MysteryBoxPrize[0].status).toBe(EBoxPrizeStatus.Claimed);
+
+    const credits = await getUsersTotalCreditAmount();
+
+    expect(credits).toEqual(560);
   });
 });
