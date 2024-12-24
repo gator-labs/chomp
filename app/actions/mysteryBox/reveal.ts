@@ -1,6 +1,7 @@
 "use server";
 
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import { RevealMysteryBoxError } from "@/lib/error";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import {
@@ -19,6 +20,7 @@ export type MysteryBoxResult = {
   tokensReceived: Record<string, number>; // token address -> amount
   creditsReceived: number;
   totalBonkWon: number;
+  totalCreditsWon: number;
 };
 
 /**
@@ -60,7 +62,7 @@ export async function revealMysteryBox(
 
   try {
     let bonkReceived = 0;
-    const creditsReceived = 0;
+    let creditsReceived = 0;
 
     const reward = await prisma.mysteryBox.findUnique({
       where: {
@@ -84,9 +86,6 @@ export async function revealMysteryBox(
             status: {
               in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
             },
-            // Until we implement credits and/or other tokens:
-            prizeType: EBoxPrizeType.Token,
-            tokenAddress: bonkAddress,
           },
         },
       },
@@ -95,13 +94,16 @@ export async function revealMysteryBox(
     if (!reward) throw new Error("Reward not found or not in openable state");
 
     for (const prize of reward.MysteryBoxPrize) {
-      if (prize.prizeType != EBoxPrizeType.Token) continue;
-
       const prizeAmount = Number(prize.amount ?? 0);
+      if (prize.prizeType === EBoxPrizeType.Token) {
+        if (prize.tokenAddress)
+          tokensReceived[prize.tokenAddress] = prizeAmount;
 
-      if (prize.tokenAddress) tokensReceived[prize.tokenAddress] = prizeAmount;
-
-      if (prize.tokenAddress == bonkAddress) bonkReceived = prizeAmount;
+        if (prize.tokenAddress == bonkAddress) bonkReceived = prizeAmount;
+      }
+      if (prize.prizeType === EBoxPrizeType.Credits) {
+        creditsReceived = prizeAmount;
+      }
     }
 
     const oldTotalBonkWon = bonkAddress
@@ -112,11 +114,18 @@ export async function revealMysteryBox(
       .add(bonkReceived)
       .toNumber();
 
+    const oldTotalCreditsWon = await getUserTotalCreditAmount();
+
+    const totalCreditsWon = new Decimal(oldTotalCreditsWon)
+      .add(creditsReceived)
+      .toNumber();
+
     return {
       mysteryBoxId,
       tokensReceived,
       creditsReceived,
       totalBonkWon,
+      totalCreditsWon,
     };
   } catch (e) {
     const revealMysteryBoxError = new RevealMysteryBoxError(

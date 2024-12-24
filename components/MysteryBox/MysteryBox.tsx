@@ -12,23 +12,18 @@ import {
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
 import { cn } from "@/app/utils/tailwind";
+import revalidateApplication from "@/lib/actions";
 import trackEvent from "@/lib/trackEvent";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
+import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
 import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
+import { EMysteryBoxType, MysteryBoxProps } from "@/types/mysteryBox";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import { Fragment, useEffect, useRef, useState } from "react";
 
+import CreditsDrawer from "../CreditsDrawer";
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
-
-type MysteryBoxProps = {
-  isOpen: boolean;
-  closeBoxDialog: () => void;
-  mysteryBoxId: string | null;
-  isDismissed: boolean;
-  skipAction: MysteryBoxSkipAction;
-  isChompmasBox?: boolean;
-};
 
 function buildMessage(lines: string[]) {
   return lines.map((line, index) =>
@@ -44,7 +39,6 @@ function buildMessage(lines: string[]) {
 }
 
 type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
-type MysteryBoxSkipAction = "Dismiss" | "Close";
 
 function MysteryBox({
   isOpen,
@@ -52,7 +46,7 @@ function MysteryBox({
   mysteryBoxId,
   isDismissed,
   skipAction,
-  isChompmasBox,
+  boxType = EMysteryBoxType.Regular,
 }: MysteryBoxProps) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
@@ -61,6 +55,9 @@ function MysteryBox({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
   const [box, setBox] = useState<MysteryBoxResult | null>(null);
+
+  const [isCreditsDrawerOpen, setIsCreditsDrawerOpen] =
+    useState<boolean>(false);
 
   const message: MysteryBoxOpenMessage = "REGULAR";
 
@@ -88,8 +85,7 @@ function MysteryBox({
         revealMysteryBox(mysteryBoxId, isDismissed),
         {
           loading: "Opening Mystery Box. Please wait...",
-          success:
-            "Mystery Box opened successfully! 🎉 Please wait while we send your prizes...",
+          success: "Mystery Box opened successfully! ",
           error: "Failed to open the Mystery Box. Please try again later. 😔",
         },
       );
@@ -97,7 +93,10 @@ function MysteryBox({
       setStatus("Opening");
 
       setTimeout(() => {
-        lottieRef.current?.play();
+        const bonkReceived = newBox?.tokensReceived?.[bonkAddress] ?? 0;
+        const creditsReceived = newBox?.creditsReceived ?? 0;
+
+        if (creditsReceived > 0 || bonkReceived > 0) lottieRef.current?.play();
       }, 500);
 
       setTimeout(
@@ -141,16 +140,17 @@ function MysteryBox({
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
 
-    if (closeBoxDialog) closeBoxDialog();
+    if (closeBoxDialog) {
+      closeBoxDialog();
+    }
+    revalidateApplication();
   };
 
   const handleSkip = async () => {
     if (isSubmitting) return;
 
-    try {
-      if (mysteryBoxId && skipAction == "Dismiss")
-        await dismissMysteryBox(mysteryBoxId);
-    } catch {}
+    if (mysteryBoxId && skipAction == "Dismiss")
+      await dismissMysteryBox(mysteryBoxId);
 
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
 
@@ -168,18 +168,66 @@ function MysteryBox({
 
     if (closeBoxDialog) closeBoxDialog();
 
+    revalidateApplication();
     router.push("/application/answer");
   };
 
+  const handleGoToViewCredits = () => {
+    if (isSubmitting) return;
+
+    setBox(null);
+
+    trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
+
+    if (closeBoxDialog) closeBoxDialog();
+
+    router.push("/application");
+  };
+
   const bonkReceived = box?.tokensReceived?.[bonkAddress] ?? 0;
+  const creditsReceived = box?.creditsReceived ?? 0;
 
   if (!isOpen || !mysteryBoxId) return null;
 
   const getTitle = (status: MysteryBoxStatus) => {
     if (status === "Idle" || status === "Opening")
       return "You earned a mystery box!";
+    if (boxType === EMysteryBoxType.Tutorial) {
+      return `You won ${creditsReceived.toLocaleString("en-US")} Credits!`;
+    }
 
-    return `You won ${bonkReceived.toLocaleString("en-US")} BONK!`;
+    if (bonkReceived > 0 && creditsReceived > 0) {
+      return (
+        <>
+          You won {creditsReceived.toLocaleString("en-US")} credits
+          <br />
+          and {bonkReceived.toLocaleString("en-US")} $BONK!
+        </>
+      );
+    } else if (creditsReceived > 0) {
+      return (
+        <>
+          You won {creditsReceived.toLocaleString("en-US")} credits!
+          <br />
+          No $BONK in this box ...
+        </>
+      );
+    } else if (bonkReceived > 0) {
+      return (
+        <>
+          You won {bonkReceived.toLocaleString("en-US")} $BONK!
+          <br />
+          No credits in this box ...
+        </>
+      );
+    } else {
+      return (
+        <>
+          No $BONK in this box ...
+          <br /> No credits in this box ...
+        </>
+      );
+    }
   };
   return (
     <>
@@ -195,7 +243,7 @@ function MysteryBox({
           >
             <h1
               className={cn(
-                "text-chomp-green-light text-2xl font-bold transition-all duration-150",
+                "text-chomp-green-light text-2xl font-bold transition-all duration-150 text-center",
                 {
                   "opacity-0": status === "Opening",
                 },
@@ -221,7 +269,11 @@ function MysteryBox({
           <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
               animationData={
-                isChompmasBox ? animationDataSanta : animationDataRegular
+                boxType === EMysteryBoxType.Chompmas
+                  ? animationDataSanta
+                  : creditsReceived > 0
+                    ? animationDataCredits
+                    : animationDataRegular
               }
               loop={false}
               lottieRef={lottieRef}
@@ -237,22 +289,44 @@ function MysteryBox({
                 "absolute top-1/2 left-1/2 w-[250px] md:w-[280px] lg:w-[300px] 2xl:w-[320px] h-[250px] md:h-[280px] lg:h-[300px] 2xl:h-[320px]",
                 {
                   "cursor-pointer": !isSubmitting && box && status === "Idle",
+                  "opacity-0":
+                    status == "Closing" &&
+                    creditsReceived == 0 &&
+                    bonkReceived == 0,
                 },
               )}
               onClick={() => !isSubmitting && status === "Idle" && openBox()}
             />
 
-            <div
-              className={cn(
-                "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
-                {
-                  "opacity-100": status === "Closing",
-                },
+            <div className="flex flex-col gap-4">
+              {boxType !== EMysteryBoxType.Tutorial && (
+                <div
+                  className={cn(
+                    "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
+                    {
+                      "opacity-100": status === "Closing",
+                    },
+                  )}
+                >
+                  <p>Total $BONK won to date</p>
+                  <div className="bg-chomp-orange-dark rounded-full py-2 px-4 w-fit ml-2">
+                    {box?.totalBonkWon.toLocaleString("en-US")} BONK
+                  </div>
+                </div>
               )}
-            >
-              <p>Total $BONK won to date</p>
-              <div className="bg-chomp-orange-dark rounded-[56px] py-2 px-4 w-fit">
-                {box?.totalBonkWon.toLocaleString("en-US")} BONK
+
+              <div
+                className={cn(
+                  "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
+                  {
+                    "opacity-100": status === "Closing",
+                  },
+                )}
+              >
+                <p>Total credits won to date</p>
+                <div className="bg-chomp-blue-dark rounded-full py-2 px-4 w-fit ml-2 text-black">
+                  {box?.totalCreditsWon.toLocaleString("en-US")} credits
+                </div>
               </div>
             </div>
           </div>
@@ -265,15 +339,46 @@ function MysteryBox({
               },
             )}
           >
-            <Button
-              variant={"primary"}
-              onClick={() =>
-                status === "Closing" ? handleGoToAnswering() : openBox()
-              }
-              disabled={isSubmitting}
-            >
-              {status === "Closing" ? "CHOMP on more decks →" : "Open Now"}
-            </Button>
+            {status == "Closing" && (
+              <div
+                className="text-sm underline text-center cursor-pointer"
+                onClick={() => setIsCreditsDrawerOpen(true)}
+              >
+                Learn more about credits
+              </div>
+            )}
+
+            <div className="flex flex-col gap-1">
+              {status == "Closing" && (
+                <Button
+                  variant={"primary"}
+                  disabled={isSubmitting}
+                  onClick={handleGoToViewCredits}
+                >
+                  View credits
+                </Button>
+              )}
+
+              {status == "Idle" && (
+                <Button
+                  variant={"primary"}
+                  onClick={openBox}
+                  disabled={isSubmitting}
+                >
+                  {"Open Now"}
+                </Button>
+              )}
+
+              {status == "Closing" && (
+                <Button
+                  variant={"outline"}
+                  onClick={handleGoToAnswering}
+                  disabled={isSubmitting}
+                >
+                  {"Answer more decks →"}
+                </Button>
+              )}
+            </div>
 
             <div
               className="text-sm cursor-pointer text-center text-chomp-grey-a1 underline"
@@ -285,6 +390,10 @@ function MysteryBox({
             </div>
           </div>
         </div>
+        <CreditsDrawer
+          isOpen={isCreditsDrawerOpen}
+          onClose={() => setIsCreditsDrawerOpen(false)}
+        />
       </MysteryBoxOverlay>
     </>
   );

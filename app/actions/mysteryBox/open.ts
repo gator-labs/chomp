@@ -3,13 +3,13 @@
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { OpenMysteryBoxError, SendBonkError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
+import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
   EMysteryBoxStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import { revalidatePath } from "next/cache";
 
 import prisma from "../../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
@@ -92,56 +92,66 @@ export async function openMysteryBox(
             status: {
               in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
             },
-            prizeType: EBoxPrizeType.Token,
+            prizeType: {
+              in: [EBoxPrizeType.Token, EBoxPrizeType.Credits],
+            },
           },
         },
       },
     });
   } catch (e) {
+    release();
+
     const openMysteryBoxError = new OpenMysteryBoxError(
       `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
       { cause: e },
     );
     Sentry.captureException(openMysteryBoxError);
     throw new Error("Error opening mystery box");
-  } finally {
-    release();
   }
 
-  if (!reward) throw new Error("Reward not found or not in openable state");
+  if (!reward) {
+    release();
+    throw new Error("Reward not found or not in openable state");
+  }
 
   try {
     for (const prize of reward.MysteryBoxPrize) {
-      if (
-        prize.prizeType != EBoxPrizeType.Token ||
-        prize.tokenAddress != bonkAddress
-      )
-        throw new Error(
-          `Don't know how to send prize for mystery box ${mysteryBoxId}, type ${prize.prizeType} token ${prize.tokenAddress}`,
-        );
-
       const prizeAmount = Number(prize.amount ?? 0);
-
       let sendTx: string | null;
 
-      if (prizeAmount > 0) {
-        sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
+      if (prize.prizeType == EBoxPrizeType.Token) {
+        if (prizeAmount > 0 && prize.tokenAddress === bonkAddress) {
+          sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
 
-        if (!sendTx) {
-          const sendBonkError = new SendBonkError(
-            `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
-            { cause: "Failed to send bonk" },
-          );
-          Sentry.captureException(sendBonkError);
+          if (!sendTx) {
+            const sendBonkError = new SendBonkError(
+              `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+              { cause: "Failed to send bonk" },
+            );
+            Sentry.captureException(sendBonkError);
+          } else {
+            txHashes[prize.tokenAddress] = sendTx;
+          }
+        } else {
+          sendTx = null;
         }
-      } else {
-        sendTx = null;
       }
-
-      if (sendTx) txHashes[prize.tokenAddress] = sendTx;
 
       await prisma.$transaction(
         async (tx) => {
+          if (prize.prizeType == EBoxPrizeType.Credits) {
+            await tx.fungibleAssetTransactionLog.create({
+              data: {
+                type: TransactionLogType.MysteryBox,
+                asset: FungibleAsset.Credit,
+                change: prize.amount,
+                userId: payload.sub,
+                mysteryBoxPrizeId: prize.id,
+              },
+            });
+          }
+
           await tx.mysteryBoxPrize.update({
             where: {
               id: prize.id,
@@ -170,7 +180,6 @@ export async function openMysteryBox(
     });
 
     release();
-    revalidatePath("/application");
   } catch (e) {
     try {
       await prisma.mysteryBox.update({
