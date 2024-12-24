@@ -31,6 +31,7 @@ describe("getNewUserMysteryBoxId ", () => {
   let user: { id: string; username: string };
 
   beforeAll(async () => {
+    process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_NEW_USER = "true";
     const users = await generateUsers(1);
     user = users[0];
   });
