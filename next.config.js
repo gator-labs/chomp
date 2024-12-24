@@ -14,6 +14,10 @@ const sentryWebpackOptions = {
   project: "javascript-nextjs",
   silent: !process.env.CI,
   widenClientFileUpload: true,
+  // Add new options from injected config
+  reactComponentAnnotation: {
+    enabled: true,
+  },
   tunnelRoute: "/monitoring",
   hideSourceMaps: true,
   disableLogger: true,
