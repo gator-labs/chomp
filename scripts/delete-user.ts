@@ -7,6 +7,9 @@ console.log(
   "\x1b[34m\x1b[1m --- SCRIPT FOR DELETING USER AND ASSOCIATED DATA --- \x1b[0m",
 );
 
+// Log Prisma connection URL
+console.log("\nUsing Prisma URL:", process.env.DATABASE_PRISMA_URL);
+
 async function main() {
   try {
     // 1. Ask for wallet address
@@ -25,9 +28,60 @@ async function main() {
 
     const userId = wallet.user.id;
 
-    // 3. Display user info and ask for confirmation
+    // 3. Count entities to be deleted
     console.log("\nFound user with ID:", userId);
-    console.log("This will delete ALL data associated with this user.");
+    console.log("\nEntities to be deleted:");
+
+    const fatLogCount = await prisma.fungibleAssetTransactionLog.count({
+      where: { userId },
+    });
+    console.log(`• FungibleAssetTransactionLog entries: ${fatLogCount}`);
+
+    const userMysteryBoxes = await prisma.mysteryBox.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+    const userMysteryBoxIds = userMysteryBoxes.map((box) => box.id);
+    const mysteryBoxCount = userMysteryBoxes.length;
+    const mysteryBoxPrizeCount = await prisma.mysteryBoxPrize.count({
+      where: { mysteryBoxId: { in: userMysteryBoxIds } },
+    });
+    console.log(`• MysteryBox entries: ${mysteryBoxCount}`);
+    console.log(`• MysteryBoxPrize entries: ${mysteryBoxPrizeCount}`);
+
+    const chompResultCount = await prisma.chompResult.count({
+      where: { userId },
+    });
+    console.log(`• ChompResult entries: ${chompResultCount}`);
+
+    const questionAnswerCount = await prisma.questionAnswer.count({
+      where: { userId },
+    });
+    console.log(`• QuestionAnswer entries: ${questionAnswerCount}`);
+
+    const userDeckCount = await prisma.userDeck.count({
+      where: { userId },
+    });
+    console.log(`• UserDeck entries: ${userDeckCount}`);
+
+    const revealNftCount = await prisma.revealNft.count({
+      where: { userId },
+    });
+    console.log(`• RevealNft entries: ${revealNftCount}`);
+
+    const emailCount = await prisma.email.count({
+      where: { userId },
+    });
+    console.log(`• Email entries: ${emailCount}`);
+
+    const walletCount = await prisma.wallet.count({
+      where: { userId },
+    });
+    console.log(`• Wallet entries: ${walletCount}`);
+    console.log(`• User record: 1`);
+
+    // 4. Ask for confirmation
+    console.log("\nThis will delete ALL data associated with this user.");
     const confirm = await ask(
       "Are you sure you want to delete this user and all their data? (y/n): ",
     );
@@ -37,7 +91,43 @@ async function main() {
       process.exit(0);
     }
 
-    // 4. Delete all associated data in correct order
+    // 4. Delete user from Dynamic
+    console.log("\nDeleting user from Dynamic...");
+    try {
+      const dynamicBearer = process.env.DYNAMIC_BEARER_TOKEN;
+      const dynamicEnvironmentId =
+        process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID;
+
+      if (!dynamicBearer || !dynamicEnvironmentId) {
+        throw new Error("Missing Dynamic credentials in environment variables");
+      }
+
+      const dynamicUserId = userId; // User.id corresponds to Dynamic user ID
+      const url = `https://app.dynamicauth.com/api/v0/users/${dynamicUserId}`;
+
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${dynamicBearer}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to delete user from Dynamic: ${response.statusText}`,
+        );
+      }
+
+      console.log("✓ Deleted user from Dynamic");
+    } catch (error) {
+      console.error(
+        "Warning: Failed to delete user from Dynamic:",
+        error.message,
+      );
+      console.log("Continuing with local database deletion...");
+    }
+
+    // 5. Delete all associated data in correct order
     console.log("\nDeleting user data...");
 
     // Delete FungibleAssetTransactionLog entries
@@ -47,14 +137,14 @@ async function main() {
     console.log("✓ Deleted FungibleAssetTransactionLog entries");
 
     // Delete MysteryBoxPrize entries (via MysteryBox)
-    const mysteryBoxes = await prisma.mysteryBox.findMany({
+    const deleteMysteryBoxes = await prisma.mysteryBox.findMany({
       where: { userId },
       select: { id: true },
     });
-    const mysteryBoxIds = mysteryBoxes.map((box) => box.id);
+    const deleteMysteryBoxIds = deleteMysteryBoxes.map((box) => box.id);
 
     await prisma.mysteryBoxPrize.deleteMany({
-      where: { mysteryBoxId: { in: mysteryBoxIds } },
+      where: { mysteryBoxId: { in: deleteMysteryBoxIds } },
     });
     console.log("✓ Deleted MysteryBoxPrize entries");
 
