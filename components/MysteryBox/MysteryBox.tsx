@@ -155,7 +155,7 @@ function MysteryBox({
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
 
     setBox(null);
-
+    revalidateApplication();
     if (closeBoxDialog) closeBoxDialog();
   };
 
@@ -181,6 +181,7 @@ function MysteryBox({
 
     if (closeBoxDialog) closeBoxDialog();
 
+    revalidateApplication();
     router.push("/application");
   };
 
@@ -232,7 +233,7 @@ function MysteryBox({
   return (
     <>
       <MysteryBoxOverlay>
-        <div className="flex flex-col items-center justify-between content-between absolute py-[90px] w-full max-w-[326px] h-full">
+        <div className="flex flex-col items-center justify-between content-between absolute py-[70px] w-full max-w-[326px] h-full">
           <div
             className={cn(
               "w-full flex flex-col gap-8 transition-all duration-150 items-center",
@@ -293,7 +294,7 @@ function MysteryBox({
               className={cn(
                 "absolute top-[50%] left-1/2 w-[250px] md:w-[280px] lg:w-[300px] 2xl:w-[320px] h-[250px] md:h-[280px] lg:h-[300px] 2xl:h-[320px]",
                 {
-                  "top-[35%]": status === "Closing",
+                  "top-[40%]": status === "Closing",
                   "cursor-pointer": !isSubmitting && box && status === "Idle",
                   "opacity-0":
                     status == "Closing" &&
