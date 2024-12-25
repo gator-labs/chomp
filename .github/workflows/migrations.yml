@@ -13,8 +13,29 @@ on:
       - "**/*.sql" # Adjust this to include files whose changes should trigger the workflow
 
 jobs:
+  check_approvals:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      approval_count: ${{ steps.approvalCount.outputs.approval_count }}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install GitHub CLI
+        run: sudo apt-get update && sudo apt-get install -y gh
+
+      - name: Count Approvals
+        id: approvalCount
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          OWNER=${{ github.repository_owner }}
+          REPO=${{ github.event.repository.name }}
+          REVIEW_COUNT=$(gh pr view $PR_NUMBER --json reviews -R "$OWNER/$REPO" | jq '.reviews | map(select(.state=="APPROVED")) | length')
+          echo "approval_count=$REVIEW_COUNT" >> $GITHUB_OUTPUT
   migrate_staging:
-    if: github.base_ref == 'main' && github.event.pull_request.merged == true
+    needs: [check_approvals]
+    if: github.base_ref == 'main' && github.event.pull_request.merged == true && needs.check_approvals.outputs.approval_count >= 2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -35,7 +56,8 @@ jobs:
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_STAGING }}
 
   migrate_prod:
-    if: github.base_ref == 'prod' && github.event.pull_request.merged == true
+    needs: [check_approvals]
+    if: github.base_ref == 'prod' && github.event.pull_request.merged == true && needs.check_approvals.outputs.approval_count >= 2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -75,4 +97,10 @@ jobs:
               DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_DEMO }}
               DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_DEMO }}
             run: yarn prisma:migrate:prod
+    
+    
+    
+    
+    
+    
     
