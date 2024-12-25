@@ -1,6 +1,7 @@
 "use client";
 
 import { claimQuestions } from "@/app/actions/claim";
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   REVEAL_TYPE,
@@ -122,6 +123,7 @@ const ClaimButton = ({
           transactionHash: transactionHash,
         },
       });
+      await Sentry.flush(SENTRY_FLUSH_WAIT);
       await trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
         [TRACKING_METADATA.QUESTION_ID]: questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: questions,

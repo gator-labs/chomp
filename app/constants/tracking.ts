@@ -10,6 +10,7 @@ export const TRACKING_EVENTS = {
   REVEAL_STARTED: "RevealStarted",
   REVEAL_TRANSACTION_SIGNED: "RevealTransactionSigned",
   REVEAL_TRANSACTION_CANCELLED: "RevealTransactionCancelled",
+  REVEAL_TRANSACTION_PENDING: "RevealTransactionPending",
   REVEAL_FAILED: "RevealFailed",
   LOGIN_STARTED: "LoginStarted",
   Login_Wallet_Selected: "LoginWalletSelected",
@@ -42,6 +43,8 @@ export const TRACKING_EVENTS = {
   MYSTERY_BOX_DIALOG_CLOSED: "MysteryBoxDialogClosed",
   MYSTERY_BOX_OPENED: "MysteryBoxOpened",
   MYSTERY_BOX_SKIPPED: "MysteryBoxSkipped",
+  MYSTERY_BOX_CREDITS_INFO_DIALOG_OPENED: "MysteryBoxCreditsInfoDialogOpened",
+  MYSTERY_BOX_CREDITS_INFO_DIALOG_CLOSED: "MysteryBoxCreditsInfoDialogClosed",
 } as const;
 
 export const TRACKING_METADATA = {

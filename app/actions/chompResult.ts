@@ -1,6 +1,10 @@
 "use server";
 
-import { RevealConfirmationError, RevealError } from "@/lib/error";
+import {
+  InvalidBurnTxError,
+  RevealConfirmationError,
+  RevealError,
+} from "@/lib/error";
 import {
   FungibleAsset,
   NftType,
@@ -11,7 +15,7 @@ import * as Sentry from "@sentry/nextjs";
 // import { TransactionSignature } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
-// import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 import prisma from "../services/prisma";
 import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
@@ -19,7 +23,7 @@ import { acquireMutex } from "../utils/mutex";
 import { calculateRevealPoints } from "../utils/points";
 import { isEntityRevealable } from "../utils/question";
 import { sleep } from "../utils/sleep";
-import { CONNECTION } from "../utils/solana";
+import { CONNECTION, isValidSignature } from "../utils/solana";
 import { getJwtPayload } from "./jwt";
 import { checkNft } from "./revealNft";
 
@@ -91,6 +95,20 @@ export async function revealQuestions(
     identifier: "REVEAL",
     data: { userId: payload.sub },
   });
+
+  if (!isValidSignature(burnTx)) {
+    const invalidBurnTxError = new InvalidBurnTxError(
+      `Invalid burn tx provided for user ${payload.sub}`,
+    );
+    Sentry.captureException(invalidBurnTxError, {
+      extra: {
+        questionIds,
+      },
+    });
+    release();
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+    return null;
+  }
 
   await handleFirstRevealToPopulateSubjectiveQuestion(questionIds);
   const questionsFilteredForUser = await prisma.question.findMany({
@@ -266,6 +284,7 @@ export async function revealQuestions(
   }
 
   release();
+  await Sentry.flush(SENTRY_FLUSH_WAIT);
   revalidatePath("/application");
 }
 
@@ -309,6 +328,20 @@ export async function createQuestionChompResults(
   if (!payload) {
     return null;
   }
+
+  if (questionChomps.some((qc) => !isValidSignature(qc.burnTx))) {
+    const invalidBurnTxError = new InvalidBurnTxError(
+      `Invalid burn tx provided for user ${payload.sub}`,
+    );
+    Sentry.captureException(invalidBurnTxError, {
+      extra: {
+        questionIds: questionChomps.map((qc) => qc.questionId),
+      },
+    });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+    return null;
+  }
+
   return await prisma.$transaction(
     questionChomps.map((qc) =>
       prisma.chompResult.create({
