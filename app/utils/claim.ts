@@ -4,7 +4,8 @@ import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
   createTransferInstruction,
-  getAssociatedTokenAddress, // getOrCreateAssociatedTokenAccount,
+  getAssociatedTokenAddress,
+  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
@@ -13,7 +14,6 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-// import { Connection } from "@solana/web3.js";
 import base58 from "bs58";
 import pRetry from "p-retry";
 
@@ -76,20 +76,17 @@ export const sendBonk = async (
     fromWallet.publicKey,
   );
 
-  const toTokenAccount = await getAssociatedTokenAddress(bonkMint, toWallet);
-
-  // const claimIssue = await getOrCreateAssociatedTokenAccount(
-  //   new Connection(process.env.NEXT_PUBLIC_RPC_URL!),
-  //   fromWallet,
-  //   bonkMint,
-  //   toWallet,
-  // );
-
-  // console.log(claimIssue);
+  // It will create bonk mint account for the destination wallet if doesn't exist
+  const destinationAccount = await getOrCreateAssociatedTokenAccount(
+    CONNECTION,
+    fromWallet,
+    bonkMint,
+    toWallet,
+  );
 
   const instruction = createTransferInstruction(
     fromTokenAccount,
-    toTokenAccount,
+    destinationAccount.address,
     fromWallet.publicKey,
     amount,
   );
