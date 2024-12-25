@@ -14,10 +14,6 @@ jest.mock("../../app/services/prisma", () => ({
       create: jest.fn(),
       findFirst: jest.fn(),
     },
-    mysteryBoxTrigger: {
-      findFirst: jest.fn(),
-      create: jest.fn(),
-    },
     user: {
       deleteMany: jest.fn(),
     },
@@ -70,16 +66,18 @@ describe("getNewUserMysteryBoxId ", () => {
       sub: user.id,
       new_user: true,
     });
-    (prisma.mysteryBoxTrigger.findFirst as jest.Mock).mockResolvedValue({
-      id: "trigger123",
-      triggerType: EBoxTriggerType.TutorialCompleted,
+    (prisma.mysteryBox.findFirst as jest.Mock).mockResolvedValue({
+      id: "box123",
+      userId: user.id,
+      triggers: [{ triggerType: EBoxTriggerType.TutorialCompleted }],
     });
     const result = await getNewUserMysteryBoxId();
     expect(result).toBeNull();
     expect(getJwtPayload).toHaveBeenCalled();
-    expect(prisma.mysteryBoxTrigger.findFirst).toHaveBeenCalledWith({
+    expect(prisma.mysteryBox.findFirst).toHaveBeenCalledWith({
       where: {
-        triggerType: EBoxTriggerType.TutorialCompleted,
+        userId: user.id,
+        triggers: { some: { triggerType: EBoxTriggerType.TutorialCompleted } },
       },
     });
   });
@@ -90,7 +88,7 @@ describe("getNewUserMysteryBoxId ", () => {
       sub: user.id,
       new_user: true,
     });
-    (prisma.mysteryBoxTrigger.findFirst as jest.Mock).mockResolvedValue(null);
+    (prisma.mysteryBox.findFirst as jest.Mock).mockResolvedValue(null);
     (prisma.wallet.findFirst as jest.Mock).mockResolvedValue({
       id: "wallet123",
       userId: user.id,
@@ -103,9 +101,10 @@ describe("getNewUserMysteryBoxId ", () => {
 
     expect(result).toBe(mockMysteryBoxId);
     expect(getJwtPayload).toHaveBeenCalled();
-    expect(prisma.mysteryBoxTrigger.findFirst).toHaveBeenCalledWith({
+    expect(prisma.mysteryBox.findFirst).toHaveBeenCalledWith({
       where: {
-        triggerType: EBoxTriggerType.TutorialCompleted,
+        userId: user.id,
+        triggers: { some: { triggerType: EBoxTriggerType.TutorialCompleted } },
       },
     });
     expect(prisma.mysteryBox.create).toHaveBeenCalledWith(

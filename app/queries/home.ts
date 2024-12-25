@@ -160,10 +160,11 @@ FULL JOIN
     public."Stack" c ON c."id" = d."stackId"
 WHERE
     d."revealAtDate" > NOW() 
-    AND (d."activeFromDate" <= NOW() OR  
-    d."activeFromDate" IS NULL
-    AND d."date" >= ${currentDayStart}
-    AND d."date" <= ${currentDayEnd})
+    AND (
+      (d."activeFromDate" <= NOW() OR d."activeFromDate" IS NULL)
+      AND d."date" >= ${currentDayStart}
+      AND d."date" <= ${currentDayEnd}
+    )
     AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq
