@@ -71,15 +71,18 @@ export const getNewUserMysteryBoxId = async () => {
   }
   const userId = payload.sub;
   const isNewUser = payload?.new_user;
-  const res = await prisma.mysteryBoxTrigger.findFirst({
+  const res = await prisma.mysteryBox.findFirst({
     where: {
-      triggerType: EBoxTriggerType.TutorialCompleted,
+      userId,
+      triggers: { some: { triggerType: EBoxTriggerType.TutorialCompleted } },
     },
   });
 
-  const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_NEW_USER;
+  const FF_MYSTERY_BOX = Boolean(
+    process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_NEW_USER === "true",
+  );
 
-  const isEligible = isNewUser && !res && FF_MYSTERY_BOX;
+  const isEligible = Boolean(isNewUser && !res && FF_MYSTERY_BOX);
   if (isEligible) {
     const mysteryBoxId = await rewardTutorialMysteryBox(userId);
     return mysteryBoxId;
