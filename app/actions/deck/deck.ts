@@ -202,6 +202,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         imageUrl: validatedFields.data.imageUrl,
         revealAtDate: validatedFields.data.revealAtDate,
         revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+        creditCostPerQuestion: validatedFields.data.creditCostPerQuestion,
         date: validatedFields.data.date,
         activeFromDate: validatedFields.data.activeFromDate,
         stackId: validatedFields.data.stackId,
@@ -221,6 +222,7 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
           revealTokenAmount: validatedFields.data.revealTokenAmount,
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+          creditCostPerQuestion: validatedFields.data.creditCostPerQuestion,
           durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
           deckQuestions: {
             create: {
@@ -393,6 +395,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           imageUrl: validatedFields.data.imageUrl,
           revealAtDate: validatedFields.data.revealAtDate,
           revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+          creditCostPerQuestion: validatedFields.data.creditCostPerQuestion,
           date: validatedFields.data.date,
           stackId: validatedFields.data.stackId,
           footer: validatedFields.data.footer,
@@ -411,6 +414,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealTokenAmount: validatedFields.data.revealTokenAmount,
             revealAtDate: validatedFields.data.revealAtDate,
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+            creditCostPerQuestion: validatedFields.data.creditCostPerQuestion,
             imageUrl: question.imageUrl,
             durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
             deckQuestions: {
@@ -476,6 +480,7 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
             revealTokenAmount: validatedFields.data.revealTokenAmount,
             revealAtDate: validatedFields.data.revealAtDate,
             revealAtAnswerCount: validatedFields.data.revealAtAnswerCount,
+            creditCostPerQuestion: validatedFields.data.creditCostPerQuestion,
             questionTags: {
               createMany: {
                 data: validatedFields.data.tagIds

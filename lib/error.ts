@@ -112,3 +112,10 @@ export class GetUnopenedMysteryBoxError extends Error {
     this.name = "GetUnopenedMysteryBoxError";
   }
 }
+
+export class InvalidBurnTxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "InvalidBurnTxError";
+  }
+}

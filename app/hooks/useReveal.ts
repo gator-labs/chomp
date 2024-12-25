@@ -165,10 +165,9 @@ export function useReveal({
             : REVEAL_DIALOG_TYPE.REVEAL_OR_CLOSE,
           [TRACKING_METADATA.QUESTION_ID]: reveal.questionIds,
           [TRACKING_METADATA.QUESTION_TEXT]: reveal.questions,
-          [TRACKING_METADATA.REVEAL_TYPE]:
-            reveal.questionIds.length > 1
-              ? REVEAL_TYPE.ALL
-              : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.REVEAL_TYPE]: reveal.isRevealAll
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
         });
         setIsLoading(false);
       }
@@ -197,6 +196,7 @@ export function useReveal({
       reveal,
       questions,
       dialogLabel,
+      isRevealAll,
     }: RevealCallbackProps) => {
       setBurnState(BURN_STATE_IDLE);
       setReveal({
@@ -205,13 +205,13 @@ export function useReveal({
         questionIds: questionIds ?? [questionId],
         questions,
         dialogLabel,
+        isRevealAll,
       });
       setIsRevealModalOpen(true);
       trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_OPENED, {
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          (questionIds ?? [questionId])?.length > 1
-            ? REVEAL_TYPE.ALL
-            : REVEAL_TYPE.SINGLE,
+        [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+          ? REVEAL_TYPE.ALL
+          : REVEAL_TYPE.SINGLE,
         [TRACKING_METADATA.QUESTION_ID]: questionIds ?? [questionId],
         [TRACKING_METADATA.QUESTION_TEXT]: questions,
       });
@@ -301,20 +301,18 @@ export function useReveal({
               [TRACKING_METADATA.TRANSACTION_SIGNATURE]: sn,
               [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
               [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-              [TRACKING_METADATA.REVEAL_TYPE]:
-                revealQuestionIds.length > 1
-                  ? REVEAL_TYPE.ALL
-                  : REVEAL_TYPE.SINGLE,
+              [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+                ? REVEAL_TYPE.ALL
+                : REVEAL_TYPE.SINGLE,
             });
 
             signature = sn;
           } catch (error) {
             if ((error as any)?.message === "User rejected the request.")
               trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
-                [TRACKING_METADATA.REVEAL_TYPE]:
-                  revealQuestionIds.length > 1
-                    ? REVEAL_TYPE.ALL
-                    : REVEAL_TYPE.SINGLE,
+                [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+                  ? REVEAL_TYPE.ALL
+                  : REVEAL_TYPE.SINGLE,
                 [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
                 [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
               });
@@ -370,16 +368,34 @@ export function useReveal({
         });
       }
 
-      trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
-        transactionSignature: signature,
-        nftAddress: revealNft?.id,
-        nftType: revealNft?.type,
-        burnedAmount: reveal?.amount,
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
-        [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
-        [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
-      });
+      const pendingResults =
+        await getUsersPendingChompResult(revealQuestionIds);
+
+      if (pendingResults?.length !== 0) {
+        trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_PENDING, {
+          transactionSignature: signature,
+          nftAddress: revealNft?.id,
+          nftType: revealNft?.type,
+          burnedAmount: reveal?.amount,
+          [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+        });
+      } else {
+        trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
+          transactionSignature: signature,
+          nftAddress: revealNft?.id,
+          nftType: revealNft?.type,
+          burnedAmount: reveal?.amount,
+          [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+            ? REVEAL_TYPE.ALL
+            : REVEAL_TYPE.SINGLE,
+          [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
+          [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
+        });
+      }
 
       if (revealNft && !isMultiple) {
         setRevealNft(undefined);
@@ -390,8 +406,9 @@ export function useReveal({
       }
 
       await trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
-        [TRACKING_METADATA.REVEAL_TYPE]:
-          revealQuestionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+        [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
+          ? REVEAL_TYPE.ALL
+          : REVEAL_TYPE.SINGLE,
         [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
         [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
         error,
@@ -433,5 +450,6 @@ export function useReveal({
     questions: reveal?.questions,
     isLoading,
     dialogLabel: reveal?.dialogLabel,
+    isRevealAll: reveal?.isRevealAll,
   };
 }

@@ -66,7 +66,7 @@ export const getPreviousUserRank = async (
       )?.rank;
     }
 
-    const totalPoints = await getTotalPoints(dateFilter);
+    const totalPoints = await getLeaderboardPointsStats(dateFilter);
 
     const expirationInSeconds = Math.abs(
       differenceInSeconds(new Date(), expirationDate),
@@ -147,7 +147,8 @@ export const getLeaderboard = async ({
     };
   }
 
-  if (filter === "totalPoints") return getTotalPoints(dateFilter, stackId);
+  if (filter === "totalPoints")
+    return getLeaderboardPointsStats(dateFilter, stackId);
 
   if (filter === "totalBonkClaimed")
     return getTotalBonkClaimed(dateFilter, stackId);
@@ -200,7 +201,10 @@ const getNumberOfChompedQuestions = async (
   return mapLeaderboardData(leaderboard, userIds);
 };
 
-export const getTotalPoints = async (dateFilter = {}, stackId?: number) => {
+export const getLeaderboardPointsStats = async (
+  dateFilter = {},
+  stackId?: number,
+) => {
   const whereStackClause = !!stackId
     ? {
         OR: [{ question: { stackId } }, { deck: { stackId } }],

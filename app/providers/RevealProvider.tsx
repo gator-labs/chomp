@@ -60,6 +60,7 @@ export function RevealContextProvider({
     questionIds,
     questions,
     isLoading,
+    isRevealAll,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
@@ -88,8 +89,9 @@ export function RevealContextProvider({
               trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                 [TRACKING_METADATA.QUESTION_ID]: questionIds,
                 [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                [TRACKING_METADATA.REVEAL_TYPE]:
-                  questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+                [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                  ? REVEAL_TYPE.ALL
+                  : REVEAL_TYPE.SINGLE,
               });
               cancelReveal();
             }}
@@ -130,10 +132,9 @@ export function RevealContextProvider({
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [TRACKING_METADATA.QUESTION_ID]: questionIds,
                   [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                  [TRACKING_METADATA.REVEAL_TYPE]:
-                    questionIds.length > 1
-                      ? REVEAL_TYPE.ALL
-                      : REVEAL_TYPE.SINGLE,
+                  [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                    ? REVEAL_TYPE.ALL
+                    : REVEAL_TYPE.SINGLE,
                 });
                 cancelReveal();
               }}
@@ -174,10 +175,9 @@ export function RevealContextProvider({
                   trackEvent(TRACKING_EVENTS.REVEAL_STARTED, {
                     [TRACKING_METADATA.QUESTION_ID]: questionIds,
                     [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                    [TRACKING_METADATA.REVEAL_TYPE]:
-                      questionIds.length > 1
-                        ? REVEAL_TYPE.ALL
-                        : REVEAL_TYPE.SINGLE,
+                    [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                      ? REVEAL_TYPE.ALL
+                      : REVEAL_TYPE.SINGLE,
                   });
 
                 burnAndReveal();
@@ -200,10 +200,9 @@ export function RevealContextProvider({
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [TRACKING_METADATA.QUESTION_ID]: questionIds,
                   [TRACKING_METADATA.QUESTION_TEXT]: questions,
-                  [TRACKING_METADATA.REVEAL_TYPE]:
-                    questionIds.length > 1
-                      ? REVEAL_TYPE.ALL
-                      : REVEAL_TYPE.SINGLE,
+                  [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+                    ? REVEAL_TYPE.ALL
+                    : REVEAL_TYPE.SINGLE,
                 });
               }}
             >
@@ -264,8 +263,9 @@ export function RevealContextProvider({
     trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
       [TRACKING_METADATA.QUESTION_ID]: questionIds,
       [TRACKING_METADATA.QUESTION_TEXT]: questions,
-      [TRACKING_METADATA.REVEAL_TYPE]:
-        questionIds.length > 1 ? REVEAL_TYPE.ALL : REVEAL_TYPE.SINGLE,
+      [TRACKING_METADATA.REVEAL_TYPE]: isRevealAll
+        ? REVEAL_TYPE.ALL
+        : REVEAL_TYPE.SINGLE,
     });
     cancelReveal();
   };

@@ -1,6 +1,7 @@
-import { getTotalPoints } from "@/app/actions/leaderboard";
 import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import {
+  getUserTotalCreditAmount,
+  getUserTotalPoints,
   getUsersLatestStreakAndMysteryBox,
   getUsersTotalClaimedAmount,
 } from "@/app/queries/home";
@@ -10,12 +11,17 @@ import LatestStreakBox from "../LatestStreakBox/LatestStreakBox";
 import { StatsBox } from "../StatsBox/StatsBox";
 
 export async function DashboardUserStats() {
-  const [[latestStreak, mysteryBoxId], totalClaimedAmount, points] =
-    await Promise.all([
-      getUsersLatestStreakAndMysteryBox(),
-      getUsersTotalClaimedAmount(),
-      getTotalPoints(),
-    ]);
+  const [
+    [latestStreak, mysteryBoxId],
+    totalClaimedAmount,
+    points,
+    totalCredits,
+  ] = await Promise.all([
+    getUsersLatestStreakAndMysteryBox(),
+    getUsersTotalClaimedAmount(),
+    getUserTotalPoints(),
+    getUserTotalCreditAmount(),
+  ]);
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -35,7 +41,7 @@ export async function DashboardUserStats() {
         }}
       />
       <StatsBox
-        title={`${points?.loggedInUserScore?.loggedInUserPoints?.toLocaleString("en-US") ?? 0} Points`}
+        title={`${points.toLocaleString("en-US") ?? 0} Points`}
         description="Earned to date"
         icon={<Goal width={25} height={25} />}
         drawerProps={{
@@ -46,7 +52,7 @@ export async function DashboardUserStats() {
         }}
       />
       <StatsBox
-        title={`0 Credits`}
+        title={`${totalCredits.toLocaleString("en-US")} Credits`}
         description="Earned to date"
         icon={<CreditCardIcon width={25} height={25} />}
         drawerProps={{

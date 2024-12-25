@@ -105,6 +105,12 @@ describe("Chompmas mystery boxes", () => {
         id: { in: [user0.id, user1.id, user2.id] },
       },
     });
+
+    await prisma.mysteryBoxAllowlist.deleteMany({
+      where: {
+        address: { in: [user0.wallet, user1.wallet, user2.wallet] },
+      },
+    });
   });
 
   it("Should reward a chompmas mystery box", async () => {

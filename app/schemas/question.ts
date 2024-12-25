@@ -14,6 +14,7 @@ export const questionSchema = z.object({
   revealTokenAmount: z.number().min(0),
   revealAtDate: z.date().nullish(),
   revealAtAnswerCount: z.number().min(0).nullish(),
+  creditCostPerQuestion: z.number().min(0).max(5).nullish(),
   tagIds: z.number().array().default([]),
   questionOptions: z
     .object({

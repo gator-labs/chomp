@@ -125,6 +125,7 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
         amount: question.revealTokenAmount || 0,
         questionId: question.id,
         questions: [question.question],
+        isRevealAll: false,
       });
     };
 

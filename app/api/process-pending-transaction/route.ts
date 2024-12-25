@@ -1,7 +1,8 @@
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
 import { calculateReward } from "@/app/utils/algo";
-import { RevealConfirmationError } from "@/lib/error";
+import { isValidSignature } from "@/app/utils/solana";
+import { InvalidBurnTxError, RevealConfirmationError } from "@/lib/error";
 import { validateBonkBurned } from "@/lib/validateBonkBurn";
 import { TransactionStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
@@ -94,6 +95,18 @@ export async function GET(request: Request) {
 
       // validate burn tx hash
       const isValid = await validateBonkBurned(burnTx, wallets);
+
+      if (!isValidSignature(burnTx)) {
+        const invalidBurnTxError = new InvalidBurnTxError(
+          `Invalid burn tx provided for user ${userId}`,
+        );
+        Sentry.captureException(invalidBurnTxError, {
+          extra: {
+            questionIds: revealableQuestionIds,
+          },
+        });
+        await Sentry.flush(SENTRY_FLUSH_WAIT);
+      }
 
       if (isValid) {
         /**

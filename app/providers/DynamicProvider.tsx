@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { LoginError } from "../../lib/error";
 import { clearJwt } from "../actions/jwt";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "../constants/tracking";
 
 export default function DynamicProvider({
@@ -41,7 +42,7 @@ export default function DynamicProvider({
               });
             }
           },
-          onAuthFailure: (method, reason: any) => {
+          onAuthFailure: async (method, reason: any) => {
             let reasonMessage;
             if (typeof reason === "object" && reason.error.message) {
               reasonMessage = reason?.error?.message;
@@ -65,6 +66,7 @@ export default function DynamicProvider({
               { cause: reason },
             );
             Sentry.captureException(loginError);
+            await Sentry.flush(SENTRY_FLUSH_WAIT);
           },
           onAuthSuccess: ({ isAuthenticated, user }) => {
             if (isAuthenticated) {

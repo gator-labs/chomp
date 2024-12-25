@@ -1,10 +1,13 @@
 "use server";
 
 import { getChompmasMysteryBox, isUserInAllowlist } from "@/lib/mysteryBox";
+import { FungibleAsset } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
+import { getJwtPayload } from "../actions/jwt";
+import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { acquireMutex } from "../utils/mutex";
@@ -310,6 +313,7 @@ export async function getUsersLatestStreakAndMysteryBox(): Promise<
 
     throw new Error("Error opening mystery box");
   } finally {
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
   }
 }
@@ -370,4 +374,52 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
   `;
 
   return Number(result[0].totalClaimedAmount);
+}
+
+/**
+ * Retrieves the total credit amount claimed by the user from mystery box prizes.
+ *
+ * @returns The total credit amount claimed by the user.
+ */
+export async function getUserTotalCreditAmount() {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub;
+
+  const res = await prisma.fungibleAssetTransactionLog.aggregate({
+    where: {
+      asset: FungibleAsset.Credit,
+      userId,
+    },
+    _sum: {
+      change: true,
+    },
+  });
+
+  if (!res?._sum?.change) return 0;
+
+  return res._sum.change.toNumber();
+}
+
+/**
+ * Retrieves the total points amount gained by the user.
+ *
+ * @returns The total points amount claimed by the user.
+ */
+export async function getUserTotalPoints() {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub;
+
+  const res = await prisma.fungibleAssetTransactionLog.aggregate({
+    where: {
+      asset: FungibleAsset.Point,
+      userId,
+    },
+    _sum: {
+      change: true,
+    },
+  });
+
+  if (!res?._sum?.change) return 0;
+
+  return res._sum.change.toNumber();
 }

@@ -56,6 +56,7 @@ model Question {
   revealToken                 Token                         @default(Bonk)
   revealTokenAmount           Int                           @default(0)
   revealAtDate                DateTime?
+  creditCostPerQuestion       Int?
   revealAtAnswerCount         Int?
   imageUrl                    String?
   createdAt                   DateTime                      @default(now())
@@ -109,6 +110,7 @@ model Deck {
   date                        DateTime?
   activeFromDate              DateTime?
   revealAtDate                DateTime?
+  creditCostPerQuestion       Int?
   revealAtAnswerCount         Int?
   imageUrl                    String?
   createdAt                   DateTime                      @default(now())
@@ -195,6 +197,8 @@ model FungibleAssetTransactionLog {
   questionId Int?
   deck       Deck?              @relation(fields: [deckId], references: [id])
   deckId     Int?
+  mysteryBoxPrize   MysteryBoxPrize?         @relation(fields: [mysteryBoxPrizeId], references: [id])
+  mysteryBoxPrizeId String? @unique
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
@@ -276,6 +280,7 @@ model MysteryBoxPrize {
   claimedAt         DateTime?
   mysteryBox        MysteryBox      @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId      String
+  fungibleAssetTransactionLog FungibleAssetTransactionLog?
 
   @@unique([mysteryBoxId, tokenAddress])
 }
@@ -298,6 +303,7 @@ enum EBoxTriggerType {
   ClaimAllCompleted
   DailyDeckCompleted
   ChompmasStreakAttained
+  TutorialCompleted
 }
 
 enum EBoxPrizeStatus {
@@ -329,6 +335,7 @@ enum Token {
 
 enum FungibleAsset {
   Point
+  Credit
 }
 
 enum TransactionLogType {
@@ -339,6 +346,7 @@ enum TransactionLogType {
   AnswerQuestion
   ConnectX
   ConnectTelegram
+  MysteryBox
 }
 
 enum ResultType {
