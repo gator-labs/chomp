@@ -54,3 +54,8 @@ storybook-static
 
 # Sentry Config File
 .env.sentry-build-plugin
+# TypeScript compiled output
+/app/**/*.js
+/lib/**/*.js
+!next.config.js
+!jest.config.js
