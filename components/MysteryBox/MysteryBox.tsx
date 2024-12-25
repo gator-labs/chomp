@@ -181,7 +181,6 @@ function MysteryBox({
 
     if (closeBoxDialog) closeBoxDialog();
 
-    revalidateApplication();
     router.push("/application");
   };
 
