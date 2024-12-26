@@ -42,7 +42,7 @@ export async function getStack(id: number) {
 
   const userId = jwt?.sub;
 
-  return prisma.stack.findUnique({
+  const stack = await prisma.stack.findUnique({
     where: {
       id,
     },
@@ -71,9 +71,39 @@ export async function getStack(id: number) {
             },
           },
         },
+        orderBy: [{ revealAtDate: "desc" }],
       },
     },
   });
+
+  if (stack === null) {
+    return null;
+  }
+
+  const filterdDecks = stack?.deck.sort((a, b) => {
+    const currentDate = new Date();
+    if (a.revealAtDate && new Date(a.revealAtDate) < currentDate) return 1;
+    const activeFromDateA = new Date(a.activeFromDate);
+    const activeFromDateB = new Date(b.activeFromDate);
+
+    const isPastA = activeFromDateA < currentDate;
+    const isPastB = activeFromDateB < currentDate;
+
+    if (isPastA && !isPastB) return -1;
+    if (!isPastA && isPastB) return 1;
+    if (isPastA && isPastB)
+      return activeFromDateB.getTime() - activeFromDateA.getTime();
+    return activeFromDateA.getTime() - activeFromDateB.getTime();
+  });
+
+  return {
+    id: stack.id,
+    name: stack.name,
+    isActive: stack.isActive,
+    isVisible: stack.isVisible,
+    image: stack.image,
+    deck: filterdDecks,
+  };
 }
 
 export async function getStackImage(id: number) {
