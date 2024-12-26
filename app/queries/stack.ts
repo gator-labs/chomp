@@ -42,7 +42,7 @@ export async function getStack(id: number) {
 
   const userId = jwt?.sub;
 
-  return prisma.stack.findUnique({
+  const stack = await prisma.stack.findUnique({
     where: {
       id,
     },
@@ -71,9 +71,59 @@ export async function getStack(id: number) {
             },
           },
         },
+        orderBy: [{ revealAtDate: "desc" }],
       },
     },
   });
+
+  if (stack === null) {
+    return null;
+  }
+
+  const filteredDecks = stack.deck.sort((a, b) => {
+    const currentDate = new Date();
+
+    // Handle null dates by treating them as future dates
+    if (!a.revealAtDate && !b.revealAtDate) return 0;
+    if (!a.revealAtDate) return -1;
+    if (!b.revealAtDate) return 1;
+
+    const revealDateA = new Date(a.revealAtDate);
+    const revealDateB = new Date(b.revealAtDate);
+
+    // If either deck is past reveal date, sort it later
+    if (revealDateA < currentDate && revealDateB >= currentDate) return 1;
+    if (revealDateB < currentDate && revealDateA >= currentDate) return -1;
+
+    // For decks with same reveal date status, sort by activeFromDate
+    const activeFromDateA = a.activeFromDate
+      ? new Date(a.activeFromDate)
+      : new Date();
+    const activeFromDateB = b.activeFromDate
+      ? new Date(b.activeFromDate)
+      : new Date();
+
+    const isPastA = activeFromDateA < currentDate;
+    const isPastB = activeFromDateB < currentDate;
+
+    if (isPastA && !isPastB) return -1;
+    if (!isPastA && isPastB) return 1;
+
+    // For decks with same active status, sort by activeFromDate
+    if (isPastA && isPastB) {
+      return activeFromDateB.getTime() - activeFromDateA.getTime();
+    }
+    return activeFromDateA.getTime() - activeFromDateB.getTime();
+  });
+
+  return {
+    id: stack.id,
+    name: stack.name,
+    isActive: stack.isActive,
+    isVisible: stack.isVisible,
+    image: stack.image,
+    deck: filteredDecks,
+  };
 }
 
 export async function getStackImage(id: number) {
