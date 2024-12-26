@@ -112,7 +112,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       },
     },
   });
-
   if (!deck) {
     return null;
   }
@@ -144,6 +143,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       name: deck.deck,
       totalDeckQuestions,
       revealAtDate: deck.revealAtDate,
+      creditsCost: deck.creditCostPerQuestion,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -157,6 +157,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       revealAtDate: deck.revealAtDate,
       stackId: deck.stackId,
       totalDeckQuestions,
+      creditsCost: deck.creditCostPerQuestion,
       deckInfo: {
         heading: deck.heading || deck.deck,
         description: deck.description,
@@ -173,6 +174,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     id: deck.id,
     date: deck.date,
     stackId: deck.stackId,
+    creditsCost: deck.creditCostPerQuestion,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,

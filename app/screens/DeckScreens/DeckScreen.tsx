@@ -25,6 +25,8 @@ type DeckScreenProps = {
   stackImage: string;
   nextDeckId?: number;
   numberOfUserAnswers: number;
+  totalCredits: number;
+  deckCost: number | null;
 };
 
 const DeckScreen = ({
@@ -34,6 +36,8 @@ const DeckScreen = ({
   nextDeckId,
   stackImage,
   numberOfUserAnswers,
+  totalCredits,
+  deckCost,
 }: DeckScreenProps) => {
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
@@ -44,10 +48,25 @@ const DeckScreen = ({
   const router = useRouter();
   const pathname = usePathname();
 
+  const CREDIT_COST_FEATURE_FLAG =
+    process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
   return (
     <>
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
+          {CREDIT_COST_FEATURE_FLAG && (
+            <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 p-2 w-fit">
+              {totalCredits > (deckCost ?? 0) ? (
+                <span className="opacity-50">Balance </span>
+              ) : (
+                <span className="opacity-50 text-chomp-red-dark">
+                  Balance Low{" "}
+                </span>
+              )}
+              {totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}
+            </div>
+          )}
           <Stepper
             numberOfSteps={questions.length}
             activeStep={-1}

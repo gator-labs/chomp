@@ -2,7 +2,7 @@ import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
 import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
-import { getNextDeckId } from "@/app/queries/home";
+import { getNextDeckId, getUserTotalCreditAmount } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 
@@ -20,6 +20,7 @@ export default async function Page({ params: { id } }: PageProps) {
 
   const nextDeckId = await getNextDeckId(currentDeckId, stackId);
 
+  const totalCredits = await getUserTotalCreditAmount();
   return (
     <div className="h-full pt-3 pb-4">
       {deck === null ? (
@@ -46,6 +47,8 @@ export default async function Page({ params: { id } }: PageProps) {
             totalNumberOfQuestions: deck.questions.length,
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
+          totalCredits={totalCredits}
+          deckCost={deck?.creditsCost}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
