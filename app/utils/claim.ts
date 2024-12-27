@@ -1,11 +1,11 @@
 "use server";
 
-import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
+  TOKEN_PROGRAM_ID,
+  createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getAssociatedTokenAddress,
-  getOrCreateAssociatedTokenAccount,
 } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
@@ -15,21 +15,17 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
-import pRetry from "p-retry";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
-import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { CONNECTION } from "./solana";
 
-export const sendBonk = async (
-  toWallet: PublicKey,
-  amount: number,
-  chompResults?: ChompResult[],
-  questionIds?: number[],
-) => {
+export const sendBonk = async (toWallet: PublicKey, amount: number) => {
+  const payload = await getJwtPayload();
+
+  if (!payload) return null;
   const fromWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -71,31 +67,40 @@ export const sendBonk = async (
 
   const bonkMint = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
-  const fromTokenAccount = await getAssociatedTokenAddress(
+  const treasuryATA = await getAssociatedTokenAddress(
     bonkMint,
     fromWallet.publicKey,
   );
 
-  // It will create bonk mint account for the destination wallet if doesn't exist
-  const destinationAccount = await getOrCreateAssociatedTokenAccount(
-    CONNECTION,
-    fromWallet,
-    bonkMint,
-    toWallet,
-  );
+  const receiverATA = await getAssociatedTokenAddress(bonkMint, toWallet);
 
-  const instruction = createTransferInstruction(
-    fromTokenAccount,
-    destinationAccount.address,
-    fromWallet.publicKey,
-    amount,
-  );
+  const receiverAccountInfo = await CONNECTION.getAccountInfo(receiverATA);
 
   const instructions = [];
 
-  instructions.push(instruction);
+  // If token mint account doesn't exist for the user create a mint account
+  if (!receiverAccountInfo) {
+    const ataInstruction = createAssociatedTokenAccountInstruction(
+      fromWallet.publicKey,
+      receiverATA,
+      toWallet,
+      bonkMint,
+    );
+    instructions.push(ataInstruction);
+  }
 
-  let blockhashResponse = await CONNECTION.getLatestBlockhash();
+  const transferInstruction = createTransferInstruction(
+    treasuryATA,
+    receiverATA,
+    fromWallet.publicKey,
+    amount,
+    [],
+    TOKEN_PROGRAM_ID,
+  );
+
+  instructions.push(transferInstruction);
+
+  let blockhashResponse = await CONNECTION.getLatestBlockhash("confirmed");
 
   const v0message = new TransactionMessage({
     payerKey: fromWallet.publicKey,
@@ -120,16 +125,16 @@ export const sendBonk = async (
   instructions.unshift(computeBudgetIx);
 
   //refered from past transaction
-  const computeUnitFix = 4794;
-  // Buffer to make sure the transaction doesn't fail because of less compute units
-  const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
-    units: Math.round(computeUnitFix * 1.1),
-  });
+  // const computeUnitFix = 4794;
+  // // Buffer to make sure the transaction doesn't fail because of less compute units
+  // const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
+  //   units: Math.round(computeUnitFix * 1.1),
+  // });
 
   // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
-  instructions.unshift(computeUnitsIx);
+  // instructions.unshift(computeUnitsIx);
 
-  blockhashResponse = await CONNECTION.getLatestBlockhash();
+  blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
 
   const v0updatedMessage = new TransactionMessage({
     payerKey: fromWallet.publicKey,
@@ -149,46 +154,5 @@ export const sendBonk = async (
       maxRetries: 10,
     },
   );
-
-  const payload = await getJwtPayload();
-
-  try {
-    await pRetry(
-      async () => {
-        const currentBlockhash = await CONNECTION.getLatestBlockhash();
-        await CONNECTION.confirmTransaction(
-          {
-            signature,
-            ...currentBlockhash,
-          },
-          "confirmed",
-        );
-      },
-      {
-        retries: 1,
-        onFailedAttempt: (error) => {
-          console.log(
-            `Attempt ${error.attemptNumber} failed. ${error.retriesLeft} retries left.`,
-          );
-        },
-      },
-    );
-  } catch {
-    Sentry.captureException(
-      `User with id: ${payload?.sub} and address: ${toWallet} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
-      {
-        level: "fatal",
-        tags: {
-          category: "claim-tx-confirmation-error",
-        },
-        extra: {
-          chompResults: chompResults?.map((r) => r.id),
-          transactionHash: signature,
-        },
-      },
-    );
-  }
-  await Sentry.flush(SENTRY_FLUSH_WAIT);
-
   return signature;
 };

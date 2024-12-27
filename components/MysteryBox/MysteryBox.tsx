@@ -116,7 +116,7 @@ function MysteryBox({
       setBox(newBox);
 
       if (newBox) {
-        openMysteryBox(mysteryBoxId, isDismissed)
+        await openMysteryBox(mysteryBoxId, isDismissed)
           .then(() => {
             successToast("Your prizes are on the way!");
           })
