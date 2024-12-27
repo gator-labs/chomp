@@ -56,11 +56,11 @@ const DeckScreen = ({
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
           {CREDIT_COST_FEATURE_FLAG && (
-            <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 p-2 w-fit">
+            <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
               {totalCredits > (deckCost ?? 0) ? (
-                <span className="opacity-50">Balance </span>
+                <span className="opacity-60">Balance </span>
               ) : (
-                <span className="opacity-50 text-chomp-red-dark">
+                <span className="opacity-60 text-chomp-red-dark">
                   Balance Low{" "}
                 </span>
               )}
@@ -78,6 +78,7 @@ const DeckScreen = ({
               {...deckInfo}
               stackImage={stackImage}
               totalNumberOfQuestions={questions.length}
+              deckCost={deckCost}
             />
           )}
           <div className="flex flex-col gap-4 py-4">
