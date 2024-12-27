@@ -70,7 +70,7 @@ const PreviewDeckCard = ({
         {CREDIT_COST_FEATURE_FLAG && (
           <div className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50">
             <span className="opacity-50 pr-1">Entry </span>
-            {deckCost ?? 0} Credit{deckCost !== 1 && "s"}
+            {deckCost ? `${deckCost} Credit${deckCost !== 1 && "s"}` : "Free"}
             <button onClick={() => setIsOpen(true)}>
               <InfoIcon fill="#0d0d0d" />
             </button>
