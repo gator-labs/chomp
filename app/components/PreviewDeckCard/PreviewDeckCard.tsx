@@ -20,7 +20,7 @@ type PreviewDeckCardProps = {
 };
 
 const CREDIT_COST_FEATURE_FLAG =
-  process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION;
+  process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
 const PreviewDeckCard = ({
   className,
