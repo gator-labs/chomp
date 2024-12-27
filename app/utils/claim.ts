@@ -9,6 +9,7 @@ import {
 } from "@solana/spl-token";
 import {
   ComputeBudgetProgram,
+  Connection,
   Keypair,
   PublicKey,
   TransactionMessage,
@@ -24,16 +25,139 @@ import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { CONNECTION } from "./solana";
 
+export class BonkTransactionError extends Error {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+  ) {
+    super(message);
+    this.name = "BonkTransactionError";
+  }
+}
+
+export class InsufficientFundsError extends BonkTransactionError {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+  ) {
+    super(message, cause);
+    this.name = "InsufficientFundsError";
+  }
+}
+
+export class TokenAccountError extends BonkTransactionError {
+  constructor(
+    message: string,
+    public readonly cause?: unknown,
+  ) {
+    super(message, cause);
+    this.name = "TokenAccountError";
+  }
+}
+
+/**
+ * Gets or creates an associated token account for the destination wallet
+ * @param connection - The Solana connection instance
+ * @param fromWallet - The wallet that will pay for account creation (usually treasury)
+ * @param bonkMint - The BONK token mint public key
+ * @param toWalletPubkey - The destination wallet's public key
+ * @returns The associated token account info
+ * @throws {Error} If account creation fails or there are insufficient funds
+ */
+export async function getDestinationSplAccount(
+  connection: Connection,
+  fromWallet: Keypair,
+  bonkMint: PublicKey,
+  toWalletPubkey: PublicKey,
+) {
+  try {
+    return await getOrCreateAssociatedTokenAccount(
+      connection,
+      fromWallet,
+      bonkMint,
+      toWalletPubkey,
+    );
+  } catch (error: any) {
+    // Check for specific error types
+    if (error.message?.includes("insufficient funds")) {
+      const insufficientFundsError = new InsufficientFundsError(
+        `Insufficient funds to create token account for ${toWalletPubkey.toString()}`,
+        error,
+      );
+      Sentry.captureException(insufficientFundsError, {
+        level: "error",
+        tags: {
+          category: "token-account-creation-error",
+          errorType: "insufficient-funds",
+        },
+        extra: {
+          fromWallet: fromWallet.publicKey.toString(),
+          toWallet: toWalletPubkey.toString(),
+          bonkMint: bonkMint.toString(),
+        },
+      });
+      throw insufficientFundsError;
+    }
+
+    // Handle invalid account data errors
+    if (error.message?.includes("invalid account data")) {
+      const tokenAccountError = new TokenAccountError(
+        `Invalid token account data for ${toWalletPubkey.toString()}`,
+        error,
+      );
+      Sentry.captureException(tokenAccountError, {
+        level: "error",
+        tags: {
+          category: "token-account-creation-error",
+          errorType: "invalid-account-data",
+        },
+        extra: {
+          fromWallet: fromWallet.publicKey.toString(),
+          toWallet: toWalletPubkey.toString(),
+          bonkMint: bonkMint.toString(),
+        },
+      });
+      throw tokenAccountError;
+    }
+
+    // Generic token account error
+    const genericError = new TokenAccountError(
+      `Failed to get/create associated token account for wallet ${toWalletPubkey.toString()}`,
+      error,
+    );
+    Sentry.captureException(genericError, {
+      level: "error",
+      tags: {
+        category: "token-account-creation-error",
+        errorType: "unknown",
+      },
+      extra: {
+        error: error.message,
+        fromWallet: fromWallet.publicKey.toString(),
+        toWallet: toWalletPubkey.toString(),
+        bonkMint: bonkMint.toString(),
+      },
+    });
+    throw genericError;
+  }
+}
+
+export function getTreasuryWallet(): Keypair {
+  if (!process.env.CHOMP_TREASURY_PRIVATE_KEY) {
+    throw new Error("Missing treasury key");
+  }
+  return Keypair.fromSecretKey(
+    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY),
+  );
+}
+
 export const sendBonk = async (
   toWallet: PublicKey,
   amount: number,
   chompResults?: ChompResult[],
   questionIds?: number[],
 ) => {
-  const fromWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
-  );
-
+  const fromWallet = getTreasuryWallet();
   const treasuryAddress = fromWallet.publicKey.toString();
 
   const treasurySolBalance = await getSolBalance(treasuryAddress);
@@ -76,8 +200,8 @@ export const sendBonk = async (
     fromWallet.publicKey,
   );
 
-  // It will create bonk mint account for the destination wallet if doesn't exist
-  const destinationAccount = await getOrCreateAssociatedTokenAccount(
+  // Get or create the destination token account
+  const destinationAccount = await getDestinationSplAccount(
     CONNECTION,
     fromWallet,
     bonkMint,
@@ -173,20 +297,45 @@ export const sendBonk = async (
         },
       },
     );
-  } catch {
-    Sentry.captureException(
-      `User with id: ${payload?.sub} and address: ${toWallet} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
-      {
-        level: "fatal",
-        tags: {
-          category: "claim-tx-confirmation-error",
-        },
-        extra: {
-          chompResults: chompResults?.map((r) => r.id),
-          transactionHash: signature,
-        },
+  } catch (error: any) {
+    // Check for specific transaction error types
+    let txError;
+
+    if (error.message?.includes("insufficient funds")) {
+      txError = new InsufficientFundsError(
+        `Insufficient funds for transaction from ${treasuryAddress} to ${toWallet}`,
+        error,
+      );
+    } else if (error.message?.includes("unable to locate this tx")) {
+      txError = new BonkTransactionError(
+        `Transaction ${signature} not found on chain`,
+        error,
+      );
+    } else {
+      txError = new BonkTransactionError(
+        `Transaction confirmation failed for ${signature}`,
+        error,
+      );
+    }
+
+    Sentry.captureException(txError, {
+      level: "fatal",
+      tags: {
+        category: "claim-tx-confirmation-error",
+        errorType: txError.name.toLowerCase(),
       },
-    );
+      extra: {
+        userId: payload?.sub,
+        userAddress: toWallet.toString(),
+        questionIds,
+        chompResults: chompResults?.map((r) => r.id),
+        transactionHash: signature,
+        amount,
+        error: error.message,
+      },
+    });
+
+    throw txError;
   }
   await Sentry.flush(SENTRY_FLUSH_WAIT);
 
