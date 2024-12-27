@@ -22,6 +22,7 @@ type DeckScreenProps = {
   numberOfUserAnswers: number;
   totalCredits: number;
   deckCost: number | null;
+  freeExpiringDeckId: number | null;
 };
 
 const DeckScreen = ({
@@ -33,6 +34,7 @@ const DeckScreen = ({
   numberOfUserAnswers,
   totalCredits,
   deckCost,
+  freeExpiringDeckId,
 }: DeckScreenProps) => {
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
@@ -79,6 +81,7 @@ const DeckScreen = ({
             setIsDeckStarted={setIsDeckStarted}
             totalCredits={totalCredits}
             deckCost={deckCost ?? 0}
+            freeExpiringDeckId={freeExpiringDeckId}
           />
         </div>
       ) : (

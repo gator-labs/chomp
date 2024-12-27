@@ -346,3 +346,49 @@ export async function getDeckSchema(id: number) {
     })),
   };
 }
+
+export async function getCreditFreeDeckId() {
+  const payload = await getJwtPayload();
+
+  if (!payload?.sub) return null;
+
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
+  const freeExpiringDeckId = await prisma.deck.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      creditCostPerQuestion: 0,
+      revealAtDate: { gt: new Date() },
+      AND: [
+        {
+          OR: [
+            { activeFromDate: { lte: new Date() } },
+            { activeFromDate: null },
+          ],
+        },
+        { date: { gte: currentDayStart, lte: currentDayEnd } },
+      ],
+      deckQuestions: {
+        some: {
+          question: {
+            questionOptions: {
+              some: {
+                questionAnswers: {
+                  none: {
+                    userId: payload.sub,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: [{ date: "asc" }, { revealAtDate: "asc" }],
+  });
+
+  return freeExpiringDeckId;
+}
