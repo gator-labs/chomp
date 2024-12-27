@@ -77,7 +77,7 @@ const DeckScreen = ({
           <DeckScreenAction
             currentDeckId={currentDeckId}
             setIsDeckStarted={setIsDeckStarted}
-            totalCredits={20}
+            totalCredits={totalCredits}
             deckCost={deckCost ?? 0}
           />
         </div>
