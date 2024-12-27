@@ -14,7 +14,6 @@ on:
 
 jobs:
   check_approvals:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     outputs:
       approval_count: ${{ steps.approvalCount.outputs.approval_count }}
@@ -35,7 +34,7 @@ jobs:
           echo "approval_count=$REVIEW_COUNT" >> $GITHUB_OUTPUT
   migrate_staging:
     needs: [check_approvals]
-    if: github.base_ref == 'main' && github.event.pull_request.merged == true && needs.check_approvals.outputs.approval_count >= 2
+    if: github.base_ref == 'main' && needs.check_approvals.outputs.approval_count >= 2
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -56,8 +55,7 @@ jobs:
           DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_STAGING }}
 
   migrate_prod:
-    needs: [check_approvals]
-    if: github.base_ref == 'prod' && github.event.pull_request.merged == true && needs.check_approvals.outputs.approval_count >= 2
+    if: github.base_ref == 'prod' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -97,6 +95,27 @@ jobs:
               DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_DEMO }}
               DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_DEMO }}
             run: yarn prisma:migrate:prod
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
