@@ -141,9 +141,11 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       questions: deck?.deckQuestions,
       id: deck.id,
       date: deck.date,
+      stackId: deck.stackId,
       name: deck.deck,
       totalDeckQuestions,
       revealAtDate: deck.revealAtDate,
+      activeFromDate: deck.activeFromDate,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -163,6 +165,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
         imageUrl: deck.imageUrl,
         footer: deck.footer,
       },
+      activeFromDate: deck.activeFromDate,
     };
   }
 
@@ -182,6 +185,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       imageUrl: deck.imageUrl,
       footer: deck.footer,
     },
+    activeFromDate: deck.activeFromDate,
   };
 }
 
