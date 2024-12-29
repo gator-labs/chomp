@@ -1,6 +1,6 @@
 import { deleteMysteryBoxes } from "@/__tests__/actions/mystery-box.test";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { getUsersTotalCreditAmount } from "@/app/queries/home";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import {
@@ -24,7 +24,7 @@ jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
 
-describe("getUsersTotalCreditAmount", () => {
+describe("getUserTotalCreditAmount", () => {
   const user1 = {
     id: uuidv4(),
   };
@@ -132,7 +132,7 @@ describe("getUsersTotalCreditAmount", () => {
 
   it("should return the total credit amount ", async () => {
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
-    const totalClaimedAmount = await getUsersTotalCreditAmount();
+    const totalClaimedAmount = await getUserTotalCreditAmount();
 
     expect(totalClaimedAmount).toBe(166);
   });

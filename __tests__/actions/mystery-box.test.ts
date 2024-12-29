@@ -3,7 +3,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
 import { openMysteryBox } from "@/app/actions/mysteryBox/open";
 import { revealMysteryBox } from "@/app/actions/mysteryBox/reveal";
-import { getUsersTotalCreditAmount } from "@/app/queries/home";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { rewardMysteryBox } from "@/lib/mysteryBox";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
@@ -190,6 +190,12 @@ describe("Create mystery box", () => {
     await prisma.user.deleteMany({
       where: {
         id: { in: [user0.id, user1.id] },
+      },
+    });
+
+    await prisma.mysteryBoxAllowlist.deleteMany({
+      where: {
+        address: { in: [user0.wallet, user1.wallet] },
       },
     });
   });
@@ -410,7 +416,7 @@ describe("Create mystery box", () => {
     expect(box?.status).toBe(EMysteryBoxStatus.Opened);
     expect(box?.MysteryBoxPrize[0].status).toBe(EBoxPrizeStatus.Claimed);
 
-    const credits = await getUsersTotalCreditAmount();
+    const credits = await getUserTotalCreditAmount();
 
     expect(credits).toEqual(560);
   });

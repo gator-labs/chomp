@@ -381,13 +381,37 @@ async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
  *
  * @returns The total credit amount claimed by the user.
  */
-export async function getUsersTotalCreditAmount() {
+export async function getUserTotalCreditAmount() {
   const payload = await getJwtPayload();
   const userId = payload?.sub;
 
   const res = await prisma.fungibleAssetTransactionLog.aggregate({
     where: {
       asset: FungibleAsset.Credit,
+      userId,
+    },
+    _sum: {
+      change: true,
+    },
+  });
+
+  if (!res?._sum?.change) return 0;
+
+  return res._sum.change.toNumber();
+}
+
+/**
+ * Retrieves the total points amount gained by the user.
+ *
+ * @returns The total points amount claimed by the user.
+ */
+export async function getUserTotalPoints() {
+  const payload = await getJwtPayload();
+  const userId = payload?.sub;
+
+  const res = await prisma.fungibleAssetTransactionLog.aggregate({
+    where: {
+      asset: FungibleAsset.Point,
       userId,
     },
     _sum: {
