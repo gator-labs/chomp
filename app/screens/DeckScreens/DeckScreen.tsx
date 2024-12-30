@@ -50,7 +50,7 @@ const DeckScreen = ({
     <>
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
-          {CREDIT_COST_FEATURE_FLAG && deckCost ? (
+          {CREDIT_COST_FEATURE_FLAG && deckCost !== null ? (
             <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
               {totalCredits > deckCost ? (
                 <span className="opacity-50">Balance </span>

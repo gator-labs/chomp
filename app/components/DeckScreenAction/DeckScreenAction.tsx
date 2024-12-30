@@ -43,7 +43,10 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={() => {
-          if ((hasEnoughCredits && deckCost) || !CREDIT_COST_FEATURE_FLAG) {
+          if (
+            (hasEnoughCredits && deckCost !== null) ||
+            !CREDIT_COST_FEATURE_FLAG
+          ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
               [TRACKING_METADATA.DECK_ID]: currentDeckId,
               [TRACKING_METADATA.IS_DAILY_DECK]: false,
@@ -54,7 +57,7 @@ const DeckScreenAction = ({
           }
         }}
       >
-        {CREDIT_COST_FEATURE_FLAG && !hasEnoughCredits && deckCost
+        {CREDIT_COST_FEATURE_FLAG && !hasEnoughCredits && deckCost !== null
           ? `Buy ${creditsRequired} Credits`
           : "Begin Deck"}
         <CircleArrowRight />
@@ -66,7 +69,7 @@ const DeckScreenAction = ({
             CREDIT_COST_FEATURE_FLAG &&
             freeExpiringDeckId &&
             !isCurrentDeckFree &&
-            deckCost
+            deckCost !== null
           ) {
             router.replace(`/application/decks/${freeExpiringDeckId}`);
             router.refresh();
@@ -81,7 +84,7 @@ const DeckScreenAction = ({
         {CREDIT_COST_FEATURE_FLAG &&
         freeExpiringDeckId &&
         !isCurrentDeckFree &&
-        deckCost ? (
+        deckCost !== null ? (
           <span className="flex items-center gap-2">
             Random Free Deck <Dice5Icon />
           </span>
