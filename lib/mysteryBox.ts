@@ -13,9 +13,7 @@ import {
   EMysteryBoxStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import { Keypair } from "@solana/web3.js";
 import { PublicKey } from "@solana/web3.js";
-import base58 from "bs58";
 import "server-only";
 
 import { UserAllowlistError } from "./error";
@@ -48,13 +46,8 @@ export async function sendBonkFromTreasury(
   rewardAmount: number,
   address: string,
 ) {
-  const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
-  );
-
   if (rewardAmount > 0) {
     const sendTx = await sendBonk(
-      treasuryWallet,
       new PublicKey(address),
       Math.round(rewardAmount * 10 ** 5),
     );
