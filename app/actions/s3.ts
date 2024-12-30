@@ -30,7 +30,7 @@ export async function getPreSignedURL({
   if (!allowedFileTypes.includes(fileType))
     throw new Error("Invalid file type");
 
-  if (fileSize > maxFileSize) throw new Error("Max file size is 1MB");
+  if (fileSize > maxFileSize) throw new Error("Max file size is 3MB");
 
   const putObjectCommand = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME!,

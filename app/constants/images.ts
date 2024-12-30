@@ -1,4 +1,5 @@
-export const MAX_IMAGE_UPLOAD_SIZE = 1 * 1024 * 1024; // 1MB in bytes
+export const MAX_IMAGE_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB in bytes
+export const MAX_IMAGE_UPLOAD_SIZE_IN_MB = 3;
 export const IMAGE_VALID_TYPES = [
   "image/jpeg",
   "image/png",
