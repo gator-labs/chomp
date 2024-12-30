@@ -1,7 +1,11 @@
 import { QuestionType, Token } from "@prisma/client";
 import { z } from "zod";
 
-import { IMAGE_VALID_TYPES, MAX_IMAGE_UPLOAD_SIZE } from "../constants/images";
+import {
+  IMAGE_VALID_TYPES,
+  MAX_IMAGE_UPLOAD_SIZE,
+  MAX_IMAGE_UPLOAD_SIZE_IN_MB,
+} from "../constants/images";
 
 export const deckSchema = z
   .object({
@@ -16,7 +20,7 @@ export const deckSchema = z
           return files[0].size <= MAX_IMAGE_UPLOAD_SIZE;
         }
         return true;
-      }, "Max image size is 1MB.")
+      }, `Max image size allowed is ${MAX_IMAGE_UPLOAD_SIZE_IN_MB}MB.`)
       .refine((files) => {
         if (files && files.length > 0) {
           return IMAGE_VALID_TYPES.includes(files[0].type);
@@ -71,7 +75,7 @@ export const deckSchema = z
               return files[0].size <= MAX_IMAGE_UPLOAD_SIZE;
             }
             return true;
-          }, "Max image size is 1MB.")
+          }, `Max image size allowed is ${MAX_IMAGE_UPLOAD_SIZE_IN_MB}MB.`)
           .refine((files) => {
             if (files && files.length > 0) {
               return IMAGE_VALID_TYPES.includes(files[0].type);

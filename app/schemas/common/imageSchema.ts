@@ -4,6 +4,7 @@ import {
   IMAGE_ACTION,
   IMAGE_VALID_TYPES,
   MAX_IMAGE_UPLOAD_SIZE,
+  MAX_IMAGE_UPLOAD_SIZE_IN_MB,
 } from "../../constants/images";
 
 export const imageSchemaServer = z
@@ -15,7 +16,7 @@ export const imageSchemaServer = z
   )
   .refine(
     (file) => file?.size <= MAX_IMAGE_UPLOAD_SIZE,
-    "Max file size allowed is 1MB.",
+    `Max file size allowed is ${MAX_IMAGE_UPLOAD_SIZE_IN_MB}MB.`,
   );
 
 export const imageSchemaServerOptional = z
@@ -35,7 +36,7 @@ export const imageSchemaServerOptional = z
     if (file === "undefined" || file === IMAGE_ACTION.REMOVE_IMAGE) return true;
 
     return file?.size <= MAX_IMAGE_UPLOAD_SIZE;
-  }, "Max file size allowed is 1MB.");
+  }, `Max file size allowed is ${MAX_IMAGE_UPLOAD_SIZE_IN_MB}MB.`);
 
 export const imageSchemaClient = z
   .any()
@@ -46,7 +47,7 @@ export const imageSchemaClient = z
   )
   .refine(
     (file) => file[0]?.size <= MAX_IMAGE_UPLOAD_SIZE,
-    "Max file size allowed is 1MB.",
+    `Max file size allowed is ${MAX_IMAGE_UPLOAD_SIZE_IN_MB}MB.`,
   );
 
 export const imageSchemaClientOptional = z
@@ -77,5 +78,5 @@ export const imageSchemaClientOptional = z
       }
       return file[0]?.size <= MAX_IMAGE_UPLOAD_SIZE;
     },
-    { message: "Max file size allowed is 1MB." },
+    { message: `Max file size allowed is ${MAX_IMAGE_UPLOAD_SIZE_IN_MB}MB.` },
   );
