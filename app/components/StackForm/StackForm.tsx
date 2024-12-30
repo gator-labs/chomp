@@ -6,8 +6,10 @@ import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Stack } from "@prisma/client";
 import Image from "next/image";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import Spinner from "../Spinner/Spinner";
 import { TextInput } from "../TextInput/TextInput";
 import { Button } from "../ui/button";
 
@@ -33,6 +35,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
       image: stack?.image || "",
     },
   });
+  const [isUploading, setIsUploading] = useState(false);
   const file = watch("file")?.[0];
 
   const previewUrl = !!file ? URL.createObjectURL(file) : stack?.image;
@@ -42,7 +45,14 @@ export default function StackForm({ stack, action }: StackFormProps) {
       onSubmit={handleSubmit(async (data) => {
         let imageUrl = stack?.image;
 
-        if (!!file) imageUrl = await uploadImageToS3Bucket(file);
+        if (!!file) {
+          setIsUploading(true);
+          try {
+            imageUrl = await uploadImageToS3Bucket(file);
+          } finally {
+            setIsUploading(false);
+          }
+        }
 
         if (action === "create") {
           await createStack({
@@ -110,8 +120,8 @@ export default function StackForm({ stack, action }: StackFormProps) {
 
         <div className="text-destructive">{errors.file?.message as string}</div>
       </div>
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Submitting" : "Submit"}
+      <Button type="submit" disabled={isSubmitting || isUploading}>
+        {isSubmitting || isUploading ? <Spinner /> : "Submit"}
       </Button>
     </form>
   );

@@ -15,6 +15,7 @@ import { z } from "zod";
 
 import { Button as OldButton } from "../Button/Button";
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
+import Spinner from "../Spinner/Spinner";
 import { Tag } from "../Tag/Tag";
 import { TextInput } from "../TextInput/TextInput";
 import { Button } from "../ui/button";
@@ -65,6 +66,10 @@ export default function DeckForm({
   });
 
   const [selectedTagIds, setSelectedTagIds] = useState(deck?.tagIds ?? []);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingQuestionIndex, setUploadingQuestionIndex] = useState<
+    number | null
+  >(null);
 
   const [previousDate, setPreviousDate] = useState<Date | undefined | null>(
     deck ? deck.date : undefined,
@@ -76,11 +81,16 @@ export default function DeckForm({
 
   const onSubmit = handleSubmit(async (data) => {
     const questions = await Promise.all(
-      data.questions.map(async (question) => {
+      data.questions.map(async (question, questionIndex) => {
         let imageUrl = question.imageUrl || "";
 
         if (question.file?.[0]) {
-          imageUrl = await uploadImageToS3Bucket(question.file[0]);
+          setUploadingQuestionIndex(questionIndex);
+          try {
+            imageUrl = await uploadImageToS3Bucket(question.file[0]);
+          } finally {
+            setUploadingQuestionIndex(null);
+          }
         }
 
         return {
@@ -94,7 +104,12 @@ export default function DeckForm({
     let imageUrl = deckPreviewUrl || "";
 
     if (data.file?.[0]) {
-      imageUrl = await uploadImageToS3Bucket(data.file[0]);
+      setIsUploading(true);
+      try {
+        imageUrl = await uploadImageToS3Bucket(data.file[0]);
+      } finally {
+        setIsUploading(false);
+      }
     }
 
     const result = await action({
@@ -550,8 +565,27 @@ export default function DeckForm({
           ))}
         </select>
       </div>
-      <Button type="submit" disabled={isSubmitting || isSubmitSuccessful}>
-        {isSubmitting ? "Submitting" : "Submit"}
+      <Button
+        type="submit"
+        disabled={
+          isSubmitting ||
+          isSubmitSuccessful ||
+          isUploading ||
+          uploadingQuestionIndex !== null
+        }
+      >
+        {isSubmitting || isUploading || uploadingQuestionIndex !== null ? (
+          <div className="flex items-center gap-2">
+            <Spinner />
+            {uploadingQuestionIndex !== null
+              ? `Uploading Question ${uploadingQuestionIndex + 1} Image...`
+              : isUploading
+                ? "Uploading Deck Image..."
+                : "Submitting..."}
+          </div>
+        ) : (
+          "Submit"
+        )}
       </Button>{" "}
     </form>
   );
