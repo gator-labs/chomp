@@ -50,10 +50,10 @@ const DeckScreen = ({
     <>
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
-          {CREDIT_COST_FEATURE_FLAG && (
+          {CREDIT_COST_FEATURE_FLAG && deckCost && (
             <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
-              {totalCredits > (deckCost ?? 0) ? (
-                <span className="opacity-60">Balance </span>
+              {totalCredits > deckCost ? (
+                <span className="opacity-50">Balance </span>
               ) : (
                 <span className="opacity-60 text-chomp-red-dark">
                   Balance Low{" "}
@@ -80,7 +80,7 @@ const DeckScreen = ({
             currentDeckId={currentDeckId}
             setIsDeckStarted={setIsDeckStarted}
             totalCredits={totalCredits}
-            deckCost={deckCost ?? 0}
+            deckCost={deckCost}
             freeExpiringDeckId={freeExpiringDeckId}
           />
         </div>

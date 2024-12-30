@@ -14,7 +14,7 @@ type DeckScreenActionProps = {
   currentDeckId: number;
   setIsDeckStarted: (isDeckStarted: boolean) => void;
   totalCredits: number;
-  deckCost: number;
+  deckCost: number | null;
   freeExpiringDeckId: number | null;
 };
 
@@ -32,8 +32,8 @@ const DeckScreenAction = ({
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const hasEnoughCredits = totalCredits >= deckCost;
-  const creditsRequired = deckCost - totalCredits;
+  const hasEnoughCredits = totalCredits >= (deckCost ?? 0);
+  const creditsRequired = (deckCost ?? 0) - totalCredits;
   const isCurrentDeckFree = deckCost === 0;
 
   const onClose = () => {
@@ -43,7 +43,7 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={() => {
-          if (hasEnoughCredits || !CREDIT_COST_FEATURE_FLAG) {
+          if ((hasEnoughCredits && deckCost) || !CREDIT_COST_FEATURE_FLAG) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
               [TRACKING_METADATA.DECK_ID]: currentDeckId,
               [TRACKING_METADATA.IS_DAILY_DECK]: false,
@@ -54,7 +54,7 @@ const DeckScreenAction = ({
           }
         }}
       >
-        {CREDIT_COST_FEATURE_FLAG && !hasEnoughCredits
+        {CREDIT_COST_FEATURE_FLAG && !hasEnoughCredits && deckCost
           ? `Buy ${creditsRequired} Credits`
           : "Begin Deck"}
         <CircleArrowRight />
@@ -65,7 +65,8 @@ const DeckScreenAction = ({
           if (
             CREDIT_COST_FEATURE_FLAG &&
             freeExpiringDeckId &&
-            !isCurrentDeckFree
+            !isCurrentDeckFree &&
+            deckCost
           ) {
             router.replace(`/application/decks/${freeExpiringDeckId}`);
             router.refresh();
@@ -79,7 +80,8 @@ const DeckScreenAction = ({
       >
         {CREDIT_COST_FEATURE_FLAG &&
         freeExpiringDeckId &&
-        !isCurrentDeckFree ? (
+        !isCurrentDeckFree &&
+        deckCost ? (
           <span className="flex items-center gap-2">
             Random Free Deck <Dice5Icon />
           </span>
