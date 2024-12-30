@@ -6,6 +6,7 @@ import { PublicKey } from "@solana/web3.js";
 
 export async function sendClaimedBonkFromTreasury(
   chompResults: ChompResult[],
+  questionIds: number[],
   address: string,
 ) {
   const tokenAmount = chompResults.reduce(
@@ -17,6 +18,8 @@ export async function sendClaimedBonkFromTreasury(
     const sendTx = await sendBonk(
       new PublicKey(address),
       Math.round(tokenAmount * 10 ** 5),
+      chompResults,
+      questionIds,
     );
     return sendTx;
   }
