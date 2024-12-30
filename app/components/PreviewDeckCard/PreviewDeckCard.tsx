@@ -67,7 +67,7 @@ const PreviewDeckCard = ({
             </p>
           </div>
         </div>
-        {CREDIT_COST_FEATURE_FLAG && deckCost && (
+        {CREDIT_COST_FEATURE_FLAG && deckCost ? (
           <button
             className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
             onClick={() => setIsOpen(true)}
@@ -78,7 +78,7 @@ const PreviewDeckCard = ({
               : "Free"}
             <InfoIcon fill="#0d0d0d" />
           </button>
-        )}
+        ) : null}
       </div>
       <Drawer
         open={isOpen}
