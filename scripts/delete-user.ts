@@ -119,7 +119,7 @@ async function main() {
       }
 
       console.log("✓ Deleted user from Dynamic");
-    } catch (error) {
+    } catch (error: any) {
       console.error(
         "Warning: Failed to delete user from Dynamic:",
         error.message,
