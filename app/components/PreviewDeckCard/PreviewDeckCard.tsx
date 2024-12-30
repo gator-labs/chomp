@@ -105,7 +105,7 @@ const PreviewDeckCard = ({
             <b>Free decks</b> are available to answer and reveal for results,
             but you will not be able to earn any BONK from that deck.
           </p>
-          <Button onClick={onClose} className="h-[50px] mt-2 font-bold">
+          <Button onClick={onClose} className="h-[50px] mt-6 font-bold">
             Close
           </Button>
         </DrawerContent>
