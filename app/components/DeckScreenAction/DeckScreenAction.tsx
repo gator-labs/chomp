@@ -3,7 +3,7 @@ import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
 import { CloseIcon } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import { CircleArrowRight } from "lucide-react";
+import { CircleArrowRight, Dice5Icon } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -15,6 +15,7 @@ type DeckScreenActionProps = {
   setIsDeckStarted: (isDeckStarted: boolean) => void;
   totalCredits: number;
   deckCost: number;
+  freeExpiringDeckId: number | null;
 };
 
 const CREDIT_COST_FEATURE_FLAG =
@@ -25,6 +26,7 @@ const DeckScreenAction = ({
   setIsDeckStarted,
   totalCredits,
   deckCost,
+  freeExpiringDeckId,
 }: DeckScreenActionProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -32,6 +34,7 @@ const DeckScreenAction = ({
 
   const hasEnoughCredits = totalCredits >= deckCost;
   const creditsRequired = deckCost - totalCredits;
+  const isCurrentDeckFree = deckCost === 0;
 
   const onClose = () => {
     setIsOpen(false);
@@ -59,13 +62,32 @@ const DeckScreenAction = ({
       <Button
         variant="outline"
         onClick={() => {
-          if (pathname.endsWith("answer"))
-            return router.replace("/application");
+          if (
+            CREDIT_COST_FEATURE_FLAG &&
+            freeExpiringDeckId &&
+            !isCurrentDeckFree
+          ) {
+            router.replace(`/application/decks/${freeExpiringDeckId}`);
+            router.refresh();
+          } else {
+            if (pathname.endsWith("answer"))
+              return router.replace("/application");
 
-          router.back();
+            router.back();
+          }
         }}
       >
-        {pathname.endsWith("answer") ? "Home" : "Back"}
+        {CREDIT_COST_FEATURE_FLAG &&
+        freeExpiringDeckId &&
+        !isCurrentDeckFree ? (
+          <span className="flex items-center gap-2">
+            Random Free Deck <Dice5Icon />
+          </span>
+        ) : pathname.endsWith("answer") ? (
+          "Home"
+        ) : (
+          "Back"
+        )}
       </Button>
       <Drawer
         open={isOpen}
