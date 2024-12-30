@@ -193,7 +193,6 @@ export async function claimQuestions(questionIds: number[]) {
     resultIds = chompResults.map((r) => r.id);
     sendTx = await sendClaimedBonkFromTreasury(
       chompResults,
-      questionIds,
       userWallet.address,
     );
 
@@ -202,7 +201,16 @@ export async function claimQuestions(questionIds: number[]) {
         `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for questions: ${questionIds}`,
         { cause: "Failed to send bonk" },
       );
-      Sentry.captureException(sendBonkError);
+      Sentry.captureException(sendBonkError, {
+        level: "fatal",
+        tags: {
+          category: "claim-tx-confirmation-error",
+        },
+        extra: {
+          chompResults: chompResults?.map((r) => r.id),
+          transactionHash: sendTx,
+        },
+      });
     }
 
     await prisma.$transaction(
