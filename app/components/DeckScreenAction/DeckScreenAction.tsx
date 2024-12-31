@@ -44,7 +44,9 @@ const DeckScreenAction = ({
       <Button
         onClick={() => {
           if (
-            (hasEnoughCredits && deckCost !== null) ||
+            deckCost === null ||
+            deckCost === 0 ||
+            (deckCost > 0 && hasEnoughCredits) ||
             !CREDIT_COST_FEATURE_FLAG
           ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
