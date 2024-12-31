@@ -11,6 +11,7 @@ import {
 } from "@/app/constants/mysteryBox";
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
+import { sleep } from "@/app/utils/sleep";
 import { cn } from "@/app/utils/tailwind";
 import revalidateApplication from "@/lib/actions";
 import trackEvent from "@/lib/trackEvent";
@@ -116,20 +117,19 @@ function MysteryBox({
       setBox(newBox);
 
       if (newBox) {
-        openMysteryBox(mysteryBoxId, isDismissed)
+        await openMysteryBox(mysteryBoxId, isDismissed)
           .then(() => {
             successToast("Your prizes are on the way!");
           })
           .catch(() => {
             errorToast("Failed to send prizes");
           });
+        await sleep(5000);
       }
     } catch {
       setBox(null);
     } finally {
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 3000);
+      setIsSubmitting(false);
     }
   };
 
