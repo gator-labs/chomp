@@ -44,8 +44,10 @@ const DeckScreenAction = ({
       <Button
         onClick={() => {
           if (
-            (hasEnoughCredits && deckCost !== null) ||
-            !CREDIT_COST_FEATURE_FLAG
+            deckCost === null || // Start deck if no cost
+            deckCost === 0 || // Start deck if free
+            (deckCost > 0 && hasEnoughCredits) || // Start deck if cost and enough credits
+            !CREDIT_COST_FEATURE_FLAG // Start deck if no cost feature flag
           ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
               [TRACKING_METADATA.DECK_ID]: currentDeckId,
