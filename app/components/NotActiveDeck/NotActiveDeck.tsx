@@ -19,6 +19,7 @@ type NotActiveDeckProps = {
   stackImage: string | undefined;
   totalNumberOfQuestions: number | undefined;
   activeFrom: Date | null;
+  deckCost: number | null;
 };
 
 const NotActiveDeck = ({
@@ -27,6 +28,7 @@ const NotActiveDeck = ({
   stackImage,
   totalNumberOfQuestions,
   activeFrom,
+  deckCost,
 }: NotActiveDeckProps) => {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState<string>("");
@@ -77,6 +79,7 @@ const NotActiveDeck = ({
   return (
     <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-full mx-auto pt-14 gap-2 items-between">
       <PreviewDeckCard
+        deckCost={deckCost}
         {...deckInfo}
         heading={deckName || ""}
         stackImage={stackImage || ""}

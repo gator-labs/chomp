@@ -2,8 +2,14 @@ import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
 import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
-import { getDeckQuestionsForAnswerById } from "@/app/queries/deck";
-import { getDecksForExpiringSection } from "@/app/queries/home";
+import {
+  getCreditFreeDeckId,
+  getDeckQuestionsForAnswerById,
+} from "@/app/queries/deck";
+import {
+  getDecksForExpiringSection,
+  getUserTotalCreditAmount,
+} from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 
@@ -17,6 +23,10 @@ export default async function Page() {
   const stackId = Number(deck?.stackId) || null;
 
   const stackData = stackId ? await getStackImage(stackId) : null;
+
+  const totalCredits = await getUserTotalCreditAmount();
+
+  const freeExpiringDeckId = await getCreditFreeDeckId();
 
   return (
     <div className="flex justify-center items-center h-full w-full">
@@ -47,6 +57,9 @@ export default async function Page() {
             totalNumberOfQuestions: deck.questions.length,
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
+          totalCredits={totalCredits}
+          deckCost={deck?.creditsCost}
+          freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />
@@ -57,6 +70,7 @@ export default async function Page() {
           stackImage={stackData?.image || ""}
           totalNumberOfQuestions={deck.totalDeckQuestions}
           activeFrom={deck.activeFromDate}
+          deckCost={deck?.creditsCost}
         />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />

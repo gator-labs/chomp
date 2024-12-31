@@ -3,6 +3,7 @@
 import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
+  createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getAssociatedTokenAddress,
 } from "@solana/spl-token";
@@ -24,17 +25,19 @@ import { getBonkBalance, getSolBalance } from "../utils/solana";
 import { CONNECTION } from "./solana";
 
 export const sendBonk = async (
-  fromWallet: Keypair,
   toWallet: PublicKey,
   amount: number,
   chompResults?: ChompResult[],
   questionIds?: number[],
 ) => {
-  const treasuryWallet = Keypair.fromSecretKey(
+  const payload = await getJwtPayload();
+
+  if (!payload) return null;
+  const fromWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
 
-  const treasuryAddress = treasuryWallet.publicKey.toString();
+  const treasuryAddress = fromWallet.publicKey.toString();
 
   const treasurySolBalance = await getSolBalance(treasuryAddress);
   const treasuryBonkBalance = await getBonkBalance(treasuryAddress);
@@ -71,24 +74,43 @@ export const sendBonk = async (
 
   const bonkMint = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
-  const fromTokenAccount = await getAssociatedTokenAddress(
+  const treasuryAssociatedAddress = await getAssociatedTokenAddress(
     bonkMint,
     fromWallet.publicKey,
   );
-  const toTokenAccount = await getAssociatedTokenAddress(bonkMint, toWallet);
 
-  const instruction = createTransferInstruction(
-    fromTokenAccount,
-    toTokenAccount,
-    fromWallet.publicKey,
-    amount,
+  const receiverAssociatedAddress = await getAssociatedTokenAddress(
+    bonkMint,
+    toWallet,
+  );
+
+  const receiverAccountInfo = await CONNECTION.getAccountInfo(
+    receiverAssociatedAddress,
   );
 
   const instructions = [];
 
-  instructions.push(instruction);
+  // If token mint account doesn't exist for the user create a mint account
+  if (!receiverAccountInfo) {
+    const ataInstruction = createAssociatedTokenAccountInstruction(
+      fromWallet.publicKey,
+      receiverAssociatedAddress,
+      toWallet,
+      bonkMint,
+    );
+    instructions.push(ataInstruction);
+  }
 
-  let blockhashResponse = await CONNECTION.getLatestBlockhash();
+  const transferInstruction = createTransferInstruction(
+    treasuryAssociatedAddress,
+    receiverAssociatedAddress,
+    fromWallet.publicKey,
+    amount,
+  );
+
+  instructions.push(transferInstruction);
+
+  let blockhashResponse = await CONNECTION.getLatestBlockhash("confirmed");
 
   const v0message = new TransactionMessage({
     payerKey: fromWallet.publicKey,
@@ -112,17 +134,7 @@ export const sendBonk = async (
   // update the instructions with compute budget instruction.
   instructions.unshift(computeBudgetIx);
 
-  //refered from past transaction
-  const computeUnitFix = 4794;
-  // Buffer to make sure the transaction doesn't fail because of less compute units
-  const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
-    units: Math.round(computeUnitFix * 1.1),
-  });
-
-  // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
-  instructions.unshift(computeUnitsIx);
-
-  blockhashResponse = await CONNECTION.getLatestBlockhash();
+  blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
 
   const v0updatedMessage = new TransactionMessage({
     payerKey: fromWallet.publicKey,
@@ -142,8 +154,6 @@ export const sendBonk = async (
       maxRetries: 10,
     },
   );
-
-  const payload = await getJwtPayload();
 
   try {
     await pRetry(

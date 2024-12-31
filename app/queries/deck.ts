@@ -112,7 +112,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       },
     },
   });
-
   if (!deck) {
     return null;
   }
@@ -146,6 +145,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       totalDeckQuestions,
       revealAtDate: deck.revealAtDate,
       activeFromDate: deck.activeFromDate,
+      creditsCost: deck.creditCostPerQuestion,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -159,6 +159,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       revealAtDate: deck.revealAtDate,
       stackId: deck.stackId,
       totalDeckQuestions,
+      creditsCost: deck.creditCostPerQuestion,
       deckInfo: {
         heading: deck.heading || deck.deck,
         description: deck.description,
@@ -176,6 +177,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     id: deck.id,
     date: deck.date,
     stackId: deck.stackId,
+    creditsCost: deck.creditCostPerQuestion,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
@@ -347,4 +349,50 @@ export async function getDeckSchema(id: number) {
       questionTags: undefined,
     })),
   };
+}
+
+export async function getCreditFreeDeckId() {
+  const payload = await getJwtPayload();
+
+  if (!payload?.sub) return null;
+
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
+  const freeExpiringDeckId = await prisma.deck.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      creditCostPerQuestion: 0,
+      revealAtDate: { gt: new Date() },
+      AND: [
+        {
+          OR: [
+            { activeFromDate: { lte: new Date() } },
+            { activeFromDate: null },
+          ],
+        },
+        { date: { gte: currentDayStart, lte: currentDayEnd } },
+      ],
+      deckQuestions: {
+        some: {
+          question: {
+            questionOptions: {
+              some: {
+                questionAnswers: {
+                  none: {
+                    userId: payload.sub,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: [{ date: "asc" }, { revealAtDate: "asc" }],
+  });
+
+  return freeExpiringDeckId;
 }

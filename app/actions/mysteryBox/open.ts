@@ -129,7 +129,15 @@ export async function openMysteryBox(
               `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
               { cause: "Failed to send bonk" },
             );
-            Sentry.captureException(sendBonkError);
+            Sentry.captureException(sendBonkError, {
+              level: "fatal",
+              tags: {
+                category: "mystery-box-tx-confirmation-error",
+              },
+              extra: {
+                transactionHash: sendTx,
+              },
+            });
           } else {
             txHashes[prize.tokenAddress] = sendTx;
           }
