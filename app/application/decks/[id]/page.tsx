@@ -8,6 +8,7 @@ import {
 import { getNextDeckId, getUserTotalCreditAmount } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
+import { getBlurData } from "@/app/utils/getBlurData";
 
 type PageProps = {
   params: { id: string };
@@ -26,6 +27,12 @@ export default async function Page({ params: { id } }: PageProps) {
   const freeExpiringDeckId = await getCreditFreeDeckId();
 
   const totalCredits = await getUserTotalCreditAmount();
+  let blurData;
+  const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
+  if (imgUrl) {
+    blurData = await getBlurData(imgUrl);
+  }
+
   return (
     <div className="h-full pt-3 pb-4">
       {deck === null ? (
@@ -55,6 +62,7 @@ export default async function Page({ params: { id } }: PageProps) {
           totalCredits={totalCredits}
           deckCost={deck?.creditsCost}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
+          blurData={blurData?.base64}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />

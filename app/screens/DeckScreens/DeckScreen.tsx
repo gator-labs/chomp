@@ -23,6 +23,7 @@ type DeckScreenProps = {
   totalCredits: number;
   deckCost: number | null;
   freeExpiringDeckId: number | null;
+  blurData: string | undefined;
 };
 
 const DeckScreen = ({
@@ -35,6 +36,7 @@ const DeckScreen = ({
   totalCredits,
   deckCost,
   freeExpiringDeckId,
+  blurData,
 }: DeckScreenProps) => {
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
@@ -74,6 +76,7 @@ const DeckScreen = ({
               stackImage={stackImage}
               totalNumberOfQuestions={questions.length}
               deckCost={deckCost}
+              blurData={blurData}
             />
           )}
           <DeckScreenAction

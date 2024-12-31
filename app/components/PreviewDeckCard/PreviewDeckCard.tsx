@@ -17,6 +17,7 @@ type PreviewDeckCardProps = {
   totalNumberOfQuestions: number;
   stackImage: string;
   deckCost: number | null;
+  blurData: string | undefined;
 };
 
 const CREDIT_COST_FEATURE_FLAG =
@@ -31,6 +32,7 @@ const PreviewDeckCard = ({
   imageUrl,
   totalNumberOfQuestions,
   deckCost,
+  blurData,
 }: PreviewDeckCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,8 +52,10 @@ const PreviewDeckCard = ({
             <div className="relative w-[77px] h-[77px]">
               <Image
                 src={imageUrl || stackImage}
+                blurDataURL={blurData}
                 alt=""
                 fill
+                placeholder="blur"
                 className="rounded-full overflow-hidden"
                 sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
                 style={{ objectFit: "cover" }}

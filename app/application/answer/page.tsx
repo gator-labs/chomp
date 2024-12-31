@@ -11,6 +11,7 @@ import {
 } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
+import { getBlurData } from "@/app/utils/getBlurData";
 
 export default async function Page() {
   const [firstDeck, nextDeck] = await getDecksForExpiringSection();
@@ -26,6 +27,11 @@ export default async function Page() {
   const totalCredits = await getUserTotalCreditAmount();
 
   const freeExpiringDeckId = await getCreditFreeDeckId();
+  let blurData;
+  const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
+  if (imgUrl) {
+    blurData = await getBlurData(imgUrl);
+  }
 
   return (
     <div className="flex justify-center items-center h-full w-full">
@@ -59,6 +65,7 @@ export default async function Page() {
           totalCredits={totalCredits}
           deckCost={deck?.creditsCost}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
+          blurData={blurData?.base64}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />
