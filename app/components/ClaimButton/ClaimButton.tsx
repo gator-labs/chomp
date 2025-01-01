@@ -13,7 +13,7 @@ import { useConfetti } from "@/app/providers/ConfettiProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
 import { CONNECTION } from "@/app/utils/solana";
-import { RevealConfirmationError } from "@/lib/error";
+import { ClaimError } from "@/lib/error";
 import trackEvent from "@/lib/trackEvent";
 import * as Sentry from "@sentry/nextjs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -112,11 +112,11 @@ const ClaimButton = ({
           setIsClaiming(false);
         });
     } catch (e) {
-      const revealConfirmationError = new RevealConfirmationError(
-        `Trouble confirming reveal hash while claiming for user id: ${userId} and questions ids: ${questionIds}`,
+      const claimError = new ClaimError(
+        `Trouble claiming for user id: ${userId} and questions ids: ${questionIds}`,
         { cause: e },
       );
-      Sentry.captureException(revealConfirmationError, {
+      Sentry.captureException(claimError, {
         extra: {
           questionIds,
           chompResults: resultIds,
