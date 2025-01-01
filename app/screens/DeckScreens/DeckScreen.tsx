@@ -20,9 +20,10 @@ type DeckScreenProps = {
   stackImage: string;
   nextDeckId?: number;
   numberOfUserAnswers: number;
-  totalCredits: number;
+  credits: number;
   deckCost: number | null;
   freeExpiringDeckId: number | null;
+  onUpdateCredits: () => Promise<void>;
 };
 
 const DeckScreen = ({
@@ -32,9 +33,10 @@ const DeckScreen = ({
   nextDeckId,
   stackImage,
   numberOfUserAnswers,
-  totalCredits,
+  credits,
   deckCost,
   freeExpiringDeckId,
+  onUpdateCredits,
 }: DeckScreenProps) => {
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
@@ -52,14 +54,14 @@ const DeckScreen = ({
         <div className="flex flex-col gap-4 h-full w-full">
           {CREDIT_COST_FEATURE_FLAG && deckCost !== null ? (
             <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
-              {totalCredits > deckCost ? (
+              {credits > deckCost ? (
                 <span className="opacity-50">Balance </span>
               ) : (
                 <span className="opacity-60 text-chomp-red-dark">
                   Balance Low{" "}
                 </span>
               )}
-              {totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}
+              {credits} {credits === 1 ? "Credit" : "Credits"}
             </div>
           ) : null}
           <Stepper
@@ -79,9 +81,10 @@ const DeckScreen = ({
           <DeckScreenAction
             currentDeckId={currentDeckId}
             setIsDeckStarted={setIsDeckStarted}
-            totalCredits={totalCredits}
+            credits={credits}
             deckCost={deckCost}
             freeExpiringDeckId={freeExpiringDeckId}
+            onUpdateCredits={onUpdateCredits}
           />
         </div>
       ) : (

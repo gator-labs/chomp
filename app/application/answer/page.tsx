@@ -10,7 +10,7 @@ import {
   getUserTotalCreditAmount,
 } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
-import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
+import ClientDeckWrapper from "@/app/screens/DeckScreens/ClientDeckWrapper";
 
 export default async function Page() {
   const [firstDeck, nextDeck] = await getDecksForExpiringSection();
@@ -23,7 +23,7 @@ export default async function Page() {
 
   const stackData = stackId ? await getStackImage(stackId) : null;
 
-  const totalCredits = await getUserTotalCreditAmount();
+  const credits = await getUserTotalCreditAmount();
 
   const freeExpiringDeckId = await getCreditFreeDeckId();
 
@@ -43,7 +43,8 @@ export default async function Page() {
           numberOfQuestions={deck.totalDeckQuestions}
         />
       ) : deck.questions?.length > 0 && !!deck && !!deck.deckInfo ? (
-        <DeckScreen
+        <ClientDeckWrapper
+          initialCredits={credits}
           currentDeckId={deck.id}
           nextDeckId={nextDeck?.id}
           questions={deck.questions}
@@ -56,7 +57,6 @@ export default async function Page() {
             totalNumberOfQuestions: deck.questions.length,
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
-          totalCredits={totalCredits}
           deckCost={deck?.creditsCost}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
         />

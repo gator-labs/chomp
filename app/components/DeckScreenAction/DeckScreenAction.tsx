@@ -1,6 +1,5 @@
 import { Button } from "@/app/components/ui/button";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
-import { getUserTotalCreditAmount } from "@/app/queries/home";
 import trackEvent from "@/lib/trackEvent";
 import { CloseIcon } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
@@ -14,9 +13,10 @@ import { Drawer, DrawerContent } from "../ui/drawer";
 type DeckScreenActionProps = {
   currentDeckId: number;
   setIsDeckStarted: (isDeckStarted: boolean) => void;
-  totalCredits: number;
+  credits: number;
   deckCost: number | null;
   freeExpiringDeckId: number | null;
+  onUpdateCredits: () => Promise<void>;
 };
 
 const CREDIT_COST_FEATURE_FLAG =
@@ -25,16 +25,17 @@ const CREDIT_COST_FEATURE_FLAG =
 const DeckScreenAction = ({
   currentDeckId,
   setIsDeckStarted,
-  totalCredits,
+  credits,
   deckCost,
   freeExpiringDeckId,
+  onUpdateCredits,
 }: DeckScreenActionProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const hasEnoughCredits = totalCredits >= (deckCost ?? 0);
-  const creditsRequired = (deckCost ?? 0) - totalCredits;
+  const hasEnoughCredits = credits >= (deckCost ?? 0);
+  const creditsRequired = (deckCost ?? 0) - credits;
   const isCurrentDeckFree = deckCost === 0;
 
   const onClose = () => {
@@ -44,14 +45,14 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={async () => {
-          // Fetch fresh balance before proceeding
-          const refreshedBalance = await getUserTotalCreditAmount();
-          const hasEnoughCreditsNow = refreshedBalance >= (deckCost ?? 0);
+          // Update credits before checking balance
+          await onUpdateCredits();
 
+          // The credits prop will be updated by the parent after onUpdateCredits
           if (
             deckCost === null || // Start deck if no cost
             deckCost === 0 || // Start deck if free
-            (deckCost > 0 && hasEnoughCreditsNow) || // Start deck if cost and enough credits
+            (deckCost > 0 && credits >= (deckCost ?? 0)) || // Start deck if cost and enough credits
             !CREDIT_COST_FEATURE_FLAG // Start deck if no cost feature flag
           ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
