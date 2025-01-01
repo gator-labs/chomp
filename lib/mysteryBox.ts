@@ -107,7 +107,7 @@ export async function rewardMysteryBox(
   try {
     let calculatedReward;
 
-    if (triggerType == EBoxTriggerType.ClaimAllCompleted) {
+    if (triggerType == EBoxTriggerType.RevealAllCompleted) {
       calculatedReward = await calculateMysteryBoxReward(
         MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
       );

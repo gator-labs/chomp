@@ -20,6 +20,7 @@ import {
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getJwtPayload } from "../actions/jwt";
+import { getNewMysteryBoxId } from "../actions/mysteryBox/fetch";
 import {
   getUnusedChompyAndFriendsNft,
   getUnusedChompyAroundTheWorldNft,
@@ -67,7 +68,7 @@ export function useReveal({
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
     [],
   );
-
+  const [mysteryBoxId, setMysteryBoxId] = useState<string | null>(null);
   const [burnState, setBurnState] = useState<
     "burning" | "error" | "idle" | "skipburn"
   >(BURN_STATE_IDLE);
@@ -384,6 +385,11 @@ export function useReveal({
           [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
         });
       } else {
+        const revealAllCompletedMysteryBoxId =
+          await getNewMysteryBoxId(revealQuestionIds);
+
+        setMysteryBoxId(revealAllCompletedMysteryBoxId);
+
         trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
           transactionSignature: signature,
           nftAddress: revealNft?.id,
@@ -451,5 +457,6 @@ export function useReveal({
     isLoading,
     dialogLabel: reveal?.dialogLabel,
     isRevealAll: reveal?.isRevealAll,
+    mysteryBoxId,
   };
 }
