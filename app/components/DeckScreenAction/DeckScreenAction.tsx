@@ -1,5 +1,6 @@
 import { Button } from "@/app/components/ui/button";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import trackEvent from "@/lib/trackEvent";
 import { CloseIcon } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
@@ -42,11 +43,15 @@ const DeckScreenAction = ({
   return (
     <div className="flex flex-col gap-4 py-4">
       <Button
-        onClick={() => {
+        onClick={async () => {
+          // Fetch fresh balance before proceeding
+          const refreshedBalance = await getUserTotalCreditAmount();
+          const hasEnoughCreditsNow = refreshedBalance >= (deckCost ?? 0);
+
           if (
             deckCost === null || // Start deck if no cost
             deckCost === 0 || // Start deck if free
-            (deckCost > 0 && hasEnoughCredits) || // Start deck if cost and enough credits
+            (deckCost > 0 && hasEnoughCreditsNow) || // Start deck if cost and enough credits
             !CREDIT_COST_FEATURE_FLAG // Start deck if no cost feature flag
           ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
