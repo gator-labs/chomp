@@ -68,6 +68,38 @@ export const incrementFungibleAssetBalance = async ({
   return result[0];
 };
 
+// charge user credits for premium decks/questions
+export const chargeUserCredits = async (questionId: number) => {
+  const payload = await authGuard();
+
+  const getCredits = await prisma.deck.findMany({
+    where: {
+      deckQuestions: {
+        some: {
+          questionId,
+        },
+      },
+    },
+    select: {
+      creditCostPerQuestion: true,
+    },
+  });
+
+  const creditCostPerQuestion = getCredits[0]?.creditCostPerQuestion;
+
+  if (creditCostPerQuestion === null) return;
+
+  await prisma.fungibleAssetTransactionLog.create({
+    data: {
+      type: TransactionLogType.PremiumQuestionCharge,
+      questionId: questionId,
+      asset: FungibleAsset.Credit,
+      change: -Math.abs(creditCostPerQuestion),
+      userId: payload.sub,
+    },
+  });
+};
+
 export const addXPoints = async () => {
   const payload = await authGuard();
 
