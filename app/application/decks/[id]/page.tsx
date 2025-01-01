@@ -61,7 +61,7 @@ export default async function Page({ params: { id } }: PageProps) {
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}
-          deckCost={deck?.creditsCost}
+          deckCost={deck?.deckCost}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
         />

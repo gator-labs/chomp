@@ -348,6 +348,7 @@ enum TransactionLogType {
   ConnectX
   ConnectTelegram
   MysteryBox
+  PremiumQuestionCharge
 }
 
 enum ResultType {
