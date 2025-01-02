@@ -1,5 +1,3 @@
-"use server";
-
 import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
@@ -16,6 +14,7 @@ import {
 } from "@solana/web3.js";
 import base58 from "bs58";
 import pRetry from "p-retry";
+import "server-only";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
