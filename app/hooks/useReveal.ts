@@ -20,7 +20,7 @@ import {
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getJwtPayload } from "../actions/jwt";
-import { getNewMysteryBoxId } from "../actions/mysteryBox/fetch";
+import { getRevealAllMysteryBoxForQuestions } from "../actions/mysteryBox/getRevealAllForQuestions";
 import {
   getUnusedChompyAndFriendsNft,
   getUnusedChompyAroundTheWorldNft,
@@ -386,7 +386,7 @@ export function useReveal({
         });
       } else {
         const revealAllCompletedMysteryBoxId =
-          await getNewMysteryBoxId(revealQuestionIds);
+          await getRevealAllMysteryBoxForQuestions(revealQuestionIds);
 
         setMysteryBoxId(revealAllCompletedMysteryBoxId);
 

@@ -109,7 +109,7 @@ export async function rewardMysteryBox(
 
     if (triggerType == EBoxTriggerType.RevealAllCompleted) {
       calculatedReward = await calculateMysteryBoxReward(
-        MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+        MysteryBoxEventsType.CLAIM_ALL_COMPLETED, // TODO: Change to RevealAllCompleted when mech-engine is updated
       );
     } else {
       throw new Error(`Unimplemented trigger type: ${triggerType}`);

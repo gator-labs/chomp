@@ -19,7 +19,7 @@ import { authGuard } from "../utils/auth";
  * @returns The mystery box ID or null if no mystery box is found.
  */
 export const getUnopenedMysteryBox = async (
-  triggerType: EBoxTriggerType,
+  triggerType: EBoxTriggerType[],
 ): Promise<string | null> => {
   const payload = await authGuard();
 
@@ -28,7 +28,7 @@ export const getUnopenedMysteryBox = async (
       where: {
         userId: payload.sub,
         status: EMysteryBoxStatus.Unopened,
-        triggers: { some: { triggerType } },
+        triggers: { some: { triggerType: { in: triggerType } } },
       },
       include: {
         MysteryBoxPrize: {

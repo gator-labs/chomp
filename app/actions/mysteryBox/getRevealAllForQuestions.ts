@@ -13,7 +13,7 @@ import { getJwtPayload } from "../jwt";
  *
  * @return mysteryBoxId New Mystery Box ID
  */
-export async function getNewMysteryBoxId(
+export async function getRevealAllMysteryBoxForQuestions(
   questionIds: number[],
 ): Promise<string | null> {
   const payload = await getJwtPayload();

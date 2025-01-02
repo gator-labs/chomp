@@ -1,6 +1,6 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { getNewMysteryBoxId } from "@/app/actions/mysteryBox/fetch";
+import { getRevealAllMysteryBoxForQuestions } from "@/app/actions/mysteryBox/getRevealAllForQuestions";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import { EBoxTriggerType, EMysteryBoxStatus } from "@prisma/client";
@@ -123,7 +123,7 @@ describe("Create mystery box", () => {
   });
 
   it("Should fetch new mystery box with trigger reveal all completed", async () => {
-    const res = await getNewMysteryBoxId(questionIds);
+    const res = await getRevealAllMysteryBoxForQuestions(questionIds);
 
     // Assertions
     expect(res).toBeDefined();
@@ -131,7 +131,7 @@ describe("Create mystery box", () => {
   });
 
   it("Should not return new mystery box with fake question ids", async () => {
-    const res = await getNewMysteryBoxId([1, 2, 3]);
+    const res = await getRevealAllMysteryBoxForQuestions([1, 2, 3]);
 
     // Assertions
     expect(res).toBeNull();
