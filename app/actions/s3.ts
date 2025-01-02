@@ -4,6 +4,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 
+import { IMAGE_UPLOAD_SIZE_STRINGS } from "../constants/images";
 import s3Client from "../services/s3Client";
 import { getJwtPayload } from "./jwt";
 
@@ -13,6 +14,7 @@ interface GetSignedURLParams {
   checksum: string;
   allowedFileTypes: string[];
   maxFileSize: number;
+  restrictTo1MB?: boolean;
 }
 
 export async function getPreSignedURL({
@@ -21,6 +23,7 @@ export async function getPreSignedURL({
   checksum,
   maxFileSize,
   allowedFileTypes,
+  restrictTo1MB,
 }: GetSignedURLParams) {
   const payload = await getJwtPayload();
 
@@ -30,7 +33,10 @@ export async function getPreSignedURL({
   if (!allowedFileTypes.includes(fileType))
     throw new Error("Invalid file type");
 
-  if (fileSize > maxFileSize) throw new Error("Max file size is 1MB");
+  if (fileSize > maxFileSize)
+    throw new Error(
+      `Max file size is ${restrictTo1MB ? IMAGE_UPLOAD_SIZE_STRINGS.SMALL : IMAGE_UPLOAD_SIZE_STRINGS.DEFAULT}`,
+    );
 
   const putObjectCommand = new PutObjectCommand({
     Bucket: process.env.AWS_S3_BUCKET_NAME!,

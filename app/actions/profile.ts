@@ -51,7 +51,7 @@ export async function updateProfile(formData: FormData) {
     result.data.image !== "undefined" &&
     result.data.image !== IMAGE_ACTION.REMOVE_IMAGE
   ) {
-    imageUrl = await uploadImageToS3Bucket(result.data.image);
+    imageUrl = await uploadImageToS3Bucket(result.data.image, true);
 
     const isBucketImageValid = await validateBucketImage(
       imageUrl.split("/").pop()!,

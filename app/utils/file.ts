@@ -2,7 +2,7 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { ZodError, z } from "zod";
 
 import { getPreSignedURL } from "../actions/s3";
-import { IMAGE_VALID_TYPES, MAX_IMAGE_UPLOAD_SIZE } from "../constants/images";
+import { IMAGE_UPLOAD_SIZES, IMAGE_VALID_TYPES } from "../constants/images";
 import s3Client from "../services/s3Client";
 
 export async function processCsv<T extends object>(
@@ -56,13 +56,19 @@ export const computeSHA256 = async (file: File) => {
   return hashHex;
 };
 
-export const uploadImageToS3Bucket = async (file: File) => {
+export const uploadImageToS3Bucket = async (
+  file: File,
+  restrictTo1MB?: boolean,
+) => {
   const url = await getPreSignedURL({
     fileSize: file.size,
     fileType: file.type,
     checksum: await computeSHA256(file),
     allowedFileTypes: IMAGE_VALID_TYPES,
-    maxFileSize: MAX_IMAGE_UPLOAD_SIZE,
+    maxFileSize: restrictTo1MB
+      ? IMAGE_UPLOAD_SIZES.SMALL
+      : IMAGE_UPLOAD_SIZES.DEFAULT,
+    restrictTo1MB,
   });
 
   await fetch(url, {

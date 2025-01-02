@@ -76,13 +76,20 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       isImageRemoved ? IMAGE_ACTION.REMOVE_IMAGE : data?.image?.[0],
     );
 
-    const res = await updateProfile(formData);
+    try {
+      const res = await updateProfile(formData);
 
-    if (!!res?.error) {
-      errorToast(res?.error);
+      if (!!res?.error) {
+        errorToast(res?.error);
+        return;
+      }
+
+      router.push("/application");
+      successToast("Profile successfully updated");
+    } catch (err: any) {
+      errorToast(err?.message || "Failed to update profile. Please try again.");
+      return;
     }
-    router.push("/application");
-    successToast("Profile successfully updated");
   });
 
   const onDiscard = () => {
