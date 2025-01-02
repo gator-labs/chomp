@@ -6,7 +6,8 @@ import { headers } from "next/headers";
 export async function POST(request: Request) {
   const headersList = headers();
   const apiKey = headersList.get("api-key");
-
+  console.log("apiKey", apiKey);
+  console.log("process.env.BOT_API_KEY", process.env.BOT_API_KEY);
   if (apiKey !== process.env.BOT_API_KEY) {
     return new Response(`Invalid api-key`, {
       status: 400,
@@ -16,6 +17,7 @@ export async function POST(request: Request) {
   const data = await request.json();
   const type = QuestionType.BinaryQuestion;
   const { question } = data;
+  console.log("data", data);
 
   if (!question) {
     return Response.json("Question text is required", {
