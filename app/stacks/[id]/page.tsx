@@ -3,6 +3,7 @@ import StackDeckCard from "@/app/components/StackDeckCard/StackDeckCard";
 import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
 import { getStack } from "@/app/queries/stack";
 import { getCurrentUser } from "@/app/queries/user";
+import { getBlurData } from "@/app/utils/getBlurData";
 import { getTotalNumberOfDeckQuestions } from "@/app/utils/question";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,6 +25,8 @@ const StackPage = async ({ params: { id } }: PageProps) => {
 
   const totalNumberOfCards = getTotalNumberOfDeckQuestions(deckQuestions);
 
+  const blurData = await getBlurData(stack.image);
+
   return (
     <div className="flex flex-col gap-2 pt-4 overflow-hidden pb-2">
       <StacksHeader backAction="stacks" className="px-4" />
@@ -31,6 +34,8 @@ const StackPage = async ({ params: { id } }: PageProps) => {
         <div className="relative w-[100.5px] h-[100.5px]">
           <Image
             src={stack.image}
+            blurDataURL={blurData?.base64}
+            placeholder="blur"
             fill
             alt={stack.name}
             className="object-cover"
