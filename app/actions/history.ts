@@ -54,6 +54,7 @@ export async function getTotalClaimableRewards() {
       userId: payload.sub,
       result: "Revealed",
       questionId: { not: null },
+      sendTransactionSignature: null,
       rewardTokenAmount: {
         gt: 0,
       },
@@ -96,6 +97,7 @@ export async function getDeckTotalClaimableRewards(deckId: number) {
       userId: payload.sub,
       result: "Revealed",
       questionId: { not: null },
+      sendTransactionSignature: null,
       rewardTokenAmount: {
         gt: 0,
       },

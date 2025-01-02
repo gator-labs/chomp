@@ -30,6 +30,7 @@ export async function getClaimableQuestionIds(): Promise<number[]> {
       userId: payload.sub,
       result: "Revealed",
       questionId: { not: null },
+      sendTransactionSignature: null,
       rewardTokenAmount: {
         gt: 0,
       },
@@ -118,6 +119,7 @@ export async function claimQuestions(questionIds: number[]) {
         questionId: {
           in: questionIds,
         },
+        sendTransactionSignature: null,
         result: ResultType.Revealed,
         OR: [
           {

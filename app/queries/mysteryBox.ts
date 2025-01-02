@@ -140,13 +140,12 @@ async function rewardTutorialMysteryBox(
     });
     return res.id;
   } catch (e) {
-    console.log(e);
-
     const createMysteryBoxError = new CreateMysteryBoxError(
       `Trouble creating tutorail completion mystery box for User id: ${userId}`,
       { cause: e },
     );
     Sentry.captureException(createMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
 }
