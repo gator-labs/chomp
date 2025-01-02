@@ -2,8 +2,9 @@ import { z } from "zod";
 
 import {
   IMAGE_ACTION,
+  IMAGE_UPLOAD_SIZES,
+  IMAGE_UPLOAD_SIZE_STRINGS,
   IMAGE_VALID_TYPES,
-  MAX_IMAGE_UPLOAD_SIZE,
 } from "../../constants/images";
 
 export const imageSchemaServer = z
@@ -14,8 +15,8 @@ export const imageSchemaServer = z
     "Invalid file. Choose either JPEG or PNG image.",
   )
   .refine(
-    (file) => file?.size <= MAX_IMAGE_UPLOAD_SIZE,
-    "Max file size allowed is 1MB.",
+    (file) => file?.size <= IMAGE_UPLOAD_SIZES.SMALL,
+    `Max file size allowed is ${IMAGE_UPLOAD_SIZE_STRINGS.SMALL}.`,
   );
 
 export const imageSchemaServerOptional = z
@@ -34,8 +35,8 @@ export const imageSchemaServerOptional = z
   .refine((file) => {
     if (file === "undefined" || file === IMAGE_ACTION.REMOVE_IMAGE) return true;
 
-    return file?.size <= MAX_IMAGE_UPLOAD_SIZE;
-  }, "Max file size allowed is 1MB.");
+    return file?.size <= IMAGE_UPLOAD_SIZES.SMALL;
+  }, `Max file size allowed is ${IMAGE_UPLOAD_SIZE_STRINGS.SMALL}.`);
 
 export const imageSchemaClient = z
   .any()
@@ -45,8 +46,8 @@ export const imageSchemaClient = z
     "Invalid file. Choose either JPEG or PNG image.",
   )
   .refine(
-    (file) => file[0]?.size <= MAX_IMAGE_UPLOAD_SIZE,
-    "Max file size allowed is 1MB.",
+    (file) => file[0]?.size <= IMAGE_UPLOAD_SIZES.SMALL,
+    `Max file size allowed is ${IMAGE_UPLOAD_SIZE_STRINGS.SMALL}.`,
   );
 
 export const imageSchemaClientOptional = z
@@ -75,7 +76,7 @@ export const imageSchemaClientOptional = z
       if (file === undefined || file === null || file.length === 0) {
         return true;
       }
-      return file[0]?.size <= MAX_IMAGE_UPLOAD_SIZE;
+      return file[0]?.size <= IMAGE_UPLOAD_SIZES.SMALL;
     },
-    { message: "Max file size allowed is 1MB." },
+    { message: `Max file size allowed is ${IMAGE_UPLOAD_SIZE_STRINGS.SMALL}.` },
   );
