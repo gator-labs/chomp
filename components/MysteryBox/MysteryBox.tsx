@@ -271,7 +271,7 @@ function MysteryBox({
               animationData={
                 boxType === EMysteryBoxType.Chompmas
                   ? animationDataSanta
-                  : EMysteryBoxType.Tutorial
+                  : boxType === EMysteryBoxType.Tutorial
                     ? animationDataCredits
                     : animationDataRegular
               }
