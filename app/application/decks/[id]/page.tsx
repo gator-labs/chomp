@@ -1,5 +1,6 @@
 import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
+import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
 import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
 import {
   getCreditFreeDeckId,
@@ -58,6 +59,15 @@ export default async function Page({ params: { id } }: PageProps) {
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
+      ) : deck.activeFromDate && deck.activeFromDate > new Date() ? (
+        <NotActiveDeck
+          deckName={deck.name}
+          deckInfo={deck.deckInfo}
+          stackImage={stackData?.image}
+          totalNumberOfQuestions={deck.totalDeckQuestions}
+          activeFrom={deck.activeFromDate}
+          deckCost={deck?.creditsCost}
+        />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />
       )}
