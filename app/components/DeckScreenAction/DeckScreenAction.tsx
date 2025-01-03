@@ -1,5 +1,6 @@
 import { Button } from "@/app/components/ui/button";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import trackEvent from "@/lib/trackEvent";
 import { CircleArrowRight, Dice5Icon } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
@@ -40,7 +41,7 @@ const DeckScreenAction = ({
   return (
     <div className="flex flex-col gap-4 py-4">
       <Button
-        onClick={() => {
+        onClick={async () => {
           if (
             deckCost === null || // Start deck if no cost
             deckCost === 0 || // Start deck if free
@@ -51,7 +52,13 @@ const DeckScreenAction = ({
               [TRACKING_METADATA.DECK_ID]: currentDeckId,
               [TRACKING_METADATA.IS_DAILY_DECK]: false,
             });
-            setIsDeckStarted(true);
+
+            const totalCredits = await getUserTotalCreditAmount();
+            if (totalCredits >= (deckCost ?? 0)) {
+              setIsDeckStarted(true);
+            } else {
+              router.refresh();
+            }
           } else {
             setIsOpen(true);
           }
