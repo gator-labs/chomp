@@ -15,10 +15,8 @@ type DeckScreenActionProps = {
   totalCredits: number;
   deckCost: number | null;
   freeExpiringDeckId: number | null;
+  CREDIT_COST_FEATURE_FLAG: boolean;
 };
-
-const CREDIT_COST_FEATURE_FLAG =
-  process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
 const DeckScreenAction = ({
   currentDeckId,
@@ -26,6 +24,7 @@ const DeckScreenAction = ({
   totalCredits,
   deckCost,
   freeExpiringDeckId,
+  CREDIT_COST_FEATURE_FLAG,
 }: DeckScreenActionProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -42,25 +41,30 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={async () => {
-          if (
-            deckCost === null || // Start deck if no cost
-            deckCost === 0 || // Start deck if free
-            (deckCost > 0 && hasEnoughCredits) || // Start deck if cost and enough credits
-            !CREDIT_COST_FEATURE_FLAG // Start deck if no cost feature flag
+          // If it is a paid deck, check if the user has enough credits to start the deck
+          if (CREDIT_COST_FEATURE_FLAG && deckCost !== null && deckCost > 0) {
+            const totalCredits = await getUserTotalCreditAmount();
+            if (totalCredits >= (deckCost ?? 0)) {
+              trackEvent(TRACKING_EVENTS.DECK_STARTED, {
+                [TRACKING_METADATA.DECK_ID]: currentDeckId,
+                [TRACKING_METADATA.IS_DAILY_DECK]: false,
+              });
+              setIsDeckStarted(true);
+            } else {
+              router.refresh();
+            }
+          }
+          // If it is a free deck, start the deck
+          else if (
+            deckCost === null ||
+            deckCost === 0 ||
+            !CREDIT_COST_FEATURE_FLAG
           ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
               [TRACKING_METADATA.DECK_ID]: currentDeckId,
               [TRACKING_METADATA.IS_DAILY_DECK]: false,
             });
-
-            const totalCredits = await getUserTotalCreditAmount();
-            if (totalCredits >= (deckCost ?? 0)) {
-              setIsDeckStarted(true);
-            } else {
-              router.refresh();
-            }
-          } else {
-            setIsOpen(true);
+            setIsDeckStarted(true);
           }
         }}
       >

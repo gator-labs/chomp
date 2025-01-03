@@ -39,12 +39,12 @@ const DeckScreen = ({
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
 
-  const [isDeckStarted, setIsDeckStarted] = useState(
-    numberOfUserAnswers > 0 || !hasDeckInfo,
-  );
-
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
+  const [isDeckStarted, setIsDeckStarted] = useState(
+    !CREDIT_COST_FEATURE_FLAG && (numberOfUserAnswers > 0 || !hasDeckInfo),
+  );
 
   return (
     <>
@@ -82,6 +82,7 @@ const DeckScreen = ({
             totalCredits={totalCredits}
             deckCost={deckCost}
             freeExpiringDeckId={freeExpiringDeckId}
+            CREDIT_COST_FEATURE_FLAG={CREDIT_COST_FEATURE_FLAG}
           />
         </div>
       ) : (
@@ -90,6 +91,8 @@ const DeckScreen = ({
           deckId={currentDeckId}
           nextDeckId={nextDeckId}
           deckVariant="regular-deck"
+          deckCost={deckCost}
+          CREDIT_COST_FEATURE_FLAG={CREDIT_COST_FEATURE_FLAG}
         />
       )}
     </>
