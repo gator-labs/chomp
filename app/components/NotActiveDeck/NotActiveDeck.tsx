@@ -77,7 +77,7 @@ const NotActiveDeck = ({
   }, [activeFrom]);
 
   return (
-    <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-full mx-auto pt-14 gap-2 items-between">
+    <div className="flex flex-col font-sora text-white h-full w-full mx-auto pt-14 gap-2 items-between">
       <PreviewDeckCard
         deckCost={deckCost}
         {...deckInfo}
