@@ -39,12 +39,12 @@ const DeckScreen = ({
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
 
-  const [isDeckStarted, setIsDeckStarted] = useState(
-    numberOfUserAnswers > 0 || !hasDeckInfo,
-  );
-
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
+  const [isDeckStarted, setIsDeckStarted] = useState(
+    !CREDIT_COST_FEATURE_FLAG && (numberOfUserAnswers > 0 || !hasDeckInfo),
+  );
 
   return (
     <>
@@ -52,7 +52,7 @@ const DeckScreen = ({
         <div className="flex flex-col gap-4 h-full w-full">
           {CREDIT_COST_FEATURE_FLAG && deckCost !== null ? (
             <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
-              {totalCredits > deckCost ? (
+              {totalCredits >= deckCost ? (
                 <span className="opacity-50">Balance </span>
               ) : (
                 <span className="opacity-60 text-chomp-red-dark">
@@ -82,6 +82,7 @@ const DeckScreen = ({
             totalCredits={totalCredits}
             deckCost={deckCost}
             freeExpiringDeckId={freeExpiringDeckId}
+            CREDIT_COST_FEATURE_FLAG={CREDIT_COST_FEATURE_FLAG}
           />
         </div>
       ) : (
@@ -90,6 +91,8 @@ const DeckScreen = ({
           deckId={currentDeckId}
           nextDeckId={nextDeckId}
           deckVariant="regular-deck"
+          deckCost={deckCost}
+          CREDIT_COST_FEATURE_FLAG={CREDIT_COST_FEATURE_FLAG}
         />
       )}
     </>

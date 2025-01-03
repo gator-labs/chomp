@@ -1,14 +1,13 @@
 import { Button } from "@/app/components/ui/button";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import trackEvent from "@/lib/trackEvent";
-import { CloseIcon } from "@dynamic-labs/sdk-react-core";
-import { DialogTitle } from "@radix-ui/react-dialog";
 import { CircleArrowRight, Dice5Icon } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
-import { Drawer, DrawerContent } from "../ui/drawer";
+import BuyCreditsDrawer from "../BuyCreditsDrawer/BuyCreditsDrawer";
 
 type DeckScreenActionProps = {
   currentDeckId: number;
@@ -16,10 +15,8 @@ type DeckScreenActionProps = {
   totalCredits: number;
   deckCost: number | null;
   freeExpiringDeckId: number | null;
+  CREDIT_COST_FEATURE_FLAG: boolean;
 };
-
-const CREDIT_COST_FEATURE_FLAG =
-  process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
 const DeckScreenAction = ({
   currentDeckId,
@@ -27,6 +24,7 @@ const DeckScreenAction = ({
   totalCredits,
   deckCost,
   freeExpiringDeckId,
+  CREDIT_COST_FEATURE_FLAG,
 }: DeckScreenActionProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -42,20 +40,31 @@ const DeckScreenAction = ({
   return (
     <div className="flex flex-col gap-4 py-4">
       <Button
-        onClick={() => {
-          if (
-            deckCost === null || // Start deck if no cost
-            deckCost === 0 || // Start deck if free
-            (deckCost > 0 && hasEnoughCredits) || // Start deck if cost and enough credits
-            !CREDIT_COST_FEATURE_FLAG // Start deck if no cost feature flag
+        onClick={async () => {
+          // If it is a paid deck, check if the user has enough credits to start the deck
+          if (CREDIT_COST_FEATURE_FLAG && deckCost !== null && deckCost > 0) {
+            const totalCredits = await getUserTotalCreditAmount();
+            if (totalCredits >= (deckCost ?? 0)) {
+              trackEvent(TRACKING_EVENTS.DECK_STARTED, {
+                [TRACKING_METADATA.DECK_ID]: currentDeckId,
+                [TRACKING_METADATA.IS_DAILY_DECK]: false,
+              });
+              setIsDeckStarted(true);
+            } else {
+              router.refresh();
+            }
+          }
+          // If it is a free deck, start the deck
+          else if (
+            deckCost === null ||
+            deckCost === 0 ||
+            !CREDIT_COST_FEATURE_FLAG
           ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
               [TRACKING_METADATA.DECK_ID]: currentDeckId,
               [TRACKING_METADATA.IS_DAILY_DECK]: false,
             });
             setIsDeckStarted(true);
-          } else {
-            setIsOpen(true);
           }
         }}
       >
@@ -96,39 +105,7 @@ const DeckScreenAction = ({
           "Back"
         )}
       </Button>
-      <Drawer
-        open={isOpen}
-        onOpenChange={async (open: boolean) => {
-          if (!open) {
-            onClose();
-          }
-        }}
-      >
-        <DrawerContent className="p-6 flex flex-col gap-2">
-          <DialogTitle>
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-base text-secondary font-bold">
-                Buy {creditsRequired} More Credits?
-              </p>
-              <div onClick={onClose}>
-                <CloseIcon width={16} height={16} />
-              </div>
-            </div>
-          </DialogTitle>
-          <p>
-            Credits are required to answer this deck. <br /> <br />
-            <b className="text-chomp-blue-light">Premium decks</b> allow you to
-            earn BONK rewards when answers are correct.
-          </p>
-          <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
-            10 Credits ~ 0.02 SOL
-          </span>
-          <Button>Buy Credits</Button>
-          <Button onClick={onClose} variant="outline">
-            Close
-          </Button>
-        </DrawerContent>
-      </Drawer>
+      <BuyCreditsDrawer isOpen={isOpen} onClose={onClose} />
     </div>
   );
 };
