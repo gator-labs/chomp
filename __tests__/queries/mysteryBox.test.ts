@@ -161,9 +161,9 @@ describe("getUnopenedMysteryBox", () => {
 
     (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
 
-    const result = await getUnopenedMysteryBox(
+    const result = await getUnopenedMysteryBox([
       EBoxTriggerType.ClaimAllCompleted,
-    );
+    ]);
 
     expect(result).toBe(mysteryBox1);
   });
@@ -171,9 +171,9 @@ describe("getUnopenedMysteryBox", () => {
   it("should return null when no unopened box exists", async () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user2.id });
 
-    const result = await getUnopenedMysteryBox(
+    const result = await getUnopenedMysteryBox([
       EBoxTriggerType.ClaimAllCompleted,
-    );
+    ]);
 
     expect(result).toBeNull();
   });

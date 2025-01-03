@@ -5,7 +5,9 @@ import {
   RevealConfirmationError,
   RevealError,
 } from "@/lib/error";
+import { isUserInAllowlist, rewardMysteryBox } from "@/lib/mysteryBox";
 import {
+  EBoxTriggerType,
   FungibleAsset,
   NftType,
   ResultType,
@@ -255,6 +257,18 @@ export async function revealQuestions(
         questionId: revealPointsTx.questionId,
       })),
     });
+
+    if (revealableQuestionIds.length > 1) {
+      const isEligibleForMysteryBox = await isUserInAllowlist();
+
+      if (isEligibleForMysteryBox) {
+        await rewardMysteryBox(
+          payload?.sub,
+          EBoxTriggerType.RevealAllCompleted,
+          revealableQuestionIds,
+        );
+      }
+    }
   } catch (error) {
     const questionIds = questionRewards.map((item) => item.questionId);
     const existingFatl = await prisma.fungibleAssetTransactionLog.findMany({
