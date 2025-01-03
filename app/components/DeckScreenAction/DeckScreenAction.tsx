@@ -13,27 +13,26 @@ type DeckScreenActionProps = {
   currentDeckId: number;
   setIsDeckStarted: (isDeckStarted: boolean) => void;
   totalCredits: number;
-  deckCost: number | null;
+  deckCreditCost: number | null;
   freeExpiringDeckId: number | null;
+  creditCostFeatureFlag: boolean;
 };
-
-const CREDIT_COST_FEATURE_FLAG =
-  process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
 const DeckScreenAction = ({
   currentDeckId,
   setIsDeckStarted,
   totalCredits,
-  deckCost,
+  deckCreditCost,
   freeExpiringDeckId,
+  creditCostFeatureFlag,
 }: DeckScreenActionProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const hasEnoughCredits = totalCredits >= (deckCost ?? 0);
-  const creditsRequired = (deckCost ?? 0) - totalCredits;
-  const isCurrentDeckFree = deckCost === 0;
+  const hasEnoughCredits = totalCredits >= (deckCreditCost ?? 0);
+  const creditsRequired = (deckCreditCost ?? 0) - totalCredits;
+  const isCurrentDeckFree = deckCreditCost === 0;
 
   const onClose = () => {
     setIsOpen(false);
@@ -42,29 +41,38 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={async () => {
+          // If it is a paid deck, check if the user has enough credits to start the deck
           if (
-            deckCost === null || // Start deck if no cost
-            deckCost === 0 || // Start deck if free
-            (deckCost > 0 && hasEnoughCredits) || // Start deck if cost and enough credits
-            !CREDIT_COST_FEATURE_FLAG // Start deck if no cost feature flag
+            creditCostFeatureFlag &&
+            deckCreditCost !== null &&
+            deckCreditCost > 0
+          ) {
+            const totalCredits = await getUserTotalCreditAmount();
+            if (totalCredits >= (deckCreditCost ?? 0)) {
+              trackEvent(TRACKING_EVENTS.DECK_STARTED, {
+                [TRACKING_METADATA.DECK_ID]: currentDeckId,
+                [TRACKING_METADATA.IS_DAILY_DECK]: false,
+              });
+              setIsDeckStarted(true);
+            } else {
+              router.refresh();
+            }
+          }
+          // If it is a free deck, start the deck
+          else if (
+            deckCreditCost === null ||
+            deckCreditCost === 0 ||
+            !creditCostFeatureFlag
           ) {
             trackEvent(TRACKING_EVENTS.DECK_STARTED, {
               [TRACKING_METADATA.DECK_ID]: currentDeckId,
               [TRACKING_METADATA.IS_DAILY_DECK]: false,
             });
-
-            const totalCredits = await getUserTotalCreditAmount();
-            if (totalCredits >= (deckCost ?? 0)) {
-              setIsDeckStarted(true);
-            } else {
-              router.refresh();
-            }
-          } else {
-            setIsOpen(true);
+            setIsDeckStarted(true);
           }
         }}
       >
-        {CREDIT_COST_FEATURE_FLAG && !hasEnoughCredits && deckCost !== null
+        {creditCostFeatureFlag && !hasEnoughCredits && deckCreditCost !== null
           ? `Buy ${creditsRequired} Credits`
           : "Begin Deck"}
         <CircleArrowRight />
@@ -73,10 +81,10 @@ const DeckScreenAction = ({
         variant="outline"
         onClick={() => {
           if (
-            CREDIT_COST_FEATURE_FLAG &&
+            creditCostFeatureFlag &&
             freeExpiringDeckId &&
             !isCurrentDeckFree &&
-            deckCost !== null
+            deckCreditCost !== null
           ) {
             router.replace(`/application/decks/${freeExpiringDeckId}`);
             router.refresh();
@@ -88,10 +96,10 @@ const DeckScreenAction = ({
           }
         }}
       >
-        {CREDIT_COST_FEATURE_FLAG &&
+        {creditCostFeatureFlag &&
         freeExpiringDeckId &&
         !isCurrentDeckFree &&
-        deckCost !== null ? (
+        deckCreditCost !== null ? (
           <span className="flex items-center gap-2">
             Random Free Deck <Dice5Icon />
           </span>

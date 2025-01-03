@@ -64,7 +64,7 @@ export default async function Page() {
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}
-          deckCost={deck?.deckCost}
+          deckCreditCost={deck?.deckCreditCost}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
         />

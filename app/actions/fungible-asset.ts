@@ -1,6 +1,8 @@
 "use server";
 
+import { QuestionMultiDecksError } from "@/lib/error";
 import { FungibleAsset, TransactionLogType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 
 import { pointsPerAction } from "../constants/points";
@@ -72,7 +74,7 @@ export const incrementFungibleAssetBalance = async ({
 export const chargeUserCredits = async (questionId: number) => {
   const payload = await authGuard();
 
-  const getCredits = await prisma.deck.findMany({
+  const creditForQuestion = await prisma.deck.findMany({
     where: {
       deckQuestions: {
         some: {
@@ -85,7 +87,19 @@ export const chargeUserCredits = async (questionId: number) => {
     },
   });
 
-  const creditCostPerQuestion = getCredits[0]?.creditCostPerQuestion;
+  if (creditForQuestion.length > 1) {
+    const questionDeckConflict = new QuestionMultiDecksError(
+      `Question with id ${questionId} is associated with ${creditForQuestion.length}  decks`,
+    );
+    Sentry.captureException(questionDeckConflict, {
+      extra: {
+        questionId,
+        creditForQuestion,
+      },
+    });
+  }
+
+  const creditCostPerQuestion = creditForQuestion[0]?.creditCostPerQuestion;
 
   if (creditCostPerQuestion === null) return;
 
