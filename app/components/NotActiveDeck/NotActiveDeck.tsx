@@ -19,7 +19,7 @@ type NotActiveDeckProps = {
   stackImage: string | undefined;
   totalNumberOfQuestions: number | undefined;
   activeFrom: Date | null;
-  deckCost: number | null;
+  deckCreditCost: number | null;
 };
 
 const NotActiveDeck = ({
@@ -28,7 +28,7 @@ const NotActiveDeck = ({
   stackImage,
   totalNumberOfQuestions,
   activeFrom,
-  deckCost,
+  deckCreditCost,
 }: NotActiveDeckProps) => {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState<string>("");
@@ -79,11 +79,11 @@ const NotActiveDeck = ({
   return (
     <div className="flex flex-col font-sora text-white h-full w-full mx-auto pt-14 gap-2 items-between">
       <PreviewDeckCard
-        deckCost={deckCost}
         {...deckInfo}
         heading={deckName || ""}
         stackImage={stackImage || ""}
         totalNumberOfQuestions={totalNumberOfQuestions || 0}
+        deckCreditCost={deckCreditCost}
       />
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px] w-full">
         <Button disabled>

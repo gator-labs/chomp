@@ -74,7 +74,7 @@ export default async function Page({ params: { id } }: PageProps) {
           stackImage={stackData?.image}
           totalNumberOfQuestions={deck.totalDeckQuestions}
           activeFrom={deck.activeFromDate}
-          deckCost={deck?.creditsCost}
+          deckCreditCost={deck?.deckCreditCost}
         />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />
