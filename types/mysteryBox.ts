@@ -9,6 +9,7 @@ export enum MysteryBoxEventsType {
   DAILY_DECK_COMPLETED = "DailyDeckCompleted",
   CHOMPMAS = "Chompmas",
   TUTORIAL_COMPLETED = "TutorialCompleted",
+  REVEAL_ALL_COMPLETED = "RevealAllCompleted",
 }
 
 export type MysteryBoxSkipAction = "Skip" | "Dismiss" | "Close";

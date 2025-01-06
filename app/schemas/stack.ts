@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { IMAGE_VALID_TYPES, MAX_IMAGE_UPLOAD_SIZE } from "../constants/images";
+import {
+  IMAGE_UPLOAD_SIZES,
+  IMAGE_UPLOAD_SIZE_STRINGS,
+  IMAGE_VALID_TYPES,
+} from "../constants/images";
 
 export const stackSchema = z
   .object({
@@ -13,10 +17,10 @@ export const stackSchema = z
       .optional()
       .refine((files) => {
         if (files && files.length > 0) {
-          return files[0].size <= MAX_IMAGE_UPLOAD_SIZE;
+          return files[0].size <= IMAGE_UPLOAD_SIZES.DEFAULT;
         }
         return true;
-      }, "Max image size is 1MB.")
+      }, `Max image size allowed is ${IMAGE_UPLOAD_SIZE_STRINGS.DEFAULT}.`)
       .refine((files) => {
         if (files && files.length > 0) {
           return IMAGE_VALID_TYPES.includes(files[0].type);

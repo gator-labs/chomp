@@ -11,6 +11,7 @@ import {
 } from "@/app/constants/mysteryBox";
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import { useToast } from "@/app/providers/ToastProvider";
+import { sleep } from "@/app/utils/sleep";
 import { cn } from "@/app/utils/tailwind";
 import revalidateApplication from "@/lib/actions";
 import trackEvent from "@/lib/trackEvent";
@@ -116,20 +117,19 @@ function MysteryBox({
       setBox(newBox);
 
       if (newBox) {
-        openMysteryBox(mysteryBoxId, isDismissed)
+        await openMysteryBox(mysteryBoxId, isDismissed)
           .then(() => {
             successToast("Your prizes are on the way!");
           })
           .catch(() => {
             errorToast("Failed to send prizes");
           });
+        await sleep(5000);
       }
     } catch {
       setBox(null);
     } finally {
-      setTimeout(() => {
-        setIsSubmitting(false);
-      }, 3000);
+      setIsSubmitting(false);
     }
   };
 
@@ -155,7 +155,7 @@ function MysteryBox({
     trackEvent(TRACKING_EVENTS.MYSTERY_BOX_SKIPPED);
 
     setBox(null);
-
+    revalidateApplication();
     if (closeBoxDialog) closeBoxDialog();
   };
 
@@ -232,7 +232,7 @@ function MysteryBox({
   return (
     <>
       <MysteryBoxOverlay>
-        <div className="flex flex-col items-center justify-between content-between absolute pt-[88px] pb-[115px] w-full max-w-[326px] h-full">
+        <div className="flex flex-col items-center justify-between content-between absolute py-[70px] w-full max-w-[326px] h-full">
           <div
             className={cn(
               "w-full flex flex-col gap-8 transition-all duration-150 items-center",
@@ -266,12 +266,12 @@ function MysteryBox({
             )}
           </div>
 
-          <div className="flex flex-1 w-full my-10 relative transition-all duration-75 justify-end items-center flex-col">
+          <div className="flex flex-1 w-full  my-4 relative transition-all duration-75 justify-end items-center flex-col">
             <Lottie
               animationData={
                 boxType === EMysteryBoxType.Chompmas
                   ? animationDataSanta
-                  : creditsReceived > 0
+                  : boxType === EMysteryBoxType.Tutorial
                     ? animationDataCredits
                     : animationDataRegular
               }
@@ -281,13 +281,19 @@ function MysteryBox({
               style={{
                 transformOrigin: "5% top",
                 transition: "all 0.5s ease",
-                scale: status === "Opening" ? "1.5" : "0.9",
+                scale:
+                  status === "Opening"
+                    ? "1.5"
+                    : status === "Closing"
+                      ? "0.8"
+                      : "1",
                 zIndex: 999,
                 transform: `translateY(-70%) translateX(-43%)`,
               }}
               className={cn(
-                "absolute top-1/2 left-1/2 w-[250px] md:w-[280px] lg:w-[300px] 2xl:w-[320px] h-[250px] md:h-[280px] lg:h-[300px] 2xl:h-[320px]",
+                "absolute top-[50%] left-1/2 w-[250px] md:w-[280px] lg:w-[300px] 2xl:w-[320px] h-[250px] md:h-[280px] lg:h-[300px] 2xl:h-[320px]",
                 {
+                  "top-[40%]": status === "Closing",
                   "cursor-pointer": !isSubmitting && box && status === "Idle",
                   "opacity-0":
                     status == "Closing" &&
@@ -302,7 +308,7 @@ function MysteryBox({
               {boxType !== EMysteryBoxType.Tutorial && (
                 <div
                   className={cn(
-                    "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
+                    "text-xs flex items-center transition-all duration-150 opacity-0",
                     {
                       "opacity-100": status === "Closing",
                     },
@@ -317,7 +323,7 @@ function MysteryBox({
 
               <div
                 className={cn(
-                  "text-xs flex gap-1 items-center transition-all duration-150 opacity-0",
+                  "text-xs flex  items-center transition-all duration-150 opacity-0",
                   {
                     "opacity-100": status === "Closing",
                   },
@@ -333,7 +339,7 @@ function MysteryBox({
 
           <div
             className={cn(
-              "w-full flex flex-col gap-10 transition-all duration-150",
+              "w-full flex flex-col gap-8 transition-all duration-150",
               {
                 "opacity-0": status === "Opening",
               },
@@ -341,14 +347,14 @@ function MysteryBox({
           >
             {status == "Closing" && (
               <div
-                className="text-sm underline text-center cursor-pointer"
+                className="text-sm underline text-center cursor-pointer text-chomp-grey-a1 "
                 onClick={() => setIsCreditsDrawerOpen(true)}
               >
                 Learn more about credits
               </div>
             )}
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               {status == "Closing" && (
                 <Button
                   variant={"primary"}

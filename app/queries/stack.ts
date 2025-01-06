@@ -39,10 +39,10 @@ export async function getStacks() {
 
 export async function getStack(id: number) {
   const jwt = await getJwtPayload();
-
   const userId = jwt?.sub;
+  const now = new Date();
 
-  return prisma.stack.findUnique({
+  const stack = await prisma.stack.findUnique({
     where: {
       id,
     },
@@ -74,6 +74,66 @@ export async function getStack(id: number) {
       },
     },
   });
+
+  if (!stack) {
+    return null;
+  }
+
+  const sortedDecks = [...stack.deck].sort((a, b) => {
+    if (
+      a.activeFromDate &&
+      b.activeFromDate &&
+      a.revealAtDate &&
+      b.revealAtDate
+    ) {
+      const activeFromDateA = new Date(a.activeFromDate);
+      const activeFromDateB = new Date(b.activeFromDate);
+      const revealAtDateA = new Date(a.revealAtDate);
+      const revealAtDateB = new Date(b.revealAtDate);
+
+      // Open answer period
+      const isOpenA = revealAtDateA > now && activeFromDateA <= now;
+      const isOpenB = revealAtDateB > now && activeFromDateB <= now;
+
+      // Upcoming answer period
+      const isUpcomingA = activeFromDateA > now;
+      const isUpcomingB = activeFromDateB > now;
+
+      // Closed answer period
+      const isClosedA = revealAtDateA <= now;
+      const isClosedB = revealAtDateB <= now;
+
+      // Group 1: Open answer periods (ascending `revealAtDate`)
+      if (isOpenA && isOpenB) {
+        return revealAtDateA.getTime() - revealAtDateB.getTime();
+      }
+      if (isOpenA !== isOpenB) {
+        return isOpenA ? -1 : 1; // Open periods come first
+      }
+
+      // Group 2: Upcoming answer periods (ascending `activeFromDate`)
+      if (isUpcomingA && isUpcomingB) {
+        return activeFromDateA.getTime() - activeFromDateB.getTime();
+      }
+      if (isUpcomingA !== isUpcomingB) {
+        return isUpcomingA ? -1 : 1; // Upcoming periods come after open
+      }
+
+      // Group 3: Closed answer periods (descending `revealAtDate`)
+      if (isClosedA && isClosedB) {
+        return revealAtDateB.getTime() - revealAtDateA.getTime();
+      }
+
+      return 0; // Default case
+    }
+
+    return 0; // Default equality case
+  });
+
+  return {
+    ...stack,
+    deck: sortedDecks,
+  };
 }
 
 export async function getStackImage(id: number) {

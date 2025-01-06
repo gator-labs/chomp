@@ -112,7 +112,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       },
     },
   });
-
   if (!deck) {
     return null;
   }
@@ -136,14 +135,22 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
 
   const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
 
+  const deckCreditCost =
+    deck?.creditCostPerQuestion !== null
+      ? deck?.creditCostPerQuestion * deckQuestions.length
+      : null;
+
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
       questions: deck?.deckQuestions,
       id: deck.id,
       date: deck.date,
+      stackId: deck.stackId,
       name: deck.deck,
       totalDeckQuestions,
       revealAtDate: deck.revealAtDate,
+      activeFromDate: deck.activeFromDate,
+      deckCreditCost,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -157,12 +164,14 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       revealAtDate: deck.revealAtDate,
       stackId: deck.stackId,
       totalDeckQuestions,
+      deckCreditCost,
       deckInfo: {
         heading: deck.heading || deck.deck,
         description: deck.description,
         imageUrl: deck.imageUrl,
         footer: deck.footer,
       },
+      activeFromDate: deck.activeFromDate,
     };
   }
 
@@ -173,6 +182,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     id: deck.id,
     date: deck.date,
     stackId: deck.stackId,
+    deckCreditCost,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
@@ -182,6 +192,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       imageUrl: deck.imageUrl,
       footer: deck.footer,
     },
+    activeFromDate: deck.activeFromDate,
   };
 }
 
@@ -343,4 +354,50 @@ export async function getDeckSchema(id: number) {
       questionTags: undefined,
     })),
   };
+}
+
+export async function getCreditFreeDeckId() {
+  const payload = await getJwtPayload();
+
+  if (!payload?.sub) return null;
+
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
+  const freeExpiringDeckId = await prisma.deck.findFirst({
+    select: {
+      id: true,
+    },
+    where: {
+      creditCostPerQuestion: 0,
+      revealAtDate: { gt: new Date() },
+      AND: [
+        {
+          OR: [
+            { activeFromDate: { lte: new Date() } },
+            { activeFromDate: null },
+          ],
+        },
+        { date: { gte: currentDayStart, lte: currentDayEnd } },
+      ],
+      deckQuestions: {
+        some: {
+          question: {
+            questionOptions: {
+              some: {
+                questionAnswers: {
+                  none: {
+                    userId: payload.sub,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    orderBy: [{ date: "asc" }, { revealAtDate: "asc" }],
+  });
+
+  return freeExpiringDeckId;
 }
