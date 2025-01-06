@@ -11,10 +11,13 @@ on:
       - prod
     paths:
       - "**/*.sql" # Adjust this to include files whose changes should trigger the workflow
+  workflow_dispatch: # Allow manual triggers
 
 jobs:
   migrate_staging:
-    if: github.base_ref == 'main' && github.event.pull_request.merged == true
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.base_ref == 'main' && github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
