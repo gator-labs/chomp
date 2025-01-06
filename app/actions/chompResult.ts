@@ -5,7 +5,7 @@ import {
   RevealConfirmationError,
   RevealError,
 } from "@/lib/error";
-import { isUserInAllowlist, rewardMysteryBox } from "@/lib/mysteryBox";
+import { rewardMysteryBox } from "@/lib/mysteryBox";
 import {
   EBoxTriggerType,
   FungibleAsset,
@@ -86,6 +86,7 @@ export async function revealQuestions(
   burnTx?: string,
   nftAddress?: string,
   nftType?: NftType,
+  isMysteryBoxEnabled?: boolean,
 ) {
   const payload = await getJwtPayload();
 
@@ -258,16 +259,15 @@ export async function revealQuestions(
       })),
     });
 
-    if (revealableQuestionIds.length > 1) {
-      const isEligibleForMysteryBox = await isUserInAllowlist();
-
-      if (isEligibleForMysteryBox) {
-        await rewardMysteryBox(
-          payload?.sub,
-          EBoxTriggerType.RevealAllCompleted,
-          revealableQuestionIds,
-        );
-      }
+    if (
+      isMysteryBoxEnabled &&
+      process.env.NEXT_PUBLIC_FF_MYSTERY_BOX === "true"
+    ) {
+      await rewardMysteryBox(
+        payload?.sub,
+        EBoxTriggerType.RevealAllCompleted,
+        revealableQuestionIds,
+      );
     }
   } catch (error) {
     const questionIds = questionRewards.map((item) => item.questionId);
