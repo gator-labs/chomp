@@ -64,7 +64,7 @@ export default async function Page() {
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}
-          deckCost={deck?.creditsCost}
+          deckCreditCost={deck?.deckCreditCost}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
         />
@@ -77,7 +77,7 @@ export default async function Page() {
           stackImage={stackData?.image || ""}
           totalNumberOfQuestions={deck.totalDeckQuestions}
           activeFrom={deck.activeFromDate}
-          deckCost={deck?.creditsCost}
+          deckCreditCost={deck?.deckCreditCost}
           blurData={blurData?.base64}
         />
       ) : (
