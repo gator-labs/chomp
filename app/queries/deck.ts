@@ -9,6 +9,7 @@ import {
   QuestionTag,
   Tag,
 } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
 
@@ -336,9 +337,27 @@ export async function getDeckSchema(id: number) {
   return {
     ...deck,
     revealAtDate: deck.revealAtDate!,
-    revealToken: deck.deckQuestions[0]?.question.revealToken,
-    revealTokenAmount: deck.deckQuestions[0]?.question.revealTokenAmount,
-    tagIds: deck.deckQuestions[0]?.question.questionTags.map((qt) => qt.tag.id),
+    ...(() => {
+      if (deck.deckQuestions.length > 1) {
+        const questionIds = deck.deckQuestions.map((dq) => dq.questionId);
+        const error = new Error(
+          `Multiple decks found for question(s): ${questionIds.join(", ")}`,
+        );
+        Sentry.captureException(error, {
+          extra: {
+            deckId: deck.id,
+            questionIds,
+          },
+        });
+        throw error;
+      }
+      const question = deck.deckQuestions[0]?.question;
+      return {
+        revealToken: question?.revealToken,
+        revealTokenAmount: question?.revealTokenAmount,
+        tagIds: question?.questionTags.map((qt) => qt.tag.id),
+      };
+    })(),
     deckQuestions: undefined,
     questions: deck.deckQuestions.map((dq) => ({
       ...dq.question,
