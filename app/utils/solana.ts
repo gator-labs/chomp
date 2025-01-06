@@ -11,6 +11,8 @@ import {
 } from "@solana/web3.js";
 import bs58 from "bs58";
 
+import crypto from 'node:crypto';
+
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 
@@ -133,6 +135,14 @@ export const getSolBalance = async (address: string): Promise<number> => {
 
   return balance / LAMPORTS_PER_SOL;
 };
+
+
+export const calculateTxHash = (transaction: Transaction): string => {
+  const message = transaction.compileMessage();
+  const serializedMessage = message.serialize();
+  const transactionHash = crypto.createHash('sha256').update(serializedMessage).digest('hex');
+  return transactionHash;
+}
 
 export function isValidSignature(
   signature: string | null | undefined,
