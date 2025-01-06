@@ -261,7 +261,7 @@ export async function revealQuestions(
 
     if (
       isMysteryBoxEnabled &&
-      process.env.NEXT_PUBLIC_FF_MYSTERY_BOX === "true"
+      process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_REVEAL_ALL === "true"
     ) {
       await rewardMysteryBox(
         payload?.sub,
