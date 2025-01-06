@@ -144,6 +144,8 @@ model DeckQuestion {
   deck       Deck     @relation(fields: [deckId], references: [id])
   questionId Int
   question   Question @relation(fields: [questionId], references: [id])
+
+  @@unique([deckId, questionId])
 }
 
 model QuestionAnswer {
@@ -186,19 +188,19 @@ model ChompResult {
 }
 
 model FungibleAssetTransactionLog {
-  id         Int                @id @default(autoincrement())
-  type       TransactionLogType
-  asset      FungibleAsset
-  createdAt  DateTime           @default(now())
-  change     Decimal
-  userId     String
-  user       User               @relation(fields: [userId], references: [id])
-  question   Question?          @relation(fields: [questionId], references: [id])
-  questionId Int?
-  deck       Deck?              @relation(fields: [deckId], references: [id])
-  deckId     Int?
-  mysteryBoxPrize   MysteryBoxPrize?         @relation(fields: [mysteryBoxPrizeId], references: [id])
-  mysteryBoxPrizeId String? @unique
+  id                Int                @id @default(autoincrement())
+  type              TransactionLogType
+  asset             FungibleAsset
+  createdAt         DateTime           @default(now())
+  change            Decimal
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  question          Question?          @relation(fields: [questionId], references: [id])
+  questionId        Int?
+  deck              Deck?              @relation(fields: [deckId], references: [id])
+  deckId            Int?
+  mysteryBoxPrize   MysteryBoxPrize?   @relation(fields: [mysteryBoxPrizeId], references: [id])
+  mysteryBoxPrizeId String?            @unique
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
@@ -249,37 +251,37 @@ model MysteryBox {
 }
 
 model MysteryBoxTrigger {
-  id           String              @id @default(uuid())
-  triggerType  EBoxTriggerType
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @default(now()) @updatedAt
-  question     Question?           @relation(fields: [questionId], references: [id])
-  questionId   Int?
-  deck         Deck?               @relation(fields: [deckId], references: [id])
-  deckId       Int?
-  MysteryBox   MysteryBox?         @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId String
-  allowlist    MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
-  mysteryBoxAllowlistId  String?
+  id                    String               @id @default(uuid())
+  triggerType           EBoxTriggerType
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @default(now()) @updatedAt
+  question              Question?            @relation(fields: [questionId], references: [id])
+  questionId            Int?
+  deck                  Deck?                @relation(fields: [deckId], references: [id])
+  deckId                Int?
+  MysteryBox            MysteryBox?          @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId          String
+  allowlist             MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
+  mysteryBoxAllowlistId String?
 
   @@unique([mysteryBoxId, questionId, triggerType])
   @@unique([mysteryBoxId, deckId, triggerType])
 }
 
 model MysteryBoxPrize {
-  id                String          @id @default(uuid())
-  status            EBoxPrizeStatus @default(Unclaimed)
-  size              EPrizeSize
-  prizeType         EBoxPrizeType
-  tokenAddress      String?
-  amount            String
-  claimHash         String?
-  claimFungibleTxId Int?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @default(now()) @updatedAt
-  claimedAt         DateTime?
-  mysteryBox        MysteryBox      @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId      String
+  id                          String                       @id @default(uuid())
+  status                      EBoxPrizeStatus              @default(Unclaimed)
+  size                        EPrizeSize
+  prizeType                   EBoxPrizeType
+  tokenAddress                String?
+  amount                      String
+  claimHash                   String?
+  claimFungibleTxId           Int?
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @default(now()) @updatedAt
+  claimedAt                   DateTime?
+  mysteryBox                  MysteryBox                   @relation(fields: [mysteryBoxId], references: [id])
+  mysteryBoxId                String
   fungibleAssetTransactionLog FungibleAssetTransactionLog?
 
   @@unique([mysteryBoxId, tokenAddress])
@@ -304,6 +306,7 @@ enum EBoxTriggerType {
   DailyDeckCompleted
   ChompmasStreakAttained
   TutorialCompleted
+  RevealAllCompleted
 }
 
 enum EBoxPrizeStatus {
@@ -347,6 +350,7 @@ enum TransactionLogType {
   ConnectX
   ConnectTelegram
   MysteryBox
+  PremiumQuestionCharge
 }
 
 enum ResultType {

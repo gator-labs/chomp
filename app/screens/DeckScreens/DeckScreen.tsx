@@ -1,14 +1,9 @@
 "use client";
 
 import { Deck, Question } from "@/app/components/Deck/Deck";
+import DeckScreenAction from "@/app/components/DeckScreenAction/DeckScreenAction";
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
-import { Button } from "@/app/components/ui/button";
-import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
-import trackEvent from "@/lib/trackEvent";
-import { CircleArrowRight } from "lucide-react";
-import { useRouter } from "next-nprogress-bar";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 type DeckScreenProps = {
@@ -25,6 +20,10 @@ type DeckScreenProps = {
   stackImage: string;
   nextDeckId?: number;
   numberOfUserAnswers: number;
+  totalCredits: number;
+  deckCreditCost: number | null;
+  freeExpiringDeckId: number | null;
+  blurData: string | undefined;
 };
 
 const DeckScreen = ({
@@ -34,20 +33,37 @@ const DeckScreen = ({
   nextDeckId,
   stackImage,
   numberOfUserAnswers,
+  totalCredits,
+  deckCreditCost,
+  freeExpiringDeckId,
+  blurData,
 }: DeckScreenProps) => {
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
 
+  const CREDIT_COST_FEATURE_FLAG =
+    process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
   const [isDeckStarted, setIsDeckStarted] = useState(
-    numberOfUserAnswers > 0 || !hasDeckInfo,
+    !CREDIT_COST_FEATURE_FLAG && (numberOfUserAnswers > 0 || !hasDeckInfo),
   );
-  const router = useRouter();
-  const pathname = usePathname();
 
   return (
     <>
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
+          {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
+            <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
+              {totalCredits >= deckCreditCost ? (
+                <span className="opacity-50">Balance </span>
+              ) : (
+                <span className="opacity-60 text-chomp-red-dark">
+                  Balance Low{" "}
+                </span>
+              )}
+              {totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}
+            </div>
+          ) : null}
           <Stepper
             numberOfSteps={questions.length}
             activeStep={-1}
@@ -59,33 +75,18 @@ const DeckScreen = ({
               {...deckInfo}
               stackImage={stackImage}
               totalNumberOfQuestions={questions.length}
+              deckCreditCost={deckCreditCost}
+              blurData={blurData}
             />
           )}
-          <div className="flex flex-col gap-4 py-4">
-            <Button
-              onClick={() => {
-                trackEvent(TRACKING_EVENTS.DECK_STARTED, {
-                  [TRACKING_METADATA.DECK_ID]: currentDeckId,
-                  [TRACKING_METADATA.IS_DAILY_DECK]: false,
-                });
-                setIsDeckStarted(true);
-              }}
-            >
-              Begin Deck
-              <CircleArrowRight />
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                if (pathname.endsWith("answer"))
-                  return router.replace("/application");
-
-                router.back();
-              }}
-            >
-              {pathname.endsWith("answer") ? "Home" : "Back"}
-            </Button>
-          </div>
+          <DeckScreenAction
+            currentDeckId={currentDeckId}
+            setIsDeckStarted={setIsDeckStarted}
+            totalCredits={totalCredits}
+            deckCreditCost={deckCreditCost}
+            freeExpiringDeckId={freeExpiringDeckId}
+            creditCostFeatureFlag={CREDIT_COST_FEATURE_FLAG}
+          />
         </div>
       ) : (
         <Deck
@@ -93,6 +94,8 @@ const DeckScreen = ({
           deckId={currentDeckId}
           nextDeckId={nextDeckId}
           deckVariant="regular-deck"
+          deckCost={deckCreditCost}
+          creditCostFeatureFlag={CREDIT_COST_FEATURE_FLAG}
         />
       )}
     </>

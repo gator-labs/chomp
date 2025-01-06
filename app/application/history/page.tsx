@@ -14,7 +14,10 @@ export default async function Page() {
       getAllQuestionsReadyForReveal(),
       getTotalClaimableRewards(),
       getProfileImage(),
-      getUnopenedMysteryBox(EBoxTriggerType.ClaimAllCompleted),
+      getUnopenedMysteryBox([
+        EBoxTriggerType.ClaimAllCompleted,
+        EBoxTriggerType.RevealAllCompleted,
+      ]),
     ]);
 
   return (

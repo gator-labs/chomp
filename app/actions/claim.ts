@@ -2,12 +2,11 @@
 
 import { sendClaimedBonkFromTreasury } from "@/lib/claim";
 import { ClaimError, SendBonkError } from "@/lib/error";
-import { EBoxTriggerType, ResultType } from "@prisma/client";
+import { ResultType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import _ from "lodash";
 import { revalidatePath } from "next/cache";
 
-import { isUserInAllowlist, rewardMysteryBox } from "../../lib/mysteryBox";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
@@ -31,6 +30,7 @@ export async function getClaimableQuestionIds(): Promise<number[]> {
       userId: payload.sub,
       result: "Revealed",
       questionId: { not: null },
+      sendTransactionSignature: null,
       rewardTokenAmount: {
         gt: 0,
       },
@@ -91,21 +91,10 @@ export async function claimAllAvailable() {
 
   if (!claimableQuestionIds.length) throw new Error("No claimable questions");
 
-  const isEligibleForMysteryBox = await isUserInAllowlist();
-
-  const mysteryBoxId = isEligibleForMysteryBox
-    ? await rewardMysteryBox(
-        payload.sub,
-        EBoxTriggerType.ClaimAllCompleted,
-        claimableQuestionIds,
-      )
-    : null;
-
   const claimResult = await claimQuestions(claimableQuestionIds);
 
   return {
     ...claimResult,
-    mysteryBoxId: mysteryBoxId,
   };
 }
 
@@ -130,6 +119,7 @@ export async function claimQuestions(questionIds: number[]) {
         questionId: {
           in: questionIds,
         },
+        sendTransactionSignature: null,
         result: ResultType.Revealed,
         OR: [
           {
@@ -202,7 +192,16 @@ export async function claimQuestions(questionIds: number[]) {
         `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for questions: ${questionIds}`,
         { cause: "Failed to send bonk" },
       );
-      Sentry.captureException(sendBonkError);
+      Sentry.captureException(sendBonkError, {
+        level: "fatal",
+        tags: {
+          category: "claim-tx-confirmation-error",
+        },
+        extra: {
+          chompResults: chompResults?.map((r) => r.id),
+          transactionHash: sendTx,
+        },
+      });
     }
 
     await prisma.$transaction(
