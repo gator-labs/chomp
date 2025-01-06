@@ -75,6 +75,7 @@ export default async function Page({ params: { id } }: PageProps) {
           totalNumberOfQuestions={deck.totalDeckQuestions}
           activeFrom={deck.activeFromDate}
           deckCreditCost={deck?.deckCreditCost}
+          blurData={blurData?.base64}
         />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />
