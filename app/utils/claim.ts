@@ -135,8 +135,8 @@ export const sendBonk = async (
 
   if (!!receiverAccountInfo) {
     // based on historical transaction cost
-    // eg https://solscan.io/tx/5KeHyDz2zcVJkHB3E83G1PyGhPkT8nkqPb1QW6Nz2iAkaZrLRYgBGaAvZTp8zLCU7ncB1VNrB2L1YmSg5zNBWR5q
-    const computeUnitFix = 4794;
+    // eg https://solscan.io/tx/3jGXyvQ3hwfLWC4ABijJQhYQ8YK6duDXGqijmQEuPJ3RSsGYxjHX7G4aPZ1oVDmuVscxEQj2qamt7igsja4Gjgkn
+    const computeUnitFix = 4994;
 
     // Buffer to make sure the transaction doesn't fail because of insufficient compute units
     const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
