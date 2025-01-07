@@ -16,7 +16,10 @@ import { pointsPerAction } from "../constants/points";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { addUserTutorialTimestamp } from "../queries/user";
 import prisma from "../services/prisma";
-import { incrementFungibleAssetBalance } from "./fungible-asset";
+import {
+  chargeUserCredits,
+  incrementFungibleAssetBalance,
+} from "./fungible-asset";
 import { getJwtPayload } from "./jwt";
 
 export type SaveQuestionRequest = {
@@ -190,6 +193,9 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
     where: { questionId },
   });
 
+  const CREDIT_COST_FEATURE_FLAG =
+    process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
   try {
     await prisma.questionAnswer.createMany({
       data: questionOptions.map((qo) => ({
@@ -199,6 +205,10 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
         selected: false,
       })),
     });
+
+    if (CREDIT_COST_FEATURE_FLAG) {
+      chargeUserCredits(questionId);
+    }
   } catch {
     return { hasError: true };
   }

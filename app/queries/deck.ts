@@ -135,15 +135,22 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
 
   const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
 
+  const deckCreditCost =
+    deck?.creditCostPerQuestion !== null
+      ? deck?.creditCostPerQuestion * deckQuestions.length
+      : null;
+
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
       questions: deck?.deckQuestions,
       id: deck.id,
       date: deck.date,
+      stackId: deck.stackId,
       name: deck.deck,
       totalDeckQuestions,
       revealAtDate: deck.revealAtDate,
-      creditsCost: deck.creditCostPerQuestion,
+      activeFromDate: deck.activeFromDate,
+      deckCreditCost,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -157,13 +164,14 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       revealAtDate: deck.revealAtDate,
       stackId: deck.stackId,
       totalDeckQuestions,
-      creditsCost: deck.creditCostPerQuestion,
+      deckCreditCost,
       deckInfo: {
         heading: deck.heading || deck.deck,
         description: deck.description,
         imageUrl: deck.imageUrl,
         footer: deck.footer,
       },
+      activeFromDate: deck.activeFromDate,
     };
   }
 
@@ -174,7 +182,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     id: deck.id,
     date: deck.date,
     stackId: deck.stackId,
-    creditsCost: deck.creditCostPerQuestion,
+    deckCreditCost,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
@@ -184,6 +192,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       imageUrl: deck.imageUrl,
       footer: deck.footer,
     },
+    activeFromDate: deck.activeFromDate,
   };
 }
 

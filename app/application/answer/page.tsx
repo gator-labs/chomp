@@ -1,5 +1,6 @@
 import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
+import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
 import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
 import {
   getCreditFreeDeckId,
@@ -11,6 +12,7 @@ import {
 } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
+import { getBlurData } from "@/app/utils/getBlurData";
 
 export default async function Page() {
   const [firstDeck, nextDeck] = await getDecksForExpiringSection();
@@ -26,6 +28,11 @@ export default async function Page() {
   const totalCredits = await getUserTotalCreditAmount();
 
   const freeExpiringDeckId = await getCreditFreeDeckId();
+  let blurData;
+  const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
+  if (imgUrl) {
+    blurData = await getBlurData(imgUrl);
+  }
 
   return (
     <div className="flex justify-center items-center h-full w-full">
@@ -57,11 +64,22 @@ export default async function Page() {
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}
-          deckCost={deck?.creditsCost}
+          deckCreditCost={deck?.deckCreditCost}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
+          blurData={blurData?.base64}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />
+      ) : deck.activeFromDate && deck.activeFromDate > new Date() ? (
+        <NotActiveDeck
+          deckName={deck.name}
+          deckInfo={deck.deckInfo}
+          stackImage={stackData?.image || ""}
+          totalNumberOfQuestions={deck.totalDeckQuestions}
+          activeFrom={deck.activeFromDate}
+          deckCreditCost={deck?.deckCreditCost}
+          blurData={blurData?.base64}
+        />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />
       )}

@@ -1,5 +1,3 @@
-"use server";
-
 import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
@@ -16,6 +14,7 @@ import {
 } from "@solana/web3.js";
 import base58 from "bs58";
 import pRetry from "p-retry";
+import "server-only";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
@@ -133,6 +132,20 @@ export const sendBonk = async (
 
   // update the instructions with compute budget instruction.
   instructions.unshift(computeBudgetIx);
+
+  if (!!receiverAccountInfo) {
+    // based on historical transaction cost
+    // eg https://solscan.io/tx/3jGXyvQ3hwfLWC4ABijJQhYQ8YK6duDXGqijmQEuPJ3RSsGYxjHX7G4aPZ1oVDmuVscxEQj2qamt7igsja4Gjgkn
+    const computeUnitFix = 4994;
+
+    // Buffer to make sure the transaction doesn't fail because of insufficient compute units
+    const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: Math.round(computeUnitFix * 1.1),
+    });
+
+    // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
+    instructions.unshift(computeUnitsIx);
+  }
 
   blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
 

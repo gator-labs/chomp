@@ -55,6 +55,8 @@ const DailyDeckScreen = ({
                 questions={questions}
                 deckId={id!}
                 nextDeckId={nextDeckId}
+                deckCost={null}
+                creditCostFeatureFlag={false}
               />
             ) : (
               <NoQuestionsCard nextDeckId={nextDeckId} variant={deckVariant} />

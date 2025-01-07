@@ -14,7 +14,10 @@ export default async function Page() {
       getAllQuestionsReadyForReveal(),
       getTotalClaimableRewards(),
       getProfileImage(),
-      getUnopenedMysteryBox(EBoxTriggerType.ClaimAllCompleted),
+      getUnopenedMysteryBox([
+        EBoxTriggerType.ClaimAllCompleted,
+        EBoxTriggerType.RevealAllCompleted,
+      ]),
     ]);
 
   return (
@@ -25,6 +28,7 @@ export default async function Page() {
           totalClaimableRewards={totalClaimableRewards}
           revealableQuestions={revealableQuestions}
           profileImg={profileImg}
+          isMysteryBoxEnabled={true}
         />
         <History />
       </div>

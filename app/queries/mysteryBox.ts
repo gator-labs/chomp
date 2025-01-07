@@ -19,7 +19,7 @@ import { authGuard } from "../utils/auth";
  * @returns The mystery box ID or null if no mystery box is found.
  */
 export const getUnopenedMysteryBox = async (
-  triggerType: EBoxTriggerType,
+  triggerType: EBoxTriggerType[],
 ): Promise<string | null> => {
   const payload = await authGuard();
 
@@ -28,7 +28,7 @@ export const getUnopenedMysteryBox = async (
       where: {
         userId: payload.sub,
         status: EMysteryBoxStatus.Unopened,
-        triggers: { some: { triggerType } },
+        triggers: { some: { triggerType: { in: triggerType } } },
       },
       include: {
         MysteryBoxPrize: {
@@ -54,6 +54,7 @@ export const getUnopenedMysteryBox = async (
     return null;
   }
 };
+
 /**
  * Retrieves the mystery box ID for a new user if they are eligible.
  *
@@ -63,7 +64,7 @@ export const getUnopenedMysteryBox = async (
  *
  * @returns {Promise<string | null>} The ID of the rewarded mystery box if the user is eligible, otherwise null.
  */
-export const getNewUserMysteryBoxId = async () => {
+export const getNewUserMysteryBoxId = async (): Promise<string | null> => {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -139,13 +140,12 @@ async function rewardTutorialMysteryBox(
     });
     return res.id;
   } catch (e) {
-    console.log(e);
-
     const createMysteryBoxError = new CreateMysteryBoxError(
       `Trouble creating tutorail completion mystery box for User id: ${userId}`,
       { cause: e },
     );
     Sentry.captureException(createMysteryBoxError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
 }

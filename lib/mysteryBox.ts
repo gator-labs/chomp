@@ -11,6 +11,7 @@ import {
   EBoxPrizeType,
   EBoxTriggerType,
   EMysteryBoxStatus,
+  EPrizeSize,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { PublicKey } from "@solana/web3.js";
@@ -21,6 +22,14 @@ import { UserAllowlistError } from "./error";
 export type FindMysteryBoxResult = {
   id: string;
   status: EMysteryBoxStatus;
+};
+
+type MysteryBoxPrize = {
+  status: EBoxPrizeStatus;
+  size: EPrizeSize;
+  prizeType: EBoxPrizeType;
+  tokenAddress: string | null;
+  amount: string;
 };
 
 export async function calculateTotalPrizeTokens(
@@ -107,9 +116,9 @@ export async function rewardMysteryBox(
   try {
     let calculatedReward;
 
-    if (triggerType == EBoxTriggerType.ClaimAllCompleted) {
+    if (triggerType == EBoxTriggerType.RevealAllCompleted) {
       calculatedReward = await calculateMysteryBoxReward(
-        MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+        MysteryBoxEventsType.CLAIM_ALL_COMPLETED, // TODO: Change to RevealAllCompleted when mech-engine is updated
       );
     } else {
       throw new Error(`Unimplemented trigger type: ${triggerType}`);
@@ -122,6 +131,28 @@ export async function rewardMysteryBox(
     if (!userWallet) return null;
 
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+
+    const prizes: MysteryBoxPrize[] = [
+      {
+        status: EBoxPrizeStatus.Unclaimed,
+        size: calculatedReward.box_type,
+        prizeType: EBoxPrizeType.Token,
+        tokenAddress,
+        amount: String(calculatedReward?.bonk),
+      },
+    ];
+
+    // Add credits prize if present
+    if (calculatedReward?.credits) {
+      prizes.push({
+        status: EBoxPrizeStatus.Unclaimed,
+        size: calculatedReward.box_type,
+        prizeType: EBoxPrizeType.Credits,
+        tokenAddress: null,
+        amount: String(calculatedReward?.credits),
+      });
+    }
+
     const res = await prisma.mysteryBox.create({
       data: {
         userId,
@@ -135,13 +166,7 @@ export async function rewardMysteryBox(
           },
         },
         MysteryBoxPrize: {
-          create: {
-            status: EBoxPrizeStatus.Unclaimed,
-            size: calculatedReward.box_type,
-            prizeType: EBoxPrizeType.Token,
-            tokenAddress,
-            amount: String(calculatedReward?.bonk),
-          },
+          create: prizes,
         },
       },
     });

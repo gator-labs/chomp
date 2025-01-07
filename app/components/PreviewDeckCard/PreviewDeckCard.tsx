@@ -16,7 +16,8 @@ type PreviewDeckCardProps = {
   imageUrl?: string | null;
   totalNumberOfQuestions: number;
   stackImage: string;
-  deckCost: number | null;
+  blurData: string | undefined;
+  deckCreditCost: number | null;
 };
 
 const CREDIT_COST_FEATURE_FLAG =
@@ -30,7 +31,8 @@ const PreviewDeckCard = ({
   stackImage,
   imageUrl,
   totalNumberOfQuestions,
-  deckCost,
+  blurData,
+  deckCreditCost,
 }: PreviewDeckCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -50,8 +52,10 @@ const PreviewDeckCard = ({
             <div className="relative w-[77px] h-[77px]">
               <Image
                 src={imageUrl || stackImage}
+                blurDataURL={blurData}
                 alt=""
                 fill
+                placeholder="blur"
                 className="rounded-full overflow-hidden"
                 sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
                 style={{ objectFit: "cover" }}
@@ -67,14 +71,14 @@ const PreviewDeckCard = ({
             </p>
           </div>
         </div>
-        {CREDIT_COST_FEATURE_FLAG && deckCost !== null ? (
+        {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
           <button
             className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
             onClick={() => setIsOpen(true)}
           >
             <span className="opacity-50 pr-1">Entry </span>
-            {deckCost > 0
-              ? `${deckCost} Credit${deckCost !== 1 && "s"}`
+            {deckCreditCost > 0
+              ? `${deckCreditCost} Credit${deckCreditCost !== 1 && "s"}`
               : "Free"}
             <InfoIcon fill="#0d0d0d" />
           </button>

@@ -203,7 +203,7 @@ describe("Create mystery box", () => {
   it("Should create a new mystery box with triggers and prizes", async () => {
     mysteryBoxId = await rewardMysteryBox(
       user0.id,
-      EBoxTriggerType.ClaimAllCompleted,
+      EBoxTriggerType.RevealAllCompleted,
       [questionIds[0]],
     );
     if (mysteryBoxId) {
@@ -221,7 +221,7 @@ describe("Create mystery box", () => {
       expect(res?.id).toBe(mysteryBoxId);
       expect(res?.status).toBe("New");
       expect(res?.triggers).toHaveLength(1);
-      expect(res?.MysteryBoxPrize).toHaveLength(1);
+      expect(res?.MysteryBoxPrize?.length).toBeGreaterThanOrEqual(1);
     }
   });
 
@@ -229,7 +229,7 @@ describe("Create mystery box", () => {
     // Create a second box
     mysteryBoxId2 = await rewardMysteryBox(
       user0.id,
-      EBoxTriggerType.ClaimAllCompleted,
+      EBoxTriggerType.RevealAllCompleted,
       [questionIds[1]],
     );
 
@@ -256,7 +256,7 @@ describe("Create mystery box", () => {
     // Create a second box
     mysteryBoxId3 = await rewardMysteryBox(
       user0.id,
-      EBoxTriggerType.ClaimAllCompleted,
+      EBoxTriggerType.RevealAllCompleted,
       [questionIds[2]],
     );
 

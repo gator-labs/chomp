@@ -13,10 +13,11 @@ export const columns: ColumnDef<Banner>[] = [
     header: "Image",
     cell: ({ row }) => (
       <Image
-        fill
         alt="banner-image"
-        className="w-32 h-32 object-contain"
+        className="object-contain"
         src={row.original.image}
+        width={80}
+        height={80}
       />
     ),
   },
