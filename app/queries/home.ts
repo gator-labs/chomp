@@ -168,14 +168,12 @@ WHERE
         SELECT 1
         FROM public."DeckQuestion" dq
         JOIN public."Question" q ON dq."questionId" = q."id"
-        JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
-        LEFT JOIN (
-            SELECT DISTINCT "questionOptionId"
-            FROM public."QuestionAnswer"
-            WHERE "userId" = ${userId}
-        ) qa ON qa."questionOptionId" = qo."id"
+        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id" 
+        AND qa."userId" = ${userId}
         WHERE dq."deckId" = d."id"
-        AND qa."questionOptionId" IS NULL
+        GROUP BY dq."deckId"
+        HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
     )
     ORDER BY
     d."date" ASC,
