@@ -3,16 +3,17 @@
 import {
   Deck,
   DeckQuestion,
-  Question,
   QuestionAnswer,
   QuestionOption,
   QuestionTag,
+  QuestionType,
   Tag,
 } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
 
 import { getJwtPayload } from "../actions/jwt";
+import type { Question } from "../components/Deck/Deck";
 import prisma from "../services/prisma";
 import { getTotalNumberOfDeckQuestions } from "../utils/question";
 
@@ -200,7 +201,12 @@ const mapQuestionFromDeck = (
   deck: Deck & {
     deckQuestions: Array<
       DeckQuestion & {
-        question: Question & {
+        question: {
+          id: number;
+          durationMiliseconds: bigint | null;
+          question: string;
+          type: QuestionType;
+          imageUrl: string | null;
           questionOptions: (QuestionOption & {
             questionAnswers?: QuestionAnswer[];
           })[];
@@ -210,22 +216,29 @@ const mapQuestionFromDeck = (
     >;
   },
 ) => {
-  const questions = deck?.deckQuestions.map((dq) => ({
-    id: dq.questionId,
-    durationMiliseconds: Number(dq.question.durationMiliseconds),
-    question: dq.question.question,
-    type: dq.question.type,
-    imageUrl: dq.question.imageUrl ?? undefined,
-    questionOptions: dq.question.questionOptions.map((qo) => ({
-      id: qo.id,
-      option: qo.option,
-      isLeft: qo.isLeft,
-    })),
-    questionTags: dq.question.questionTags,
-    deckRevealAtDate: deck.revealAtDate,
-    status: dq.question.questionOptions[0].questionAnswers?.[0]?.status,
-    createdAt: dq.question.questionOptions[0].questionAnswers?.[0]?.createdAt,
-  }));
+  const questions = deck?.deckQuestions.map((dq) => {
+    const mappedQuestion: Question = {
+      id: dq.questionId,
+      durationMiliseconds: dq.question.durationMiliseconds
+        ? Number(dq.question.durationMiliseconds)
+        : 0,
+      question: dq.question.question,
+      type: dq.question.type,
+      imageUrl: dq.question.imageUrl || undefined,
+      questionOptions: dq.question.questionOptions.map((qo) => ({
+        id: qo.id,
+        option: qo.option,
+        isLeft: qo.isLeft,
+      })),
+      questionTags: dq.question.questionTags,
+      deckRevealAtDate: deck.revealAtDate || undefined,
+      status: dq.question.questionOptions[0]?.questionAnswers?.[0]?.status,
+      createdAt:
+        dq.question.questionOptions[0]?.questionAnswers?.[0]?.createdAt ||
+        undefined,
+    };
+    return mappedQuestion;
+  });
 
   return questions;
 };
