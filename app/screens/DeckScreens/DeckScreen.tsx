@@ -44,8 +44,9 @@ const DeckScreen = ({
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
+  // If no preview deck info and not a premium deck start the deck immediately
   const [isDeckStarted, setIsDeckStarted] = useState(
-    !CREDIT_COST_FEATURE_FLAG && (numberOfUserAnswers > 0 || !hasDeckInfo),
+    deckCreditCost === null && (numberOfUserAnswers > 0 || !hasDeckInfo),
   );
 
   return (
@@ -70,15 +71,13 @@ const DeckScreen = ({
             color="green"
             className="pt-0 px-0"
           />
-          {hasDeckInfo && (
-            <PreviewDeckCard
-              {...deckInfo}
-              stackImage={stackImage}
-              totalNumberOfQuestions={questions.length}
-              deckCreditCost={deckCreditCost}
-              blurData={blurData}
-            />
-          )}
+          <PreviewDeckCard
+            {...deckInfo}
+            stackImage={stackImage}
+            totalNumberOfQuestions={questions.length}
+            deckCreditCost={deckCreditCost}
+            blurData={blurData}
+          />
           <DeckScreenAction
             currentDeckId={currentDeckId}
             setIsDeckStarted={setIsDeckStarted}
