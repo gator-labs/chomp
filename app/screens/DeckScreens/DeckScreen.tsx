@@ -39,7 +39,10 @@ const DeckScreen = ({
   blurData,
 }: DeckScreenProps) => {
   const hasDeckInfo =
-    !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
+    !!deckInfo?.description ||
+    !!deckInfo?.footer ||
+    !!deckInfo?.imageUrl ||
+    !!deckInfo?.heading;
 
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
