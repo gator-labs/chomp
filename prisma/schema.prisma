@@ -295,6 +295,22 @@ model MysteryBoxAllowlist {
   MysteryBoxTrigger MysteryBoxTrigger[]
 }
 
+model ChainTx {
+  id               String         @id @default(uuid())
+  hash             String         @unique
+  wallet           String
+  type             EChainTxType
+  solAmount        String
+  feeSolAmount     String
+  recipientAddress String
+  status           EChainTxStatus @default(New)
+  createdAt        DateTime       @default(now())
+  finalizedAt      DateTime?
+  failedAt         DateTime?
+
+  @@index([hash])
+}
+
 enum EMysteryBoxStatus {
   New
   Opened
@@ -376,4 +392,14 @@ enum AnswerStatus {
   Submitted
   TimedOut
   Skipped
+}
+
+enum EChainTxType {
+  CreditPurchase
+}
+
+enum EChainTxStatus {
+  New
+  Confirmed
+  Finalized
 }

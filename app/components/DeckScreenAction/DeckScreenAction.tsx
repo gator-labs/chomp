@@ -47,8 +47,12 @@ const DeckScreenAction = ({
             deckCreditCost !== null &&
             deckCreditCost > 0
           ) {
+            if (!hasEnoughCredits) {
+              setIsOpen(true);
+              return;
+            }
             const totalCredits = await getUserTotalCreditAmount();
-            if (totalCredits >= (deckCreditCost ?? 0)) {
+            if (totalCredits >= deckCreditCost) {
               trackEvent(TRACKING_EVENTS.DECK_STARTED, {
                 [TRACKING_METADATA.DECK_ID]: currentDeckId,
                 [TRACKING_METADATA.IS_DAILY_DECK]: false,
@@ -109,7 +113,13 @@ const DeckScreenAction = ({
           "Back"
         )}
       </Button>
-      <BuyCreditsDrawer isOpen={isOpen} onClose={onClose} />
+      {deckCreditCost && (
+        <BuyCreditsDrawer
+          isOpen={isOpen}
+          onClose={onClose}
+          creditsToBuy={deckCreditCost}
+        />
+      )}
     </div>
   );
 };

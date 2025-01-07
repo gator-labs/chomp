@@ -1,3 +1,4 @@
+import { buyInsufficientCreidts } from "@/app/actions/credits/buy";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import React from "react";
 
@@ -8,9 +9,17 @@ import { Drawer, DrawerContent } from "../ui/drawer";
 type BuyCreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
+  creditsToBuy: number;
 };
 
-function BuyCreditsDrawer({ isOpen, onClose }: BuyCreditsDrawerProps) {
+function BuyCreditsDrawer({
+  isOpen,
+  onClose,
+  creditsToBuy,
+}: BuyCreditsDrawerProps) {
+  const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
+  const totalSolCost = Number(solPricePerCredit) * creditsToBuy;
+
   return (
     <Drawer
       open={isOpen}
@@ -24,7 +33,7 @@ function BuyCreditsDrawer({ isOpen, onClose }: BuyCreditsDrawerProps) {
         <DialogTitle>
           <div className="flex justify-between items-center mb-2">
             <p className="text-base text-secondary font-bold">
-              Buy 10 More Credits?
+              Buy {creditsToBuy} More Credits?
             </p>
             <div onClick={onClose}>
               <CloseIcon width={16} height={16} />
@@ -37,9 +46,15 @@ function BuyCreditsDrawer({ isOpen, onClose }: BuyCreditsDrawerProps) {
           earn BONK rewards when answers are correct.
         </p>
         <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
-          10 Credits ~ 0.02 SOL
+          {creditsToBuy} Credits ~${totalSolCost} SOL
         </span>
-        <Button>Buy Credits</Button>
+        <Button
+          onClick={() => {
+            buyInsufficientCreidts();
+          }}
+        >
+          Buy Credits
+        </Button>
         <Button onClick={onClose} variant="outline">
           Close
         </Button>
