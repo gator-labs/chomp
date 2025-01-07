@@ -13,7 +13,6 @@ import { isAfter, isBefore } from "date-fns";
 import dayjs from "dayjs";
 
 import { getJwtPayload } from "../actions/jwt";
-import type { Question } from "../components/Deck/Deck";
 import prisma from "../services/prisma";
 import { getTotalNumberOfDeckQuestions } from "../utils/question";
 
@@ -216,8 +215,8 @@ const mapQuestionFromDeck = (
     >;
   },
 ) => {
-  const questions = deck?.deckQuestions.map((dq) => {
-    const mappedQuestion: Question = {
+  return (
+    deck?.deckQuestions.map((dq) => ({
       id: dq.questionId,
       durationMiliseconds: dq.question.durationMiliseconds
         ? Number(dq.question.durationMiliseconds)
@@ -232,15 +231,10 @@ const mapQuestionFromDeck = (
       })),
       questionTags: dq.question.questionTags,
       deckRevealAtDate: deck.revealAtDate || undefined,
-      status: dq.question.questionOptions[0]?.questionAnswers?.[0]?.status,
-      createdAt:
-        dq.question.questionOptions[0]?.questionAnswers?.[0]?.createdAt ||
-        undefined,
-    };
-    return mappedQuestion;
-  });
-
-  return questions;
+      status: undefined,
+      createdAt: undefined,
+    })) || []
+  );
 };
 
 export async function getDecks() {
