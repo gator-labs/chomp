@@ -12,28 +12,33 @@ jobs:
       # Step 1: Checkout the repository
       - uses: actions/checkout@v2
 
-      # Step 2: Set up Node.js
+      # Step 2: Extract Branch Name
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+
+      # Step 3: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
           cache: "npm"
 
-      # Step 3: Install Vercel CLI
+      # Step 4: Install Vercel CLI
       - name: Install Vercel CLI
         run: npm install -g vercel
 
-      # Step 4: Pull Vercel Environment Variables for the Current Branch
+      # Step 5: Pull Vercel Environment Variables
       - name: Pull Vercel Environment Variables
         run: |
-          # Extract the branch name from github.ref
-          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
+          BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
           echo "Branch name: $BRANCH_NAME"
 
           # Explicitly link to the chomp-dev project under gator-labs scope
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
 
-          # Pull environment variables for the preview environment and the current branch
+          # Pull environment variables for the preview environment and the extracted branch
           echo "Pulling environment variables for branch: $BRANCH_NAME"
           vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
 
@@ -44,14 +49,14 @@ jobs:
           # Save variables to GitHub environment for later steps
           cat .env | grep -v '^#' >> $GITHUB_ENV
 
-      # Step 5: Log All Set Environment Variables
+      # Step 6: Log All Set Environment Variables
       - name: Log Environment Variables
         run: printenv | sort
 
-      # Step 6: Install dependencies
+      # Step 7: Install dependencies
       - name: Install dependencies
         run: npm install
 
-      # Step 7: Run Jest tests
+      # Step 8: Run Jest tests
       - name: Run Jest tests
         run: npm run gh-test
