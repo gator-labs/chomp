@@ -60,14 +60,14 @@ jobs:
           echo "Pulling environment variables for the preview environment and branch: $BRANCH_NAME"
           vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
 
-          echo "Saving .env file for subsequent steps."
-          cp .env $GITHUB_WORKSPACE/.env
+          echo "Pulled environment variables (keys and values, excluding DATABASE_URL redaction):"
+          cat .env
 
       # Step 6: Verify and Sanitize Environment Variables
       - name: Verify and Sanitize DATABASE_URL
         run: |
           echo "Loading .env file."
-          source $GITHUB_WORKSPACE/.env
+          source .env
 
           echo "Verifying the DATABASE_URL and DATABASE_URL_UNPOOLED."
           echo "DATABASE_URL: $DATABASE_URL"
