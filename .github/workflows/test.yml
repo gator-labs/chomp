@@ -32,8 +32,8 @@ jobs:
           # Explicitly link to the chomp-dev project under gator-labs scope
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
           
-          # Pull environment variables from the preview environment for the branch
-          vercel env pull --environment preview --branch $BRANCH_NAME .env --scope gator-labs --token ${{ secrets.VERCEL_TOKEN }}
+          # Pull environment variables for the preview environment and the current branch
+          vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
           
           # Save variables to GitHub environment for later steps
           cat .env | grep -v '^#' >> $GITHUB_ENV
