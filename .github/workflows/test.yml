@@ -60,22 +60,26 @@ jobs:
           echo "Pulling environment variables for the preview environment and branch: $BRANCH_NAME"
           vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
 
-          echo "Pulled environment variables (keys only):"
-          cat .env | grep -v '^#' | awk -F= '{print $1}'
+          echo "Pulled environment variables (keys and values):"
+          cat .env | grep -v '^#'
 
           echo "Saving environment variables to GitHub environment for subsequent steps."
           cat .env | grep -v '^#' >> $GITHUB_ENV
 
-      # Step 6: Log All Environment Variables
-      - name: Log Environment Variables
+      # Step 6: Log All Set Environment Variables
+      - name: Log All Environment Variables
         run: |
           echo "Logging all environment variables available at this step."
           printenv | sort
 
       # Step 7: Install Dependencies
       - name: Install Dependencies
-        run: npm install
+        run: |
+          echo "Installing project dependencies."
+          npm install
 
       # Step 8: Run Jest Tests
       - name: Run Jest Tests
-        run: npm run gh-test
+        run: |
+          echo "Running Jest tests using the pulled environment variables."
+          npm run gh-test
