@@ -58,7 +58,7 @@ jobs:
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
 
           echo "Pulling environment variables for the preview environment and branch: $BRANCH_NAME"
-          vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
+          vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs
 
           echo "Pulled environment variables (keys and values):"
           cat .env | grep -v '^#'
