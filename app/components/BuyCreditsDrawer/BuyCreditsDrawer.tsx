@@ -1,4 +1,4 @@
-import { createBuyCreidtsTx } from "@/app/actions/credits/buy";
+import { createBuyCreidtsTx } from "@/app/actions/credits/createChainTx";
 import { useToast } from "@/app/providers/ToastProvider";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useRouter } from "next-nprogress-bar";

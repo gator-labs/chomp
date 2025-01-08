@@ -2,16 +2,20 @@
 
 import prisma from "@/app/services/prisma";
 import { sleep } from "@/app/utils/sleep";
-import {
-  EChainTxStatus,
-  EChainTxType,
-  FungibleAsset,
-  TransactionLogType,
-} from "@prisma/client";
+import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
 
 import { getJwtPayload } from "../jwt";
+import { updateTransactionLog } from "./updateTxLog";
+
+/**
+ * Create a new chainTx - Save the entry in chain tx table when
+ * user initiate credit purchase, create sol tx and call update fatl action.
+ *
+ * @param deckId The backend should validate the amount of credit
+ *               purchased based on deck id
+ */
 
 export async function createBuyCreidtsTx(deckId: number) {
   const payload = await getJwtPayload();
@@ -78,19 +82,3 @@ export async function createBuyCreidtsTx(deckId: number) {
 
   await updateTransactionLog(newChainTx.hash, deckCost, payload.sub);
 }
-
-const updateTransactionLog = async (
-  hash: string,
-  deckCost: number,
-  userId: string,
-) => {
-  await prisma.fungibleAssetTransactionLog.create({
-    data: {
-      chainTxHash: hash,
-      asset: FungibleAsset.Credit,
-      change: deckCost,
-      userId: userId,
-      type: TransactionLogType.CreditPurchase,
-    },
-  });
-};

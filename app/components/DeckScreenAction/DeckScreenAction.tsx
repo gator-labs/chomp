@@ -43,16 +43,27 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={async () => {
-          // If it is a paid deck, check if the user has enough credits to start the deck
+          /**
+           * Handle paid decks:
+           * - Check if the user has sufficient credits to start the deck.
+           * - Open the "Buy Credits" drawer if the user's balance is insufficient.
+           */
           if (
             creditCostFeatureFlag &&
             deckCreditCost !== null &&
             deckCreditCost > 0
           ) {
+            // Open "Buy Credits" drawer if the user doesn't have enough credits.
             if (!hasEnoughCredits) {
               setIsOpen(true);
               return;
             }
+
+            /**
+             * Fetch the latest credit balance:
+             * - If the balance meets or exceeds the cost, start the deck and track the event.
+             * - If the balance is still insufficient, refresh the page.
+             */
             const totalCredits = await getUserTotalCreditAmount();
             if (totalCredits >= deckCreditCost) {
               trackEvent(TRACKING_EVENTS.DECK_STARTED, {
@@ -63,9 +74,12 @@ const DeckScreenAction = ({
             } else {
               router.refresh();
             }
-          }
-          // If it is a free deck, start the deck
-          else if (
+          } else if (
+            /**
+             * Handle free decks:
+             * - If the deck is free (cost is null or 0) or the credit feature flag is disabled,
+             *   start the deck and track the event directly.
+             */
             deckCreditCost === null ||
             deckCreditCost === 0 ||
             !creditCostFeatureFlag
