@@ -15,6 +15,7 @@ interface Props {
   }[];
   profileImg: string;
   deckId?: number;
+  isMysteryBoxEnabled?: boolean;
 }
 
 const HistoryHeader = ({
@@ -22,12 +23,14 @@ const HistoryHeader = ({
   revealableQuestions,
   profileImg,
   deckId,
+  isMysteryBoxEnabled,
 }: Props) => {
   return (
     <div className="py-4 flex flex-col gap-4">
       <PotentialRewardsRevealAll
         revealableQuestions={revealableQuestions}
         deckId={deckId}
+        isMysteryBoxEnabled={isMysteryBoxEnabled ?? false}
       />
       <TotalRewardsClaimAll
         profileImg={profileImg}

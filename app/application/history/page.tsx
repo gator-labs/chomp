@@ -28,6 +28,7 @@ export default async function Page() {
           totalClaimableRewards={totalClaimableRewards}
           revealableQuestions={revealableQuestions}
           profileImg={profileImg}
+          isMysteryBoxEnabled={true}
         />
         <History />
       </div>

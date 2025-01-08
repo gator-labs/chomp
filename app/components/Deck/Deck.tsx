@@ -10,6 +10,7 @@ import {
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
+import { getUserTotalCreditAmount } from "@/app/queries/home";
 import {
   getAlphaIdentifier,
   getAnsweredQuestionsStatus,
@@ -23,6 +24,7 @@ import dayjs from "dayjs";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import BuyCreditsDrawer from "../BuyCreditsDrawer/BuyCreditsDrawer";
 import { NoQuestionsCard } from "../NoQuestionsCard/NoQuestionsCard";
 import { QuestionAction } from "../QuestionAction/QuestionAction";
 import { QuestionCard } from "../QuestionCard/QuestionCard";
@@ -61,6 +63,8 @@ type DeckProps = {
   deckId: number;
   nextDeckId?: number;
   deckVariant?: "daily-deck" | "regular-deck";
+  deckCost: number | null;
+  creditCostFeatureFlag: boolean;
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -74,6 +78,8 @@ export function Deck({
   nextDeckId,
   deckVariant,
   deckId,
+  deckCost,
+  creditCostFeatureFlag,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
@@ -104,12 +110,22 @@ export function Deck({
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
   const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
   const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
+  const [isCreditsLow, setIsCreditsLow] = useState(false);
 
   useEffect(() => {
     start();
   }, [start]);
 
   const handleNextIndex = useCallback(async () => {
+    if (creditCostFeatureFlag && deckCost !== null && deckCost > 0) {
+      const totalCredits = await getUserTotalCreditAmount();
+      const costPerQuestion = deckCost / questions.length;
+      const isLastQuestion = currentQuestionIndex + 1 === questions.length;
+      if (totalCredits < costPerQuestion && !isLastQuestion) {
+        setIsCreditsLow(true);
+        return;
+      }
+    }
     if (currentQuestionIndex + 1 < questions.length) {
       setDueAt(getDueAt(questions, currentQuestionIndex + 1));
     }
@@ -382,6 +398,11 @@ export function Deck({
           Skip question
         </div>
       )}
+
+      <BuyCreditsDrawer
+        isOpen={isCreditsLow}
+        onClose={() => setIsCreditsLow(false)}
+      />
 
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>

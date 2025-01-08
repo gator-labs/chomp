@@ -21,7 +21,7 @@ type DeckScreenProps = {
   nextDeckId?: number;
   numberOfUserAnswers: number;
   totalCredits: number;
-  deckCost: number | null;
+  deckCreditCost: number | null;
   freeExpiringDeckId: number | null;
   blurData: string | undefined;
 };
@@ -34,27 +34,28 @@ const DeckScreen = ({
   stackImage,
   numberOfUserAnswers,
   totalCredits,
-  deckCost,
+  deckCreditCost,
   freeExpiringDeckId,
   blurData,
 }: DeckScreenProps) => {
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
 
-  const [isDeckStarted, setIsDeckStarted] = useState(
-    numberOfUserAnswers > 0 || !hasDeckInfo,
-  );
-
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
+  // If no preview deck info and not a premium deck start the deck immediately
+  const [isDeckStarted, setIsDeckStarted] = useState(
+    deckCreditCost === null && (numberOfUserAnswers > 0 || !hasDeckInfo),
+  );
 
   return (
     <>
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
-          {CREDIT_COST_FEATURE_FLAG && deckCost !== null ? (
+          {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
             <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
-              {totalCredits > deckCost ? (
+              {totalCredits >= deckCreditCost ? (
                 <span className="opacity-50">Balance </span>
               ) : (
                 <span className="opacity-60 text-chomp-red-dark">
@@ -70,21 +71,20 @@ const DeckScreen = ({
             color="green"
             className="pt-0 px-0"
           />
-          {hasDeckInfo && (
-            <PreviewDeckCard
-              {...deckInfo}
-              stackImage={stackImage}
-              totalNumberOfQuestions={questions.length}
-              deckCost={deckCost}
-              blurData={blurData}
-            />
-          )}
+          <PreviewDeckCard
+            {...deckInfo}
+            stackImage={stackImage}
+            totalNumberOfQuestions={questions.length}
+            deckCreditCost={deckCreditCost}
+            blurData={blurData}
+          />
           <DeckScreenAction
             currentDeckId={currentDeckId}
             setIsDeckStarted={setIsDeckStarted}
             totalCredits={totalCredits}
-            deckCost={deckCost}
+            deckCreditCost={deckCreditCost}
             freeExpiringDeckId={freeExpiringDeckId}
+            creditCostFeatureFlag={CREDIT_COST_FEATURE_FLAG}
           />
         </div>
       ) : (
@@ -93,6 +93,8 @@ const DeckScreen = ({
           deckId={currentDeckId}
           nextDeckId={nextDeckId}
           deckVariant="regular-deck"
+          deckCost={deckCreditCost}
+          creditCostFeatureFlag={CREDIT_COST_FEATURE_FLAG}
         />
       )}
     </>

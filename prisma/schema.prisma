@@ -144,6 +144,8 @@ model DeckQuestion {
   deck       Deck     @relation(fields: [deckId], references: [id])
   questionId Int
   question   Question @relation(fields: [questionId], references: [id])
+
+  @@unique([deckId, questionId])
 }
 
 model QuestionAnswer {
@@ -348,6 +350,7 @@ enum TransactionLogType {
   ConnectX
   ConnectTelegram
   MysteryBox
+  PremiumQuestionCharge
 }
 
 enum ResultType {

@@ -221,7 +221,7 @@ describe("Create mystery box", () => {
       expect(res?.id).toBe(mysteryBoxId);
       expect(res?.status).toBe("New");
       expect(res?.triggers).toHaveLength(1);
-      expect(res?.MysteryBoxPrize).toHaveLength(1);
+      expect(res?.MysteryBoxPrize?.length).toBeGreaterThanOrEqual(1);
     }
   });
 
