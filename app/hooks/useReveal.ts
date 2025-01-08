@@ -10,6 +10,7 @@ import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
 import { ChompResult, NftType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import bs58 from "bs58";
 import { release } from "os";
 import { useCallback, useEffect, useState } from "react";
 
@@ -261,7 +262,7 @@ export function useReveal({
           }
           const signer = await wallet!.getSigner();
 
-          const tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+          let tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
 
           const estimatedFee = await tx.getEstimatedFee(CONNECTION);
 
@@ -289,25 +290,22 @@ export function useReveal({
           setBurnState("burning");
 
           try {
-            const { signature: sn } = await promiseToast(
-              signer.signAndSendTransaction(tx),
-              {
-                loading: "Waiting for signature...",
-                success: "Bonk burn transaction signed!",
-                error: "You denied message signature.",
-              },
-            );
+            tx = await promiseToast(signer.signTransaction(tx), {
+              loading: "Waiting for signature...",
+              success: "Bonk burn transaction signed!",
+              error: "You denied message signature.",
+            });
+
+            if (tx.signature) signature = bs58.encode(tx.signature);
 
             trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_SIGNED, {
-              [TRACKING_METADATA.TRANSACTION_SIGNATURE]: sn,
+              [TRACKING_METADATA.TRANSACTION_SIGNATURE]: signature,
               [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
               [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
               [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
                 ? REVEAL_TYPE.ALL
                 : REVEAL_TYPE.SINGLE,
             });
-
-            signature = sn;
           } catch (error) {
             if ((error as any)?.message === "User rejected the request.")
               trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_CANCELLED, {
@@ -332,6 +330,8 @@ export function useReveal({
           );
 
           pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
+
+          await CONNECTION.sendRawTransaction(tx.serialize());
         } catch (error) {
           errorToast("Error happened while revealing question. Try again.");
           const dynamicRevealError = new DynamicRevealError(
