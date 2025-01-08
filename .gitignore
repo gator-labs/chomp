@@ -51,6 +51,7 @@ storybook-static
 **/public/workbox-*.js.map
 **/public/worker-*.js.map
 .env
+.env*
 
 # Sentry Config File
 .env.sentry-build-plugin
