@@ -16,7 +16,7 @@ const backupFile = path.resolve(__dirname, "backup.sql.gz");
 
 async function main() {
   // Dropping existing schema to avoid any conflicts
-  const databaseConnection = process.env.DATABASE_PRISMA_URL;
+  const databaseConnection = process.env.DATABASE_URL;
   execSync(`psql ${databaseConnection} -c "DROP SCHEMA public CASCADE;"`, {
     stdio: "inherit",
   });

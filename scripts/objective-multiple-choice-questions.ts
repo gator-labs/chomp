@@ -7,7 +7,7 @@ console.log(
   "\x1b[34m\x1b[1m --- SCRIPT FOR CREATING MC OBJECTIVE QUESTION --- \x1b[0m",
 );
 console.log("Loaded environment variables:");
-console.log("DATABASE_PRISMA_URL:", process.env.DATABASE_PRISMA_URL);
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
 const prisma = new PrismaClient();
 

@@ -10,7 +10,7 @@ import { format } from "date-fns";
 import { generateUsers } from "./utils";
 
 console.log("Loaded environment variables:");
-console.log("DATABASE_PRISMA_URL:", process.env.DATABASE_PRISMA_URL);
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
 const prisma = new PrismaClient();
 
