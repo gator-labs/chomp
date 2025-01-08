@@ -1,34 +1,47 @@
 name: Run Jest Tests
 
 on:
-  pull_request:
+  deployment_status:
 
 jobs:
-  build:
+  run-tests:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
           cache: "npm"
 
+      # Step 3: Install Vercel CLI
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      # Step 4: Pull Vercel Environment Variables for the Current Branch
+      - name: Pull Vercel Environment Variables
+        run: |
+          # Fetch the branch name from the GitHub context
+          BRANCH_NAME=${{ github.ref_name }}
+
+          # Explicitly link to the chomp-dev project under gator-labs scope
+          vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
+          
+          # Pull environment variables from the preview environment for the branch
+          vercel env pull --environment preview --branch $BRANCH_NAME .env --scope gator-labs --token ${{ secrets.VERCEL_TOKEN }}
+          
+          # Save variables to GitHub environment for later steps
+          cat .env | grep -v '^#' >> $GITHUB_ENV
+
+      # Step 5: Install dependencies
       - name: Install dependencies
         run: npm install
 
+      # Step 6: Run Jest tests
       - name: Run Jest tests
         run: npm run gh-test
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_DEMO }}
-          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED_DEMO }}
-          NEXT_PUBLIC_RPC_URL: ${{ secrets.NEXT_PUBLIC_RPC_URL }}
-          KV_REST_API_URL: ${{ secrets.KV_REST_API_URL_DEMO }}
-          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN_DEMO }}
-          MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
-          MINIMAL_ANSWERS_PER_QUESTION: 3
-          NEXT_PUBLIC_BONK_ADDRESS: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
-          BOT_API_KEY: "foobar"
-          BOT_TOKEN: "barfoo"
-          NEXT_PUBLIC_CHOMPMAS_MIN_STREAK: 7
