@@ -2,7 +2,7 @@
 
 import prisma from "@/app/services/prisma";
 import { sleep } from "@/app/utils/sleep";
-import { FungibleAsset, Prisma, TransactionLogType } from "@prisma/client";
+import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
 
