@@ -37,7 +37,9 @@ export async function createBuyCreidtsTx(deckId: number) {
     creditForQuestion[0].deckQuestions.length < 1 ||
     process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT === null
   ) {
-    throw new Error("Error preaparing the tx");
+    throw new Error(
+      "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
+    );
   }
 
   const deckCost =
@@ -57,7 +59,9 @@ export async function createBuyCreidtsTx(deckId: number) {
   });
 
   if (!wallet) {
-    throw new Error("Error preaparing the tx");
+    throw new Error(
+      "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
+    );
   }
 
   const fromWallet = Keypair.fromSecretKey(
@@ -66,16 +70,24 @@ export async function createBuyCreidtsTx(deckId: number) {
 
   const treasuryAddress = fromWallet.publicKey.toString();
 
-  const newChainTx = await prisma.chainTx.create({
-    data: {
-      status: EChainTxStatus.New,
-      solAmount: String(solAmount),
-      wallet: wallet?.address,
-      feeSolAmount: "0",
-      recipientAddress: treasuryAddress,
-      type: EChainTxType.CreditPurchase,
-    },
-  });
+  let newChainTx;
+
+  try {
+    newChainTx = await prisma.chainTx.create({
+      data: {
+        status: EChainTxStatus.New,
+        solAmount: String(solAmount),
+        wallet: wallet?.address,
+        feeSolAmount: "0",
+        recipientAddress: treasuryAddress,
+        type: EChainTxType.CreditPurchase,
+      },
+    });
+  } catch {
+    throw new Error(
+      "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
+    );
+  }
 
   // stimulate submitting tx
   await sleep(5000);
