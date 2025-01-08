@@ -194,6 +194,7 @@ model FungibleAssetTransactionLog {
   createdAt         DateTime           @default(now())
   change            Decimal
   userId            String
+  chainTxHash       String?
   user              User               @relation(fields: [userId], references: [id])
   question          Question?          @relation(fields: [questionId], references: [id])
   questionId        Int?
@@ -295,6 +296,19 @@ model MysteryBoxAllowlist {
   MysteryBoxTrigger MysteryBoxTrigger[]
 }
 
+model ChainTx {
+  id               Int            @id @default(autoincrement())
+  hash             String         @unique
+  status           EChainTxStatus
+  solAmount        String
+  feeSolAmount     String
+  wallet           String
+  recipientAddress String
+  type             EChainTxType
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @default(now()) @updatedAt
+}
+
 enum EMysteryBoxStatus {
   New
   Opened
@@ -351,6 +365,18 @@ enum TransactionLogType {
   ConnectTelegram
   MysteryBox
   PremiumQuestionCharge
+  CreditPurchase
+}
+
+enum EChainTxStatus {
+  New
+  Pending
+  Completed
+  Failed
+}
+
+enum EChainTxType {
+  CreditPurchase
 }
 
 enum ResultType {
