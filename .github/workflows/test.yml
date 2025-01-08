@@ -26,8 +26,8 @@ jobs:
       # Step 4: Pull Vercel Environment Variables for the Current Branch
       - name: Pull Vercel Environment Variables
         run: |
-          # Fetch the branch name from the GitHub context
-          BRANCH_NAME=${{ github.ref_name }}
+          # Extract the branch name from github.ref
+          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's|refs/heads/||')
           echo "Branch name: $BRANCH_NAME"
 
           # Explicitly link to the chomp-dev project under gator-labs scope
@@ -36,7 +36,7 @@ jobs:
           # Pull environment variables for the preview environment and the current branch
           echo "Pulling environment variables for branch: $BRANCH_NAME"
           vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
-          
+
           # Log the pulled variables (without sensitive values)
           echo "Pulled environment variables:"
           cat .env | grep -v '^#' | awk -F= '{print $1}'
