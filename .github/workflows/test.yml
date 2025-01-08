@@ -58,19 +58,42 @@ jobs:
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
 
           echo "Pulling environment variables for the preview environment and branch: $BRANCH_NAME"
-          vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs
+          vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
 
-          echo "Pulled environment variables (keys and values):"
-          cat .env | grep -v '^#'
+          echo "Saving .env file for subsequent steps."
+          cp .env $GITHUB_WORKSPACE/.env
 
-          echo "Saving environment variables to GitHub environment for subsequent steps."
-          cat .env | grep -v '^#' >> $GITHUB_ENV
-
-      # Step 6: Log All Set Environment Variables
-      - name: Log All Environment Variables
+      # Step 6: Verify and Sanitize Environment Variables
+      - name: Verify and Sanitize DATABASE_URL
         run: |
-          echo "Logging all environment variables available at this step."
-          printenv | sort
+          echo "Loading .env file."
+          source $GITHUB_WORKSPACE/.env
+
+          echo "Verifying the DATABASE_URL and DATABASE_URL_UNPOOLED."
+          echo "DATABASE_URL: $DATABASE_URL"
+          echo "DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
+
+          # Ensure the protocol is valid
+          if [[ $DATABASE_URL != postgres://* ]] && [[ $DATABASE_URL != postgresql://* ]]; then
+            echo "Error: DATABASE_URL does not have a valid protocol."
+            exit 1
+          fi
+
+          if [[ $DATABASE_URL_UNPOOLED != postgres://* ]] && [[ $DATABASE_URL_UNPOOLED != postgresql://* ]]; then
+            echo "Error: DATABASE_URL_UNPOOLED does not have a valid protocol."
+            exit 1
+          fi
+
+          # Remove quotes if present
+          DATABASE_URL=$(echo $DATABASE_URL | sed 's/^"\|"$//g')
+          DATABASE_URL_UNPOOLED=$(echo $DATABASE_URL_UNPOOLED | sed 's/^"\|"$//g')
+
+          echo "Sanitized DATABASE_URL: $DATABASE_URL"
+          echo "Sanitized DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
+
+          # Save sanitized variables to GitHub environment
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+          echo "DATABASE_URL_UNPOOLED=$DATABASE_URL_UNPOOLED" >> $GITHUB_ENV
 
       # Step 7: Install Dependencies
       - name: Install Dependencies
@@ -81,5 +104,5 @@ jobs:
       # Step 8: Run Jest Tests
       - name: Run Jest Tests
         run: |
-          echo "Running Jest tests using the pulled environment variables."
+          echo "Running Jest tests using the pulled and sanitized environment variables."
           npm run gh-test
