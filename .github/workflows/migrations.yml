@@ -14,29 +14,6 @@ on:
   workflow_dispatch: # Allow manual triggers
 
 jobs:
-  migrate_staging:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.base_ref == 'main' && github.event.pull_request.merged == true)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18" # Use Node.js version 18
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Run migrations
-        run: yarn prisma:migrate:prod
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
-          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED_STAGING }}
-
   migrate_prod:
     if: github.base_ref == 'prod' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
@@ -55,27 +32,5 @@ jobs:
       - name: Run migrations
         run: yarn prisma:migrate:prod
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
-          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED_PROD }}
-
-  migrate_demo:
-    if: github.ref == 'refs/heads/demo'  
-    runs-on: ubuntu-latest
-    steps:
-          - name: Checkout code
-            uses: actions/checkout@v3
-
-          - name: Set up Node.js
-            uses: actions/setup-node@v3
-            with:
-              node-version: '18'
-
-          - name: Install dependencies
-            run: yarn install --frozen-lockfile
-
-          - name: Run Migrations
-            env:
-              DATABASE_URL: ${{ secrets.DATABASE_URL_DEMO }}
-              DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED_DEMO }}
-            run: yarn prisma:migrate:prod
-    
+          DATABASE_URL: ${{ secrets.DATABASE_PRISMA_URL_PROD }}
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_NON_POOLING_PROD }}

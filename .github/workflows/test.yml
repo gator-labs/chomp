@@ -12,11 +12,29 @@ jobs:
       # Step 1: Checkout the repository
       - uses: actions/checkout@v2
 
-      # Step 2: Extract Branch Name
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
+      # Step 2: Fetch all branches and determine the source branch
+      - name: Get Deployment Source Branch
+        id: get-branch
+        run: |
+          echo "Fetching all branches to determine the source branch."
+          git fetch --all
+          echo "Fetched all branches:"
+          git branch -r
+
+          echo "Finding branches containing the deployment commit: ${{ github.event.deployment.ref }}"
+          source_branches=$(git branch -a --contains ${{ github.event.deployment.ref }})
+          echo "Branches containing the commit:"
+          echo "$source_branches"
+
+          branch_name=$(echo "$source_branches" | tail -n1 | sed 's|remotes/origin/||' | xargs)
+          echo "Determined branch name: $branch_name"
+
+          if [ -z "$branch_name" ]; then
+            echo "Error: Could not determine the branch name from the commit."
+            exit 1
+          fi
+
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
       # Step 3: Set up Node.js
       - name: Set up Node.js
@@ -32,31 +50,32 @@ jobs:
       # Step 5: Pull Vercel Environment Variables
       - name: Pull Vercel Environment Variables
         run: |
-          BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
-          echo "Branch name: $BRANCH_NAME"
+          echo "Starting the process to pull Vercel environment variables."
+          BRANCH_NAME="${{ steps.get-branch.outputs.branch_name }}"
+          echo "Using branch name: $BRANCH_NAME"
 
-          # Explicitly link to the chomp-dev project under gator-labs scope
+          echo "Linking to the chomp-dev project under the gator-labs scope."
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
 
-          # Pull environment variables for the preview environment and the extracted branch
-          echo "Pulling environment variables for branch: $BRANCH_NAME"
+          echo "Pulling environment variables for the preview environment and branch: $BRANCH_NAME"
           vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
 
-          # Log the pulled variables (without sensitive values)
-          echo "Pulled environment variables:"
+          echo "Pulled environment variables (keys only):"
           cat .env | grep -v '^#' | awk -F= '{print $1}'
 
-          # Save variables to GitHub environment for later steps
+          echo "Saving environment variables to GitHub environment for subsequent steps."
           cat .env | grep -v '^#' >> $GITHUB_ENV
 
-      # Step 6: Log All Set Environment Variables
+      # Step 6: Log All Environment Variables
       - name: Log Environment Variables
-        run: printenv | sort
+        run: |
+          echo "Logging all environment variables available at this step."
+          printenv | sort
 
-      # Step 7: Install dependencies
-      - name: Install dependencies
+      # Step 7: Install Dependencies
+      - name: Install Dependencies
         run: npm install
 
-      # Step 8: Run Jest tests
-      - name: Run Jest tests
+      # Step 8: Run Jest Tests
+      - name: Run Jest Tests
         run: npm run gh-test
