@@ -1,6 +1,8 @@
-import { buyInsufficientCreidts } from "@/app/actions/credits/buy";
+import { createBuyCreidtsTx } from "@/app/actions/credits/buy";
+import { useToast } from "@/app/providers/ToastProvider";
 import { DialogTitle } from "@radix-ui/react-dialog";
-import React from "react";
+import { useRouter } from "next-nprogress-bar";
+import React, { useState } from "react";
 
 import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
@@ -10,15 +12,36 @@ type BuyCreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   creditsToBuy: number;
+  deckId: number;
 };
 
 function BuyCreditsDrawer({
   isOpen,
   onClose,
   creditsToBuy,
+  deckId,
 }: BuyCreditsDrawerProps) {
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = Number(solPricePerCredit) * creditsToBuy;
+
+  const [isProcessingTx, setIsProcessingTx] = useState(false);
+
+  const { promiseToast } = useToast();
+
+  const router = useRouter();
+
+  const processTx = async () => {
+    setIsProcessingTx(true);
+    await promiseToast(createBuyCreidtsTx(deckId), {
+      error:
+        "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
+      success: "Transaction Successfull",
+      loading: "Preparing Transaction",
+    });
+    setIsProcessingTx(false);
+    onClose();
+    router.refresh();
+  };
 
   return (
     <Drawer
@@ -48,11 +71,7 @@ function BuyCreditsDrawer({
         <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
           {creditsToBuy} Credits ~${totalSolCost} SOL
         </span>
-        <Button
-          onClick={() => {
-            buyInsufficientCreidts();
-          }}
-        >
+        <Button onClick={processTx} disabled={isProcessingTx}>
           Buy Credits
         </Button>
         <Button onClick={onClose} variant="outline">

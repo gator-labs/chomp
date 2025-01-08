@@ -30,8 +30,10 @@ const DeckScreenAction = ({
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  const hasEnoughCredits = totalCredits >= (deckCreditCost ?? 0);
-  const creditsRequired = (deckCreditCost ?? 0) - totalCredits;
+  const hasEnoughCredits = deckCreditCost
+    ? totalCredits >= deckCreditCost
+    : null;
+  const creditsRequired = deckCreditCost ? deckCreditCost - totalCredits : 0;
   const isCurrentDeckFree = deckCreditCost === 0;
 
   const onClose = () => {
@@ -118,6 +120,7 @@ const DeckScreenAction = ({
           isOpen={isOpen}
           onClose={onClose}
           creditsToBuy={deckCreditCost}
+          deckId={currentDeckId}
         />
       )}
     </div>

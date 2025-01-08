@@ -399,10 +399,14 @@ export function Deck({
         </div>
       )}
 
-      <BuyCreditsDrawer
-        isOpen={isCreditsLow}
-        onClose={() => setIsCreditsLow(false)}
-      />
+      {deckCost && (
+        <BuyCreditsDrawer
+          isOpen={isCreditsLow}
+          onClose={() => setIsCreditsLow(false)}
+          creditsToBuy={deckCost}
+          deckId={deckId}
+        />
+      )}
 
       <AlertDialog open={isTimeOutPopUpVisible}>
         <AlertDialogContent onEscapeKeyDown={(e) => e.preventDefault()}>
