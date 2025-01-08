@@ -113,7 +113,7 @@ yarn test
 
 - [ ] Enable workflow migrations in `.github/workflows/migrations.yml`
 - [ ] Create DB in Vercel Storage
-- [ ] Add `DATABASE_PRISMA_URL_{ENVIRONMENT}` and `DATABASE_URL_NON_POOLING_{ENVIRONMENT}` to Github
+- [ ] Add `DATABASE_URL_{ENVIRONMENT}` and `DATABASE_URL_UNPOOLED_{ENVIRONMENT}` to Github
 
 ## Restoring database
 

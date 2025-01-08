@@ -8,7 +8,7 @@ console.log(
 );
 
 // Log Prisma connection URL
-console.log("\nUsing Prisma URL:", process.env.DATABASE_PRISMA_URL);
+console.log("\nUsing Prisma URL:", process.env.DATABASE_URL);
 
 async function main() {
   try {

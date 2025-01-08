@@ -34,8 +34,8 @@ jobs:
       - name: Run migrations
         run: yarn prisma:migrate:prod
         env:
-          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_STAGING }}
-          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_STAGING }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_STAGING }}
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED_STAGING }}
 
   migrate_prod:
     if: github.base_ref == 'prod' && github.event.pull_request.merged == true
@@ -55,8 +55,8 @@ jobs:
       - name: Run migrations
         run: yarn prisma:migrate:prod
         env:
-          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_PROD }}
-          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_PROD }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL_PROD }}
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED_PROD }}
 
   migrate_demo:
     if: github.ref == 'refs/heads/demo'  
@@ -75,7 +75,7 @@ jobs:
 
           - name: Run Migrations
             env:
-              DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_DEMO }}
-              DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_DEMO }}
+              DATABASE_URL: ${{ secrets.DATABASE_URL_DEMO }}
+              DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED_DEMO }}
             run: yarn prisma:migrate:prod
     

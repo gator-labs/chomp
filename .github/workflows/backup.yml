@@ -31,7 +31,7 @@ jobs:
 
       - name: Dump database
         run: |
-          /usr/lib/postgresql/16/bin/pg_dump ${{ secrets.DATABASE_PRISMA_URL_PROD }} | gzip > "${TIMESTAMP}.sql.gz"
+          /usr/lib/postgresql/16/bin/pg_dump ${{ secrets.DATABASE_URL_PROD }} | gzip > "${TIMESTAMP}.sql.gz"
 
       - name: Configure AWS credentials from Action OIDC
         uses: aws-actions/configure-aws-credentials@v1
