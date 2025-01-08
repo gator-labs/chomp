@@ -70,8 +70,8 @@ jobs:
           source .env
 
           echo "Verifying the DATABASE_URL and DATABASE_URL_UNPOOLED."
-          echo "DATABASE_URL: $DATABASE_URL"
-          echo "DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
+          # echo "DATABASE_URL: $DATABASE_URL"
+          # echo "DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
 
           # Ensure the protocol is valid
           if [[ $DATABASE_URL != postgres://* ]] && [[ $DATABASE_URL != postgresql://* ]]; then
@@ -88,8 +88,8 @@ jobs:
           DATABASE_URL=$(echo $DATABASE_URL | sed 's/^"\|"$//g')
           DATABASE_URL_UNPOOLED=$(echo $DATABASE_URL_UNPOOLED | sed 's/^"\|"$//g')
 
-          echo "Sanitized DATABASE_URL: $DATABASE_URL"
-          echo "Sanitized DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
+          # echo "Sanitized DATABASE_URL: $DATABASE_URL"
+          # echo "Sanitized DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
 
           # Save sanitized variables to GitHub environment
           echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
