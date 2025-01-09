@@ -21,8 +21,8 @@ export const updateTransactionLog = async (
   deckCost: number,
   userId: string,
 ) => {
-  const maxRetries = 6; // retry for 30 sec (6 attempts * 5 seconds)
-  const delayMs = 500; // 5 seconds
+  const maxRetries = 3; // retry for 15 sec (3 attempts * 5 seconds)
+  const delayMs = 5000; // 5 seconds
   let attempt = 0;
   let success = false;
 

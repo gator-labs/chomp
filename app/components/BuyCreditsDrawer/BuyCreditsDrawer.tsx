@@ -1,8 +1,15 @@
 import { createBuyCreidtsTx } from "@/app/actions/credits/createChainTx";
-import { useToast } from "@/app/providers/ToastProvider";
+import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
+import {
+  errorToastLayout,
+  successToastLayout,
+  toastOptions,
+} from "@/app/providers/ToastProvider";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { useRouter } from "next-nprogress-bar";
+import Link from "next/link";
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
@@ -26,18 +33,36 @@ function BuyCreditsDrawer({
 
   const [isProcessingTx, setIsProcessingTx] = useState(false);
 
-  const { promiseToast } = useToast();
-
   const router = useRouter();
 
   const processTx = async () => {
     setIsProcessingTx(true);
-    await promiseToast(createBuyCreidtsTx(deckId), {
-      error:
-        "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
-      success: "Transaction Successfull",
-      loading: "Preparing Transaction",
-    });
+
+    await createBuyCreidtsTx(deckId)
+      .then(() => {
+        toast(successToastLayout("Transaction Successful"), toastOptions);
+      })
+      .catch(() => {
+        toast(
+          errorToastLayout(
+            <div>
+              <p>Transaction Failed!</p>
+              <p>
+                Please try again. If this issue keeps happening, let us know on{" "}
+                <Link
+                  href={TELEGRAM_SUPPORT_LINK}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-200 hover:underline"
+                >
+                  Telegram
+                </Link>
+              </p>
+            </div>,
+          ),
+          toastOptions,
+        );
+      });
     setIsProcessingTx(false);
     onClose();
     router.refresh();
@@ -71,7 +96,11 @@ function BuyCreditsDrawer({
         <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
           {creditsToBuy} Credits ~${totalSolCost} SOL
         </span>
-        <Button onClick={processTx} disabled={isProcessingTx}>
+        <Button
+          onClick={processTx}
+          disabled={isProcessingTx}
+          isLoading={isProcessingTx}
+        >
           Buy Credits
         </Button>
         <Button onClick={onClose} variant="outline">

@@ -117,9 +117,9 @@ const DeckScreenAction = ({
         }}
       >
         {creditCostFeatureFlag &&
-          freeExpiringDeckId &&
-          !isCurrentDeckFree &&
-          deckCreditCost !== null ? (
+        freeExpiringDeckId &&
+        !isCurrentDeckFree &&
+        deckCreditCost !== null ? (
           <span className="flex items-center gap-2">
             Random Free Deck <Dice5Icon />
           </span>
