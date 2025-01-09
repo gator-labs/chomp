@@ -8,6 +8,10 @@
     {
       "path": "/api/process-pending-transaction",
       "schedule": "*/1 * * * *"
+    },
+    {
+      "path": "/api/treasury-balancer-alert",
+      "schedule": "0 * * * *"
     }
   ]
 }
