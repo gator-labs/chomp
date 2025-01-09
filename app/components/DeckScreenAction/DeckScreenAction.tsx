@@ -32,7 +32,7 @@ const DeckScreenAction = ({
 
   const hasEnoughCredits = deckCreditCost
     ? totalCredits >= deckCreditCost
-    : null;
+    : false;
   const creditsRequired = deckCreditCost ? deckCreditCost - totalCredits : 0;
   const isCurrentDeckFree = deckCreditCost === 0;
 
@@ -117,9 +117,9 @@ const DeckScreenAction = ({
         }}
       >
         {creditCostFeatureFlag &&
-        freeExpiringDeckId &&
-        !isCurrentDeckFree &&
-        deckCreditCost !== null ? (
+          freeExpiringDeckId &&
+          !isCurrentDeckFree &&
+          deckCreditCost !== null ? (
           <span className="flex items-center gap-2">
             Random Free Deck <Dice5Icon />
           </span>
