@@ -16,7 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { DynamicRevealError, RevealError } from "../../lib/error";
 import {
-  createQuestionChompResults,
+  createChompResultsAndSubmitSignedTx,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getJwtPayload } from "../actions/jwt";
@@ -321,16 +321,13 @@ export function useReveal({
             setProcessingTransaction(false);
           }
 
-          const chompResults = await createQuestionChompResults(
-            revealQuestionIds.map((qid) => ({
-              burnTx: signature!,
-              questionId: qid,
-            })),
+          const chompResults = await createChompResultsAndSubmitSignedTx(
+            revealQuestionIds,
+            tx,
+            signature!,
           );
 
           pendingChompResultIds = chompResults?.map((cr) => cr.id) ?? [];
-
-          await CONNECTION.sendRawTransaction(tx.serialize());
         } catch (error) {
           errorToast("Error happened while revealing question. Try again.");
           const dynamicRevealError = new DynamicRevealError(

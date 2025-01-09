@@ -14,6 +14,7 @@ import {
   TransactionStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import { Transaction } from "@solana/web3.js";
 // import { TransactionSignature } from "@solana/web3.js";
 import { revalidatePath } from "next/cache";
 
@@ -383,6 +384,28 @@ export async function createQuestionChompResult(
   }
 
   return results;
+}
+
+export async function createChompResultsAndSubmitSignedTx(
+  questionIds: number[],
+  tx: Transaction,
+  signature: string,
+) {
+  const chompResults = await createQuestionChompResults(
+    questionIds.map((qid) => ({
+      burnTx: signature,
+      questionId: qid,
+    })),
+  );
+
+  try {
+    await CONNECTION.sendRawTransaction(tx.serialize());
+  } catch (e) {
+    deleteQuestionChompResults(questionIds);
+    throw e;
+  }
+
+  return chompResults;
 }
 
 export async function deleteQuestionChompResults(ids: number[]) {
