@@ -36,31 +36,35 @@ function BuyCreditsDrawer({
   const processTx = async () => {
     setIsProcessingTx(true);
 
-    await createBuyCreditsTx(creditsToBuy)
-      .then(() => {
+    try {
+      const result = await createBuyCreditsTx(creditsToBuy);
+
+      if (result?.error) {
+        toast(errorToastLayout(result.error), toastOptions);
+      } else {
         toast(successToastLayout("Transaction Successful"), toastOptions);
-      })
-      .catch(() => {
-        toast(
-          errorToastLayout(
-            <div>
-              <p>Transaction Failed!</p>
-              <p>
-                Please try again. If this issue keeps happening, let us know on{" "}
-                <Link
-                  href={TELEGRAM_SUPPORT_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-purple-200 hover:underline"
-                >
-                  Telegram
-                </Link>
-              </p>
-            </div>,
-          ),
-          toastOptions,
-        );
-      });
+      }
+    } catch {
+      toast(
+        errorToastLayout(
+          <div>
+            <p>Transaction Failed!</p>
+            <p>
+              Please try again. If this issue keeps happening, let us know on{" "}
+              <Link
+                href={TELEGRAM_SUPPORT_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-200 hover:underline"
+              >
+                Telegram
+              </Link>
+            </p>
+          </div>,
+        ),
+        toastOptions,
+      );
+    }
     setIsProcessingTx(false);
     onClose();
     router.refresh();

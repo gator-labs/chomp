@@ -24,7 +24,9 @@ export async function createBuyCreditsTx(creditToBuy: number) {
   if (!payload || !process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) return;
 
   if (typeof creditToBuy !== "number" || creditToBuy <= 0) {
-    throw new Error("Invalid creditToBuy value. It must be a positive number.");
+    return {
+      error: "Invalid creditToBuy value. It must be a positive number.",
+    };
   }
 
   const solAmount =
@@ -41,9 +43,9 @@ export async function createBuyCreditsTx(creditToBuy: number) {
   });
 
   if (!wallet) {
-    throw new Error(
-      "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
-    );
+    return {
+      error: "Wallet not found.",
+    };
   }
 
   const fromWallet = Keypair.fromSecretKey(
@@ -67,9 +69,10 @@ export async function createBuyCreditsTx(creditToBuy: number) {
       },
     });
   } catch {
-    throw new Error(
-      "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
-    );
+    return {
+      error:
+        "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
+    };
   }
 
   // stimulate submitting tx
