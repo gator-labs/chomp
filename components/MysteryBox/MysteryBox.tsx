@@ -19,12 +19,15 @@ import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
 import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
 import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
 import { EMysteryBoxType, MysteryBoxProps } from "@/types/mysteryBox";
-import Lottie, { LottieRefCurrentProps } from "lottie-react";
+import { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
+import dynamic from "next/dynamic";
 import { Fragment, useEffect, useRef, useState } from "react";
 
 import CreditsDrawer from "../CreditsDrawer";
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
+
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 function buildMessage(lines: string[]) {
   return lines.map((line, index) =>
