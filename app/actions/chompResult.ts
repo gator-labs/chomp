@@ -188,7 +188,12 @@ export async function revealQuestions(
       `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
     );
     release();
-    Sentry.captureException(revealError);
+    Sentry.captureException(revealError, {
+      extra: {
+        questionIds,
+        burnTx,
+      },
+    });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
@@ -294,6 +299,7 @@ export async function revealQuestions(
       extra: {
         existingFatl: existingFatl,
         newFatl: revealPoints,
+        questionIds: questionIds,
       },
     });
   }

@@ -342,6 +342,9 @@ export function useReveal({
             tags: {
               category: "burn-error",
             },
+            extra: {
+              questionIds,
+            },
           });
           release();
           resetReveal();
@@ -424,7 +427,14 @@ export function useReveal({
         `User with id: ${payload?.sub} (wallet: ${address}) is having trouble revealing questions with question ids: ${questionIds}`,
         { cause: error },
       );
-      Sentry.captureException(revealError);
+      Sentry.captureException(revealError, {
+        tags: {
+          category: "reveal-error",
+        },
+        extra: {
+          questionIds,
+        },
+      });
       release();
     } finally {
       resetReveal();
