@@ -92,7 +92,10 @@ const DeckScreenAction = ({
           }
         }}
       >
-        {creditCostFeatureFlag && !hasEnoughCredits && deckCreditCost !== null
+        {creditCostFeatureFlag &&
+        !hasEnoughCredits &&
+        deckCreditCost !== null &&
+        deckCreditCost > 0
           ? `Buy ${creditsRequired} Credits`
           : "Begin Deck"}
         <CircleArrowRight />
@@ -129,14 +132,11 @@ const DeckScreenAction = ({
           "Back"
         )}
       </Button>
-      {deckCreditCost && (
-        <BuyCreditsDrawer
-          isOpen={isOpen}
-          onClose={onClose}
-          creditsToBuy={deckCreditCost}
-          deckId={currentDeckId}
-        />
-      )}
+      <BuyCreditsDrawer
+        isOpen={isOpen}
+        onClose={onClose}
+        creditsToBuy={creditsRequired}
+      />
     </div>
   );
 };

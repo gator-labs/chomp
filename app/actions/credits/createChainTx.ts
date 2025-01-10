@@ -5,6 +5,7 @@ import { sleep } from "@/app/utils/sleep";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
+import { v4 as uuidv4 } from "uuid";
 
 import { getJwtPayload } from "../jwt";
 import { updateTransactionLog } from "./updateTxLog";
@@ -17,37 +18,18 @@ import { updateTransactionLog } from "./updateTxLog";
  *               purchased based on deck id
  */
 
-export async function createBuyCreidtsTx(deckId: number) {
+export async function createBuyCreditsTx(creditToBuy: number) {
   const payload = await getJwtPayload();
 
-  if (!payload) return;
+  if (!payload || !process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) return;
 
-  const creditForQuestion = await prisma.deck.findMany({
-    where: {
-      id: deckId,
-    },
-    select: {
-      creditCostPerQuestion: true,
-      deckQuestions: true,
-    },
-  });
-
-  if (
-    !creditForQuestion[0].creditCostPerQuestion ||
-    creditForQuestion[0].deckQuestions.length < 1 ||
-    process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT === null
-  ) {
-    throw new Error(
-      "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
-    );
+  if (typeof creditToBuy !== "number" || creditToBuy <= 0) {
+    throw new Error("Invalid creditToBuy value. It must be a positive number.");
   }
 
-  const deckCost =
-    creditForQuestion[0].creditCostPerQuestion *
-    creditForQuestion[0].deckQuestions.length;
-
   const solAmount =
-    Number(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) * Number(deckCost);
+    Number(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) *
+    Number(creditToBuy);
 
   const wallet = await prisma.wallet.findFirst({
     where: {
@@ -75,6 +57,7 @@ export async function createBuyCreidtsTx(deckId: number) {
   try {
     newChainTx = await prisma.chainTx.create({
       data: {
+        hash: uuidv4(),
         status: EChainTxStatus.New,
         solAmount: String(solAmount),
         wallet: wallet?.address,
@@ -92,5 +75,5 @@ export async function createBuyCreidtsTx(deckId: number) {
   // stimulate submitting tx
   await sleep(5000);
 
-  await updateTransactionLog(newChainTx.hash, deckCost, payload.sub);
+  await updateTransactionLog(newChainTx.hash, creditToBuy, payload.sub);
 }

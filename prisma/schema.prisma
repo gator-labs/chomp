@@ -298,7 +298,7 @@ model MysteryBoxAllowlist {
 }
 
 model ChainTx {
-  hash                        String                        @id @default(uuid())
+  hash                        String                        @id
   wallet                      String
   type                        EChainTxType
   solAmount                   String

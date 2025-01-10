@@ -1,4 +1,4 @@
-import { createBuyCreidtsTx } from "@/app/actions/credits/createChainTx";
+import { createBuyCreditsTx } from "@/app/actions/credits/createChainTx";
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   errorToastLayout,
@@ -19,14 +19,12 @@ type BuyCreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   creditsToBuy: number;
-  deckId: number;
 };
 
 function BuyCreditsDrawer({
   isOpen,
   onClose,
   creditsToBuy,
-  deckId,
 }: BuyCreditsDrawerProps) {
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = Number(solPricePerCredit) * creditsToBuy;
@@ -38,7 +36,7 @@ function BuyCreditsDrawer({
   const processTx = async () => {
     setIsProcessingTx(true);
 
-    await createBuyCreidtsTx(deckId)
+    await createBuyCreditsTx(creditsToBuy)
       .then(() => {
         toast(successToastLayout("Transaction Successful"), toastOptions);
       })
@@ -94,7 +92,7 @@ function BuyCreditsDrawer({
           earn BONK rewards when answers are correct.
         </p>
         <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
-          {creditsToBuy} Credits ~${totalSolCost} SOL
+          {creditsToBuy} Credits ~ ${totalSolCost} SOL
         </span>
         <Button
           onClick={processTx}
