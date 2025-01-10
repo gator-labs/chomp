@@ -10,7 +10,7 @@
       "schedule": "*/1 * * * *"
     },
     {
-      "path": "/api/treasury-balancer-alert",
+      "path": "/api/treasury-balance-alert",
       "schedule": "0 * * * *"
     }
   ]
