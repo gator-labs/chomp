@@ -12,6 +12,7 @@ import { isAfter, isBefore } from "date-fns";
 
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
+import { sleep } from "../utils/sleep";
 
 export async function getActiveAndInactiveStacks() {
   return prisma.stack.findMany({
@@ -41,6 +42,8 @@ export async function getStack(id: number) {
   const jwt = await getJwtPayload();
   const userId = jwt?.sub;
   const now = new Date();
+
+  await sleep(20000);
 
   const stack = await prisma.stack.findUnique({
     where: {
