@@ -21,7 +21,11 @@ import { updateTransactionLog } from "./updateTxLog";
 export async function createBuyCreditsTx(creditToBuy: number) {
   const payload = await getJwtPayload();
 
-  if (!payload || !process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) return;
+  if (!payload || !process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) {
+    return {
+      error: "Something went wrong. Please try again.",
+    };
+  }
 
   if (typeof creditToBuy !== "number" || creditToBuy <= 0) {
     return {
