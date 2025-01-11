@@ -1,48 +1,54 @@
 "use server";
 
 import prisma from "@/app/services/prisma";
-import { sleep } from "@/app/utils/sleep";
 import { getTreasuryPrivateKey } from "@/lib/env-vars";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
-import { v4 as uuidv4 } from "uuid";
 
 import { getJwtPayload } from "../jwt";
 import { updateTransactionLog } from "./updateTxLog";
 
 /**
  * Create a new chainTx - Save the entry in chain tx table when
- * user initiate credit purchase, create sol tx and call update fatl action.
+ * user initiate credit purchase and sign the transaction
  *
- * @param deckId The backend should validate the amount of credit
- *               purchased based on deck id
+ * @param creditsToBuy The amount of credits to buy
+ *
+ * @param signature The signature of the signed transaction
  */
 
-export async function createBuyCreditsTx(creditToBuy: number) {
+export async function createSignedSignatureChainTx(
+  creditsToBuy: number,
+  signature: string,
+) {
   const payload = await getJwtPayload();
+
+  if (!payload) return;
+
+  const SOLANA_COST_PER_CREDIT = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
+
+  if (!SOLANA_COST_PER_CREDIT) {
+    return {
+      error: "Invalid SOL cost per credit.",
+    };
+  }
 
   const treasuryKey = getTreasuryPrivateKey();
 
-  if (
-    !payload ||
-    !process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT ||
-    !treasuryKey
-  ) {
+  if (!treasuryKey) {
     return {
-      error: "Internal Server Error",
+      error: "Internal server error.",
     };
   }
 
-  if (typeof creditToBuy !== "number" || creditToBuy <= 0) {
+  if (typeof creditsToBuy !== "number" || creditsToBuy <= 0) {
     return {
-      error: "Invalid creditToBuy value. It must be a positive number.",
+      error: "Invalid credits value. It must be a positive number.",
     };
   }
 
-  const solAmount =
-    Number(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) *
-    Number(creditToBuy);
+  const solAmount = Number(SOLANA_COST_PER_CREDIT) * Number(creditsToBuy);
 
   const wallet = await prisma.wallet.findFirst({
     where: {
@@ -55,7 +61,7 @@ export async function createBuyCreditsTx(creditToBuy: number) {
 
   if (!wallet) {
     return {
-      error: "Wallet not found.",
+      error: "Wallet not found",
     };
   }
 
@@ -63,12 +69,10 @@ export async function createBuyCreditsTx(creditToBuy: number) {
 
   const treasuryAddress = fromWallet.publicKey.toString();
 
-  let newChainTx;
-
   try {
-    newChainTx = await prisma.chainTx.create({
+    await prisma.chainTx.create({
       data: {
-        hash: uuidv4(),
+        hash: signature,
         status: EChainTxStatus.New,
         solAmount: String(solAmount),
         wallet: wallet?.address,
@@ -80,12 +84,9 @@ export async function createBuyCreditsTx(creditToBuy: number) {
   } catch {
     return {
       error:
-        "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
+        "Unable to create chain transaction. Don't worry, nothing was submitted on-chain. Please try again",
     };
   }
 
-  // stimulate submitting tx
-  await sleep(5000);
-
-  await updateTransactionLog(newChainTx.hash, creditToBuy, payload.sub);
+  await updateTransactionLog(signature, creditsToBuy, payload.sub);
 }
