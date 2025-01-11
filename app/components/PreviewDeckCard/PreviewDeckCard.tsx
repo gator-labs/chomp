@@ -78,7 +78,7 @@ const PreviewDeckCard = ({
           >
             <span className="opacity-50 pr-1">Entry </span>
             {deckCreditCost > 0
-              ? `${deckCreditCost} Credit${deckCreditCost !== 1 && "s"}`
+              ? `${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
               : "Free"}
             <InfoIcon fill="#0d0d0d" />
           </button>

@@ -31,3 +31,7 @@ CREATE INDEX "ChainTx_hash_idx" ON "ChainTx"("hash");
 
 -- AddForeignKey
 ALTER TABLE "FungibleAssetTransactionLog" ADD CONSTRAINT "FungibleAssetTransactionLog_chainTxHash_fkey" FOREIGN KEY ("chainTxHash") REFERENCES "ChainTx"("hash") ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE "ChainTx" 
+ADD CONSTRAINT "hash_not_empty" 
+CHECK ("hash" IS NOT NULL AND LENGTH("hash") > 85 AND LENGTH("hash") < 89);
