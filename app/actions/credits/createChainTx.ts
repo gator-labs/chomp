@@ -1,21 +1,21 @@
 "use server";
 
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
-import { getTreasuryPrivateKey } from "@/lib/env-vars";
+import { CreateChainTxError } from "@/lib/error";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
-import { Keypair } from "@solana/web3.js";
-import base58 from "bs58";
+import * as Sentry from "@sentry/nextjs";
 
 import { getJwtPayload } from "../jwt";
-import { updateTransactionLog } from "./updateTxLog";
 
 /**
- * Create a new chainTx - Save the entry in chain tx table when
- * user initiate credit purchase and sign the transaction
+ * Creates initial chainTx record when user signs a credit purchase transaction
  *
- * @param creditsToBuy The amount of credits to buy
+ * @param creditsToBuy The amount of credits being purchased
  *
- * @param signature The signature of the signed transaction
+ * @param signature Transaction signature after user signs
+ *
+ * @returns Created chainTx record or error
  */
 
 export async function createSignedSignatureChainTx(
@@ -24,31 +24,15 @@ export async function createSignedSignatureChainTx(
 ) {
   const payload = await getJwtPayload();
 
-  if (!payload) return;
+  if (!payload) throw new Error("User not authenticated");
 
   const SOLANA_COST_PER_CREDIT = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
 
   if (!SOLANA_COST_PER_CREDIT) {
-    return {
-      error: "Invalid SOL cost per credit.",
-    };
+    throw new Error("Invalid SOL cost per credit.");
   }
 
-  const treasuryKey = getTreasuryPrivateKey();
-
-  if (!treasuryKey) {
-    return {
-      error: "Internal server error.",
-    };
-  }
-
-  if (typeof creditsToBuy !== "number" || creditsToBuy <= 0) {
-    return {
-      error: "Invalid credits value. It must be a positive number.",
-    };
-  }
-
-  const solAmount = Number(SOLANA_COST_PER_CREDIT) * Number(creditsToBuy);
+  const solAmount = Number(SOLANA_COST_PER_CREDIT) * creditsToBuy;
 
   const wallet = await prisma.wallet.findFirst({
     where: {
@@ -60,14 +44,14 @@ export async function createSignedSignatureChainTx(
   });
 
   if (!wallet) {
-    return {
-      error: "Wallet not found",
-    };
+    throw new Error("Wallet not found");
   }
 
-  const fromWallet = Keypair.fromSecretKey(base58.decode(treasuryKey));
+  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_PUBLIC_ADDRESS!;
 
-  const treasuryAddress = fromWallet.publicKey.toString();
+  if (!treasuryAddress) {
+    throw new Error("Treasury address not found");
+  }
 
   try {
     await prisma.chainTx.create({
@@ -81,12 +65,19 @@ export async function createSignedSignatureChainTx(
         type: EChainTxType.CreditPurchase,
       },
     });
-  } catch {
-    return {
-      error:
-        "Unable to create chain transaction. Don't worry, nothing was submitted on-chain. Please try again",
-    };
+  } catch (error) {
+    const createChainTxError = new CreateChainTxError(
+      `Unable to create Chain Tx for user ${payload.sub}`,
+      { cause: error },
+    );
+    Sentry.captureException(createChainTxError, {
+      extra: {
+        creditAmount: creditsToBuy,
+        address: wallet.address,
+        signature,
+      },
+    });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+    throw createChainTxError;
   }
-
-  await updateTransactionLog(signature, creditsToBuy, payload.sub);
 }

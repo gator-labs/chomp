@@ -1,47 +1,34 @@
-import { creditPurchaseTx } from "@/lib/credits";
+import { initiateCreditPurchase } from "@/lib/credits/initiatePurchase";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana";
-import { useRouter } from "next-nprogress-bar";
-import { useCallback, useState } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
+
+import { errorToastLayout } from "../providers/ToastProvider";
 
 interface UseCreditPurchaseProps {
   primaryWallet: Wallet | null;
 }
 
-/**
- * Hook to manage credit purchase flow
- * Handles transaction signing and sending to on-chain
- */
 export function useCreditPurchase({ primaryWallet }: UseCreditPurchaseProps) {
   const [isProcessingTx, setIsProcessingTx] = useState(false);
-  const router = useRouter();
 
-  /**
-   * Processes the credit purchase transaction in two steps:
-   * 1. Sign the transaction using the wallet
-   * 2. Submit and confirm the transaction
-   */
-  const processCreditPurchase = useCallback(
-    async (creditsToBuy: number) => {
-      if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
-        toast.error("Please connect your Solana wallet first");
-        return;
-      }
+  const processCreditPurchase = async (creditsToBuy: number) => {
+    if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
+      errorToastLayout("Please connect your Solana wallet first");
+      return;
+    }
 
-      setIsProcessingTx(true);
-
-      try {
-        await creditPurchaseTx(creditsToBuy, primaryWallet);
-      } catch (error) {
-        console.error("Credit purchase process failed:", error);
-        throw new Error("Credit purchase failed");
-      } finally {
-        setIsProcessingTx(false);
-      }
-    },
-    [primaryWallet, router],
-  );
+    try {
+      await initiateCreditPurchase(
+        creditsToBuy,
+        primaryWallet,
+        setIsProcessingTx,
+      );
+    } catch (error: any) {
+      console.error("Credit purchase process failed:", error);
+      throw new Error(error.message || "Credit purchase failed");
+    }
+  };
 
   return {
     isProcessingTx,

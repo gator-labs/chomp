@@ -1,10 +1,6 @@
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import { useCreditPurchase } from "@/app/hooks/useCreditPurchase";
-import {
-  errorToastLayout,
-  successToastLayout,
-  toastOptions,
-} from "@/app/providers/ToastProvider";
+import { errorToastLayout, toastOptions } from "@/app/providers/ToastProvider";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Link from "next/link";
@@ -37,33 +33,32 @@ function BuyCreditsDrawer({
   });
 
   const buyCredits = async () => {
-    await processCreditPurchase(creditsToBuy)
-      .then(() => {
-        onClose();
-        successToastLayout("Credits purchased successfully!");
-        router.refresh();
-      })
-      .catch((error: any) => {
-        toast(
-          errorToastLayout(
-            <div>
-              <p>{error.message}</p>
-              <p>
-                Please try again. If this issue keeps happening, let us know on{" "}
-                <Link
-                  href={TELEGRAM_SUPPORT_LINK}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-purple-200 hover:underline"
-                >
-                  Telegram
-                </Link>
-              </p>
-            </div>,
-          ),
-          toastOptions,
-        );
-      });
+    try {
+      await processCreditPurchase(creditsToBuy);
+      toast.success("Credits purchased successfully");
+      onClose();
+      router.refresh();
+    } catch (error: any) {
+      toast(
+        errorToastLayout(
+          <div>
+            <p>{error.message}</p>
+            <p>
+              Please try again. If this issue keeps happening, let us know on{" "}
+              <Link
+                href={TELEGRAM_SUPPORT_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-200 hover:underline"
+              >
+                Telegram
+              </Link>
+            </p>
+          </div>,
+        ),
+        toastOptions,
+      );
+    }
   };
 
   return (
