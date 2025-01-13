@@ -65,6 +65,7 @@ type DeckProps = {
   deckVariant?: "daily-deck" | "regular-deck";
   deckCost: number | null;
   creditCostFeatureFlag: boolean;
+  totalCredits: number;
 };
 
 const getDueAt = (questions: Question[], index: number): Date => {
@@ -80,6 +81,7 @@ export function Deck({
   deckId,
   deckCost,
   creditCostFeatureFlag,
+  totalCredits,
 }: DeckProps) {
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
@@ -118,10 +120,10 @@ export function Deck({
 
   const handleNextIndex = useCallback(async () => {
     if (creditCostFeatureFlag && deckCost !== null && deckCost > 0) {
-      const totalCredits = await getUserTotalCreditAmount();
+      const userCreditBal = await getUserTotalCreditAmount();
       const costPerQuestion = deckCost / questions.length;
       const isLastQuestion = currentQuestionIndex + 1 === questions.length;
-      if (totalCredits < costPerQuestion && !isLastQuestion) {
+      if (userCreditBal < costPerQuestion && !isLastQuestion) {
         setIsCreditsLow(true);
         return;
       }
@@ -402,6 +404,7 @@ export function Deck({
       <BuyCreditsDrawer
         isOpen={isCreditsLow}
         onClose={() => setIsCreditsLow(false)}
+        creditsToBuy={deckCost ? deckCost - totalCredits : 0}
       />
 
       <AlertDialog open={isTimeOutPopUpVisible}>

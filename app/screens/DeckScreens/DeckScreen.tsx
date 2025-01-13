@@ -94,6 +94,7 @@ const DeckScreen = ({
           nextDeckId={nextDeckId}
           deckVariant="regular-deck"
           deckCost={deckCreditCost}
+          totalCredits={totalCredits}
           creditCostFeatureFlag={CREDIT_COST_FEATURE_FLAG}
         />
       )}

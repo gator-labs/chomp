@@ -126,3 +126,13 @@ export class QuestionMultiDecksError extends Error {
     this.name = "QuestionMultiDecksError";
   }
 }
+
+export class CreditTxLogUpdateError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CreditTxLogUpdateError";
+
+    // Set the prototype explicitly.
+    Object.setPrototypeOf(this, CreditTxLogUpdateError.prototype);
+  }
+}

@@ -201,6 +201,8 @@ model FungibleAssetTransactionLog {
   deckId            Int?
   mysteryBoxPrize   MysteryBoxPrize?   @relation(fields: [mysteryBoxPrizeId], references: [id])
   mysteryBoxPrizeId String?            @unique
+  chainTx           ChainTx?           @relation(fields: [chainTxHash], references: [hash])
+  chainTxHash       String?
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
@@ -295,6 +297,22 @@ model MysteryBoxAllowlist {
   MysteryBoxTrigger MysteryBoxTrigger[]
 }
 
+model ChainTx {
+  hash                        String                        @id
+  wallet                      String
+  type                        EChainTxType
+  solAmount                   String
+  feeSolAmount                String
+  recipientAddress            String
+  status                      EChainTxStatus                @default(New)
+  createdAt                   DateTime                      @default(now())
+  finalizedAt                 DateTime?
+  failedAt                    DateTime?
+  FungibleAssetTransactionLog FungibleAssetTransactionLog[]
+
+  @@index([hash])
+}
+
 enum EMysteryBoxStatus {
   New
   Opened
@@ -351,6 +369,7 @@ enum TransactionLogType {
   ConnectTelegram
   MysteryBox
   PremiumQuestionCharge
+  CreditPurchase
 }
 
 enum ResultType {
@@ -376,4 +395,14 @@ enum AnswerStatus {
   Submitted
   TimedOut
   Skipped
+}
+
+enum EChainTxType {
+  CreditPurchase
+}
+
+enum EChainTxStatus {
+  New
+  Confirmed
+  Finalized
 }
