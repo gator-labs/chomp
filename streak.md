@@ -38,7 +38,7 @@ JOIN dec31_users d31 ON u.id = d31."userId"
 JOIN jan2_users j2 ON u.id = j2."userId"
 LEFT JOIN jan1_users j1 ON u.id = j1."userId"
 WHERE j1."userId" IS NULL
-ORDER BY u.username
+ORDER BY u.username;
 
 -- Insert QuestionAnswers
 INSERT INTO "QuestionAnswer" ("questionOptionId", "userId", "percentage", "status", "selected", "timeToAnswer", "createdAt", "updatedAt")
@@ -49,8 +49,8 @@ SELECT
     'Submitted'::text::public."AnswerStatus",
     tu.first_option_selected,
     6000,
-    TIMESTAMP '2024-01-01 12:00:00.000',
-    TIMESTAMP '2024-01-01 12:00:00.000'
+    TIMESTAMP '2025-01-01 12:00:00.000',
+    TIMESTAMP '2025-01-01 12:00:00.000'
 FROM target_users tu
 UNION ALL
 SELECT 
@@ -60,8 +60,8 @@ SELECT
     'Submitted'::text::public."AnswerStatus",
     NOT tu.first_option_selected,
     6000,
-    TIMESTAMP '2024-01-01 12:00:00.000',
-    TIMESTAMP '2024-01-01 12:00:00.000'
+    TIMESTAMP '2025-01-01 12:00:00.000',
+    TIMESTAMP '2025-01-01 12:00:00.000'
 FROM target_users tu;
 
 -- Insert ChompResults
@@ -72,18 +72,18 @@ SELECT
     'Revealed'::text::public."ResultType",
     'Completed'::text::public."TransactionStatus",
     0,
-    'STREAK_RECOVERY_NOT_REAL_TX_01_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    TIMESTAMP '2024-01-01 12:00:00.000',
-    TIMESTAMP '2024-01-01 12:00:00.000'
+    'STREAK_RECOVERY_NOT_REAL_TX_01_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    TIMESTAMP '2025-01-01 12:00:00.000',
+    TIMESTAMP '2025-01-01 12:00:00.000'
 FROM target_users tu;
 
 -- Verify the inserted records
 SELECT 'QuestionAnswer' as type, * FROM "QuestionAnswer" 
-WHERE "createdAt" = TIMESTAMP '2024-01-01 12:00:00.000'
+WHERE "createdAt" = TIMESTAMP '2025-01-01 12:00:00.000'
 ORDER BY "userId", "questionOptionId";
 
 SELECT 'ChompResult' as type, * FROM "ChompResult" 
-WHERE "createdAt" = TIMESTAMP '2024-01-01 12:00:00.000'
+WHERE "createdAt" = TIMESTAMP '2025-01-01 12:00:00.000'
 ORDER BY "userId";
 
 -- Clean up
