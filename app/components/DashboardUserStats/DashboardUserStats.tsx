@@ -31,10 +31,10 @@ export async function DashboardUserStats() {
       />
       <StatsBox
         title={totalClaimedAmount.toLocaleString("en-US")}
-        description="BONK Claimed"
+        description="BONK Won"
         icon={<InfoIcon width={25} height={25} />}
         drawerProps={{
-          title: "BONK Claimed",
+          title: "BONK Won",
           description:
             "Knowledge pays off. Earn BONK for providing the best answers. Keep stacking! ",
           type: HOME_STAT_CARD_TYPE.BONK_CLAIMED as keyof typeof HOME_STAT_CARD_TYPE,

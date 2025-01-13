@@ -1,6 +1,10 @@
 "use server";
 
-import { getChompmasMysteryBox, isUserInAllowlist } from "@/lib/mysteryBox";
+import {
+  calculateTotalPrizeTokens,
+  getChompmasMysteryBox,
+  isUserInAllowlist,
+} from "@/lib/mysteryBox";
 import { FungibleAsset } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
@@ -366,14 +370,25 @@ export async function getUsersTotalClaimedAmount(): Promise<number> {
 }
 
 async function queryUsersTotalClaimedAmount(userId: string): Promise<number> {
-  const result: { totalClaimedAmount: number }[] = await prisma.$queryRaw`
-  SELECT ROUND(SUM("rewardTokenAmount")) AS "totalClaimedAmount"
+  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+
+  const [{ questionTotalClaimedAmount }]: {
+    questionTotalClaimedAmount: number;
+  }[] = await prisma.$queryRaw`
+  SELECT ROUND(SUM("rewardTokenAmount")) AS "questionTotalClaimedAmount"
   FROM public."ChompResult"
   WHERE "result" = 'Claimed' 
   AND "userId" = ${userId}
   `;
 
-  return Number(result[0].totalClaimedAmount);
+  const mysteryBoxTotalClaimedAmount = await calculateTotalPrizeTokens(
+    userId,
+    bonkAddress,
+  );
+
+  return (
+    Number(questionTotalClaimedAmount) + Number(mysteryBoxTotalClaimedAmount)
+  );
 }
 
 /**
