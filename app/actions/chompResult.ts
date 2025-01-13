@@ -402,6 +402,12 @@ export async function createChompResultsAndSubmitSignedTx(
   tx: Transaction,
   signature: string,
 ) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
   const chompResults = await createQuestionChompResults(
     questionIds.map((qid) => ({
       burnTx: signature,
