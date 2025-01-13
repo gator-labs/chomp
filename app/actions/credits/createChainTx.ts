@@ -2,6 +2,7 @@
 
 import prisma from "@/app/services/prisma";
 import { sleep } from "@/app/utils/sleep";
+import { getTreasuryPrivateKey } from "@/lib/env-vars";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import { Keypair } from "@solana/web3.js";
 import base58 from "bs58";
@@ -21,9 +22,15 @@ import { updateTransactionLog } from "./updateTxLog";
 export async function createBuyCreditsTx(creditToBuy: number) {
   const payload = await getJwtPayload();
 
-  if (!payload || !process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) {
+  const treasuryKey = getTreasuryPrivateKey();
+
+  if (
+    !payload ||
+    !process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT ||
+    !treasuryKey
+  ) {
     return {
-      error: "Something went wrong. Please try again.",
+      error: "Internal Server Error",
     };
   }
 
@@ -52,9 +59,7 @@ export async function createBuyCreditsTx(creditToBuy: number) {
     };
   }
 
-  const fromWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
-  );
+  const fromWallet = Keypair.fromSecretKey(base58.decode(treasuryKey));
 
   const treasuryAddress = fromWallet.publicKey.toString();
 
