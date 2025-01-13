@@ -52,7 +52,6 @@ export async function initiateCreditPurchase(
     // Step 3: Submit transaction on-chain and handle confirmation
     await processTransaction(transaction, creditsToBuy, setIsProcessingTx);
   } catch (error) {
-    console.error("Failed to initiate credit purchase", error);
     const initiatePurchaseError = new BuyCreditProcessError(
       `Failed to initiate purchase for user: ${payload.sub}`,
       { cause: error },
@@ -64,7 +63,7 @@ export async function initiateCreditPurchase(
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    throw new Error("Failed to initiate credit purchase");
+    throw error;
   } finally {
     release();
   }
