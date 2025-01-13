@@ -30,8 +30,8 @@ const LeaderboardRanking = ({ label, loggedUserId, ranking }: Props) => {
           {ranking.map((rankItem) => {
             const name = rankItem.user.username
               ? `@${rankItem.user.username}`
-              : rankItem.user.wallets[0].address
-                ? formatAddress(rankItem.user.wallets[0].address)
+              : rankItem.user.wallets[0]?.address
+                ? formatAddress(rankItem.user.wallets[0]?.address)
                 : "mocked user";
             return (
               <RankingCard
