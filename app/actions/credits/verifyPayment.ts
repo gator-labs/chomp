@@ -1,7 +1,6 @@
 "use server";
 
 import prisma from "@/app/services/prisma";
-
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import base58 from "bs58";
 import Decimal from "decimal.js";
@@ -26,8 +25,8 @@ export async function verifyPayment(txHash: string) {
   const record = await prisma.chainTx.findFirst({
     where: {
       hash: txHash,
-      wallet: payload.sub
-    }
+      wallet: payload.sub,
+    },
   });
 
   if (!record) {
@@ -73,6 +72,19 @@ export async function verifyPayment(txHash: string) {
     for (const instruction of instructions) {
       if ("parsed" in instruction) {
         const parsed = instruction.parsed;
+
+        // Protects against scenario where money flows to the treasury in
+        // one instruction but then back out in another (could potentially
+        // still be valid if the net amount is correct, but there are
+        // many edge cases to consider if we allow this...)
+        if (
+          parsed.type === "transfer" &&
+          parsed.info.source === treasuryWallet &&
+          parsed.info.lamports > 0
+        ) {
+          release();
+          return false;
+        }
 
         if (
           parsed.type === "transfer" &&
