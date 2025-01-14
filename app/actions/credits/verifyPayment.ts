@@ -1,15 +1,17 @@
 "use server";
 
+import prisma from "@/app/services/prisma";
+
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import base58 from "bs58";
 import Decimal from "decimal.js";
 
-import { getWalletOwner } from "../../lib/wallet";
-import { acquireMutex } from "../utils/mutex";
-import { CONNECTION } from "../utils/solana";
-import { getJwtPayload } from "./jwt";
+import { getWalletOwner } from "../../../lib/wallet";
+import { acquireMutex } from "../../utils/mutex";
+import { CONNECTION } from "../../utils/solana";
+import { getJwtPayload } from "../jwt";
 
-export async function verifySolPayment(txHash: string, solAmount: string) {
+export async function verifyPayment(txHash: string) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -20,6 +22,20 @@ export async function verifySolPayment(txHash: string, solAmount: string) {
     identifier: "VERIFY_SOL_PAYMENT",
     data: { userId: payload.sub },
   });
+
+  const record = await prisma.chainTx.findFirst({
+    where: {
+      hash: txHash,
+      wallet: payload.sub
+    }
+  });
+
+  if (!record) {
+    release();
+    return false;
+  }
+
+  const solAmount = record.solAmount;
 
   const treasuryWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
