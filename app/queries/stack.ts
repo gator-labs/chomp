@@ -62,8 +62,16 @@ export async function getStack(id: number) {
                     },
                   },
                   questionOptions: {
-                    include: {
-                      questionAnswers: true,
+                    select: {
+                      _count: {
+                        select: {
+                          questionAnswers: {
+                            where: {
+                              userId,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },

@@ -21,9 +21,9 @@ const StackPage = async ({ params: { id } }: PageProps) => {
   if (!stack || (stack.isActive === false && stack?.isVisible === false))
     return notFound();
 
-  const deckQuestions = stack.deck.flatMap((d) => d.deckQuestions);
+  // const deckQuestions = stack.deck.flatMap((d) => d.deckQuestions);
 
-  const totalNumberOfCards = getTotalNumberOfDeckQuestions(deckQuestions);
+  // const totalNumberOfCards = getTotalNumberOfDeckQuestions(deckQuestions);
 
   const blurData = await getBlurData(stack.image);
 
@@ -47,7 +47,7 @@ const StackPage = async ({ params: { id } }: PageProps) => {
           <h1 className="text-base mb-3">{stack.name}</h1>
           <p className="text-xs mb-6">
             {stack.deck.length} deck{stack.deck.length === 1 ? "" : "s"},{" "}
-            {totalNumberOfCards} cards
+            {/* {totalNumberOfCards} cards */}
           </p>
           <Link
             href={`/application/leaderboard/stack/${id}`}
@@ -84,13 +84,14 @@ const StackPage = async ({ params: { id } }: PageProps) => {
                 .length
             }
             numberOfUserQuestionsAnswers={
-              deck.deckQuestions
-                .flatMap((dq) =>
-                  dq.question.questionOptions.flatMap(
-                    (qo) => qo.questionAnswers,
-                  ),
-                )
-                .filter((qa) => qa.userId === user?.id).length
+              10
+              // deck.deckQuestions
+              //   .flatMap((dq) =>
+              //     dq.question.questionOptions.flatMap(
+              //       (qo) => qo.questionAnswers,
+              //     ),
+              //   )
+              //   .filter((qa) => qa.userId === user?.id).length
             }
             activeFromDate={deck.activeFromDate || deck.createdAt}
             userId={user?.id}

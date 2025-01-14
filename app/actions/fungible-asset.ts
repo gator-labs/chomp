@@ -18,13 +18,13 @@ export const getTransactionHistory = async () => {
     return [];
   }
 
-  const transactionHistory = await prisma.fungibleAssetTransactionLog.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    take: 25,
-  });
+  // const transactionHistory = await prisma.fungibleAssetTransactionLog.findMany({
+  //   where: { userId },
+  //   orderBy: { createdAt: "desc" },
+  //   take: 25,
+  // });
 
-  return transactionHistory;
+  return [];
 };
 
 interface IncrementFungibleAssetBalanceProps {

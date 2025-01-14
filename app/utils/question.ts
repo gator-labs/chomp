@@ -194,25 +194,17 @@ export const filterQuestionsByMinimalNumberOfAnswers = <
   );
 };
 
-export const getTotalNumberOfDeckQuestions = (
-  deckQuestions: (DeckQuestion & {
-    question: Question & {
-      questionOptions: (QuestionOption & {
-        questionAnswers: QuestionAnswer[];
-      })[];
-    };
-  })[],
-) => {
-  return deckQuestions.filter((dq) => {
-    const numberOfAnswers = dq.question.questionOptions
-      .flatMap((qo) => qo.questionAnswers)
-      .filter(
-        (item, index, self) =>
-          index === self.findIndex((el) => el.userId === item.userId),
-      ).length;
-
-    return (
-      numberOfAnswers >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION || 0)
-    );
-  }).length;
+export const getTotalNumberOfDeckQuestions = (id: number) => {
+  return id;
+  // return deckQuestions.filter((dq) => {
+  //   const numberOfAnswers = dq.question.questionOptions
+  //     .flatMap((qo) => qo.questionAnswers)
+  //     .filter(
+  //       (item, index, self) =>
+  //         index === self.findIndex((el) => el.userId === item.userId),
+  //     ).length;
+  //   return (
+  //     numberOfAnswers >= Number(process.env.MINIMAL_ANSWERS_PER_QUESTION || 0)
+  //   );
+  // }).length;
 };
