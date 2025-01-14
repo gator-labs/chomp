@@ -397,15 +397,15 @@ export async function createQuestionChompResult(
  * submitting the transaction (already signed by the user)
  * to the chain.
  *
- * @param questionIds Array of question IDs.
- * @param tx          Burn transaction, already signed.
- * @param signature   Signature of the above transaction.
+ * @param questionIds  Array of question IDs.
+ * @param serializedTx Burn transaction, serialized and already signed.
+ * @param signature    Signature of the above transaction.
  *
  * @return results    An array of created chomp results.
  */
 export async function createChompResultsAndSubmitSignedTx(
   questionIds: number[],
-  tx: Transaction,
+  serializedTx: string,
   signature: string,
 ) {
   const payload = await getJwtPayload();
@@ -413,6 +413,8 @@ export async function createChompResultsAndSubmitSignedTx(
   if (!payload) {
     return [];
   }
+
+  const tx = new Uint8Array(JSON.parse(serializedTx));
 
   const chompResults = await createQuestionChompResults(
     questionIds.map((qid) => ({
@@ -422,7 +424,7 @@ export async function createChompResultsAndSubmitSignedTx(
   );
 
   try {
-    await CONNECTION.sendRawTransaction(tx.serialize());
+    await CONNECTION.sendRawTransaction(tx);
   } catch (e) {
     deleteQuestionChompResults(questionIds);
     throw e;
