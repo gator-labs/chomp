@@ -36,7 +36,10 @@ export async function updateTxStatusToConfirmed(hash: string) {
     try {
       await prisma.chainTx.update({
         where: { hash },
-        data: { status: EChainTxStatus.Confirmed, hash },
+        data: {
+          status: EChainTxStatus.Confirmed,
+          hash,
+        },
       });
       success = true;
     } catch {
@@ -61,6 +64,7 @@ export async function updateTxStatusToConfirmed(hash: string) {
 export async function updateTxStatusToFinalized(
   hash: string,
   creditAmount: number,
+  feesInSOL: number | undefined,
 ) {
   let attempt = 0;
   let success = false;
@@ -82,6 +86,7 @@ export async function updateTxStatusToFinalized(
             status: EChainTxStatus.Finalized,
             finalizedAt: new Date(),
             hash,
+            feeSolAmount: feesInSOL ? feesInSOL.toString() : undefined,
           },
         });
 

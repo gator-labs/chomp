@@ -6,7 +6,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { CONNECTION } from "@/app/utils/solana";
 import * as Sentry from "@sentry/nextjs";
-import { Transaction } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, Transaction } from "@solana/web3.js";
 import pRetry from "p-retry";
 
 import {
@@ -79,6 +79,7 @@ export async function processTransaction(
   try {
     // Wait for finalization
     await pRetry(async () => {
+      let feesInSOL;
       const latestBlockhash = await CONNECTION.getLatestBlockhash();
       await CONNECTION.confirmTransaction(
         {
@@ -88,8 +89,18 @@ export async function processTransaction(
         "finalized",
       );
 
+      const txInfo = await CONNECTION.getTransaction(txHash, {
+        maxSupportedTransactionVersion: 0,
+      });
+
+      const fees = txInfo?.meta?.fee;
+
+      if (fees) {
+        feesInSOL = fees / LAMPORTS_PER_SOL;
+      }
+
       // Update chain tx status to finalized
-      await updateTxStatusToFinalized(txHash, creditsToBuy);
+      await updateTxStatusToFinalized(txHash, creditsToBuy, feesInSOL);
     }, CONFIRMATION_OPTIONS);
 
     setIsProcessingTx(false);
