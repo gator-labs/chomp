@@ -91,6 +91,6 @@ export async function createBuyCreditsTx(creditToBuy: number) {
 
   return {
     error: null,
-    txHash: newChainTx.hash
+    txHash: newChainTx.hash,
   };
 }
