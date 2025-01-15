@@ -11,6 +11,14 @@ import { v4 as uuidv4 } from "uuid";
 import { getJwtPayload } from "../jwt";
 import { updateTransactionLog } from "./updateTxLog";
 
+export type BuyCreditsResult =
+  | {
+      error: string;
+    }
+  | {
+      txHash: string;
+    };
+
 /**
  * Create a new chainTx - Save the entry in chain tx table when
  * user initiate credit purchase, create sol tx and call update fatl action.
@@ -19,7 +27,9 @@ import { updateTransactionLog } from "./updateTxLog";
  *               purchased based on deck id
  */
 
-export async function createBuyCreditsTx(creditToBuy: number) {
+export async function createBuyCreditsTx(
+  creditToBuy: number,
+): Promise<BuyCreditsResult> {
   const payload = await getJwtPayload();
 
   const treasuryKey = getTreasuryPrivateKey();
@@ -90,7 +100,6 @@ export async function createBuyCreditsTx(creditToBuy: number) {
   await updateTransactionLog(newChainTx.hash, creditToBuy, payload.sub);
 
   return {
-    error: null,
     txHash: newChainTx.hash,
   };
 }

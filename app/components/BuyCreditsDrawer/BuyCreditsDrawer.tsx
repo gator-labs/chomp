@@ -40,7 +40,7 @@ function BuyCreditsDrawer({
     try {
       const result = await createBuyCreditsTx(creditsToBuy);
 
-      if (result?.error) {
+      if ("error" in result) {
         toast(errorToastLayout(result.error), toastOptions);
       } else {
         const isValid = await verifyPayment(result.txHash);
@@ -48,7 +48,10 @@ function BuyCreditsDrawer({
         if (isValid) {
           toast(successToastLayout("Transaction successful"), toastOptions);
         } else {
-          toast(successToastLayout("Transaction could not be confirmed"), toastOptions);
+          toast(
+            successToastLayout("Transaction could not be confirmed"),
+            toastOptions,
+          );
         }
       }
     } catch {
