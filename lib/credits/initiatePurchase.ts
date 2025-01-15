@@ -46,7 +46,7 @@ export async function initiateCreditPurchase(
 
     if (!data) {
       return {
-        error: "User rejected transaction",
+        error: "Transaction declined",
       };
     }
 
