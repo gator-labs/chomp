@@ -17,6 +17,7 @@ import { useCallback, useEffect, useState } from "react";
 import { DynamicRevealError, RevealError } from "../../lib/error";
 import {
   createChompResultsAndSubmitSignedTx,
+  deleteQuestionChompResults,
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getJwtPayload } from "../actions/jwt";
@@ -406,6 +407,10 @@ export function useReveal({
         setRevealNft(undefined);
       }
     } catch (error) {
+      if (pendingChompResultIds.length > 0) {
+        await deleteQuestionChompResults(pendingChompResultIds);
+      }
+
       await trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
         [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
           ? REVEAL_TYPE.ALL
