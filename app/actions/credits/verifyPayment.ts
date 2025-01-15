@@ -1,6 +1,7 @@
 "use server";
 
 import prisma from "@/app/services/prisma";
+import { getTreasuryPrivateKey } from "@/lib/env-vars";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import base58 from "bs58";
 import Decimal from "decimal.js";
@@ -37,7 +38,7 @@ export async function verifyPayment(txHash: string) {
   const solAmount = record.solAmount;
 
   const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
+    base58.decode(getTreasuryPrivateKey()),
   );
 
   let transferVerified = false;
