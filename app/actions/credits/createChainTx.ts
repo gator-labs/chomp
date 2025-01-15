@@ -2,6 +2,7 @@
 
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
+import { getTreasuryPublicKey } from "@/lib/constant";
 import { CreateChainTxError } from "@/lib/error";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
@@ -24,12 +25,18 @@ export async function createSignedSignatureChainTx(
 ) {
   const payload = await getJwtPayload();
 
-  if (!payload) throw new Error("User not authenticated");
+  if (!payload) {
+    return {
+      error: "User not authenticated",
+    };
+  }
 
   const SOLANA_COST_PER_CREDIT = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
 
   if (!SOLANA_COST_PER_CREDIT) {
-    throw new Error("Invalid SOL cost per credit.");
+    return {
+      error: "Invalid SOL cost per credit.",
+    };
   }
 
   const solAmount = Number(SOLANA_COST_PER_CREDIT) * creditsToBuy;
@@ -44,13 +51,17 @@ export async function createSignedSignatureChainTx(
   });
 
   if (!wallet) {
-    throw new Error("Wallet not found");
+    return {
+      error: "Wallet not found, please connect your wallet",
+    };
   }
 
-  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_PUBLIC_ADDRESS!;
+  const treasuryAddress = getTreasuryPublicKey();
 
   if (!treasuryAddress) {
-    throw new Error("Treasury address not found");
+    return {
+      error: "Invalid treasury address",
+    };
   }
 
   try {
@@ -78,6 +89,9 @@ export async function createSignedSignatureChainTx(
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    throw createChainTxError;
+    return {
+      error:
+        "Unable to prepare transaction. Don't worry, nothing was submitted on-chain. Please try again",
+    };
   }
 }

@@ -11,6 +11,7 @@ import {
 } from "@solana/web3.js";
 import bs58 from "bs58";
 
+import { getTreasuryPublicKey } from "../constant";
 import { UserRejectedBuyCreditTxError } from "../error";
 import { setupTransactionPriorityFee } from "../priorityFee";
 
@@ -35,10 +36,12 @@ export async function createCreditPurchaseTransaction(
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
 
-  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_PUBLIC_ADDRESS!;
+  const treasuryAddress = getTreasuryPublicKey();
 
   if (!treasuryAddress) {
-    throw new Error("Treasury address not found");
+    return {
+      error: "Invalid treasury address",
+    };
   }
 
   // Create base transaction

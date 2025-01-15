@@ -34,7 +34,11 @@ export async function processTransaction(
 ) {
   const payload = await getJwtPayload();
 
-  if (!payload) throw new Error("User not authenticated");
+  if (!payload) {
+    return {
+      error: "User not authenticated",
+    };
+  }
 
   // Send transaction
   const txHash = await CONNECTION.sendRawTransaction(

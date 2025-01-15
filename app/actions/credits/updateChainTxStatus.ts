@@ -25,7 +25,11 @@ export async function updateTxStatusToConfirmed(hash: string) {
 
   const payload = await getJwtPayload();
 
-  if (!payload) throw new Error("Unauthorized access");
+  if (!payload) {
+    return {
+      error: "User not authenticated",
+    };
+  }
 
   while (attempt < MAX_RETRIES && !success) {
     attempt++;

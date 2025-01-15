@@ -26,7 +26,9 @@ export async function initiateCreditPurchase(
 ) {
   const payload = await getJwtPayload();
   if (!payload) {
-    throw new Error("User not authenticated");
+    return {
+      error: "User not authenticated",
+    };
   }
 
   const release = await acquireMutex({
@@ -42,15 +44,38 @@ export async function initiateCreditPurchase(
       setIsProcessingTx,
     );
 
-    if (!data) throw new Error("User rejected transaction");
+    if (!data) {
+      return {
+        error: "User rejected transaction",
+      };
+    }
 
     const { transaction, signature } = data;
 
     // Step 2: Record the signed transaction in ChainTx
-    await createSignedSignatureChainTx(creditsToBuy, signature);
+    const chainTx = await createSignedSignatureChainTx(
+      creditsToBuy,
+      signature!,
+    );
+
+    if (chainTx?.error) {
+      return {
+        error: chainTx.error,
+      };
+    }
 
     // Step 3: Submit transaction on-chain and handle confirmation
-    await processTransaction(transaction, creditsToBuy, setIsProcessingTx);
+    const result = await processTransaction(
+      transaction!,
+      creditsToBuy,
+      setIsProcessingTx,
+    );
+
+    if (result?.error) {
+      return {
+        error: result.error,
+      };
+    }
   } catch (error) {
     const initiatePurchaseError = new BuyCreditProcessError(
       `Failed to initiate purchase for user: ${payload.sub}`,

@@ -3,8 +3,6 @@ import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana";
 import { useState } from "react";
 
-import { errorToastLayout } from "../providers/ToastProvider";
-
 interface UseCreditPurchaseProps {
   primaryWallet: Wallet | null;
 }
@@ -14,19 +12,25 @@ export function useCreditPurchase({ primaryWallet }: UseCreditPurchaseProps) {
 
   const processCreditPurchase = async (creditsToBuy: number) => {
     if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
-      errorToastLayout("Please connect your Solana wallet first");
-      return;
+      return {
+        error: "Please connect your Solana wallet first",
+      };
     }
 
     try {
-      await initiateCreditPurchase(
+      const result = await initiateCreditPurchase(
         creditsToBuy,
         primaryWallet,
         setIsProcessingTx,
       );
-    } catch (error: any) {
-      console.error("Credit purchase process failed:", error);
-      throw new Error(error.message || "Credit purchase failed");
+
+      if (result?.error) {
+        return {
+          error: result.error,
+        };
+      }
+    } catch {
+      throw new Error("Credit purchase failed");
     }
   };
 

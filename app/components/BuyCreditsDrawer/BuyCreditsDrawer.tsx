@@ -1,6 +1,10 @@
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import { useCreditPurchase } from "@/app/hooks/useCreditPurchase";
-import { errorToastLayout, toastOptions } from "@/app/providers/ToastProvider";
+import {
+  errorToastLayout,
+  successToastLayout,
+  toastOptions,
+} from "@/app/providers/ToastProvider";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Link from "next/link";
@@ -34,15 +38,21 @@ function BuyCreditsDrawer({
 
   const buyCredits = async () => {
     try {
-      await processCreditPurchase(creditsToBuy);
-      toast.success("Credits purchased successfully");
+      const result = await processCreditPurchase(creditsToBuy);
+
+      if (result?.error) {
+        toast(errorToastLayout(result.error), toastOptions);
+        return;
+      }
+
+      toast(successToastLayout("Credits purchased successfully"), toastOptions);
       onClose();
       router.refresh();
-    } catch (error: any) {
+    } catch {
       toast(
         errorToastLayout(
           <div>
-            <p>{error.message}</p>
+            <p>Transaction failed</p>
             <p>
               Please try again. If this issue keeps happening, let us know on{" "}
               <Link
