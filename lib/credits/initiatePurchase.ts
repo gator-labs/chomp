@@ -1,13 +1,9 @@
-import { createSignedSignatureChainTx } from "@/app/actions/credits/createChainTx";
+import { createSignedSignatureChainTx } from "@/actions/credits/createChainTx";
+import { createCreditPurchaseTransaction } from "@/actions/credits/createTransaction";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { acquireMutex } from "@/app/utils/mutex";
+import { processTransaction } from "@/lib/credits/processTransaction";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
-import * as Sentry from "@sentry/nextjs";
-
-import { BuyCreditProcessError } from "../error";
-import { createCreditPurchaseTransaction } from "./createTransaction";
-import { processTransaction } from "./processTransaction";
 
 /**
  * Initiates and processes a credit purchase transaction
@@ -77,17 +73,6 @@ export async function initiateCreditPurchase(
       };
     }
   } catch (error) {
-    const initiatePurchaseError = new BuyCreditProcessError(
-      `Failed to initiate purchase for user: ${payload.sub}`,
-      { cause: error },
-    );
-    Sentry.captureException(initiatePurchaseError, {
-      extra: {
-        creditAmount: creditsToBuy,
-        address: wallet.address,
-      },
-    });
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
     throw error;
   } finally {
     release();

@@ -1,13 +1,13 @@
 "use server";
 
+import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
-import { getTreasuryPublicKey } from "@/lib/constant";
 import { CreateChainTxError } from "@/lib/error";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 
-import { getJwtPayload } from "../jwt";
+import { getJwtPayload } from "../../app/actions/jwt";
 
 /**
  * Creates initial chainTx record when user signs a credit purchase transaction
@@ -35,7 +35,7 @@ export async function createSignedSignatureChainTx(
 
   if (!SOLANA_COST_PER_CREDIT) {
     return {
-      error: "Invalid SOL cost per credit.",
+      error: "SOLANA_COST_PER_CREDIT env var is not defined",
     };
   }
 
@@ -56,11 +56,11 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const treasuryAddress = getTreasuryPublicKey();
+  const treasuryAddress = await getTreasuryAddress();
 
   if (!treasuryAddress) {
     return {
-      error: "Invalid treasury address",
+      error: "Treasury address is not defined",
     };
   }
 

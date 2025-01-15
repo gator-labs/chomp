@@ -1,12 +1,11 @@
-import {
-  updateTxStatusToConfirmed,
-  updateTxStatusToFinalized,
-} from "@/app/actions/credits/updateChainTxStatus";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { CONNECTION } from "@/app/utils/solana";
+import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
+import { updateTxStatusToFinalized } from "@/lib/credits/updateTxStatusFinalized";
 import * as Sentry from "@sentry/nextjs";
-import { LAMPORTS_PER_SOL, Transaction } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Transaction } from "@solana/web3.js";
 import pRetry from "p-retry";
 
 import {
@@ -43,7 +42,9 @@ export async function processTransaction(
   // Send transaction
   const txHash = await CONNECTION.sendRawTransaction(
     signedTransaction.serialize(),
-    { skipPreflight: true },
+    {
+      skipPreflight: true,
+    },
   );
 
   try {

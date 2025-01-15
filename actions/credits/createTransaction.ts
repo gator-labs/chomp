@@ -1,6 +1,10 @@
+// Note: "use server" is not used as Dynamic package is not compatible server side
+import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
-import { Wallet } from "@dynamic-labs/sdk-react-core";
+import { UserRejectedBuyCreditTxError } from "@/lib/error";
+import { setupTransactionPriorityFee } from "@/lib/priorityFee";
+import type { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
 import * as Sentry from "@sentry/nextjs";
 import {
@@ -10,10 +14,6 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import bs58 from "bs58";
-
-import { getTreasuryPublicKey } from "../constant";
-import { UserRejectedBuyCreditTxError } from "../error";
-import { setupTransactionPriorityFee } from "../priorityFee";
 
 /**
  * Creates a Transaction of SOL transfer and signed by the user
@@ -36,7 +36,7 @@ export async function createCreditPurchaseTransaction(
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
 
-  const treasuryAddress = getTreasuryPublicKey();
+  const treasuryAddress = await getTreasuryAddress();
 
   if (!treasuryAddress) {
     return {

@@ -134,13 +134,6 @@ export class ChainTxStatusUpdateError extends Error {
   }
 }
 
-export class BuyCreditProcessError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.name = "BuyCreditProcessError";
-  }
-}
-
 export class UserRejectedBuyCreditTxError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);

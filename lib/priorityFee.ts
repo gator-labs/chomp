@@ -1,7 +1,11 @@
 import { HIGH_PRIORITY_FEE } from "@/app/constants/fee";
 import { getRecentPrioritizationFees } from "@/app/queries/getPriorityFeeEstimate";
+import { sleep } from "@/app/utils/sleep";
 import { CONNECTION } from "@/app/utils/solana";
 import { ComputeBudgetProgram, PublicKey, Transaction } from "@solana/web3.js";
+import pRetry from "p-retry";
+
+const MAX_RETRIES = 3;
 
 /**
  * Sets up the transaction priority fee for a Solana transaction
@@ -31,26 +35,32 @@ export async function setupTransactionPriorityFee(
   });
   tx.add(modifyComputeUnits);
 
-  let estimateFee = await getRecentPrioritizationFees(tx);
+  let estimateFee;
 
-  // Verify the estimateFee is not null due to RPC request failure in some cases
-  if (estimateFee === null) {
-    for (let i = 0; i < 2; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      estimateFee = await getRecentPrioritizationFees(tx);
-      if (estimateFee !== null) break;
-    }
-
-    // Set median priority fee if estimateFee is still null
-    if (estimateFee === null) {
-      estimateFee = {
-        result: {
-          priorityFeeLevels: {
-            high: HIGH_PRIORITY_FEE,
-          },
+  try {
+    estimateFee = await pRetry(
+      async () => {
+        const fee = await getRecentPrioritizationFees(tx);
+        if (fee === null) {
+          throw new Error("Failed to get priority fee estimate");
+        }
+        return fee;
+      },
+      {
+        retries: MAX_RETRIES,
+        onFailedAttempt: () => {
+          sleep(3000);
         },
-      };
-    }
+      },
+    );
+  } catch {
+    estimateFee = {
+      result: {
+        priorityFeeLevels: {
+          high: HIGH_PRIORITY_FEE,
+        },
+      },
+    };
   }
 
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
