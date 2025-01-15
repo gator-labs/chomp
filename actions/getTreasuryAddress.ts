@@ -14,7 +14,6 @@ export const getTreasuryAddress = async () => {
   const fromWallet = Keypair.fromSecretKey(base58.decode(treasuryKey));
 
   const treasuryAddress = fromWallet.publicKey.toString();
-  console.log("🚀 ~ getTreasuryAddress ~ treasuryAddress:", treasuryAddress);
 
-  return "FcK2aTUPqQtneyLyRHibeft22pq6JfVkkGN25FPkGTCn";
+  return treasuryAddress;
 };
