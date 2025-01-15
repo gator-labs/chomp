@@ -88,4 +88,9 @@ export async function createBuyCreditsTx(creditToBuy: number) {
   await sleep(5000);
 
   await updateTransactionLog(newChainTx.hash, creditToBuy, payload.sub);
+
+  return {
+    error: null,
+    txHash: newChainTx.hash
+  };
 }

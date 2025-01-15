@@ -1,4 +1,5 @@
 import { createBuyCreditsTx } from "@/app/actions/credits/createChainTx";
+import { verifyPayment } from "@/app/actions/credits/verifyPayment";
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   errorToastLayout,
@@ -42,7 +43,13 @@ function BuyCreditsDrawer({
       if (result?.error) {
         toast(errorToastLayout(result.error), toastOptions);
       } else {
-        toast(successToastLayout("Transaction Successful"), toastOptions);
+        const isValid = await verifyPayment(result.txHash);
+
+        if (isValid) {
+          toast(successToastLayout("Transaction successful"), toastOptions);
+        } else {
+          toast(successToastLayout("Transaction could not be confirmed"), toastOptions);
+        }
       }
     } catch {
       toast(
