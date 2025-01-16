@@ -2,6 +2,11 @@
 
 import prisma from "@/app/services/prisma";
 import { getTreasuryPrivateKey } from "@/lib/env-vars";
+import {
+  EChainTxStatus,
+  FungibleAsset,
+  TransactionLogType,
+} from "@prisma/client";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import base58 from "bs58";
 import Decimal from "decimal.js";
@@ -99,6 +104,29 @@ export async function verifyPayment(txHash: string) {
   } catch (error) {
     release();
     return false;
+  }
+
+  if (transferVerified) {
+    await prisma.$transaction(async (tx) => {
+      await tx.chainTx.update({
+        data: {
+          status: EChainTxStatus.Finalized,
+        },
+        where: {
+          hash: txHash,
+        },
+      });
+
+      await tx.fungibleAssetTransactionLog.create({
+        data: {
+          chainTxHash: record.hash,
+          asset: FungibleAsset.Credit,
+          change: record.solAmount,
+          userId: payload.sub,
+          type: TransactionLogType.CreditPurchase,
+        },
+      });
+    });
   }
 
   release();

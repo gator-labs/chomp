@@ -9,7 +9,6 @@ import base58 from "bs58";
 import { v4 as uuidv4 } from "uuid";
 
 import { getJwtPayload } from "../jwt";
-import { updateTransactionLog } from "./updateTxLog";
 
 export type BuyCreditsResult =
   | {
@@ -96,8 +95,6 @@ export async function createBuyCreditsTx(
 
   // stimulate submitting tx
   await sleep(5000);
-
-  await updateTransactionLog(newChainTx.hash, creditToBuy, payload.sub);
 
   return {
     txHash: newChainTx.hash,
