@@ -31,6 +31,7 @@ export async function verifyPayment(txHash: string) {
   const record = await prisma.chainTx.findFirst({
     where: {
       hash: txHash,
+      status: EChainTxStatus.New,
     },
   });
 
