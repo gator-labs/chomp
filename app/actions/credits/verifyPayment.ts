@@ -10,6 +10,7 @@ import {
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import base58 from "bs58";
 import Decimal from "decimal.js";
+import pRetry from "p-retry";
 
 import { getWalletOwner } from "../../../lib/wallet";
 import { acquireMutex } from "../../utils/mutex";
@@ -49,9 +50,20 @@ export async function verifyPayment(txHash: string) {
   let transferVerified = false;
 
   try {
-    const txInfo = await CONNECTION.getParsedTransaction(txHash, {
-      commitment: "finalized",
-    });
+    const txInfo = await pRetry(
+      async () => {
+        const txInfo = await CONNECTION.getParsedTransaction(txHash, {
+          commitment: "finalized",
+        });
+
+        if (!txInfo?.transaction) throw new Error("Transaction not found");
+
+        return txInfo;
+      },
+      {
+        retries: 4,
+      },
+    );
 
     if (!txInfo) {
       release();
