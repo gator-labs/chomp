@@ -26,7 +26,6 @@ export async function verifyPayment(txHash: string) {
   const record = await prisma.chainTx.findFirst({
     where: {
       hash: txHash,
-      wallet: payload.sub,
     },
   });
 
@@ -38,7 +37,7 @@ export async function verifyPayment(txHash: string) {
   const solAmount = record.solAmount;
 
   const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(getTreasuryPrivateKey()),
+    base58.decode(getTreasuryPrivateKey() ?? ""),
   );
 
   let transferVerified = false;
@@ -61,7 +60,7 @@ export async function verifyPayment(txHash: string) {
 
     const walletOwner = await getWalletOwner(wallet);
 
-    if (walletOwner != payload.sub) {
+    if (walletOwner != payload.sub || record.wallet != wallet) {
       release();
       return false;
     }
