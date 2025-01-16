@@ -274,6 +274,7 @@ async function queryQuestionsForReadyToReveal(
   AND
   qa.selected = true AND qa."userId" = ${userId}
   ORDER BY  q."createdAt" DESC
+  LIMIT 100
   `;
 
   return revealQuestions;
