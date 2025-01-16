@@ -263,6 +263,8 @@ export function useReveal({
 
           let tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
 
+          let { lastValidBlockHeight } = tx;
+
           const estimatedFee = await tx.getEstimatedFee(CONNECTION);
 
           if (!estimatedFee) {
@@ -294,6 +296,14 @@ export function useReveal({
               success: "Bonk burn transaction signed!",
               error: "You denied message signature.",
             });
+
+            let blockHeight = await CONNECTION.getBlockHeight();
+
+            if (blockHeight >= lastValidBlockHeight) {
+              errorToast("Signature expired. Try again.");
+              resetReveal();
+              return;
+            }
 
             if (tx.signature) signature = bs58.encode(tx.signature);
 
