@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { ChompResult, Question, ResultType } from "@prisma/client";
 import { isAfter } from "date-fns";
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 
 import { DeckGraphic } from "../Graphics/DeckGraphic";
@@ -155,7 +154,7 @@ const StackDeckCard = ({
 
   const linkPath = getDeckPath(deckId);
 
-  const Wrapper = !!userId ? Link : "div";
+  const Wrapper = !!userId ? "a" : "div";
 
   return (
     <>
@@ -169,7 +168,6 @@ const StackDeckCard = ({
         onClick={() => {
           if (!userId) setIsLoginModalOpen(true);
         }}
-        scroll={false}
         href={linkPath}
         className={cn(
           "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
