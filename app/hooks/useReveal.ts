@@ -323,7 +323,7 @@ export function useReveal({
 
           const chompResults = await createChompResultsAndSubmitSignedTx(
             revealQuestionIds,
-            tx,
+            JSON.stringify(Array.from(tx.serialize())),
             signature!,
           );
 
