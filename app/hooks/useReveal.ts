@@ -309,7 +309,7 @@ export function useReveal({
               error: "You denied message signature.",
             });
 
-            let blockHeight = await CONNECTION.getBlockHeight();
+            const blockHeight = await CONNECTION.getBlockHeight();
 
             if (blockHeight >= lastValidBlockHeight) {
               errorToast("Signature expired. Try again.");
