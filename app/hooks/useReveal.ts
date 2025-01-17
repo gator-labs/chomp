@@ -275,7 +275,7 @@ export function useReveal({
 
           let tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
 
-          let { lastValidBlockHeight } = tx;
+          const { lastValidBlockHeight } = tx;
 
           const estimatedFee = await tx.getEstimatedFee(CONNECTION);
 
