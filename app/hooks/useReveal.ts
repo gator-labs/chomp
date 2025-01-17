@@ -311,10 +311,12 @@ export function useReveal({
 
             const blockHeight = await CONNECTION.getBlockHeight();
 
-            if (blockHeight >= lastValidBlockHeight) {
-              errorToast("Signature expired. Try again.");
-              resetReveal();
-              return;
+            if (blockHeight && lastValidBlockHeight) {
+              if (blockHeight >= lastValidBlockHeight) {
+                errorToast("Signature expired. Try again.");
+                resetReveal();
+                return;
+              }
             }
 
             if (tx.signature) signature = bs58.encode(tx.signature);
