@@ -49,7 +49,7 @@ const createGetTransactionTask = async (signature: string) => {
       commitment: "confirmed",
       maxSupportedTransactionVersion: 0,
     });
-  } catch (e) {
+  } catch {
     return null;
   }
 };
