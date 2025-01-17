@@ -35,3 +35,5 @@ ALTER TABLE "FungibleAssetTransactionLog" ADD CONSTRAINT "FungibleAssetTransacti
 ALTER TABLE "ChainTx" 
 ADD CONSTRAINT "hash_not_empty" 
 CHECK ("hash" IS NOT NULL AND LENGTH("hash") > 85 AND LENGTH("hash") < 89);
+
+CREATE UNIQUE INDEX "FungibleAssetTransactionLog_type_chainTxHash_userId_key" ON "FungibleAssetTransactionLog" ("type", "chainTxHash", "userId");

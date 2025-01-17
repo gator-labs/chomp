@@ -1,7 +1,7 @@
 import { createSignedSignatureChainTx } from "@/actions/credits/createChainTx";
-import { createCreditPurchaseTransaction } from "@/actions/credits/createTransaction";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { acquireMutex } from "@/app/utils/mutex";
+import { createCreditPurchaseTransaction } from "@/lib/credits/createTransaction";
 import { processTransaction } from "@/lib/credits/processTransaction";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 
@@ -73,8 +73,10 @@ export async function initiateCreditPurchase(
       };
     }
   } catch (error) {
+    console.log("Error initiating purchase", error);
     throw error;
   } finally {
+    setIsProcessingTx(false);
     release();
   }
 }

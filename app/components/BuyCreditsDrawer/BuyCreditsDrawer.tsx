@@ -1,10 +1,10 @@
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
-import { useCreditPurchase } from "@/app/hooks/useCreditPurchase";
 import {
   errorToastLayout,
   successToastLayout,
   toastOptions,
 } from "@/app/providers/ToastProvider";
+import { useCreditPurchase } from "@/hooks/useCreditPurchase";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Link from "next/link";

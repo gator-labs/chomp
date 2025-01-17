@@ -1,4 +1,3 @@
-// Note: "use server" is not used as Dynamic package is not compatible server side
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";

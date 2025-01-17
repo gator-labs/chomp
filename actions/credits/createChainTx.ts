@@ -31,15 +31,15 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const SOLANA_COST_PER_CREDIT = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
+  const solanaCostPerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
 
-  if (!SOLANA_COST_PER_CREDIT) {
+  if (!solanaCostPerCredit) {
     return {
       error: "SOLANA_COST_PER_CREDIT env var is not defined",
     };
   }
 
-  const solAmount = Number(SOLANA_COST_PER_CREDIT) * creditsToBuy;
+  const solAmount = Number(solanaCostPerCredit) * creditsToBuy;
 
   const wallet = await prisma.wallet.findFirst({
     where: {
