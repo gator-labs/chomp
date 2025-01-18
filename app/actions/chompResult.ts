@@ -488,14 +488,14 @@ async function hasBonkBurnedCorrectly(
   ).map((wallet) => wallet.address);
 
   let transaction;
-  const interval = 1000;
-  const maxRetries = 5;
+  const interval = 5000;
+  const maxRetries = 6;
   let attempts = 0;
 
   while (!transaction && attempts < maxRetries) {
     try {
       transaction = await CONNECTION.getParsedTransaction(burnTx, {
-        commitment: "confirmed",
+        commitment: "finalized",
         maxSupportedTransactionVersion: 0,
       });
     } catch (error) {

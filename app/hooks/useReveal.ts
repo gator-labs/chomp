@@ -43,11 +43,15 @@ import {
 
 const BURN_STATE_IDLE = "idle";
 
-const createGetTransactionTask = async (signature: string): Promise<void> => {
-  await CONNECTION.getTransaction(signature, {
-    commitment: "confirmed",
-    maxSupportedTransactionVersion: 0,
-  });
+const createGetTransactionTask = async (signature: string) => {
+  try {
+    return await CONNECTION.getTransaction(signature, {
+      commitment: "confirmed",
+      maxSupportedTransactionVersion: 0,
+    });
+  } catch {
+    return null;
+  }
 };
 
 export function useReveal({
@@ -247,7 +251,15 @@ export function useReveal({
       if (pendingChompResultIds.length === 1 && !revealQuestionIds.length) {
         signature = pendingChompResults[0].burnTransactionSignature!;
         setBurnState("burning");
-        await createGetTransactionTask(signature);
+
+        const tx = await createGetTransactionTask(signature);
+
+        if (!tx) {
+          errorToast("Unable to find the pending transaction");
+          setProcessingTransaction(false);
+          resetReveal();
+          return;
+        }
       }
 
       if (
@@ -262,6 +274,8 @@ export function useReveal({
           const signer = await wallet!.getSigner();
 
           let tx = await genBonkBurnTx(address!, reveal?.amount ?? 0);
+
+          const { lastValidBlockHeight } = tx;
 
           const estimatedFee = await tx.getEstimatedFee(CONNECTION);
 
@@ -294,6 +308,16 @@ export function useReveal({
               success: "Bonk burn transaction signed!",
               error: "You denied message signature.",
             });
+
+            const blockHeight = await CONNECTION.getBlockHeight();
+
+            if (blockHeight && lastValidBlockHeight) {
+              if (blockHeight >= lastValidBlockHeight) {
+                errorToast("Signature expired. Try again.");
+                resetReveal();
+                return;
+              }
+            }
 
             if (tx.signature) signature = bs58.encode(tx.signature);
 
