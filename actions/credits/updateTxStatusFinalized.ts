@@ -27,7 +27,11 @@ export async function updateTxStatusToFinalized(
 ) {
   const payload = await getJwtPayload();
 
-  if (!payload) throw new Error("Unauthorized access");
+  if (!payload) {
+    return {
+      error: "User not authenticated",
+    };
+  }
 
   const userId = payload.sub;
 
