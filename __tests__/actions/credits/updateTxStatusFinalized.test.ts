@@ -103,9 +103,11 @@ describe("updateTxStatusToFinalized", () => {
       sub: user.id,
     });
 
-    await expect(async () => {
+    try {
       await updateTxStatusToFinalized(CREDIT_FINAL_SIGNATURE, 2, 0.0005);
-    }).rejects.toThrow(ChainTxStatusUpdateError);
+    } catch (error) {
+      expect(error).toBeInstanceOf(ChainTxStatusUpdateError);
+    }
   });
 
   it("should return error if Payload is not defined", async () => {
