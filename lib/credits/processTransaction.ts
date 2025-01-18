@@ -1,8 +1,8 @@
+import { updateTxStatusToConfirmed } from "@/actions/credits/updateTxStatusConfirm";
+import { updateTxStatusToFinalized } from "@/actions/credits/updateTxStatusFinalized";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { CONNECTION } from "@/app/utils/solana";
-import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
-import { updateTxStatusToFinalized } from "@/lib/credits/updateTxStatusFinalized";
 import * as Sentry from "@sentry/nextjs";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
