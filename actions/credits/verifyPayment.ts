@@ -12,10 +12,10 @@ import base58 from "bs58";
 import Decimal from "decimal.js";
 import pRetry from "p-retry";
 
-import { getWalletOwner } from "../../../lib/wallet";
-import { acquireMutex } from "../../utils/mutex";
-import { CONNECTION } from "../../utils/solana";
-import { getJwtPayload } from "../jwt";
+import { getWalletOwner } from "../../lib/wallet";
+import { acquireMutex } from "@/app/utils/mutex";
+import { CONNECTION } from "@/app/utils/solana";
+import { getJwtPayload } from "@/app/actions/jwt";
 
 export async function verifyPayment(txHash: string) {
   const payload = await getJwtPayload();
