@@ -154,3 +154,10 @@ export class TransactionFailedToFinalizeError extends Error {
     this.name = "TransactionFailedToFinalizeError";
   }
 }
+
+export class VerifyPaymentError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "VerifyPaymentError";
+  }
+}

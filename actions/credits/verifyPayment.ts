@@ -2,9 +2,12 @@
 
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
 import { CONNECTION } from "@/app/utils/solana";
+import { VerifyPaymentError } from "@/lib/error";
 import { EChainTxStatus } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import pRetry from "p-retry";
@@ -103,8 +106,30 @@ export async function verifyPayment(txHash: string) {
         }
       }
     }
-  } catch {
+  } catch (error) {
+    const verifyPaymentError = new VerifyPaymentError(
+      `Unable to verify SOL payment for user ${payload.sub}, tx ${record?.hash}`,
+      { cause: error },
+    );
+    Sentry.captureException(verifyPaymentError);
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return false;
+  }
+
+  if (!transferVerified) {
+    Sentry.captureMessage(
+      `Verification of SOL payment for user ${payload.sub} failed. Transaction: https://solscan.io/tx/${record?.hash}`,
+      {
+        level: "error",
+        tags: {
+          category: "sol-payment-not-verified",
+        },
+        extra: {
+          record,
+        },
+      },
+    );
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
   }
 
   return transferVerified;
