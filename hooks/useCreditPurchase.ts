@@ -13,7 +13,7 @@ export function useCreditPurchase({ primaryWallet }: UseCreditPurchaseProps) {
   const processCreditPurchase = async (creditsToBuy: number) => {
     if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
       return {
-        error: "Please connect your Solana wallet first",
+        error: "Please connect your Solana wallet",
       };
     }
 

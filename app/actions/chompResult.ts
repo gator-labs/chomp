@@ -549,6 +549,13 @@ async function hasBonkBurnedCorrectly(
   return true;
 }
 
+/**
+ * The function `handleFirstRevealToPopulateSubjectiveQuestion` retrieves questions with their options
+ * and answers and calculates correct answers.
+ * @param {number[]} questionIds - The `questionIds` parameter is an array of numbers representing the
+ * IDs of questions that need to be processed.
+ *
+ */
 async function handleFirstRevealToPopulateSubjectiveQuestion(
   questionIds: number[],
 ) {

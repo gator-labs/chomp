@@ -2,7 +2,6 @@
 
 import { STACKS_PATH } from "@/lib/urls";
 import Image from "next/image";
-import Link from "next/link";
 
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
 
@@ -28,7 +27,7 @@ const StackCard = ({
     decksToReveal !== undefined &&
     numberOfDecks > 0;
   return (
-    <Link
+    <a
       href={`${STACKS_PATH}/${id}`}
       className="p-4 rounded-[8px] bg-gray-800 border-[0.5px] border-solid border-gray-500 flex items-center justify-between gap-4"
       style={{
@@ -66,7 +65,7 @@ const StackCard = ({
           <ArrowRightCircle />
         </div>
       )}
-    </Link>
+    </a>
   );
 };
 
