@@ -12,6 +12,8 @@ import pRetry from "p-retry";
 
 import { getWalletOwner } from "../../lib/wallet";
 
+const MAX_RETRIES = 4;
+
 export async function verifyPayment(txHash: string) {
   const payload = await getJwtPayload();
 
@@ -50,7 +52,7 @@ export async function verifyPayment(txHash: string) {
         return txInfo;
       },
       {
-        retries: 4,
+        retries: MAX_RETRIES,
       },
     );
 
