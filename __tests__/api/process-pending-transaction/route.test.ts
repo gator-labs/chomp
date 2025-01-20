@@ -28,7 +28,7 @@ describe("GET /api/process-pending-transaction", () => {
     id: uuidv4(),
     username: `user2`,
   };
-  const address1 = "G726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc7";
+  const address1 = "2KPGT5NogXGe8Sgj2GX78w5mku2xXPat6FgUP8EpcLnS";
   const address2 = "a726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc8";
   let deckId: number;
   let questionId: number;
@@ -120,7 +120,7 @@ describe("GET /api/process-pending-transaction", () => {
             createdAt: new Date(),
             needsManualReview: null,
             burnTransactionSignature:
-              "gMaLBbAbCvBCjmBEacJy5tDvh3BSaTPznr2Y8nBTcmtHnYyhw3NEMHoVSPLz4kYo2h9CuSKXXkKkh5eDi61pXmU",
+              "4S6Mtdqmz5mPLaLc7epYWCcYa4SkuyX2sxZhJKtSNZJMXu4HFt1TebTuLP9x2qNnXbk4rprPyVjGLENdAr6RmgBA",
           },
         }),
         tx.chompResult.create({
