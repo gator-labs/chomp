@@ -1,5 +1,6 @@
 "use server";
 
+import { stringifyDecimals } from "@/app/utils/decimal";
 import {
   ChompResult,
   Deck,
@@ -8,7 +9,9 @@ import {
   QuestionAnswer,
   QuestionOption,
 } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
+import Decimal from "decimal.js";
 
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
@@ -81,6 +84,8 @@ export async function getStack(id: number) {
   if (!stack) {
     return null;
   }
+
+  stringifyDecimals(stack);
 
   const sortedDecks = [...stack.deck].sort((a, b) => {
     if (
