@@ -1,6 +1,8 @@
 "use server";
 
+import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { CONNECTION } from "@/app/utils/solana";
 import { getTreasuryPrivateKey } from "@/lib/env-vars";
 import {
   EChainTxStatus,
@@ -13,8 +15,6 @@ import Decimal from "decimal.js";
 import pRetry from "p-retry";
 
 import { getWalletOwner } from "../../lib/wallet";
-import { CONNECTION } from "@/app/utils/solana";
-import { getJwtPayload } from "@/app/actions/jwt";
 
 export async function verifyPayment(txHash: string) {
   const payload = await getJwtPayload();
