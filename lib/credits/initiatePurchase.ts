@@ -73,7 +73,6 @@ export async function initiateCreditPurchase(
       };
     }
   } catch (error) {
-    console.log("Error initiating purchase", error);
     throw error;
   } finally {
     setIsProcessingTx(false);

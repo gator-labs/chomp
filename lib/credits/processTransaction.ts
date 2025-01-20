@@ -60,8 +60,9 @@ export async function processTransaction(
         "confirmed",
       );
 
-      if (!await verifyPayment(txHash))
+      if (!(await verifyPayment(txHash))) {
         throw new Error("Payment could not be verified");
+      }
 
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash);

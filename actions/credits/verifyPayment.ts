@@ -4,9 +4,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { CONNECTION } from "@/app/utils/solana";
 import { getTreasuryPrivateKey } from "@/lib/env-vars";
-import {
-  EChainTxStatus,
-} from "@prisma/client";
+import { EChainTxStatus } from "@prisma/client";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import base58 from "bs58";
 import Decimal from "decimal.js";
