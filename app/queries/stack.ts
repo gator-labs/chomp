@@ -9,9 +9,7 @@ import {
   QuestionAnswer,
   QuestionOption,
 } from "@prisma/client";
-import { Prisma } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
-import Decimal from "decimal.js";
 
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
