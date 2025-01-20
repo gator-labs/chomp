@@ -123,6 +123,8 @@ model Deck {
   description                 String?
   heading                     String?
   footer                      String?                       @db.VarChar(50)
+  author                      String?
+  authorImageUrl              String?
   MysteryBoxTrigger           MysteryBoxTrigger[]
 }
 

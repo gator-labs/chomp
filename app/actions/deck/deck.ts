@@ -177,8 +177,18 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
   const validatedFields = deckSchema.safeParse(data);
 
   if (!validatedFields.success) {
-    return { errorMessage: "Validaiton failed" };
+    return { errorMessage: "Validation failed" };
   }
+
+  if (validatedFields.data.authorImageUrl) {
+    const isBucketImageValid = await validateBucketImage(
+      validatedFields.data.authorImageUrl.split("/").pop()!,
+      validatedFields.data.authorImageUrl,
+    );
+
+    if (!isBucketImageValid) throw new Error("Invalid image");
+  }
+
 
   const images = data.questions
     .map((question) => question.imageUrl)
@@ -209,6 +219,8 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
         description: validatedFields.data.description,
         footer: validatedFields.data.footer,
         heading: validatedFields.data.heading,
+        author: validatedFields.data.author,
+        authorImageUrl: validatedFields.data.authorImageUrl,
       },
     });
 
@@ -291,6 +303,16 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
 
     if (!isBucketImageValid) throw new Error("Invalid image");
   }
+
+  if (validatedFields.data.authorImageUrl) {
+    const isBucketImageValid = await validateBucketImage(
+      validatedFields.data.authorImageUrl.split("/").pop()!,
+      validatedFields.data.authorImageUrl,
+    );
+
+    if (!isBucketImageValid) throw new Error("Invalid image");
+  }
+
 
   // New added question in the deck
   const newDeckQuestions = validatedFields.data.questions.filter((q) => !q.id);
@@ -401,6 +423,8 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
           footer: validatedFields.data.footer,
           description: validatedFields.data.description,
           heading: validatedFields.data.heading,
+          author: validatedFields.data.author,
+          authorImageUrl: validatedFields.data.authorImageUrl,
         },
       });
 
