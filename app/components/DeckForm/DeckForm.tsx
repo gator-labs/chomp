@@ -76,9 +76,11 @@ export default function DeckForm({
   const deckImage = watch("imageUrl"); // The URL for the deck image
   const authorImage = watch("authorImageUrl"); // The URL for the author image
 
-// Generate preview URLs for both the deck image and the author image
+  // Generate preview URLs for both the deck image and the author image
   const deckPreviewUrl = !!file ? URL.createObjectURL(file!) : deckImage;
-  const authorImagePreviewUrl = !!authorImageFile ? URL.createObjectURL(authorImageFile!) : authorImage;
+  const authorImagePreviewUrl = !!authorImageFile
+    ? URL.createObjectURL(authorImageFile!)
+    : authorImage;
 
   const onSubmit = handleSubmit(async (data) => {
     const questions = await Promise.all(
@@ -100,7 +102,7 @@ export default function DeckForm({
     let imageUrl = deckPreviewUrl || "";
     let authorImageUrl = authorImagePreviewUrl || "";
 
-    if(data.authorImageFile?.[0]) {
+    if (data.authorImageFile?.[0]) {
       authorImageUrl = await uploadImageToS3Bucket(data.authorImageFile[0]);
     }
 
@@ -190,8 +192,7 @@ export default function DeckForm({
             />
             <div className="text-destructive">
               {errors.questions && errors.file?.message}
-            </div>
-            {" "}
+            </div>{" "}
           </div>
         </div>
         <div className="mb-3">
@@ -242,8 +243,7 @@ export default function DeckForm({
           />
           <div className="text-destructive">
             {errors.questions && errors.file?.message}
-          </div>
-          {" "}
+          </div>{" "}
         </div>
         <div className="mb-3">
           <label className="block mb-1">Footer (optional)</label>
@@ -273,7 +273,7 @@ export default function DeckForm({
                 </div>
 
                 <div className="mb-3">
-                <label className="block mb-1">Question statement</label>
+                  <label className="block mb-1">Question statement</label>
                   <TextInput
                     variant="secondary"
                     {...register(`questions.${questionIndex}.question`)}
