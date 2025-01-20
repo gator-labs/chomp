@@ -1,4 +1,5 @@
 import { verifyPayment } from "@/actions/credits/verifyPayment";
+import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
@@ -8,15 +9,19 @@ jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
 
-describe.skip("Verify SOL payment transaction", () => {
+jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
+
+jest.mock("@/actions/getTreasuryAddress", () => ({
+  getTreasuryAddress: jest.fn(),
+}));
+
+describe("Verify SOL payment transaction", () => {
   let users: { id: string; username: string }[] = [];
 
-  const TX_ORIGIN = "AfeYagWdonLRMawhVYv9Yv2rb9MJrAnfnT8zfAsgSbLX";
+  const TX_ORIGIN = "9tA2k463vH6pP8M4GwBi5eCzwoGLqTEc98Za6BgzwgYr";
   const TX_HASH =
-    "2xhQ4bAq79zv9cUxQ2KWLUGmFimmZBsyAN8Yov88vrnceQYocKKrmjSkigff7bx6SXJBKTNivSooyAkymN1NFXqx";
-
-  // Hardcoded since historical transaction
-  const TREASURY_PUBLIC_KEY = "CHoMP5YdLEJ62kq9oibKbNDkBCgakQPqQLSgkDHyC2D9";
+    "2bq6miRdKZDXY9DXcqavJ8YBHWWsNgG5Hdbunnn7h6CZ2LKCBubcaz31YBX6HgWu8fVmZjpj3KRxs3wbjHDy99tW";
+  const TREASURY_PUBLIC_KEY = "EfkfxnFXsTj23TpsuZ37V7LVb5H663mVp6cSPqMeDVUW";
 
   beforeAll(async () => {
     users = await generateUsers(1);
@@ -39,13 +44,17 @@ describe.skip("Verify SOL payment transaction", () => {
         hash: TX_HASH,
         wallet: TX_ORIGIN,
         type: EChainTxType.CreditPurchase,
-        solAmount: "0.00001",
+        solAmount: "4",
         feeSolAmount: "0",
         recipientAddress: TREASURY_PUBLIC_KEY,
       },
     });
 
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: users[0].id });
+
+    (getTreasuryAddress as jest.Mock).mockResolvedValue(
+      TREASURY_PUBLIC_KEY
+    );
   });
 
   afterAll(async () => {
