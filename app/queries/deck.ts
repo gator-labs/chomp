@@ -135,10 +135,13 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
 
   const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
 
-  const deckCreditCost =
-    deck?.creditCostPerQuestion !== null
-      ? deck?.creditCostPerQuestion * deckQuestions.length
-      : null;
+  const deckCreditCost = deckQuestions.every(
+    (dq) => dq?.question?.creditCostPerQuestion == null,
+  )
+    ? null
+    : deckQuestions.reduce((total, dq) => {
+        return total + (dq?.question?.creditCostPerQuestion || 0);
+      }, 0);
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {

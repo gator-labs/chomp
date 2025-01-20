@@ -1,34 +1,90 @@
 name: Run Jest Tests
 
 on:
-  pull_request:
+  deployment_status:
 
 jobs:
-  build:
+  run-tests:
+    if: github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v2
+
+      # Step 2: Get branch name directly from the ref
+      - name: Get Branch Name
+        id: get-branch
+        run: |
+          # The ref now contains the branch name directly
+          branch_name="${{ github.event.deployment.ref }}"
+          echo "Using branch name: $branch_name"
+          echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
+
+      # Step 3: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
           cache: "npm"
 
-      - name: Install dependencies
-        run: npm install
+      # Step 4: Install Vercel CLI
+      - name: Install Vercel CLI
+        run: npm install -g vercel
 
-      - name: Run Jest tests
-        run: npm run gh-test
-        env:
-          DATABASE_PRISMA_URL: ${{ secrets.DATABASE_PRISMA_URL_DEMO }}
-          DATABASE_URL_NON_POOLING: ${{ secrets.DATABASE_URL_NON_POOLING_DEMO }}
-          NEXT_PUBLIC_RPC_URL: ${{ secrets.NEXT_PUBLIC_RPC_URL }}
-          KV_REST_API_URL: ${{ secrets.KV_REST_API_URL_DEMO }}
-          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN_DEMO }}
-          MIX_PANEL_TOKEN: ${{ secrets.MIX_PANEL_TOKEN }}
-          MINIMAL_ANSWERS_PER_QUESTION: 3
-          NEXT_PUBLIC_BONK_ADDRESS: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263"
-          BOT_API_KEY: "foobar"
-          BOT_TOKEN: "barfoo"
-          NEXT_PUBLIC_CHOMPMAS_MIN_STREAK: 7
+      # Step 5: Pull Vercel Environment Variables
+      - name: Pull Vercel Environment Variables
+        run: |
+          echo "Starting the process to pull Vercel environment variables."
+          BRANCH_NAME="${{ steps.get-branch.outputs.branch_name }}"
+          echo "Using branch name: $BRANCH_NAME"
+
+          vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
+          vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
+
+          echo "Pulled environment variables (keys and values, excluding DATABASE_URL redaction):"
+          cat .env
+
+      # Step 6: Verify and Sanitize Environment Variables
+      - name: Verify and Sanitize DATABASE_URL
+        run: |
+          echo "Loading .env file."
+          source .env
+
+          echo "Verifying the DATABASE_URL and DATABASE_URL_UNPOOLED."
+          # echo "DATABASE_URL: $DATABASE_URL"
+          # echo "DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
+
+          # Ensure the protocol is valid
+          if [[ $DATABASE_URL != postgres://* ]] && [[ $DATABASE_URL != postgresql://* ]]; then
+            echo "Error: DATABASE_URL does not have a valid protocol."
+            exit 1
+          fi
+
+          if [[ $DATABASE_URL_UNPOOLED != postgres://* ]] && [[ $DATABASE_URL_UNPOOLED != postgresql://* ]]; then
+            echo "Error: DATABASE_URL_UNPOOLED does not have a valid protocol."
+            exit 1
+          fi
+
+          # Remove quotes if present
+          DATABASE_URL=$(echo $DATABASE_URL | sed 's/^"\|"$//g')
+          DATABASE_URL_UNPOOLED=$(echo $DATABASE_URL_UNPOOLED | sed 's/^"\|"$//g')
+
+          # echo "Sanitized DATABASE_URL: $DATABASE_URL"
+          # echo "Sanitized DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
+
+          # Save sanitized variables to GitHub environment
+          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+          echo "DATABASE_URL_UNPOOLED=$DATABASE_URL_UNPOOLED" >> $GITHUB_ENV
+
+      # Step 7: Install Dependencies
+      - name: Install Dependencies
+        run: |
+          echo "Installing project dependencies."
+          npm install
+
+      # Step 8: Run Jest Tests
+      - name: Run Jest Tests
+        run: |
+          echo "Running Jest tests using the pulled and sanitized environment variables."
+          npm run gh-test

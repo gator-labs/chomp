@@ -188,7 +188,12 @@ export async function revealQuestions(
       `User with id: ${payload?.sub} is missing transaction hash or nft for revealing question ids: ${questionIds}`,
     );
     release();
-    Sentry.captureException(revealError);
+    Sentry.captureException(revealError, {
+      extra: {
+        questionIds,
+        burnTx,
+      },
+    });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
@@ -294,6 +299,7 @@ export async function revealQuestions(
       extra: {
         existingFatl: existingFatl,
         newFatl: revealPoints,
+        questionIds: questionIds,
       },
     });
   }
@@ -385,6 +391,47 @@ export async function createQuestionChompResult(
   return results;
 }
 
+/**
+ * Creates chomp results for the given question IDs, before
+ * submitting the transaction (already signed by the user)
+ * to the chain.
+ *
+ * @param questionIds  Array of question IDs.
+ * @param serializedTx Burn transaction, serialized and already signed.
+ * @param signature    Signature of the above transaction.
+ *
+ * @return results    An array of created chomp results.
+ */
+export async function createChompResultsAndSubmitSignedTx(
+  questionIds: number[],
+  serializedTx: string,
+  signature: string,
+) {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return [];
+  }
+
+  const tx = new Uint8Array(JSON.parse(serializedTx));
+
+  const chompResults = await createQuestionChompResults(
+    questionIds.map((qid) => ({
+      burnTx: signature,
+      questionId: qid,
+    })),
+  );
+
+  try {
+    await CONNECTION.sendRawTransaction(tx);
+  } catch (e) {
+    deleteQuestionChompResults(questionIds);
+    throw e;
+  }
+
+  return chompResults;
+}
+
 export async function deleteQuestionChompResults(ids: number[]) {
   const payload = await getJwtPayload();
 
@@ -441,14 +488,14 @@ async function hasBonkBurnedCorrectly(
   ).map((wallet) => wallet.address);
 
   let transaction;
-  const interval = 1000;
-  const maxRetries = 5;
+  const interval = 5000;
+  const maxRetries = 6;
   let attempts = 0;
 
   while (!transaction && attempts < maxRetries) {
     try {
       transaction = await CONNECTION.getParsedTransaction(burnTx, {
-        commitment: "confirmed",
+        commitment: "finalized",
         maxSupportedTransactionVersion: 0,
       });
     } catch (error) {
