@@ -119,29 +119,6 @@ export async function verifyPayment(txHash: string) {
     return false;
   }
 
-  if (transferVerified) {
-    await prisma.$transaction(async (tx) => {
-      await tx.chainTx.update({
-        data: {
-          status: EChainTxStatus.Finalized,
-        },
-        where: {
-          hash: txHash,
-        },
-      });
-
-      await tx.fungibleAssetTransactionLog.create({
-        data: {
-          chainTxHash: record.hash,
-          asset: FungibleAsset.Credit,
-          change: record.solAmount,
-          userId: payload.sub,
-          type: TransactionLogType.CreditPurchase,
-        },
-      });
-    });
-  }
-
   release();
 
   return transferVerified;
