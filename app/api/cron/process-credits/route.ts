@@ -106,7 +106,7 @@ export async function GET(request: Request) {
       }
     }
 
-    return new Response("Ok", { status: 200 });
+    return new Response("Processed successfully", { status: 200 });
   } catch (error) {
     console.error("Database error:", error);
     return new Response("Internal Server Error", { status: 500 });
