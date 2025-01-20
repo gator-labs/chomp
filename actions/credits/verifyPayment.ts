@@ -1,12 +1,11 @@
 "use server";
 
+import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { CONNECTION } from "@/app/utils/solana";
-import { getTreasuryPrivateKey } from "@/lib/env-vars";
 import { EChainTxStatus } from "@prisma/client";
-import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
-import base58 from "bs58";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import pRetry from "p-retry";
 
@@ -34,9 +33,11 @@ export async function verifyPayment(txHash: string) {
 
   const solAmount = record.solAmount;
 
-  const treasuryWallet = Keypair.fromSecretKey(
-    base58.decode(getTreasuryPrivateKey() ?? ""),
-  );
+  const treasuryAddress = await getTreasuryAddress();
+
+  if (!treasuryAddress) throw new Error("Treasury address not defined");
+
+  const treasuryWallet = new PublicKey(treasuryAddress);
 
   let transferVerified = false;
 
