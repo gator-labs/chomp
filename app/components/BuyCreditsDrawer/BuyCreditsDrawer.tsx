@@ -7,8 +7,10 @@ import {
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import Decimal from "decimal.js";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import ChompFullScreenLoader from "../ChompFullScreenLoader/ChompFullScreenLoader";
@@ -27,8 +29,11 @@ function BuyCreditsDrawer({
   onClose,
   creditsToBuy,
 }: BuyCreditsDrawerProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
-  const totalSolCost = Number(solPricePerCredit) * creditsToBuy;
+  const totalSolCost = new Decimal(solPricePerCredit!)
+    .mul(creditsToBuy)
+    .toNumber();
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
@@ -37,6 +42,7 @@ function BuyCreditsDrawer({
   });
 
   const buyCredits = async () => {
+    setIsLoading(true);
     try {
       const result = await processCreditPurchase(creditsToBuy);
 
@@ -68,6 +74,8 @@ function BuyCreditsDrawer({
         ),
         toastOptions,
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,12 +116,16 @@ function BuyCreditsDrawer({
           </span>
           <Button
             onClick={buyCredits}
-            disabled={isProcessingTx}
-            isLoading={isProcessingTx}
+            disabled={isProcessingTx || isLoading}
+            isLoading={isProcessingTx || isLoading}
           >
             Buy Credits
           </Button>
-          <Button onClick={onClose} variant="outline" disabled={isProcessingTx}>
+          <Button
+            onClick={onClose}
+            variant="outline"
+            disabled={isProcessingTx || isLoading}
+          >
             Close
           </Button>
         </DrawerContent>

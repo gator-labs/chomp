@@ -1,11 +1,8 @@
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
-import { UserRejectedBuyCreditTxError } from "@/lib/error";
 import { setupTransactionPriorityFee } from "@/lib/priorityFee";
 import type { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
-import * as Sentry from "@sentry/nextjs";
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -13,6 +10,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import bs58 from "bs58";
+import Decimal from "decimal.js";
 
 /**
  * Creates a Transaction of SOL transfer and signed by the user
@@ -32,6 +30,10 @@ export async function createCreditPurchaseTransaction(
 
   const payload = await getJwtPayload();
 
+  if (!payload) {
+    return null;
+  }
+
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
 
@@ -43,15 +45,16 @@ export async function createCreditPurchaseTransaction(
     };
   }
 
-  // Create base transaction
+  // Create Transaction
   let tx = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: walletPubkey,
       toPubkey: new PublicKey(treasuryAddress),
       lamports:
         creditsToBuy *
-        Number(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) *
-        LAMPORTS_PER_SOL,
+        new Decimal(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT!)
+          .mul(LAMPORTS_PER_SOL)
+          .toNumber(),
     }),
   );
 
@@ -66,20 +69,8 @@ export async function createCreditPurchaseTransaction(
     const signature = bs58.encode(signedTransaction.signature!);
 
     return { transaction: signedTransaction, signature };
-  } catch (error) {
+  } catch {
     setIsProcessingTx(false);
-    const transactionRejectedError = new UserRejectedBuyCreditTxError(
-      "User rejected transaction of buy credits",
-      { cause: error },
-    );
-    Sentry.captureException(transactionRejectedError, {
-      extra: {
-        userId: payload?.sub,
-        creditAmount: creditsToBuy,
-        address: wallet.address,
-      },
-    });
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
 }
