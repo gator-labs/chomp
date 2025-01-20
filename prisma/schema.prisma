@@ -206,6 +206,7 @@ model FungibleAssetTransactionLog {
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
+  @@unique([type, chainTxHash, userId])
 }
 
 model RevealNft {

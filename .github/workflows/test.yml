@@ -12,28 +12,13 @@ jobs:
       # Step 1: Checkout the repository
       - uses: actions/checkout@v2
 
-      # Step 2: Fetch all branches and determine the source branch
-      - name: Get Deployment Source Branch
+      # Step 2: Get branch name directly from the ref
+      - name: Get Branch Name
         id: get-branch
         run: |
-          echo "Fetching all branches to determine the source branch."
-          git fetch --all
-          echo "Fetched all branches:"
-          git branch -r
-
-          echo "Finding branches containing the deployment commit: ${{ github.event.deployment.ref }}"
-          source_branches=$(git branch -a --contains ${{ github.event.deployment.ref }})
-          echo "Branches containing the commit:"
-          echo "$source_branches"
-
-          branch_name=$(echo "$source_branches" | tail -n1 | sed 's|remotes/origin/||' | xargs)
-          echo "Determined branch name: $branch_name"
-
-          if [ -z "$branch_name" ]; then
-            echo "Error: Could not determine the branch name from the commit."
-            exit 1
-          fi
-
+          # The ref now contains the branch name directly
+          branch_name="${{ github.event.deployment.ref }}"
+          echo "Using branch name: $branch_name"
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
 
       # Step 3: Set up Node.js
@@ -54,10 +39,7 @@ jobs:
           BRANCH_NAME="${{ steps.get-branch.outputs.branch_name }}"
           echo "Using branch name: $BRANCH_NAME"
 
-          echo "Linking to the chomp-dev project under the gator-labs scope."
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
-
-          echo "Pulling environment variables for the preview environment and branch: $BRANCH_NAME"
           vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
 
           echo "Pulled environment variables (keys and values, excluding DATABASE_URL redaction):"
