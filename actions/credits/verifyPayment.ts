@@ -99,7 +99,7 @@ export async function verifyPayment(txHash: string) {
         if (
           parsed.type === "transfer" &&
           parsed.info.source === wallet &&
-          parsed.info.destination === treasuryWallet &&
+          parsed.info.destination === treasuryAddress &&
           parsed.info.lamports === expectedLamports
         ) {
           transferVerified = true;
