@@ -13,6 +13,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import bs58 from "bs58";
+import Decimal from "decimal.js";
 
 /**
  * Creates a Transaction of SOL transfer and signed by the user
@@ -50,8 +51,9 @@ export async function createCreditPurchaseTransaction(
       toPubkey: new PublicKey(treasuryAddress),
       lamports:
         creditsToBuy *
-        Number(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT) *
-        LAMPORTS_PER_SOL,
+        new Decimal(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT!)
+          .mul(LAMPORTS_PER_SOL)
+          .toNumber(),
     }),
   );
 

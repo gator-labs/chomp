@@ -303,7 +303,7 @@ model ChainTx {
   wallet                      String
   type                        EChainTxType
   solAmount                   String
-  feeSolAmount                String
+  feeSolAmount                String?
   recipientAddress            String
   status                      EChainTxStatus                @default(New)
   createdAt                   DateTime                      @default(now())

@@ -16,7 +16,7 @@ CREATE TABLE "ChainTx" (
     "wallet" TEXT NOT NULL,
     "type" "EChainTxType" NOT NULL,
     "solAmount" TEXT NOT NULL,
-    "feeSolAmount" TEXT NOT NULL,
+    "feeSolAmount" TEXT,
     "recipientAddress" TEXT NOT NULL,
     "status" "EChainTxStatus" NOT NULL DEFAULT 'New',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

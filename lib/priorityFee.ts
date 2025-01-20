@@ -27,7 +27,7 @@ export async function setupTransactionPriorityFee(
   tx.feePayer = feePayer;
 
   // It is recommended to add the compute limit instruction before adding other instructions
-  const computeUnitFix = 4960;
+  const computeUnitFix = 2000;
 
   // Buffer to make sure the transaction doesn't fail because of less compute units
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({

@@ -6,6 +6,7 @@ import prisma from "@/app/services/prisma";
 import { CreateChainTxError } from "@/lib/error";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import Decimal from "decimal.js";
 
 import { getJwtPayload } from "../../app/actions/jwt";
 
@@ -39,7 +40,9 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const solAmount = Number(solanaCostPerCredit) * creditsToBuy;
+  const solAmount = new Decimal(solanaCostPerCredit)
+    .mul(creditsToBuy)
+    .toNumber();
 
   const wallet = await prisma.wallet.findFirst({
     where: {
@@ -71,7 +74,6 @@ export async function createSignedSignatureChainTx(
         status: EChainTxStatus.New,
         solAmount: String(solAmount),
         wallet: wallet?.address,
-        feeSolAmount: "0",
         recipientAddress: treasuryAddress,
         type: EChainTxType.CreditPurchase,
       },
