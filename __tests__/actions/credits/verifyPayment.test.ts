@@ -1,4 +1,4 @@
-import { verifyPayment } from "@/app/actions/credits/verifyPayment";
+import { verifyPayment } from "@/actions/credits/verifyPayment";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
