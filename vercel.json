@@ -12,6 +12,10 @@
     {
       "path": "/api/treasury-balance-alert",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/process-credit",
+      "schedule": "*/1 * * * *"
     }
   ]
 }

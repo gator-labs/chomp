@@ -161,3 +161,10 @@ export class VerifyPaymentError extends Error {
     this.name = "VerifyPaymentError";
   }
 }
+
+export class CreditTransactionValidationError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "CreditTransactionValidationError";
+  }
+}
