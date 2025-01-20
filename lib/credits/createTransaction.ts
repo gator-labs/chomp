@@ -51,8 +51,8 @@ export async function createCreditPurchaseTransaction(
       fromPubkey: walletPubkey,
       toPubkey: new PublicKey(treasuryAddress),
       lamports:
-        creditsToBuy *
         new Decimal(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT!)
+          .mul(creditsToBuy)
           .mul(LAMPORTS_PER_SOL)
           .toNumber(),
     }),

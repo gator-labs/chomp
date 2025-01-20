@@ -46,7 +46,7 @@ function BuyCreditsDrawer({
     try {
       const result = await processCreditPurchase(creditsToBuy);
 
-      if (result?.error) {
+      if (result && "error" in result) {
         toast(errorToastLayout(result.error), toastOptions);
         return;
       }

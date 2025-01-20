@@ -1,5 +1,6 @@
 import { updateTxStatusToConfirmed } from "@/actions/credits/updateTxStatusConfirm";
 import { updateTxStatusToFinalized } from "@/actions/credits/updateTxStatusFinalized";
+import { verifyPayment } from "@/actions/credits/verifyPayment";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { CONNECTION } from "@/app/utils/solana";
@@ -58,6 +59,10 @@ export async function processTransaction(
         },
         "confirmed",
       );
+
+      if (!(await verifyPayment(txHash))) {
+        throw new Error("Payment could not be verified");
+      }
 
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash);
