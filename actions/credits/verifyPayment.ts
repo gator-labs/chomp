@@ -24,11 +24,6 @@ export async function verifyPayment(txHash: string) {
     return null;
   }
 
-  const release = await acquireMutex({
-    identifier: "VERIFY_SOL_PAYMENT",
-    data: { userId: payload.sub },
-  });
-
   const record = await prisma.chainTx.findFirst({
     where: {
       hash: txHash,
@@ -37,7 +32,6 @@ export async function verifyPayment(txHash: string) {
   });
 
   if (!record) {
-    release();
     return false;
   }
 
@@ -66,7 +60,6 @@ export async function verifyPayment(txHash: string) {
     );
 
     if (!txInfo) {
-      release();
       return false;
     }
 
@@ -79,7 +72,6 @@ export async function verifyPayment(txHash: string) {
     const walletOwner = await getWalletOwner(wallet);
 
     if (walletOwner != payload.sub || record.wallet != wallet) {
-      release();
       return false;
     }
 
@@ -100,7 +92,6 @@ export async function verifyPayment(txHash: string) {
           parsed.info.source === treasuryWallet &&
           parsed.info.lamports > 0
         ) {
-          release();
           return false;
         }
 
@@ -115,11 +106,8 @@ export async function verifyPayment(txHash: string) {
       }
     }
   } catch (error) {
-    release();
     return false;
   }
-
-  release();
 
   return transferVerified;
 }
