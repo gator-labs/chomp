@@ -52,9 +52,7 @@ describe("Verify SOL payment transaction", () => {
 
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: users[0].id });
 
-    (getTreasuryAddress as jest.Mock).mockResolvedValue(
-      TREASURY_PUBLIC_KEY
-    );
+    (getTreasuryAddress as jest.Mock).mockResolvedValue(TREASURY_PUBLIC_KEY);
   });
 
   afterAll(async () => {
