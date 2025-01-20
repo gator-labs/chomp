@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import { createBuyCreditsTx } from "@/app/actions/credits/createChainTx";
-import { verifyPayment } from "@/app/actions/credits/verifyPayment";
-=======
->>>>>>> origin/prod-658/send-sol-tx
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   errorToastLayout,
