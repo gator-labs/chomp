@@ -63,7 +63,7 @@ export const deckSchema = z
       ),
     description: z.string().min(5).optional().nullish().or(z.literal("")),
     author: z.string().min(5).optional().nullish().or(z.literal("")),
-    authorImageUrl:  z
+    authorImageUrl: z
       .string()
       .optional()
       .nullable()

@@ -189,7 +189,6 @@ export async function createDeck(data: z.infer<typeof deckSchema>) {
     if (!isBucketImageValid) throw new Error("Invalid image");
   }
 
-
   const images = data.questions
     .map((question) => question.imageUrl)
     .filter((image) => !!image);
@@ -312,7 +311,6 @@ export async function editDeck(data: z.infer<typeof deckSchema>) {
 
     if (!isBucketImageValid) throw new Error("Invalid image");
   }
-
 
   // New added question in the deck
   const newDeckQuestions = validatedFields.data.questions.filter((q) => !q.id);
