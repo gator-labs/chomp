@@ -1,11 +1,8 @@
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
-import { UserRejectedBuyCreditTxError } from "@/lib/error";
 import { setupTransactionPriorityFee } from "@/lib/priorityFee";
 import type { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
-import * as Sentry from "@sentry/nextjs";
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -32,6 +29,10 @@ export async function createCreditPurchaseTransaction(
   if (!wallet || !isSolanaWallet(wallet)) return null;
 
   const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
 
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
@@ -68,20 +69,8 @@ export async function createCreditPurchaseTransaction(
     const signature = bs58.encode(signedTransaction.signature!);
 
     return { transaction: signedTransaction, signature };
-  } catch (error) {
+  } catch {
     setIsProcessingTx(false);
-    const transactionRejectedError = new UserRejectedBuyCreditTxError(
-      "User rejected transaction of buy credits",
-      { cause: error },
-    );
-    Sentry.captureException(transactionRejectedError, {
-      extra: {
-        userId: payload?.sub,
-        creditAmount: creditsToBuy,
-        address: wallet.address,
-      },
-    });
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
     return null;
   }
 }
