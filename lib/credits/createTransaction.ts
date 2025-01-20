@@ -44,7 +44,7 @@ export async function createCreditPurchaseTransaction(
     };
   }
 
-  // Create base transaction
+  // Create Transaction
   let tx = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: walletPubkey,
