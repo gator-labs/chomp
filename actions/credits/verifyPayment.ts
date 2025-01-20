@@ -6,8 +6,6 @@ import { CONNECTION } from "@/app/utils/solana";
 import { getTreasuryPrivateKey } from "@/lib/env-vars";
 import {
   EChainTxStatus,
-  FungibleAsset,
-  TransactionLogType,
 } from "@prisma/client";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import base58 from "bs58";
@@ -104,7 +102,7 @@ export async function verifyPayment(txHash: string) {
         }
       }
     }
-  } catch (error) {
+  } catch {
     return false;
   }
 
