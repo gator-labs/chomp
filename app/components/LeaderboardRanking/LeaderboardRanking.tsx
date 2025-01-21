@@ -1,6 +1,6 @@
 "use client";
 
-import { formatAddress } from "@/app/utils/wallet";
+import { getUsername } from "@/app/utils/getUsernameForLeaderboard";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { User, Wallet } from "@prisma/client";
 
@@ -28,11 +28,7 @@ const LeaderboardRanking = ({ label, loggedUserId, ranking }: Props) => {
       {!!ranking.length ? (
         <ul className="flex flex-col gap-2 overflow-y-auto">
           {ranking.map((rankItem) => {
-            const name = rankItem.user.username
-              ? `@${rankItem.user.username}`
-              : rankItem.user.wallets[0].address
-                ? formatAddress(rankItem.user.wallets[0].address)
-                : "mocked user";
+            const name = getUsername(rankItem.user);
             return (
               <RankingCard
                 key={rankItem.user.id}

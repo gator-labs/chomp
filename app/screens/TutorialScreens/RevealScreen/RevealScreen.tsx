@@ -256,7 +256,7 @@ const RevealScreen = ({ currentUser }: Props) => {
         </div>
 
         {activeClaimScreenStep === "congrats-step" && (
-          <div className="fixed bottom-5 max-w-[30rem] left-1/2 -translate-x-1/2 gap-1 w-full max-md:px-6">
+          <div className="fixed bottom-5 max-w-[30rem] left-1/2 -translate-x-1/2 gap-1 w-full max-md:px-6 h-12">
             <Button
               onClick={() => {
                 const tutoiralContainer =

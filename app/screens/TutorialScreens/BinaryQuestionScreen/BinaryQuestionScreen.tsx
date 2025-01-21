@@ -7,6 +7,7 @@ import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
 import { QuestionCardContent } from "@/app/components/QuestionCardContent/QuestionCardContent";
 import Tooltip from "@/app/components/Tooltip/Tooltip";
 import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
+import TutorialAIImage from "@/public/images/TutorialAIImage.png";
 import { QuestionStep } from "@/types/question";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { QuestionType } from "@prisma/client";
@@ -74,11 +75,12 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
         >
           <QuestionCard
             dueAt={dueAt}
-            question="Was SBF a net positive for Solana?"
+            question="Is this Image AI Generated or Real?"
             type={QuestionType.BinaryQuestion}
             onDurationRanOut={() =>
               setDueAt(getDueAt(ONE_MINUTE_IN_MILLISECONDS))
             }
+            viewImageSrc={TutorialAIImage.src}
             className={`relative w-full mx-auto drop-shadow-question-card border-opacity-40 h-[calc(100vh_-_400px)] ${STEPS[tooltipIndex].isQuestionCardTooltip ? "z-0" : "!-z-10"}`}
           >
             <QuestionCardContent
@@ -114,8 +116,8 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
               type={QuestionType.BinaryQuestion}
               step={STEPS[tooltipIndex].questionActionStep}
               questionOptions={[
-                { id: 1, option: "yes", isLeft: true },
-                { id: 2, option: "no", isLeft: false },
+                { id: 1, option: "AI Generated", isLeft: true },
+                { id: 2, option: "Real", isLeft: false },
               ]}
               percentage={optionPercentage}
               setPercentage={setOptionPercentage}
@@ -124,7 +126,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
         </Tooltip>
       </div>
       {STEPS[tooltipIndex].isQuestionCardTooltip && (
-        <div className="fixed bottom-5 max-w-[30rem] left-1/2 -translate-x-1/2 gap-1 w-full max-md:px-6">
+        <div className="fixed bottom-5 max-w-[30rem] left-1/2 -translate-x-1/2 gap-1 w-full max-md:px-6 h-12">
           <Button
             onClick={handleGoToNextTooltip}
             className="pointer-events-auto"
