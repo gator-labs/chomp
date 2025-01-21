@@ -26,7 +26,7 @@ describe("GET /api/cron/process-credits", () => {
   // Arrange
   let users: { id: string; username: string }[];
   const address1 = "2K88XKbcHW5kLNVyKrgWQUoW3dJPYUjMXJreAoVHWTKW";
-  const address2 = "a726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc8";
+  const address2 = "b726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc6";
 
   const validTxHash =
     "48CCstjYwRC5DaBxGP1cdXdgmsAWvBv21F9BNk7Ln8xA2VFpKyKFrzpHHKQj4WcqRbcFevw5rHypoP4zUMYQHvSR";
