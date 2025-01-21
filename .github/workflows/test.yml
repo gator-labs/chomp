@@ -43,7 +43,6 @@ jobs:
           vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
 
           echo "Pulled environment variables (keys and values, excluding DATABASE_URL redaction):"
-          cat .env
 
       # Step 6: Verify and Sanitize Environment Variables
       - name: Verify and Sanitize DATABASE_URL
