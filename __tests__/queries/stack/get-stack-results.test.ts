@@ -5,10 +5,7 @@ import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { faker } from "@faker-js/faker";
 import {
-  AnswerStatus,
-  QuestionType,
   ResultType,
-  Token,
   TransactionStatus,
 } from "@prisma/client";
 import dayjs from "dayjs";
@@ -67,8 +64,6 @@ describe("getStackWithResults", () => {
       });
       stackId = createdStack.id;
 
-      const yesterday = dayjs().subtract(1, "day").toDate();
-
       tx.user.create({ data: user0 });
       tx.user.create({ data: user1 });
 
@@ -120,6 +115,8 @@ describe("getStackWithResults", () => {
           deckQuestions: true,
         },
       });
+
+      deckIds = [ deck.id ];
 
       await prisma.user.createMany({
         data: [user0, user1],
