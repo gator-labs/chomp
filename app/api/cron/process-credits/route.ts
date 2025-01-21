@@ -1,14 +1,6 @@
-import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
-import { verifyCreditPayment } from "@/lib/credits/verifyCreditPayment";
-import { CreditTransactionValidationError } from "@/lib/error";
-import { getWalletOwner } from "@/lib/wallet";
-import {
-  EChainTxStatus,
-  FungibleAsset,
-  TransactionLogType,
-} from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
+import { processCreditsTransaction } from "@/lib/credits/processCreditsTransaction";
+import { EChainTxStatus } from "@prisma/client";
 import { startOfDay, sub } from "date-fns";
 
 /**
@@ -30,7 +22,8 @@ export async function GET(request: Request) {
   }
 
   const currentTime = new Date();
-  const threeDaysAgo = sub(currentTime, { days: 7 });
+  const weekAgo = sub(currentTime, { days: 7 });
+  const tenMinutesAgo = sub(currentTime, { minutes: 10 });
 
   try {
     // Fetch all new transactions within specific date range
@@ -39,74 +32,34 @@ export async function GET(request: Request) {
       where: {
         status: EChainTxStatus.New,
         createdAt: {
-          gte: startOfDay(threeDaysAgo),
+          gte: startOfDay(weekAgo),
+          lte: tenMinutesAgo,
         },
         failedAt: null,
       },
     });
 
-    for (const tx of pendingTransactions) {
-      const isValid = await verifyCreditPayment(tx.hash);
+    // Process transactions
+    const results = await Promise.all(
+      pendingTransactions.map((tx) => processCreditsTransaction(tx)),
+    );
 
-      if (isValid) {
-        const walletOwner = await getWalletOwner(tx.wallet);
+    const stats = {
+      total: pendingTransactions.length,
+      successful: results.filter((r) => r.success).length,
+      failed: results.filter((r) => !r.success).length,
+    };
 
-        if (!walletOwner) {
-          throw new Error("Wallet owner not found");
-        }
-
-        // Update chainTx status and add credits
-        await prisma.$transaction(async (prisma) => {
-          await prisma.chainTx.update({
-            where: {
-              hash: tx.hash,
-              status: EChainTxStatus.New,
-            },
-            data: {
-              status: EChainTxStatus.Finalized,
-              finalizedAt: new Date(),
-            },
-          });
-
-          // Add credits based on solAmount
-          const creditAmount = Number(tx.solAmount) * 1000; // Credits per SOL
-          await prisma.fungibleAssetTransactionLog.create({
-            data: {
-              userId: walletOwner,
-              change: creditAmount,
-              type: TransactionLogType.CreditPurchase,
-              asset: FungibleAsset.Credit,
-              chainTxHash: tx.hash,
-            },
-          });
-        });
-      } else {
-        await prisma.chainTx.update({
-          where: {
-            hash: tx.hash,
-          },
-          data: {
-            failedAt: new Date(),
-          },
-        });
-        const validationError = new CreditTransactionValidationError(
-          `Failed to validate credit purchase transaction hash: ${tx.hash}`,
-        );
-        Sentry.captureException(validationError, {
-          tags: {
-            category: "credit-purchase-validation-error",
-          },
-          extra: {
-            transactionHash: tx.hash,
-            wallet: tx.wallet,
-            solAmount: tx.solAmount,
-          },
-        });
-        await Sentry.flush(SENTRY_FLUSH_WAIT);
-      }
-    }
-
-    return new Response("Processed successfully", { status: 200 });
+    return new Response(
+      JSON.stringify({
+        message: "Processing completed",
+        stats,
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     console.error("Database error:", error);
     return new Response("Internal Server Error", { status: 500 });
