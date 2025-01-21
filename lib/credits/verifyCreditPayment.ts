@@ -1,31 +1,34 @@
-"use server";
-
-import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
 import { VerifyPaymentError } from "@/lib/error";
-import { verifyTransactionInstructions } from "@/lib/verifyTransactionInstructions";
 import { VerificationResult } from "@/types/credits";
 import { EChainTxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import "server-only";
 
-import { getWalletOwner } from "../../lib/wallet";
+import { verifyTransactionInstructions } from "../verifyTransactionInstructions";
+import { getWalletOwner } from "../wallet";
 
-export async function verifyPayment(txHash: string) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
+export async function verifyCreditPayment(txHash: string) {
   const record = await prisma.chainTx.findFirst({
     where: {
       hash: txHash,
       status: EChainTxStatus.New,
+      failedAt: null,
     },
   });
 
   if (!record) {
+    return false;
+  }
+
+  const user = await prisma.wallet.findUnique({
+    where: {
+      address: record.wallet,
+    },
+  });
+
+  if (!user) {
     return false;
   }
 
@@ -42,15 +45,16 @@ export async function verifyPayment(txHash: string) {
     }
 
     const walletOwner = await getWalletOwner(verificationResult.wallet!);
+
     if (
-      walletOwner !== payload.sub ||
+      walletOwner !== user.userId ||
       record.wallet !== verificationResult.wallet
     ) {
       return false;
     }
   } catch (error) {
     const verifyPaymentError = new VerifyPaymentError(
-      `Unable to verify SOL payment for user ${payload.sub}, tx ${record?.hash}`,
+      `Unable to verify SOL payment for user ${user.userId}, tx ${record?.hash}`,
       { cause: error },
     );
     Sentry.captureException(verifyPaymentError);
@@ -60,7 +64,7 @@ export async function verifyPayment(txHash: string) {
 
   if (!verificationResult.success) {
     Sentry.captureMessage(
-      `Verification of SOL payment for user ${payload.sub} failed. Transaction: https://solana.fm/tx/${record?.hash}`,
+      `Verification of SOL payment for user ${user?.userId} failed. Transaction: https://solana.fm/tx/${record?.hash}`,
       {
         level: "error",
         tags: {
