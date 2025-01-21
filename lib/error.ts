@@ -127,12 +127,37 @@ export class QuestionMultiDecksError extends Error {
   }
 }
 
-export class CreditTxLogUpdateError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "CreditTxLogUpdateError";
+export class ChainTxStatusUpdateError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "ChainTxStatusUpdateError";
+  }
+}
 
-    // Set the prototype explicitly.
-    Object.setPrototypeOf(this, CreditTxLogUpdateError.prototype);
+export class CreateChainTxError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "CreateChainTxError";
+  }
+}
+
+export class TransactionFailedToConfirmError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "TransactionFailedToConfirmError";
+  }
+}
+
+export class TransactionFailedToFinalizeError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "TransactionFailedToFinalizeError";
+  }
+}
+
+export class VerifyPaymentError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "VerifyPaymentError";
   }
 }
