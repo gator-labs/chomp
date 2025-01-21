@@ -74,7 +74,7 @@ export async function processCreditsTransaction(
 
     // Process the credit purchase
     const creditAmount = new Decimal(tx.solAmount)
-      .mul(new Decimal(solCostPerCredit))
+      .div(new Decimal(solCostPerCredit))
       .toNumber();
 
     await prisma.$transaction([
