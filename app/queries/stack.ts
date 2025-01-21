@@ -1,5 +1,6 @@
 "use server";
 
+import { stringifyDecimals } from "@/app/utils/decimal";
 import {
   ChompResult,
   Deck,
@@ -58,12 +59,23 @@ export async function getStack(id: number) {
                       question: true,
                     },
                     where: {
-                      userId,
+                      // If user isn't logged in, match against a non-existent user
+                      // to avoid pulling records for ALL users. We keep this clause
+                      // so the type contains chompResult (empty array).
+                      userId: userId ?? "00000000-0000-0000-0000-000000000000",
                     },
                   },
                   questionOptions: {
                     include: {
-                      questionAnswers: true,
+                      questionAnswers: {
+                        where: {
+                          // If user isn't logged in, match against a non-existent user
+                          // to avoid pulling records for ALL users. We keep this clause
+                          // so the type contains chompResult (empty array).
+                          userId:
+                            userId ?? "00000000-0000-0000-0000-000000000000",
+                        },
+                      },
                     },
                   },
                 },
@@ -78,6 +90,8 @@ export async function getStack(id: number) {
   if (!stack) {
     return null;
   }
+
+  stringifyDecimals(stack);
 
   const sortedDecks = [...stack.deck].sort((a, b) => {
     if (
