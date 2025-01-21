@@ -18,8 +18,8 @@ export default function ChompFullScreenLoader({
   return (
     <ReactPortal wrapperId="chomp-loader">
       <div className="fixed top-0 left-0 w-screen h-screen z-[99] bg-gray-800 bg-opacity-90">
-        <div className="flex flex-col absolute top-1/3 left-1/2 -translate-x-1/2 gap-2">
-          <div className="rounded-full overflow-hidden flex justify-center items-center w-fit ">
+        <div className="flex flex-col absolute top-1/3 left-1/2 -translate-x-1/2 gap-2 items-center">
+          <div className="rounded-full overflow-hidden flex justify-center items-center w-fit">
             <DotLottiePlayer
               className="w-32 h-32"
               loop
