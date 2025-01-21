@@ -217,7 +217,7 @@ describe("getStackWithResults", () => {
     ).toEqual(1);
   });
 
-  it("should verify that the user's ChompResults are returned with the stack", async () => {
+  it("should verify that no ChompResults are returned for an unauthenticated user", async () => {
     (getJwtPayload as jest.Mock).mockResolvedValue(undefined);
     const result = await getStack(stackId);
     expect(
