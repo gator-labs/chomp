@@ -4,10 +4,7 @@ import { getStack } from "@/app/queries/stack";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { faker } from "@faker-js/faker";
-import {
-  ResultType,
-  TransactionStatus,
-} from "@prisma/client";
+import { ResultType, TransactionStatus } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 // Mock retry since it's used in the codebase
@@ -115,7 +112,7 @@ describe("getStackWithResults", () => {
         },
       });
 
-      deckIds = [ deck.id ];
+      deckIds = [deck.id];
 
       await prisma.user.createMany({
         data: [user0, user1],
