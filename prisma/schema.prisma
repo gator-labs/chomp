@@ -29,6 +29,7 @@ model User {
   telegramUsername            String?                       @unique
   twitterUsername             String?                       @unique
   isBotSubscriber             Boolean                       @default(false)
+  threatLevel                 String
   MysteryBox                  MysteryBox[]
 }
 
