@@ -39,10 +39,17 @@ jobs:
           BRANCH_NAME="${{ steps.get-branch.outputs.branch_name }}"
           echo "Using branch name: $BRANCH_NAME"
 
+          # link to the project
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
-          vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
-
-          echo "Pulled environment variables (keys and values, excluding DATABASE_URL redaction):"
+          
+          # pull the correct environment variables
+          if [ "$BRANCH_NAME" = "main" ]; then
+            echo "Main branch detected - pulling production environment variables"
+            vercel env pull --environment=production .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            echo "Preview branch detected - pulling preview environment variables"
+            vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
+          fi
 
       # Step 6: Verify and Sanitize Environment Variables
       - name: Verify and Sanitize DATABASE_URL
