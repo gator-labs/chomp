@@ -22,6 +22,7 @@ const colors = {
   destructive: "#ED6A5A",
   green: "#1ED3B3",
   white: "#FFFFFF",
+  cream: "#F6FCD6",
   gray: {
     50: "#FFFFFF",
     100: "#E6E6E6",
