@@ -206,6 +206,7 @@ model FungibleAssetTransactionLog {
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
+  @@unique([type, chainTxHash, userId])
 }
 
 model RevealNft {
@@ -302,7 +303,7 @@ model ChainTx {
   wallet                      String
   type                        EChainTxType
   solAmount                   String
-  feeSolAmount                String
+  feeSolAmount                String?
   recipientAddress            String
   status                      EChainTxStatus                @default(New)
   createdAt                   DateTime                      @default(now())
