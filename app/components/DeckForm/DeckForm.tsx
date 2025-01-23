@@ -106,15 +106,9 @@ export default function DeckForm({
       authorImageUrl = await uploadImageToS3Bucket(data.authorImageFile[0]);
     }
 
-    console.log("authorImageUrl", authorImageUrl);
-    console.log("data.file", data.file?.[0]);
-
     if (data.file?.[0]) {
       imageUrl = await uploadImageToS3Bucket(data.file[0]);
     }
-
-    console.log("triggeredAction");
-    console.log("data");
 
     const result = await action({
       ...data,
