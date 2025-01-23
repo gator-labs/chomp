@@ -35,8 +35,6 @@ export default async function Page({ params: { id } }: PageProps) {
     blurData = await getBlurData(imgUrl);
   }
 
-  console.log("deck", deck);
-
   return (
     <div className="h-full pt-3 pb-4">
       {deck === null ? (
