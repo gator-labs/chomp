@@ -10,6 +10,8 @@ type DeckScreenProps = {
   deckInfo: {
     heading: string;
     description: string | null;
+    author: string | null;
+    authorImageUrl: string | null;
     footer: string | null;
     imageUrl: string | null;
     totalNumberOfQuestions: number;

@@ -41,7 +41,11 @@ export function Navbar({
       </Link>
       <div className="flex gap-6 items-center">
         <button onClick={openQuickProfile}>
-          <Avatar src={avatarSrc || AvatarPlaceholder.src} size="small" />
+          <Avatar
+            src={avatarSrc || AvatarPlaceholder.src}
+            size="small"
+            className="border-white"
+          />
         </button>
         <QuickViewProfile
           isOpen={isOpen}

@@ -30,9 +30,12 @@ export default async function Page({ params: { id } }: PageProps) {
   const totalCredits = await getUserTotalCreditAmount();
   let blurData;
   const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
+
   if (imgUrl) {
     blurData = await getBlurData(imgUrl);
   }
+
+  console.log("deck", deck);
 
   return (
     <div className="h-full pt-3 pb-4">

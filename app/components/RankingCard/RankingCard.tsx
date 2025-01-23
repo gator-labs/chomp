@@ -41,7 +41,7 @@ const RankingCard = ({
         >
           <p className="text-xl">{rank}</p>
         </div>
-        <Avatar src={imageSrc} size="medium" />
+        <Avatar src={imageSrc} size="medium" className="border-white" />
         <p className="ml-6 text-sm">{name}</p>
       </div>
       <p className="text-base font-bold">{value.toLocaleString("en-US")}</p>
