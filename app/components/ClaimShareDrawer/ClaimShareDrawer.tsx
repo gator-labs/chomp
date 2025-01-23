@@ -42,8 +42,11 @@ const ClaimShareDrawer = ({
   useEffect(() => {
     const fetchLinkPreview = async () => {
       try {
-        const linkPreview = await getLinkPreview(copyUrl);
-        setOgImageUrl((linkPreview as { images: string[] }).images[0]);
+        // only fetch the link preview if the drawer is open
+        if (isOpen) {
+          const linkPreview = await getLinkPreview(copyUrl);
+          setOgImageUrl((linkPreview as { images: string[] }).images[0]);
+        }
       } catch (error) {
         const shareClaimAllError = new ShareClaimAllError(
           "Failed to fetch link preview",
