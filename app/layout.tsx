@@ -1,3 +1,4 @@
+import ContentUnavailablePage from "@/components/ContentUnavailablePage";
 import { satoshi } from "@/lib/fonts";
 import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
@@ -42,7 +43,14 @@ export default async function RootLayout({
 }>) {
   const isDemo = process.env.ENVIRONMENT === "demo";
 
-  const user = await getCurrentUser();
+  let user;
+  try {
+    user = await getCurrentUser();
+  } catch (e) {
+    if ((e as Error)?.name == "UserThreatLevelDetected")
+      return <ContentUnavailablePage />;
+    else throw e;
+  }
 
   const address = user?.wallets?.[0]?.address || "";
 
