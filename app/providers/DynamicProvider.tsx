@@ -23,7 +23,7 @@ export default function DynamicProvider({
         environmentId: process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID || "",
         walletConnectors: [SolanaWalletConnectors],
         walletConnectorExtensions: [GlobalWalletExtension],
-        eventsCallbacks: {
+        events: {
           onLogout: () => {
             clearJwt();
           },

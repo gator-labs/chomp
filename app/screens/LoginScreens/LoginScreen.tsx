@@ -6,6 +6,7 @@ import { TelegramAuthDataProps } from "@/app/login/page";
 import { DynamicJwtPayload } from "@/lib/auth";
 import trackEvent from "@/lib/trackEvent";
 import {
+  getAuthToken,
   useDynamicContext,
   useIsLoggedIn,
   useTelegramLogin,
@@ -25,14 +26,9 @@ interface Props {
 }
 
 const LoginScreen = ({ payload, telegramAuthData }: Props) => {
-  const {
-    authToken,
-    awaitingSignatureState,
-    primaryWallet,
-    user,
-    sdkHasLoaded,
-  } = useDynamicContext();
-
+  const { awaitingSignatureState, primaryWallet, user, sdkHasLoaded } =
+    useDynamicContext();
+  const authToken = getAuthToken();
   const isLoggedIn = useIsLoggedIn();
 
   const params = useSearchParams();
