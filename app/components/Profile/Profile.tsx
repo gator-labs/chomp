@@ -34,11 +34,7 @@ export async function Profile({
       )}
     >
       <div>
-        <Avatar
-          size="extralarge"
-          className="border-purple-500"
-          src={avatarSrc}
-        />
+        <Avatar size="extralarge" className="border-white" src={avatarSrc} />
       </div>
       <div className="flex flex-col  text-white gap-y-4 flex-1">
         <div className="flex items-baseline">

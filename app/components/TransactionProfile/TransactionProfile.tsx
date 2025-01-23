@@ -35,7 +35,11 @@ export function TransactionProfile({
       )}
     >
       <Link href="/application">
-        <Avatar size="large" src={avatarSrc || AvatarPlaceholder.src} />
+        <Avatar
+          size="large"
+          src={avatarSrc || AvatarPlaceholder.src}
+          className="border-white"
+        />
       </Link>
       <div className="flex flex-col  text-white text-base gap-y-3 self-center flex-grow">
         {typeof pointAmount === "number" && (
