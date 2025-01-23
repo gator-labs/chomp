@@ -6,6 +6,7 @@ import {
   VerifiedWallet,
   decodeJwtPayload,
 } from "@/lib/auth";
+import { UserThreatLevelDetected } from "@/lib/error";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -23,10 +24,24 @@ export const getJwtPayload = async () => {
   const shouldOverrideUserId =
     process.env.OVERRIDE_USER_ID && process.env.OVERRIDE_USER_ID.length > 0;
   if (shouldOverrideUserId) {
-    return { sub: process.env.OVERRIDE_USER_ID || "" } as DynamicJwtPayload;
+    const payload = {
+      sub: process.env.OVERRIDE_USER_ID || "",
+    } as DynamicJwtPayload;
+    await checkThreatLevel(payload.sub);
+    return payload;
   } else {
-    return await decodeJwtPayload(token.value);
+    const payload = await decodeJwtPayload(token.value);
+    if (!payload) return payload;
+    await checkThreatLevel(payload.sub);
+    return payload;
   }
+};
+
+export const checkThreatLevel = async (userId: string) => {
+  const user = await prisma.user.findFirst({ where: { id: userId } });
+  if (!user) throw new Error("User not found");
+  if (user.threatLevel)
+    throw new UserThreatLevelDetected("User threat level detected");
 };
 
 export const setJwt = async (
