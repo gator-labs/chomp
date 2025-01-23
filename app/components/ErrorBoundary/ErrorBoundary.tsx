@@ -12,7 +12,7 @@ import { Button } from "../ui/button";
 
 function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    if (error.name != "UserThreatLevelDetected") Sentry.captureException(error);
   }, [error]);
 
   // Check if it's a server-side error
