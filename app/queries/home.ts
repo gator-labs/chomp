@@ -483,7 +483,6 @@ FROM
     public."Deck" d
 FULL JOIN
     public."Stack" c ON c."id" = d."stackId"
-JOIN public."Question" q ON q."id" = d."id"
 WHERE
     d."revealAtDate" > NOW() 
     AND (d."activeFromDate" <= NOW() OR  
@@ -556,7 +555,6 @@ FROM
     public."Deck" d
 FULL JOIN
     public."Stack" c ON c."id" = d."stackId"
-JOIN public."Question" q ON q."id" = d."id"
 WHERE
     d."revealAtDate" > NOW() 
     AND (d."activeFromDate" <= NOW() OR  
