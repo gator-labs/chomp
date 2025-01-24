@@ -7,7 +7,6 @@ import { getTokenFromCookie } from "@/lib/jwt";
 import { generateUsers } from "@/scripts/utils";
 
 jest.mock("@/lib/auth", () => {
-  const orig = jest.requireActual("@/lib/auth");
   return {
     decodeJwtPayload: jest.fn(),
   };
