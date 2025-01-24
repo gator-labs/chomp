@@ -10,7 +10,7 @@ import Decimal from "decimal.js";
 
 import { getJwtPayload } from "../../app/actions/jwt";
 
-Decimal.set({ 'toExpNeg': -128 })
+Decimal.set({ toExpNeg: -128 });
 
 /**
  * Creates initial chainTx record when user signs a credit purchase transaction
@@ -42,8 +42,7 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const solAmount = new Decimal(solanaCostPerCredit)
-    .mul(creditsToBuy);
+  const solAmount = new Decimal(solanaCostPerCredit).mul(creditsToBuy);
 
   const wallet = await prisma.wallet.findFirst({
     where: {

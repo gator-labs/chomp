@@ -6,7 +6,7 @@ import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
 import Decimal from "decimal.js";
 
-Decimal.set({ 'toExpNeg': -128 });
+Decimal.set({ toExpNeg: -128 });
 
 const solPerCreditCost = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT ?? 0;
 
