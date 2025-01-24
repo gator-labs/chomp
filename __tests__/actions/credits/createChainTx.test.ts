@@ -4,6 +4,11 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
+import Decimal from "decimal.js";
+
+Decimal.set({ 'toExpNeg': -128 });
+
+const solPerCreditCost = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT ?? 0;
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
@@ -69,8 +74,11 @@ describe("createSignedSignatureChainTx", () => {
       where: { hash: CREDIT_PURCHASE_SIGNATURE },
     });
 
+    const expectedAmount = new Decimal("2").mul(solPerCreditCost).toString();
+    console.log(expectedAmount);
+
     expect(chainTx).toBeDefined();
-    expect(chainTx?.solAmount).toBe("0.002");
+    expect(chainTx?.solAmount).toBe(expectedAmount);
     expect(chainTx?.wallet).toBe(user.wallet);
     expect(result).toBeUndefined();
   });
