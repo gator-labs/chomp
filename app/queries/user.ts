@@ -44,7 +44,7 @@ export async function getCurrentUser() {
 
   if (!payload?.sub) return null;
 
-  return prisma.user.findUnique({
+  return await prisma.user.findUnique({
     where: {
       id: payload?.sub,
     },
