@@ -175,3 +175,10 @@ export class UserThreatLevelDetected extends Error {
     this.name = "UserThreatLevelDetected";
   }
 }
+
+export class DynamicRevokeSessionError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "DynamicRevokeSessionError";
+  }
+}
