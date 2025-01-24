@@ -6,7 +6,6 @@ import {
   VerifiedWallet,
   decodeJwtPayload,
 } from "@/lib/auth";
-import { UserThreatLevelDetected } from "@/lib/error";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -14,8 +13,10 @@ import prisma from "../services/prisma";
 import { getRandomAvatarPath } from "../utils/avatar";
 import { resetAccountData } from "./demo";
 
+import { checkThreatLevel, getTokenFromCookie } from '@/lib/jwt';
+
 export const getJwtPayload = async () => {
-  const token = cookies().get("token");
+  const token = getTokenFromCookie();
 
   if (!token) {
     return null;
@@ -35,13 +36,6 @@ export const getJwtPayload = async () => {
     await checkThreatLevel(payload.sub);
     return payload;
   }
-};
-
-export const checkThreatLevel = async (userId: string) => {
-  const user = await prisma.user.findFirst({ where: { id: userId } });
-  if (!user) throw new Error("User not found");
-  if (user.threatLevel)
-    throw new UserThreatLevelDetected("User threat level detected");
 };
 
 export const setJwt = async (
