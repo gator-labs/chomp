@@ -89,7 +89,7 @@ export function HomeFeedDeckCard({
       <div className="flex flex-col justify-between w-full">
         <div className="text-white  font-semibold text-base">{deck}</div>
         <div className="flex items-center justify-between -ml-1">
-          {CREDIT_COST_FEATURE_FLAG && deckCreditCost ? (
+          {CREDIT_COST_FEATURE_FLAG && deckCreditCost != null ? (
             <div
               className={classNames(
                 "flex flex-row justify-center items-center rounded-[48px] p-2 gap-1 font-medium",
