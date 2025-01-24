@@ -5,6 +5,7 @@ import { FilterIcon } from "../Icons/FilterIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
 import { MoneyIcon } from "../Icons/MoneyIcon";
 import { SortByIcon } from "../Icons/SortByIcon";
+import UserIcon from "../Icons/UserIcon";
 import { Navigation } from "../Navigation/Navigation";
 
 const navigationItems = [
@@ -33,6 +34,12 @@ const navigationItems = [
     icon: <MoneyIcon />,
     href: "/admin/banners",
     isActiveRegex: "/admin/banners.*",
+  },
+  {
+    label: "Users",
+    icon: <UserIcon />,
+    href: "/admin/users",
+    isActiveRegex: "/admin/users.*",
   },
 ];
 

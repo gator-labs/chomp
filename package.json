@@ -26,6 +26,7 @@
     "dev:restore-db": "dotenv -c -- ts-node scripts/restore-database.ts",
     "dev:add-allowlist-users": "dotenv -c -- ts-node scripts/addAllowlistUsers.ts",
     "dev:delete-user": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/delete-user.ts",
+    "dev:distribute-credit": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/distribute-credit.ts",
     "build-storybook": "storybook build",
     "test": "jest --watch",
     "gh-test": "jest",
