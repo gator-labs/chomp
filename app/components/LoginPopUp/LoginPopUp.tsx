@@ -22,8 +22,7 @@ type LoginPopUpProps = {
 };
 
 const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
-  const { awaitingSignatureState } = useDynamicContext();
-  const authToken = getAuthToken();
+  const { awaitingSignatureState, sdkHasLoaded } = useDynamicContext();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,6 +36,8 @@ const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
     if (!isOpen) return;
 
     setIsLoading(true);
+
+    const authToken = getAuthToken();
 
     if (authToken) setJwt(authToken);
 
@@ -67,7 +68,7 @@ const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
     ) {
       setIsLoading(false);
     }
-  }, [authToken, userId, awaitingSignatureState, isOpen]);
+  }, [userId, awaitingSignatureState, isOpen, sdkHasLoaded]);
 
   if (isLoading) return <LoadingScreen />;
 
