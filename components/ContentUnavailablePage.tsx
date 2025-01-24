@@ -5,7 +5,7 @@ import { satoshi } from "@/lib/fonts";
 
 import { UserThreatLevelDetected } from "../lib/error";
 
-export default async function ContentUnavailablePage() {
+export default function ContentUnavailablePage() {
   const err = new UserThreatLevelDetected("User threat level detected");
   return (
     <html lang="en" className={`${satoshi.variable} h-full`}>
