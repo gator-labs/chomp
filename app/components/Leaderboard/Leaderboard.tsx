@@ -142,6 +142,7 @@ const Leaderboard = ({
           <Avatar
             src={loggedUser?.profileSrc || AvatarPlaceholder.src}
             size="medium"
+            className="border-white"
           />
         </div>
         <div className="flex flex-col gap-2 flex-1 justify-center">

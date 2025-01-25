@@ -70,9 +70,17 @@ export default function DeckForm({
     deck ? deck.date : undefined,
   );
 
-  const file = watch("file")?.[0];
-  const deckImage = watch("imageUrl");
+  const file = watch("file")?.[0]; // The file for deck image
+  const authorImageFile = watch("authorImageFile")?.[0]; // The file for the author image
+
+  const deckImage = watch("imageUrl"); // The URL for the deck image
+  const authorImage = watch("authorImageUrl"); // The URL for the author image
+
+  // Generate preview URLs for both the deck image and the author image
   const deckPreviewUrl = !!file ? URL.createObjectURL(file!) : deckImage;
+  const authorImagePreviewUrl = !!authorImageFile
+    ? URL.createObjectURL(authorImageFile!)
+    : authorImage;
 
   const onSubmit = handleSubmit(async (data) => {
     const questions = await Promise.all(
@@ -92,10 +100,21 @@ export default function DeckForm({
     );
 
     let imageUrl = deckPreviewUrl || "";
+    let authorImageUrl = authorImagePreviewUrl || "";
+
+    if (data.authorImageFile?.[0]) {
+      authorImageUrl = await uploadImageToS3Bucket(data.authorImageFile[0]);
+    }
+
+    console.log("authorImageUrl", authorImageUrl);
+    console.log("data.file", data.file?.[0]);
 
     if (data.file?.[0]) {
       imageUrl = await uploadImageToS3Bucket(data.file[0]);
     }
+
+    console.log("triggeredAction");
+    console.log("data");
 
     const result = await action({
       ...data,
@@ -104,10 +123,12 @@ export default function DeckForm({
       stackId: data.stackId,
       id: deck?.id,
       imageUrl,
+      authorImageUrl,
       creditCostPerQuestion: CREDIT_COST_FEATURE_FLAG
         ? data.creditCostPerQuestion
         : null,
       file: undefined,
+      authorImageFile: undefined,
     });
 
     if (result?.errorMessage) {
@@ -188,6 +209,48 @@ export default function DeckForm({
             {...register("description")}
           />
           <div className="text-destructive">{errors.description?.message}</div>
+        </div>
+        <div className="mb-3">
+          <label className="block mb-1">Deck Author (optional)</label>
+          <textarea
+            className="border-[1px] py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray border-gray min-h-20"
+            {...register("author")}
+          />
+          <div className="text-destructive">{errors.description?.message}</div>
+        </div>
+        <div className="flex flex-col gap-2 mt-2">
+          <label className="block mb-1">Deck Author Image (optional)</label>
+          {!!authorImagePreviewUrl && (
+            <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg">
+              <Image
+                fill
+                alt="preview-image-stack"
+                src={authorImagePreviewUrl}
+                className="object-cover w-full h-full"
+              />
+            </div>
+          )}
+          {!!authorImagePreviewUrl && (
+            <Button
+              type="button"
+              onClick={() => {
+                setValue("authorImageFile", []);
+                setValue("authorImageUrl", undefined);
+              }}
+              variant="destructive"
+              className="!w-fit !h-[30px]"
+            >
+              Remove
+            </Button>
+          )}
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            {...register("authorImageFile")}
+          />
+          <div className="text-destructive">
+            {errors.questions && errors.file?.message}
+          </div>{" "}
         </div>
         <div className="mb-3">
           <label className="block mb-1">Footer (optional)</label>

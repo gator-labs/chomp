@@ -67,17 +67,17 @@ describe("Chompmas mystery boxes", () => {
     user0 = {
       id: users[0].id,
       username: users[0].username,
-      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
     };
     user1 = {
       id: users[1].id,
       username: users[1].username,
-      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
     };
     user2 = {
       id: users[2].id,
       username: users[2].username,
-      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
     };
 
     await prisma.user.createMany({
@@ -161,6 +161,10 @@ describe("Chompmas mystery boxes", () => {
   });
 
   it("Should refuse a chompmas box for user without a streak", async () => {
+    await prisma.mysteryBoxAllowlist.create({
+      data: { address: user2.wallet },
+    });
+
     const boxId = await getChompmasMysteryBox(
       user2.id,
       Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK!) - 1,
