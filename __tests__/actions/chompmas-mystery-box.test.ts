@@ -161,6 +161,10 @@ describe("Chompmas mystery boxes", () => {
   });
 
   it("Should refuse a chompmas box for user without a streak", async () => {
+    await prisma.mysteryBoxAllowlist.create({
+      data: { address: user2.wallet },
+    });
+
     const boxId = await getChompmasMysteryBox(
       user2.id,
       Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK!) - 1,
