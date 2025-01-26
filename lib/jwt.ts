@@ -1,11 +1,5 @@
-import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
-import { revokeDynamicSession } from "@/lib/dynamic";
-import {
-  DynamicRevokeSessionError,
-  UserThreatLevelDetected,
-} from "@/lib/error";
-import * as Sentry from "@sentry/nextjs";
+import { UserThreatLevelDetected } from "@/lib/error";
 import { cookies } from "next/headers";
 
 export const checkThreatLevel = async (userId: string) => {
