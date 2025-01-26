@@ -12,16 +12,6 @@ export const checkThreatLevel = async (userId: string) => {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   if (!user) throw new Error("User not found");
   if (user.threatLevel) {
-    try {
-      await revokeDynamicSession(userId);
-    } catch (e) {
-      const dynamicRevokeSessionError = new DynamicRevokeSessionError(
-        `Failed revoke session for user with threat level: ${userId}`,
-        { cause: e },
-      );
-      Sentry.captureException(dynamicRevokeSessionError);
-      await Sentry.flush(SENTRY_FLUSH_WAIT);
-    }
     throw new UserThreatLevelDetected("User threat level detected");
   }
 };

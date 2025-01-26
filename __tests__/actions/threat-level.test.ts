@@ -1,7 +1,6 @@
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { decodeJwtPayload } from "@/lib/auth";
-import { revokeDynamicSession } from "@/lib/dynamic";
 import { UserThreatLevelDetected } from "@/lib/error";
 import { getTokenFromCookie } from "@/lib/jwt";
 import { generateUsers } from "@/scripts/utils";
@@ -58,25 +57,9 @@ describe("Threat level blocking", () => {
 
   it("should disallow a bot user to validate a session", async () => {
     // toHaveBeenCalledWith() not working, hence work around
-    let revokeCallCount = 0;
-    let revokeArg = "";
-
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_999");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[1].id });
-    (revokeDynamicSession as jest.Mock).mockImplementation(async (token) => {
-      revokeArg = token;
-      revokeCallCount++;
-    });
 
-    const promise = getCurrentUser();
-
-    expect(promise).rejects.toThrow(UserThreatLevelDetected);
-
-    try {
-      await promise;
-    } catch {}
-
-    expect(revokeCallCount).toEqual(1);
-    expect(revokeArg).toEqual(users[1].id);
+    expect(getCurrentUser).rejects.toThrow(UserThreatLevelDetected);
   });
 });
