@@ -1,3 +1,4 @@
+import { Avatar } from "@/app/components/Avatar/Avatar";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Image from "next/image";
 import { useState } from "react";
@@ -14,6 +15,8 @@ type PreviewDeckCardProps = {
   description?: string | null;
   footer?: string | null;
   imageUrl?: string | null;
+  author?: string | null;
+  authorImageUrl?: string | null;
   totalNumberOfQuestions: number;
   stackImage: string;
   blurData: string | undefined;
@@ -28,6 +31,8 @@ const PreviewDeckCard = ({
   heading,
   description,
   footer,
+  author,
+  authorImageUrl,
   stackImage,
   imageUrl,
   totalNumberOfQuestions,
@@ -69,20 +74,36 @@ const PreviewDeckCard = ({
               Total {totalNumberOfQuestions} card
               {totalNumberOfQuestions > 1 && "s"}
             </p>
+            {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
+              <button
+                className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
+                onClick={() => setIsOpen(true)}
+              >
+                <span className="opacity-50 pr-1">Entry </span>
+                {deckCreditCost > 0
+                  ? `${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
+                  : "Free"}
+                <InfoIcon fill="#0d0d0d" />
+              </button>
+            ) : null}
+            <div className="flex gap-2 items-center">
+              {!!authorImageUrl && (
+                <div className="">
+                  <Avatar
+                    size="small"
+                    className="border-purple-200"
+                    src={authorImageUrl}
+                  />
+                </div>
+              )}
+              {!!author && (
+                <p className="text-[12px] font-bold leading-[16.5px]">
+                  By {author}
+                </p>
+              )}
+            </div>
           </div>
         </div>
-        {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
-          <button
-            className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
-            onClick={() => setIsOpen(true)}
-          >
-            <span className="opacity-50 pr-1">Entry </span>
-            {deckCreditCost > 0
-              ? `${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
-              : "Free"}
-            <InfoIcon fill="#0d0d0d" />
-          </button>
-        ) : null}
       </div>
       <Drawer
         open={isOpen}

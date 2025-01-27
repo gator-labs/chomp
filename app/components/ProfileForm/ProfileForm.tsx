@@ -104,6 +104,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
             <Avatar
               src={isImageRemoved ? AvatarPlaceholder.src : previewUrl!}
               size="oversized"
+              className="border-white"
             />
             <input
               type="file"
