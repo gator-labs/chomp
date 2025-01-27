@@ -83,6 +83,10 @@ export default function DeckForm({
     : authorImage;
 
   const onSubmit = handleSubmit(async (data) => {
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+
     const questions = await Promise.all(
       data.questions.map(async (question) => {
         let imageUrl = question.imageUrl || "";
@@ -210,7 +214,7 @@ export default function DeckForm({
             className="border-[1px] py-3 px-4 focus:border-aqua focus:outline-none focus:shadow-input focus:shadow-[#6DECAFCC] rounded-md text-xs w-full text-input-gray border-gray min-h-20"
             {...register("author")}
           />
-          <div className="text-destructive">{errors.description?.message}</div>
+          <div className="text-destructive">{errors.author?.message}</div>
         </div>
         <div className="flex flex-col gap-2 mt-2">
           <label className="block mb-1">Deck Author Image (optional)</label>
@@ -243,7 +247,7 @@ export default function DeckForm({
             {...register("authorImageFile")}
           />
           <div className="text-destructive">
-            {errors.questions && errors.file?.message}
+            {errors.questions && errors.authorImageFile?.message}
           </div>{" "}
         </div>
         <div className="mb-3">

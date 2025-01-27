@@ -10,8 +10,15 @@ import {
 export const deckSchema = z
   .object({
     id: z.number().optional(),
-    deck: z.string().min(5),
-    heading: z.string().min(5).optional().nullish().or(z.literal("")),
+    deck: z
+      .string()
+      .min(5, { message: "Deck name must be at least 5 characters long" }),
+    heading: z
+      .string()
+      .min(5, { message: "Deck heading must be at least 5 characters long" })
+      .optional()
+      .nullish()
+      .or(z.literal("")),
     file: z
       .custom<File[]>()
       .optional()
@@ -61,8 +68,24 @@ export const deckSchema = z
           message: "Invalid image source",
         },
       ),
-    description: z.string().min(5).optional().nullish().or(z.literal("")),
-    author: z.string().min(5).optional().nullish().or(z.literal("")),
+    description: z
+      .string()
+      .min(5, {
+        message: "Deck description must be at least 5 characters long",
+      })
+      .optional()
+      .nullish()
+      .or(z.literal("")),
+    author: z
+      .string()
+      .trim()
+      .min(2, { message: "Author name must be at least 2 characters long" })
+      .refine((value) => value.trim().length > 0, {
+        message: "Author name cannot be empty or consist solely of spaces",
+      })
+      .optional()
+      .nullish()
+      .or(z.literal("")),
     authorImageUrl: z
       .string()
       .optional()
