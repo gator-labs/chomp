@@ -12,17 +12,20 @@ import { Button } from "../ui/button";
 
 function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
   useEffect(() => {
-    Sentry.captureException(error);
+    if (error.name != "UserThreatLevelDetected") Sentry.captureException(error);
   }, [error]);
 
   // Check if it's a server-side error
   const isServerError = (error as any).digest !== undefined;
+  const isThreatLevelError = error.name == "UserThreatLevelDetected";
 
   // Set status code and error message
-  const statusCode = isServerError ? 500 : 400;
-  const errorMessages = isServerError
-    ? "Server error. Please refresh the page and try again."
-    : "Client error. Please refresh the page and try again.";
+  const statusCode = isThreatLevelError ? 204 : isServerError ? 500 : 400;
+  const errorMessages = isThreatLevelError
+    ? "Content Unavailable"
+    : isServerError
+      ? "Server error. Please refresh the page and try again."
+      : "Client error. Please refresh the page and try again.";
 
   return (
     <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-[90%] md:w-[50%] lg:w-[25%] mx-auto pt-14 gap-2">
@@ -41,30 +44,46 @@ function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
 
       <div className="flex flex-col items-start text-white mt-2 gap-2">
         <p className="text-[16px] font-bold  mb-2">{errorMessages}</p>
-        <p className="text-[14px] font-normal mb-2">
-          Please let us know on{" "}
-          <Link
-            href={TELEGRAM_SUPPORT_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-200 hover:underline"
-          >
-            Telegram
-          </Link>{" "}
-          if this error happens again. 🙏
-        </p>
+        {isThreatLevelError ? (
+          <p className="text-[14px] font-normal mb-2">
+            If you believe this is a mistake, contact us on{" "}
+            <Link
+              href={TELEGRAM_SUPPORT_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-200 hover:underline"
+            >
+              Telegram
+            </Link>
+          </p>
+        ) : (
+          <p className="text-[14px] font-normal mb-2">
+            Please let us know on{" "}
+            <Link
+              href={TELEGRAM_SUPPORT_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-200 hover:underline"
+            >
+              Telegram
+            </Link>{" "}
+            if this error happens again. 🙏
+          </p>
+        )}
       </div>
 
-      <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
-        <Button
-          variant="outline"
-          className="text-[14px] gap-2"
-          onClick={() => (window.location.href = HOME_PATH)}
-        >
-          <ArrowLeft />
-          Return home
-        </Button>
-      </div>
+      {!isThreatLevelError && (
+        <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px]">
+          <Button
+            variant="outline"
+            className="text-[14px] gap-2"
+            onClick={() => (window.location.href = HOME_PATH)}
+          >
+            <ArrowLeft />
+            Return home
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
