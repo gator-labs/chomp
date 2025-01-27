@@ -358,7 +358,7 @@ function MysteryBox({
             )}
 
             <div className="flex flex-col gap-2">
-              {status == "Closing" && (
+              {status == "Closing" && creditsReceived > 0 && (
                 <Button
                   variant={"primary"}
                   disabled={isSubmitting}
