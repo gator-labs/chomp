@@ -19,7 +19,7 @@ describe("updateTxStatusToConfirmed", () => {
     const users = await generateUsers(1);
     user = {
       id: users[0].id,
-      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
     };
 
     await prisma.user.create({
@@ -43,7 +43,7 @@ describe("updateTxStatusToConfirmed", () => {
         wallet: user.wallet,
         feeSolAmount: "0",
         recipientAddress: faker.string.hexadecimal({
-          length: { min: 32, max: 44 },
+          length: { min: 32, max: 42 },
         }),
         type: EChainTxType.CreditPurchase,
       },

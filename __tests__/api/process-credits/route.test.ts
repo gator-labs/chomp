@@ -2,8 +2,10 @@ import { GET } from "@/app/api/cron/process-credits/route";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
+import Decimal from "decimal.js";
 
 const secret = process.env.CRON_SECRET || "";
+const solPerCreditCost = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT ?? 0;
 
 jest.mock("next/navigation", () => ({
   redirect: jest.fn(),
@@ -127,9 +129,11 @@ describe("GET /api/cron/process-credits", () => {
       },
     });
 
+    const expectedChange = new Decimal("0.25").div(solPerCreditCost).toNumber();
+
     expect(chainTx?.status).toBe(EChainTxStatus.Finalized);
     expect(chainTx?.finalizedAt).toBeDefined();
-    expect(Number(creditLog?.change)).toBe(250);
+    expect(Number(creditLog?.change)).toBe(expectedChange);
   });
 
   it("should mark invalid transaction as failed", async () => {

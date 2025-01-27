@@ -142,12 +142,12 @@ describe("Create mystery box", () => {
     user0 = {
       id: users[0].id,
       username: users[0].username,
-      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
     };
     user1 = {
       id: users[1].id,
       username: users[1].username,
-      wallet: faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
     };
 
     await prisma.user.createMany({
