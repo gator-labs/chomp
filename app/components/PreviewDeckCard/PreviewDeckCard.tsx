@@ -86,22 +86,22 @@ const PreviewDeckCard = ({
                 <InfoIcon fill="#0d0d0d" />
               </button>
             ) : null}
-            <div className="flex gap-2 items-center">
-              {!!authorImageUrl && (
-                <div className="">
-                  <Avatar
-                    size="small"
-                    className="border-purple-200"
-                    src={authorImageUrl}
-                  />
-                </div>
-              )}
-              {!!author && (
+            {!!author && (
+              <div className="flex gap-2 items-center">
+                {!!authorImageUrl && (
+                  <div className="">
+                    <Avatar
+                      size="small"
+                      className="border-purple-200"
+                      src={authorImageUrl}
+                    />
+                  </div>
+                )}
                 <p className="text-[12px] font-bold leading-[16.5px]">
                   By {author}
                 </p>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
