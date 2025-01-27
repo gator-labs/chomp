@@ -18,7 +18,7 @@ export function Navigation({ items }: NavigationProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex justify-center p-1 space-x-6 py-3 w-full bg-gray-800 h-20 overflow-x-auto">
+    <div className="flex justify-center p-1 space-x-6 py-3 w-full bg-gray-800">
       {items.map((item, index) => (
         <Link
           key={index}
