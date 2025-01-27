@@ -22,13 +22,27 @@ describe("queryExpiringDecks", () => {
   let deckIds: number[] = [];
   let questionIds: number[] = [];
 
-  beforeAll(async () => {
-    await prisma.$transaction(async (tx) => {
-      // Ensure there are no expiring decks already in the system
-      await tx.$queryRaw`
-        UPDATE "Deck" SET "revealAtDate" = "revealAtDate" - INTERVAL '5 years'
-      `;
+  let existingDeckIds = {};
 
+  beforeAll(async () => {
+    // Gather any existing decks from the database so we can
+    // exclude them from the results later on
+    const existingDecks = await prisma.deck.findMany({
+      select: {
+        id: true,
+      },
+      where: {
+        revealAtDate: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    existingDeckIds = Object.fromEntries(
+      existingDecks.map((deck) => [deck.id, true]),
+    );
+
+    await prisma.$transaction(async (tx) => {
       // Create decks
       const decks = await Promise.all([
         tx.deck.create({
@@ -181,7 +195,9 @@ describe("queryExpiringDecks", () => {
   });
 
   it("should return decks expiring today with unanswered questions for user2", async () => {
-    const result = await queryExpiringDecks(user2.id);
+    const result = (await queryExpiringDecks(user2.id)).filter(
+      (deck: any) => !(deck.id in existingDeckIds),
+    );
 
     console.log(result);
 
@@ -190,7 +206,9 @@ describe("queryExpiringDecks", () => {
   });
 
   it("should return an empty array for user1 as all questions are answered", async () => {
-    const result = await queryExpiringDecks(user1.id);
+    const result = (await queryExpiringDecks(user1.id)).filter(
+      (deck: any) => !(deck.id in existingDeckIds),
+    );
 
     console.log(result);
 
