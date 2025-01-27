@@ -12,6 +12,7 @@ export const stackSchema = z
     name: z.string().trim().min(1, "Name is required"),
     isActive: z.boolean(),
     isVisible: z.boolean(),
+    hideDeckFromHomepage: z.boolean(),
     file: z
       .custom<File[]>()
       .optional()
