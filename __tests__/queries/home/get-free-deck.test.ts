@@ -1,3 +1,4 @@
+import { deleteDeck } from "@/app/actions/deck/deck";
 import { getFreeDecks } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { v4 as uuidv4 } from "uuid";
@@ -28,6 +29,9 @@ jest.mock("next/headers", () => ({
 jest.mock("next/navigation", () => ({
   redirect: jest.fn(),
 }));
+jest.mock("next/cache", () => ({
+  revalidatePath: jest.fn(),
+}));
 
 describe("getPremiumDeck", () => {
   const user1 = {
@@ -35,13 +39,15 @@ describe("getPremiumDeck", () => {
     username: `user1`,
   };
 
+  let deckIds: number[] = [];
+
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
       // Create users
       await Promise.all([tx.user.create({ data: user1 })]);
 
       // Create decks
-      await Promise.all([
+      const decks = await Promise.all([
         await tx.deck.create({
           data: {
             deck: `deck ${new Date().getTime()}`,
@@ -363,19 +369,25 @@ describe("getPremiumDeck", () => {
           },
         }),
       ]);
+
+      deckIds = decks.map((deck) => deck.id);
     });
   });
 
   afterAll(async () => {
-    await prisma.$transaction(async (tx) => {
-      await tx.deckQuestion.deleteMany();
-      await tx.deck.deleteMany();
-      await tx.user.deleteMany();
+    await prisma.$transaction(async () => {
+      const deletePromises = deckIds.map((deckId) => deleteDeck(deckId));
+      await Promise.all(deletePromises);
+
+      await prisma.user.deleteMany({
+        where: {
+          id: user1.id,
+        },
+      });
     });
   });
 
-  it("should return array with length of 6", async () => {
-    // (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user1.id });
+  it("should return 6 premium decks out of total 8 decks", async () => {
     const decks = await getFreeDecks({ pageParam: 1 });
     // fetch deck for first page
     expect(decks.length).toEqual(6);
