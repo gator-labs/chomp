@@ -27,6 +27,21 @@ export const deckSchema = z
         }
         return true;
       }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
+    authorImageFile: z
+      .custom<File[]>()
+      .optional()
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return files[0].size <= IMAGE_UPLOAD_SIZES.DEFAULT;
+        }
+        return true;
+      }, `Max image size allowed is ${IMAGE_UPLOAD_SIZE_STRINGS.DEFAULT}.`)
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return IMAGE_VALID_TYPES.includes(files[0].type);
+        }
+        return true;
+      }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
     imageUrl: z
       .string()
       .optional()
@@ -47,6 +62,26 @@ export const deckSchema = z
         },
       ),
     description: z.string().min(5).optional().nullish().or(z.literal("")),
+    author: z.string().min(5).optional().nullish().or(z.literal("")),
+    authorImageUrl: z
+      .string()
+      .optional()
+      .nullable()
+      .refine(
+        (value) => {
+          if (!value) return true;
+
+          try {
+            new URL(value);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        {
+          message: "Invalid image source",
+        },
+      ),
     footer: z.string().min(5).max(50).optional().nullish().or(z.literal("")),
     tagIds: z.number().array().default([]),
     stackId: z.number().optional().nullish(),

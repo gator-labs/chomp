@@ -6,14 +6,13 @@ import {
   VerifiedWallet,
   decodeJwtPayload,
 } from "@/lib/auth";
+import { checkThreatLevel, getTokenFromCookie } from "@/lib/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import prisma from "../services/prisma";
 import { getRandomAvatarPath } from "../utils/avatar";
 import { resetAccountData } from "./demo";
-
-import { checkThreatLevel, getTokenFromCookie } from '@/lib/jwt';
 
 export const getJwtPayload = async () => {
   const token = getTokenFromCookie();
