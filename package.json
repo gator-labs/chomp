@@ -42,10 +42,10 @@
     "@aws-sdk/client-s3": "^3.606.0",
     "@aws-sdk/s3-request-presigner": "^3.608.0",
     "@dotlottie/react-player": "^1.6.19",
-    "@dynamic-labs/global-wallet": "^3.9.3",
-    "@dynamic-labs/sdk-react-core": "^3.9.3",
-    "@dynamic-labs/solana": "^3.9.3",
-    "@dynamic-labs/solana-core": "^3.9.3",
+    "@dynamic-labs/global-wallet": "^4.3.0",
+    "@dynamic-labs/sdk-react-core": "^4.3.0",
+    "@dynamic-labs/solana": "^4.3.0",
+    "@dynamic-labs/solana-core": "^4.3.0",
     "@hookform/resolvers": "^3.3.4",
     "@metaplex-foundation/digital-asset-standard-api": "^1.0.3",
     "@metaplex-foundation/umi": "^0.9.1",
@@ -162,5 +162,6 @@
   },
   "prisma": {
     "schema": "prisma/schema.prisma"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
