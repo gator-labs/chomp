@@ -39,6 +39,7 @@ export async function createStack(data: z.infer<typeof stackSchema>) {
       name: validatedFields.data.name,
       isActive: validatedFields.data.isActive,
       isVisible: validatedFields.data.isVisible,
+      hideDeckFromHomepage: validatedFields.data.hideDeckFromHomepage,
       image: validatedFields.data.image,
     },
   });
@@ -96,6 +97,7 @@ export async function editStack(data: z.infer<typeof stackSchema>) {
       name: validatedFields.data.name,
       isActive: validatedFields.data.isActive,
       isVisible: validatedFields.data.isVisible,
+      hideDeckFromHomepage: validatedFields.data.hideDeckFromHomepage,
       image: validatedFields.data.image,
     },
   });

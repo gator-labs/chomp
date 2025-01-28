@@ -30,7 +30,10 @@ function PaidDeckFeed() {
     }, []);
   }, [data]);
 
-  if (formattedData?.length === 0 && !isFetching) {
+  if (
+    (formattedData?.length === 0 || formattedData === undefined) &&
+    !isFetching
+  ) {
     return <NoDeck />;
   }
   return (

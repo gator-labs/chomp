@@ -29,7 +29,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
       name: stack?.name || "",
       isActive: !!stack?.isActive,
       isVisible: !!stack?.isVisible,
-      hideDeckFromHomepage: stack?.hideDeckFromHomepage,
+      hideDeckFromHomepage: !!stack?.hideDeckFromHomepage,
       file: [],
       image: stack?.image || "",
     },
@@ -49,7 +49,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
           await createStack({
             isActive: data.isActive,
             isVisible: data.isVisible,
-            hideDeckFromHomepage: data.hideDeckFromHomepage ?? false,
+            hideDeckFromHomepage: data.hideDeckFromHomepage,
             name: data.name,
             image: imageUrl,
           });
@@ -60,7 +60,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
             id: data.id,
             isActive: data.isActive,
             isVisible: data.isVisible,
-            hideDeckFromHomepage: data.hideDeckFromHomepage ?? false,
+            hideDeckFromHomepage: data.hideDeckFromHomepage,
             name: data.name,
             image: imageUrl,
           });
