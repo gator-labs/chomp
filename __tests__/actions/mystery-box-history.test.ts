@@ -136,7 +136,7 @@ describe("Mystery box history", () => {
     }));
 
     let i = 0;
-    const triggers = questionIds.map((qid) => {
+    const triggers = questionIds.map(() => {
       const trigger = {
         triggerType: EBoxTriggerType.ClaimAllCompleted,
         deckId,
