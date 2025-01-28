@@ -61,6 +61,8 @@ export default async function Page() {
             description: deck.deckInfo.description,
             imageUrl: deck.deckInfo.imageUrl,
             totalNumberOfQuestions: deck.questions.length,
+            author: deck.deckInfo.author,
+            authorImageUrl: deck.deckInfo.authorImageUrl,
           }}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}

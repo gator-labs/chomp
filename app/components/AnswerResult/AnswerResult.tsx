@@ -71,7 +71,7 @@ export function AnswerResult({
           <Avatar
             src={avatarSrc}
             size="extrasmall"
-            className="absolute top-1 "
+            className="absolute top-1 border-white"
             style={{ left: avatarLeft }}
           />
         )}
