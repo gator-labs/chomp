@@ -1,7 +1,6 @@
 "use client";
 
 import MysteryBoxIcon from "@/public/images/MysteryBoxIcon.png";
-import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import { MysteryBox } from "@/types/mysteryBox";
 import Image from "next/image";
 
