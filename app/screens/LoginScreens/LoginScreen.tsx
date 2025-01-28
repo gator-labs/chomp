@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import ExistingUserScreen from "./ExistingUserScreen";
 import LoadingScreen from "./LoadingScreen";
 import NewUserScreen from "./NewUserScreen";
 import SlideshowScreen from "./SlideshowScreen";
