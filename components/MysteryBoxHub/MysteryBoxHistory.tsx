@@ -1,6 +1,7 @@
 "use client";
 
 import { fetchAllMysteryBoxes } from "@/app/actions/mysteryBox/fetchAll";
+import LoadMoreDecks from "@/app/components/LoadMoreDecks/LoadMoreDecks";
 import { MysteryBox } from "@/types/mysteryBox";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -29,7 +30,7 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 bg-[#202020] opacity-50% rounded-lg m-2 p-2">
+      <div className="flex flex-col gap-3 bg-[#202020] opacity-50% rounded-lg m-2 pt-2">
         <div>
           <h1 className="bg-blue-pink-gradient inline-block text-transparent bg-clip-text font-bold py-2 px-2 text-xl">
             History
@@ -48,14 +49,11 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
           <MysteryBoxHistoryCard box={box} key={box.id} />
         ))}
 
-        {hasNextPage && (
-          <div
-            className="flex justify-center text-gray-400 text-sm pt-2 mb-6 cursor-pointer"
-            onClick={() => fetchNextPage()}
-          >
-            {isFetching ? "..." : "Load more"}
-          </div>
-        )}
+        <LoadMoreDecks
+          isFetching={isFetching}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
+        />
       </div>
     </>
   );
