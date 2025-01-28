@@ -12,13 +12,14 @@ type NavigationProps = {
     href: string;
     isActiveRegex?: string;
   }[];
+  classes?: string;
 };
 
-export function Navigation({ items }: NavigationProps) {
+export function Navigation({ items, classes }: NavigationProps) {
   const pathname = usePathname();
 
   return (
-    <div className="flex justify-center p-1 space-x-6 py-3 w-full bg-gray-800">
+    <div className={classNames("flex justify-center bg-gray-800 ", classes)}>
       {items.map((item, index) => (
         <Link
           key={index}

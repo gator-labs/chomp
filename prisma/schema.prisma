@@ -374,6 +374,7 @@ enum TransactionLogType {
   MysteryBox
   PremiumQuestionCharge
   CreditPurchase
+  CreditByAdmin
 }
 
 enum ResultType {
