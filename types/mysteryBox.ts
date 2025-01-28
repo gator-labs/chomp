@@ -29,3 +29,11 @@ export interface MysteryBoxProps {
   skipAction: MysteryBoxSkipAction;
   boxType?: EMysteryBoxType;
 }
+
+export type MysteryBox = {
+  id: string;
+  bonkReceived: string;
+  creditsReceived: string;
+  openedAt: string | null;
+  category: EMysteryBoxCategory;
+};

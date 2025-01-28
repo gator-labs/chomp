@@ -2,23 +2,17 @@
 
 import MysteryBoxIcon from "@/public/images/MysteryBoxIcon.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
+import { MysteryBox } from "@/types/mysteryBox";
 import Image from "next/image";
 
 import MysteryBoxCategoryPill from "./MysteryBoxCategoryPill";
-
-type MysteryBox = {
-  credits: number;
-  bonk: number;
-  openedAt: string;
-  category: EMysteryBoxCategory;
-};
 
 type MysteryBoxHistoryCardProps = {
   box: MysteryBox;
 };
 
 function MysteryBoxHistoryCard({ box }: MysteryBoxHistoryCardProps) {
-  const openDate = new Date(box.openedAt);
+  const openDate = box.openedAt ? new Date(box.openedAt) : null;
 
   return (
     <div className="bg-gray-700 rounded-lg p-2 gap-2 flex flex-col">
@@ -27,22 +21,29 @@ function MysteryBoxHistoryCard({ box }: MysteryBoxHistoryCardProps) {
           <Image src={MysteryBoxIcon} alt="Mystery box" />
           <div className="text-purple-100 text-sm">
             <div>
-              Credits <b>{box.credits.toLocaleString("en-US")}</b>
+              Credits{" "}
+              <b>{Number(box.creditsReceived).toLocaleString("en-US")}</b>
             </div>
             <div>
-              BONK <b>{box.bonk.toLocaleString("en-US")}</b>
+              BONK <b>{Number(box.bonkReceived).toLocaleString("en-US")}</b>
             </div>
           </div>
         </div>
         <div className="text-purple-100 text-sm">
-          <div className="text-right">Opened on</div>
-          <div className="text-right">
-            <b>
-              {openDate.toLocaleString("en-US", { month: "short" })}{" "}
-              {openDate.getDate()}
-            </b>{" "}
-            {openDate.getFullYear()}
-          </div>
+          {openDate ? (
+            <>
+              <div className="text-right">Opened on</div>
+              <div className="text-right">
+                <b>
+                  {openDate?.toLocaleString("en-US", { month: "short" })}{" "}
+                  {openDate?.getDate()}
+                </b>{" "}
+                {openDate.getFullYear()}
+              </div>
+            </>
+          ) : (
+            <div className="text-right">Not opened</div>
+          )}
         </div>
       </div>
       <div className="flex justify-between">

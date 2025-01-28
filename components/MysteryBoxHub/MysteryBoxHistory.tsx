@@ -1,40 +1,31 @@
-import { EMysteryBoxCategory } from "@/types/mysteryBox";
+"use client";
+
+import { fetchAllMysteryBoxes } from "@/app/actions/mysteryBox/fetchAll";
+import { MysteryBox } from "@/types/mysteryBox";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 
 import MysteryBoxHistoryCard from "./MysteryBoxHistoryCard";
 
 type MysteryBoxHistoryProps = {};
 
 function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
-  const mysteryBoxes = [
-    {
-      credits: 400,
-      bonk: 50000,
-      openedAt: "2025-01-26T12:33:19Z",
-      category: EMysteryBoxCategory.Streaks,
-      id: 1,
+  const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
+    queryKey: ["mystery-boxes"],
+    queryFn: ({ pageParam }) =>
+      fetchAllMysteryBoxes({ currentPage: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage.hasMore) {
+        return undefined;
+      }
+      return allPages.length + 1;
     },
-    {
-      credits: 400,
-      bonk: 50000,
-      openedAt: "2025-01-26T12:33:19Z",
-      category: EMysteryBoxCategory.Validation,
-      id: 2,
-    },
-    {
-      credits: 400,
-      bonk: 50000,
-      openedAt: "2025-01-26T12:33:19Z",
-      category: EMysteryBoxCategory.Practice,
-      id: 3,
-    },
-    {
-      credits: 400,
-      bonk: 50000,
-      openedAt: "2025-01-26T12:33:19Z",
-      category: EMysteryBoxCategory.Campaign,
-      id: 4,
-    },
-  ];
+  });
+
+  const mysteryBoxes: MysteryBox[] = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) ?? [];
+  }, [data]);
 
   return (
     <>
@@ -47,13 +38,24 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
 
         {/*<h2 className="font-extrabold py-1 px-2">Sort by Date</h2>*/}
 
-        {mysteryBoxes.map((box) => (
+        {mysteryBoxes?.length === 0 && !isFetching && (
+          <div className="flex items-center justify-center py-8">
+            No mystery boxes!
+          </div>
+        )}
+
+        {mysteryBoxes?.map((box) => (
           <MysteryBoxHistoryCard box={box} key={box.id} />
         ))}
 
-        <div className="flex justify-center text-gray-400 text-sm pt-2 mb-6">
-          Load more
-        </div>
+        {hasNextPage && (
+          <div
+            className="flex justify-center text-gray-400 text-sm pt-2 mb-6 cursor-pointer"
+            onClick={() => fetchNextPage()}
+          >
+            {isFetching ? "..." : "Load more"}
+          </div>
+        )}
       </div>
     </>
   );
