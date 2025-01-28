@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronRightIcon } from "@/app/components/Icons/ChevronRightIcon";
 import MysteryBoxIcon from "@/public/images/MysteryBoxIcon.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import Image from "next/image";
