@@ -45,7 +45,7 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
           </h1>
         </div>
 
-        <h2 className="font-extrabold py-1 px-2">Sort by Date</h2>
+        {/*<h2 className="font-extrabold py-1 px-2">Sort by Date</h2>*/}
 
         {mysteryBoxes.map((box) => (
           <MysteryBoxHistoryCard box={box} key={box.id} />

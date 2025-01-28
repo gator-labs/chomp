@@ -48,10 +48,10 @@ function MysteryBoxHistoryCard({ box }: MysteryBoxHistoryCardProps) {
       </div>
       <div className="flex justify-between">
         <MysteryBoxCategoryPill category={box.category} />
-        <div className="flex items-center align-center gap-2 text-gray-400 text-sm">
+        {/*<div className="flex items-center align-center gap-2 text-gray-400 text-sm">
           View reward breakdown
           <ChevronRightIcon />
-        </div>
+        </div>*/}
       </div>
     </div>
   );
