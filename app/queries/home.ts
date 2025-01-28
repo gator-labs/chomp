@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 import { getJwtPayload } from "../actions/jwt";
+import { DECK_LIMIT } from "../constants/decks";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
@@ -44,6 +45,8 @@ export type DeckExpiringSoon = {
   answerCount?: number;
   revealAtAnswerCount?: number;
   image?: string;
+  total_count?: number;
+  total_credit_cost?: number;
 };
 
 export type QuestionsForReveal = {
@@ -438,4 +441,153 @@ export async function getUserTotalPoints() {
   if (!res?._sum?.change) return 0;
 
   return res._sum.change.toNumber();
+}
+
+// Get the decks with credit cost per question greater than 0 and revealAtDate greater than now
+export async function getPremiumDecks({
+  pageParam,
+}: {
+  pageParam: number;
+}): Promise<DeckExpiringSoon[]> {
+  const payload = await authGuard();
+
+  const decks = await queryExpiringPremiumDecks(payload.sub, pageParam);
+
+  return decks;
+}
+
+async function queryExpiringPremiumDecks(
+  userId: string,
+  currentPage: number,
+): Promise<DeckExpiringSoon[]> {
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  //skip the offset decks and get the next DECK_LIMIT decks
+  const offset = (currentPage - 1) * DECK_LIMIT;
+
+  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
+WITH premium_deck_cte AS (
+  SELECT
+    d."id",
+    d."deck",
+    d."date",
+    d."revealAtDate",
+    c."image",
+    (SELECT sum("creditCostPerQuestion") 
+     FROM public."DeckQuestion" dq
+     JOIN public."Question" q 
+     ON dq."questionId" = q.id
+     WHERE dq."deckId" = d."id"
+    ) AS total_credit_cost
+FROM
+    public."Deck" d
+FULL JOIN
+    public."Stack" c ON c."id" = d."stackId"
+WHERE
+    d."revealAtDate" > NOW() 
+    AND (d."activeFromDate" <= NOW() OR  
+    d."activeFromDate" IS NULL
+    AND d."date" >= ${currentDayStart}
+    AND d."date" <= ${currentDayEnd})
+    AND EXISTS (
+        SELECT 1
+        FROM public."DeckQuestion" dq
+        JOIN public."Question" q ON dq."questionId" = q."id"
+        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id" 
+        AND qa."userId" = ${userId}
+        WHERE dq."deckId" = d."id"
+        GROUP BY dq."deckId"
+        HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
+    )
+    AND (
+      SELECT sum("creditCostPerQuestion") FROM public."DeckQuestion" dq
+      JOIN public."Question" q on dq."questionId" = q.id
+      WHERE dq."deckId"= d."id"
+    ) > 0)
+    , total_count AS (
+    SELECT COUNT(*) AS count FROM premium_deck_cte
+)
+SELECT 
+    premium_deck_cte.*,
+    total_count.count AS total_count
+FROM premium_deck_cte, total_count
+ORDER BY
+    premium_deck_cte."date" ASC,
+    premium_deck_cte."revealAtDate" ASC
+LIMIT ${DECK_LIMIT} OFFSET ${offset};
+  `;
+  return deckExpiringSoon;
+}
+
+// Get the decks with credit cost per question equal to 0 and revealAtDate greater than now
+export async function getFreeDecks({
+  pageParam,
+}: {
+  pageParam: number;
+}): Promise<DeckExpiringSoon[]> {
+  const payload = await authGuard();
+
+  const decks = await queryExpiringFreeDecks(payload.sub, pageParam);
+
+  return decks;
+}
+
+async function queryExpiringFreeDecks(
+  userId: string,
+  currentPage: number,
+): Promise<DeckExpiringSoon[]> {
+  const offset = (currentPage - 1) * DECK_LIMIT;
+
+  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
+  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+
+  const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
+  WITH free_deck_cte AS (
+  SELECT
+    d."id",
+    d."deck",
+    d."date",
+    d."revealAtDate",
+    c."image",
+    0 as "total_credit_cost"
+FROM
+    public."Deck" d
+FULL JOIN
+    public."Stack" c ON c."id" = d."stackId"
+WHERE
+    d."revealAtDate" > NOW() 
+    AND (d."activeFromDate" <= NOW() OR  
+    d."activeFromDate" IS NULL
+    AND d."date" >= ${currentDayStart}
+    AND d."date" <= ${currentDayEnd})
+    AND EXISTS (
+        SELECT 1
+        FROM public."DeckQuestion" dq
+        JOIN public."Question" q ON dq."questionId" = q."id"
+        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id" 
+        AND qa."userId" = ${userId}
+        WHERE dq."deckId" = d."id"
+        GROUP BY dq."deckId"
+        HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
+    )
+    AND (
+      SELECT sum("creditCostPerQuestion") FROM public."DeckQuestion" dq
+      JOIN public."Question" q on dq."questionId" = q.id
+      WHERE dq."deckId"= d."id"
+    ) = 0)
+    , total_count AS (
+    SELECT COUNT(*) AS count FROM free_deck_cte
+)
+SELECT 
+    free_deck_cte.*,
+    total_count.count AS total_count
+FROM free_deck_cte, total_count
+ORDER BY
+    free_deck_cte."date" ASC,
+    free_deck_cte."revealAtDate" ASC
+LIMIT ${DECK_LIMIT} OFFSET ${offset};
+  `;
+  return deckExpiringSoon;
 }
