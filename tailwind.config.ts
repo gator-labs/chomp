@@ -57,6 +57,9 @@ const colors = {
       dark: "#DD7944",
       light: "#F0B392",
     },
+    yellow: {
+      pale: "#FBF3BA",
+    },
     red: {
       dark: "#FF0000",
     },
