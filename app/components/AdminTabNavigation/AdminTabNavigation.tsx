@@ -44,5 +44,10 @@ const navigationItems = [
 ];
 
 export function AdminTabNavigation() {
-  return <Navigation items={navigationItems} />;
+  return (
+    <Navigation
+      items={navigationItems}
+      classes="py-2 gap-4 overflow-x-scroll items-center pl-24"
+    />
+  );
 }
