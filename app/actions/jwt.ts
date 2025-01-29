@@ -6,6 +6,7 @@ import {
   VerifiedWallet,
   decodeJwtPayload,
 } from "@/lib/auth";
+import { checkThreatLevel, getTokenFromCookie } from "@/lib/jwt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -14,7 +15,7 @@ import { getRandomAvatarPath } from "../utils/avatar";
 import { resetAccountData } from "./demo";
 
 export const getJwtPayload = async () => {
-  const token = cookies().get("token");
+  const token = getTokenFromCookie();
 
   if (!token) {
     return null;
@@ -23,9 +24,16 @@ export const getJwtPayload = async () => {
   const shouldOverrideUserId =
     process.env.OVERRIDE_USER_ID && process.env.OVERRIDE_USER_ID.length > 0;
   if (shouldOverrideUserId) {
-    return { sub: process.env.OVERRIDE_USER_ID || "" } as DynamicJwtPayload;
+    const payload = {
+      sub: process.env.OVERRIDE_USER_ID || "",
+    } as DynamicJwtPayload;
+    await checkThreatLevel(payload.sub);
+    return payload;
   } else {
-    return await decodeJwtPayload(token.value);
+    const payload = await decodeJwtPayload(token.value);
+    if (!payload) return payload;
+    await checkThreatLevel(payload.sub);
+    return payload;
   }
 };
 

@@ -168,3 +168,17 @@ export class CreditTransactionValidationError extends Error {
     this.name = "CreditTransactionValidationError";
   }
 }
+
+export class UserThreatLevelDetected extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "UserThreatLevelDetected";
+  }
+}
+
+export class DynamicRevokeSessionError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "DynamicRevokeSessionError";
+  }
+}

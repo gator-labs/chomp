@@ -5,6 +5,7 @@ import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUs
 import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringSection/HomeFeedDeckExpiringSection";
 import { HomeFeedReadyToRevealSection } from "../components/HomeFeedReadyToRevealSection/HomeFeedReadyToRevealSection";
 import { HomeFeedRevealedQuestionsSection } from "../components/HomeFeedRevealedQuestionsSection/HomeFeedRevealedQuestionsSection";
+import HomeFeedVerticalDeckSection from "../components/HomeFeedVerticalDeckSection/HomeFeedVerticalDeckSection";
 import { Profile } from "../components/Profile/Profile";
 import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import Spinner from "../components/Spinner/Spinner";
@@ -19,6 +20,8 @@ export default async function Page() {
     getActiveBanners(),
     getNewUserMysteryBoxId(),
   ]);
+  const CREDIT_COST_FEATURE_FLAG =
+    process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
   return (
     <>
@@ -35,15 +38,22 @@ export default async function Page() {
       </div>
 
       {!!banners.length && <BannerSlider banners={banners} />}
+      {CREDIT_COST_FEATURE_FLAG ? (
+        <Suspense fallback={<Spinner />}>
+          <HomeFeedVerticalDeckSection />
+        </Suspense>
+      ) : (
+        <>
+          <Suspense fallback={<Spinner />}>
+            <HomeFeedDeckExpiringSection />
+          </Suspense>
 
-      <Suspense fallback={<Spinner />}>
-        <HomeFeedDeckExpiringSection />
-      </Suspense>
-
-      <Suspense fallback={<Spinner />}>
-        <HomeFeedReadyToRevealSection />
-      </Suspense>
-      <HomeFeedRevealedQuestionsSection questions={questionsRevealed} />
+          <Suspense fallback={<Spinner />}>
+            <HomeFeedReadyToRevealSection />
+          </Suspense>
+          <HomeFeedRevealedQuestionsSection questions={questionsRevealed} />
+        </>
+      )}
     </>
   );
 }

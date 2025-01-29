@@ -173,6 +173,8 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
         description: deck.description,
         imageUrl: deck.imageUrl,
         footer: deck.footer,
+        author: deck.author,
+        authorImageUrl: deck.authorImageUrl,
       },
       activeFromDate: deck.activeFromDate,
     };
@@ -194,6 +196,8 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       description: deck.description,
       imageUrl: deck.imageUrl,
       footer: deck.footer,
+      author: deck.author,
+      authorImageUrl: deck.authorImageUrl,
     },
     activeFromDate: deck.activeFromDate,
   };

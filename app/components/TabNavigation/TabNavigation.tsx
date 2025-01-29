@@ -31,6 +31,7 @@ export function TabNavigation({ isAdmin }: Props) {
   return (
     <Navigation
       items={[...navigationItems, ...(isAdmin ? adminNavigationItems : [])]}
+      classes="p-1 space-x-6 py-3"
     />
   );
 }

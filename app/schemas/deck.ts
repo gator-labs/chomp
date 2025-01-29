@@ -10,9 +10,31 @@ import {
 export const deckSchema = z
   .object({
     id: z.number().optional(),
-    deck: z.string().min(5),
-    heading: z.string().min(5).optional().nullish().or(z.literal("")),
+    deck: z
+      .string()
+      .min(5, { message: "Deck name must be at least 5 characters long" }),
+    heading: z
+      .string()
+      .min(5, { message: "Deck heading must be at least 5 characters long" })
+      .optional()
+      .nullish()
+      .or(z.literal("")),
     file: z
+      .custom<File[]>()
+      .optional()
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return files[0].size <= IMAGE_UPLOAD_SIZES.DEFAULT;
+        }
+        return true;
+      }, `Max image size allowed is ${IMAGE_UPLOAD_SIZE_STRINGS.DEFAULT}.`)
+      .refine((files) => {
+        if (files && files.length > 0) {
+          return IMAGE_VALID_TYPES.includes(files[0].type);
+        }
+        return true;
+      }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
+    authorImageFile: z
       .custom<File[]>()
       .optional()
       .refine((files) => {
@@ -46,7 +68,43 @@ export const deckSchema = z
           message: "Invalid image source",
         },
       ),
-    description: z.string().min(5).optional().nullish().or(z.literal("")),
+    description: z
+      .string()
+      .min(5, {
+        message: "Deck description must be at least 5 characters long",
+      })
+      .optional()
+      .nullish()
+      .or(z.literal("")),
+    author: z
+      .string()
+      .trim()
+      .min(2, { message: "Author name must be at least 2 characters long" })
+      .refine((value) => value.trim().length > 0, {
+        message: "Author name cannot be empty or consist solely of spaces",
+      })
+      .optional()
+      .nullish()
+      .or(z.literal("")),
+    authorImageUrl: z
+      .string()
+      .optional()
+      .nullable()
+      .refine(
+        (value) => {
+          if (!value) return true;
+
+          try {
+            new URL(value);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        {
+          message: "Invalid image source",
+        },
+      ),
     footer: z.string().min(5).max(50).optional().nullish().or(z.literal("")),
     tagIds: z.number().array().default([]),
     stackId: z.number().optional().nullish(),

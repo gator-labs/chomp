@@ -29,6 +29,7 @@ model User {
   telegramUsername            String?                       @unique
   twitterUsername             String?                       @unique
   isBotSubscriber             Boolean                       @default(false)
+  threatLevel                 String?
   MysteryBox                  MysteryBox[]
 }
 
@@ -123,6 +124,8 @@ model Deck {
   description                 String?
   heading                     String?
   footer                      String?                       @db.VarChar(50)
+  author                      String?
+  authorImageUrl              String?
   MysteryBoxTrigger           MysteryBoxTrigger[]
 }
 
@@ -371,6 +374,7 @@ enum TransactionLogType {
   MysteryBox
   PremiumQuestionCharge
   CreditPurchase
+  CreditByAdmin
 }
 
 enum ResultType {
