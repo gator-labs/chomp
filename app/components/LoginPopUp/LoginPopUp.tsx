@@ -21,8 +21,7 @@ type LoginPopUpProps = {
 };
 
 const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
-  const { authToken, awaitingSignatureState, sdkHasLoaded } =
-    useDynamicContext();
+  const { authToken, awaitingSignatureState } = useDynamicContext();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -65,7 +64,7 @@ const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
     ) {
       setIsLoading(false);
     }
-  }, [userId, awaitingSignatureState, isOpen, sdkHasLoaded]);
+  }, [authToken, userId, awaitingSignatureState, isOpen]);
 
   if (isLoading) return <LoadingScreen />;
 

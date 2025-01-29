@@ -84,7 +84,7 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
 
     if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
       setIsLoading(false);
-  }, [payload?.sub, awaitingSignatureState, sdkHasLoaded]);
+  }, [authToken, payload?.sub, awaitingSignatureState, sdkHasLoaded]);
 
   if (isLoading) return <LoadingScreen />;
 
