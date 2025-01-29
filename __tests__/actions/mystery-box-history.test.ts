@@ -149,6 +149,7 @@ describe("Mystery box history", () => {
       tokenAddress: null,
       amount: "1000",
       mysteryBoxId: box.id,
+      claimedAt: new Date(),
     }));
 
     let i = 0;
