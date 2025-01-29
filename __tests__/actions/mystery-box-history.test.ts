@@ -126,10 +126,11 @@ describe("Mystery box history", () => {
 
     // Create one and a bit pages of mystery boxes
 
-    const boxes = questionIds.map(() => ({
-      userId: user0.id,
-      status: EMysteryBoxStatus.Opened,
-    }));
+    const boxes: { userId: string; status: EMysteryBoxStatus }[] =
+      questionIds.map(() => ({
+        userId: user0.id,
+        status: EMysteryBoxStatus.Opened,
+      }));
 
     // Make one owned by another user
     boxes[boxes.length - 1].userId = user1.id;
