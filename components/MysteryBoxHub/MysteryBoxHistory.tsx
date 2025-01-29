@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchAllMysteryBoxes } from "@/app/actions/mysteryBox/fetchAll";
+import { fetchMysteryBoxHistory } from "@/app/actions/mysteryBox/fetchHistory";
 import LoadMoreDecks from "@/app/components/LoadMoreDecks/LoadMoreDecks";
 import { MysteryBox } from "@/types/mysteryBox";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -14,7 +14,7 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
     queryKey: ["mystery-boxes"],
     queryFn: ({ pageParam }) =>
-      fetchAllMysteryBoxes({ currentPage: pageParam }),
+      fetchMysteryBoxHistory({ currentPage: pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.hasMore) {

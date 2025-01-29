@@ -1,5 +1,5 @@
 import { getJwtPayload } from "@/app/actions/jwt";
-import { fetchAllMysteryBoxes } from "@/app/actions/mysteryBox/fetchAll";
+import { fetchMysteryBoxHistory } from "@/app/actions/mysteryBox/fetchHistory";
 import { MYSTERY_BOXES_PER_PAGE } from "@/app/constants/mysteryBox";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
@@ -9,6 +9,7 @@ import {
   EBoxPrizeStatus,
   EBoxPrizeType,
   EBoxTriggerType,
+  EMysteryBoxStatus,
   EPrizeSize,
 } from "@prisma/client";
 
@@ -58,15 +59,22 @@ export async function deleteMysteryBoxesByUser(userId: string) {
 
 describe("Mystery box history", () => {
   let user0: { id: string; username: string; wallet: string };
+  let user1: { id: string; username: string; wallet: string };
   let questionIds: number[];
   let deckId: number;
 
   beforeAll(async () => {
-    const users = await generateUsers(1);
+    const users = await generateUsers(2);
 
     user0 = {
       id: users[0].id,
       username: users[0].username,
+      wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
+    };
+
+    user1 = {
+      id: users[1].id,
+      username: users[1].username,
       wallet: faker.string.hexadecimal({ length: { min: 32, max: 42 } }),
     };
 
@@ -105,7 +113,7 @@ describe("Mystery box history", () => {
         revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         stackId: null,
         deckQuestions: {
-          create: Array(MYSTERY_BOXES_PER_PAGE + 2).fill({ question }),
+          create: Array(MYSTERY_BOXES_PER_PAGE + 4).fill({ question }),
         },
       },
       include: {
@@ -120,14 +128,21 @@ describe("Mystery box history", () => {
 
     const boxes = questionIds.map(() => ({
       userId: user0.id,
+      status: EMysteryBoxStatus.Opened,
     }));
+
+    // Make one owned by another user
+    boxes[boxes.length - 1].userId = user1.id;
+
+    // Make another one unopened
+    boxes[boxes.length - 2].status = EMysteryBoxStatus.New;
 
     const createdBoxes = await prisma.mysteryBox.createManyAndReturn({
       data: boxes,
     });
 
     const prizes = createdBoxes.map((box) => ({
-      status: EBoxPrizeStatus.Unclaimed,
+      status: EBoxPrizeStatus.Claimed,
       size: EPrizeSize.Small,
       prizeType: EBoxPrizeType.Credits,
       tokenAddress: null,
@@ -156,6 +171,7 @@ describe("Mystery box history", () => {
 
   afterAll(async () => {
     await deleteMysteryBoxesByUser(user0.id);
+    await deleteMysteryBoxesByUser(user1.id);
 
     await prisma.questionOption.deleteMany({
       where: {
@@ -185,18 +201,18 @@ describe("Mystery box history", () => {
     });
     await prisma.user.deleteMany({
       where: {
-        id: { in: [user0.id] },
+        id: { in: [user0.id, user1.id] },
       },
     });
   });
 
   it("Should verify the mystery box history paging", async () => {
-    const boxesPage1 = await fetchAllMysteryBoxes({ currentPage: 1 });
+    const boxesPage1 = await fetchMysteryBoxHistory({ currentPage: 1 });
 
     expect(boxesPage1?.data.length).toEqual(MYSTERY_BOXES_PER_PAGE);
     expect(boxesPage1?.hasMore).toBeTruthy();
 
-    const boxesPage2 = await fetchAllMysteryBoxes({ currentPage: 2 });
+    const boxesPage2 = await fetchMysteryBoxHistory({ currentPage: 2 });
 
     expect(boxesPage2?.data.length).toEqual(2);
     expect(boxesPage2?.hasMore).toBeFalsy();

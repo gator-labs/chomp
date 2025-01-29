@@ -4,11 +4,11 @@ import { MYSTERY_BOXES_PER_PAGE } from "@/app/constants/mysteryBox";
 import { authGuard } from "@/app/utils/auth";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import { MysteryBox } from "@/types/mysteryBox";
-import { EBoxTriggerType } from "@prisma/client";
+import { EBoxTriggerType, EMysteryBoxStatus } from "@prisma/client";
 
 import prisma from "../../services/prisma";
 
-export async function fetchAllMysteryBoxes({
+export async function fetchMysteryBoxHistory({
   currentPage,
 }: {
   currentPage: number;
@@ -22,6 +22,7 @@ export async function fetchAllMysteryBoxes({
   const records = await prisma.mysteryBox.findMany({
     where: {
       userId: payload.sub,
+      status: EMysteryBoxStatus.Opened,
       triggers: {
         some: {
           triggerType: {
