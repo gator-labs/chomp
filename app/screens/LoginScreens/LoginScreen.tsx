@@ -6,7 +6,6 @@ import { TelegramAuthDataProps } from "@/app/login/page";
 import { DynamicJwtPayload } from "@/lib/auth";
 import trackEvent from "@/lib/trackEvent";
 import {
-  getAuthToken,
   useDynamicContext,
   useIsLoggedIn,
   useTelegramLogin,
@@ -26,8 +25,13 @@ interface Props {
 }
 
 const LoginScreen = ({ payload, telegramAuthData }: Props) => {
-  const { awaitingSignatureState, primaryWallet, user, sdkHasLoaded } =
-    useDynamicContext();
+  const {
+    authToken,
+    awaitingSignatureState,
+    primaryWallet,
+    user,
+    sdkHasLoaded,
+  } = useDynamicContext();
 
   const isLoggedIn = useIsLoggedIn();
 
@@ -39,7 +43,6 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
   useEffect(() => {
     setIsLoading(true);
 
-    const authToken = getAuthToken();
     if (authToken) {
       setJwt(authToken, null, telegramAuthData?.id);
     }
@@ -81,7 +84,7 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
 
     if (!payload?.sub && !authToken && awaitingSignatureState === "idle")
       setIsLoading(false);
-  }, [payload?.sub, awaitingSignatureState, sdkHasLoaded]);
+  }, [authToken, payload?.sub, awaitingSignatureState, sdkHasLoaded]);
 
   if (isLoading) return <LoadingScreen />;
 
