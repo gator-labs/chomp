@@ -45,6 +45,10 @@ export const TRACKING_EVENTS = {
   MYSTERY_BOX_SKIPPED: "MysteryBoxSkipped",
   MYSTERY_BOX_CREDITS_INFO_DIALOG_OPENED: "MysteryBoxCreditsInfoDialogOpened",
   MYSTERY_BOX_CREDITS_INFO_DIALOG_CLOSED: "MysteryBoxCreditsInfoDialogClosed",
+  QUESTION_CARD_INDICATORS_INFO_DIALOG_OPENED:
+    "QuestionCardIndicatorsInfoDialogOpened",
+  QUESTION_CARD_INDICATORS_INFO_DIALOG_CLOSED:
+    "QuestionCardIndicatorsInfoDialogClosed",
 } as const;
 
 export const TRACKING_METADATA = {
