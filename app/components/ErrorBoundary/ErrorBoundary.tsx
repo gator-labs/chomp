@@ -28,6 +28,16 @@ function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
       ? "Server error. Please refresh the page and try again."
       : "Client error. Please refresh the page and try again.";
 
+  const debugInfo = isThreatLevelError ? (
+    <ul className="font-mono text-[14px]">
+      {Object.keys(error?.cause as Record<string, any>).map((key: string) => (
+        <li key={key}>
+          {key}: {JSON.stringify((error?.cause as Record<string, any>)[key])}
+        </li>
+      ))}
+    </ul>
+  ) : null;
+
   return (
     <div className="flex flex-col font-sora bg-gray-950 text-white h-full w-[90%] md:w-[50%] lg:w-[25%] mx-auto pt-14 gap-2">
       <div className="bg-gray-800 rounded-[16px] relative gap-24px">
@@ -46,17 +56,25 @@ function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
       <div className="flex flex-col items-start text-white mt-2 gap-2">
         <p className="text-[16px] font-bold  mb-2">{errorMessages}</p>
         {isThreatLevelError ? (
-          <p className="text-[14px] font-normal mb-2">
-            If you believe this is a mistake, contact us on{" "}
-            <Link
-              href={TELEGRAM_SUPPORT_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-purple-200 hover:underline"
-            >
-              Telegram
-            </Link>
-          </p>
+          <>
+            <p className="text-[14px] font-normal mb-2">
+              If you believe this is a mistake, contact us on{" "}
+              <Link
+                href={TELEGRAM_SUPPORT_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-purple-200 hover:underline"
+              >
+                Telegram
+              </Link>
+            </p>
+
+            {debugInfo && (
+              <>
+                <p>Please share the following details:</p> {debugInfo}
+              </>
+            )}
+          </>
         ) : (
           <p className="text-[14px] font-normal mb-2">
             Please let us know on{" "}

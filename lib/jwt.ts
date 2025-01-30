@@ -11,6 +11,7 @@ export const checkThreatLevel = async (userId: string) => {
   if (!!user.threatLevel) {
     throw new UserThreatLevelDetected(
       `User threat level detected: user: ${user.id}, wallet: ${user.wallets?.[0]?.address}, level: ${user.threatLevel}`,
+      { cause: { userId: user.id, source: "JWT" } },
     );
   }
 };
