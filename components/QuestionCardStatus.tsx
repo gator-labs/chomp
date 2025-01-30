@@ -4,31 +4,32 @@ import { QuestionUnansweredIcon } from "@/app/components/Icons/QuestionUnanswere
 import { QuestionUnrevealedIcon } from "@/app/components/Icons/QuestionUnrevealedIcon";
 import { QuestionCardIndicatorType } from "@/types/question";
 
-type QuestionCardIndicatorProps = {
-  count: number;
+type QuestionCardStatusProps = {
+  title: string;
+  questionId: number;
   indicatorType: QuestionCardIndicatorType;
 };
 
-export function QuestionCardIndicator({
-  count,
+export function QuestionCardStatus({
+  title,
   indicatorType,
-}: QuestionCardIndicatorProps) {
+}: QuestionCardStatusProps) {
   const icon =
     indicatorType == "correct" ? (
-      <QuestionCorrectIcon />
+      <QuestionCorrectIcon className="flex-grow" />
     ) : indicatorType == "incorrect" ? (
-      <QuestionIncorrectIcon />
+      <QuestionIncorrectIcon className="flex-grow" />
     ) : indicatorType == "unanswered" ? (
-      <QuestionUnansweredIcon />
+      <QuestionUnansweredIcon className="flex-grow" />
     ) : (
-      <QuestionUnrevealedIcon />
+      <QuestionUnrevealedIcon className="flex-grow" />
     );
 
   return (
-    <div className="grid grid-cols-2 bg-gray-600 rounded-sm gap-1 p-1">
+    <div className="flex rounded-sm gap-1 p-1">
       {icon}
-      <div className="bg-gray-800 rounded-sm px-1 flex items-center justify-center">
-        {count}
+      <div className="bg-gray-800 rounded-sm px-1 align-middle justify-center items-center text-xs font-medium px-2 w-[200px] flex">
+        <span className="min-w-0 flex-1 truncate">{title}</span>
       </div>
     </div>
   );
