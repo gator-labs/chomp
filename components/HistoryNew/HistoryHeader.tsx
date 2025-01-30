@@ -17,11 +17,9 @@ type HistoryHeaderProps = {
 };
 
 export function HistoryHeader({
-  deckId,
   deckTitle,
   deckDescription,
   deckFooter,
-  numberOfQuestions,
   deckImage = chompGraphicImage.src,
 }: HistoryHeaderProps) {
   const [isInfoDrawerOpen, setIsInfoDrawerOpen] = useState<boolean>(false);
@@ -59,10 +57,10 @@ export function HistoryHeader({
       />
 
       <QuestionCardIndicators
-        correctCount={4}
-        incorrectCount={1}
-        unansweredCount={4}
-        unrevealedCount={3}
+        correctCount={9}
+        incorrectCount={9}
+        unansweredCount={9}
+        unrevealedCount={9}
         onInfoClick={() => setIsInfoDrawerOpen(true)}
       />
     </div>
