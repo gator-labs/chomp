@@ -7,6 +7,7 @@ type QuestionCardIndicatorsProps = {
   incorrectCount: number;
   unansweredCount: number;
   unrevealedCount: number;
+  onInfoClick?: () => void;
 };
 
 export function QuestionCardIndicators({
@@ -14,6 +15,7 @@ export function QuestionCardIndicators({
   incorrectCount,
   unansweredCount,
   unrevealedCount,
+  onInfoClick,
 }: QuestionCardIndicatorsProps) {
   return (
     <div className="flex justify-between items-center">
@@ -32,7 +34,9 @@ export function QuestionCardIndicators({
           indicatorType="unrevealed"
         />
       </div>
-      <InfoIcon />
+      <span className="cursor-pointer" onClick={onInfoClick}>
+        <InfoIcon />
+      </span>
     </div>
   );
 }

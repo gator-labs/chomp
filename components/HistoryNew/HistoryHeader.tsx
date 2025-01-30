@@ -1,7 +1,11 @@
+"use client";
+
 import chompGraphicImage from "@/public/images/chomp-graphic.png";
 import Image from "next/image";
+import { useState } from "react";
 
 import { QuestionCardIndicators } from "./QuestionCardIndicators";
+import QuestionCardIndicatorsDrawer from "./QuestionCardIndicatorsDrawer";
 
 type HistoryHeaderProps = {
   deckId: number;
@@ -20,6 +24,8 @@ export function HistoryHeader({
   numberOfQuestions,
   deckImage = chompGraphicImage.src,
 }: HistoryHeaderProps) {
+  const [isInfoDrawerOpen, setIsInfoDrawerOpen] = useState<boolean>(false);
+
   return (
     <div className="bg-gray-800 rounded-lg p-2 gap-2 flex flex-col">
       <div className="flex justify-between bg-gray-700 rounded-lg p-4">
@@ -42,18 +48,22 @@ export function HistoryHeader({
               <div className="text-xs mt-2">{deckDescription}</div>
             )}
 
-            {deckFooter && (
-              <div className="text-xs mt-2">{deckFooter}</div>
-            )}
+            {deckFooter && <div className="text-xs mt-2">{deckFooter}</div>}
           </div>
         </div>
       </div>
+
+      <QuestionCardIndicatorsDrawer
+        isOpen={isInfoDrawerOpen}
+        onClose={() => setIsInfoDrawerOpen(false)}
+      />
 
       <QuestionCardIndicators
         correctCount={4}
         incorrectCount={1}
         unansweredCount={4}
         unrevealedCount={3}
+        onInfoClick={() => setIsInfoDrawerOpen(true)}
       />
     </div>
   );
