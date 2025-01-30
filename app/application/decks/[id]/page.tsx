@@ -2,7 +2,6 @@ import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
 import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
-import RevealDeckNew from "@/components/RevealDeckNew/RevealDeck";
 import {
   getCreditFreeDeckId,
   getDeckQuestionsForAnswerById,
@@ -11,6 +10,7 @@ import { getNextDeckId, getUserTotalCreditAmount } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 import { getBlurData } from "@/app/utils/getBlurData";
+import RevealDeckNew from "@/components/RevealDeckNew/RevealDeck";
 
 type PageProps = {
   params: { id: string };
@@ -45,22 +45,25 @@ export default async function Page({ params: { id } }: PageProps) {
       ) : deck.revealAtDate &&
         deck.revealAtDate < new Date() &&
         deck.deckInfo ? (
-        FF_CREDITS ? <RevealDeckNew
-          deckId={currentDeckId}
-          deckTitle={deck.deckInfo.heading}
-          deckDescription={deck.deckInfo.description}
-          deckFooter={deck.deckInfo.footer}
-          deckImage={deck.deckInfo.imageUrl || stackData?.image}
-          numberOfQuestions={deck.totalDeckQuestions}
-        /> :
-        <RevealDeck
-          deckId={currentDeckId}
-          deckTitle={deck.deckInfo.heading}
-          deckDescription={deck.deckInfo.description}
-          deckFooter={deck.deckInfo.footer}
-          deckImage={deck.deckInfo.imageUrl || stackData?.image}
-          numberOfQuestions={deck.totalDeckQuestions}
-        />
+        FF_CREDITS ? (
+          <RevealDeckNew
+            deckId={currentDeckId}
+            deckTitle={deck.deckInfo.heading}
+            deckDescription={deck.deckInfo.description}
+            deckFooter={deck.deckInfo.footer}
+            deckImage={deck.deckInfo.imageUrl || stackData?.image}
+            numberOfQuestions={deck.totalDeckQuestions}
+          />
+        ) : (
+          <RevealDeck
+            deckId={currentDeckId}
+            deckTitle={deck.deckInfo.heading}
+            deckDescription={deck.deckInfo.description}
+            deckFooter={deck.deckInfo.footer}
+            deckImage={deck.deckInfo.imageUrl || stackData?.image}
+            numberOfQuestions={deck.totalDeckQuestions}
+          />
+        )
       ) : deck.questions?.length > 0 && deck.deckInfo ? (
         <DeckScreen
           currentDeckId={deck.id}
