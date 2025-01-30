@@ -17,7 +17,7 @@ const BackButton = ({ text }: BackButtonProps) => {
   };
 
   return (
-    <div className="cursor-pointer flex gap-6" onClick={handleBack}>
+    <div className="cursor-pointer flex gap-5" onClick={handleBack}>
       <ArrowLeftIcon /> {text && <span>{text}</span>}
     </div>
   );
