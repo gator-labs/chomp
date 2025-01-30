@@ -41,6 +41,10 @@ export function HistoryHeader({
             {deckDescription && (
               <div className="text-xs mt-2">{deckDescription}</div>
             )}
+
+            {deckFooter && (
+              <div className="text-xs mt-2">{deckFooter}</div>
+            )}
           </div>
         </div>
       </div>
