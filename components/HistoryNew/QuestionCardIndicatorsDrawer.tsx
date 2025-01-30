@@ -59,7 +59,7 @@ const QuestionCardIndicatorsDrawer = ({
           </p>
 
           <p className="text-xs mb-6 font-medium gap-3 items-center flex">
-            <QuestionUnansweredIcon /> You didn't answer this question.
+            <QuestionUnansweredIcon /> You didn&apos;t answer this question.
           </p>
 
           <p className="text-xs mb-6 font-medium gap-3 items-center flex">

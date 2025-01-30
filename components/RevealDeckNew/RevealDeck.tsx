@@ -1,7 +1,4 @@
-import { getDeckTotalClaimableRewards } from "@/app/actions/history";
 import BackButton from "@/app/components/BackButton/BackButton";
-import { getAllDeckQuestionsReadyForReveal } from "@/app/queries/history";
-import { getProfileImage } from "@/app/queries/profile";
 import { HistoryHeader } from "@/components/HistoryNew/HistoryHeader";
 
 import chompGraphicImage from "../../public/images/chomp-graphic.png";
