@@ -3,7 +3,7 @@ import Image from "next/image";
 
 import { QuestionCardIndicators } from "./QuestionCardIndicators";
 
-type DeckHeaderProps = {
+type HistoryHeaderProps = {
   deckId: number;
   deckTitle: string;
   deckDescription: string | null;
@@ -12,14 +12,14 @@ type DeckHeaderProps = {
   deckImage?: string;
 };
 
-export function DeckHeader({
+export function HistoryHeader({
   deckId,
   deckTitle,
   deckDescription,
   deckFooter,
   numberOfQuestions,
   deckImage = chompGraphicImage.src,
-}: DeckHeaderProps) {
+}: HistoryHeaderProps) {
   return (
     <div className="bg-gray-800 rounded-lg p-2 gap-2 flex flex-col">
       <div className="flex justify-between bg-gray-700 rounded-lg p-4">

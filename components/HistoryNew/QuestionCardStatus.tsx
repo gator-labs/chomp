@@ -6,7 +6,6 @@ import { QuestionCardIndicatorType } from "@/types/question";
 
 type QuestionCardStatusProps = {
   title: string;
-  questionId: number;
   indicatorType: QuestionCardIndicatorType;
 };
 
