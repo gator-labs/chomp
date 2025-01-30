@@ -2,6 +2,7 @@ import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
 import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
+import RevealDeckNew from "@/components/RevealDeckNew/RevealDeck";
 import {
   getCreditFreeDeckId,
   getDeckQuestionsForAnswerById,
@@ -31,6 +32,8 @@ export default async function Page({ params: { id } }: PageProps) {
   let blurData;
   const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
 
+  const FF_CREDITS = !!process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION;
+
   if (imgUrl) {
     blurData = await getBlurData(imgUrl);
   }
@@ -42,6 +45,14 @@ export default async function Page({ params: { id } }: PageProps) {
       ) : deck.revealAtDate &&
         deck.revealAtDate < new Date() &&
         deck.deckInfo ? (
+        FF_CREDITS ? <RevealDeckNew
+          deckId={currentDeckId}
+          deckTitle={deck.deckInfo.heading}
+          deckDescription={deck.deckInfo.description}
+          deckFooter={deck.deckInfo.footer}
+          deckImage={deck.deckInfo.imageUrl || stackData?.image}
+          numberOfQuestions={deck.totalDeckQuestions}
+        /> :
         <RevealDeck
           deckId={currentDeckId}
           deckTitle={deck.deckInfo.heading}
