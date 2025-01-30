@@ -12,12 +12,13 @@ import { Button } from "../ui/button";
 
 function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
   useEffect(() => {
-    if (error.name != "UserThreatLevelDetected") Sentry.captureException(error);
+    if (error.name !== "UserThreatLevelDetected")
+      Sentry.captureException(error);
   }, [error]);
 
   // Check if it's a server-side error
   const isServerError = (error as any).digest !== undefined;
-  const isThreatLevelError = error.name == "UserThreatLevelDetected";
+  const isThreatLevelError = error.name === "UserThreatLevelDetected";
 
   // Set status code and error message
   const statusCode = isThreatLevelError ? 204 : isServerError ? 500 : 400;
