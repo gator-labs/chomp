@@ -8,7 +8,7 @@ export const checkThreatLevel = async (userId: string) => {
     include: { wallets: true },
   });
   if (!user) throw new Error("User not found");
-  if (user.threatLevel) {
+  if (!!user.threatLevel) {
     throw new UserThreatLevelDetected(
       `User threat level detected: user: ${user.id}, wallet: ${user.wallets?.[0]?.address}, level: ${user.threatLevel}`,
     );
