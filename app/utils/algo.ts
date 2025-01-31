@@ -1,4 +1,5 @@
 import { QuestionType } from "@prisma/client";
+import "server-only";
 
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
@@ -358,4 +359,173 @@ export const calculateMysteryBoxReward = async (rewardEventType: string) => {
   });
 
   return res;
+};
+
+export const calculateMysteryBoxHubReward = async (
+  userId: string,
+  questionIds: number[],
+) => {
+  const questions = await prisma.question.findMany({
+    where: {
+      id: {
+        in: questionIds,
+      },
+    },
+    include: {
+      questionOptions: {
+        include: {
+          questionAnswers: true,
+        },
+      },
+    },
+  });
+
+  const questionRewards: {
+    questionId: number;
+    creditRewardAmount: number;
+    bonkRewardAmount: number;
+  }[] = [];
+
+  for (const question of questions) {
+    const optionsList = question.questionOptions.map((option) => option.id);
+    const inputList = ["a", "b", "c", "d", "e", "f", "g"];
+
+    const userAnswer = question.questionOptions
+      .flatMap((option) => option.questionAnswers)
+      .filter((answer) =>
+        question.type === QuestionType.BinaryQuestion
+          ? answer.percentage !== null
+          : answer,
+      )
+      .find((answer) => answer.userId === userId && answer.selected);
+
+    if (!userAnswer) {
+      questionRewards.push({
+        questionId: question.id,
+        creditRewardAmount: 0,
+        bonkRewardAmount: 0,
+      });
+      continue;
+    }
+
+    let body = {
+      first_order_choice: "",
+      first_order_actual: "",
+      second_order_estimate: 0,
+      second_order_mean: 0,
+      second_order_estimates: [0],
+      question_cost: 0,
+    };
+
+    const correctOptionIndex = question.questionOptions.findIndex(
+      (option) => option.isCorrect,
+    );
+    const calculatedCorrectOptionIndex = question.questionOptions.findIndex(
+      (option) => option.calculatedIsCorrect,
+    );
+
+    const questionOption = await prisma.questionOption.findFirst({
+      where: {
+        id: userAnswer.questionOptionId,
+      },
+    });
+
+    if (question.type === QuestionType.BinaryQuestion) {
+      const correctOption = question.questionOptions[correctOptionIndex];
+
+      const calculatedCorrectOption =
+        question.questionOptions[calculatedCorrectOptionIndex];
+
+      const second_order_estimates = (
+        correctOption || calculatedCorrectOption
+      )?.questionAnswers
+        .filter((answer) => answer.selected && answer.percentage !== null)
+        .map((answer) => answer.percentage!);
+
+      body = {
+        first_order_choice:
+          inputList[optionsList.indexOf(userAnswer.questionOptionId)],
+        first_order_actual:
+          inputList[
+            correctOptionIndex === -1
+              ? calculatedCorrectOptionIndex
+              : correctOptionIndex
+          ],
+        second_order_estimate: userAnswer.percentage!,
+        second_order_mean:
+          questionOption?.calculatedAveragePercentage ??
+          getAverage(second_order_estimates),
+        second_order_estimates,
+        question_cost: question.revealTokenAmount,
+      };
+    }
+
+    if (question.type === QuestionType.MultiChoice) {
+      const questionOptionAnswers = question.questionOptions.flatMap(
+        (option) => option.questionAnswers,
+      );
+
+      const estimatedOption = questionOptionAnswers.find(
+        (answer) => answer.userId === userId && answer.percentage !== null,
+      );
+
+      const second_order_estimates = questionOptionAnswers
+        .filter(
+          (answer) =>
+            estimatedOption?.questionOptionId === answer.questionOptionId &&
+            answer.percentage !== null,
+        )
+        .map((answer) => answer.percentage!);
+
+      body = {
+        first_order_choice:
+          inputList[optionsList.indexOf(userAnswer.questionOptionId)],
+        first_order_actual:
+          inputList[
+            correctOptionIndex === -1
+              ? calculatedCorrectOptionIndex
+              : correctOptionIndex
+          ],
+        second_order_estimate: estimatedOption!.percentage!,
+        second_order_mean:
+          questionOption?.calculatedAveragePercentage ??
+          getAverage(second_order_estimates),
+        second_order_estimates: second_order_estimates,
+        question_cost: question.revealTokenAmount,
+      };
+    }
+
+    console.log(
+      "user",
+      userId,
+      "requesting reward for question",
+      question.id,
+      "with body",
+      body,
+    );
+
+    const rewards = await getMechanismEngineResponse("v2/rewards", body);
+
+    const oldR = await getMechanismEngineResponse("rewards", body);
+
+    console.log(rewards, oldR);
+
+    questionRewards.push({
+      questionId: question.id,
+      creditRewardAmount: Number(rewards?.credits),
+      bonkRewardAmount: Number(rewards?.bonk),
+    });
+
+    console.log(
+      "user",
+      userId,
+      "got",
+      rewards,
+      "bonk for",
+      question.id,
+      "question",
+    );
+  }
+
+  return questionRewards;
 };

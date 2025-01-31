@@ -23,12 +23,14 @@ export interface OpenMysteryBoxProps {
   isOpen: boolean;
   closeBoxDialog?: () => void;
   boxType: EMysteryBoxCategory;
+  isFetching: boolean;
 }
 
 function OpenMysteryBox({
   isOpen,
   closeBoxDialog,
   boxType = EMysteryBoxCategory.Validation,
+  isFetching,
 }: OpenMysteryBoxProps) {
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
   const lottieRef = useRef<LottieRefCurrentProps | null>(null);
@@ -86,6 +88,19 @@ function OpenMysteryBox({
         </>
       );
     }
+  };
+
+  const handleClose = () => {
+    // if (isSubmitting) return;
+
+    // setBox(null);
+
+    // trackEvent(TRACKING_EVENTS.MYSTERY_BOX_DIALOG_CLOSED);
+
+    if (closeBoxDialog) {
+      closeBoxDialog();
+    }
+    // revalidateApplication();
   };
 
   return (
@@ -164,6 +179,8 @@ function OpenMysteryBox({
         {status == "Idle" && (
           <Button
             variant={"primary"}
+            isLoading={isFetching}
+
             // onClick={openBox}
             // disabled={isSubmitting}
           >
@@ -180,6 +197,13 @@ function OpenMysteryBox({
             {"Answer more decks →"}
           </Button>
         )}
+
+        <div
+          className="text-sm cursor-pointer text-center text-chomp-grey-a1 underline pt-8"
+          onClick={handleClose}
+        >
+          Close
+        </div>
       </div>
     </MysteryBoxOverlay>
   );

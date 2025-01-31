@@ -1,3 +1,4 @@
+import { DisabledMoneyOutlineIcon } from "@/app/components/Icons/DisabledMoneyOutlineIcon";
 import { cn } from "@/app/utils/tailwind";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 
@@ -16,6 +17,13 @@ const LABELS: Record<EMysteryBoxCategory, string> = {
   Validation: "Validation Rewards",
   Practice: "Practice Decks",
   Campaign: "Campaign",
+};
+
+const DISABLEDICONS: Record<EMysteryBoxCategory, any> = {
+  Streaks: <CalendarCheckIcon />,
+  Validation: <DisabledMoneyOutlineIcon />,
+  Practice: <LabelIcon />,
+  Campaign: <FlagOutlineIcon />,
 };
 
 const ICONS: Record<EMysteryBoxCategory, any> = {
@@ -49,7 +57,8 @@ function MysteryBoxCategoryPill({
           `${disabled ? "text-gray-700" : ""}`,
         )}
       >
-        {LABELS[category]} {ICONS[category]}
+        {LABELS[category]}{" "}
+        {disabled ? DISABLEDICONS[category] : ICONS[category]}
       </span>
     </span>
   );

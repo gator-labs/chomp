@@ -1,7 +1,9 @@
+import { rewardMysteryBoxHub } from "@/app/queries/mysteryBox";
 import MysteryBoxCategoryPill from "@/components/MysteryBoxHub/MysteryBoxCategoryPill";
 import OpenMysteryBox from "@/components/MysteryBoxHub/OpenMysteryBox";
 import OpenedMysteryBox from "@/public/images/opened-mystery-box.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
+import { useQuery } from "@tanstack/react-query";
 import classNames from "classnames";
 import Image, { StaticImageData } from "next/image";
 import React, { CSSProperties, useState } from "react";
@@ -18,10 +20,17 @@ function MysteryBoxReward({
   icon: StaticImageData;
 }) {
   const [openMysteryBox, setOpenMysteryBox] = useState(false);
+
+  const { isLoading, error, data, isFetching } = useQuery({
+    queryKey: ["rewards"],
+    queryFn: () => rewardMysteryBoxHub({ type }),
+    enabled: openMysteryBox,
+  });
+
   return (
     <>
       <div
-        className={`flex flex-row rounded-lg p-6 border-2 border-[#0000] [background:var(--bg-color)] ${
+        className={`flex flex-row items-center rounded-lg px-6 border-2 border-[#0000] [background:var(--bg-color)] ${
           isActive ? "cursor-pointer" : "cursor-not-allowed"
         }`}
         style={
@@ -42,10 +51,9 @@ function MysteryBoxReward({
         <Image
           src={isActive ? icon : OpenedMysteryBox}
           alt="Mystery box"
-          width={120}
-          height={84}
+          className="w-[140px] h-[140px]"
         />
-        <div className="flex flex-col items-start justify-between ml-8 gap-4">
+        <div className="flex flex-col ml-8 gap-4">
           <h1
             className={classNames(
               "text-base inline-block text-transparent bg-clip-text font-black",
@@ -67,6 +75,7 @@ function MysteryBoxReward({
         closeBoxDialog={() => setOpenMysteryBox(false)}
         isOpen={openMysteryBox}
         boxType={type}
+        isFetching={isFetching}
       />
     </>
   );

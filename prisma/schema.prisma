@@ -330,6 +330,7 @@ enum EBoxTriggerType {
   ChompmasStreakAttained
   TutorialCompleted
   RevealAllCompleted
+  ValidationReward
 }
 
 enum EBoxPrizeStatus {
@@ -342,6 +343,7 @@ enum EPrizeSize {
   Small
   Medium
   Large
+  Hub
 }
 
 enum EBoxPrizeType {
