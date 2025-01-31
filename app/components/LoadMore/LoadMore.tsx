@@ -2,7 +2,7 @@ import React from "react";
 
 import Spinner from "../Spinner/Spinner";
 
-function LoadMoreDecks({
+function LoadMore({
   isFetching,
   fetchNextPage,
   hasNextPage,
@@ -27,4 +27,4 @@ function LoadMoreDecks({
   );
 }
 
-export default LoadMoreDecks;
+export default LoadMore;
