@@ -29,7 +29,7 @@ import MysteryBoxOverlay from "./MysteryBoxOverlay";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
-function buildMessage(lines: string[]) {
+export function buildMessage(lines: string[]) {
   return lines.map((line, index) =>
     index < lines.length - 1 ? (
       <Fragment key={index}>
@@ -42,7 +42,7 @@ function buildMessage(lines: string[]) {
   );
 }
 
-type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
+export type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
 
 function MysteryBox({
   isOpen,

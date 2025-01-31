@@ -8,6 +8,7 @@ import { MoneyOutlineIcon } from "../../app/components/Icons/MoneyOutlineIcon";
 
 type MysteryBoxCategoryPillProps = {
   category: EMysteryBoxCategory;
+  disabled?: boolean;
 };
 
 const LABELS: Record<EMysteryBoxCategory, string> = {
@@ -31,15 +32,25 @@ const STYLES: Record<EMysteryBoxCategory, string> = {
   Campaign: "bg-chomp-blue-light text-black",
 };
 
-function MysteryBoxCategoryPill({ category }: MysteryBoxCategoryPillProps) {
+function MysteryBoxCategoryPill({
+  category,
+  disabled,
+}: MysteryBoxCategoryPillProps) {
   return (
     <span
       className={cn(
         "rounded-full align-middle px-4 py-1 flex items-center justify-center gap-1 text-sm",
-        STYLES[category],
+        `${disabled ? "bg-gray-400" : STYLES[category]}`,
       )}
     >
-      <span>{LABELS[category]}</span> {ICONS[category]}
+      <span
+        className={cn(
+          "flex items-center justify-center gap-1 ",
+          `${disabled ? "text-gray-700" : ""}`,
+        )}
+      >
+        {LABELS[category]} {ICONS[category]}
+      </span>
     </span>
   );
 }

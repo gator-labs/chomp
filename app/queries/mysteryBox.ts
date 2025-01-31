@@ -12,6 +12,7 @@ import { getJwtPayload } from "../actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
+import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 /**
  * Get an unopened mystery box for a user
@@ -149,3 +150,89 @@ async function rewardTutorialMysteryBox(
     return null;
   }
 }
+
+export const getValidationRewardQuestions = async () => {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const userId = payload.sub;
+
+  const questions = await prisma.$queryRaw<
+    {
+      id: number;
+      answerCount: number;
+      question: string;
+    }[]
+  >`
+SELECT 
+    q.id,
+    q.question,
+    (
+        SELECT
+            COUNT(DISTINCT CONCAT(qa."userId", qo."questionId"))
+        FROM 
+            public."QuestionOption" qo
+        JOIN 
+            public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        WHERE 
+            qo."questionId" = q."id"
+    ) AS "answerCount"
+FROM 
+    public."Question" q
+JOIN 
+    public."FungibleAssetTransactionLog" fatl ON q.id = fatl."questionId"
+WHERE 
+    q."revealAtDate" IS NOT NULL
+    AND q."revealAtDate" < NOW()
+    AND EXISTS (
+        SELECT 1
+        FROM public."QuestionOption" qo
+        JOIN public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+        WHERE 
+            qo."questionId" = q.id
+            AND qa.selected = TRUE
+            AND qa."userId" = ${userId}
+    )
+    AND fatl."userId" = ${userId}
+    AND fatl."change" = -q."creditCostPerQuestion"
+    AND fatl."type" = 'PremiumQuestionCharge'
+    AND fatl."change" < 0
+;
+	`;
+
+  return filterQuestionsByMinimalNumberOfAnswers(questions);
+};
+
+// export const rewardMysteryBoxHub = async () => {
+//   const payload = await getJwtPayload();
+
+//   if (!payload) {
+//     return null;
+//   }
+
+//   const userId = payload.sub;
+
+//   const res = await prisma.mysteryBox.create({
+//     data: {
+//       userId,
+//       triggers: {
+//         create: {
+//           triggerType: EBoxTriggerType.ValidationReward,
+//         },
+//       },
+//       MysteryBoxPrize: {
+//         create: {
+//           status: EBoxPrizeStatus.Unclaimed,
+//           size: EPrizeSize.Small,
+//           prizeType: EBoxPrizeType.Credits,
+//           amount: "5",
+//         },
+//       },
+//     },
+//   });
+
+//   return res.id;
+// }

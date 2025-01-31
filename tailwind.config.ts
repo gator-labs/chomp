@@ -23,6 +23,7 @@ const colors = {
   green: "#1ED3B3",
   white: "#FFFFFF",
   cream: "#F6FCD6",
+  darkGray50: "rgba(51, 51, 51, 0.5)",
   gray: {
     50: "#FFFFFF",
     100: "#E6E6E6",
