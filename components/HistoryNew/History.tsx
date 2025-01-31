@@ -23,7 +23,6 @@ export default function History({ deckId, deckTitle }: HistoryProps) {
         {data?.map((question) => (
           <li ref={lastElementRef} key={question.id}>
             <QuestionCard
-              key={question.id}
               title={question.question}
               deckTitle={deckTitle}
               questionId={question.id}
