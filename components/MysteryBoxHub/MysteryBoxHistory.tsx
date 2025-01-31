@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchMysteryBoxHistory } from "@/app/actions/mysteryBox/fetchHistory";
-import LoadMoreDecks from "@/app/components/LoadMoreDecks/LoadMoreDecks";
+import LoadMore from "@/app/components/LoadMore/LoadMore";
 import { MysteryBox } from "@/types/mysteryBox";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -49,7 +49,7 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
           <MysteryBoxHistoryCard box={box} key={box.id} />
         ))}
 
-        <LoadMoreDecks
+        <LoadMore
           isFetching={isFetching}
           fetchNextPage={fetchNextPage}
           hasNextPage={hasNextPage}
