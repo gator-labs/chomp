@@ -25,13 +25,7 @@ export async function fetchMysteryBoxHistory({
       status: EMysteryBoxStatus.Opened,
       triggers: {
         some: {
-          triggerType: {
-            in: [
-              EBoxTriggerType.ClaimAllCompleted,
-              EBoxTriggerType.ClaimAllCompleted,
-              EBoxTriggerType.RevealAllCompleted,
-            ],
-          },
+          triggerType: {},
         },
       },
     },
