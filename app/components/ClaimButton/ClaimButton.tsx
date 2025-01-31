@@ -176,16 +176,13 @@ const ClaimButton = ({
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
-          <p className="text-sm font-normal text-left">
-            Your claimable reward:
-          </p>
+          <p className="text-sm font-normal text-left">You won:</p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-xs font-bold text-left">
               {numberToCurrencyFormatter.format(Math.round(rewardAmount || 0))}{" "}
               BONK
             </span>
           </Pill>
-          <RewardInfoBox />
         </div>
         <div className="flex flex-col gap-4 w-full">
           <Button
@@ -237,11 +234,10 @@ const ClaimButton = ({
   return (
     <div className="flex flex-col gap-4 items-center justify-center">
       <div className="flex items-center justify-center gap-1">
-        <p className="text-sm font-normal  text-left">Your claimable reward:</p>
+        <p className="text-sm font-normal  text-left">You won:</p>
         <Pill variant="white" className="!cursor-auto">
           <span className="text-xs font-bold  text-left">0 BONK</span>
         </Pill>
-        <RewardInfoBox />
       </div>
       <div className="flex flex-col gap-4 w-full">
         <Button
