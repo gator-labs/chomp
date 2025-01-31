@@ -183,6 +183,13 @@ const ClaimButton = ({
               BONK
             </span>
           </Pill>
+          {/* TODO: Add credits data */}
+          {/* <Pill variant="white" className="cursor-pointer">
+            <span className="text-xs font-bold text-left">
+              {numberToCurrencyFormatter.format(Math.round(rewardAmount || 0))}{" "}
+              CREDITS
+            </span>
+          </Pill> */}
         </div>
         <div className="flex flex-col gap-4 w-full">
           <Button
