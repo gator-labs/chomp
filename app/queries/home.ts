@@ -489,6 +489,7 @@ WHERE
     d."activeFromDate" IS NULL
     AND d."date" >= ${currentDayStart}
     AND d."date" <= ${currentDayEnd})
+    AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq
@@ -561,6 +562,7 @@ WHERE
     d."activeFromDate" IS NULL
     AND d."date" >= ${currentDayStart}
     AND d."date" <= ${currentDayEnd})
+    AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq
