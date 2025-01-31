@@ -184,9 +184,9 @@ FROM
     public."Question" q
 JOIN 
     public."FungibleAssetTransactionLog" fatl ON q.id = fatl."questionId"
-JOIN 
+LEFT JOIN 
     public."MysteryBoxTrigger" mbt ON q.id = mbt."questionId"
-JOIN 
+LEFT JOIN 
     public."MysteryBox" mb ON mbt."mysteryBoxId" = mb."id"
 WHERE 
     q."revealAtDate" IS NOT NULL
@@ -206,7 +206,6 @@ WHERE
             AND qa.selected = TRUE
             AND qa."userId" = ${userId}
     )
-    AND mb."userId" = ${userId}
     AND fatl."userId" = ${userId}
     AND fatl."change" = -q."creditCostPerQuestion"
     AND fatl."type" = 'PremiumQuestionCharge'
