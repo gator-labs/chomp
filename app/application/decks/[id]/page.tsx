@@ -10,6 +10,7 @@ import { getNextDeckId, getUserTotalCreditAmount } from "@/app/queries/home";
 import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 import { getBlurData } from "@/app/utils/getBlurData";
+import RevealDeckNew from "@/components/RevealDeckNew/RevealDeck";
 
 type PageProps = {
   params: { id: string };
@@ -31,6 +32,8 @@ export default async function Page({ params: { id } }: PageProps) {
   let blurData;
   const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
 
+  const FF_CREDITS = !!process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION;
+
   if (imgUrl) {
     blurData = await getBlurData(imgUrl);
   }
@@ -42,14 +45,25 @@ export default async function Page({ params: { id } }: PageProps) {
       ) : deck.revealAtDate &&
         deck.revealAtDate < new Date() &&
         deck.deckInfo ? (
-        <RevealDeck
-          deckId={currentDeckId}
-          deckTitle={deck.deckInfo.heading}
-          deckDescription={deck.deckInfo.description}
-          deckFooter={deck.deckInfo.footer}
-          deckImage={deck.deckInfo.imageUrl || stackData?.image}
-          numberOfQuestions={deck.totalDeckQuestions}
-        />
+        FF_CREDITS ? (
+          <RevealDeckNew
+            deckId={currentDeckId}
+            deckTitle={deck.deckInfo.heading}
+            deckDescription={deck.deckInfo.description}
+            deckFooter={deck.deckInfo.footer}
+            deckImage={deck.deckInfo.imageUrl || stackData?.image}
+            numberOfQuestions={deck.totalDeckQuestions}
+          />
+        ) : (
+          <RevealDeck
+            deckId={currentDeckId}
+            deckTitle={deck.deckInfo.heading}
+            deckDescription={deck.deckInfo.description}
+            deckFooter={deck.deckInfo.footer}
+            deckImage={deck.deckInfo.imageUrl || stackData?.image}
+            numberOfQuestions={deck.totalDeckQuestions}
+          />
+        )
       ) : deck.questions?.length > 0 && deck.deckInfo ? (
         <DeckScreen
           currentDeckId={deck.id}
