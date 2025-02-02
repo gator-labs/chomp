@@ -132,15 +132,17 @@ export async function rewardMysteryBox(
 
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
-    const prizes: MysteryBoxPrize[] = [
-      {
+    const prizes: MysteryBoxPrize[] = [];
+
+    if (calculatedReward?.bonk) {
+      prizes.push({
         status: EBoxPrizeStatus.Unclaimed,
         size: calculatedReward.box_type,
         prizeType: EBoxPrizeType.Token,
         tokenAddress,
         amount: String(calculatedReward?.bonk),
-      },
-    ];
+      });
+    }
 
     // Add credits prize if present
     if (calculatedReward?.credits) {
