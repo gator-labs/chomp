@@ -1,3 +1,5 @@
+import { QuestionCardIndicatorType } from "@/types/question";
+
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
@@ -29,6 +31,20 @@ export type QuestionHistory = {
   burnTransactionSignature?: string;
   answerCount: number;
   image?: string;
+};
+
+export type newQuestionHistory = {
+  id: number;
+  question: string;
+  deckTitle: string;
+  indicatorType: QuestionCardIndicatorType;
+};
+
+export type newQuestionHistoryData = {
+  correctCount: number;
+  incorrectCount: number;
+  unansweredCount: number;
+  unrevealedCount: number;
 };
 
 export type QuestionHistoryFilter = "isRevealable" | "all";
@@ -199,25 +215,23 @@ export async function getNewHistoryQuery(
   pageSize: number,
   currentPage: number,
   deckId?: number,
-) {
+): Promise<newQuestionHistory[]> {
   const offset = (currentPage - 1) * pageSize;
 
   const getAllDecks = !deckId;
 
-  const result = await prisma.$queryRaw`
+  const result: newQuestionHistory[] = await prisma.$queryRaw`
     SELECT
-    q.id AS questionId,
-    d.id AS deckId,
-    d.deck,
-    q.question,
-    q."revealAtDate",
+    q.id       AS questionId,
+    d.deck     AS deckTitle,
+    q.question AS question,
     CASE
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
         WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
         WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected = true THEN 1 ELSE NULL END ) > 1 THEN 'unrevealed'
-    END AS questionStatus
+    END AS indicatorType
 FROM "Question" q
          JOIN
      public."QuestionOption" qo ON qo."questionId" = q.id
@@ -236,11 +250,15 @@ ORDER BY q.id DESC;
   return result;
 }
 
-export async function getHistoryHeadersData(userId: string, deckId?: number) {
+export async function getHistoryHeadersData(
+  userId: string,
+  deckId?: number,
+): Promise<newQuestionHistoryData> {
   const getAllDecks = !deckId;
 
-  const reuslt = await prisma.$queryRaw`
-    SELECT COUNT(*), sub.questionStatus FROM (
+  const result: { count: number; indicatorType: string }[] =
+    await prisma.$queryRaw`
+    SELECT COUNT(*) AS count, sub.questionStatus AS indicatorType FROM (
    SELECT
     q.id AS questionId,
     d.id AS deckId,
@@ -270,7 +288,24 @@ ORDER BY q.id DESC
 GROUP BY sub.questionStatus
 `;
 
-  return reuslt;
+  const transformedResult: {
+    [key: string]: number;
+  } = result.reduce<Record<string, number>>((acc, { count, indicatorType }) => {
+    if (!acc[indicatorType]) {
+      acc[indicatorType] = 0;
+    }
+
+    acc[indicatorType] += count;
+
+    return acc;
+  }, {});
+
+  return {
+    correctCount: transformedResult.correct || 0,
+    incorrectCount: transformedResult.incorrect || 0,
+    unansweredCount: transformedResult.unanswered || 0,
+    unrevealedCount: transformedResult.unrevealed || 0,
+  };
 }
 
 export async function getAllDeckQuestionsReadyForReveal(
