@@ -9,7 +9,6 @@ import StatsDrawer from "../StatsDrawer/StatsDrawer";
 
 type LatestStreakBoxProps = {
   latestStreak: number;
-  mysteryBoxId?: string | null;
 };
 
 const LatestStreakBox = ({ latestStreak }: LatestStreakBoxProps) => {
