@@ -1,17 +1,14 @@
 "use server";
 
-import { calculateTotalPrizeTokens, isUserInAllowlist } from "@/lib/mysteryBox";
+import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { FungibleAsset } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 import { getJwtPayload } from "../actions/jwt";
 import { DECK_LIMIT } from "../constants/decks";
-import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
-import { acquireMutex } from "../utils/mutex";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 dayjs.extend(duration);
