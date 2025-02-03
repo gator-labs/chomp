@@ -37,17 +37,11 @@ export default function PotentialRewardsRevealAll({
 
   // Data is passed from the useReveal hook, using reveal?.reveal(...data) for execution.
   const revealAll = useCallback(
-    async ({
-      burnTx,
-      revealQuestionIds,
-      pendingChompResults,
-      nftAddress,
-      nftType,
-    }: RevealProps) => {
+    async ({ burnTx, revealQuestionIds, pendingChompResults }: RevealProps) => {
       setIsLoading(true);
       await Promise.all([
         ...(revealQuestionIds
-          ? [revealQuestions(revealQuestionIds, burnTx, nftAddress, nftType)]
+          ? [revealQuestions(revealQuestionIds, burnTx)]
           : []),
         ...(pendingChompResults?.map((result) =>
           revealQuestion(result.id, result.burnTx),

@@ -26,8 +26,8 @@ export function HomeFeedRevealedQuestionsSection({
 
   const handleView = (q: RevealedQuestion) => {
     openRevealModal({
-      reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
-        await revealQuestion(q.id, burnTx, nftAddress, nftType);
+      reveal: async ({ burnTx }: RevealProps) => {
+        await revealQuestion(q.id, burnTx);
         router.push("/application/answer/reveal/" + q.id);
         router.refresh();
       },

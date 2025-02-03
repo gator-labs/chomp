@@ -1,10 +1,7 @@
 import { Wallet } from "@dynamic-labs/sdk-react-core";
-import { NftType } from "@prisma/client";
 
 export interface RevealProps {
   burnTx?: string;
-  nftAddress?: string;
-  nftType?: NftType;
   revealQuestionIds?: number[];
   pendingChompResults?: { id: number; burnTx: string }[];
 }
@@ -16,12 +13,7 @@ export type UseRevealProps = {
 };
 
 interface RevealCallbackBaseProps {
-  reveal: ({
-    burnTx,
-    nftAddress,
-    nftType,
-    revealQuestionIds,
-  }: RevealProps) => Promise<void>;
+  reveal: ({ burnTx, revealQuestionIds }: RevealProps) => Promise<void>;
   amount: number;
   dialogLabel?: string;
 }
@@ -46,10 +38,9 @@ export type RevealCallbackProps =
 
 export type RevealState = {
   amount: number;
-  reveal: ({ burnTx, nftAddress, nftType }: RevealProps) => Promise<void>;
+  reveal: ({ burnTx }: RevealProps) => Promise<void>;
   questionIds: number[];
   questions: string[];
-  genesisNft?: string;
   dialogLabel?: string;
   isRevealAll: boolean;
 };

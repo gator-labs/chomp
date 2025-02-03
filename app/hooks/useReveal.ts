@@ -1,13 +1,11 @@
 import trackEvent from "@/lib/trackEvent";
-import { getUserAssets } from "@/lib/web3";
 import {
   RevealCallbackProps,
   RevealState,
   UseRevealProps,
 } from "@/types/reveal";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
-import { PublicKey as UmiPublicKey } from "@metaplex-foundation/umi";
-import { ChompResult, NftType } from "@prisma/client";
+import { ChompResult } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import bs58 from "bs58";
@@ -20,12 +18,6 @@ import {
   getUsersPendingChompResult,
 } from "../actions/chompResult";
 import { getJwtPayload } from "../actions/jwt";
-import {
-  getUnusedChompyAndFriendsNft,
-  getUnusedChompyAroundTheWorldNft,
-  getUnusedGenesisNft,
-  getUnusedGlowburgerNft,
-} from "../actions/revealNft";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import {
   REVEAL_DIALOG_TYPE,
@@ -62,10 +54,6 @@ export function useReveal({
   const { promiseToast, errorToast } = useToast();
   const [isRevealModalOpen, setIsRevealModalOpen] = useState(false);
   const [reveal, setReveal] = useState<RevealState>();
-  const [revealNft, setRevealNft] = useState<{
-    id: UmiPublicKey;
-    type: NftType;
-  }>();
   const [isLoading, setIsLoading] = useState(false);
   const [processingTransaction, setProcessingTransaction] = useState(false);
   const [pendingChompResults, setPendingChompResults] = useState<ChompResult[]>(
@@ -79,8 +67,6 @@ export function useReveal({
   const [insufficientFunds, setInsufficientFunds] = useState(false);
 
   const isMultiple = reveal?.questionIds && reveal?.questionIds.length > 1;
-  const isSingleQuestionWithNftReveal =
-    revealNft && !isMultiple && burnState !== "burning";
 
   useEffect(() => {
     async function effect(address: string, reveal: RevealState) {
@@ -91,45 +77,6 @@ export function useReveal({
         setPendingChompResults(chompResults);
 
         if (reveal?.questionIds?.length !== 1) return;
-
-        const userAssets = await getUserAssets(address);
-        const chompyAndFriendsNft =
-          await getUnusedChompyAndFriendsNft(userAssets);
-
-        if (!!chompyAndFriendsNft) {
-          return setRevealNft({
-            id: chompyAndFriendsNft.id,
-            type: NftType.ChompyAndFriends,
-          });
-        }
-
-        const chompyAroundTheWorldNft =
-          await getUnusedChompyAroundTheWorldNft(userAssets);
-
-        if (!!chompyAroundTheWorldNft) {
-          return setRevealNft({
-            id: chompyAroundTheWorldNft.id,
-            type: NftType.ChompyAroundTheWorld,
-          });
-        }
-
-        const glowburgerNft = await getUnusedGlowburgerNft(userAssets);
-
-        if (!!glowburgerNft) {
-          return setRevealNft({
-            id: glowburgerNft.id,
-            type: NftType.Glowburger,
-          });
-        }
-
-        const genesisNft = await getUnusedGenesisNft(userAssets);
-
-        if (!!genesisNft) {
-          return setRevealNft({
-            id: genesisNft.id,
-            type: NftType.Genesis,
-          });
-        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -187,7 +134,6 @@ export function useReveal({
     return () => {
       setIsLoading(false);
       setPendingChompResults([]);
-      setRevealNft(undefined);
     };
   }, [reveal, address, reveal?.questionIds]);
 
@@ -233,7 +179,7 @@ export function useReveal({
     setIsRevealModalOpen(false);
   }, [reveal?.reveal, setIsRevealModalOpen]);
 
-  const burnAndReveal = async (ignoreNft?: boolean) => {
+  const burnAndReveal = async () => {
     setProcessingTransaction(true);
     let signature: string | undefined = undefined;
     let pendingChompResultIds = pendingChompResults.map(
@@ -260,10 +206,7 @@ export function useReveal({
         }
       }
 
-      if (
-        (!isSingleQuestionWithNftReveal || ignoreNft) &&
-        !!revealQuestionIds.length
-      ) {
+      if (!!revealQuestionIds.length) {
         // Try catch is to catch Dynamic related issues to narrow down the error
         try {
           if (!wallet || !isSolanaWallet(wallet)) {
@@ -370,25 +313,14 @@ export function useReveal({
         }
       }
 
-      if (!isSingleQuestionWithNftReveal) {
-        // If the user doesn't have an NFT, or there are more than two questions ready to reveal, including pending ones.
-        await reveal!.reveal({
-          burnTx: signature,
-          revealQuestionIds,
-          pendingChompResults: pendingChompResults.map((result) => ({
-            burnTx: result.burnTransactionSignature!,
-            id: result.questionId!,
-          })),
-        });
-      } else {
-        // If user have nft and question one question is ready to reveal.
-        await reveal!.reveal({
-          burnTx: signature,
-          nftAddress: ignoreNft ? "" : revealNft!.id,
-          revealQuestionIds,
-          nftType: ignoreNft ? undefined : revealNft!.type,
-        });
-      }
+      await reveal!.reveal({
+        burnTx: signature,
+        revealQuestionIds,
+        pendingChompResults: pendingChompResults.map((result) => ({
+          burnTx: result.burnTransactionSignature!,
+          id: result.questionId!,
+        })),
+      });
 
       const pendingResults =
         await getUsersPendingChompResult(revealQuestionIds);
@@ -396,8 +328,6 @@ export function useReveal({
       if (pendingResults?.length !== 0) {
         trackEvent(TRACKING_EVENTS.REVEAL_TRANSACTION_PENDING, {
           transactionSignature: signature,
-          nftAddress: revealNft?.id,
-          nftType: revealNft?.type,
           burnedAmount: reveal?.amount,
           [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
             ? REVEAL_TYPE.ALL
@@ -408,8 +338,6 @@ export function useReveal({
       } else {
         trackEvent(TRACKING_EVENTS.REVEAL_SUCCEEDED, {
           transactionSignature: signature,
-          nftAddress: revealNft?.id,
-          nftType: revealNft?.type,
           burnedAmount: reveal?.amount,
           [TRACKING_METADATA.REVEAL_TYPE]: reveal?.isRevealAll
             ? REVEAL_TYPE.ALL
@@ -417,10 +345,6 @@ export function useReveal({
           [TRACKING_METADATA.QUESTION_ID]: reveal?.questionIds,
           [TRACKING_METADATA.QUESTION_TEXT]: reveal?.questions,
         });
-      }
-
-      if (revealNft && !isMultiple) {
-        setRevealNft(undefined);
       }
     } catch (error) {
       await trackEvent(TRACKING_EVENTS.REVEAL_FAILED, {
@@ -463,8 +387,6 @@ export function useReveal({
     isMultiple,
     revealPrice: reveal?.amount ?? 0,
     pendingTransactions: pendingChompResults.length,
-    isSingleQuestionWithNftReveal,
-    nftType: revealNft?.type,
     burnAndReveal,
     onReveal,
     onSetReveal,

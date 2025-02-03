@@ -56,7 +56,6 @@ export function RevealContextProvider({
     insufficientFunds,
     revealPrice,
     pendingTransactions,
-    isSingleQuestionWithNftReveal,
     questionIds,
     questions,
     isLoading,
@@ -71,7 +70,7 @@ export function RevealContextProvider({
   const hasPendingTransactions = pendingTransactions > 0;
 
   const revealButtons = () => {
-    if (insufficientFunds && !isSingleQuestionWithNftReveal) {
+    if (insufficientFunds) {
       return (
         <>
           <Link
@@ -167,11 +166,7 @@ export function RevealContextProvider({
               disabled={processingTransaction}
               isLoading={processingTransaction}
               onClick={() => {
-                if (
-                  !hasPendingTransactions &&
-                  questionIds?.length &&
-                  !isSingleQuestionWithNftReveal
-                )
+                if (!hasPendingTransactions && questionIds?.length)
                   trackEvent(TRACKING_EVENTS.REVEAL_STARTED, {
                     [TRACKING_METADATA.QUESTION_ID]: questionIds,
                     [TRACKING_METADATA.QUESTION_TEXT]: questions,
@@ -185,18 +180,12 @@ export function RevealContextProvider({
             >
               {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
-                : isSingleQuestionWithNftReveal
-                  ? "Reveal with Chomp Collectible"
-                  : "Reveal"}
+                : "Reveal"}
             </Button>
             <Button
               className="font-bold"
               variant="outline"
               onClick={() => {
-                if (!insufficientFunds && isSingleQuestionWithNftReveal)
-                  return burnAndReveal(true);
-
-                resetReveal();
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [TRACKING_METADATA.QUESTION_ID]: questionIds,
                   [TRACKING_METADATA.QUESTION_TEXT]: questions,
@@ -204,11 +193,10 @@ export function RevealContextProvider({
                     ? REVEAL_TYPE.ALL
                     : REVEAL_TYPE.SINGLE,
                 });
+                resetReveal();
               }}
             >
-              {!insufficientFunds && isSingleQuestionWithNftReveal
-                ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
-                : "Cancel"}
+              Cancel
             </Button>
           </>
         );
@@ -240,12 +228,6 @@ export function RevealContextProvider({
           It looks like you have insufficient funds to go to the next step.
           Please visit this link to learn how to fund your wallet.
         </p>
-      );
-    }
-
-    if (isSingleQuestionWithNftReveal) {
-      return (
-        <p className="text-sm">Chomp Collectible will be used for reveal</p>
       );
     }
 
