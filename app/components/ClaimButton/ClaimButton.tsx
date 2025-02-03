@@ -21,7 +21,6 @@ import classNames from "classnames";
 import Link from "next/link";
 
 import { DollarIcon } from "../Icons/DollarIcon";
-import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 import { Button } from "../ui/button";
 
@@ -36,7 +35,9 @@ interface ClaimButtonProps {
   revealNftId?: string | null;
   resultIds: number[];
   userId: string;
-  creditsPerQuestion?: number | null;
+  creditsPerQuestion: number | null;
+  creditsRewardAmount: string | undefined;
+  creditsRewardStatus: "claimable" | "claimed";
 }
 
 const ClaimButton = ({
@@ -51,6 +52,8 @@ const ClaimButton = ({
   resultIds,
   userId,
   creditsPerQuestion,
+  creditsRewardAmount,
+  creditsRewardStatus,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
@@ -174,7 +177,10 @@ const ClaimButton = ({
     );
   }
 
-  if (status === "claimable" && rewardAmount !== 0) {
+  if (
+    (status === "claimable" && rewardAmount !== 0) ||
+    (creditsRewardStatus === "claimable" && creditsRewardAmount !== undefined)
+  ) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
@@ -185,33 +191,37 @@ const ClaimButton = ({
               BONK
             </span>
           </Pill>
-          {/* TODO: Add credits data */}
-          {/* <Pill variant="white" className="cursor-pointer">
+          <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-xs font-bold text-left">
-              {numberToCurrencyFormatter.format(Math.round(creditRewardAmount || 0))}{" "}
-              CREDITS
+              {Number(creditsRewardAmount) || 0} CREDITS
             </span>
-          </Pill> */}
+          </Pill>
         </div>
-        <div className="flex flex-col gap-4 w-full">
-          <Button
-            className={classNames(
-              "text-sm font-semibold text-left flex items-center justify-center",
-              className,
-              { "cursor-not-allowed opacity-50": isClaiming },
-            )}
-            onClick={onClick}
-            disabled={isClaiming || creditsPerQuestion !== null}
-          >
-            <span>Claim</span>
-            <DollarIcon height={24} width={24} />
-          </Button>
-        </div>
+        {/* Hide Claim for Questions having credit cost */}
+        {creditsPerQuestion === null && (
+          <div className="flex flex-col gap-4 w-full">
+            <Button
+              className={classNames(
+                "text-sm font-semibold text-left flex items-center justify-center",
+                className,
+                { "cursor-not-allowed opacity-50": isClaiming },
+              )}
+              onClick={onClick}
+              disabled={isClaiming}
+            >
+              <span>Claim</span>
+              <DollarIcon height={24} width={24} />
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
 
-  if (status === "claimed" && rewardAmount !== 0) {
+  if (
+    (status === "claimed" && rewardAmount !== 0) ||
+    (creditsRewardStatus === "claimed" && creditsRewardAmount !== undefined)
+  ) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
@@ -222,7 +232,11 @@ const ClaimButton = ({
               BONK
             </span>
           </Pill>
-          <RewardInfoBox />
+          <Pill variant="white" className="cursor-pointer">
+            <span className="text-xs font-bold text-left">
+              {Number(creditsRewardAmount) || 0} CREDITS
+            </span>
+          </Pill>
         </div>
         <div className="flex flex-col gap-4 w-full">
           <Button

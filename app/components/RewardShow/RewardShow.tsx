@@ -17,7 +17,6 @@ import classNames from "classnames";
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
 import Trophy from "../Icons/Trophy";
-import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 
 interface RewardShowProps {
@@ -26,6 +25,7 @@ interface RewardShowProps {
   status: "claimable" | "claimed";
   questions: string[];
   revealAmount: number;
+  creditsRewardAmount: string | undefined;
 }
 
 const RewardShow = ({
@@ -34,6 +34,7 @@ const RewardShow = ({
   status,
   questions,
   revealAmount,
+  creditsRewardAmount,
 }: RewardShowProps) => {
   const { isClaiming, setIsClaiming } = useClaiming();
   const queryClient = useQueryClient();
@@ -82,7 +83,7 @@ const RewardShow = ({
     }
   };
 
-  if (rewardAmount > 0) {
+  if (rewardAmount > 0 || creditsRewardAmount !== undefined) {
     return (
       <div className="flex bg-gray-700 p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
@@ -105,14 +106,28 @@ const RewardShow = ({
                 "!cursor-pointer": status === "claimable",
               })}
             >
-              <p className="text-xs font-bold  text-center ">
+              <p className="text-xs font-bold text-center">
                 {numberToCurrencyFormatter.format(
                   Math.round(rewardAmount || 0),
                 )}{" "}
                 BONK
               </p>
             </Pill>
-            <RewardInfoBox />
+            <Pill
+              onClick={async () =>
+                status === "claimable" && !isClaiming && onClaim()
+              }
+              variant="white"
+              className={classNames({
+                "opacity-50 cursor-not-allowed": isClaiming,
+                "!cursor-auto": status === "claimed",
+                "!cursor-pointer": status === "claimable",
+              })}
+            >
+              <p className="text-xs font-bold text-center">
+                {Number(creditsRewardAmount) || 0} CREDITS
+              </p>
+            </Pill>
           </div>
         </div>
         <Trophy width={70} height={85} />

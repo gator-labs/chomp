@@ -21,7 +21,12 @@ import {
   BINARY_QUESTION_TRUE_LABELS,
   getAlphaIdentifier,
 } from "@/app/utils/question";
-import { QuestionType, ResultType, TransactionStatus } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  QuestionType,
+  ResultType,
+  TransactionStatus,
+} from "@prisma/client";
 import { notFound, redirect } from "next/navigation";
 
 interface Props {
@@ -275,6 +280,10 @@ const RevealAnswerPage = async ({ params }: Props) => {
           questionIds={[questionResponse.id]}
           questions={[questionResponse.question]}
           revealAmount={questionResponse.revealTokenAmount}
+          creditsRewardAmount={
+            questionResponse.MysteryBoxTrigger[0]?.MysteryBox
+              ?.MysteryBoxPrize[0].amount
+          }
         />
       )}
       {questionContent}
@@ -296,6 +305,16 @@ const RevealAnswerPage = async ({ params }: Props) => {
         resultIds={questionResponse.chompResults.map((r) => r.id)}
         userId={questionResponse.chompResults[0].userId}
         creditsPerQuestion={questionResponse.creditCostPerQuestion}
+        creditsRewardAmount={
+          questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize[0]
+            .amount
+        }
+        creditsRewardStatus={
+          questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize[0]
+            .status === EBoxPrizeStatus.Claimed
+            ? "claimed"
+            : "claimable"
+        }
       />
       {!!questionResponse.chompResults[0].rewardTokenAmount &&
         questionResponse.chompResults[0].burnTransactionSignature && (
