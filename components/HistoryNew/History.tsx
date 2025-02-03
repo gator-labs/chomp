@@ -1,6 +1,6 @@
 "use client";
 
-import useInfiniteQuestionsHistory from "@/app/_reactQuery/useInfiniteQuestionsHistory";
+import useInfiniteNewQuestionsHistory from "@/app/_reactQuery/useInfiniteNewQuestionsHistory";
 import HistoryListSkeleton from "@/app/components/HistoryListSkeleton/HistoryListSkeleton";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
 
@@ -13,7 +13,7 @@ interface HistoryProps {
 
 export default function History({ deckId, deckTitle }: HistoryProps) {
   const { data, isFetchingNextPage, lastElementRef, isLoading } =
-    useInfiniteQuestionsHistory(deckId);
+    useInfiniteNewQuestionsHistory(deckId);
 
   if (isLoading) return <HistoryListSkeleton />;
 
@@ -26,7 +26,7 @@ export default function History({ deckId, deckTitle }: HistoryProps) {
               title={question.question}
               deckTitle={deckTitle}
               questionId={question.id}
-              indicatorType={"correct"}
+              indicatorType={question.indicatorType}
             />
           </li>
         ))}
