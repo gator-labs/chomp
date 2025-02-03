@@ -47,14 +47,7 @@ export default function PotentialRewardsRevealAll({
       setIsLoading(true);
       await Promise.all([
         ...(revealQuestionIds
-          ? [
-              revealQuestions(
-                revealQuestionIds,
-                burnTx,
-                nftAddress,
-                nftType,
-              ),
-            ]
+          ? [revealQuestions(revealQuestionIds, burnTx, nftAddress, nftType)]
           : []),
         ...(pendingChompResults?.map((result) =>
           revealQuestion(result.id, result.burnTx),
