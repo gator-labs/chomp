@@ -1,5 +1,6 @@
 "use client";
 
+import { NewQuestionHistoryData } from "@/app/queries/history";
 import chompGraphicImage from "@/public/images/chomp-graphic.png";
 import Image from "next/image";
 import { useState } from "react";
@@ -13,6 +14,7 @@ type HistoryHeaderProps = {
   deckDescription: string | null;
   deckFooter: string | null;
   numberOfQuestions: number;
+  indicators: NewQuestionHistoryData;
   deckImage?: string;
 };
 
@@ -20,6 +22,7 @@ export function HistoryHeader({
   deckTitle,
   deckDescription,
   deckFooter,
+  indicators,
   deckImage = chompGraphicImage.src,
 }: HistoryHeaderProps) {
   const [isInfoDrawerOpen, setIsInfoDrawerOpen] = useState<boolean>(false);
@@ -57,10 +60,7 @@ export function HistoryHeader({
       />
 
       <QuestionCardIndicators
-        correctCount={9}
-        incorrectCount={9}
-        unansweredCount={9}
-        unrevealedCount={9}
+        {...indicators}
         onInfoClick={() => setIsInfoDrawerOpen(true)}
       />
     </div>
