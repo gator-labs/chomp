@@ -1,5 +1,9 @@
 import prisma from "@/app/services/prisma";
 
+/**
+ * Finds questions in the database which are ready to
+ * reveal and require the correct answer to be calculated.
+ */
 export async function getQuestionsNeedingCorrectAnswer() {
   return await prisma.$queryRaw<
     {
