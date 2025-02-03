@@ -52,7 +52,7 @@ export async function getQuestionsNeedingCorrectAnswer() {
     WHERE (
       (
         ("revealAtDate" IS NOT NULL AND "revealAtDate" < NOW())
-        OR ("revealAtAnswerCount" IS NOT NULL AND "revealAtAnswerCount" >= "answerCount")
+        OR ("revealAtAnswerCount" IS NOT NULL AND "revealAtAnswerCount" <= "answerCount")
       ) AND (
         "answerCount" >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)}
       )
