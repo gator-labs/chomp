@@ -17,13 +17,11 @@ type PotentialRewardsRevealAllProps = {
     question: string;
   }[];
   deckId?: number;
-  isMysteryBoxEnabled: boolean;
 };
 
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
   deckId,
-  isMysteryBoxEnabled,
 }: PotentialRewardsRevealAllProps) {
   const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
   const maxRewardPerQuestion = totalRevealTokenAmount * 2;
@@ -55,7 +53,6 @@ export default function PotentialRewardsRevealAll({
                 burnTx,
                 nftAddress,
                 nftType,
-                isMysteryBoxEnabled,
               ),
             ]
           : []),
