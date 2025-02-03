@@ -22,7 +22,7 @@ const RevealDeck = async ({
   numberOfQuestions,
   deckImage = chompGraphicImage.src,
 }: RevealDeckProps) => {
-  const indicators = await getNewHistoryHeaderData();
+  const indicators = await getNewHistoryHeaderData(deckId);
 
   return (
     <div className="pt-4 flex flex-col gap-4 overflow-hidden w-full max-w-lg mx-auto px-4">
