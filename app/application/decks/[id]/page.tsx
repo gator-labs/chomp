@@ -42,8 +42,7 @@ export default async function Page({ params: { id } }: PageProps) {
     <div className="h-full pt-3 pb-4">
       {deck === null ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
-      ) : deck.revealAtDate &&
-        deck.revealAtDate < new Date() &&
+      ) : deck.totalDeckQuestions &&
         deck.deckInfo ? (
         FF_CREDITS ? (
           <RevealDeckNew

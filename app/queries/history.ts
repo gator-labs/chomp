@@ -243,7 +243,7 @@ FROM "Question" q
          JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
 WHERE q."revealAtDate" IS NOT NULL
 GROUP BY q.id, d.id, d.deck, q.question, q."revealAtDate"
-ORDER BY q.id DESC;
+ORDER BY q.id DESC
     LIMIT ${pageSize} OFFSET ${offset}
   `;
 
