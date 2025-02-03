@@ -295,7 +295,7 @@ GROUP BY sub.questionStatus
       acc[indicatorType] = 0;
     }
 
-    acc[indicatorType] += count;
+    acc[indicatorType] += Number(count);
 
     return acc;
   }, {});
