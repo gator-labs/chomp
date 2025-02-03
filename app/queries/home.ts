@@ -1,21 +1,14 @@
 "use server";
 
-import {
-  calculateTotalPrizeTokens,
-  getChompmasMysteryBox,
-  isUserInAllowlist,
-} from "@/lib/mysteryBox";
+import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { FungibleAsset } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 import { getJwtPayload } from "../actions/jwt";
 import { DECK_LIMIT } from "../constants/decks";
-import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
-import { acquireMutex } from "../utils/mutex";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 dayjs.extend(duration);
@@ -289,41 +282,6 @@ export async function getUsersLatestStreak(): Promise<number> {
   const longestStreak = await queryUsersLatestStreak(payload.sub);
 
   return longestStreak;
-}
-
-export async function getUsersLatestStreakAndMysteryBox(): Promise<
-  [number, string | null]
-> {
-  const payload = await authGuard();
-
-  const release = await acquireMutex({
-    identifier: "GET_CHOMPMAS_BOX",
-    data: { userId: payload.sub },
-  });
-
-  try {
-    const latestStreak = await queryUsersLatestStreak(payload.sub);
-
-    const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
-
-    const mysteryBoxId =
-      FF_MYSTERY_BOX && (await isUserInAllowlist())
-        ? await getChompmasMysteryBox(payload.sub, latestStreak)
-        : null;
-
-    return [latestStreak, mysteryBoxId];
-  } catch (e) {
-    const getStreakError = new Error(
-      `Error getting streak / chompmas box for user with id: ${payload.sub}`,
-      { cause: e },
-    );
-    Sentry.captureException(getStreakError);
-
-    throw new Error("Error opening mystery box");
-  } finally {
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
-    release();
-  }
 }
 
 async function queryUsersLatestStreak(userId: string): Promise<number> {

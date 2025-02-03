@@ -185,65 +185,6 @@ export async function rewardMysteryBox(
 }
 
 /**
- * Gives the currently authenticated user a mystery box.
- *
- * User must be allowlisted as a pre-condition.
- *
- * @param userId      User who gets the mystery box.
- *
- * @return mysteryBoxId New box ID.
- */
-export async function rewardChompmasBox(
-  userId: string,
-): Promise<string | null> {
-  try {
-    const calculatedReward = await calculateMysteryBoxReward(
-      MysteryBoxEventsType.CHOMPMAS,
-    );
-
-    if (!calculatedReward?.bonk) throw new Error("No BONK in mystery box");
-
-    const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
-
-    const userWallet = await prisma.wallet.findFirst({ where: { userId } });
-
-    if (!userWallet) return null;
-
-    const res = await prisma.mysteryBox.create({
-      data: {
-        userId,
-        triggers: {
-          create: {
-            triggerType: EBoxTriggerType.ChompmasStreakAttained,
-            mysteryBoxAllowlistId: userWallet.address,
-          },
-        },
-        MysteryBoxPrize: {
-          create: {
-            status: EBoxPrizeStatus.Unclaimed,
-            size: calculatedReward.box_type,
-            prizeType: EBoxPrizeType.Token,
-            tokenAddress,
-            amount: String(calculatedReward?.bonk),
-          },
-        },
-      },
-    });
-    return res.id;
-  } catch (e) {
-    console.log(e);
-
-    const createMysteryBoxError = new CreateMysteryBoxError(
-      `Trouble creating Chompmas mystery box for User id: ${userId}`,
-      { cause: e },
-    );
-    Sentry.captureException(createMysteryBoxError);
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
-    return null;
-  }
-}
-
-/**
  * Returns the ID of an existing mystery box if the user has one.
  *
  * @param userId      User who gets the mystery box.
@@ -280,36 +221,4 @@ export async function findMysteryBox(
 
     return null;
   }
-}
-
-/**
- * If a user has an existing unopened Chompmas box, return
- * it, else reward one and return the ID.
- *
- * @param userId       User ID.
- * @param latestStreak User's current latest streak (assumed to already
- *                     be validated).
- *
- * @return mysteryBoxId New or existing mystery box ID.
- */
-export async function getChompmasMysteryBox(
-  userId: string,
-  latestStreak: number,
-): Promise<string | null> {
-  const box = await findMysteryBox(
-    userId,
-    EBoxTriggerType.ChompmasStreakAttained,
-  );
-
-  if (box) {
-    if (box.status == EMysteryBoxStatus.New) return box.id;
-    else return null;
-  }
-
-  // We only check this after looking for an existing box so a user
-  // doesn't lose their already-awarded box.
-  if (latestStreak < Number(process.env.NEXT_PUBLIC_CHOMPMAS_MIN_STREAK ?? 7))
-    return null;
-
-  return await rewardChompmasBox(userId);
 }

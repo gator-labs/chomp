@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 export async function generateBinaryTestQuestion(
   correctOption: string,
   tag: string,
+  creditCostPerQuestion: number | null,
 ): Promise<{ deckLink: string }> {
   const isAdmin = await getIsUserAdmin();
 
@@ -25,6 +26,7 @@ export async function generateBinaryTestQuestion(
       deck: `${tag}: Deck ${format(currentDate, "MM/dd/yyyy")}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
       activeFromDate: new Date(),
+      creditCostPerQuestion,
       deckQuestions: {
         create: {
           question: {
@@ -35,6 +37,7 @@ export async function generateBinaryTestQuestion(
               revealTokenAmount: 10,
               revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
               durationMiliseconds: BigInt(60000),
+              creditCostPerQuestion,
               questionOptions: {
                 create: [
                   {
@@ -109,6 +112,7 @@ export async function generateBinaryTestQuestion(
 export async function generateMultipleChoiceTestQuestion(
   correctOption: string,
   tag: string,
+  creditCostPerQuestion: number | null,
 ): Promise<{ deckLink: string }> {
   const isAdmin = await getIsUserAdmin();
 
@@ -123,6 +127,7 @@ export async function generateMultipleChoiceTestQuestion(
       deck: `${tag}: Deck ${format(currentDate, "MM/dd/yyyy")}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
       activeFromDate: new Date(),
+      creditCostPerQuestion,
       deckQuestions: {
         create: {
           question: {
@@ -133,6 +138,7 @@ export async function generateMultipleChoiceTestQuestion(
               revealTokenAmount: 10,
               revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
               durationMiliseconds: BigInt(60000),
+              creditCostPerQuestion,
               questionOptions: {
                 create: [
                   {
