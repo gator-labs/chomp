@@ -5,6 +5,12 @@ import prisma from "@/app/services/prisma";
  * reveal and require the correct answer to be calculated.
  */
 export async function getQuestionsNeedingCorrectAnswer() {
+  if (
+    process.env.MINIMAL_ANSWERS_PER_QUESTION === null ||
+    process.env.MINIMAL_ANSWERS_PER_QUESTION === undefined
+  )
+    throw new Error("Missing value for MINIMAL_ANSWERS_PER_QUESTION");
+
   return await prisma.$queryRaw<
     {
       id: number;
@@ -48,7 +54,7 @@ export async function getQuestionsNeedingCorrectAnswer() {
         ("revealAtDate" IS NOT NULL AND "revealAtDate" < NOW())
         OR ("revealAtAnswerCount" IS NOT NULL AND "revealAtAnswerCount" >= "answerCount")
       ) AND (
-        "answerCount" >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION ?? 3)}
+        "answerCount" >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)}
       )
     )
   `;
