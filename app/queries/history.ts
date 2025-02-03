@@ -33,14 +33,14 @@ export type QuestionHistory = {
   image?: string;
 };
 
-export type newQuestionHistory = {
+export type NewQuestionHistory = {
   id: number;
   question: string;
   deckTitle: string;
   indicatorType: QuestionCardIndicatorType;
 };
 
-export type newQuestionHistoryData = {
+export type NewQuestionHistoryData = {
   correctCount: number;
   incorrectCount: number;
   unansweredCount: number;
@@ -215,12 +215,12 @@ export async function getNewHistoryQuery(
   pageSize: number,
   currentPage: number,
   deckId?: number,
-): Promise<newQuestionHistory[]> {
+): Promise<NewQuestionHistory[]> {
   const offset = (currentPage - 1) * pageSize;
 
   const getAllDecks = !deckId;
 
-  const result: newQuestionHistory[] = await prisma.$queryRaw`
+  const result: NewQuestionHistory[] = await prisma.$queryRaw`
     SELECT
     q.id       AS questionId,
     d.deck     AS deckTitle,
@@ -253,7 +253,7 @@ ORDER BY q.id DESC;
 export async function getHistoryHeadersData(
   userId: string,
   deckId?: number,
-): Promise<newQuestionHistoryData> {
+): Promise<NewQuestionHistoryData> {
   const getAllDecks = !deckId;
 
   const result: { count: number; indicatorType: string }[] =

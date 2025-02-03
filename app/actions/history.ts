@@ -1,13 +1,13 @@
 "use server";
 
 import {
+  NewQuestionHistory,
+  NewQuestionHistoryData,
   QuestionHistory,
   getDecksHistory,
   getHistoryHeadersData,
   getNewHistoryQuery,
   getQuestionsHistoryQuery,
-  newQuestionHistory,
-  newQuestionHistoryData,
 } from "../queries/history";
 import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
@@ -52,7 +52,7 @@ export const getNewQuestionHistory = async ({
 }: {
   pageParam: number;
   deckId?: number;
-}): Promise<newQuestionHistory[]> => {
+}): Promise<NewQuestionHistory[]> => {
   const payload = await getJwtPayload();
 
   if (!payload?.sub) {
@@ -158,7 +158,7 @@ export async function getDeckTotalClaimableRewards(deckId: number) {
 
 export async function getNewHistoryHeaderData(
   deckId?: number,
-): Promise<newQuestionHistoryData> {
+): Promise<NewQuestionHistoryData> {
   const payload = await getJwtPayload();
 
   if (!payload?.sub) {
