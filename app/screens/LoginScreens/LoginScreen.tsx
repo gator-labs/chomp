@@ -10,10 +10,10 @@ import {
   useIsLoggedIn,
   useTelegramLogin,
 } from "@dynamic-labs/sdk-react-core";
+import { useRouter } from "next/navigation";
 import { redirect, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import ExistingUserScreen from "./ExistingUserScreen";
 import LoadingScreen from "./LoadingScreen";
 import NewUserScreen from "./NewUserScreen";
 import SlideshowScreen from "./SlideshowScreen";
@@ -39,6 +39,10 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
   const { telegramSignIn } = useTelegramLogin();
 
   const [isLoading, setIsLoading] = useState(true);
+
+  const router = useRouter();
+
+  const isExistingUser = isLoggedIn && !payload?.new_user;
 
   useEffect(() => {
     setIsLoading(true);
@@ -86,9 +90,15 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
       setIsLoading(false);
   }, [authToken, payload?.sub, awaitingSignatureState, sdkHasLoaded]);
 
+  useEffect(() => {
+    if (isExistingUser && !isLoading) router.push("/application");
+  }, [isExistingUser, isLoading]);
+
   if (isLoading) return <LoadingScreen />;
 
-  if (isLoggedIn && !payload?.new_user) return <ExistingUserScreen />;
+  if (isExistingUser) {
+    return <LoadingScreen />;
+  }
 
   if (isLoggedIn && payload?.new_user) return <NewUserScreen />;
 
