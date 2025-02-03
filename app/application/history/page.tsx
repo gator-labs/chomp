@@ -6,7 +6,7 @@ import { getAllQuestionsReadyForReveal } from "@/app/queries/history";
 import { getProfileImage } from "@/app/queries/profile";
 
 export default async function Page() {
-  const [revealableQuestions, totalClaimableRewards, profileImg, mysteryBoxId] =
+  const [revealableQuestions, totalClaimableRewards, profileImg] =
     await Promise.all([
       getAllQuestionsReadyForReveal(),
       getTotalClaimableRewards(),
