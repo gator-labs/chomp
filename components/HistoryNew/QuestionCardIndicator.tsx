@@ -25,9 +25,9 @@ export function QuestionCardIndicator({
     );
 
   return (
-    <div className="grid grid-cols-2 bg-gray-600 rounded-sm gap-1 p-1">
+    <div className="flex bg-gray-600 rounded-sm gap-1 p-1">
       {icon}
-      <div className="bg-gray-800 rounded-sm px-1 flex items-center justify-center">
+      <div className="bg-gray-800 rounded-sm px-1 flex items-center justify-center px-2">
         {count}
       </div>
     </div>
