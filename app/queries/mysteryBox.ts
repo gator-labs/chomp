@@ -383,14 +383,12 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     release();
 
     const openMysteryBoxError = new OpenMysteryBoxError(
-      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box Hub with mysteryboxIds ${mysteryBoxIds}`,
+      `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Box Hub with mysteryboxIds ${mysteryBoxIds}`,
       { cause: e },
     );
     Sentry.captureException(openMysteryBoxError);
     throw new Error("Error opening mystery box");
   }
-
-  console.log(rewards);
 
   if (!rewards) {
     release();
@@ -418,14 +416,13 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       (acc, prize) => acc + parseFloat(prize.amount),
       0,
     );
-
-    const txHash = await sendBonkFromTreasury(
-      totalBonkAmount,
-      userWallet.address,
-    );
-    if (!txHash) {
-      release();
-      throw new Error("Tx failed");
+    let txHash = null;
+    if (totalBonkAmount > 0) {
+      txHash = await sendBonkFromTreasury(totalBonkAmount, userWallet.address);
+      if (!txHash) {
+        release();
+        throw new Error("Tx failed");
+      }
     }
 
     await prisma.$transaction(
@@ -484,34 +481,31 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
 
     release();
   } catch (e) {
-    try {
-      await prisma.mysteryBox.updateMany({
-        where: {
-          id: {
-            in: mysteryBoxIds,
-          },
+    await prisma.mysteryBox.updateMany({
+      where: {
+        id: {
+          in: mysteryBoxIds,
         },
-        data: {
-          status: EMysteryBoxStatus.Unopened,
-        },
-      });
+      },
+      data: {
+        status: EMysteryBoxStatus.Unopened,
+      },
+    });
 
-      await prisma.mysteryBoxPrize.updateMany({
-        where: {
-          id: {
-            in: rewards
-              .flatMap((item) => item.MysteryBoxPrize)
-              .map((item) => item.id),
-          },
+    await prisma.mysteryBoxPrize.updateMany({
+      where: {
+        id: {
+          in: rewards
+            .flatMap((item) => item.MysteryBoxPrize)
+            .map((item) => item.id),
         },
-        data: {
-          status: EBoxPrizeStatus.Unclaimed,
-        },
-      });
-    } catch (e) {
-      Sentry.captureException(e);
-    }
+      },
+      data: {
+        status: EBoxPrizeStatus.Unclaimed,
+      },
+    });
 
+    Sentry.captureException(e);
     const openMysteryBoxError = new OpenMysteryBoxError(
       `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxIds}`,
       { cause: e },
