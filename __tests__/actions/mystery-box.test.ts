@@ -237,7 +237,7 @@ describe("Create mystery box", () => {
       throw new Error("Missing mystery box id(s)");
 
     const prize1 = await prisma.mysteryBoxPrize.findFirst({
-      where: { mysteryBoxId },
+      where: { mysteryBoxId, prizeType: "Token" },
     });
     if (!prize1)
       await prisma.mysteryBoxPrize.create({
@@ -252,7 +252,7 @@ describe("Create mystery box", () => {
       });
 
     const prize2 = await prisma.mysteryBoxPrize.findFirst({
-      where: { mysteryBoxId: mysteryBoxId2 },
+      where: { mysteryBoxId: mysteryBoxId2, prizeType: "Token" },
     });
     if (!prize2)
       await prisma.mysteryBoxPrize.create({
