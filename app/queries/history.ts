@@ -222,7 +222,7 @@ export async function getNewHistoryQuery(
 
   const result: NewQuestionHistory[] = await prisma.$queryRaw`
     SELECT
-    q.id       AS "questionId",
+    q.id       AS "id",
     d.deck     AS "deckTitle",
     q.question AS "question",
     CASE
