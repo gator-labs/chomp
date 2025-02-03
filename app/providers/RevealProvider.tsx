@@ -1,12 +1,11 @@
 "use client";
 
-import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import trackEvent from "@/lib/trackEvent";
 import { RevealCallbackProps } from "@/types/reveal";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import Link from "next/link";
-import { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useContext } from "react";
 
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { CloseIcon } from "../components/Icons/CloseIcon";
@@ -62,15 +61,12 @@ export function RevealContextProvider({
     questions,
     isLoading,
     isRevealAll,
-    mysteryBoxId,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
     wallet: primaryWallet,
     solBalance,
   });
-
-  const [showMysteryBox, setShowMysteryBox] = useState(true);
 
   const hasPendingTransactions = pendingTransactions > 0;
 
@@ -276,87 +272,73 @@ export function RevealContextProvider({
 
   return (
     <>
-      {showMysteryBox && mysteryBoxId ? (
-        <MysteryBox
-          isOpen={showMysteryBox}
-          closeBoxDialog={() => {
-            setShowMysteryBox(false);
-          }}
-          mysteryBoxId={mysteryBoxId}
-          isDismissed={false}
-          skipAction={"Dismiss"}
+      <RevealedContext.Provider
+        value={{
+          openRevealModal: onSetReveal,
+          closeRevealModal: resetReveal,
+        }}
+      >
+        <ChompFullScreenLoader
+          isLoading={burnState === "burning"}
+          loadingMessage="Burning $BONK..."
         />
-      ) : (
-        <RevealedContext.Provider
-          value={{
-            openRevealModal: onSetReveal,
-            closeRevealModal: resetReveal,
+        <Drawer
+          open={isRevealModalOpen}
+          onOpenChange={(open: boolean) => {
+            if (!open && burnState !== "burning") {
+              closeRevealModal();
+            }
           }}
+          dismissible={burnState !== "burning"}
         >
-          <ChompFullScreenLoader
-            isLoading={burnState === "burning"}
-            loadingMessage="Burning $BONK..."
-          />
-          <Drawer
-            open={isRevealModalOpen}
-            onOpenChange={(open: boolean) => {
-              if (!open && burnState !== "burning") {
-                closeRevealModal();
-              }
-            }}
-            dismissible={burnState !== "burning"}
-          >
-            <DrawerContent>
-              <div className="relative">
-                {isLoading ? (
-                  <div className="h-[330px] flex items-center justify-center">
-                    <Spinner />
-                  </div>
-                ) : (
-                  <>
-                    <Button
-                      variant="ghost"
-                      onClick={(e) => {
-                        if (isRevealModalOpen) {
-                          e.stopPropagation();
-                          closeRevealModal();
-                        }
-                      }}
-                      className="!absolute !top-3 !right-6 !border-none !w-max !p-0 z-50"
-                    >
-                      <CloseIcon width={16} height={16} />
-                    </Button>
-                    <div className="flex flex-col gap-6 pt-6 px-6 pb-6">
-                      <div className="flex flex-col gap-6">
-                        <div className="flex flex-row w-full items-center justify-between">
-                          <h3
-                            className={classNames("font-bold", {
-                              "text-[#DD7944]": insufficientFunds,
-                              "text-secondary": !insufficientFunds,
-                            })}
-                          >
-                            {insufficientFunds
-                              ? "Insufficient Funds"
-                              : questionIds.length > 1
-                                ? "Reveal all?"
-                                : "Reveal answer?"}
-                          </h3>
-                        </div>
-                        {getDescriptionNode()}
+          <DrawerContent>
+            <div className="relative">
+              {isLoading ? (
+                <div className="h-[330px] flex items-center justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => {
+                      if (isRevealModalOpen) {
+                        e.stopPropagation();
+                        closeRevealModal();
+                      }
+                    }}
+                    className="!absolute !top-3 !right-6 !border-none !w-max !p-0 z-50"
+                  >
+                    <CloseIcon width={16} height={16} />
+                  </Button>
+                  <div className="flex flex-col gap-6 pt-6 px-6 pb-6">
+                    <div className="flex flex-col gap-6">
+                      <div className="flex flex-row w-full items-center justify-between">
+                        <h3
+                          className={classNames("font-bold", {
+                            "text-[#DD7944]": insufficientFunds,
+                            "text-secondary": !insufficientFunds,
+                          })}
+                        >
+                          {insufficientFunds
+                            ? "Insufficient Funds"
+                            : questionIds.length > 1
+                              ? "Reveal all?"
+                              : "Reveal answer?"}
+                        </h3>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        {revealButtons()}
-                      </div>
+                      {getDescriptionNode()}
                     </div>
-                  </>
-                )}
-              </div>
-            </DrawerContent>
-          </Drawer>
+                    <div className="flex flex-col gap-2">{revealButtons()}</div>
+                  </div>
+                </>
+              )}
+            </div>
+          </DrawerContent>
+        </Drawer>
 
-          {children}
-        </RevealedContext.Provider>
-      )}
+        {children}
+      </RevealedContext.Provider>
     </>
   );
 }

@@ -17,13 +17,11 @@ type PotentialRewardsRevealAllProps = {
     question: string;
   }[];
   deckId?: number;
-  isMysteryBoxEnabled: boolean;
 };
 
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
   deckId,
-  isMysteryBoxEnabled,
 }: PotentialRewardsRevealAllProps) {
   const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
   const maxRewardPerQuestion = totalRevealTokenAmount * 2;
@@ -49,15 +47,7 @@ export default function PotentialRewardsRevealAll({
       setIsLoading(true);
       await Promise.all([
         ...(revealQuestionIds
-          ? [
-              revealQuestions(
-                revealQuestionIds,
-                burnTx,
-                nftAddress,
-                nftType,
-                isMysteryBoxEnabled,
-              ),
-            ]
+          ? [revealQuestions(revealQuestionIds, burnTx, nftAddress, nftType)]
           : []),
         ...(pendingChompResults?.map((result) =>
           revealQuestion(result.id, result.burnTx),

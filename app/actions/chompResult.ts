@@ -5,9 +5,7 @@ import {
   RevealConfirmationError,
   RevealError,
 } from "@/lib/error";
-import { rewardMysteryBox } from "@/lib/mysteryBox";
 import {
-  EBoxTriggerType,
   FungibleAsset,
   NftType,
   ResultType,
@@ -86,7 +84,6 @@ export async function revealQuestions(
   burnTx?: string,
   nftAddress?: string,
   nftType?: NftType,
-  isMysteryBoxEnabled?: boolean,
 ) {
   const payload = await getJwtPayload();
 
@@ -263,17 +260,6 @@ export async function revealQuestions(
         questionId: revealPointsTx.questionId,
       })),
     });
-
-    if (
-      isMysteryBoxEnabled &&
-      process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_REVEAL_ALL === "true"
-    ) {
-      await rewardMysteryBox(
-        payload?.sub,
-        EBoxTriggerType.RevealAllCompleted,
-        revealableQuestionIds,
-      );
-    }
   } catch (error) {
     const questionIds = questionRewards.map((item) => item.questionId);
     const existingFatl = await prisma.fungibleAssetTransactionLog.findMany({
