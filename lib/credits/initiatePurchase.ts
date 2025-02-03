@@ -34,6 +34,7 @@ export async function initiateCreditPurchase(
 
   try {
     // Step 1: Create and sign the transaction
+    console.log("Step 1");
     const data = await createCreditPurchaseTransaction(
       creditsToBuy,
       wallet,
@@ -48,6 +49,7 @@ export async function initiateCreditPurchase(
 
     const { transaction, signature } = data;
 
+    console.log("Step 2");
     // Step 2: Record the signed transaction in ChainTx
     const chainTx = await createSignedSignatureChainTx(
       creditsToBuy,
@@ -59,13 +61,15 @@ export async function initiateCreditPurchase(
         error: chainTx.error,
       };
     }
-
+    console.log("Step 3");
     // Step 3: Submit transaction on-chain and handle confirmation
     const result = await processTransaction(
       transaction!,
       creditsToBuy,
       setIsProcessingTx,
     );
+
+    console.log("Step 4");
 
     if (result?.error) {
       return {

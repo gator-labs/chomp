@@ -1,11 +1,7 @@
 import { HIGH_PRIORITY_FEE } from "@/app/constants/fee";
 import { getRecentPrioritizationFees } from "@/app/queries/getPriorityFeeEstimate";
-import { sleep } from "@/app/utils/sleep";
 import { CONNECTION } from "@/app/utils/solana";
 import { ComputeBudgetProgram, PublicKey, Transaction } from "@solana/web3.js";
-import pRetry from "p-retry";
-
-const MAX_RETRIES = 3;
 
 /**
  * Sets up the transaction priority fee for a Solana transaction
@@ -33,38 +29,15 @@ export async function setupTransactionPriorityFee(
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
     units: Math.round(computeUnitFix * 1.1),
   });
+  console.log(computeUnitFix * 1.1);
   tx.add(modifyComputeUnits);
 
-  let estimateFee;
-
-  try {
-    estimateFee = await pRetry(
-      async () => {
-        const fee = await getRecentPrioritizationFees(tx);
-        if (fee === null) {
-          throw new Error("Failed to get priority fee estimate");
-        }
-        return fee;
-      },
-      {
-        retries: MAX_RETRIES,
-        onFailedAttempt: () => {
-          sleep(3000);
-        },
-      },
-    );
-  } catch {
-    estimateFee = {
-      result: {
-        priorityFeeLevels: {
-          high: HIGH_PRIORITY_FEE,
-        },
-      },
-    };
-  }
+  const estimateFee = await getRecentPrioritizationFees(tx);
 
   const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: Math.round(estimateFee?.result?.priorityFeeLevels?.high),
+    microLamports: Math.round(
+      estimateFee?.result?.priorityFeeLevels?.high || HIGH_PRIORITY_FEE,
+    ),
   });
 
   tx.add(addPriorityFee);
