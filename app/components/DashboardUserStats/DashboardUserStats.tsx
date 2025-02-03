@@ -2,7 +2,7 @@ import { HOME_STAT_CARD_TYPE } from "@/app/constants/tracking";
 import {
   getUserTotalCreditAmount,
   getUserTotalPoints,
-  getUsersLatestStreakAndMysteryBox,
+  getUsersLatestStreak,
   getUsersTotalClaimedAmount,
 } from "@/app/queries/home";
 import { CreditCardIcon, Goal, InfoIcon } from "lucide-react";
@@ -11,24 +11,17 @@ import LatestStreakBox from "../LatestStreakBox/LatestStreakBox";
 import { StatsBox } from "../StatsBox/StatsBox";
 
 export async function DashboardUserStats() {
-  const [
-    [latestStreak, mysteryBoxId],
-    totalClaimedAmount,
-    points,
-    totalCredits,
-  ] = await Promise.all([
-    getUsersLatestStreakAndMysteryBox(),
-    getUsersTotalClaimedAmount(),
-    getUserTotalPoints(),
-    getUserTotalCreditAmount(),
-  ]);
+  const [latestStreak, totalClaimedAmount, points, totalCredits] =
+    await Promise.all([
+      getUsersLatestStreak(),
+      getUsersTotalClaimedAmount(),
+      getUserTotalPoints(),
+      getUserTotalCreditAmount(),
+    ]);
 
   return (
     <div className="grid grid-cols-2 gap-2">
-      <LatestStreakBox
-        latestStreak={latestStreak}
-        mysteryBoxId={mysteryBoxId}
-      />
+      <LatestStreakBox latestStreak={latestStreak} />
       <StatsBox
         title={totalClaimedAmount.toLocaleString("en-US")}
         description="BONK Won"
