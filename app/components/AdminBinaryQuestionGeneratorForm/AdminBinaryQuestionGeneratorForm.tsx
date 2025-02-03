@@ -8,6 +8,7 @@ type AdminBinaryQuestionGeneratorFormProps = {
   action: (
     correctOption: string,
     tag: string,
+    creditCostPerQuestion: number | null,
   ) => Promise<{
     deckLink: string;
   }>;
