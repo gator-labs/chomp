@@ -226,7 +226,7 @@ const RevealScreen = ({ currentUser }: Props) => {
               })}
             >
               <div className="flex items-center gap-1 justify-between">
-                <p className="text-sm">Your claimable reward:</p>
+                <p className="text-sm">You won:</p>
                 <div className="px-4 py-2 bg-white flex items-center justify-center rounded-3xl">
                   <p className="text-xs text-gray-900 font-bold">10,000 BONK</p>
                 </div>

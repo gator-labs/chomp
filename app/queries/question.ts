@@ -1,4 +1,4 @@
-import { AnswerStatus, Prisma } from "@prisma/client";
+import { AnswerStatus, EBoxPrizeType, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
 
@@ -187,6 +187,25 @@ export async function getQuestionWithUserAnswer(questionId: number) {
         },
         include: {
           revealNft: true,
+        },
+      },
+      MysteryBoxTrigger: {
+        where: {
+          questionId,
+        },
+        include: {
+          MysteryBox: {
+            where: {
+              userId,
+            },
+            include: {
+              MysteryBoxPrize: {
+                where: {
+                  prizeType: EBoxPrizeType.Credits,
+                },
+              },
+            },
+          },
         },
       },
     },
