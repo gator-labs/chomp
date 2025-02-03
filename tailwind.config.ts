@@ -57,6 +57,9 @@ const colors = {
       dark: "#DD7944",
       light: "#F0B392",
     },
+    yellow: {
+      pale: "#FBF3BA",
+    },
     red: {
       dark: "#FF0000",
     },
@@ -114,6 +117,8 @@ module.exports = {
       },
       backgroundImage: {
         "pink-gradient": "linear-gradient(90deg, #A3A3EC 0%, #CFC5F7 100%)",
+        "blue-pink-gradient":
+          "linear-gradient(90deg, #F9F1FB 0%, #89C9FF 25%, #AF7CE7 75%, #FBD7FF 100%)",
       },
       colors: colors,
       borderRadius: {

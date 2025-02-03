@@ -4,7 +4,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import React, { useMemo } from "react";
 
 import { HomeFeedDeckCard } from "../HomeFeedDeckCard/HomeFeedDeckCard";
-import LoadMoreDecks from "../LoadMoreDecks/LoadMoreDecks";
+import LoadMore from "../LoadMore/LoadMore";
 import NoDeck from "../NoDecks/NoDeck";
 
 function PaidDeckFeed() {
@@ -30,7 +30,10 @@ function PaidDeckFeed() {
     }, []);
   }, [data]);
 
-  if (formattedData?.length === 0 && !isFetching) {
+  if (
+    (formattedData?.length === 0 || formattedData === undefined) &&
+    !isFetching
+  ) {
     return <NoDeck />;
   }
   return (
@@ -51,7 +54,7 @@ function PaidDeckFeed() {
         </div>
       ))}
 
-      <LoadMoreDecks
+      <LoadMore
         isFetching={isFetching}
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}

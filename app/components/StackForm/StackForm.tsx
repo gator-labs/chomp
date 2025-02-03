@@ -29,6 +29,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
       name: stack?.name || "",
       isActive: !!stack?.isActive,
       isVisible: !!stack?.isVisible,
+      hideDeckFromHomepage: !!stack?.hideDeckFromHomepage,
       file: [],
       image: stack?.image || "",
     },
@@ -48,6 +49,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
           await createStack({
             isActive: data.isActive,
             isVisible: data.isVisible,
+            hideDeckFromHomepage: data.hideDeckFromHomepage,
             name: data.name,
             image: imageUrl,
           });
@@ -58,6 +60,7 @@ export default function StackForm({ stack, action }: StackFormProps) {
             id: data.id,
             isActive: data.isActive,
             isVisible: data.isVisible,
+            hideDeckFromHomepage: data.hideDeckFromHomepage,
             name: data.name,
             image: imageUrl,
           });
@@ -89,6 +92,17 @@ export default function StackForm({ stack, action }: StackFormProps) {
           {...register("isVisible", { value: true })}
         />
         <div className="text-destructive">{errors.isVisible?.message}</div>
+      </div>
+      <div className="mb-3">
+        <label className="mr-3">Hide decks from Home tab</label>
+        <input
+          type="checkbox"
+          className="mt-1"
+          {...register("hideDeckFromHomepage", { value: false })}
+        />
+        <div className="text-destructive">
+          {errors.hideDeckFromHomepage?.message}
+        </div>
       </div>
       <div className="mb-3">
         <label className="block mb-1">Image</label>

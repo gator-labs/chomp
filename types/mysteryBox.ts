@@ -4,6 +4,13 @@ export enum EMysteryBoxType {
   Chompmas = "Chompmas",
 }
 
+export enum EMysteryBoxCategory {
+  Streaks = "Streaks",
+  Validation = "Validation",
+  Practice = "Practice",
+  Campaign = "Campaign",
+}
+
 export enum MysteryBoxEventsType {
   CLAIM_ALL_COMPLETED = "ClaimAllCompleted",
   DAILY_DECK_COMPLETED = "DailyDeckCompleted",
@@ -22,3 +29,11 @@ export interface MysteryBoxProps {
   skipAction: MysteryBoxSkipAction;
   boxType?: EMysteryBoxType;
 }
+
+export type MysteryBox = {
+  id: string;
+  bonkReceived: string;
+  creditsReceived: string;
+  openedAt: string | null;
+  category: EMysteryBoxCategory;
+};
