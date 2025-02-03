@@ -222,16 +222,16 @@ export async function getNewHistoryQuery(
 
   const result: NewQuestionHistory[] = await prisma.$queryRaw`
     SELECT
-    q.id       AS questionId,
-    d.deck     AS deckTitle,
-    q.question AS question,
+    q.id       AS "questionId",
+    d.deck     AS "deckTitle",
+    q.question AS "question",
     CASE
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
         WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
         WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected = true THEN 1 ELSE NULL END ) > 1 THEN 'unrevealed'
-    END AS indicatorType
+    END AS "indicatorType"
 FROM "Question" q
          JOIN
      public."QuestionOption" qo ON qo."questionId" = q.id
@@ -258,10 +258,10 @@ export async function getHistoryHeadersData(
 
   const result: { count: number; indicatorType: string }[] =
     await prisma.$queryRaw`
-    SELECT COUNT(*) AS count, sub.questionStatus AS indicatorType FROM (
+    SELECT COUNT(*) AS "count", sub.questionStatus AS "indicatorType" FROM (
    SELECT
-    q.id AS questionId,
-    d.id AS deckId,
+    q.id AS "questionId",
+    d.id AS "deckId",
     d.deck,
     q.question,
     q."revealAtDate",
