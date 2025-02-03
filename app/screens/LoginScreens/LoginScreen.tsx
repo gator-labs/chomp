@@ -88,8 +88,8 @@ const LoginScreen = ({ payload, telegramAuthData }: Props) => {
   }, [payload?.sub, awaitingSignatureState, sdkHasLoaded]);
 
   useEffect(() => {
-    if (isExistingUser) router.push("/application");
-  }, [isExistingUser]);
+    if (isExistingUser && !isLoading) router.push("/application");
+  }, [isExistingUser, isLoading]);
 
   if (isLoading) return <LoadingScreen />;
 
