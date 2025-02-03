@@ -36,6 +36,7 @@ interface ClaimButtonProps {
   revealNftId?: string | null;
   resultIds: number[];
   userId: string;
+  creditsPerQuestion?: number | null;
 }
 
 const ClaimButton = ({
@@ -49,6 +50,7 @@ const ClaimButton = ({
   revealNftId,
   resultIds,
   userId,
+  creditsPerQuestion,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
@@ -186,7 +188,7 @@ const ClaimButton = ({
           {/* TODO: Add credits data */}
           {/* <Pill variant="white" className="cursor-pointer">
             <span className="text-xs font-bold text-left">
-              {numberToCurrencyFormatter.format(Math.round(rewardAmount || 0))}{" "}
+              {numberToCurrencyFormatter.format(Math.round(creditRewardAmount || 0))}{" "}
               CREDITS
             </span>
           </Pill> */}
@@ -199,7 +201,7 @@ const ClaimButton = ({
               { "cursor-not-allowed opacity-50": isClaiming },
             )}
             onClick={onClick}
-            disabled={isClaiming}
+            disabled={isClaiming || creditsPerQuestion !== null}
           >
             <span>Claim</span>
             <DollarIcon height={24} width={24} />
