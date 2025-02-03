@@ -21,11 +21,11 @@ export default function History({ deckId, deckTitle }: HistoryProps) {
     <div className="flex flex-col gap-2 overflow-hidden">
       <ul className="flex flex-col gap-2 overflow-y-auto pb-2">
         {data?.map((question) => (
-          <li ref={lastElementRef} key={question.id}>
+          <li ref={lastElementRef} key={question.questionId}>
             <QuestionCard
               title={question.question}
               deckTitle={deckTitle}
-              questionId={question.id}
+              questionId={question.questionId}
               indicatorType={question.indicatorType}
             />
           </li>
