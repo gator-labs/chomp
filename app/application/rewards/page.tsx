@@ -1,6 +1,7 @@
 import MysteryBoxHub from "@/app/components/MysteryBoxHub/MysteryBoxHub";
 import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
 import { getValidationRewardQuestions } from "@/app/queries/mysteryBox";
+import MysteryBoxHistory from "@/components/MysteryBoxHub/MysteryBoxHistory";
 
 async function Page() {
   const CREDIT_COST_FEATURE_FLAG =
@@ -19,6 +20,8 @@ async function Page() {
         <MysteryBoxHub
           isUserEligibleForValidationReward={isUserEligibleForValidationReward}
         />
+        <hr className="border-gray-600 my-2 p-0" />
+        <MysteryBoxHistory />
       </>
     );
   } else {

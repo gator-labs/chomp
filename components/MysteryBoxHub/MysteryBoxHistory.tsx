@@ -30,7 +30,7 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-3 bg-[#202020] opacity-50% rounded-lg m-2 pt-2 px-2">
+      <div className="flex flex-col gap-3 bg-[#202020] opacity-50% rounded-lg pt-2 px-2">
         <div>
           <h1 className="bg-blue-pink-gradient inline-block text-transparent bg-clip-text font-bold py-2 px-2 text-xl">
             History
