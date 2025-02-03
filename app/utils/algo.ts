@@ -506,10 +506,6 @@ export const calculateMysteryBoxHubReward = async (
 
     const rewards = await getMechanismEngineResponse("v2/rewards", body);
 
-    const oldR = await getMechanismEngineResponse("rewards", body);
-
-    console.log(rewards, oldR);
-
     questionRewards.push({
       questionId: question.id,
       creditRewardAmount: Number(rewards?.credits),
