@@ -236,6 +236,36 @@ describe("Create mystery box", () => {
     if (!mysteryBoxId || !mysteryBoxId2)
       throw new Error("Missing mystery box id(s)");
 
+    const prize1 = await prisma.mysteryBoxPrize.findFirst({
+      where: { mysteryBoxId, prizeType: "Token" },
+    });
+    if (!prize1)
+      await prisma.mysteryBoxPrize.create({
+        data: {
+          mysteryBoxId,
+          status: EBoxPrizeStatus.Unclaimed,
+          size: "Small",
+          prizeType: "Token",
+          tokenAddress: process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
+          amount: "0",
+        },
+      });
+
+    const prize2 = await prisma.mysteryBoxPrize.findFirst({
+      where: { mysteryBoxId: mysteryBoxId2, prizeType: "Token" },
+    });
+    if (!prize2)
+      await prisma.mysteryBoxPrize.create({
+        data: {
+          mysteryBoxId: mysteryBoxId2,
+          status: EBoxPrizeStatus.Unclaimed,
+          size: "Small",
+          prizeType: "Token",
+          tokenAddress: process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
+          amount: "0",
+        },
+      });
+
     await prisma.mysteryBoxPrize.updateMany({
       where: { mysteryBoxId: { in: [mysteryBoxId, mysteryBoxId2] } },
       data: {
