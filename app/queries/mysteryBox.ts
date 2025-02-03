@@ -1,6 +1,11 @@
 "use server";
 
-import { CreateMysteryBoxError, GetUnopenedMysteryBoxError } from "@/lib/error";
+import {
+  CreateMysteryBoxError,
+  GetUnopenedMysteryBoxError,
+  OpenMysteryBoxError,
+} from "@/lib/error";
+import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import {
   EBoxPrizeStatus,
@@ -8,6 +13,8 @@ import {
   EBoxTriggerType,
   EMysteryBoxStatus,
   EPrizeSize,
+  FungibleAsset,
+  TransactionLogType,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 
@@ -16,6 +23,8 @@ import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { calculateMysteryBoxHubReward } from "../utils/algo";
 import { authGuard } from "../utils/auth";
+import { ONE_MINUTE_IN_MILLISECONDS } from "../utils/dateUtils";
+import { acquireMutex } from "../utils/mutex";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 /**
@@ -155,6 +164,23 @@ async function rewardTutorialMysteryBox(
   }
 }
 
+/**
+ * Retrieves validation reward questions for the authenticated user.
+ *
+ * This function fetches the JWT payload to identify the user and then queries the database
+ * to get a list of questions that meet specific criteria for validation rewards.
+ *
+ * @returns {Promise<{ id: number; answerCount: number; question: string; }[] | null>}
+ *          A promise that resolves to an array of questions with their IDs, answer counts,
+ *          and question texts, or null if the payload is not available.
+ *
+ * The questions are filtered based on the following conditions:
+ * - The question has a reveal date that is in the past.
+ * - The question has a minium number of answers. (See filterQuestionsByMinimalNumberOfAnswers)
+ * - The user has not already triggered a validation reward for the question.
+ * - The user has selected an answer for the question, and the answer is either correct or has a calculated average percentage.
+ * - The user has been charged for the question as a premium question.
+ */
 export const getValidationRewardQuestions = async () => {
   const payload = await getJwtPayload();
 
@@ -184,18 +210,17 @@ FROM
     public."Question" q
 JOIN 
     public."FungibleAssetTransactionLog" fatl ON q.id = fatl."questionId"
-LEFT JOIN 
-    public."MysteryBoxTrigger" mbt ON q.id = mbt."questionId"
-LEFT JOIN 
-    public."MysteryBox" mb ON mbt."mysteryBoxId" = mb."id"
 WHERE 
     q."revealAtDate" IS NOT NULL
     AND q."revealAtDate" < NOW()
     AND NOT EXISTS (
         SELECT 1
-        FROM public."MysteryBoxTrigger" mbt
+        FROM public."MysteryBox" mb
+        JOIN public."MysteryBoxTrigger" mbt ON mbt."mysteryBoxId" = mb.id
         WHERE mbt."questionId" = q.id
         AND mbt."triggerType" = 'ValidationReward'
+        AND mb."status" = 'Opened'
+        AND mb."userId" = ${userId}
     )
     AND EXISTS (
         SELECT 1
@@ -204,6 +229,7 @@ WHERE
         WHERE 
             qo."questionId" = q.id
             AND qa.selected = TRUE
+            AND (qo."calculatedIsCorrect" IS NOT NULL OR qo."calculatedAveragePercentage" IS NOT NULL)
             AND qa."userId" = ${userId}
     )
     AND fatl."userId" = ${userId}
@@ -212,8 +238,6 @@ WHERE
     AND fatl."change" < 0;
 	`;
 
-  console.log(questions);
-
   return filterQuestionsByMinimalNumberOfAnswers(questions);
 };
 
@@ -221,7 +245,6 @@ export const rewardMysteryBoxHub = async ({}: {
   type: EMysteryBoxCategory;
 }) => {
   const payload = await getJwtPayload();
-
   if (!payload) {
     return null;
   }
@@ -235,54 +258,274 @@ export const rewardMysteryBoxHub = async ({}: {
   const revealableQuestions = await getValidationRewardQuestions();
 
   if (!revealableQuestions?.length) {
-    return null;
+    throw new Error("No revealable questions found");
   }
-  //TODO: Add a logic to check if the reward already exist
 
   const questionIds = revealableQuestions.map((rq) => rq.id);
 
-  const rewards = await calculateMysteryBoxHubReward(userId, questionIds);
-
-  if (rewards?.length !== revealableQuestions.length) {
-    return null;
-  }
-
-  console.log(revealableQuestions, rewards);
-
-  const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
-
-  const prizes = rewards.flatMap((item) => [
-    {
-      prizeType: EBoxPrizeType.Credits,
-      size: EPrizeSize.Hub,
-      amount: item.creditRewardAmount.toString(),
-    },
-    {
-      prizeType: EBoxPrizeType.Token,
-      amount: item.bonkRewardAmount.toString(),
-      size: EPrizeSize.Hub,
-      tokenAddress: tokenAddress, // Add the bonk address here
-    },
-  ]);
-
-  const res = await prisma.mysteryBox.create({
-    data: {
-      userId,
-      triggers: {
-        createMany: {
-          data: questionIds.map((questionId) => ({
-            questionId: questionId,
-            triggerType: EBoxTriggerType.ValidationReward,
-            mysteryBoxAllowlistId: null,
-          })),
-        },
-      },
-      MysteryBoxPrize: {
-        createMany: { data: prizes },
-      },
+  const existingTriggers = await prisma.mysteryBoxTrigger.findMany({
+    where: {
+      questionId: { in: questionIds },
+      triggerType: EBoxTriggerType.ValidationReward,
     },
   });
 
-  console.log(res);
-  return [];
+  const existingQuestionIds = existingTriggers.map(
+    (trigger) => trigger.questionId,
+  );
+  const existingMysteryBoxIds = existingTriggers.map(
+    (trigger) => trigger.mysteryBoxId,
+  );
+
+  const newQuestionIds = questionIds.filter(
+    (id) => !existingQuestionIds.includes(id),
+  );
+  if (newQuestionIds.length > 0) {
+    const rewards = await calculateMysteryBoxHubReward(userId, questionIds);
+    if (rewards?.length !== newQuestionIds.length) {
+      return null;
+    }
+
+    const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+
+    const prizes = rewards.flatMap((item) => [
+      {
+        prizeType: EBoxPrizeType.Credits,
+        size: EPrizeSize.Hub,
+        amount: item.creditRewardAmount.toString(),
+      },
+      {
+        prizeType: EBoxPrizeType.Token,
+        amount: item.bonkRewardAmount.toString(),
+        size: EPrizeSize.Hub,
+        tokenAddress: tokenAddress, // Add the bonk address here
+      },
+    ]);
+
+    const res = await prisma.mysteryBox.create({
+      data: {
+        userId,
+        triggers: {
+          createMany: {
+            data: newQuestionIds.map((questionId) => ({
+              questionId: questionId,
+              triggerType: EBoxTriggerType.ValidationReward,
+              mysteryBoxAllowlistId: null,
+            })),
+          },
+        },
+        MysteryBoxPrize: {
+          createMany: { data: prizes },
+        },
+      },
+    });
+
+    const newMysteryBoxId = res.id;
+    return [...existingMysteryBoxIds, newMysteryBoxId];
+  }
+
+  return existingMysteryBoxIds;
+};
+
+export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
+  const payload = await getJwtPayload();
+
+  if (!payload) {
+    return null;
+  }
+
+  const userId = payload.sub;
+
+  const release = await acquireMutex({
+    identifier: "OPEN_MYSTERY_BOX_HUB",
+    data: { userId: payload.sub },
+  });
+
+  const userWallet = await prisma.wallet.findFirst({
+    where: {
+      userId: payload.sub,
+    },
+  });
+
+  if (!userWallet) {
+    release();
+    return null;
+  }
+
+  let rewards;
+
+  try {
+    rewards = await prisma.mysteryBox.findMany({
+      where: {
+        id: {
+          in: mysteryBoxIds,
+        },
+        userId,
+        status: EMysteryBoxStatus.New,
+      },
+      include: {
+        MysteryBoxPrize: {
+          select: {
+            id: true,
+            prizeType: true,
+            amount: true,
+            tokenAddress: true,
+          },
+          where: {
+            prizeType: {
+              in: [EBoxPrizeType.Token, EBoxPrizeType.Credits],
+            },
+          },
+        },
+      },
+    });
+  } catch (e) {
+    release();
+
+    const openMysteryBoxError = new OpenMysteryBoxError(
+      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box Hub with mysteryboxIds ${mysteryBoxIds}`,
+      { cause: e },
+    );
+    Sentry.captureException(openMysteryBoxError);
+    throw new Error("Error opening mystery box");
+  }
+
+  console.log(rewards);
+
+  if (!rewards) {
+    release();
+    throw new Error("Reward not found or not in openable state");
+  }
+
+  let totalBonkAmount = 0;
+  let totalCreditAmount = 0;
+
+  try {
+    const allPrizes = rewards.flatMap((item) => item.MysteryBoxPrize);
+    const tokenPrizes = allPrizes.filter(
+      (prize) => prize.prizeType === EBoxPrizeType.Token,
+    );
+    const creditPrizes = allPrizes.filter(
+      (prize) => prize.prizeType === EBoxPrizeType.Credits,
+    );
+
+    totalBonkAmount = tokenPrizes.reduce(
+      (acc, prize) => acc + parseFloat(prize.amount),
+      0,
+    );
+
+    totalCreditAmount = creditPrizes.reduce(
+      (acc, prize) => acc + parseFloat(prize.amount),
+      0,
+    );
+
+    const txHash = await sendBonkFromTreasury(
+      totalBonkAmount,
+      userWallet.address,
+    );
+    if (!txHash) {
+      release();
+      throw new Error("Tx failed");
+    }
+
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.fungibleAssetTransactionLog.createMany({
+          data: creditPrizes.map((prize) => ({
+            type: TransactionLogType.MysteryBox,
+            asset: FungibleAsset.Credit,
+            change: prize?.amount,
+            userId: payload.sub,
+            mysteryBoxPrizeId: prize.id,
+          })),
+        });
+
+        await tx.mysteryBoxPrize.updateMany({
+          where: {
+            id: {
+              in: tokenPrizes.map((item) => item.id),
+            },
+          },
+          data: {
+            status: EBoxPrizeStatus.Claimed,
+            claimHash: txHash,
+            claimedAt: new Date(),
+          },
+        });
+
+        await tx.mysteryBoxPrize.updateMany({
+          where: {
+            id: {
+              in: creditPrizes.map((item) => item.id),
+            },
+          },
+          data: {
+            status: EBoxPrizeStatus.Claimed,
+            claimedAt: new Date(),
+          },
+        });
+
+        await tx.mysteryBox.updateMany({
+          where: {
+            id: {
+              in: mysteryBoxIds,
+            },
+          },
+          data: {
+            status: EMysteryBoxStatus.Opened,
+          },
+        });
+      },
+      {
+        isolationLevel: "Serializable",
+        timeout: ONE_MINUTE_IN_MILLISECONDS,
+      },
+    );
+
+    release();
+  } catch (e) {
+    try {
+      await prisma.mysteryBox.updateMany({
+        where: {
+          id: {
+            in: mysteryBoxIds,
+          },
+        },
+        data: {
+          status: EMysteryBoxStatus.Unopened,
+        },
+      });
+
+      await prisma.mysteryBoxPrize.updateMany({
+        where: {
+          id: {
+            in: rewards
+              .flatMap((item) => item.MysteryBoxPrize)
+              .map((item) => item.id),
+          },
+        },
+        data: {
+          status: EBoxPrizeStatus.Unclaimed,
+        },
+      });
+    } catch (e) {
+      Sentry.captureException(e);
+    }
+
+    const openMysteryBoxError = new OpenMysteryBoxError(
+      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxIds}`,
+      { cause: e },
+    );
+    Sentry.captureException(openMysteryBoxError);
+
+    throw new Error("Error opening mystery box");
+  } finally {
+    release();
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+  }
+
+  return {
+    totalCreditAmount,
+    totalBonkAmount,
+  };
 };

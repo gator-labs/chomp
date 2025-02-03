@@ -1,9 +1,9 @@
+import { useToast } from "@/app/providers/ToastProvider";
 import { rewardMysteryBoxHub } from "@/app/queries/mysteryBox";
 import MysteryBoxCategoryPill from "@/components/MysteryBoxHub/MysteryBoxCategoryPill";
 import OpenMysteryBox from "@/components/MysteryBoxHub/OpenMysteryBox";
 import OpenedMysteryBox from "@/public/images/opened-mystery-box.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
-import { useQuery } from "@tanstack/react-query";
 import classNames from "classnames";
 import Image, { StaticImageData } from "next/image";
 import React, { CSSProperties, useState } from "react";
@@ -19,13 +19,28 @@ function MysteryBoxReward({
   isActive: boolean;
   icon: StaticImageData;
 }) {
-  const [openMysteryBox, setOpenMysteryBox] = useState(false);
+  const [showBoxOverlay, setShowBoxOverlay] = useState(false);
+  const [mystryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
 
-  const { isLoading, error, data, isFetching } = useQuery({
-    queryKey: ["rewards"],
-    queryFn: () => rewardMysteryBoxHub({ type }),
-    enabled: openMysteryBox,
-  });
+  const { promiseToast } = useToast();
+
+  const rewardBoxHandler = async () => {
+    if (!isActive) return;
+    try {
+      const res = await promiseToast(rewardMysteryBoxHub({ type }), {
+        loading: "Opening Mystery Box. Please wait...",
+        success: "Mystery Box created successfully! ",
+        error: "Failed to open the Mystery Box. Please try again later. 😔",
+      });
+      if (res) {
+        setMysteryBoxIds(res);
+      }
+    } catch {
+      console.log("Failed to open the Mystery Box. Please try again later. 😔");
+    } finally {
+      setShowBoxOverlay(true);
+    }
+  };
 
   return (
     <>
@@ -43,9 +58,7 @@ function MysteryBoxReward({
           } as CSSProperties
         }
         onClick={() => {
-          if (isActive) {
-            setOpenMysteryBox(true);
-          }
+          rewardBoxHandler();
         }}
       >
         <Image
@@ -71,12 +84,14 @@ function MysteryBoxReward({
           <MysteryBoxCategoryPill category={type} disabled={!isActive} />
         </div>
       </div>
-      <OpenMysteryBox
-        closeBoxDialog={() => setOpenMysteryBox(false)}
-        isOpen={openMysteryBox}
-        boxType={type}
-        isFetching={isFetching}
-      />
+      {mystryBoxIds.length > 0 && (
+        <OpenMysteryBox
+          closeBoxDialog={() => setShowBoxOverlay(false)}
+          isOpen={showBoxOverlay}
+          boxType={type}
+          mysteryBoxIds={mystryBoxIds}
+        />
+      )}
     </>
   );
 }

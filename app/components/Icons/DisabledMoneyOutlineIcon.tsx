@@ -1,4 +1,4 @@
-import { IconProps } from '.';
+import { IconProps } from ".";
 
 export function DisabledMoneyOutlineIcon({
   fill = "none",
