@@ -46,8 +46,8 @@ function DeckDetails({ deck }: DeckDetailsProps) {
   );
   const hasReveal = deckState.isRevealable && revealableQuestions.length > 0;
 
-  const revealAll = useCallback(async ({ burnTx, nftAddress }: RevealProps) => {
-    await revealDeck(deck.id, burnTx, nftAddress);
+  const revealAll = useCallback(async ({ burnTx }: RevealProps) => {
+    await revealDeck(deck.id, burnTx);
     router.refresh();
     closeRevealModal();
   }, []);

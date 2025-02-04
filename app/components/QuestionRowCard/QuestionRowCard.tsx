@@ -110,8 +110,8 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
 
     const handleReveal = () => {
       openRevealModal({
-        reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
-          await revealQuestion(question.id, burnTx, nftAddress, nftType);
+        reveal: async ({ burnTx }: RevealProps) => {
+          await revealQuestion(question.id, burnTx);
           queryClient.resetQueries({
             queryKey: [
               question.deckId
