@@ -4,7 +4,11 @@ import { useRouter } from "next/navigation";
 
 import { ArrowLeftIcon } from "../Icons/ArrowLeftIcon";
 
-const BackButton = () => {
+type BackButtonProps = {
+  text?: string;
+};
+
+const BackButton = ({ text }: BackButtonProps) => {
   const router = useRouter();
 
   const handleBack = () => {
@@ -13,8 +17,8 @@ const BackButton = () => {
   };
 
   return (
-    <div className="cursor-pointer" onClick={handleBack}>
-      <ArrowLeftIcon />
+    <div className="cursor-pointer flex gap-5" onClick={handleBack}>
+      <ArrowLeftIcon /> {text && <span>{text}</span>}
     </div>
   );
 };

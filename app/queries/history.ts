@@ -1,3 +1,5 @@
+import { QuestionCardIndicatorType } from "@/types/question";
+
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
@@ -29,6 +31,20 @@ export type QuestionHistory = {
   burnTransactionSignature?: string;
   answerCount: number;
   image?: string;
+};
+
+export type NewQuestionHistory = {
+  id: number;
+  question: string;
+  deckTitle: string;
+  indicatorType: QuestionCardIndicatorType;
+};
+
+export type NewQuestionHistoryData = {
+  correctCount: number;
+  incorrectCount: number;
+  unansweredCount: number;
+  unrevealedCount: number;
 };
 
 export type QuestionHistoryFilter = "isRevealable" | "all";
@@ -192,6 +208,104 @@ WHERE
 	`;
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
+}
+
+export async function getNewHistoryQuery(
+  userId: string,
+  pageSize: number,
+  currentPage: number,
+  deckId?: number,
+): Promise<NewQuestionHistory[]> {
+  const offset = (currentPage - 1) * pageSize;
+
+  const getAllDecks = !deckId;
+
+  const result: NewQuestionHistory[] = await prisma.$queryRaw`
+    SELECT
+    q.id       AS "id",
+    d.deck     AS "deckTitle",
+    q.question AS "question",
+    CASE
+        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
+        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
+        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
+        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
+        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected = true THEN 1 ELSE NULL END ) > 1 THEN 'unrevealed'
+    END AS "indicatorType"
+FROM "Question" q
+         JOIN
+     public."QuestionOption" qo ON qo."questionId" = q.id
+         LEFT JOIN
+     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected = true OR qa.selected = null
+         LEFT JOIN
+     public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = ${userId} AND cr."questionId" IS NOT NULL
+         JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
+         JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
+WHERE q."revealAtDate" IS NOT NULL
+GROUP BY q.id, d.id, d.deck, q.question, q."revealAtDate"
+ORDER BY q.id DESC
+    LIMIT ${pageSize} OFFSET ${offset}
+  `;
+
+  return result;
+}
+
+export async function getHistoryHeadersData(
+  userId: string,
+  deckId?: number,
+): Promise<NewQuestionHistoryData> {
+  const getAllDecks = !deckId;
+
+  const result: { count: number; indicatorType: string }[] =
+    await prisma.$queryRaw`
+    SELECT COUNT(*) AS "count", sub.questionStatus AS "indicatorType" FROM (
+   SELECT
+    q.id AS "questionId",
+    d.id AS "deckId",
+    d.deck,
+    q.question,
+    q."revealAtDate",
+    CASE
+        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
+        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
+        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
+        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
+        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected = true THEN 1 ELSE NULL END ) > 1 THEN  'unrevealed'
+    END AS questionStatus
+FROM "Question" q
+         JOIN
+     public."QuestionOption" qo ON qo."questionId" = q.id
+         LEFT JOIN
+     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected = true OR qa.selected = null
+         LEFT JOIN
+     public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = ${userId} AND cr."questionId" IS NOT NULL
+         JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
+         JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
+WHERE q."revealAtDate" IS NOT NULL
+GROUP BY q.id, d.id, d.deck, q.question, q."revealAtDate"
+ORDER BY q.id DESC
+              ) AS sub
+GROUP BY sub.questionStatus
+`;
+
+  const transformedResult: {
+    [key: string]: number;
+  } = result.reduce<Record<string, number>>((acc, { count, indicatorType }) => {
+    if (!acc[indicatorType]) {
+      acc[indicatorType] = 0;
+    }
+
+    acc[indicatorType] += Number(count);
+
+    return acc;
+  }, {});
+
+  return {
+    correctCount: transformedResult.correct || 0,
+    incorrectCount: transformedResult.incorrect || 0,
+    unansweredCount: transformedResult.unanswered || 0,
+    unrevealedCount: transformedResult.unrevealed || 0,
+  };
 }
 
 export async function getAllDeckQuestionsReadyForReveal(
