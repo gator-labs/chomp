@@ -27,6 +27,7 @@ export default function History({ deckId }: HistoryProps) {
               deckTitle={question.deckTitle}
               questionId={question.id}
               indicatorType={question.indicatorType}
+              revealAtDate={question.revealAtDate}
             />
           </li>
         ))}

@@ -42,6 +42,26 @@ export function getRevealAtText(date: Date): string {
   }
 }
 
+export function getTimeUntilReveal(date: Date): string {
+  const now = new Date();
+
+  if (isPast(date)) {
+    return "Revealed";
+  } else {
+    const daysUntil = differenceInDays(date, now);
+    const hoursUntil = differenceInHours(date, now);
+
+    if (daysUntil > 0) {
+      return `${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
+    } else if (hoursUntil > 0) {
+      return `${hoursUntil} hour${hoursUntil > 1 ? "s" : ""}`;
+    } else {
+      const minutesUntil = differenceInMinutes(date, now);
+      return `${minutesUntil} minute${minutesUntil > 1 ? "s" : ""}`;
+    }
+  }
+}
+
 export function getQuestionStatus({
   isAnswered,
   isClaimed,
