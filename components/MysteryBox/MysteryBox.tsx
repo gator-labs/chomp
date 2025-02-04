@@ -18,31 +18,21 @@ import trackEvent from "@/lib/trackEvent";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
 import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
 import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
-import { EMysteryBoxType, MysteryBoxProps } from "@/types/mysteryBox";
+import {
+  EMysteryBoxType,
+  MysteryBoxProps,
+  MysteryBoxStatus,
+} from "@/types/mysteryBox";
 import { LottieRefCurrentProps } from "lottie-react";
 import { useRouter } from "next-nprogress-bar";
 import dynamic from "next/dynamic";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import BuildMessage from "../BuildMessage";
 import CreditsDrawer from "../CreditsDrawer";
 import MysteryBoxOverlay from "./MysteryBoxOverlay";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
-
-function buildMessage(lines: string[]) {
-  return lines.map((line, index) =>
-    index < lines.length - 1 ? (
-      <Fragment key={index}>
-        {line}
-        <br />
-      </Fragment>
-    ) : (
-      <Fragment key={index}>{line}</Fragment>
-    ),
-  );
-}
-
-type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
 
 function MysteryBox({
   isOpen,
@@ -264,7 +254,7 @@ function MysteryBox({
                   },
                 )}
               >
-                {buildMessage(OPEN_MESSAGES[message].subText)}
+                {BuildMessage(OPEN_MESSAGES[message].subText)}
               </div>
             )}
           </div>

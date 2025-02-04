@@ -3,11 +3,11 @@
 import { ReactNode, useState } from "react";
 import "swiper/css";
 
-import DeckInfoDrawer from "../DeckInfoDrawer/DeckInfoDrawer";
 import DeckSwitchTabs from "../DeckSwitchTabs/DeckSwitchTabs";
 import { DECK_FILTERS } from "../DeckSwitchTabs/constants";
 import FreeDeckFeed from "../FreeDeckFeed/FreeDeckFeed";
 import { InfoIcon } from "../Icons/InfoIcon";
+import InfoDrawer from "../InfoDrawer/InfoDrawer";
 import PaidDeckFeed from "../PaidDeckFeed/PaidDeckFeed";
 
 type HomeFeedVerticalCarouselProps = {
@@ -24,7 +24,7 @@ export function HomeFeedVerticalCarousel({
 
   return (
     <>
-      <DeckInfoDrawer
+      <InfoDrawer
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Choose your path: Validate or Practice"
@@ -35,7 +35,7 @@ export function HomeFeedVerticalCarousel({
         <div className="flex justify-between items-center mb-2">
           <div>{title}</div>
           <button onClick={() => setIsOpen(true)}>
-            <InfoIcon width={18} height={18} className="text-gray-400" />
+            <InfoIcon width={18} height={18} fill="#999999" />
           </button>
         </div>
         <DeckSwitchTabs

@@ -1,3 +1,5 @@
+"use server";
+
 import { CreateMysteryBoxError, GetUnopenedMysteryBoxError } from "@/lib/error";
 import {
   EBoxPrizeStatus,

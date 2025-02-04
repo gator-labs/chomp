@@ -4,19 +4,19 @@ import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";
 
-type DeckInfoDrawerProps = {
+type InfoDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   description: string;
 };
 
-const DeckInfoDrawer = ({
+const InfoDrawer = ({
   isOpen,
   onClose,
   title,
   description,
-}: DeckInfoDrawerProps) => {
+}: InfoDrawerProps) => {
   const descriptionSections = description.split("\n").map((section, index) => {
     return (
       <p key={index} className="text-sm mb-6 mt-0">
@@ -46,4 +46,4 @@ const DeckInfoDrawer = ({
   );
 };
 
-export default DeckInfoDrawer;
+export default InfoDrawer;
