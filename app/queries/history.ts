@@ -38,6 +38,7 @@ export type NewQuestionHistory = {
   question: string;
   deckTitle: string;
   indicatorType: QuestionCardIndicatorType;
+  revealAtDate: Date | null;
 };
 
 export type NewQuestionHistoryData = {
@@ -225,12 +226,14 @@ export async function getNewHistoryQuery(
     q.id       AS "id",
     d.deck     AS "deckTitle",
     q.question AS "question",
+    q."revealAtDate" AS "revealAtDate",
     CASE
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
         WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
         WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
         WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected = true THEN 1 ELSE NULL END ) > 1 THEN 'unrevealed'
+        ELSE 'unrevealed'
     END AS "indicatorType"
 FROM "Question" q
          JOIN

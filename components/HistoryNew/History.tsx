@@ -8,10 +8,10 @@ import { QuestionCard } from "./QuestionCard";
 
 interface HistoryProps {
   deckId?: number;
-  deckTitle: string;
+  deckTitle?: string;
 }
 
-export default function History({ deckId, deckTitle }: HistoryProps) {
+export default function History({ deckId }: HistoryProps) {
   const { data, isFetchingNextPage, lastElementRef, isLoading } =
     useInfiniteNewQuestionsHistory(deckId);
 
@@ -24,9 +24,10 @@ export default function History({ deckId, deckTitle }: HistoryProps) {
           <li ref={lastElementRef} key={question.id}>
             <QuestionCard
               title={question.question}
-              deckTitle={deckTitle}
+              deckTitle={question.deckTitle}
               questionId={question.id}
               indicatorType={question.indicatorType}
+              revealAtDate={question.revealAtDate}
             />
           </li>
         ))}
