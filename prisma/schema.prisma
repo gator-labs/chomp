@@ -290,8 +290,6 @@ model MysteryBoxPrize {
   mysteryBox                  MysteryBox                   @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId                String
   fungibleAssetTransactionLog FungibleAssetTransactionLog?
-
-  @@unique([mysteryBoxId, tokenAddress])
 }
 
 model MysteryBoxAllowlist {

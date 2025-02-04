@@ -495,15 +495,6 @@ export const calculateMysteryBoxHubReward = async (
       };
     }
 
-    console.log(
-      "user",
-      userId,
-      "requesting reward for question",
-      question.id,
-      "with body",
-      body,
-    );
-
     const rewards = await getMechanismEngineResponse("v2/rewards", body);
 
     questionRewards.push({
@@ -511,16 +502,6 @@ export const calculateMysteryBoxHubReward = async (
       creditRewardAmount: Number(rewards?.credits),
       bonkRewardAmount: Number(rewards?.bonk),
     });
-
-    console.log(
-      "user",
-      userId,
-      "got",
-      rewards,
-      "bonk for",
-      question.id,
-      "question",
-    );
   }
 
   return questionRewards;
