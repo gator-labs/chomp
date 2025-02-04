@@ -1,6 +1,6 @@
-import MysteryBoxHub from "@/app/components/MysteryBoxHub/MysteryBoxHub";
 import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
-import { getValidationRewardQuestions } from "@/app/queries/mysteryBox";
+import { getValidationRewardQuestions } from "@/app/queries/getVaidationRewardQuestion";
+import MysteryBoxHub from "@/components/MysteryBox/MysteryBoxHub";
 import MysteryBoxHistory from "@/components/MysteryBoxHub/MysteryBoxHistory";
 
 async function Page() {

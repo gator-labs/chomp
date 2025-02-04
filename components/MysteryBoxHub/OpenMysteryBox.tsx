@@ -4,20 +4,17 @@ import {
   OPEN_MESSAGES,
 } from "@/app/constants/mysteryBox";
 import { useToast } from "@/app/providers/ToastProvider";
-import { openMysteryBoxHub } from "@/app/queries/mysteryBox";
-import {
-  MysteryBoxStatus,
-  buildMessage,
-} from "@/components/MysteryBox/MysteryBox";
+import { openMysteryBoxHub } from "@/app/queries/openMysteryBoxHub";
 import { revalidateRewards } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
 import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
-import { EMysteryBoxCategory } from "@/types/mysteryBox";
+import { EMysteryBoxCategory, MysteryBoxStatus } from "@/types/mysteryBox";
 import { LottieRefCurrentProps } from "lottie-react";
 import dynamic from "next/dynamic";
 import React, { useRef, useState } from "react";
 
+import BuildMessage from "../BuildMessage";
 import MysteryBoxOverlay from "../MysteryBox/MysteryBoxOverlay";
 
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
@@ -159,7 +156,7 @@ function OpenMysteryBox({
                 },
               )}
             >
-              {buildMessage(OPEN_MESSAGES[message].subText)}
+              {BuildMessage(OPEN_MESSAGES[message].subText)}
             </div>
           )}
         </div>

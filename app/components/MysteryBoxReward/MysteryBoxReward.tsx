@@ -1,5 +1,5 @@
+import { rewardMysteryBoxHub } from "@/app/actions/mysteryBox/rewardMysteryBoxHub";
 import { useToast } from "@/app/providers/ToastProvider";
-import { rewardMysteryBoxHub } from "@/app/queries/mysteryBox";
 import MysteryBoxCategoryPill from "@/components/MysteryBoxHub/MysteryBoxCategoryPill";
 import OpenMysteryBox from "@/components/MysteryBoxHub/OpenMysteryBox";
 import OpenedMysteryBox from "@/public/images/opened-mystery-box.png";

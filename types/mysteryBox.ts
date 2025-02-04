@@ -21,6 +21,8 @@ export enum MysteryBoxEventsType {
 
 export type MysteryBoxSkipAction = "Skip" | "Dismiss" | "Close";
 
+export type MysteryBoxStatus = "Idle" | "Opening" | "Closing";
+
 export interface MysteryBoxProps {
   isOpen: boolean;
   closeBoxDialog: () => void;
