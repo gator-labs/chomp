@@ -38,7 +38,7 @@ const RevealDeck = async ({
       />
       <hr className="border-gray-600 my-0 p-0" />
 
-      <History deckId={deckId} deckTitle={deckTitle} />
+      <History deckId={deckId} />
     </div>
   );
 };
