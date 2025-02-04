@@ -1,6 +1,6 @@
 "use server";
 
-import { getValidationRewardQuestions } from "@/app/queries/getVaidationRewardQuestion";
+import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQuestion";
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxHubReward } from "@/app/utils/algo";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";

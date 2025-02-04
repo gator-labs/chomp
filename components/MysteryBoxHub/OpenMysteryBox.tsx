@@ -1,10 +1,10 @@
+import { openMysteryBoxHub } from "@/app/actions/mysteryBox/openMysteryBoxHub";
 import { Button } from "@/app/components/ui/button";
 import {
   MysteryBoxOpenMessage,
   OPEN_MESSAGES,
 } from "@/app/constants/mysteryBox";
 import { useToast } from "@/app/providers/ToastProvider";
-import { openMysteryBoxHub } from "@/app/queries/openMysteryBoxHub";
 import { revalidateRewards } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
@@ -34,7 +34,7 @@ function OpenMysteryBox({
 }: OpenMysteryBoxProps) {
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [MysteryBoxReward, setMysteryBoxReward] = useState<{
+  const [mysteryBoxReward, setMysteryBoxReward] = useState<{
     totalCreditAmount: number;
     totalBonkAmount: number;
   }>({ totalCreditAmount: 0, totalBonkAmount: 0 });
@@ -86,30 +86,30 @@ function OpenMysteryBox({
       return "You earned a mystery box!";
 
     if (
-      MysteryBoxReward.totalBonkAmount > 0 &&
-      MysteryBoxReward.totalCreditAmount > 0
+      mysteryBoxReward.totalBonkAmount > 0 &&
+      mysteryBoxReward.totalCreditAmount > 0
     ) {
       return (
         <>
-          You won {MysteryBoxReward.totalCreditAmount.toLocaleString("en-US")}{" "}
+          You won {mysteryBoxReward.totalCreditAmount.toLocaleString("en-US")}{" "}
           credits
           <br />
-          and {MysteryBoxReward.totalBonkAmount.toLocaleString("en-US")} $BONK!
+          and {mysteryBoxReward.totalBonkAmount.toLocaleString("en-US")} $BONK!
         </>
       );
-    } else if (MysteryBoxReward.totalCreditAmount > 0) {
+    } else if (mysteryBoxReward.totalCreditAmount > 0) {
       return (
         <>
-          You won {MysteryBoxReward.totalCreditAmount.toLocaleString("en-US")}{" "}
+          You won {mysteryBoxReward.totalCreditAmount.toLocaleString("en-US")}{" "}
           credits!
           <br />
           No $BONK in this box ...
         </>
       );
-    } else if (MysteryBoxReward.totalBonkAmount > 0) {
+    } else if (mysteryBoxReward.totalBonkAmount > 0) {
       return (
         <>
-          You won {MysteryBoxReward.totalBonkAmount.toLocaleString("en-US")}{" "}
+          You won {mysteryBoxReward.totalBonkAmount.toLocaleString("en-US")}{" "}
           $BONK!
           <br />
           No credits in this box ...

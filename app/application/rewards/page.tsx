@@ -1,5 +1,5 @@
 import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
-import { getValidationRewardQuestions } from "@/app/queries/getVaidationRewardQuestion";
+import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQuestion";
 import MysteryBoxHub from "@/components/MysteryBox/MysteryBoxHub";
 import MysteryBoxHistory from "@/components/MysteryBoxHub/MysteryBoxHistory";
 
