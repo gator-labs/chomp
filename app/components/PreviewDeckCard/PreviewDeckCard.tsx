@@ -80,9 +80,7 @@ const PreviewDeckCard = ({
                 onClick={() => setIsOpen(true)}
               >
                 <span className="opacity-50 pr-1">Entry </span>
-                {deckCreditCost > 0
-                  ? `${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
-                  : "Free"}
+                {`${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
                 <InfoIcon fill="#0d0d0d" />
               </button>
             ) : null}
