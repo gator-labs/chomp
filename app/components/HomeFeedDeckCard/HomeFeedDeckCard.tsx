@@ -100,7 +100,9 @@ export function HomeFeedDeckCard({
               )}
             >
               <CoinsIcon width={12} height={12} />
-              <p className="text-gray-900 text-xs">{deckCreditCost} Credits</p>
+              <p className="text-gray-900 text-xs">
+                {deckCreditCost} Credit{deckCreditCost !== 1 ? "s" : ""}
+              </p>
             </div>
           ) : (
             <RevealCardInfo
