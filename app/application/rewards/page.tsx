@@ -21,7 +21,7 @@ async function Page() {
           isUserEligibleForValidationReward={isUserEligibleForValidationReward}
         />
         <hr className="border-gray-600 my-2 p-0" />
-        <MysteryBoxHistory />
+        {/* <MysteryBoxHistory /> */}
       </>
     );
   } else {

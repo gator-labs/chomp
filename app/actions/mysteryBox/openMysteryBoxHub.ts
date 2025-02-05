@@ -53,17 +53,22 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         userId,
         status: EMysteryBoxStatus.New,
       },
+
       include: {
-        MysteryBoxPrize: {
+        triggers: {
           select: {
-            id: true,
-            prizeType: true,
-            amount: true,
-            tokenAddress: true,
-          },
-          where: {
-            prizeType: {
-              in: [EBoxPrizeType.Token, EBoxPrizeType.Credits],
+            MysteryBoxPrize: {
+              select: {
+                id: true,
+                prizeType: true,
+                amount: true,
+                tokenAddress: true,
+              },
+              where: {
+                prizeType: {
+                  in: [EBoxPrizeType.Token, EBoxPrizeType.Credits],
+                },
+              },
             },
           },
         },
@@ -87,25 +92,29 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
 
   let totalBonkAmount = 0;
   let totalCreditAmount = 0;
+  const allPrizes = rewards.flatMap((item) =>
+    item.triggers.flatMap((trigger) => trigger.MysteryBoxPrize),
+  );
+
+  const tokenPrizes = allPrizes.filter(
+    (prize) => prize.prizeType === EBoxPrizeType.Token,
+  );
+
+  const creditPrizes = allPrizes.filter(
+    (prize) => prize.prizeType === EBoxPrizeType.Credits,
+  );
+
+  totalBonkAmount = tokenPrizes.reduce(
+    (acc, prize) => acc + parseFloat(prize.amount),
+    0,
+  );
+
+  totalCreditAmount = creditPrizes.reduce(
+    (acc, prize) => acc + parseFloat(prize.amount),
+    0,
+  );
 
   try {
-    const allPrizes = rewards.flatMap((item) => item.MysteryBoxPrize);
-    const tokenPrizes = allPrizes.filter(
-      (prize) => prize.prizeType === EBoxPrizeType.Token,
-    );
-    const creditPrizes = allPrizes.filter(
-      (prize) => prize.prizeType === EBoxPrizeType.Credits,
-    );
-
-    totalBonkAmount = tokenPrizes.reduce(
-      (acc, prize) => acc + parseFloat(prize.amount),
-      0,
-    );
-
-    totalCreditAmount = creditPrizes.reduce(
-      (acc, prize) => acc + parseFloat(prize.amount),
-      0,
-    );
     let txHash = null;
     if (totalBonkAmount > 0) {
       txHash = await sendBonkFromTreasury(totalBonkAmount, userWallet.address);
@@ -114,7 +123,6 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         throw new Error("Tx failed");
       }
     }
-
     await prisma.$transaction(
       async (tx) => {
         await tx.fungibleAssetTransactionLog.createMany({
@@ -185,9 +193,18 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     await prisma.mysteryBoxPrize.updateMany({
       where: {
         id: {
-          in: rewards
-            .flatMap((item) => item.MysteryBoxPrize)
-            .map((item) => item.id),
+          in: tokenPrizes.map((item) => item.id),
+        },
+      },
+      data: {
+        status: EBoxPrizeStatus.Unclaimed,
+      },
+    });
+
+    await prisma.mysteryBoxPrize.updateMany({
+      where: {
+        id: {
+          in: creditPrizes.map((item) => item.id),
         },
       },
       data: {

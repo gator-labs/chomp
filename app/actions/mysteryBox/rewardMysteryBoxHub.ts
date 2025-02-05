@@ -48,47 +48,55 @@ export const rewardMysteryBoxHub = async ({}: {
     (id) => !existingQuestionIds.includes(id),
   );
   if (newQuestionIds.length > 0) {
-    const rewards = await calculateMysteryBoxHubReward(userId, questionIds);
+    const rewards = await calculateMysteryBoxHubReward(userId, newQuestionIds);
     if (rewards?.length !== newQuestionIds.length) {
       return null;
     }
 
     const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
-    const prizes = rewards.flatMap((item) => [
-      {
-        prizeType: EBoxPrizeType.Credits,
-        size: EPrizeSize.Hub,
-        amount: item.creditRewardAmount.toString(),
-      },
-      {
-        prizeType: EBoxPrizeType.Token,
-        amount: item.bonkRewardAmount.toString(),
-        size: EPrizeSize.Hub,
-        tokenAddress: tokenAddress, // Add the bonk address here
-      },
-    ]);
+    const getPrizePerTrigger = (reward: {
+      questionId: number;
+      creditRewardAmount: number;
+      bonkRewardAmount: number;
+    }) => {
+      return [
+        {
+          prizeType: EBoxPrizeType.Credits,
+          size: EPrizeSize.Hub,
+          amount: reward.creditRewardAmount.toString(),
+        },
+        {
+          prizeType: EBoxPrizeType.Token,
+          amount: reward.bonkRewardAmount.toString(),
+          size: EPrizeSize.Hub,
+          tokenAddress: tokenAddress, // Add the bonk address here
+        },
+      ];
+    };
 
-    const res = await prisma.mysteryBox.create({
-      data: {
-        userId,
-        triggers: {
-          createMany: {
-            data: newQuestionIds.map((questionId) => ({
-              questionId: questionId,
-              triggerType: EBoxTriggerType.ValidationReward,
-              mysteryBoxAllowlistId: null,
-            })),
+    await prisma.$transaction(async (tx) => {
+      const mb = await tx.mysteryBox.create({
+        data: {
+          userId: userId,
+        },
+      });
+
+      for (const reward of rewards) {
+        await tx.mysteryBoxTrigger.create({
+          data: {
+            questionId: reward.questionId,
+            triggerType: EBoxTriggerType.ValidationReward,
+            mysteryBoxId: mb.id,
+            MysteryBoxPrize: {
+              createMany: { data: getPrizePerTrigger(reward) },
+            },
           },
-        },
-        MysteryBoxPrize: {
-          createMany: { data: prizes },
-        },
-      },
+        });
+      }
+      const newMysteryBoxId = mb.id;
+      return [...existingMysteryBoxIds, newMysteryBoxId];
     });
-
-    const newMysteryBoxId = res.id;
-    return [...existingMysteryBoxIds, newMysteryBoxId];
   }
 
   return existingMysteryBoxIds;
