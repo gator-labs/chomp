@@ -72,17 +72,23 @@ const RevealAnswerPage = async ({ params }: Props) => {
     questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize.find(
       (prize) => prize.prizeType == EBoxPrizeType.Credits,
     );
-  const bonkPrize =
-    questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize.find(
+
+  const bonkPrizes =
+    questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize.filter(
       (prize) =>
         prize.prizeType == EBoxPrizeType.Token &&
         prize.tokenAddress == bonkAddress,
     );
 
+  const bonkPrizeAmount = bonkPrizes?.reduce(
+    (total, prize) => total + Number(prize.amount ?? 0),
+    0,
+  );
+
   const chompResult = isCreditsQuestion
     ? {
         result: ResultType.Revealed,
-        rewardTokenAmount: Number(bonkPrize?.amount ?? "0"),
+        rewardTokenAmount: bonkPrizeAmount,
         revealNftId: null,
         burnTransactionSignature: null,
         sendTransactionSignature: null,
