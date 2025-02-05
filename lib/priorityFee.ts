@@ -29,7 +29,7 @@ export async function setupTransactionPriorityFee(
   const modifyComputeUnits = ComputeBudgetProgram.setComputeUnitLimit({
     units: Math.round(computeUnitFix * 1.1),
   });
-  console.log(computeUnitFix * 1.1);
+
   tx.add(modifyComputeUnits);
 
   const estimateFee = await getRecentPrioritizationFees(tx);

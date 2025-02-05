@@ -15,7 +15,7 @@ import {
 } from "../error";
 
 const CONFIRMATION_OPTIONS = {
-  retries: 2,
+  retries: 1,
 };
 
 /**
