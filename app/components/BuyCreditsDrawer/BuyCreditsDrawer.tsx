@@ -18,6 +18,8 @@ import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";
 
+Decimal.set({ toExpNeg: -128 });
+
 type BuyCreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -33,7 +35,7 @@ function BuyCreditsDrawer({
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(solPricePerCredit!)
     .mul(creditsToBuy)
-    .toNumber();
+    .toString();
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
