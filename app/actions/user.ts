@@ -8,10 +8,10 @@ import { getIsUserAdmin } from "../queries/user";
 import prisma from "../services/prisma";
 
 export async function addCredits({
-  wallet,
+  wallets,
   credits,
 }: {
-  wallet: string;
+  wallets: string[];
   credits: number;
 }) {
   const isAdmin = await getIsUserAdmin();
@@ -20,23 +20,35 @@ export async function addCredits({
     redirect("/application");
   }
 
-  const payload = await prisma.wallet.findUnique({
+  const walletsData = await prisma.wallet.findMany({
     where: {
-      address: wallet,
+      address: {
+        in: wallets,
+      },
     },
   });
-  if (!payload) {
-    throw new Error("Wallet not found");
+
+  // Check if all wallets were found
+  if (walletsData.length !== wallets.length) {
+    const validAddresses = new Set(walletsData.map((w) => w.address));
+    const notFound = wallets.filter((w) => !validAddresses.has(w));
+    throw new Error(
+      `Some wallet addresses were not found: ${notFound.join(", ")}`,
+    );
   }
 
-  await prisma.fungibleAssetTransactionLog.create({
-    data: {
-      change: credits,
-      userId: payload?.userId,
-      asset: FungibleAsset.Credit,
-      type: TransactionLogType.CreditByAdmin,
-    },
-  });
+  await prisma.$transaction(
+    walletsData.map((wallet) =>
+      prisma.fungibleAssetTransactionLog.create({
+        data: {
+          change: credits,
+          userId: wallet.userId,
+          asset: FungibleAsset.Credit,
+          type: TransactionLogType.CreditByAdmin,
+        },
+      }),
+    ),
+  );
 
   revalidatePath("/admin/users");
 }
