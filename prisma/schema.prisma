@@ -247,14 +247,13 @@ model Banner {
 }
 
 model MysteryBox {
-  id              String              @id @default(uuid())
-  status          EMysteryBoxStatus   @default(New)
-  userId          String
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @default(now()) @updatedAt
-  triggers        MysteryBoxTrigger[]
-  user            User                @relation(fields: [userId], references: [id])
-  MysteryBoxPrize MysteryBoxPrize[]
+  id        String              @id @default(uuid())
+  status    EMysteryBoxStatus   @default(New)
+  userId    String
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @default(now()) @updatedAt
+  triggers  MysteryBoxTrigger[]
+  user      User                @relation(fields: [userId], references: [id])
 }
 
 model MysteryBoxTrigger {
@@ -270,6 +269,7 @@ model MysteryBoxTrigger {
   mysteryBoxId          String
   allowlist             MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
   mysteryBoxAllowlistId String?
+  MysteryBoxPrize       MysteryBoxPrize[]
 
   @@unique([mysteryBoxId, questionId, triggerType])
   @@unique([mysteryBoxId, deckId, triggerType])
@@ -287,8 +287,8 @@ model MysteryBoxPrize {
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @default(now()) @updatedAt
   claimedAt                   DateTime?
-  mysteryBox                  MysteryBox                   @relation(fields: [mysteryBoxId], references: [id])
-  mysteryBoxId                String
+  mysteryBoxTrigger           MysteryBoxTrigger?           @relation(fields: [mysteryBoxTriggerId], references: [id])
+  mysteryBoxTriggerId         String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog?
 }
 
