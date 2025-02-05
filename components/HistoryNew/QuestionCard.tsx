@@ -20,6 +20,9 @@ export function QuestionCard({
   indicatorType,
   revealAtDate,
 }: QuestionCardProps) {
+  const canViewAnswer =
+    indicatorType == "correct" || indicatorType == "incorrect";
+
   const card = (
     <div className="bg-gray-700 rounded-lg p-3 gap-6 flex flex-col">
       <div className="text-sm font-medium">{title}</div>
@@ -27,7 +30,7 @@ export function QuestionCard({
       <div className="flex justify-between">
         <QuestionCardStatus title={deckTitle} indicatorType={indicatorType} />
         <div className="flex items-center justify text-xs text-gray-400 gap-1">
-          {indicatorType != "unrevealed" ? (
+          {canViewAnswer ? (
             <>
               <span>View Answer</span> <ChevronRightIcon />
             </>
@@ -39,7 +42,7 @@ export function QuestionCard({
     </div>
   );
 
-  if (indicatorType == "unrevealed") return card;
+  if (!canViewAnswer) return card;
 
   return (
     <Link href={`/application/answer/reveal/${questionId}`} className="block">

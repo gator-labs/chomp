@@ -16,6 +16,7 @@ import ShareResult from "@/app/components/ShareResult/ShareResult";
 import { SOLSCAN_BASE_TRANSACTION_LINK } from "@/app/constants/solscan";
 import { getQuestionWithUserAnswer } from "@/app/queries/question";
 import { getCurrentUser } from "@/app/queries/user";
+import { getRevealAtText } from "@/app/utils/history";
 import {
   BINARY_QUESTION_OPTION_LABELS,
   BINARY_QUESTION_TRUE_LABELS,
@@ -23,10 +24,12 @@ import {
 } from "@/app/utils/question";
 import {
   EBoxPrizeStatus,
+  EBoxPrizeType,
   QuestionType,
   ResultType,
   TransactionStatus,
 } from "@prisma/client";
+import { isPast } from "date-fns";
 import { notFound, redirect } from "next/navigation";
 
 interface Props {
@@ -35,24 +38,93 @@ interface Props {
   };
 }
 
+const NotAvailableYet = ({ msg }: { msg: string }) => {
+  return (
+    <div className="py-2 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 justify-start">
+          <BackButton />
+          <h4 className="text-sm font-normal text-left">
+            Viewing answer results
+          </h4>
+        </div>
+      </div>
+      <div className="py-6">{msg}</div>
+    </div>
+  );
+};
+
 const RevealAnswerPage = async ({ params }: Props) => {
   const [questionResponse, user] = await Promise.all([
     getQuestionWithUserAnswer(Number(params.questionId)),
     getCurrentUser(),
   ]);
 
-  const sendTransactionSignature =
-    questionResponse?.chompResults[0]?.sendTransactionSignature;
-
   if (!questionResponse) notFound();
 
-  if (
-    !questionResponse.isQuestionRevealable ||
-    !questionResponse.correctAnswer ||
-    questionResponse.chompResults[0]?.transactionStatus !==
-      TransactionStatus.Completed
-  ) {
-    redirect("/application");
+  const FF_CREDITS =
+    process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION == "true";
+  const isCreditsQuestion =
+    FF_CREDITS && questionResponse.creditCostPerQuestion !== null;
+
+  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+  const creditsPrize =
+    questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize.find(
+      (prize) => prize.prizeType == EBoxPrizeType.Credits,
+    );
+  const bonkPrize =
+    questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize.find(
+      (prize) =>
+        prize.prizeType == EBoxPrizeType.Token &&
+        prize.tokenAddress == bonkAddress,
+    );
+
+  const chompResult = isCreditsQuestion
+    ? {
+        result: ResultType.Revealed,
+        rewardTokenAmount: Number(bonkPrize?.amount ?? "0"),
+        revealNftId: null,
+        burnTransactionSignature: null,
+        sendTransactionSignature: null,
+        userId: user?.id ?? "",
+        transactionStatus: TransactionStatus.Completed,
+      }
+    : questionResponse.chompResults?.[0];
+
+  const sendTransactionSignature = chompResult.sendTransactionSignature;
+
+  if (isCreditsQuestion) {
+    if (!questionResponse.isQuestionRevealable) {
+      if (
+        questionResponse.revealAtDate === null ||
+        isPast(questionResponse.revealAtDate)
+      ) {
+        return <NotAvailableYet msg={"Question not revealed yet."} />;
+      } else {
+        return (
+          <NotAvailableYet
+            msg={`Question not revealed yet. ${getRevealAtText(questionResponse.revealAtDate)}.`}
+          />
+        );
+      }
+    }
+
+    if (!questionResponse.isCalculatedAndPaidFor)
+      return (
+        <NotAvailableYet
+          msg={
+            "Question not answered or answer not calculated yet. Check back shortly."
+          }
+        />
+      );
+  } else {
+    if (
+      !questionResponse.isQuestionRevealable ||
+      !questionResponse.correctAnswer ||
+      chompResult?.transactionStatus !== TransactionStatus.Completed
+    ) {
+      redirect("/application");
+    }
   }
 
   const isBinary = questionResponse.type === QuestionType.BinaryQuestion;
@@ -61,8 +133,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
   const isFirstOrderCorrect =
     questionResponse.correctAnswer?.id === answerSelected?.questionOptionId;
   const isSecondOrderCorrect =
-    (questionResponse.chompResults[0]?.rewardTokenAmount ?? 0) >
-    questionResponse.revealTokenAmount;
+    (chompResult?.rewardTokenAmount ?? 0) > questionResponse.revealTokenAmount;
   let questionContent = <></>;
 
   if (isBinary) {
@@ -270,65 +341,50 @@ const RevealAnswerPage = async ({ params }: Props) => {
       {!!answerSelected && (
         <RewardShow
           status={
-            questionResponse.chompResults[0]?.result === ResultType.Revealed
+            chompResult?.result === ResultType.Revealed
               ? "claimable"
               : "claimed"
           }
-          rewardAmount={
-            questionResponse.chompResults[0]?.rewardTokenAmount ?? 0
-          }
+          rewardAmount={chompResult?.rewardTokenAmount ?? 0}
           questionIds={[questionResponse.id]}
           questions={[questionResponse.question]}
           revealAmount={questionResponse.revealTokenAmount}
-          creditsRewardAmount={
-            questionResponse.MysteryBoxTrigger[0]?.MysteryBox
-              ?.MysteryBoxPrize[0].amount
-          }
+          creditsRewardAmount={creditsPrize?.amount}
         />
       )}
       {questionContent}
       {answerContent}
       <ClaimButton
         status={
-          questionResponse.chompResults[0]?.result === ResultType.Revealed
-            ? "claimable"
-            : "claimed"
+          chompResult?.result === ResultType.Revealed ? "claimable" : "claimed"
         }
-        rewardAmount={questionResponse.chompResults[0]?.rewardTokenAmount ?? 0}
+        rewardAmount={chompResult?.rewardTokenAmount ?? 0}
         didAnswer={!!answerSelected}
         questionIds={[questionResponse.id]}
-        transactionHash={
-          questionResponse.chompResults[0]?.burnTransactionSignature || ""
-        }
+        transactionHash={chompResult?.burnTransactionSignature || ""}
         questions={[questionResponse.question]}
-        revealNftId={questionResponse.chompResults[0].revealNftId}
+        revealNftId={chompResult.revealNftId}
         resultIds={questionResponse.chompResults.map((r) => r.id)}
-        userId={questionResponse.chompResults[0].userId}
+        userId={chompResult.userId}
         creditsPerQuestion={questionResponse.creditCostPerQuestion}
-        creditsRewardAmount={
-          questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize[0]
-            .amount
-        }
+        creditsRewardAmount={creditsPrize?.amount}
         creditsRewardStatus={
-          questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize[0]
-            .status === EBoxPrizeStatus.Claimed
+          creditsPrize?.status === EBoxPrizeStatus.Claimed
             ? "claimed"
             : "claimable"
         }
       />
-      {!!questionResponse.chompResults[0].rewardTokenAmount &&
-        questionResponse.chompResults[0].burnTransactionSignature && (
+      {!!chompResult.rewardTokenAmount &&
+        chompResult.burnTransactionSignature && (
           <ShareResult
-            claimedAmount={questionResponse.chompResults[0].rewardTokenAmount!}
+            claimedAmount={chompResult.rewardTokenAmount!}
             options={questionResponse.questionOptions.map((qo) => ({
               id: qo.id,
               option: qo.option,
             }))}
             question={questionResponse.question}
             selectedOptionId={answerSelected?.questionOption?.id!}
-            transactionHash={
-              questionResponse.chompResults[0].burnTransactionSignature
-            }
+            transactionHash={chompResult.burnTransactionSignature}
             imageUrl={questionResponse.imageUrl!}
             questionId={questionResponse.id}
           />
