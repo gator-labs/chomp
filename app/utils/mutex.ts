@@ -1,4 +1,4 @@
-import { Mutex, MutexInterface } from "async-mutex";
+import { Mutex, MutexInterface, tryAcquire } from "async-mutex";
 
 type MutexData = {
   identifier: string;
@@ -26,4 +26,19 @@ export const acquireMutex = async ({
 
   const release = await mutex.acquire();
   return release;
+};
+
+export const tryAcquireMutex = async ({
+  identifier,
+  data,
+}: MutexData): Promise<MutexInterface.Releaser | null> => {
+  let mutex = getMutex({ identifier, data });
+  if (!mutex) mutex = setMutex({ identifier, data });
+
+  try {
+    const release = await tryAcquire(mutex).acquire();
+    return release;
+  } catch {
+    return null;
+  }
 };
