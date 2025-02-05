@@ -128,14 +128,14 @@ async function rewardTutorialMysteryBox(
         triggers: {
           create: {
             triggerType: EBoxTriggerType.TutorialCompleted,
-          },
-        },
-        MysteryBoxPrize: {
-          create: {
-            status: EBoxPrizeStatus.Unclaimed,
-            size: calculatedRewardWip.box_type,
-            prizeType: EBoxPrizeType.Credits,
-            amount: String(calculatedRewardWip?.credit),
+            MysteryBoxPrize: {
+              create: {
+                status: EBoxPrizeStatus.Unclaimed,
+                size: calculatedRewardWip.box_type,
+                prizeType: EBoxPrizeType.Credits,
+                amount: String(calculatedRewardWip?.credit),
+              },
+            },
           },
         },
       },
