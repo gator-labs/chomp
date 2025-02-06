@@ -281,8 +281,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           questions={[questionResponse.question]}
           revealAmount={questionResponse.revealTokenAmount}
           creditsRewardAmount={
-            questionResponse.MysteryBoxTrigger[0]?.MysteryBox
-              ?.MysteryBoxPrize[0].amount
+            questionResponse.MysteryBoxTrigger[0]?.MysteryBoxPrize[0].amount
           }
         />
       )}
@@ -306,12 +305,11 @@ const RevealAnswerPage = async ({ params }: Props) => {
         userId={questionResponse.chompResults[0].userId}
         creditsPerQuestion={questionResponse.creditCostPerQuestion}
         creditsRewardAmount={
-          questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize[0]
-            .amount
+          questionResponse.MysteryBoxTrigger[0]?.MysteryBoxPrize[0].amount
         }
         creditsRewardStatus={
-          questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize[0]
-            .status === EBoxPrizeStatus.Claimed
+          questionResponse.MysteryBoxTrigger[0]?.MysteryBoxPrize[0].status ===
+          EBoxPrizeStatus.Claimed
             ? "claimed"
             : "claimable"
         }

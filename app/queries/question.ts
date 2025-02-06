@@ -198,12 +198,10 @@ export async function getQuestionWithUserAnswer(questionId: number) {
             where: {
               userId,
             },
-            include: {
-              MysteryBoxPrize: {
-                where: {
-                  prizeType: EBoxPrizeType.Credits,
-                },
-              },
+          },
+          MysteryBoxPrize: {
+            where: {
+              prizeType: EBoxPrizeType.Credits,
             },
           },
         },

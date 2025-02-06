@@ -33,12 +33,24 @@ export const getUnopenedMysteryBox = async (
         triggers: { some: { triggerType: { in: triggerType } } },
       },
       include: {
-        MysteryBoxPrize: {
-          where: {
-            // We check for Unclaimed/Dismissed status here since boxes may be stuck in
-            // Unclaimed state if a previous reveal attempt failed
-            status: {
-              in: [EBoxPrizeStatus.Dismissed, EBoxPrizeStatus.Unclaimed],
+        triggers: {
+          select: {
+            triggerType: true,
+            MysteryBoxPrize: {
+              where: {
+                status: {
+                  // We check for Unclaimed/Dismissed status here since boxes may be stuck in
+                  // Unclaimed state if a previous reveal attempt failed
+                  in: [EBoxPrizeStatus.Dismissed, EBoxPrizeStatus.Unclaimed],
+                },
+              },
+              select: {
+                id: true,
+                prizeType: true,
+                amount: true,
+                tokenAddress: true,
+                claimedAt: true,
+              },
             },
           },
         },

@@ -166,11 +166,11 @@ export async function rewardMysteryBox(
               questionId,
               triggerType,
               mysteryBoxAllowlistId: null,
+              MysteryBoxPrize: {
+                create: prizes,
+              },
             })),
           },
-        },
-        MysteryBoxPrize: {
-          create: prizes,
         },
       },
     });
