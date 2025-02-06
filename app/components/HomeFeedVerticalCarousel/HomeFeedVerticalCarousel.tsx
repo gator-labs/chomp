@@ -28,7 +28,7 @@ export function HomeFeedVerticalCarousel({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Choose your path: Validate or Practice"
-        description={`Validate: These paid decks help build trusted information and offer rewards for correct answers.\n Practice: Play without paying and learn at your own pace.While these decks don't offer rewards, you might discover some fun surprises along the way.`}
+        description={`Validate: These paid decks help build trusted information and offer rewards for correct answers.\n Practice: Play without paying and learn at your own pace. While these decks don't offer rewards, you might discover some fun surprises along the way.`}
       />
 
       <div className={className}>

@@ -370,6 +370,7 @@ enum TransactionLogType {
   CorrectSecondOrder
   AnswerDeck
   AnswerQuestion
+  AnswerPaidQuestion
   ConnectX
   ConnectTelegram
   MysteryBox

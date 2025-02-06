@@ -45,43 +45,47 @@ function MysteryBoxReward({
   return (
     <>
       <div
-        className={`flex flex-row items-center rounded-lg px-6 border-2 border-[#0000] [background:var(--bg-color)] ${
+        className={`flex flex-row items-center rounded-lg bg-blue-pink-gradient p-[1px] ${
           isActive ? "cursor-pointer" : "cursor-not-allowed"
         }`}
-        style={
-          {
-            "--angle": "0deg",
-            "--border-color":
-              "linear-gradient(var(--angle), #F9F1FB 0%, #89C9FF 29%, #AF7CE7 59.5%, #FBD7FF 100%)",
-            "--bg-color":
-              "linear-gradient(180deg, #5f5bd733 0%, #00000033 50%, #5f5bd733 100%), #333",
-          } as CSSProperties
-        }
-        onClick={() => {
-          rewardBoxHandler();
-        }}
       >
-        <Image
-          src={isActive ? icon : OpenedMysteryBox}
-          alt="Mystery box"
-          className="w-[140px] h-[140px]"
-        />
-        <div className="flex flex-col ml-8 gap-4">
-          <h1
-            className={classNames(
-              "text-base inline-block text-transparent bg-clip-text font-black",
-              {
-                "bg-gray-400": !isActive,
-                "bg-blue-pink-gradient": isActive,
-              },
-            )}
-          >
-            {title}
-          </h1>
-          <p className={classNames("text-purple-100 text-xs  font-black")}>
-            {isActive ? "OPEN NOW!" : "Come back later!"}
-          </p>
-          <MysteryBoxCategoryPill category={type} disabled={!isActive} />
+        <div
+          className={`flex flex-row items-center rounded-lg px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
+            isActive ? "cursor-pointer" : "cursor-not-allowed"
+          }`}
+          style={
+            {
+              "--angle": "0deg",
+              "--bg-color":
+                "linear-gradient(180deg, #5f5bd733 0%, #00000033 50%, #5f5bd733 100%), #333",
+            } as CSSProperties
+          }
+          onClick={() => {
+            rewardBoxHandler();
+          }}
+        >
+          <Image
+            src={isActive ? icon : OpenedMysteryBox}
+            alt="Mystery box"
+            className="w-[140px] h-[140px]"
+          />
+          <div className="flex flex-col ml-8 gap-4">
+            <h1
+              className={classNames(
+                "text-base inline-block text-transparent bg-clip-text font-black",
+                {
+                  "bg-gray-400": !isActive,
+                  "bg-blue-pink-gradient": isActive,
+                },
+              )}
+            >
+              {title}
+            </h1>
+            <p className={classNames("text-purple-100 text-xs  font-black")}>
+              {isActive ? "OPEN NOW!" : "Come back later!"}
+            </p>
+            <MysteryBoxCategoryPill category={type} disabled={!isActive} />
+          </div>
         </div>
       </div>
       {mystryBoxIds.length > 0 && (

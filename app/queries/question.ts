@@ -1,3 +1,4 @@
+import { isQuestionCalculatedAndPaidFor } from "@/lib/question";
 import { AnswerStatus, EBoxPrizeType, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
@@ -194,14 +195,11 @@ export async function getQuestionWithUserAnswer(questionId: number) {
           questionId,
         },
         include: {
-          MysteryBox: {
-            where: {
-              userId,
-            },
-          },
           MysteryBoxPrize: {
             where: {
-              prizeType: EBoxPrizeType.Credits,
+              prizeType: {
+                in: [EBoxPrizeType.Credits, EBoxPrizeType.Token],
+              },
             },
           },
         },
@@ -253,6 +251,11 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     answerCount: question.questionOptions[0].questionAnswers.length,
   });
 
+  const isCalculatedAndPaidFor =
+    question.creditCostPerQuestion !== null
+      ? await isQuestionCalculatedAndPaidFor(userId, question.id)
+      : true;
+
   return {
     ...question,
     chompResults: question.chompResults.map((chompResult) => ({
@@ -267,5 +270,6 @@ export async function getQuestionWithUserAnswer(questionId: number) {
       ...question.questionOptions.find((qo) => qo.id === qop.id),
     })),
     isQuestionRevealable,
+    isCalculatedAndPaidFor,
   };
 }
