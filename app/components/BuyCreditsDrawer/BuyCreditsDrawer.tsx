@@ -18,6 +18,8 @@ import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";
 
+Decimal.set({ toExpNeg: -128 });
+
 type BuyCreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -33,7 +35,7 @@ function BuyCreditsDrawer({
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(solPricePerCredit!)
     .mul(creditsToBuy)
-    .toNumber();
+    .toString();
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
@@ -99,7 +101,7 @@ function BuyCreditsDrawer({
           <DialogTitle>
             <div className="flex justify-between items-center mb-2">
               <p className="text-base text-secondary font-bold">
-                Buy {creditsToBuy} More Credits?
+                Buy {creditsToBuy} More Credit{creditsToBuy !== 1 ? "s" : ""}?
               </p>
               <div onClick={onClose}>
                 <CloseIcon width={16} height={16} />
@@ -112,7 +114,8 @@ function BuyCreditsDrawer({
             earn BONK rewards when answers are correct.
           </p>
           <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
-            {creditsToBuy} Credits ~ ${totalSolCost} SOL
+            {creditsToBuy} Credit{creditsToBuy !== 1 ? "s" : ""} ~ $
+            {totalSolCost} SOL
           </span>
           <Button
             onClick={buyCredits}

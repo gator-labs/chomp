@@ -15,14 +15,14 @@ async function Page() {
     const isUserEligibleForValidationReward: boolean =
       !!validationRewardQuestions && validationRewardQuestions.length > 0;
     return (
-      <>
+      <div className="mb-6">
         <ProfileNavigation />
         <MysteryBoxHub
           isUserEligibleForValidationReward={isUserEligibleForValidationReward}
         />
         <hr className="border-gray-600 my-2 p-0" />
         <MysteryBoxHistory />
-      </>
+      </div>
     );
   } else {
     throw new Error("Content Unavailable");

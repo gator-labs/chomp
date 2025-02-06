@@ -148,11 +148,23 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       const allQuestionAnswers = allQuestionOptions.flatMap((qo) =>
         qo.questionAnswers.filter((qa) => qa.status === AnswerStatus.Submitted),
       );
+
+      const isPaidQuestion =
+        questionOptions[0].question.creditCostPerQuestion &&
+        questionOptions[0].question.creditCostPerQuestion > 0;
+
       const fungibleAssetRevealTasks = [
         incrementFungibleAssetBalance({
           asset: FungibleAsset.Point,
-          amount: pointsPerAction[TransactionLogType.AnswerQuestion],
-          transactionLogType: TransactionLogType.AnswerQuestion,
+          amount:
+            pointsPerAction[
+              isPaidQuestion
+                ? TransactionLogType.AnswerPaidQuestion
+                : TransactionLogType.AnswerQuestion
+            ],
+          transactionLogType: isPaidQuestion
+            ? TransactionLogType.AnswerPaidQuestion
+            : TransactionLogType.AnswerQuestion,
           injectedPrisma: tx,
           questionIds: [request.questionId],
         }),

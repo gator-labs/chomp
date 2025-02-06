@@ -96,7 +96,7 @@ const DeckScreenAction = ({
         !hasEnoughCredits &&
         deckCreditCost !== null &&
         deckCreditCost > 0
-          ? `Buy ${creditsRequired} Credits`
+          ? `Buy ${creditsRequired} Credit${creditsRequired !== 1 ? "s" : ""}`
           : "Begin Deck"}
         <CircleArrowRight />
       </Button>
