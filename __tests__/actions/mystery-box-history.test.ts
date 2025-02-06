@@ -32,15 +32,25 @@ export async function deleteMysteryBoxesByUser(userId: string) {
       userId,
     },
     include: {
-      triggers: true,
-      MysteryBoxPrize: true,
+      triggers: {
+        select: {
+          id: true,
+          MysteryBoxPrize: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   await prisma.mysteryBoxPrize.deleteMany({
     where: {
       id: {
         in: boxes.flatMap((box) =>
-          box.MysteryBoxPrize.map((prize) => prize.id),
+          box.triggers.flatMap((trigger) =>
+            trigger.MysteryBoxPrize.map((prize) => prize.id),
+          ),
         ),
       },
     },

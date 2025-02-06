@@ -14,6 +14,7 @@ import { getJwtPayload } from "../jwt";
  * @returns {Promise<Array<string> | null>} - Returns an array of mystery box IDs or null.
  */
 export const rewardMysteryBoxHub = async ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type,
 }: {
   type: EMysteryBoxCategory;
@@ -34,8 +35,6 @@ export const rewardMysteryBoxHub = async ({
   if (!revealableQuestions?.length) {
     throw new Error("No revealable questions found");
   }
-
-  console.log(type);
 
   const questionIds = revealableQuestions.map((rq) => rq.id);
 

@@ -46,14 +46,14 @@ describe("getUserTotalCreditAmount", () => {
           triggers: {
             create: {
               triggerType: EBoxTriggerType.TutorialCompleted,
-            },
-          },
-          MysteryBoxPrize: {
-            create: {
-              prizeType: EBoxPrizeType.Credits,
-              amount: "100",
-              size: EPrizeSize.Small,
-              status: EBoxPrizeStatus.Claimed,
+              MysteryBoxPrize: {
+                create: {
+                  prizeType: EBoxPrizeType.Credits,
+                  amount: "100",
+                  size: EPrizeSize.Small,
+                  status: EBoxPrizeStatus.Claimed,
+                },
+              },
             },
           },
         },
@@ -65,14 +65,14 @@ describe("getUserTotalCreditAmount", () => {
           triggers: {
             create: {
               triggerType: EBoxTriggerType.TutorialCompleted,
-            },
-          },
-          MysteryBoxPrize: {
-            create: {
-              prizeType: EBoxPrizeType.Credits,
-              amount: "66",
-              size: EPrizeSize.Small,
-              status: EBoxPrizeStatus.Claimed,
+              MysteryBoxPrize: {
+                create: {
+                  prizeType: EBoxPrizeType.Credits,
+                  amount: "66",
+                  size: EPrizeSize.Small,
+                  status: EBoxPrizeStatus.Claimed,
+                },
+              },
             },
           },
         },
@@ -81,14 +81,26 @@ describe("getUserTotalCreditAmount", () => {
       mysteryBox1 = box.id;
       mysteryBox2 = box2.id;
 
-      const prizeId1 = (
-        await tx.mysteryBoxPrize.findFirstOrThrow({
-          where: { mysteryBoxId: box.id },
-        })
-      ).id;
+      const prizeId1 = await tx.mysteryBoxTrigger.findFirstOrThrow({
+        where: { mysteryBoxId: box.id },
+        include: {
+          MysteryBoxPrize: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
       const prizeId2 = (
-        await tx.mysteryBoxPrize.findFirstOrThrow({
+        await tx.mysteryBoxTrigger.findFirstOrThrow({
           where: { mysteryBoxId: box2.id },
+          include: {
+            MysteryBoxPrize: {
+              select: {
+                id: true,
+              },
+            },
+          },
         })
       ).id;
 
@@ -98,7 +110,7 @@ describe("getUserTotalCreditAmount", () => {
           asset: FungibleAsset.Credit,
           change: 100,
           userId: user1.id,
-          mysteryBoxPrizeId: prizeId1,
+          mysteryBoxPrizeId: prizeId1.MysteryBoxPrize[0].id,
         },
       });
 

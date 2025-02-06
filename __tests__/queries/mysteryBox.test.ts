@@ -2,9 +2,9 @@ import { getUnopenedMysteryBox } from "@/app/queries/mysteryBox";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { generateUsers } from "@/scripts/utils";
-import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import {
   EBoxPrizeStatus,
+  EBoxPrizeType,
   EBoxTriggerType,
   EMysteryBoxStatus,
 } from "@prisma/client";
@@ -88,22 +88,25 @@ describe("getUnopenedMysteryBox", () => {
       data: {
         userId: user1.id,
         status: EMysteryBoxStatus.Unopened,
-        triggers: {
-          createMany: {
-            data: {
-              questionId: questionIds[0],
-              triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
-              mysteryBoxAllowlistId: null,
-            },
-          },
-        },
+      },
+    });
+
+    await prisma.mysteryBoxTrigger.create({
+      data: {
+        questionId: questionIds[0],
+        triggerType: EBoxTriggerType.ValidationReward,
+        mysteryBoxId: box1.id,
         MysteryBoxPrize: {
-          create: {
-            status: EBoxPrizeStatus.Unclaimed,
-            prizeType: "Token",
-            amount: "40",
-            size: "Small",
-            tokenAddress: bonkAddress,
+          createMany: {
+            data: [
+              {
+                status: EBoxPrizeStatus.Unclaimed,
+                prizeType: EBoxPrizeType.Token,
+                size: "Small",
+                amount: "40",
+                tokenAddress: bonkAddress,
+              },
+            ],
           },
         },
       },
