@@ -290,6 +290,7 @@ model MysteryBoxPrize {
   mysteryBox                  MysteryBox                   @relation(fields: [mysteryBoxId], references: [id])
   mysteryBoxId                String
   fungibleAssetTransactionLog FungibleAssetTransactionLog?
+  claimChainTxId              ChainTx?                     @relation(fields: [claimHash], references: [hash])
 }
 
 model MysteryBoxAllowlist {
@@ -312,6 +313,7 @@ model ChainTx {
   finalizedAt                 DateTime?
   failedAt                    DateTime?
   FungibleAssetTransactionLog FungibleAssetTransactionLog[]
+  MysteryBoxPrize             MysteryBoxPrize[]
 
   @@index([hash])
 }
@@ -406,6 +408,7 @@ enum AnswerStatus {
 
 enum EChainTxType {
   CreditPurchase
+  MysteryBoxClaim
 }
 
 enum EChainTxStatus {
