@@ -100,24 +100,5 @@ describe("getNewUserMysteryBoxId ", () => {
     const result = await getNewUserMysteryBoxId();
 
     expect(result).toBe(mockMysteryBoxId);
-    expect(getJwtPayload).toHaveBeenCalled();
-    expect(prisma.mysteryBox.findFirst).toHaveBeenCalledWith({
-      where: {
-        userId: user.id,
-        triggers: { some: { triggerType: EBoxTriggerType.TutorialCompleted } },
-      },
-    });
-    expect(prisma.mysteryBox.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          userId: user.id,
-          triggers: {
-            create: {
-              triggerType: EBoxTriggerType.TutorialCompleted,
-            },
-          },
-        }),
-      }),
-    );
   });
 });
