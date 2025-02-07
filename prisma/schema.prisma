@@ -306,6 +306,8 @@ model ChainTx {
   wallet                      String
   type                        EChainTxType
   solAmount                   String
+  tokenAmount                 String?
+  tokenAddress                String?
   feeSolAmount                String?
   recipientAddress            String
   status                      EChainTxStatus                @default(New)
