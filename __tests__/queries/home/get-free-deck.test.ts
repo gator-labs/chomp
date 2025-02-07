@@ -51,6 +51,7 @@ describe("getPremiumDeck", () => {
         data: {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           deckQuestions: {
             create: {
@@ -61,6 +62,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  revealAtAnswerCount: null,
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
@@ -166,6 +168,7 @@ describe("getPremiumDeck", () => {
         data: {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           deckQuestions: {
             create: {
@@ -176,6 +179,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  revealAtAnswerCount: null,
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
@@ -281,6 +285,7 @@ describe("getPremiumDeck", () => {
         data: {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           deckQuestions: {
             create: {
@@ -291,6 +296,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                  revealAtAnswerCount: null,
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
