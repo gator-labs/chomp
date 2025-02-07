@@ -197,23 +197,20 @@ const ClaimButton = ({
             </span>
           </Pill>
         </div>
-        {/* Hide Claim for Questions having credit cost */}
-        {creditsPerQuestion === null && (
-          <div className="flex flex-col gap-4 w-full">
-            <Button
-              className={classNames(
-                "text-sm font-semibold text-left flex items-center justify-center",
-                className,
-                { "cursor-not-allowed opacity-50": isClaiming },
-              )}
-              onClick={onClick}
-              disabled={isClaiming}
-            >
-              <span>Claim</span>
-              <DollarIcon height={24} width={24} />
-            </Button>
-          </div>
-        )}
+        <div className="flex flex-col gap-4 w-full">
+          <Button
+            className={classNames(
+              "text-sm font-semibold text-left flex items-center justify-center",
+              className,
+              { "cursor-not-allowed opacity-50": isClaiming },
+            )}
+            onClick={onClick}
+            disabled={isClaiming || creditsPerQuestion === null} // Disable claim for legacy questions
+          >
+            <span>Claim</span>
+            <DollarIcon height={24} width={24} />
+          </Button>
+        </div>
       </div>
     );
   }
