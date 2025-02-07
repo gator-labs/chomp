@@ -140,7 +140,6 @@ describe("getPremiumDeck", () => {
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   revealAtAnswerCount: 3,
                   creditCostPerQuestion: 0,
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   durationMiliseconds: BigInt(60000),
                   questionOptions: {
                     create: [
@@ -217,7 +216,6 @@ describe("getPremiumDeck", () => {
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   revealAtAnswerCount: 2,
                   durationMiliseconds: BigInt(60000),
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
                     create: [
@@ -257,7 +255,6 @@ describe("getPremiumDeck", () => {
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   revealAtAnswerCount: 3,
                   durationMiliseconds: BigInt(60000),
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
                     create: [
@@ -293,7 +290,6 @@ describe("getPremiumDeck", () => {
                   question: "Question 7",
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
@@ -336,7 +332,6 @@ describe("getPremiumDeck", () => {
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   revealAtAnswerCount: 2,
                   durationMiliseconds: BigInt(60000),
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
                     create: [
