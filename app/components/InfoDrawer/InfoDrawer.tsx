@@ -8,23 +8,10 @@ type InfoDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  description: string;
+  children: React.ReactNode;
 };
 
-const InfoDrawer = ({
-  isOpen,
-  onClose,
-  title,
-  description,
-}: InfoDrawerProps) => {
-  const descriptionSections = description.split("\n").map((section, index) => {
-    return (
-      <p key={index} className="text-sm mb-6 mt-0">
-        {section}
-      </p>
-    );
-  });
-
+const InfoDrawer = ({ isOpen, onClose, title, children }: InfoDrawerProps) => {
   return (
     <Drawer open={isOpen}>
       <DrawerContent className="p-6 flex flex-col">
@@ -36,7 +23,7 @@ const InfoDrawer = ({
             </div>
           </div>
         </DialogTitle>
-        {descriptionSections}
+        {children}
 
         <Button onClick={onClose} className="h-[50px] font-bold">
           Close

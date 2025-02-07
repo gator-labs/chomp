@@ -22,8 +22,13 @@ function MysteryBoxHub({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="What is a Mystery Box?"
-        description={`Mystery Boxes are your gateway to exciting rewards! Each box contains surprises like credits or BONK that you can earn through different activities. The more you CHOMP, the more boxes you unlock!`}
-      />
+      >
+        <p className="text-sm mb-6 mt-0">
+          Mystery Boxes are your gateway to exciting rewards! Each box contains
+          surprises like credits or BONK that you can earn through different
+          activities. The more you CHOMP, the more boxes you unlock!
+        </p>
+      </InfoDrawer>
       <div className="bg-darkGray50 rounded-2xl p-2">
         <h1 className="flex items-center justify-center">
           <span className="bg-blue-pink-gradient text-transparent bg-clip-text font-black text-4xl py-2 mx-auo text-center">

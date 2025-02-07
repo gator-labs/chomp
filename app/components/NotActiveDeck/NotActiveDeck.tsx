@@ -21,6 +21,7 @@ type NotActiveDeckProps = {
   activeFrom: Date | null;
   deckCreditCost: number | null;
   blurData: string | undefined;
+  totalCredits: number;
 };
 
 const NotActiveDeck = ({
@@ -31,6 +32,7 @@ const NotActiveDeck = ({
   activeFrom,
   deckCreditCost,
   blurData,
+  totalCredits,
 }: NotActiveDeckProps) => {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState<string>("");
@@ -87,6 +89,7 @@ const NotActiveDeck = ({
         totalNumberOfQuestions={totalNumberOfQuestions || 0}
         deckCreditCost={deckCreditCost}
         blurData={blurData}
+        totalCredits={totalCredits}
       />
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px] w-full">
         <Button disabled>
