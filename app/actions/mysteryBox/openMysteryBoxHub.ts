@@ -6,6 +6,7 @@ import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
+  EChainTxStatus,
   EChainTxType,
   EMysteryBoxStatus,
   FungibleAsset,
@@ -144,6 +145,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
               wallet: treasury,
               recipientAddress: userWallet.address,
               type: EChainTxType.MysteryBoxClaim,
+              status: EChainTxStatus.Finalized,
               solAmount: "0",
               tokenAmount: totalBonkAmount.toString(),
               tokenAddress: bonkAddress,

@@ -8,6 +8,7 @@ import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
+  EChainTxStatus,
   EChainTxType,
   EMysteryBoxStatus,
 } from "@prisma/client";
@@ -175,6 +176,7 @@ export async function openMysteryBox(
                 wallet: treasury,
                 recipientAddress: userWallet.address,
                 type: EChainTxType.MysteryBoxClaim,
+                status: EChainTxStatus.Finalized,
                 solAmount: "0",
                 tokenAmount: prizeAmount.toString(),
                 tokenAddress: bonkAddress,
