@@ -1,10 +1,12 @@
 "use server";
 
+import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { OpenMysteryBoxError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
+  EChainTxType,
   EMysteryBoxStatus,
   FungibleAsset,
   TransactionLogType,
@@ -117,6 +119,8 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
 
     await prisma.$transaction(
       async (tx) => {
+        const txDate = new Date();
+
         await tx.fungibleAssetTransactionLog.createMany({
           data: creditPrizes.map((prize) => ({
             type: TransactionLogType.MysteryBox,
@@ -127,6 +131,23 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
           })),
         });
 
+        if (txHash) {
+          const treasury = await getTreasuryAddress();
+
+          if (!treasury) throw new Error("Treasury address not defined");
+
+          await tx.chainTx.create({
+            data: {
+              hash: txHash,
+              wallet: treasury,
+              recipientAddress: userWallet.address,
+              type: EChainTxType.MysteryBoxClaim,
+              solAmount: "0",
+              finalizedAt: txDate,
+            },
+          });
+        }
+
         await tx.mysteryBoxPrize.updateMany({
           where: {
             id: {
@@ -136,7 +157,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
           data: {
             status: EBoxPrizeStatus.Claimed,
             claimHash: txHash,
-            claimedAt: new Date(),
+            claimedAt: txDate,
           },
         });
 
