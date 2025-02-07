@@ -329,6 +329,7 @@ enum EBoxTriggerType {
   TutorialCompleted
   RevealAllCompleted
   ValidationReward
+  CombinedTriggers
 }
 
 enum EBoxPrizeStatus {
