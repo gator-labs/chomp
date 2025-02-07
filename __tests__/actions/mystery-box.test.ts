@@ -1,4 +1,3 @@
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
