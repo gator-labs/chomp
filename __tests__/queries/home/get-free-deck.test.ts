@@ -91,7 +91,7 @@ describe("getPremiumDeck", () => {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          revealAtAnswerCount: 2,
+          revealAtAnswerCount: null,
           deckQuestions: {
             create: {
               question: {
@@ -101,7 +101,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  revealAtAnswerCount: 2,
+                  revealAtAnswerCount: null,
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
@@ -128,7 +128,7 @@ describe("getPremiumDeck", () => {
       {
         data: {
           deck: `deck ${new Date().getTime()}`,
-          revealAtAnswerCount: 3,
+          revealAtAnswerCount: null,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           deckQuestions: {
@@ -140,7 +140,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  revealAtAnswerCount: 3,
+                  revealAtAnswerCount: null,
                   creditCostPerQuestion: 0,
                   durationMiliseconds: BigInt(60000),
                   questionOptions: {
@@ -208,7 +208,7 @@ describe("getPremiumDeck", () => {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          revealAtAnswerCount: 2,
+          revealAtAnswerCount: null,
           deckQuestions: {
             create: {
               question: {
@@ -218,7 +218,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  revealAtAnswerCount: 2,
+                  revealAtAnswerCount: null,
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
@@ -247,7 +247,7 @@ describe("getPremiumDeck", () => {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          revealAtAnswerCount: 3,
+          revealAtAnswerCount: null,
           deckQuestions: {
             create: {
               question: {
@@ -257,7 +257,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  revealAtAnswerCount: 3,
+                  revealAtAnswerCount: null,
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
@@ -326,7 +326,7 @@ describe("getPremiumDeck", () => {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          revealAtAnswerCount: 2,
+          revealAtAnswerCount: null,
           deckQuestions: {
             create: {
               question: {
@@ -336,7 +336,7 @@ describe("getPremiumDeck", () => {
                   type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  revealAtAnswerCount: 2,
+                  revealAtAnswerCount: null,
                   durationMiliseconds: BigInt(60000),
                   creditCostPerQuestion: 0,
                   questionOptions: {
