@@ -15,6 +15,7 @@ function Users() {
       const addresses = val
         .split(",")
         .map((address) => address.trim())
+        .map((address) => address.replace(/^["']|["']$/g, "").trim())
         .filter(Boolean);
       return (
         addresses.length > 0 &&
@@ -36,6 +37,7 @@ function Users() {
     const wallets = data.wallet
       .split(",")
       .map((address: string) => address.trim())
+      .map((address: string) => address.replace(/^["']|["']$/g, "").trim())
       .filter(Boolean)
       .filter(
         (address: string, index: number, self: string[]) =>
