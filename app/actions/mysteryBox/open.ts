@@ -51,7 +51,7 @@ export async function openMysteryBox(
 
   const txHashes: Record<string, string> = {};
 
-  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
+  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS || "";
 
   const release = await acquireMutex({
     identifier: "OPEN_MYSTERY_BOX",
@@ -176,6 +176,8 @@ export async function openMysteryBox(
                 recipientAddress: userWallet.address,
                 type: EChainTxType.MysteryBoxClaim,
                 solAmount: "0",
+                tokenAmount: prizeAmount.toString(),
+                tokenAddress: bonkAddress,
                 finalizedAt: txDate,
               },
             });

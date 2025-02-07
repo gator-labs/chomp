@@ -90,6 +90,8 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
   let totalBonkAmount = 0;
   let totalCreditAmount = 0;
 
+  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS || "";
+
   try {
     const allPrizes = rewards.flatMap((item) => item.MysteryBoxPrize);
     const tokenPrizes = allPrizes.filter(
@@ -143,6 +145,8 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
               recipientAddress: userWallet.address,
               type: EChainTxType.MysteryBoxClaim,
               solAmount: "0",
+              tokenAmount: totalBonkAmount.toString(),
+              tokenAddress: bonkAddress,
               finalizedAt: txDate,
             },
           });
