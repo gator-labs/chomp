@@ -13,11 +13,13 @@ function MysteryBoxReward({
   type,
   isActive,
   icon,
+  onClaim,
 }: {
   title: string;
   type: EMysteryBoxCategory;
   isActive: boolean;
   icon: StaticImageData;
+  onClaim?: () => void;
 }) {
   const [showBoxOverlay, setShowBoxOverlay] = useState(false);
   const [mystryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
@@ -34,6 +36,7 @@ function MysteryBoxReward({
       });
       if (res) {
         setMysteryBoxIds(res);
+        onClaim && onClaim();
       }
     } catch {
       console.log("Failed to open the Mystery Box. Please try again later. 😔");
