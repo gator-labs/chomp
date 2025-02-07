@@ -19,7 +19,7 @@
     },
     {
       "path": "/api/cron/calculate-correct-answers",
-      "schedule": "*/5 * * * *"
+      "schedule": "* * * * *"
     }
   ]
 }
