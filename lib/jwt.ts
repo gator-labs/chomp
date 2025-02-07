@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export const checkThreatLevel = async (userId: string) => {
   const user = await prisma.user.findFirst({ where: { id: userId } });
   if (!user) throw new Error("User not found");
-  if (user.threatLevel) {
+  if (user.threatLevel === "bot") {
     throw new UserThreatLevelDetected("User threat level detected");
   }
 };

@@ -27,7 +27,7 @@ describe("Threat level blocking", () => {
   let users: { username: string; id: string }[];
 
   beforeAll(async () => {
-    users = await generateUsers(2);
+    users = await generateUsers(3);
 
     await prisma.user.create({
       data: { id: users[0].id },
@@ -36,13 +36,17 @@ describe("Threat level blocking", () => {
     await prisma.user.create({
       data: { id: users[1].id, threatLevel: "bot" },
     });
+
+    await prisma.user.create({
+      data: { id: users[2].id, threatLevel: "manual-allow" },
+    });
   });
 
   afterAll(async () => {
     await prisma.user.deleteMany({
       where: {
         id: {
-          in: [users[0].id, users[1].id],
+          in: [users[0].id, users[1].id, users[2].id],
         },
       },
     });
@@ -61,5 +65,12 @@ describe("Threat level blocking", () => {
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[1].id });
 
     expect(getCurrentUser).rejects.toThrow(UserThreatLevelDetected);
+  });
+
+  it("should allow a manually-permitted 'bot' to validate a session", async () => {
+    (getTokenFromCookie as jest.Mock).mockResolvedValue("token_888");
+    (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[2].id });
+
+    expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
   });
 });
