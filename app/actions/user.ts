@@ -14,41 +14,51 @@ export async function addCredits({
   wallets: string[];
   credits: number;
 }) {
-  const isAdmin = await getIsUserAdmin();
+  try {
+    const isAdmin = await getIsUserAdmin();
 
-  if (!isAdmin) {
-    redirect("/application");
-  }
+    if (!isAdmin) {
+      redirect("/application");
+    }
 
-  const walletsData = await prisma.wallet.findMany({
-    where: {
-      address: {
-        in: wallets,
-      },
-    },
-  });
-
-  // Check if all wallets were found
-  if (walletsData.length !== wallets.length) {
-    const validAddresses = new Set(walletsData.map((w) => w.address));
-    const notFound = wallets.filter((w) => !validAddresses.has(w));
-    throw new Error(
-      `Some wallet addresses were not found: ${notFound.join(", ")}`,
-    );
-  }
-
-  await prisma.$transaction(
-    walletsData.map((wallet) =>
-      prisma.fungibleAssetTransactionLog.create({
-        data: {
-          change: credits,
-          userId: wallet.userId,
-          asset: FungibleAsset.Credit,
-          type: TransactionLogType.CreditByAdmin,
+    const walletsData = await prisma.wallet.findMany({
+      where: {
+        address: {
+          in: wallets,
         },
-      }),
-    ),
-  );
+      },
+    });
 
-  revalidatePath("/admin/users");
+    // Check if all wallets were found
+    if (walletsData.length !== wallets.length) {
+      const validAddresses = new Set(walletsData.map((w) => w.address));
+      const notFound = wallets.filter((w) => !validAddresses.has(w));
+      return {
+        success: false,
+        error: `Some wallet addresses were not found: ${notFound.join(", ")}`,
+      };
+    }
+
+    await prisma.$transaction(
+      walletsData.map((wallet) =>
+        prisma.fungibleAssetTransactionLog.create({
+          data: {
+            change: credits,
+            userId: wallet.userId,
+            asset: FungibleAsset.Credit,
+            type: TransactionLogType.CreditByAdmin,
+          },
+        }),
+      ),
+    );
+
+    revalidatePath("/admin/users");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : "An unexpected error occurred",
+    };
+  }
 }

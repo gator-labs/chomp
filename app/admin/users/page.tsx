@@ -52,12 +52,14 @@ function Users() {
     ) {
       return;
     }
-    try {
-      await addCredits({ wallets, credits: data.credits });
+
+    const result = await addCredits({ wallets, credits: data.credits });
+
+    if (result.success) {
       reset();
       successToast(`Gave ${wallets.length} users ${data.credits} credits`);
-    } catch (e) {
-      errorToast(e instanceof Error ? e.message : "An error occurred");
+    } else {
+      errorToast(result.error || "An error occurred");
     }
   });
 
