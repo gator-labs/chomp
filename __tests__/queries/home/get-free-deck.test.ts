@@ -1,6 +1,7 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getFreeDecks } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
+import { QuestionType } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 jest.mock("@/lib/auth", () => ({
@@ -57,7 +58,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 1",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   durationMiliseconds: BigInt(60000),
@@ -87,6 +88,7 @@ describe("getPremiumDeck", () => {
         data: {
           deck: `deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+          activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: 2,
           deckQuestions: {
             create: {
@@ -94,7 +96,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 2",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtAnswerCount: 2,
                   durationMiliseconds: BigInt(60000),
@@ -132,7 +134,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 3",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtAnswerCount: 3,
                   creditCostPerQuestion: 0,
@@ -170,7 +172,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 4",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   durationMiliseconds: BigInt(60000),
@@ -208,7 +210,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 5",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtAnswerCount: 2,
                   durationMiliseconds: BigInt(60000),
@@ -247,7 +249,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 6",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtAnswerCount: 3,
                   durationMiliseconds: BigInt(60000),
@@ -285,7 +287,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 7",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                   durationMiliseconds: BigInt(60000),
@@ -324,7 +326,7 @@ describe("getPremiumDeck", () => {
                 create: {
                   stackId: null,
                   question: "Question 8",
-                  type: "BinaryQuestion",
+                  type: QuestionType.BinaryQuestion,
                   revealTokenAmount: 10,
                   revealAtAnswerCount: 2,
                   durationMiliseconds: BigInt(60000),
