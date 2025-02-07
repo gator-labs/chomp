@@ -36,7 +36,7 @@ function MysteryBoxReward({
       });
       if (res) {
         setMysteryBoxIds(res);
-        onClaim && onClaim();
+        if (onClaim) onClaim();
       }
     } catch {
       console.log("Failed to open the Mystery Box. Please try again later. 😔");
