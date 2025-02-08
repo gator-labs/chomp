@@ -1,5 +1,6 @@
 "use server";
 
+import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { OpenMysteryBoxError, SendBonkError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
@@ -7,6 +8,8 @@ import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
+  EChainTxStatus,
+  EChainTxType,
   EMysteryBoxStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
@@ -49,7 +52,7 @@ export async function openMysteryBox(
 
   const txHashes: Record<string, string> = {};
 
-  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS;
+  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS || "";
 
   const release = await acquireMutex({
     identifier: "OPEN_MYSTERY_BOX",
@@ -148,6 +151,8 @@ export async function openMysteryBox(
 
       await prisma.$transaction(
         async (tx) => {
+          const txDate = new Date();
+
           if (prize.prizeType == EBoxPrizeType.Credits) {
             await tx.fungibleAssetTransactionLog.create({
               data: {
@@ -160,6 +165,26 @@ export async function openMysteryBox(
             });
           }
 
+          if (sendTx) {
+            const treasury = await getTreasuryAddress();
+
+            if (!treasury) throw new Error("Treasury address not defined");
+
+            await tx.chainTx.create({
+              data: {
+                hash: sendTx,
+                wallet: treasury,
+                recipientAddress: userWallet.address,
+                type: EChainTxType.MysteryBoxClaim,
+                status: EChainTxStatus.Finalized,
+                solAmount: "0",
+                tokenAmount: prizeAmount.toString(),
+                tokenAddress: bonkAddress,
+                finalizedAt: txDate,
+              },
+            });
+          }
+
           await tx.mysteryBoxPrize.update({
             where: {
               id: prize.id,
@@ -167,7 +192,7 @@ export async function openMysteryBox(
             data: {
               status: EBoxPrizeStatus.Claimed,
               claimHash: sendTx,
-              claimedAt: new Date(),
+              claimedAt: txDate,
             },
           });
         },

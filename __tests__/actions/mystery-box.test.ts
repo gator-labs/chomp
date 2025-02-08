@@ -20,7 +20,13 @@ import {
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
   sendBonkFromTreasury: jest.fn(async () =>
-    faker.string.hexadecimal({ length: 88 }),
+    faker.string.hexadecimal({ length: 86 }),
+  ),
+}));
+
+jest.mock("@/actions/getTreasuryAddress", () => ({
+  getTreasuryAddress: jest.fn(async () =>
+    faker.string.hexadecimal({ length: 40 }),
   ),
 }));
 
@@ -398,6 +404,18 @@ describe("Create mystery box", () => {
 
     expect(box?.status).toBe(EMysteryBoxStatus.Opened);
     expect(box?.MysteryBoxPrize[0].status).toBe(EBoxPrizeStatus.Claimed);
+
+    const chainTx = await prisma.chainTx.findUnique({
+      where: {
+        hash: txHashes?.[bonkAddress],
+      },
+    });
+
+    expect(chainTx).toBeDefined();
+    expect(chainTx?.solAmount).toBe("0");
+    expect(chainTx?.tokenAmount).toBe("4500");
+    expect(chainTx?.tokenAddress).toBe(bonkAddress);
+    expect(chainTx?.recipientAddress).toBe(user0.wallet);
   });
 
   it("Should disallow opening an opened mystery box", async () => {
