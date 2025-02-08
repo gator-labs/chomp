@@ -1,5 +1,6 @@
 import { getQuestionsNeedingCorrectAnswer } from "@/app/queries/answers";
 import { calculateCorrectAnswer } from "@/app/utils/algo";
+import { tryAcquireMutex } from "@/app/utils/mutex";
 
 /**
  * Checks for questions whose revealDate has passed (or which have
@@ -12,6 +13,23 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${secret}`) {
     return new Response("Unauthorized", { status: 401 });
+  }
+
+  const release = await tryAcquireMutex({
+    identifier: "CALCULATE_ANSWERS_CRON",
+    data: {},
+  });
+
+  if (release === null) {
+    return new Response(
+      JSON.stringify({
+        message: "Calculation already in progress",
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 
   try {
@@ -34,5 +52,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("Error:", error);
     return new Response("Internal Server Error", { status: 500 });
+  } finally {
+    release();
   }
 }

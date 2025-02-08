@@ -228,18 +228,16 @@ export async function getNewHistoryQuery(
     q.question AS "question",
     q."revealAtDate" AS "revealAtDate",
     CASE
-        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
-        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
-        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
-        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
-        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected = true THEN 1 ELSE NULL END ) > 1 THEN 'unrevealed'
-        ELSE 'unrevealed'
+        WHEN COUNT(CASE WHEN qa.selected IS NOT NULL THEN 1 ELSE NULL END) = 0 THEN 'unanswered'
+        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() THEN 1 ELSE NULL END) > 0 THEN 'unrevealed'
+        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
+        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
     END AS "indicatorType"
 FROM "Question" q
          JOIN
      public."QuestionOption" qo ON qo."questionId" = q.id
          LEFT JOIN
-     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected = true OR qa.selected = null
+     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected IS TRUE
          LEFT JOIN
      public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = ${userId} AND cr."questionId" IS NOT NULL
          JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
@@ -269,17 +267,16 @@ export async function getHistoryHeadersData(
     q.question,
     q."revealAtDate",
     CASE
-        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
-        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
-        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
-        WHEN COUNT(CASE WHEN q."revealAtDate" < NOW() AND qa.selected IS NULL THEN 1 ELSE NULL END) > 1 THEN 'unanswered'
-        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() AND qa.selected = true THEN 1 ELSE NULL END ) > 1 THEN  'unrevealed'
+        WHEN COUNT(CASE WHEN qa.selected IS NOT NULL THEN 1 ELSE NULL END) = 0 THEN 'unanswered'
+        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() THEN 1 ELSE NULL END) > 0 THEN 'unrevealed'
+        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
+        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."isCorrect" = false THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
     END AS questionStatus
 FROM "Question" q
          JOIN
      public."QuestionOption" qo ON qo."questionId" = q.id
          LEFT JOIN
-     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected = true OR qa.selected = null
+     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected IS TRUE
          LEFT JOIN
      public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = ${userId} AND cr."questionId" IS NOT NULL
          JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
