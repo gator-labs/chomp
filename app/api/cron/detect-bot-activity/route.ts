@@ -37,7 +37,7 @@ export async function GET(request: Request) {
     const results = await response.json();
     const response = fetch(
       "https://mechanism-engine.vercel.app/api/chomp/bot-detector",
-      { signal: AbortSignal.timeout(FIVE_MINUTES) },
+      { signal: AbortSignal.timeout(API_TIMEOUT) },
     );
 
     if (!("mean_bot_score" in results) || !results["mean_bot_score"])
