@@ -112,68 +112,73 @@ const PreviewDeckCard = ({
       </div>
       <InfoDrawer isOpen={isOpen} onClose={onClose} title="What are credits?">
         {deckCreditCost !== 0 ? (
-          <p className="text-sm mb-6 mt-0">
-            {hasEnoughCredits ? deckCreditCost : creditsRequired} Credit
-            {hasEnoughCredits
-              ? deckCreditCost !== 1
-                ? "s"
-                : ""
-              : creditsRequired !== 1
-                ? "s"
-                : ""}{" "}
-            {hasEnoughCredits
-              ? deckCreditCost === 1
-                ? "is"
-                : "are"
-              : creditsRequired === 1
-                ? "is"
-                : "are"}{" "}
-            required to answer this deck. <br />
-            <br />
-            Each question in this deck costs {creditsPerQuestion} Credit
-            {creditsPerQuestion !== 1 ? "s" : ""} to answer. Since there{" "}
-            {totalNumberOfQuestions > 1 ? "are" : "is"} {totalNumberOfQuestions}{" "}
-            question{totalNumberOfQuestions !== 1 ? "s" : ""} in this deck,
-            answering
-            {totalNumberOfQuestions} question
-            {totalNumberOfQuestions !== 1 ? "s" : ""} in this deck, answering
-            the entire deck costs {deckCreditCost} Credit
-            {deckCreditCost !== 1 ? "s" : ""}. You are only charged for
-            questions you see.
-            <br /> <br />
-            <b className="text-chomp-blue-light">Validate decks</b> allow you to
-            earn BONK rewards. You&apos;ll get your Credits back for giving the
-            best answer for the first order question, and up to an additional
-            BONK per question depending on the accuracy of your second order
-            response. <br />
-            <br />
-            To learn more about rewards, read our documentation{" "}
-            <a
-              href="https://docs.chomp.games/how-to-earn"
-              target="_blank"
-              className="text-secondary underline"
-            >
-              here
-            </a>
-          </p>
+          <div className="text-sm mb-6 space-y-4">
+            <p>
+              {hasEnoughCredits ? deckCreditCost : creditsRequired} Credit
+              {hasEnoughCredits
+                ? deckCreditCost !== 1
+                  ? "s"
+                  : ""
+                : creditsRequired !== 1
+                  ? "s"
+                  : ""}{" "}
+              {hasEnoughCredits
+                ? deckCreditCost === 1
+                  ? "is"
+                  : "are"
+                : creditsRequired === 1
+                  ? "is"
+                  : "are"}{" "}
+              required to answer this deck.
+            </p>
+            <p>
+              Each question in this deck costs {creditsPerQuestion} Credit
+              {creditsPerQuestion !== 1 ? "s" : ""} to answer. Since there{" "}
+              {totalNumberOfQuestions > 1 ? "are" : "is"}{" "}
+              {totalNumberOfQuestions} question
+              {totalNumberOfQuestions !== 1 ? "s" : ""} in this deck, answering{" "}
+              {totalNumberOfQuestions} question
+              {totalNumberOfQuestions !== 1 ? "s" : ""} in this deck, answering
+              the entire deck costs {deckCreditCost} Credit
+              {deckCreditCost !== 1 ? "s" : ""}. You are only charged for
+              questions you see.
+            </p>
+            <p>
+              <b className="text-chomp-blue-light">Validate decks</b> allow you
+              to earn BONK rewards. You&apos;ll get your Credits back for giving
+              the best answer for the first order question, and up to an
+              additional BONK per question depending on the accuracy of your
+              second order response.
+            </p>
+            <p>
+              To learn more about rewards, read our documentation{" "}
+              <a
+                href="https://docs.chomp.games/how-to-earn"
+                target="_blank"
+                className="text-secondary underline"
+              >
+                here
+              </a>
+            </p>
+          </div>
         ) : (
-          <p className="text-sm mb-6 mt-0">
-            You can answer this deck without using Credits!
-            <br />
-            <br />
-            <b className="text-[#D0CBB4]">Practice decks</b> allow you to earn
-            streaks or points without earning BONK.
-            <br />
-            <br />
-            To learn more about rewards, read our documentation{" "}
-            <a
-              href="https://docs.chomp.games/how-to-earn"
-              target="_blank"
-              className="text-secondary underline"
-            >
-              here
-            </a>
-          </p>
+          <div className="text-sm mb-6 space-y-4">
+            <p>You can answer this deck without using Credits!</p>
+            <p>
+              <b className="text-[#D0CBB4]">Practice decks</b> allow you to earn
+              streaks or points without earning BONK.
+            </p>
+            <p>
+              To learn more about rewards, read our documentation{" "}
+              <a
+                href="https://docs.chomp.games/how-to-earn"
+                target="_blank"
+                className="text-secondary underline"
+              >
+                here
+              </a>
+            </p>
+          </div>
         )}
       </InfoDrawer>
     </QuestionCardLayout>

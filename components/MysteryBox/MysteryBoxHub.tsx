@@ -23,7 +23,7 @@ function MysteryBoxHub({
         onClose={() => setIsOpen(false)}
         title="What is a Mystery Box?"
       >
-        <p className="text-sm mb-6 mt-0">
+        <p className="text-sm mb-6">
           Mystery Boxes are your gateway to exciting rewards! Each box contains
           surprises like credits or BONK that you can earn through different
           activities. The more you CHOMP, the more boxes you unlock!
