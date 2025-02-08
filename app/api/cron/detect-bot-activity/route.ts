@@ -34,11 +34,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    const results = await response.json();
-    const response = fetch(
+    const response = await fetch(
       "https://mechanism-engine.vercel.app/api/chomp/bot-detector",
       { signal: AbortSignal.timeout(API_TIMEOUT) },
     );
+
+    const results = await response.json();
 
     if (!("mean_bot_score" in results) || !results["mean_bot_score"])
       throw new Error("Missing field in bot detector API results");
