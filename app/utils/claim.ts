@@ -109,6 +109,17 @@ export const sendBonk = async (
 
     // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
     instructions.unshift(computeUnitsIx);
+  } else {
+    // based on recent ATA creation CU consumption
+    // https://solscan.io/tx/37aEx5VpNMLXrKrMYPoGFbUmhg2YBGgvR3azHY17mWk1uupve229jhdyJWxA3HHAuJq8mtmeQBSR7dkuvhnVYbgs
+    const computeUnitFix = 27695;
+
+    // Buffer to compensate any additional usage
+    const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: Math.round(computeUnitFix * 1.05),
+    });
+
+    instructions.unshift(computeUnitsIx);
   }
 
   blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
