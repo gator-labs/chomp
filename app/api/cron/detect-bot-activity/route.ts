@@ -1,7 +1,5 @@
-import { getQuestionsNeedingCorrectAnswer } from "@/app/queries/answers";
-import { calculateCorrectAnswer } from "@/app/utils/algo";
 import { tryAcquireMutex } from "@/app/utils/mutex";
-import { isBotUpdateNeeded, updateBots } from "@/lib/bots";
+import { updateBots } from "@/lib/bots";
 
 const API_TIMEOUT = 5 * 60 * 1000; // Five minutes
 
