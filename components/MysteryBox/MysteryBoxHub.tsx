@@ -1,7 +1,9 @@
 "use client";
 
+import MysteryBoxHistory from "@/components/MysteryBoxHub/MysteryBoxHistory";
 import MysteryBoxIcon from "@/public/images/validation-mystery-box.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
+import { useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 
 import { InfoIcon } from "../../app/components/Icons/InfoIcon";
@@ -16,6 +18,10 @@ function MysteryBoxHub({
   isUserEligibleForValidationReward,
 }: MysteryBoxHubProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const refreshHistory = () => {
+    queryClient.invalidateQueries({ queryKey: ["mystery-boxes"] });
+  };
   return (
     <>
       <InfoDrawer
@@ -41,8 +47,11 @@ function MysteryBoxHub({
           isActive={isUserEligibleForValidationReward}
           icon={MysteryBoxIcon}
           type={EMysteryBoxCategory.Validation}
+          onClaim={refreshHistory}
         />
       </div>
+      <hr className="border-gray-600 my-2 p-0" />
+      <MysteryBoxHistory />
     </>
   );
 }

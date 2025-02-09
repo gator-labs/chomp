@@ -11,7 +11,18 @@ function Users() {
   const { successToast, errorToast } = useToast();
 
   const userSchema = z.object({
-    wallet: z.string().min(32),
+    wallet: z.string().refine((val) => {
+      const addresses = val
+        .split(",")
+        .map((address) => address.trim())
+        .map((address) => address.replace(/^["']|["']$/g, "").trim())
+        .filter(Boolean);
+      return (
+        addresses.length > 0 &&
+        addresses.every((address) => address.length >= 32)
+      );
+    }, "Please provide valid wallet addresses separated by commas"),
+
     credits: z.number(),
   });
 
@@ -23,16 +34,32 @@ function Users() {
   } = useForm({ resolver: zodResolver(userSchema) });
 
   const onSubmit = handleSubmit(async (data) => {
+    const wallets = data.wallet
+      .split(",")
+      .map((address: string) => address.trim())
+      .map((address: string) => address.replace(/^["']|["']$/g, "").trim())
+      .filter(Boolean)
+      .filter(
+        (address: string, index: number, self: string[]) =>
+          self.indexOf(address) === index,
+      );
+
     // If user doesn't confirm, return
-    if (!window.confirm(`Give ${data.wallet} user ${data.credits} credits?`)) {
+    if (
+      !window.confirm(
+        `Give ${wallets.length} user${wallets.length > 1 ? "s" : ""} ${data.credits} credits each?`,
+      )
+    ) {
       return;
     }
-    try {
-      await addCredits({ wallet: data.wallet, credits: data.credits });
+
+    const result = await addCredits({ wallets, credits: data.credits });
+
+    if (result.success) {
       reset();
-      successToast(`Gave ${data.wallet} user ${data.credits}`);
-    } catch (e) {
-      errorToast(e instanceof Error ? e.message : "An error occurred");
+      successToast(`Gave ${wallets.length} users ${data.credits} credits`);
+    } else {
+      errorToast(result.error || "An error occurred");
     }
   });
 
@@ -45,13 +72,13 @@ function Users() {
             htmlFor="wallet"
             className="block text-sm font-medium text-gray-300"
           >
-            User Wallet Address:
+            User Wallet Addresses (comma separated):
           </label>
           <input
             id="wallet"
             type="text"
             required
-            placeholder="9JsrKKvEAvBdL4FRiZW8uMq7coiGCvLLWeUy5Ah98u85"
+            placeholder="9Jsr...8u85, BsK5...rn6p, Fc0k...2uiQ"
             className="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
             {...register("wallet")}
           />
