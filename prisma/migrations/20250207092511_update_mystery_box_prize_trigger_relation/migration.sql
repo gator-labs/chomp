@@ -1,5 +1,6 @@
 -- Step 1: Add the new value to the enum type
-ALTER TYPE "EBoxTriggerType" ADD VALUE 'CombinedTriggers';
+ALTER TYPE "EBoxTriggerType" ADD VALUE 'Combined';
+COMMIT;
 
 -- Step 2: Add the new column
 ALTER TABLE "MysteryBoxPrize" ADD COLUMN "mysteryBoxTriggerId" TEXT;
@@ -26,10 +27,10 @@ WITH new_triggers AS (
     WHERE mbt."triggerType" IN ('ClaimAllCompleted', 'RevealAllCompleted')
     ORDER BY mbt."mysteryBoxId", mbt."id"
 ),
--- Insert new triggers with 'CombinedTriggers' for each distinct mysteryBoxId
+-- Insert new triggers with 'Combined' for each distinct mysteryBoxId
 inserted_triggers AS (
     INSERT INTO "MysteryBoxTrigger" ("id", "mysteryBoxId", "triggerType")
-    SELECT gen_random_uuid(), nt."mysteryBoxId", 'CombinedTriggers'
+    SELECT gen_random_uuid(), nt."mysteryBoxId", 'Combined'
     FROM new_triggers nt
     RETURNING "id", "mysteryBoxId"
 )

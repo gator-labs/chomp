@@ -317,9 +317,6 @@ describe("Create mystery box", () => {
       },
       include: {
         triggers: {
-          select: {
-            id: true,
-          },
           include: {
             MysteryBoxPrize: true,
           },
@@ -430,7 +427,9 @@ describe("Create mystery box", () => {
 
     expect(box?.status).toBe(EMysteryBoxStatus.Opened);
 
-    expect(box?.MysteryBoxPrize[0].status).toBe(EBoxPrizeStatus.Claimed);
+    expect(box?.triggers[0].MysteryBoxPrize[0].status).toBe(
+      EBoxPrizeStatus.Claimed,
+    );
 
     const chainTx = await prisma.chainTx.findUnique({
       where: {
