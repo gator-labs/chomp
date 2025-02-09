@@ -46,7 +46,7 @@ export async function DashboardUserStats() {
       />
       <StatsBox
         title={`${totalCredits.toLocaleString("en-US")} Credits`}
-        description="Earned to date"
+        description="Credits Balance"
         icon={<CreditCardIcon width={25} height={25} />}
         drawerProps={{
           title: "Credits Earned",

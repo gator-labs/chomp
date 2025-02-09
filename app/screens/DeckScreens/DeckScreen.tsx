@@ -77,6 +77,7 @@ const DeckScreen = ({
             {...deckInfo}
             stackImage={stackImage}
             totalNumberOfQuestions={questions.length}
+            totalCredits={totalCredits}
             deckCreditCost={deckCreditCost}
             blurData={blurData}
           />

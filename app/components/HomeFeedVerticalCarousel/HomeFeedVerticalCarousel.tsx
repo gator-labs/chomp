@@ -28,8 +28,33 @@ export function HomeFeedVerticalCarousel({
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Choose your path: Validate or Practice"
-        description={`Validate: These paid decks help build trusted information and offer rewards for correct answers.\n Practice: Play without paying and learn at your own pace. While these decks don't offer rewards, you might discover some fun surprises along the way.`}
-      />
+      >
+        <div className="text-sm mb-6 space-y-4">
+          <b className="text-chomp-blue-light">Validate</b>
+          <p>
+            These paid decks help build trusted information and offer rewards
+            for correct answers.
+          </p>
+          <div>
+            <b className="text-[#D0CBB4]">Practice</b>
+          </div>
+          <p>
+            Play without paying and learn at your own pace. While these decks
+            don&apos;t offer rewards, you might discover some fun surprises
+            along the way.
+          </p>
+          <p>
+            To learn more about how rewards work, read our documentation{" "}
+            <a
+              href="https://docs.chomp.games/how-to-earn"
+              target="_blank"
+              className="text-secondary underline"
+            >
+              here
+            </a>
+          </p>
+        </div>
+      </InfoDrawer>
 
       <div className={className}>
         <div className="flex justify-between items-center mb-2">
