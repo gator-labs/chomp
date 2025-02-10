@@ -48,14 +48,14 @@ describe("queryExpiringDecks", () => {
         tx.deck.create({
           data: {
             deck: "Deck 1",
-            date: new Date(),
+            activeFromDate: dayjs().startOf("day").toDate(),
             revealAtDate: dayjs().add(1, "day").toDate(),
           },
         }),
         tx.deck.create({
           data: {
             deck: "Deck 2",
-            date: new Date(),
+            activeFromDate: dayjs().startOf("day").toDate(),
             revealAtDate: dayjs().add(1, "day").toDate(),
           },
         }),
