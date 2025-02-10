@@ -134,14 +134,20 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   });
 
   const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
-
   const deckCreditCost = deckQuestions.every(
     (dq) => dq?.question?.creditCostPerQuestion == null,
   )
     ? null
-    : deckQuestions.reduce((total, dq) => {
-        return total + (dq?.question?.creditCostPerQuestion || 0);
-      }, 0);
+    : deckQuestions
+        .flatMap((dq) => dq.question)
+        .filter((question) =>
+          question.questionOptions.some(
+            (qo) => qo.questionAnswers.length === 0,
+          ),
+        )
+        .reduce((total, q) => {
+          return total + (q?.creditCostPerQuestion || 0);
+        }, 0);
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
