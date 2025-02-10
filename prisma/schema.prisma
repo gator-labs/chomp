@@ -30,7 +30,7 @@ model User {
   twitterUsername             String?                       @unique
   isBotSubscriber             Boolean                       @default(false)
   threatLevel                 String?
-  threatLevelChangedAt        DateTime?
+  threatLevelWindow           DateTime?                     @db.Date
   MysteryBox                  MysteryBox[]
 }
 

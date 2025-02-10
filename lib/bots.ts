@@ -14,7 +14,7 @@ import * as Sentry from "@sentry/nextjs";
 export const updateBots = async (
   bots: string[],
   analysisWindowStart: Date,
-  _analysisWindowEnd: Date,
+  analysisWindowEnd: Date,
 ) => {
   const reoffenders = await prisma.user.findMany({
     where: {
@@ -42,6 +42,7 @@ export const updateBots = async (
   await prisma.user.updateMany({
     data: {
       threatLevel: "bot",
+      threatLevelWindow: analysisWindowEnd,
     },
     where: {
       id: { in: bots },
@@ -51,8 +52,8 @@ export const updateBots = async (
         { threatLevel: { not: EThreatLevelType.PermanentAllow } },
         {
           OR: [
-            { threatLevelChangedAt: null },
-            { threatLevelChangedAt: { lt: analysisWindowStart } },
+            { threatLevelWindow: null },
+            { threatLevelWindow: { lt: analysisWindowStart } },
           ],
         },
       ],
