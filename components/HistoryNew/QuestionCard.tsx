@@ -21,7 +21,9 @@ export function QuestionCard({
   revealAtDate,
 }: QuestionCardProps) {
   const canViewAnswer =
-    indicatorType == "correct" || indicatorType == "incorrect";
+    indicatorType == "correct" ||
+    indicatorType == "incorrect" ||
+    indicatorType == "unanswered";
 
   const card = (
     <div className="bg-gray-700 rounded-lg p-3 gap-6 flex flex-col">
