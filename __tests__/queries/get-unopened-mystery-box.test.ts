@@ -14,7 +14,7 @@ import { deleteMysteryBoxes } from "../actions/mystery-box.test";
 // Mocking authGuard
 jest.mock("@/app/utils/auth");
 
-describe.skip("getUnopenedMysteryBox", () => {
+describe("getUnopenedMysteryBox", () => {
   let user1: { id: string; username: string };
   let user2: { id: string; username: string };
   let mysteryBox1: string;
@@ -165,7 +165,7 @@ describe.skip("getUnopenedMysteryBox", () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
 
     const result = await getUnopenedMysteryBox([
-      EBoxTriggerType.ClaimAllCompleted,
+      EBoxTriggerType.ValidationReward,
     ]);
 
     expect(result).toBe(mysteryBox1);
