@@ -83,6 +83,8 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
   if (!payload?.sub) return null;
 
+  const userId = payload.sub;
+
   const deck = await prisma.deck.findFirst({
     where: {
       id: deckId,
@@ -96,7 +98,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
                 include: {
                   questionAnswers: {
                     where: {
-                      userId: payload.sub,
+                      userId,
                     },
                   },
                 },
@@ -135,11 +137,39 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
 
   const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
 
-  const deckCreditCost = deckQuestions.every(
+  const creditCostUnansweredQuestion = await prisma.deckQuestion.findMany({
+    where: {
+      deckId: deckId,
+      question: {
+        questionOptions: {
+          every: {
+            questionAnswers: {
+              none: {
+                userId: userId,
+              },
+            },
+          },
+        },
+      },
+    },
+    select: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const deckCreditCost = creditCostUnansweredQuestion.every(
     (dq) => dq?.question?.creditCostPerQuestion == null,
   )
     ? null
-    : deckQuestions.reduce((total, dq) => {
+    : creditCostUnansweredQuestion.reduce((total, dq) => {
         return total + (dq?.question?.creditCostPerQuestion || 0);
       }, 0);
 
