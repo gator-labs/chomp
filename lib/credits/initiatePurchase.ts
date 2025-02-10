@@ -27,7 +27,7 @@ export async function initiateCreditPurchase(
     const now = Date.now();
     const stepDuration = ((now - lastLogTime) / 1000).toFixed(2);
     const totalDuration = ((now - startTime) / 1000).toFixed(2);
-    console.log(
+    console.info(
       `InitiatePurchase - ${stepName}\n` +
         `Step duration: ${stepDuration}s\n` +
         `Total duration: ${totalDuration}s\n` +
