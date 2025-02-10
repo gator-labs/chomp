@@ -24,7 +24,7 @@ jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
 
-describe.skip("getUserTotalCreditAmount", () => {
+describe("getUserTotalCreditAmount", () => {
   const user1 = {
     id: uuidv4(),
   };
@@ -40,7 +40,7 @@ describe.skip("getUserTotalCreditAmount", () => {
         },
       });
 
-      const box = await tx.mysteryBox.create({
+      const box1 = await tx.mysteryBox.create({
         data: {
           userId: user1.id,
           triggers: {
@@ -78,11 +78,11 @@ describe.skip("getUserTotalCreditAmount", () => {
         },
       });
 
-      mysteryBox1 = box.id;
+      mysteryBox1 = box1.id;
       mysteryBox2 = box2.id;
 
       const prizeId1 = await tx.mysteryBoxTrigger.findFirstOrThrow({
-        where: { mysteryBoxId: box.id },
+        where: { mysteryBoxId: box1.id },
         include: {
           MysteryBoxPrize: {
             select: {
@@ -91,18 +91,16 @@ describe.skip("getUserTotalCreditAmount", () => {
           },
         },
       });
-      const prizeId2 = (
-        await tx.mysteryBoxTrigger.findFirstOrThrow({
-          where: { mysteryBoxId: box2.id },
-          include: {
-            MysteryBoxPrize: {
-              select: {
-                id: true,
-              },
+      const prizeId2 = await tx.mysteryBoxTrigger.findFirstOrThrow({
+        where: { mysteryBoxId: box2.id },
+        include: {
+          MysteryBoxPrize: {
+            select: {
+              id: true,
             },
           },
-        })
-      ).id;
+        },
+      });
 
       await tx.fungibleAssetTransactionLog.create({
         data: {
@@ -120,26 +118,22 @@ describe.skip("getUserTotalCreditAmount", () => {
           asset: FungibleAsset.Credit,
           change: 66,
           userId: user1.id,
-          mysteryBoxPrizeId: prizeId2,
+          mysteryBoxPrizeId: prizeId2.MysteryBoxPrize[0].id,
         },
       });
     });
   });
 
   afterAll(async () => {
-    try {
-      await prisma.fungibleAssetTransactionLog.deleteMany({
-        where: { userId: user1.id },
-      });
-      await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
-      await prisma.user.delete({
-        where: {
-          id: user1.id,
-        },
-      });
-    } catch (error) {
-      console.error("Cleanup error:", error);
-    }
+    await prisma.fungibleAssetTransactionLog.deleteMany({
+      where: { userId: user1.id },
+    });
+    await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
+    await prisma.user.delete({
+      where: {
+        id: user1.id,
+      },
+    });
   });
 
   it("should return the total credit amount ", async () => {
