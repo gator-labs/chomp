@@ -112,7 +112,7 @@ export const sendBonk = async (
   } else {
     // based on recent ATA creation CU consumption
     // https://solscan.io/tx/37aEx5VpNMLXrKrMYPoGFbUmhg2YBGgvR3azHY17mWk1uupve229jhdyJWxA3HHAuJq8mtmeQBSR7dkuvhnVYbgs
-    const computeUnitFix = 27000;
+    const computeUnitFix = 27695;
 
     // Buffer to compensate any additional usage
     const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
