@@ -23,7 +23,7 @@ jest.mock("../../app/services/prisma", () => ({
   },
 }));
 
-describe.skip("getNewUserMysteryBoxId ", () => {
+describe("getNewUserMysteryBoxId ", () => {
   let user: { id: string; username: string };
 
   beforeAll(async () => {
