@@ -2,10 +2,14 @@ import prisma from "@/app/services/prisma";
 import { updateBots } from "@/lib/bots";
 import { generateUsers } from "@/scripts/utils";
 import { EThreatLevelType } from "@/types/bots";
+import dayjs from "dayjs";
 
 describe("Update bot list", () => {
   let users: { username: string; id: string }[] = [];
   let userIds: string[] = [];
+
+  const windowStart = dayjs().subtract(5, "day").toDate();
+  const windowEnd = new Date();
 
   beforeAll(async () => {
     users = await generateUsers(10);
@@ -75,8 +79,8 @@ describe("Update bot list", () => {
         userIds[6],
         userIds[7],
       ],
-      new Date(),
-      new Date(),
+      windowStart,
+      windowEnd,
     );
 
     const records = await prisma.user.findMany({
@@ -107,5 +111,29 @@ describe("Update bot list", () => {
     // Should be untouched
     expect(userState[userIds[8]]).toBeNull();
     expect(userState[userIds[9]]).toBeNull();
+  });
+
+  it("should not update threat level again in the same analysis window", async () => {
+    await prisma.user.updateMany({
+      data: {
+        threatLevel: null,
+      },
+      where: { id: { in: userIds } },
+    });
+
+    await updateBots([userIds[0], userIds[1]], windowStart, windowEnd);
+
+    const records = await prisma.user.findMany({
+      select: { id: true, threatLevel: true },
+      where: { id: { in: userIds } },
+    });
+
+    const userState = Object.fromEntries(
+      records.map((user) => [user.id, user.threatLevel]),
+    );
+
+    // Should both still be bot
+    expect(userState[userIds[0]]).toBeNull();
+    expect(userState[userIds[1]]).toBeNull();
   });
 });
