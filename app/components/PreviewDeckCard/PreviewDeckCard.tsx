@@ -1,5 +1,6 @@
 import { Avatar } from "@/app/components/Avatar/Avatar";
 import { formatNumber } from "@/app/utils/number";
+import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -87,7 +88,13 @@ const PreviewDeckCard = ({
             {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
               <>
                 <button
-                  className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
+                  className={classNames(
+                    "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50",
+                    {
+                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-blue-light": deckCreditCost > 0,
+                    },
+                  )}
                   onClick={() => setIsOpen(true)}
                 >
                   <span className="opacity-50 pr-1">Entry </span>
@@ -95,7 +102,13 @@ const PreviewDeckCard = ({
                   <InfoIcon fill="#0d0d0d" />
                 </button>
                 <button
-                  className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
+                  className={classNames(
+                    "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50 -mt-1",
+                    {
+                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-blue-light": deckCreditCost > 0,
+                    },
+                  )}
                   onClick={() => setIsOpen(true)}
                 >
                   <span className="opacity-50 pr-1">
