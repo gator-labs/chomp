@@ -77,6 +77,7 @@ export default async function Page({ params: { id } }: PageProps) {
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}
           deckCreditCost={deck?.deckCreditCost}
+          deckRewardAmount={deck?.deckRewardAmount ?? 0}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
         />
@@ -92,6 +93,7 @@ export default async function Page({ params: { id } }: PageProps) {
           deckCreditCost={deck?.deckCreditCost}
           blurData={blurData?.base64}
           totalCredits={totalCredits}
+          deckRewardAmount={deck?.deckRewardAmount ?? 0}
         />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />

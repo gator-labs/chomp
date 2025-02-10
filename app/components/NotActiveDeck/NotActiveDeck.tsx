@@ -20,6 +20,7 @@ type NotActiveDeckProps = {
   totalNumberOfQuestions: number | undefined;
   activeFrom: Date | null;
   deckCreditCost: number | null;
+  deckRewardAmount: number;
   blurData: string | undefined;
   totalCredits: number;
 };
@@ -31,6 +32,7 @@ const NotActiveDeck = ({
   totalNumberOfQuestions,
   activeFrom,
   deckCreditCost,
+  deckRewardAmount,
   blurData,
   totalCredits,
 }: NotActiveDeckProps) => {
@@ -90,6 +92,7 @@ const NotActiveDeck = ({
         deckCreditCost={deckCreditCost}
         blurData={blurData}
         totalCredits={totalCredits}
+        deckRewardAmount={deckRewardAmount}
       />
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px] w-full">
         <Button disabled>

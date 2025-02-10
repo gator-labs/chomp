@@ -173,6 +173,10 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
         return total + (dq?.question?.creditCostPerQuestion || 0);
       }, 0);
 
+  const deckRewardAmount = creditCostUnansweredQuestion.reduce((total, dq) => {
+    return total + (dq?.question?.revealTokenAmount || 0);
+  }, 0);
+
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
       questions: deck?.deckQuestions,
@@ -184,6 +188,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       revealAtDate: deck.revealAtDate,
       activeFromDate: deck.activeFromDate,
       deckCreditCost,
+      deckRewardAmount,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -198,6 +203,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       stackId: deck.stackId,
       totalDeckQuestions,
       deckCreditCost,
+      deckRewardAmount,
       deckInfo: {
         heading: deck.heading || deck.deck,
         description: deck.description,
@@ -218,6 +224,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     date: deck.date,
     stackId: deck.stackId,
     deckCreditCost,
+    deckRewardAmount,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
