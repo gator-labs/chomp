@@ -1,18 +1,15 @@
 import { updateTxStatusToConfirmed } from "@/actions/credits/updateTxStatusConfirm";
-import { updateTxStatusToFinalized } from "@/actions/credits/updateTxStatusFinalized";
 import { verifyPayment } from "@/actions/credits/verifyPayment";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
+import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
 import * as Sentry from "@sentry/nextjs";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
 import pRetry from "p-retry";
 
-import {
-  TransactionFailedToConfirmError,
-  TransactionFailedToFinalizeError,
-} from "../error";
+import { TransactionFailedToConfirmError } from "../error";
 
 const CONFIRMATION_OPTIONS = {
   retries: 2,
@@ -57,16 +54,32 @@ export async function processTransaction(
           signature: txHash,
           ...currentBlockhash,
         },
-        "confirmed",
+        TRANSACTION_COMMITMENT,
       );
 
+      // Checks that tx has been confirmed
       if (!(await verifyPayment(txHash))) {
         throw new Error("Payment could not be verified");
       }
 
+      // Get fees in SOL
+      let feesInSOL;
+
+      const txInfo = await CONNECTION.getTransaction(txHash, {
+        maxSupportedTransactionVersion: 0,
+      });
+
+      const fees = txInfo?.meta?.fee;
+
+      if (fees) {
+        feesInSOL = fees / LAMPORTS_PER_SOL;
+      }
+
       // Update chain tx status to confirmed
-      await updateTxStatusToConfirmed(txHash);
+      await updateTxStatusToConfirmed(txHash, creditsToBuy, feesInSOL);
     }, CONFIRMATION_OPTIONS);
+
+    setIsProcessingTx(false);
   } catch (error) {
     const transactionFailedToConfirmError = new TransactionFailedToConfirmError(
       `Credit Transaction Confirmation failed for user: ${payload?.sub}`,
@@ -80,49 +93,5 @@ export async function processTransaction(
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
     throw new Error("Transaction failed to confirm");
-  }
-
-  try {
-    // Wait for finalization
-    await pRetry(async () => {
-      let feesInSOL;
-      const latestBlockhash = await CONNECTION.getLatestBlockhash();
-      await CONNECTION.confirmTransaction(
-        {
-          signature: txHash,
-          ...latestBlockhash,
-        },
-        "finalized",
-      );
-
-      const txInfo = await CONNECTION.getTransaction(txHash, {
-        maxSupportedTransactionVersion: 0,
-      });
-
-      const fees = txInfo?.meta?.fee;
-
-      if (fees) {
-        feesInSOL = fees / LAMPORTS_PER_SOL;
-      }
-
-      // Update chain tx status to finalized
-      await updateTxStatusToFinalized(txHash, creditsToBuy, feesInSOL);
-    }, CONFIRMATION_OPTIONS);
-
-    setIsProcessingTx(false);
-  } catch (error) {
-    const transactionFailedToFinalizeError =
-      new TransactionFailedToFinalizeError(
-        `Credit Transaction Finalization failed for user: ${payload?.sub}`,
-        { cause: error },
-      );
-    Sentry.captureException(transactionFailedToFinalizeError, {
-      extra: {
-        creditAmount: creditsToBuy,
-        signature: txHash,
-      },
-    });
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
-    throw new Error("Transaction failed to finalize");
   }
 }

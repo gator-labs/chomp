@@ -1,4 +1,5 @@
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
+import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
 import { VerificationResult } from "@/types/credits";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
@@ -23,7 +24,7 @@ export async function verifyTransactionInstructions(
     const txInfo = await pRetry(
       async () => {
         const txInfo = await CONNECTION.getParsedTransaction(txHash, {
-          commitment: "finalized",
+          commitment: TRANSACTION_COMMITMENT,
         });
 
         if (!txInfo?.transaction) throw new Error("Transaction not found");
