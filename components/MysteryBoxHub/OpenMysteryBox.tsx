@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
 import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
 import animationDataNothing from "@/public/lottie/chomp_box_nothing.json";
-import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
 import { EMysteryBoxCategory, MysteryBoxStatus } from "@/types/mysteryBox";
 import { LottieRefCurrentProps } from "lottie-react";
 import dynamic from "next/dynamic";
@@ -30,6 +29,7 @@ export interface OpenMysteryBoxProps {
 
 function OpenMysteryBox({
   isOpen,
+  boxType,
   closeBoxDialog,
   mysteryBoxIds,
 }: OpenMysteryBoxProps) {
@@ -134,12 +134,9 @@ function OpenMysteryBox({
     return mysteryBoxReward.totalBonkAmount === 0 &&
       mysteryBoxReward.totalCreditAmount === 0
       ? animationDataNothing
-      : mysteryBoxReward.totalBonkAmount > 0 &&
-          mysteryBoxReward.totalCreditAmount > 0
-        ? animationDataSanta
-        : mysteryBoxReward.totalCreditAmount > 0
-          ? animationDataCredits
-          : animationDataRegular;
+      : boxType === EMysteryBoxCategory.Validation
+        ? animationDataCredits
+        : animationDataRegular;
   };
 
   return (
