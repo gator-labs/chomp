@@ -33,12 +33,24 @@ export const getUnopenedMysteryBox = async (
         triggers: { some: { triggerType: { in: triggerType } } },
       },
       include: {
-        MysteryBoxPrize: {
-          where: {
-            // We check for Unclaimed/Dismissed status here since boxes may be stuck in
-            // Unclaimed state if a previous reveal attempt failed
-            status: {
-              in: [EBoxPrizeStatus.Dismissed, EBoxPrizeStatus.Unclaimed],
+        triggers: {
+          select: {
+            triggerType: true,
+            MysteryBoxPrize: {
+              where: {
+                status: {
+                  // We check for Unclaimed/Dismissed status here since boxes may be stuck in
+                  // Unclaimed state if a previous reveal attempt failed
+                  in: [EBoxPrizeStatus.Dismissed, EBoxPrizeStatus.Unclaimed],
+                },
+              },
+              select: {
+                id: true,
+                prizeType: true,
+                amount: true,
+                tokenAddress: true,
+                claimedAt: true,
+              },
             },
           },
         },
@@ -128,14 +140,14 @@ async function rewardTutorialMysteryBox(
         triggers: {
           create: {
             triggerType: EBoxTriggerType.TutorialCompleted,
-          },
-        },
-        MysteryBoxPrize: {
-          create: {
-            status: EBoxPrizeStatus.Unclaimed,
-            size: calculatedRewardWip.box_type,
-            prizeType: EBoxPrizeType.Credits,
-            amount: String(calculatedRewardWip?.credit),
+            MysteryBoxPrize: {
+              create: {
+                status: EBoxPrizeStatus.Unclaimed,
+                size: calculatedRewardWip.box_type,
+                prizeType: EBoxPrizeType.Credits,
+                amount: String(calculatedRewardWip?.credit),
+              },
+            },
           },
         },
       },

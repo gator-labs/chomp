@@ -8,9 +8,17 @@ import { EBoxPrizeType, EBoxTriggerType, EPrizeSize } from "@prisma/client";
 
 import { getJwtPayload } from "../jwt";
 
-export const rewardMysteryBoxHub = async ({}: {
+/**
+ * Function to reward mystery box hub based on validation reward questions.
+ * @param {EMysteryBoxCategory} type - The type of mystery box category.
+ * @returns {Promise<Array<string> | null>} - Returns an array of mystery box IDs or null.
+ */
+export const rewardMysteryBoxHub = async ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  type,
+}: {
   type: EMysteryBoxCategory;
-}) => {
+}): Promise<Array<string> | null> => {
   const payload = await getJwtPayload();
   if (!payload) {
     return null;
@@ -47,49 +55,59 @@ export const rewardMysteryBoxHub = async ({}: {
   const newQuestionIds = questionIds.filter(
     (id) => !existingQuestionIds.includes(id),
   );
-  if (newQuestionIds.length > 0) {
-    const rewards = await calculateMysteryBoxHubReward(userId, questionIds);
-    if (rewards?.length !== newQuestionIds.length) {
-      return null;
-    }
 
-    const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+  if (newQuestionIds.length === 0) {
+    return existingMysteryBoxIds;
+  }
 
-    const prizes = rewards.flatMap((item) => [
+  const rewards = await calculateMysteryBoxHubReward(userId, newQuestionIds);
+  if (rewards?.length !== newQuestionIds.length) {
+    return null;
+  }
+
+  const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+
+  const getPrizePerTrigger = (reward: {
+    questionId: number;
+    creditRewardAmount: number;
+    bonkRewardAmount: number;
+  }) => {
+    return [
       {
         prizeType: EBoxPrizeType.Credits,
         size: EPrizeSize.Hub,
-        amount: item.creditRewardAmount.toString(),
+        amount: reward.creditRewardAmount.toString(),
       },
       {
         prizeType: EBoxPrizeType.Token,
-        amount: item.bonkRewardAmount.toString(),
+        amount: reward.bonkRewardAmount.toString(),
         size: EPrizeSize.Hub,
         tokenAddress: tokenAddress, // Add the bonk address here
       },
-    ]);
+    ];
+  };
 
-    const res = await prisma.mysteryBox.create({
+  const newMysteryBoxId = await prisma.$transaction(async (tx) => {
+    const mb = await tx.mysteryBox.create({
       data: {
-        userId,
-        triggers: {
-          createMany: {
-            data: newQuestionIds.map((questionId) => ({
-              questionId: questionId,
-              triggerType: EBoxTriggerType.ValidationReward,
-              mysteryBoxAllowlistId: null,
-            })),
-          },
-        },
-        MysteryBoxPrize: {
-          createMany: { data: prizes },
-        },
+        userId: userId,
       },
     });
 
-    const newMysteryBoxId = res.id;
-    return [...existingMysteryBoxIds, newMysteryBoxId];
-  }
+    for (const reward of rewards) {
+      await tx.mysteryBoxTrigger.create({
+        data: {
+          questionId: reward.questionId,
+          triggerType: EBoxTriggerType.ValidationReward,
+          mysteryBoxId: mb.id,
+          MysteryBoxPrize: {
+            createMany: { data: getPrizePerTrigger(reward) },
+          },
+        },
+      });
+    }
+    return mb.id;
+  });
 
-  return existingMysteryBoxIds;
+  return [...existingMysteryBoxIds, newMysteryBoxId];
 };

@@ -30,16 +30,20 @@ export async function fetchMysteryBoxHistory({
       },
     },
     include: {
-      MysteryBoxPrize: {
+      triggers: {
         select: {
-          id: true,
-          prizeType: true,
-          amount: true,
-          tokenAddress: true,
-          claimedAt: true,
+          triggerType: true,
+          MysteryBoxPrize: {
+            select: {
+              id: true,
+              prizeType: true,
+              amount: true,
+              tokenAddress: true,
+              claimedAt: true,
+            },
+          },
         },
       },
-      triggers: true,
     },
     skip: pageSkip,
     take: MYSTERY_BOXES_PER_PAGE + 1,
@@ -55,8 +59,12 @@ export async function fetchMysteryBoxHistory({
     let bonkReceived = "0";
     let openedAt = null;
 
-    for (let i = 0; i < box.MysteryBoxPrize.length; i++) {
-      const prize = box.MysteryBoxPrize[i];
+    const allPrizes = box.triggers.flatMap(
+      (trigger) => trigger.MysteryBoxPrize,
+    );
+
+    for (let i = 0; i < allPrizes.length; i++) {
+      const prize = allPrizes[i];
       if (prize.prizeType == "Credits") creditsReceived = prize.amount;
       else if (prize.prizeType == "Token" && prize.tokenAddress == bonkAddress)
         bonkReceived = prize.amount;

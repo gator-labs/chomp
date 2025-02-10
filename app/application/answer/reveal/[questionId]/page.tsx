@@ -69,12 +69,12 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
   const creditsPrize =
-    questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize.find(
+    questionResponse.MysteryBoxTrigger[0]?.MysteryBoxPrize.find(
       (prize) => prize.prizeType == EBoxPrizeType.Credits,
     );
 
   const bonkPrizes =
-    questionResponse.MysteryBoxTrigger[0]?.MysteryBox?.MysteryBoxPrize.filter(
+    questionResponse.MysteryBoxTrigger[0]?.MysteryBoxPrize.filter(
       (prize) =>
         prize.prizeType == EBoxPrizeType.Token &&
         prize.tokenAddress == bonkAddress,

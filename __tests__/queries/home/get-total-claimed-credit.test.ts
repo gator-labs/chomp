@@ -40,20 +40,20 @@ describe("getUserTotalCreditAmount", () => {
         },
       });
 
-      const box = await tx.mysteryBox.create({
+      const box1 = await tx.mysteryBox.create({
         data: {
           userId: user1.id,
           triggers: {
             create: {
               triggerType: EBoxTriggerType.TutorialCompleted,
-            },
-          },
-          MysteryBoxPrize: {
-            create: {
-              prizeType: EBoxPrizeType.Credits,
-              amount: "100",
-              size: EPrizeSize.Small,
-              status: EBoxPrizeStatus.Claimed,
+              MysteryBoxPrize: {
+                create: {
+                  prizeType: EBoxPrizeType.Credits,
+                  amount: "100",
+                  size: EPrizeSize.Small,
+                  status: EBoxPrizeStatus.Claimed,
+                },
+              },
             },
           },
         },
@@ -65,32 +65,42 @@ describe("getUserTotalCreditAmount", () => {
           triggers: {
             create: {
               triggerType: EBoxTriggerType.TutorialCompleted,
-            },
-          },
-          MysteryBoxPrize: {
-            create: {
-              prizeType: EBoxPrizeType.Credits,
-              amount: "66",
-              size: EPrizeSize.Small,
-              status: EBoxPrizeStatus.Claimed,
+              MysteryBoxPrize: {
+                create: {
+                  prizeType: EBoxPrizeType.Credits,
+                  amount: "66",
+                  size: EPrizeSize.Small,
+                  status: EBoxPrizeStatus.Claimed,
+                },
+              },
             },
           },
         },
       });
 
-      mysteryBox1 = box.id;
+      mysteryBox1 = box1.id;
       mysteryBox2 = box2.id;
 
-      const prizeId1 = (
-        await tx.mysteryBoxPrize.findFirstOrThrow({
-          where: { mysteryBoxId: box.id },
-        })
-      ).id;
-      const prizeId2 = (
-        await tx.mysteryBoxPrize.findFirstOrThrow({
-          where: { mysteryBoxId: box2.id },
-        })
-      ).id;
+      const prizeId1 = await tx.mysteryBoxTrigger.findFirstOrThrow({
+        where: { mysteryBoxId: box1.id },
+        include: {
+          MysteryBoxPrize: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+      const prizeId2 = await tx.mysteryBoxTrigger.findFirstOrThrow({
+        where: { mysteryBoxId: box2.id },
+        include: {
+          MysteryBoxPrize: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
 
       await tx.fungibleAssetTransactionLog.create({
         data: {
@@ -98,7 +108,7 @@ describe("getUserTotalCreditAmount", () => {
           asset: FungibleAsset.Credit,
           change: 100,
           userId: user1.id,
-          mysteryBoxPrizeId: prizeId1,
+          mysteryBoxPrizeId: prizeId1.MysteryBoxPrize[0].id,
         },
       });
 
@@ -108,26 +118,22 @@ describe("getUserTotalCreditAmount", () => {
           asset: FungibleAsset.Credit,
           change: 66,
           userId: user1.id,
-          mysteryBoxPrizeId: prizeId2,
+          mysteryBoxPrizeId: prizeId2.MysteryBoxPrize[0].id,
         },
       });
     });
   });
 
   afterAll(async () => {
-    try {
-      await prisma.fungibleAssetTransactionLog.deleteMany({
-        where: { userId: user1.id },
-      });
-      await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
-      await prisma.user.delete({
-        where: {
-          id: user1.id,
-        },
-      });
-    } catch (error) {
-      console.error("Cleanup error:", error);
-    }
+    await prisma.fungibleAssetTransactionLog.deleteMany({
+      where: { userId: user1.id },
+    });
+    await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
+    await prisma.user.delete({
+      where: {
+        id: user1.id,
+      },
+    });
   });
 
   it("should return the total credit amount ", async () => {

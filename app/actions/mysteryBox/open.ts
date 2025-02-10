@@ -82,21 +82,25 @@ export async function openMysteryBox(
           : EMysteryBoxStatus.New,
       },
       include: {
-        MysteryBoxPrize: {
-          select: {
-            id: true,
-            prizeType: true,
-            amount: true,
-            tokenAddress: true,
-          },
-          where: {
-            // We check for Unclaimed/Dismissed status here since boxes may be stuck in
-            // Unclaimed state if a previous reveal attempt failed
-            status: {
-              in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
-            },
-            prizeType: {
-              in: [EBoxPrizeType.Token, EBoxPrizeType.Credits],
+        triggers: {
+          include: {
+            MysteryBoxPrize: {
+              select: {
+                id: true,
+                prizeType: true,
+                amount: true,
+                tokenAddress: true,
+              },
+              where: {
+                // We check for Unclaimed/Dismissed status here since boxes may be stuck in
+                // Unclaimed state if a previous reveal attempt failed
+                status: {
+                  in: [EBoxPrizeStatus.Unclaimed, EBoxPrizeStatus.Dismissed],
+                },
+                prizeType: {
+                  in: [EBoxPrizeType.Token, EBoxPrizeType.Credits],
+                },
+              },
             },
           },
         },
@@ -119,7 +123,7 @@ export async function openMysteryBox(
   }
 
   try {
-    for (const prize of reward.MysteryBoxPrize) {
+    for (const prize of reward.triggers[0].MysteryBoxPrize) {
       const prizeAmount = Number(prize.amount ?? 0);
       let sendTx: string | null;
 

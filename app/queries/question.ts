@@ -195,17 +195,10 @@ export async function getQuestionWithUserAnswer(questionId: number) {
           questionId,
         },
         include: {
-          MysteryBox: {
+          MysteryBoxPrize: {
             where: {
-              userId,
-            },
-            include: {
-              MysteryBoxPrize: {
-                where: {
-                  prizeType: {
-                    in: [EBoxPrizeType.Credits, EBoxPrizeType.Token],
-                  },
-                },
+              prizeType: {
+                in: [EBoxPrizeType.Credits, EBoxPrizeType.Token],
               },
             },
           },

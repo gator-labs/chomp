@@ -34,12 +34,28 @@ export async function dismissMysteryBox(mysteryBoxId: string) {
         data: {
           status: EMysteryBoxStatus.Unopened,
         },
+        include: {
+          triggers: {
+            select: {
+              MysteryBoxPrize: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (updated) {
+        const allPrizes = updated.triggers.flatMap(
+          (trigger) => trigger.MysteryBoxPrize,
+        );
         await tx.mysteryBoxPrize.updateMany({
           where: {
-            mysteryBoxId: mysteryBoxId,
+            id: {
+              in: allPrizes.map((prize) => prize.id),
+            },
             status: EBoxPrizeStatus.Unclaimed,
           },
           data: {
