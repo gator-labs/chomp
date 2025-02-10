@@ -27,10 +27,9 @@ import {
   EBoxPrizeType,
   QuestionType,
   ResultType,
-  TransactionStatus,
 } from "@prisma/client";
 import { isPast } from "date-fns";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: {
