@@ -22,6 +22,7 @@ import {
   BINARY_QUESTION_TRUE_LABELS,
   getAlphaIdentifier,
 } from "@/app/utils/question";
+import ViewRewardsButton from "@/components/ViewRewardsButton";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
@@ -96,6 +97,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
         transactionStatus: TransactionStatus.Completed,
       }
     : questionResponse.chompResults?.[0];
+
+  const hasAlreadyClaimedReward =
+    !isCreditsQuestion || questionResponse.MysteryBoxTrigger.length > 0;
 
   const sendTransactionSignature = chompResult.sendTransactionSignature;
 
@@ -360,25 +364,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
       )}
       {questionContent}
       {answerContent}
-      <ClaimButton
-        status={
-          chompResult?.result === ResultType.Revealed ? "claimable" : "claimed"
-        }
-        rewardAmount={chompResult?.rewardTokenAmount ?? 0}
-        didAnswer={!!answerSelected}
-        questionIds={[questionResponse.id]}
-        transactionHash={chompResult?.burnTransactionSignature || ""}
-        questions={[questionResponse.question]}
-        revealNftId={chompResult.revealNftId}
-        resultIds={questionResponse.chompResults.map((r) => r.id)}
-        userId={chompResult.userId}
-        creditsPerQuestion={questionResponse.creditCostPerQuestion}
-        creditsRewardAmount={creditsPrize?.amount}
-        creditsRewardStatus={
-          creditsPrize?.status === EBoxPrizeStatus.Claimed
-            ? "claimed"
-            : "claimable"
-        }
+      <ViewRewardsButton
+        disabled={!isFirstOrderCorrect || hasAlreadyClaimedReward}
       />
       {!!chompResult.rewardTokenAmount &&
         chompResult.burnTransactionSignature && (
