@@ -1,4 +1,5 @@
 import { Avatar } from "@/app/components/Avatar/Avatar";
+import { formatNumber } from "@/app/utils/number";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -19,6 +20,7 @@ type PreviewDeckCardProps = {
   blurData: string | undefined;
   deckCreditCost: number | null;
   totalCredits: number;
+  deckRewardAmount: number;
 };
 
 const CREDIT_COST_FEATURE_FLAG =
@@ -37,6 +39,7 @@ const PreviewDeckCard = ({
   blurData,
   totalCredits,
   deckCreditCost,
+  deckRewardAmount,
 }: PreviewDeckCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -82,14 +85,28 @@ const PreviewDeckCard = ({
               {totalNumberOfQuestions > 1 && "s"}
             </p>
             {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
-              <button
-                className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
-                onClick={() => setIsOpen(true)}
-              >
-                <span className="opacity-50 pr-1">Entry </span>
-                {`${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
-                <InfoIcon fill="#0d0d0d" />
-              </button>
+              <>
+                <button
+                  className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
+                  onClick={() => setIsOpen(true)}
+                >
+                  <span className="opacity-50 pr-1">Entry </span>
+                  {`${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
+                  <InfoIcon fill="#0d0d0d" />
+                </button>
+                <button
+                  className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
+                  onClick={() => setIsOpen(true)}
+                >
+                  <span className="opacity-50 pr-1">
+                    Rewards {deckCreditCost > 0 && "up to"}{" "}
+                  </span>
+                  {deckCreditCost > 0
+                    ? `${formatNumber(deckRewardAmount)} BONK`
+                    : "Streaks"}
+                  <InfoIcon fill="#0d0d0d" />
+                </button>
+              </>
             ) : null}
             <div className="flex gap-2 items-center">
               {!!authorImageUrl && (
