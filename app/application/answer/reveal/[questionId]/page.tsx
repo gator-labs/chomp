@@ -1,7 +1,6 @@
 import BackButton from "@/app/components/BackButton/BackButton";
 import BestAnswerBinary from "@/app/components/BestAnswerBinary/BestAnswerBinary";
 import BestAnswerMultipleChoice from "@/app/components/BestAnswerMultipleChoice/BestAnswerMultipleChoice";
-import ClaimButton from "@/app/components/ClaimButton/ClaimButton";
 import LikeIcon from "@/app/components/Icons/LikeIcon";
 import { OpenLinkIcon } from "@/app/components/Icons/OpenLinkIcon";
 import UnlikeIcon from "@/app/components/Icons/UnlikeIcon";
@@ -22,8 +21,8 @@ import {
   BINARY_QUESTION_TRUE_LABELS,
   getAlphaIdentifier,
 } from "@/app/utils/question";
+import ViewRewardsButton from "@/components/ViewRewardsButton";
 import {
-  EBoxPrizeStatus,
   EBoxPrizeType,
   QuestionType,
   ResultType,
@@ -103,6 +102,9 @@ const RevealAnswerPage = async ({ params }: Props) => {
           sendTransactionSignature: null,
           userId: user?.id ?? "",
         };
+
+  const hasAlreadyClaimedReward =
+    !isCreditsQuestion || questionResponse.MysteryBoxTrigger.length > 0;
 
   const sendTransactionSignature =
     chompResult?.sendTransactionSignature ?? null;
@@ -349,25 +351,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
       )}
       {questionContent}
       {answerContent}
-      <ClaimButton
-        status={
-          chompResult?.result === ResultType.Revealed ? "claimable" : "claimed"
-        }
-        rewardAmount={chompResult?.rewardTokenAmount ?? 0}
-        didAnswer={!!answerSelected}
-        questionIds={[questionResponse.id]}
-        transactionHash={chompResult?.burnTransactionSignature || ""}
-        questions={[questionResponse.question]}
-        revealNftId={chompResult.revealNftId}
-        resultIds={questionResponse.chompResults.map((r) => r.id)}
-        userId={chompResult.userId}
-        creditsPerQuestion={questionResponse.creditCostPerQuestion}
-        creditsRewardAmount={creditsPrize?.amount}
-        creditsRewardStatus={
-          creditsPrize?.status === EBoxPrizeStatus.Claimed
-            ? "claimed"
-            : "claimable"
-        }
+      <ViewRewardsButton
+        disabled={!isFirstOrderCorrect || hasAlreadyClaimedReward}
       />
       {!!chompResult.rewardTokenAmount &&
         chompResult.burnTransactionSignature && (
