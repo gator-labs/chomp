@@ -108,24 +108,18 @@ const RevealAnswerPage = async ({ params }: Props) => {
   const sendTransactionSignature =
     chompResult?.sendTransactionSignature ?? null;
 
-  if (isCreditsQuestion) {
-    if (!questionResponse.isQuestionRevealable) {
-      if (
-        questionResponse.revealAtDate === null ||
-        isPast(questionResponse.revealAtDate)
-      ) {
-        return <NotAvailableYet msg={"Question not revealed yet."} />;
-      } else {
-        return (
-          <NotAvailableYet
-            msg={`Question not revealed yet. ${getRevealAtText(questionResponse.revealAtDate)}.`}
-          />
-        );
-      }
-    }
-  } else {
-    if (!questionResponse.isQuestionRevealable) {
+  if (!questionResponse.isQuestionRevealable) {
+    if (
+      questionResponse.revealAtDate === null ||
+      isPast(questionResponse.revealAtDate)
+    ) {
       return <NotAvailableYet msg={"Question not revealed yet."} />;
+    } else {
+      return (
+        <NotAvailableYet
+          msg={`Question not revealed yet. ${getRevealAtText(questionResponse.revealAtDate)}.`}
+        />
+      );
     }
   }
 
