@@ -123,15 +123,6 @@ const RevealAnswerPage = async ({ params }: Props) => {
         );
       }
     }
-
-    // if (!questionResponse.isCalculatedAndPaidFor)
-    //   return (
-    //     <NotAvailableYet
-    //       msg={
-    //         "Question not answered or answer not calculated yet. Check back shortly."
-    //       }
-    //     />
-    //   );
   } else {
     if (!questionResponse.isQuestionRevealable) {
       return <NotAvailableYet msg={"Question not revealed yet."} />;
