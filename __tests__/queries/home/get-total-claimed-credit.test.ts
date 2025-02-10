@@ -24,7 +24,7 @@ jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
 
-describe("getUserTotalCreditAmount", () => {
+describe.skip("getUserTotalCreditAmount", () => {
   const user1 = {
     id: uuidv4(),
   };

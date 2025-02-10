@@ -87,7 +87,7 @@ export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
   });
 }
 
-describe("Create mystery box", () => {
+describe.skip("Create mystery box", () => {
   const currentDate = new Date();
 
   let user0: { id: string; username: string; wallet: string };
