@@ -47,7 +47,11 @@ export async function GET(request: Request) {
     const scores: Record<string, number> = results["mean_bot_score"];
     const botUserIds = Object.keys(scores);
 
-    await updateBots(botUserIds);
+    await updateBots(
+      botUserIds,
+      new Date(results.start_date),
+      new Date(results.end_date),
+    );
 
     return new Response(
       JSON.stringify({
