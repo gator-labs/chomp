@@ -20,6 +20,10 @@ export const updateBots = async (
     where: {
       id: { in: bots },
       threatLevel: EThreatLevelType.ManualAllow,
+      OR: [
+        { threatLevelWindow: null },
+        { threatLevelWindow: { lt: analysisWindowStart } },
+      ],
     },
   });
 
