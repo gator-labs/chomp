@@ -5,7 +5,6 @@ import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
 import * as Sentry from "@sentry/nextjs";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { Transaction } from "@solana/web3.js";
 import pRetry from "p-retry";
 
@@ -62,21 +61,8 @@ export async function processTransaction(
         throw new Error("Payment could not be verified");
       }
 
-      // Get fees in SOL
-      let feesInSOL;
-
-      const txInfo = await CONNECTION.getTransaction(txHash, {
-        maxSupportedTransactionVersion: 0,
-      });
-
-      const fees = txInfo?.meta?.fee;
-
-      if (fees) {
-        feesInSOL = fees / LAMPORTS_PER_SOL;
-      }
-
       // Update chain tx status to confirmed
-      await updateTxStatusToConfirmed(txHash, creditsToBuy, feesInSOL);
+      await updateTxStatusToConfirmed(txHash, creditsToBuy);
     }, CONFIRMATION_OPTIONS);
 
     setIsProcessingTx(false);

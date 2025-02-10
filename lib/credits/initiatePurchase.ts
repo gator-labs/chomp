@@ -20,17 +20,35 @@ export async function initiateCreditPurchase(
   wallet: Wallet,
   setIsProcessingTx: (isProcessingTx: boolean) => void,
 ) {
+  const startTime = Date.now();
+  let lastLogTime = startTime;
+
+  const logStep = (stepName: string) => {
+    const now = Date.now();
+    const stepDuration = ((now - lastLogTime) / 1000).toFixed(2);
+    const totalDuration = ((now - startTime) / 1000).toFixed(2);
+    console.log(
+      `InitiatePurchase - ${stepName}\n` +
+        `Step duration: ${stepDuration}s\n` +
+        `Total duration: ${totalDuration}s\n` +
+        "------------------------",
+    );
+    lastLogTime = now;
+  };
+
   const payload = await getJwtPayload();
   if (!payload) {
     return {
       error: "User not authenticated",
     };
   }
+  logStep("JWT payload retrieved");
 
   const release = await acquireMutex({
     identifier: "CREDIT_PURCHASE",
     data: { userId: payload.sub },
   });
+  logStep("Mutex acquired");
 
   try {
     // Step 1: Create and sign the transaction
@@ -39,6 +57,7 @@ export async function initiateCreditPurchase(
       wallet,
       setIsProcessingTx,
     );
+    logStep("Transaction created and signed");
 
     if (!data) {
       return {
@@ -53,6 +72,7 @@ export async function initiateCreditPurchase(
       creditsToBuy,
       signature!,
     );
+    logStep("ChainTx recorded");
 
     if (chainTx?.error) {
       return {
@@ -66,6 +86,7 @@ export async function initiateCreditPurchase(
       creditsToBuy,
       setIsProcessingTx,
     );
+    logStep("Transaction processed");
 
     if (result?.error) {
       return {
@@ -73,9 +94,16 @@ export async function initiateCreditPurchase(
       };
     }
   } catch (error) {
+    logStep("Error encountered");
     throw error;
   } finally {
     setIsProcessingTx(false);
     release();
+    const totalDuration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(
+      `InitiatePurchase - Complete\n` +
+        `Total execution time: ${totalDuration}s\n` +
+        "========================",
+    );
   }
 }

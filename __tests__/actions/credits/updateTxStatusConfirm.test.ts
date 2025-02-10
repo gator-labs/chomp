@@ -75,11 +75,7 @@ describe("updateTxStatusToConfirmed", () => {
       sub: user.id,
     });
 
-    const result = await updateTxStatusToConfirmed(
-      CREDIT_CONFIRM_SIGNATURE,
-      1,
-      2,
-    );
+    const result = await updateTxStatusToConfirmed(CREDIT_CONFIRM_SIGNATURE, 1);
 
     const chainTx = await prisma.chainTx.findFirst({
       where: { hash: CREDIT_CONFIRM_SIGNATURE },
@@ -92,7 +88,6 @@ describe("updateTxStatusToConfirmed", () => {
     expect(chainTx).toBeDefined();
     expect(chainTx?.status).toBe(EChainTxStatus.Confirmed);
     expect(result).toBeUndefined();
-    expect(chainTx?.feeSolAmount).toBe("2");
     expect(fatl).toBeDefined();
     expect(Number(fatl?.change)).toBe(1);
     expect(fatl?.type).toBe(TransactionLogType.CreditPurchase);
@@ -100,11 +95,7 @@ describe("updateTxStatusToConfirmed", () => {
 
   it("should return error if Payload is not defined", async () => {
     (getJwtPayload as jest.Mock).mockReturnValue(null);
-    const result = await updateTxStatusToConfirmed(
-      CREDIT_CONFIRM_SIGNATURE,
-      3,
-      4,
-    );
+    const result = await updateTxStatusToConfirmed(CREDIT_CONFIRM_SIGNATURE, 3);
 
     expect(result).toEqual({
       error: "User not authenticated",

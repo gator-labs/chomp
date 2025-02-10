@@ -22,7 +22,6 @@ const MAX_RETRIES = 3;
 export async function updateTxStatusToConfirmed(
   hash: string,
   creditAmount: number,
-  feesInSOL: number | undefined,
 ) {
   const payload = await getJwtPayload();
 
@@ -42,7 +41,6 @@ export async function updateTxStatusToConfirmed(
             where: { hash },
             data: {
               status: EChainTxStatus.Confirmed,
-              feeSolAmount: feesInSOL ? feesInSOL.toString() : undefined,
             },
           });
 
