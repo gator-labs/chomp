@@ -12,11 +12,29 @@ import * as Sentry from "@sentry/nextjs";
 import { getWalletOwner } from "../../lib/wallet";
 
 export async function verifyPayment(txHash: string) {
-  const payload = await getJwtPayload();
+  const startTime = Date.now();
+  let lastLogTime = startTime;
 
+  const logStep = (stepName: string) => {
+    const now = Date.now();
+    const stepDuration = ((now - lastLogTime) / 1000).toFixed(2);
+    const totalDuration = ((now - startTime) / 1000).toFixed(2);
+    console.log(
+      `VerifyPayment - ${stepName}\n` +
+      `Step duration: ${stepDuration}s\n` +
+      `Total duration: ${totalDuration}s\n` +
+      '------------------------'
+    );
+    lastLogTime = now;
+  };
+
+  logStep('Starting verifyPayment');
+
+  const payload = await getJwtPayload();
   if (!payload) {
     return null;
   }
+  logStep('JWT payload retrieved');
 
   const record = await prisma.chainTx.findFirst({
     where: {
@@ -28,6 +46,7 @@ export async function verifyPayment(txHash: string) {
   if (!record) {
     return false;
   }
+  logStep('Blockhash retrieved');
 
   let verificationResult: VerificationResult;
 
@@ -57,6 +76,7 @@ export async function verifyPayment(txHash: string) {
     await Sentry.flush(SENTRY_FLUSH_WAIT);
     return false;
   }
+  logStep('Transaction verified');
 
   if (!verificationResult.success) {
     Sentry.captureMessage(

@@ -32,13 +32,31 @@ export async function processTransaction(
   creditsToBuy: number,
   setIsProcessingTx: (isProcessingTx: boolean) => void,
 ) {
-  const payload = await getJwtPayload();
+  const startTime = Date.now();
+  let lastLogTime = startTime;
 
+  const logStep = (stepName: string) => {
+    const now = Date.now();
+    const stepDuration = ((now - lastLogTime) / 1000).toFixed(2);
+    const totalDuration = ((now - startTime) / 1000).toFixed(2);
+    console.log(
+      `ProcessTransaction - ${stepName}\n` +
+      `Step duration: ${stepDuration}s\n` +
+      `Total duration: ${totalDuration}s\n` +
+      '------------------------'
+    );
+    lastLogTime = now;
+  };
+
+  logStep('Starting processTransaction');
+  
+  const payload = await getJwtPayload();
   if (!payload) {
     return {
       error: "User not authenticated",
     };
   }
+  logStep('JWT payload retrieved');
 
   // Send transaction
   const txHash = await CONNECTION.sendRawTransaction(
@@ -47,10 +65,12 @@ export async function processTransaction(
       skipPreflight: true,
     },
   );
+  logStep('Transaction sent');
 
   try {
     // Wait for confirmation
     await pRetry(async () => {
+      logStep('Starting confirmation attempt');
       const currentBlockhash = await CONNECTION.getLatestBlockhash();
       await CONNECTION.confirmTransaction(
         {
@@ -59,15 +79,19 @@ export async function processTransaction(
         },
         "confirmed",
       );
+      logStep('Transaction confirmed');
 
       if (!(await verifyPayment(txHash))) {
         throw new Error("Payment could not be verified");
       }
+      logStep('Payment verified');
 
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash);
+      logStep('Chain tx status updated to confirmed');
     }, CONFIRMATION_OPTIONS);
   } catch (error) {
+    logStep('Confirmation failed');
     const transactionFailedToConfirmError = new TransactionFailedToConfirmError(
       `Credit Transaction Confirmation failed for user: ${payload?.sub}`,
       { cause: error },
@@ -85,19 +109,22 @@ export async function processTransaction(
   try {
     // Wait for finalization
     await pRetry(async () => {
+      logStep('Starting finalization attempt');
       let feesInSOL;
       const latestBlockhash = await CONNECTION.getLatestBlockhash();
-      await CONNECTION.confirmTransaction(
-        {
-          signature: txHash,
-          ...latestBlockhash,
-        },
-        "finalized",
-      );
+      // await CONNECTION.confirmTransaction(
+      //   {
+      //     signature: txHash,
+      //     ...latestBlockhash,
+      //   },
+      //   "finalized",
+      // );
+      // logStep('Transaction finalized');
 
       const txInfo = await CONNECTION.getTransaction(txHash, {
         maxSupportedTransactionVersion: 0,
       });
+      logStep('Transaction info retrieved');
 
       const fees = txInfo?.meta?.fee;
 
@@ -107,10 +134,12 @@ export async function processTransaction(
 
       // Update chain tx status to finalized
       await updateTxStatusToFinalized(txHash, creditsToBuy, feesInSOL);
+      logStep('Chain tx status updated to finalized');
     }, CONFIRMATION_OPTIONS);
 
     setIsProcessingTx(false);
   } catch (error) {
+    logStep('Finalization failed');
     const transactionFailedToFinalizeError =
       new TransactionFailedToFinalizeError(
         `Credit Transaction Finalization failed for user: ${payload?.sub}`,

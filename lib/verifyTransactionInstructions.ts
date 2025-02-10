@@ -12,21 +12,42 @@ export async function verifyTransactionInstructions(
   txHash: string,
   solAmount: string,
 ): Promise<VerificationResult> {
+  const startTime = Date.now();
+  let lastLogTime = startTime;
+
+  const logStep = (stepName: string) => {
+    const now = Date.now();
+    const stepDuration = ((now - lastLogTime) / 1000).toFixed(2);
+    const totalDuration = ((now - startTime) / 1000).toFixed(2);
+    console.log(
+      `VerifyInstructions - ${stepName}\n` +
+      `Step duration: ${stepDuration}s\n` +
+      `Total duration: ${totalDuration}s\n` +
+      '------------------------'
+    );
+    lastLogTime = now;
+  };
+
+  logStep('Starting verifyTransactionInstructions');
+
   const treasuryAddress = await getTreasuryAddress();
   if (!treasuryAddress) {
     return { success: false, error: "Treasury address not defined" };
   }
+  logStep('Treasury address retrieved');
 
   const treasuryWallet = new PublicKey(treasuryAddress);
 
   try {
     const txInfo = await pRetry(
       async () => {
+        logStep('Starting transaction info retrieval attempt');
         const txInfo = await CONNECTION.getParsedTransaction(txHash, {
-          commitment: "finalized",
+          commitment: "confirmed",
         });
 
         if (!txInfo?.transaction) throw new Error("Transaction not found");
+        logStep('Transaction info retrieved');
         return txInfo;
       },
       { retries: MAX_RETRIES },
@@ -42,6 +63,7 @@ export async function verifyTransactionInstructions(
     const expectedLamports = new Decimal(solAmount)
       .mul(LAMPORTS_PER_SOL)
       .toNumber();
+    logStep('Transaction details parsed');
 
     let transferVerified = false;
 
@@ -54,6 +76,7 @@ export async function verifyTransactionInstructions(
           parsed.info.source === treasuryWallet &&
           parsed.info.lamports > 0
         ) {
+          logStep('Invalid treasury outflow detected');
           return { success: false, error: "Invalid treasury outflow detected" };
         }
 
@@ -67,6 +90,7 @@ export async function verifyTransactionInstructions(
         }
       }
     }
+    logStep('Instructions verification completed');
 
     return {
       success: transferVerified,
@@ -76,6 +100,7 @@ export async function verifyTransactionInstructions(
         : "Transfer instruction verification failed",
     };
   } catch (error) {
+    logStep('Error encountered');
     return {
       success: false,
       error:

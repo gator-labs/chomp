@@ -26,6 +26,24 @@ export async function createCreditPurchaseTransaction(
   wallet: Wallet,
   setIsProcessingTx: (isProcessingTx: boolean) => void,
 ) {
+  const startTime = Date.now();
+  let lastLogTime = startTime;
+
+  const logStep = (stepName: string) => {
+    const now = Date.now();
+    const stepDuration = ((now - lastLogTime) / 1000).toFixed(2);
+    const totalDuration = ((now - startTime) / 1000).toFixed(2);
+    console.log(
+      `CreateTransaction - ${stepName}\n` +
+      `Step duration: ${stepDuration}s\n` +
+      `Total duration: ${totalDuration}s\n` +
+      '------------------------'
+    );
+    lastLogTime = now;
+  };
+
+  logStep('Starting createCreditPurchaseTransaction');
+
   if (!wallet || !isSolanaWallet(wallet)) return null;
 
   const payload = await getJwtPayload();
@@ -33,6 +51,7 @@ export async function createCreditPurchaseTransaction(
   if (!payload) {
     return null;
   }
+  logStep('JWT payload retrieved');
 
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
@@ -61,14 +80,19 @@ export async function createCreditPurchaseTransaction(
   tx = await setupTransactionPriorityFee(tx, walletPubkey);
 
   setIsProcessingTx(true);
+  logStep('Transaction setup');
 
   try {
     // Sign transaction
     const signedTransaction = await signer.signTransaction(tx);
+    logStep('Transaction signed');
+
     const signature = bs58.encode(signedTransaction.signature!);
+    logStep('Signature encoded');
 
     return { transaction: signedTransaction, signature };
   } catch {
+    logStep('Error in transaction signing');
     setIsProcessingTx(false);
     return null;
   }
