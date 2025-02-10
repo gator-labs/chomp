@@ -11,3 +11,15 @@ export const nthNumber = (number: number) => {
       return "th";
   }
 };
+
+// Handle big values
+export const formatNumber = (number: number) => {
+  if (number > 9999) {
+    return `${number / 1000}K`;
+  } else if (number > 999999) {
+    return `${number / 1000000}M`;
+  } else if (number > 999999999) {
+    return `${number / 1000000000}B`;
+  }
+  return number;
+};

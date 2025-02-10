@@ -50,6 +50,7 @@ function PaidDeckFeed() {
             revealAtDate={d.revealAtDate}
             status="start"
             deckCreditCost={d.total_credit_cost ? d.total_credit_cost : 0}
+            deckRewardAmount={d.total_reward_amount ? d.total_reward_amount : 0}
           />
         </div>
       ))}

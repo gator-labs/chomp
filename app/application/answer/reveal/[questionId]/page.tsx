@@ -26,10 +26,9 @@ import {
   EBoxPrizeType,
   QuestionType,
   ResultType,
-  TransactionStatus,
 } from "@prisma/client";
 import { isPast } from "date-fns";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: {
@@ -92,46 +91,36 @@ const RevealAnswerPage = async ({ params }: Props) => {
         burnTransactionSignature: null,
         sendTransactionSignature: null,
         userId: user?.id ?? "",
-        transactionStatus: TransactionStatus.Completed,
       }
-    : questionResponse.chompResults?.[0];
+    : questionResponse.chompResults.length > 0
+      ? questionResponse.chompResults?.[0]
+      : {
+          result: ResultType.Revealed,
+          rewardTokenAmount: 0,
+          revealNftId: null,
+          burnTransactionSignature: null,
+          sendTransactionSignature: null,
+          userId: user?.id ?? "",
+        };
 
   const hasAlreadyClaimedReward =
     !isCreditsQuestion || questionResponse.MysteryBoxTrigger.length > 0;
 
-  const sendTransactionSignature = chompResult.sendTransactionSignature;
+  const sendTransactionSignature =
+    chompResult?.sendTransactionSignature ?? null;
 
-  if (isCreditsQuestion) {
-    if (!questionResponse.isQuestionRevealable) {
-      if (
-        questionResponse.revealAtDate === null ||
-        isPast(questionResponse.revealAtDate)
-      ) {
-        return <NotAvailableYet msg={"Question not revealed yet."} />;
-      } else {
-        return (
-          <NotAvailableYet
-            msg={`Question not revealed yet. ${getRevealAtText(questionResponse.revealAtDate)}.`}
-          />
-        );
-      }
-    }
-
-    // if (!questionResponse.isCalculatedAndPaidFor)
-    //   return (
-    //     <NotAvailableYet
-    //       msg={
-    //         "Question not answered or answer not calculated yet. Check back shortly."
-    //       }
-    //     />
-    //   );
-  } else {
+  if (!questionResponse.isQuestionRevealable) {
     if (
-      !questionResponse.isQuestionRevealable ||
-      !questionResponse.correctAnswer ||
-      chompResult?.transactionStatus !== TransactionStatus.Completed
+      questionResponse.revealAtDate === null ||
+      isPast(questionResponse.revealAtDate)
     ) {
-      redirect("/application");
+      return <NotAvailableYet msg={"Question not revealed yet."} />;
+    } else {
+      return (
+        <NotAvailableYet
+          msg={`Question not revealed yet. ${getRevealAtText(questionResponse.revealAtDate)}.`}
+        />
+      );
     }
   }
 

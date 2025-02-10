@@ -40,6 +40,7 @@ export type DeckExpiringSoon = {
   image?: string;
   total_count?: number;
   total_credit_cost?: number;
+  total_reward_amount?: number;
 };
 
 export type QuestionsForReveal = {
@@ -436,7 +437,12 @@ WITH premium_deck_cte AS (
      JOIN public."Question" q 
      ON dq."questionId" = q.id
      WHERE dq."deckId" = d."id"
-    ) AS total_credit_cost
+    ) AS total_credit_cost,
+    (SELECT sum("revealTokenAmount") 
+     FROM public."DeckQuestion" dq
+     JOIN public."Question" q 
+     ON dq."questionId" = q.id
+     WHERE dq."deckId" = d."id") AS total_reward_amount
 FROM
     public."Deck" d
 FULL JOIN
