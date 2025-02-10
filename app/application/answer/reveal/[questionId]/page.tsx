@@ -97,7 +97,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       }
     : questionResponse.chompResults?.[0];
 
-  const sendTransactionSignature = chompResult.sendTransactionSignature;
+  const sendTransactionSignature = chompResult?.sendTransactionSignature ?? null;
 
   if (isCreditsQuestion) {
     if (!questionResponse.isQuestionRevealable) {
