@@ -4,17 +4,9 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
-import { calculateMysteryBoxReward } from "@/app/utils/algo";
 import { sendBonk } from "@/app/utils/claim";
-import { CreateMysteryBoxError, FindMysteryBoxError } from "@/lib/error";
-import { MysteryBoxEventsType } from "@/types/mysteryBox";
-import {
-  EBoxPrizeStatus,
-  EBoxPrizeType,
-  EBoxTriggerType,
-  EMysteryBoxStatus,
-  EPrizeSize,
-} from "@prisma/client";
+import { FindMysteryBoxError } from "@/lib/error";
+import { EBoxTriggerType, EMysteryBoxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { PublicKey } from "@solana/web3.js";
 import "server-only";
@@ -24,14 +16,6 @@ import { UserAllowlistError } from "./error";
 export type FindMysteryBoxResult = {
   id: string;
   status: EMysteryBoxStatus;
-};
-
-type MysteryBoxPrize = {
-  status: EBoxPrizeStatus;
-  size: EPrizeSize;
-  prizeType: EBoxPrizeType;
-  tokenAddress: string | null;
-  amount: string;
 };
 
 export async function calculateTotalPrizeTokens(
@@ -102,89 +86,6 @@ export async function isUserInAllowlist(): Promise<boolean> {
     Sentry.captureException(checkUserInAllowlistError);
     await Sentry.flush(SENTRY_FLUSH_WAIT);
     return false;
-  }
-}
-
-/**
- * Gives the currently authenticated user a mystery box.
- *
- * @param userId      User who gets the mystery box.
- * @param triggerType Trigger type.
- * @param questionIds Array of question IDs for the trigger.
- */
-export async function rewardMysteryBox(
-  userId: string,
-  triggerType: EBoxTriggerType,
-  questionIds: number[],
-) {
-  try {
-    let calculatedReward;
-
-    if (triggerType == EBoxTriggerType.RevealAllCompleted) {
-      calculatedReward = await calculateMysteryBoxReward(
-        MysteryBoxEventsType.CLAIM_ALL_COMPLETED, // TODO: Change to RevealAllCompleted when mech-engine is updated
-      );
-    } else {
-      throw new Error(`Unimplemented trigger type: ${triggerType}`);
-    }
-
-    const userWallet = await prisma.wallet.findFirst({ where: { userId } });
-
-    if (!userWallet) return null;
-
-    const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
-
-    const prizes: MysteryBoxPrize[] = [];
-
-    if (calculatedReward?.bonk) {
-      prizes.push({
-        status: EBoxPrizeStatus.Unclaimed,
-        size: calculatedReward.box_type,
-        prizeType: EBoxPrizeType.Token,
-        tokenAddress,
-        amount: String(calculatedReward?.bonk),
-      });
-    }
-
-    // Add credits prize if present
-    if (calculatedReward?.credits) {
-      prizes.push({
-        status: EBoxPrizeStatus.Unclaimed,
-        size: calculatedReward.box_type,
-        prizeType: EBoxPrizeType.Credits,
-        tokenAddress: null,
-        amount: String(calculatedReward?.credits),
-      });
-    }
-
-    const res = await prisma.mysteryBox.create({
-      data: {
-        userId,
-        triggers: {
-          createMany: {
-            data: questionIds.map((questionId) => ({
-              questionId,
-              triggerType,
-              mysteryBoxAllowlistId: null,
-              MysteryBoxPrize: {
-                create: prizes,
-              },
-            })),
-          },
-        },
-      },
-    });
-    return res.id;
-  } catch (e) {
-    console.log(e);
-
-    const createMysteryBoxError = new CreateMysteryBoxError(
-      `Trouble creating ${triggerType} mystery box for User id: ${userId} and questions ids: ${questionIds}`,
-      { cause: e },
-    );
-    Sentry.captureException(createMysteryBoxError);
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
-    return null;
   }
 }
 

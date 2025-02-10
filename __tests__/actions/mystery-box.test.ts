@@ -1,21 +1,14 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
 import { openMysteryBox } from "@/app/actions/mysteryBox/open";
 import { revealMysteryBox } from "@/app/actions/mysteryBox/reveal";
 import { getUserTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
-import { rewardMysteryBox } from "@/lib/mysteryBox";
-import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import { faker } from "@faker-js/faker";
-import {
-  EBoxPrizeStatus,
-  EBoxTriggerType,
-  EMysteryBoxStatus,
-} from "@prisma/client";
+import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
 
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
@@ -87,16 +80,13 @@ export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
   });
 }
 
-describe.skip("Create mystery box", () => {
+describe("Create mystery box", () => {
   const currentDate = new Date();
 
   let user0: { id: string; username: string; wallet: string };
   let user1: { id: string; username: string; wallet: string };
   let questionIds: number[];
   let deckId: number;
-  let mysteryBoxId: string | null;
-  let mysteryBoxId2: string | null;
-  let mysteryBoxId3: string | null;
   let mysteryBoxId4: string | null;
   let mysteryBoxId5: string | null;
 
@@ -188,13 +178,9 @@ describe.skip("Create mystery box", () => {
     await deleteDeck(deckId);
 
     await deleteMysteryBoxes(
-      [
-        mysteryBoxId,
-        mysteryBoxId2,
-        mysteryBoxId3,
-        mysteryBoxId4,
-        mysteryBoxId5,
-      ].filter((box) => box !== null && box !== undefined),
+      [mysteryBoxId4, mysteryBoxId5].filter(
+        (box) => box !== null && box !== undefined,
+      ),
     );
 
     await prisma.wallet.deleteMany({
@@ -214,145 +200,6 @@ describe.skip("Create mystery box", () => {
         address: { in: [user0.wallet, user1.wallet] },
       },
     });
-  });
-
-  it("Should create a new mystery box with triggers and prizes", async () => {
-    mysteryBoxId = await rewardMysteryBox(
-      user0.id,
-      EBoxTriggerType.RevealAllCompleted,
-      [questionIds[0]],
-    );
-    if (mysteryBoxId) {
-      const res = await prisma.mysteryBox.findUnique({
-        where: {
-          id: mysteryBoxId,
-        },
-        include: {
-          triggers: {
-            select: {
-              id: true,
-              MysteryBoxPrize: {
-                select: {
-                  id: true,
-                },
-              },
-            },
-          },
-        },
-      });
-      // Assertions
-      expect(res).toBeDefined();
-      expect(res?.id).toBe(mysteryBoxId);
-      expect(res?.status).toBe("New");
-      expect(res?.triggers).toHaveLength(1);
-    }
-  });
-
-  it("Should calculate the user's total token winnings", async () => {
-    // Create a second box
-    mysteryBoxId2 = await rewardMysteryBox(
-      user0.id,
-      EBoxTriggerType.RevealAllCompleted,
-      [questionIds[1]],
-    );
-
-    if (!mysteryBoxId || !mysteryBoxId2)
-      throw new Error("Missing mystery box id(s)");
-
-    const prize1 = await prisma.mysteryBoxTrigger.findFirst({
-      where: {
-        mysteryBoxId,
-        MysteryBoxPrize: {
-          some: { prizeType: { equals: "Token" } },
-        },
-      },
-    });
-
-    const prize2 = await prisma.mysteryBoxTrigger.findFirst({
-      where: {
-        mysteryBoxId: mysteryBoxId2,
-        MysteryBoxPrize: {
-          some: { prizeType: { equals: "Token" } },
-        },
-      },
-    });
-
-    await prisma.mysteryBoxPrize.updateMany({
-      where: {
-        mysteryBoxTriggerId: {
-          in: [prize1?.id, prize2?.id].filter(
-            (id): id is string => id !== undefined,
-          ),
-        },
-      },
-      data: {
-        status: EBoxPrizeStatus.Claimed,
-        amount: "2300",
-      },
-    });
-
-    const totalWon = await calculateTotalPrizeTokens(
-      user0.id,
-      process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
-    );
-
-    expect(Number(totalWon)).toEqual(4600);
-  });
-
-  it("Should dismiss a mystery box", async () => {
-    // Create a second box
-    mysteryBoxId3 = await rewardMysteryBox(
-      user0.id,
-      EBoxTriggerType.RevealAllCompleted,
-      [questionIds[2]],
-    );
-
-    if (!mysteryBoxId3) throw new Error("Error creating mystery box");
-
-    await dismissMysteryBox(mysteryBoxId3);
-
-    const res = await prisma.mysteryBox.findUnique({
-      where: {
-        id: mysteryBoxId3,
-      },
-      include: {
-        triggers: {
-          include: {
-            MysteryBoxPrize: true,
-          },
-        },
-      },
-    });
-
-    expect(res).toBeDefined();
-    expect(res?.id).toBe(mysteryBoxId3);
-    expect(res?.status).toBe("Unopened");
-    expect(res?.triggers[0].MysteryBoxPrize[0].status).toBe("Dismissed");
-
-    // Check we didn't affect other boxes
-
-    if (!mysteryBoxId2) throw new Error("MysteryBox 2 is null");
-
-    const res2 = await prisma.mysteryBox.findUnique({
-      where: {
-        id: mysteryBoxId2,
-      },
-      include: {
-        triggers: {
-          select: {
-            id: true,
-          },
-          include: {
-            MysteryBoxPrize: true,
-          },
-        },
-      },
-    });
-
-    expect(res2).toBeDefined();
-    expect(res2?.id).toBe(mysteryBoxId2);
-    expect(res2?.status).not.toBe("Unopened");
-    expect(res?.triggers[0].MysteryBoxPrize[0].status).not.toBe("Dismissed");
   });
 
   it("Should reveal a mystery box", async () => {
