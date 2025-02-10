@@ -93,11 +93,20 @@ const RevealAnswerPage = async ({ params }: Props) => {
         burnTransactionSignature: null,
         sendTransactionSignature: null,
         userId: user?.id ?? "",
-        transactionStatus: TransactionStatus.Completed,
       }
-    : questionResponse.chompResults?.[0];
+    : questionResponse.chompResults.length > 0
+      ? questionResponse.chompResults?.[0]
+      : {
+          result: ResultType.Revealed,
+          rewardTokenAmount: 0,
+          revealNftId: null,
+          burnTransactionSignature: null,
+          sendTransactionSignature: null,
+          userId: user?.id ?? "",
+        };
 
-  const sendTransactionSignature = chompResult?.sendTransactionSignature ?? null;
+  const sendTransactionSignature =
+    chompResult?.sendTransactionSignature ?? null;
 
   if (isCreditsQuestion) {
     if (!questionResponse.isQuestionRevealable) {
@@ -124,12 +133,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
     //     />
     //   );
   } else {
-    if (
-      !questionResponse.isQuestionRevealable ||
-      !questionResponse.correctAnswer ||
-      chompResult?.transactionStatus !== TransactionStatus.Completed
-    ) {
-      redirect("/application");
+    if (!questionResponse.isQuestionRevealable) {
+      return <NotAvailableYet msg={"Question not revealed yet."} />;
     }
   }
 
