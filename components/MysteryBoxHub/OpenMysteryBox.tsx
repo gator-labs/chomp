@@ -8,6 +8,8 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { revalidateRewards } from "@/lib/actions";
 import { cn } from "@/lib/utils";
 import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
+import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
+import animationDataNothing from "@/public/lottie/chomp_box_nothing.json";
 import animationDataSanta from "@/public/lottie/santa_chomp_box_bonk.json";
 import { EMysteryBoxCategory, MysteryBoxStatus } from "@/types/mysteryBox";
 import { LottieRefCurrentProps } from "lottie-react";
@@ -29,7 +31,6 @@ export interface OpenMysteryBoxProps {
 function OpenMysteryBox({
   isOpen,
   closeBoxDialog,
-  boxType = EMysteryBoxCategory.Validation,
   mysteryBoxIds,
 }: OpenMysteryBoxProps) {
   const [status, setStatus] = useState<MysteryBoxStatus>("Idle");
@@ -53,21 +54,22 @@ function OpenMysteryBox({
     setIsSubmitting(true);
 
     try {
-      setStatus("Opening");
-
-      setTimeout(() => {
-        lottieRef.current?.play();
-      }, 500);
-
       const res = await promiseToast(openMysteryBoxHub(mysteryBoxIds), {
         loading: "Opening Mystery Box. Please wait...",
         success: "Mystery Box opened successfully! ",
         error: "Failed to open the Mystery Box. Please try again later. 😔",
       });
 
+      setStatus("Opening");
+
+      setTimeout(() => {
+        lottieRef.current?.play();
+      }, 500);
+
       if (res) {
         setMysteryBoxReward(res);
       }
+
       setTimeout(
         () => {
           setStatus("Closing");
@@ -125,6 +127,21 @@ function OpenMysteryBox({
     }
   };
 
+  const getAnimation = (mysteryBoxReward: {
+    totalCreditAmount: number;
+    totalBonkAmount: number;
+  }) => {
+    return mysteryBoxReward.totalBonkAmount === 0 &&
+      mysteryBoxReward.totalCreditAmount === 0
+      ? animationDataNothing
+      : mysteryBoxReward.totalBonkAmount > 0 &&
+          mysteryBoxReward.totalCreditAmount > 0
+        ? animationDataSanta
+        : mysteryBoxReward.totalCreditAmount > 0
+          ? animationDataCredits
+          : animationDataRegular;
+  };
+
   return (
     <MysteryBoxOverlay>
       <div className="flex flex-col items-center justify-between content-between absolute py-[70px] w-full max-w-[326px] h-full">
@@ -163,11 +180,7 @@ function OpenMysteryBox({
 
         <div className="flex flex-1 w-full  my-4 relative transition-all duration-75 justify-end items-center flex-col">
           <Lottie
-            animationData={
-              boxType === EMysteryBoxCategory.Validation
-                ? animationDataSanta
-                : animationDataRegular
-            }
+            animationData={getAnimation(mysteryBoxReward)}
             loop={false}
             lottieRef={lottieRef}
             autoplay={false}
