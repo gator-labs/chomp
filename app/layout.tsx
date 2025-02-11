@@ -1,4 +1,5 @@
 import ContentUnavailablePage from "@/components/ContentUnavailablePage";
+import { UserThreatLevelDetected } from "@/lib/error";
 import { satoshi } from "@/lib/fonts";
 import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/react";
@@ -48,7 +49,11 @@ export default async function RootLayout({
     user = await getCurrentUser();
   } catch (e) {
     if ((e as Error)?.name == "UserThreatLevelDetected")
-      return <ContentUnavailablePage />;
+      return (
+        <ContentUnavailablePage
+          cause={(e as UserThreatLevelDetected)?.cause as {}}
+        />
+      );
     else throw e;
   }
 
