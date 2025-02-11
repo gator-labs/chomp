@@ -30,18 +30,14 @@ describe("Threat level blocking", () => {
   beforeAll(async () => {
     users = await generateUsers(5);
 
-    await prisma.user.create({ data: { id: users[0].id } });
-    await prisma.user.create({
-      data: { id: users[1].id, threatLevel: EThreatLevelType.Bot },
-    });
-    await prisma.user.create({
-      data: { id: users[2].id, threatLevel: EThreatLevelType.ManualAllow },
-    });
-    await prisma.user.create({
-      data: { id: users[3].id, threatLevel: EThreatLevelType.ManualBlock },
-    });
-    await prisma.user.create({
-      data: { id: users[4].id, threatLevel: EThreatLevelType.PermanentAllow },
+    await prisma.user.createMany({
+      data: [
+        { id: users[0].id },
+        { id: users[1].id, threatLevel: EThreatLevelType.Bot },
+        { id: users[2].id, threatLevel: EThreatLevelType.ManualAllow },
+        { id: users[3].id, threatLevel: EThreatLevelType.ManualBlock },
+        { id: users[4].id, threatLevel: EThreatLevelType.PermanentAllow },
+      ],
     });
   });
 
