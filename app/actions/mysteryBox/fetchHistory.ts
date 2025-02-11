@@ -67,7 +67,6 @@ export async function fetchMysteryBoxHistory({
     );
 
     for (let i = 0; i < allPrizes.length; i++) {
-      console.log(allPrizes[i]);
       const prize = allPrizes[i];
 
       if (prize.prizeType == "Credits") {
