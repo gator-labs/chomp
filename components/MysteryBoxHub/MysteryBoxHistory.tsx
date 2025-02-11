@@ -12,7 +12,7 @@ type MysteryBoxHistoryProps = {};
 
 function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
-    queryKey: ["mystery-boxes"],
+    queryKey: ["mystery-boxes-history"],
     queryFn: ({ pageParam }) =>
       fetchMysteryBoxHistory({ currentPage: pageParam }),
     initialPageParam: 1,
