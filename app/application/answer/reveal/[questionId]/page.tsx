@@ -337,11 +337,10 @@ const RevealAnswerPage = async ({ params }: Props) => {
       </div>
       {!!answerSelected && (
         <RewardShow
-          status={
-            chompResult?.result === ResultType.Revealed
-              ? "claimable"
-              : "claimed"
-          }
+          status={"claimed"}
+          isCreditsQuestion={isCreditsQuestion}
+          isFirstOrderCorrect={isFirstOrderCorrect}
+          isSecondOrderCorrect={isSecondOrderCorrect}
           rewardAmount={chompResult?.rewardTokenAmount ?? 0}
           questionIds={[questionResponse.id]}
           questions={[questionResponse.question]}
