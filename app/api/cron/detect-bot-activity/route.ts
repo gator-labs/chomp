@@ -1,5 +1,7 @@
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { tryAcquireMutex } from "@/app/utils/mutex";
 import { updateBots } from "@/lib/bots";
+import * as Sentry from "@sentry/nextjs";
 
 const API_TIMEOUT = 5 * 60 * 1000; // Five minutes
 
@@ -64,7 +66,13 @@ export async function GET(request: Request) {
       },
     );
   } catch (error) {
-    console.error("Error:", error);
+    Sentry.captureException(error, {
+      tags: {
+        category: "bot-detector",
+      },
+    });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+
     return new Response("Internal Server Error", { status: 500 });
   } finally {
     release();
