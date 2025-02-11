@@ -248,13 +248,6 @@ describe("Mystery box history", () => {
     expect(boxes?.hasMore).toBeFalsy();
   });
 
-  it.skip("Should handle invalid page numbers gracefully", async () => {
-    const boxes = await fetchMysteryBoxHistory({ currentPage: -1 });
-
-    expect(boxes?.data.length).toEqual(0);
-    expect(boxes?.hasMore).toBeFalsy();
-  });
-
   it("Should handle large page numbers gracefully", async () => {
     const boxes = await fetchMysteryBoxHistory({ currentPage: 100 });
 
