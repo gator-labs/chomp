@@ -22,11 +22,7 @@ import {
   getAlphaIdentifier,
 } from "@/app/utils/question";
 import ViewRewardsButton from "@/components/ViewRewardsButton";
-import {
-  EBoxPrizeType,
-  QuestionType,
-  ResultType,
-} from "@prisma/client";
+import { EBoxPrizeType, QuestionType, ResultType } from "@prisma/client";
 import { isPast } from "date-fns";
 import { notFound } from "next/navigation";
 
@@ -129,8 +125,12 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   const isFirstOrderCorrect =
     questionResponse.correctAnswer?.id === answerSelected?.questionOptionId;
-  const isSecondOrderCorrect =
-    (chompResult?.rewardTokenAmount ?? 0) > questionResponse.revealTokenAmount;
+  const isSecondOrderCorrect = isCreditsQuestion
+    ? hasAlreadyClaimedReward
+      ? bonkPrizeAmount > 0
+      : undefined
+    : (chompResult?.rewardTokenAmount ?? 0) >
+      questionResponse.revealTokenAmount;
   let questionContent = <></>;
 
   if (isBinary) {

@@ -1,6 +1,7 @@
 import { ChevronRightIcon } from "@/app/components/Icons/ChevronRightIcon";
 import { getTimeUntilReveal } from "@/app/utils/history";
 import { QuestionCardIndicatorType } from "@/types/question";
+import { isPast } from "date-fns";
 import Link from "next/link";
 
 import { QuestionCardStatus } from "./QuestionCardStatus";
@@ -21,9 +22,11 @@ export function QuestionCard({
   revealAtDate,
 }: QuestionCardProps) {
   const canViewAnswer =
-    indicatorType == "correct" ||
-    indicatorType == "incorrect" ||
-    indicatorType == "unanswered";
+    (indicatorType == "correct" ||
+      indicatorType == "incorrect" ||
+      indicatorType == "unanswered") &&
+    revealAtDate !== null &&
+    isPast(revealAtDate);
 
   const card = (
     <div className="bg-gray-700 rounded-lg p-3 gap-6 flex flex-col">
