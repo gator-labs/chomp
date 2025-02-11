@@ -11,6 +11,7 @@ import animationDataRegular from "@/public/lottie/chomp_box_bonk.json";
 import animationDataCredits from "@/public/lottie/chomp_box_credits.json";
 import animationDataNothing from "@/public/lottie/chomp_box_nothing.json";
 import { EMysteryBoxCategory, MysteryBoxStatus } from "@/types/mysteryBox";
+import { useQueryClient } from "@tanstack/react-query";
 import { LottieRefCurrentProps } from "lottie-react";
 import dynamic from "next/dynamic";
 import React, { useRef, useState } from "react";
@@ -40,6 +41,8 @@ function OpenMysteryBox({
     totalBonkAmount: number;
   }>({ totalCreditAmount: 0, totalBonkAmount: 0 });
   const lottieRef = useRef<LottieRefCurrentProps | null>(null);
+
+  const queryClient = useQueryClient();
 
   const { promiseToast } = useToast();
   const message: MysteryBoxOpenMessage = "REGULAR";
@@ -80,6 +83,7 @@ function OpenMysteryBox({
       console.error("Failed to open the Mystery Box");
     } finally {
       setIsSubmitting(false);
+      queryClient.invalidateQueries({ queryKey: ["mystery-boxes-history"] });
     }
   };
 
