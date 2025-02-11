@@ -38,7 +38,7 @@ const getStatusText = (status: StatusUnion) => {
       return "New !";
     case "start":
       return (
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex items-center justify-center gap-1 text-xs">
           <p>Start</p>
           <ArrowRightCircle width={18} height={18} />
         </div>
@@ -99,7 +99,7 @@ export function HomeFeedDeckCard({
         {CREDIT_COST_FEATURE_FLAG && deckCreditCost != null ? (
           <div
             className={classNames(
-              "flex flex-row justify-center items-center rounded-2xl p-2 gap-2 font-medium",
+              "flex flex-row justify-center items-center rounded-2xl p-2 gap-2 font-medium text-xs",
               {
                 "bg-[#D0CBB4]": deckCreditCost === 0,
                 "bg-chomp-blue-light": deckCreditCost > 0,
