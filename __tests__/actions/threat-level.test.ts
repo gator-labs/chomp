@@ -55,7 +55,7 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_123");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[0].id });
 
-    expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
+    await expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
   });
 
   it("should disallow a bot user to validate a session", async () => {
@@ -63,14 +63,14 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_999");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[1].id });
 
-    expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
+    await expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
   });
 
   it("should allow a manually-permitted 'bot' to validate a session", async () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_888");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[2].id });
 
-    expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
+    await expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
   });
 
   it("should disallow a manually-blocked user to validate a session", async () => {
@@ -78,7 +78,7 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_777");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[3].id });
 
-    expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
+    await expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
   });
 
   it("should allow a permanently-allowed user to validate a session", async () => {
@@ -86,6 +86,6 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_222");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[4].id });
 
-    expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
+    await expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
   });
 });
