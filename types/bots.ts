@@ -4,7 +4,7 @@ export enum EThreatLevelType {
   Bot = "bot",
 
   // User previously marked as a bot who is
-  // not pardoned but will be blocked again
+  // now pardoned but will be blocked again
   // by the bot checker if they misbehave.
   ManualAllow = "manual-allow",
 
