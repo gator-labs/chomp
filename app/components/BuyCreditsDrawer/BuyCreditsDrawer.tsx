@@ -18,6 +18,8 @@ import { CloseIcon } from "../Icons/CloseIcon";
 import { Button } from "../ui/button";
 import { Drawer, DrawerContent } from "../ui/drawer";
 
+Decimal.set({ toExpNeg: -128 });
+
 type BuyCreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -33,7 +35,7 @@ function BuyCreditsDrawer({
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(solPricePerCredit!)
     .mul(creditsToBuy)
-    .toNumber();
+    .toString();
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
@@ -99,20 +101,34 @@ function BuyCreditsDrawer({
           <DialogTitle>
             <div className="flex justify-between items-center mb-2">
               <p className="text-base text-secondary font-bold">
-                Buy {creditsToBuy} More Credits?
+                Buy {creditsToBuy} More Credit{creditsToBuy !== 1 ? "s" : ""}?
               </p>
               <div onClick={onClose}>
                 <CloseIcon width={16} height={16} />
               </div>
             </div>
           </DialogTitle>
-          <p>
-            Credits are required to answer this deck. <br /> <br />
-            <b className="text-chomp-blue-light">Premium decks</b> allow you to
-            earn BONK rewards when answers are correct.
-          </p>
+          <div className="space-y-4">
+            <p>Credits are required to answer this deck.</p>
+            <p>
+              You&apos;ll get your Credits back for giving the best answer for
+              the first order question, and up to an additional BONK per
+              question depending on the accuracy of your second order response.
+            </p>
+            <p>
+              To learn more about rewards, read our documentation{" "}
+              <a
+                href="https://docs.chomp.games/how-to-earn"
+                target="_blank"
+                className="text-secondary underline"
+              >
+                here
+              </a>
+            </p>
+          </div>
           <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
-            {creditsToBuy} Credits ~ ${totalSolCost} SOL
+            {creditsToBuy} Credit{creditsToBuy !== 1 ? "s" : ""} ~ $
+            {totalSolCost} SOL
           </span>
           <Button
             onClick={buyCredits}

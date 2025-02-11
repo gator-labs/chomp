@@ -38,8 +38,8 @@ export function RevealFeedQuestionCard({
   const handleReveal = () => {
     openRevealModal({
       // Data is passed from the useReveal hook, using reveal?.reveal(...data) for execution.
-      reveal: async ({ burnTx, nftAddress, nftType }: RevealProps) => {
-        await revealQuestion(id, burnTx, nftAddress, nftType);
+      reveal: async ({ burnTx }: RevealProps) => {
+        await revealQuestion(id, burnTx);
         setIsLoading(true);
         const currentUrl = new URL(location.href);
         const targetUrl = new URL(

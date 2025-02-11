@@ -48,14 +48,14 @@ describe("queryExpiringDecks", () => {
         tx.deck.create({
           data: {
             deck: "Deck 1",
-            date: new Date(),
+            activeFromDate: dayjs().startOf("day").toDate(),
             revealAtDate: dayjs().add(1, "day").toDate(),
           },
         }),
         tx.deck.create({
           data: {
             deck: "Deck 2",
-            date: new Date(),
+            activeFromDate: dayjs().startOf("day").toDate(),
             revealAtDate: dayjs().add(1, "day").toDate(),
           },
         }),
@@ -186,11 +186,6 @@ describe("queryExpiringDecks", () => {
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { in: deckIds } } });
       await tx.user.deleteMany({ where: { id: { in: [user1.id, user2.id] } } });
-
-      // Reset dates that were changed for the test
-      await tx.$queryRaw`
-        UPDATE "Deck" SET "revealAtDate" = "revealAtDate" + INTERVAL '5 years'
-      `;
     });
   });
 

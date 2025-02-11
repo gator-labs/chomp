@@ -1,5 +1,6 @@
 import prisma from "@/app/services/prisma";
 import { UserThreatLevelDetected } from "@/lib/error";
+import { EThreatLevelType } from "@/types/bots";
 import { cookies } from "next/headers";
 
 export const checkThreatLevel = async (userId: string) => {
@@ -8,11 +9,11 @@ export const checkThreatLevel = async (userId: string) => {
     include: { wallets: true },
   });
   if (!user) throw new Error("User not found");
-  if (!!user.threatLevel) {
-    throw new UserThreatLevelDetected(
-      `User threat level detected: user: ${user.id}, wallet: ${user.wallets?.[0]?.address}, level: ${user.threatLevel}`,
-      { cause: { userId: user.id, source: "JWT" } },
-    );
+  if (
+    user.threatLevel === EThreatLevelType.Bot ||
+    user.threatLevel === EThreatLevelType.ManualBlock
+  ) {
+    throw new UserThreatLevelDetected("User threat level detected");
   }
 };
 

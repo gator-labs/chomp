@@ -1,21 +1,14 @@
 "use server";
 
-import {
-  calculateTotalPrizeTokens,
-  getChompmasMysteryBox,
-  isUserInAllowlist,
-} from "@/lib/mysteryBox";
+import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { FungibleAsset } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
 import { getJwtPayload } from "../actions/jwt";
 import { DECK_LIMIT } from "../constants/decks";
-import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
-import { acquireMutex } from "../utils/mutex";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 dayjs.extend(duration);
@@ -47,6 +40,7 @@ export type DeckExpiringSoon = {
   image?: string;
   total_count?: number;
   total_credit_cost?: number;
+  total_reward_amount?: number;
 };
 
 export type QuestionsForReveal = {
@@ -291,41 +285,6 @@ export async function getUsersLatestStreak(): Promise<number> {
   return longestStreak;
 }
 
-export async function getUsersLatestStreakAndMysteryBox(): Promise<
-  [number, string | null]
-> {
-  const payload = await authGuard();
-
-  const release = await acquireMutex({
-    identifier: "GET_CHOMPMAS_BOX",
-    data: { userId: payload.sub },
-  });
-
-  try {
-    const latestStreak = await queryUsersLatestStreak(payload.sub);
-
-    const FF_MYSTERY_BOX = process.env.NEXT_PUBLIC_FF_MYSTERY_BOX_CHOMPMAS;
-
-    const mysteryBoxId =
-      FF_MYSTERY_BOX && (await isUserInAllowlist())
-        ? await getChompmasMysteryBox(payload.sub, latestStreak)
-        : null;
-
-    return [latestStreak, mysteryBoxId];
-  } catch (e) {
-    const getStreakError = new Error(
-      `Error getting streak / chompmas box for user with id: ${payload.sub}`,
-      { cause: e },
-    );
-    Sentry.captureException(getStreakError);
-
-    throw new Error("Error opening mystery box");
-  } finally {
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
-    release();
-  }
-}
-
 async function queryUsersLatestStreak(userId: string): Promise<number> {
   const streaks: Streak[] = await prisma.$queryRaw`
   WITH userActivity AS (
@@ -478,7 +437,12 @@ WITH premium_deck_cte AS (
      JOIN public."Question" q 
      ON dq."questionId" = q.id
      WHERE dq."deckId" = d."id"
-    ) AS total_credit_cost
+    ) AS total_credit_cost,
+    (SELECT sum("revealTokenAmount") 
+     FROM public."DeckQuestion" dq
+     JOIN public."Question" q 
+     ON dq."questionId" = q.id
+     WHERE dq."deckId" = d."id") AS total_reward_amount
 FROM
     public."Deck" d
 FULL JOIN
@@ -489,6 +453,7 @@ WHERE
     d."activeFromDate" IS NULL
     AND d."date" >= ${currentDayStart}
     AND d."date" <= ${currentDayEnd})
+    AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq
@@ -561,6 +526,7 @@ WHERE
     d."activeFromDate" IS NULL
     AND d."date" >= ${currentDayStart}
     AND d."date" <= ${currentDayEnd})
+    AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq

@@ -83,6 +83,8 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
   if (!payload?.sub) return null;
 
+  const userId = payload.sub;
+
   const deck = await prisma.deck.findFirst({
     where: {
       id: deckId,
@@ -96,7 +98,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
                 include: {
                   questionAnswers: {
                     where: {
-                      userId: payload.sub,
+                      userId,
                     },
                   },
                 },
@@ -135,13 +137,45 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
 
   const totalDeckQuestions = getTotalNumberOfDeckQuestions(deckQuestions);
 
-  const deckCreditCost = deckQuestions.every(
+  const creditCostUnansweredQuestion = await prisma.deckQuestion.findMany({
+    where: {
+      deckId: deckId,
+      question: {
+        questionOptions: {
+          every: {
+            questionAnswers: {
+              none: {
+                userId: userId,
+              },
+            },
+          },
+        },
+      },
+    },
+    select: {
+      question: {
+        include: {
+          questionOptions: {
+            include: {
+              questionAnswers: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const deckCreditCost = creditCostUnansweredQuestion.every(
     (dq) => dq?.question?.creditCostPerQuestion == null,
   )
     ? null
-    : deckQuestions.reduce((total, dq) => {
+    : creditCostUnansweredQuestion.reduce((total, dq) => {
         return total + (dq?.question?.creditCostPerQuestion || 0);
       }, 0);
+
+  const deckRewardAmount = creditCostUnansweredQuestion.reduce((total, dq) => {
+    return total + (dq?.question?.revealTokenAmount || 0);
+  }, 0);
 
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
@@ -154,6 +188,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       revealAtDate: deck.revealAtDate,
       activeFromDate: deck.activeFromDate,
       deckCreditCost,
+      deckRewardAmount,
     };
   } else if (
     deck.deckQuestions.some((dq) =>
@@ -168,6 +203,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       stackId: deck.stackId,
       totalDeckQuestions,
       deckCreditCost,
+      deckRewardAmount,
       deckInfo: {
         heading: deck.heading || deck.deck,
         description: deck.description,
@@ -188,6 +224,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     date: deck.date,
     stackId: deck.stackId,
     deckCreditCost,
+    deckRewardAmount,
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,

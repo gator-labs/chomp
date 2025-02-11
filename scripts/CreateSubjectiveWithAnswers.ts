@@ -28,13 +28,14 @@ async function createUsers(count: number) {
   return users;
 }
 
-async function main(optionToSelect: string) {
+async function main(creditCost: number = 0, optionToSelect: string) {
   // Create a deck with one question
   const deck = await prisma.deck.create({
     data: {
       deck: `${tag}: Sample Deck ${new Date(Date.now())}`,
       revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Reveal 24 hours later
-      // isActive: true,
+      activeFromDate: new Date(),
+      creditCostPerQuestion: creditCost,
       deckQuestions: {
         create: {
           question: {
@@ -45,6 +46,7 @@ async function main(optionToSelect: string) {
               revealTokenAmount: 100,
               revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Reveal 24 hours later
               durationMiliseconds: BigInt(600000), // Longer time to answer for testing
+              creditCostPerQuestion: creditCost,
               questionOptions: {
                 create: [
                   { option: "User's opinion", isLeft: true },
@@ -120,9 +122,10 @@ async function main(optionToSelect: string) {
 
 // Parse the command line arguments to determine which option to select
 const args = process.argv.slice(2);
-const optionToSelect = args[0]; // The first argument is the option ("first" or "second")
+const optionToSelect = args[1]; // The first argument is the option ("first" or "second")
+const creditCost = args[0] ? parseInt(args[0]) : 0; // The second argument is the credit cost
 
-main(optionToSelect)
+main(creditCost, optionToSelect)
   .then(async () => {
     await prisma.$disconnect();
   })

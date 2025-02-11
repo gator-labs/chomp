@@ -8,6 +8,7 @@ type AdminMultiChoiceQuestionGeneratorFormProps = {
   action: (
     correctOption: string,
     tag: string,
+    creditCostPerQuestion: number | null,
   ) => Promise<{
     deckLink: string;
   }>;
@@ -29,7 +30,11 @@ export default function AdminMultiChoiceQuestionGeneratorForm({
     setIsLoading(true);
 
     const tag = formData.get("tag") as string | null;
+    const creditCost = formData.get("creditCost") as string;
     const correctOption = formData.get("correctOption") as string | null;
+
+    const creditCostPerQuestion =
+      creditCost === "none" ? null : Number(creditCost);
 
     if (!tag || !correctOption) {
       setMessage("Please fill in all required fields.");
@@ -38,7 +43,11 @@ export default function AdminMultiChoiceQuestionGeneratorForm({
     }
 
     try {
-      const { deckLink } = await action(correctOption, tag);
+      const { deckLink } = await action(
+        correctOption,
+        tag,
+        creditCostPerQuestion,
+      );
 
       setDeckLink(deckLink);
       setMessage(
@@ -63,6 +72,29 @@ export default function AdminMultiChoiceQuestionGeneratorForm({
       </h1>
 
       <form onSubmit={handleFormSubmit} ref={formRef} className="space-y-6">
+        <div>
+          <label
+            htmlFor="creditCost"
+            className="block text-sm font-medium text-gray-300"
+          >
+            Credit Cost Per Question
+          </label>
+          <select
+            id="creditCost"
+            name="creditCost"
+            required
+            className="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="none">None (legacy)</option>
+            <option value="0">0 (free)</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+
         <div>
           <label
             htmlFor="tag"

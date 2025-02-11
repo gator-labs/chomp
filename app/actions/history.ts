@@ -1,8 +1,12 @@
 "use server";
 
 import {
+  NewQuestionHistory,
+  NewQuestionHistoryData,
   QuestionHistory,
   getDecksHistory,
+  getHistoryHeadersData,
+  getNewHistoryQuery,
   getQuestionsHistoryQuery,
 } from "../queries/history";
 import prisma from "../services/prisma";
@@ -40,6 +44,22 @@ export const getQuestionsHistory = async ({
     deckId,
     "isRevealable",
   );
+};
+
+export const getNewQuestionHistory = async ({
+  pageParam,
+  deckId,
+}: {
+  pageParam: number;
+  deckId?: number;
+}): Promise<NewQuestionHistory[]> => {
+  const payload = await getJwtPayload();
+
+  if (!payload?.sub) {
+    return [];
+  }
+
+  return getNewHistoryQuery(payload.sub, PAGE_SIZE, pageParam, deckId);
 };
 
 export async function getTotalClaimableRewards() {
@@ -134,4 +154,21 @@ export async function getDeckTotalClaimableRewards(deckId: number) {
       0,
     ),
   };
+}
+
+export async function getNewHistoryHeaderData(
+  deckId?: number,
+): Promise<NewQuestionHistoryData> {
+  const payload = await getJwtPayload();
+
+  if (!payload?.sub) {
+    return {
+      correctCount: 0,
+      incorrectCount: 0,
+      unansweredCount: 0,
+      unrevealedCount: 0,
+    };
+  }
+
+  return getHistoryHeadersData(payload.sub, deckId);
 }

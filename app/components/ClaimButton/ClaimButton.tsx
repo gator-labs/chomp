@@ -21,7 +21,6 @@ import classNames from "classnames";
 import Link from "next/link";
 
 import { DollarIcon } from "../Icons/DollarIcon";
-import RewardInfoBox from "../InfoBoxes/RevealPage/RewardInfoBox";
 import Pill from "../Pill/Pill";
 import { Button } from "../ui/button";
 
@@ -36,6 +35,9 @@ interface ClaimButtonProps {
   revealNftId?: string | null;
   resultIds: number[];
   userId: string;
+  creditsPerQuestion: number | null;
+  creditsRewardAmount: string | undefined;
+  creditsRewardStatus: "claimable" | "claimed";
 }
 
 const ClaimButton = ({
@@ -49,6 +51,9 @@ const ClaimButton = ({
   revealNftId,
   resultIds,
   userId,
+  creditsPerQuestion,
+  creditsRewardAmount,
+  creditsRewardStatus,
 }: ClaimButtonProps) => {
   const { fire } = useConfetti();
   const { promiseToast, errorToast } = useToast();
@@ -172,20 +177,25 @@ const ClaimButton = ({
     );
   }
 
-  if (status === "claimable" && rewardAmount !== 0) {
+  if (
+    (status === "claimable" && rewardAmount !== 0) ||
+    (creditsRewardStatus === "claimable" && creditsRewardAmount !== undefined)
+  ) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
-          <p className="text-sm font-normal text-left">
-            Your claimable reward:
-          </p>
+          <p className="text-sm font-normal text-left">You won:</p>
           <Pill onClick={onClick} variant="white" className="cursor-pointer">
             <span className="text-xs font-bold text-left">
               {numberToCurrencyFormatter.format(Math.round(rewardAmount || 0))}{" "}
               BONK
             </span>
           </Pill>
-          <RewardInfoBox />
+          <Pill onClick={onClick} variant="white" className="cursor-pointer">
+            <span className="text-xs font-bold text-left">
+              {Number(creditsRewardAmount) || 0} CREDITS
+            </span>
+          </Pill>
         </div>
         <div className="flex flex-col gap-4 w-full">
           <Button
@@ -195,7 +205,7 @@ const ClaimButton = ({
               { "cursor-not-allowed opacity-50": isClaiming },
             )}
             onClick={onClick}
-            disabled={isClaiming}
+            disabled={isClaiming || creditsPerQuestion === null} // Disable claim for legacy questions
           >
             <span>Claim</span>
             <DollarIcon height={24} width={24} />
@@ -205,7 +215,10 @@ const ClaimButton = ({
     );
   }
 
-  if (status === "claimed" && rewardAmount !== 0) {
+  if (
+    (status === "claimed" && rewardAmount !== 0) ||
+    (creditsRewardStatus === "claimed" && creditsRewardAmount !== undefined)
+  ) {
     return (
       <div className="flex flex-col gap-4 items-center justify-center">
         <div className="flex items-center justify-center gap-1">
@@ -216,7 +229,11 @@ const ClaimButton = ({
               BONK
             </span>
           </Pill>
-          <RewardInfoBox />
+          <Pill variant="white" className="cursor-pointer">
+            <span className="text-xs font-bold text-left">
+              {Number(creditsRewardAmount) || 0} CREDITS
+            </span>
+          </Pill>
         </div>
         <div className="flex flex-col gap-4 w-full">
           <Button
@@ -237,11 +254,10 @@ const ClaimButton = ({
   return (
     <div className="flex flex-col gap-4 items-center justify-center">
       <div className="flex items-center justify-center gap-1">
-        <p className="text-sm font-normal  text-left">Your claimable reward:</p>
+        <p className="text-sm font-normal  text-left">You won:</p>
         <Pill variant="white" className="!cursor-auto">
           <span className="text-xs font-bold  text-left">0 BONK</span>
         </Pill>
-        <RewardInfoBox />
       </div>
       <div className="flex flex-col gap-4 w-full">
         <Button

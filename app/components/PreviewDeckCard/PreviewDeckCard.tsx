@@ -1,13 +1,12 @@
 import { Avatar } from "@/app/components/Avatar/Avatar";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { formatNumber } from "@/app/utils/number";
+import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
 
-import { CloseIcon } from "../Icons/CloseIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
+import InfoDrawer from "../InfoDrawer/InfoDrawer";
 import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
-import { Button } from "../ui/button";
-import { Drawer, DrawerContent } from "../ui/drawer";
 
 type PreviewDeckCardProps = {
   className?: string;
@@ -21,6 +20,8 @@ type PreviewDeckCardProps = {
   stackImage: string;
   blurData: string | undefined;
   deckCreditCost: number | null;
+  totalCredits: number;
+  deckRewardAmount: number;
 };
 
 const CREDIT_COST_FEATURE_FLAG =
@@ -37,9 +38,19 @@ const PreviewDeckCard = ({
   imageUrl,
   totalNumberOfQuestions,
   blurData,
+  totalCredits,
   deckCreditCost,
+  deckRewardAmount,
 }: PreviewDeckCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  const hasEnoughCredits = deckCreditCost
+    ? totalCredits >= deckCreditCost
+    : false;
+  const creditsRequired = deckCreditCost ? deckCreditCost - totalCredits : 0;
+  const creditsPerQuestion = deckCreditCost
+    ? deckCreditCost / totalNumberOfQuestions
+    : 0;
 
   const onClose = () => {
     setIsOpen(false);
@@ -75,16 +86,40 @@ const PreviewDeckCard = ({
               {totalNumberOfQuestions > 1 && "s"}
             </p>
             {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
-              <button
-                className="flex items-center rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50"
-                onClick={() => setIsOpen(true)}
-              >
-                <span className="opacity-50 pr-1">Entry </span>
-                {deckCreditCost > 0
-                  ? `${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
-                  : "Free"}
-                <InfoIcon fill="#0d0d0d" />
-              </button>
+              <>
+                <button
+                  className={classNames(
+                    "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50",
+                    {
+                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-blue-light": deckCreditCost > 0,
+                    },
+                  )}
+                  onClick={() => setIsOpen(true)}
+                >
+                  <span className="opacity-50 pr-1">Entry </span>
+                  {`${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
+                  <InfoIcon fill="#0d0d0d" />
+                </button>
+                <button
+                  className={classNames(
+                    "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50 -mt-1",
+                    {
+                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-blue-light": deckCreditCost > 0,
+                    },
+                  )}
+                  onClick={() => setIsOpen(true)}
+                >
+                  <span className="opacity-50 pr-1">
+                    Rewards {deckCreditCost > 0 && "up to"}{" "}
+                  </span>
+                  {deckCreditCost > 0
+                    ? `${formatNumber(deckRewardAmount)} BONK`
+                    : "Streaks"}
+                  <InfoIcon fill="#0d0d0d" />
+                </button>
+              </>
             ) : null}
             <div className="flex gap-2 items-center">
               {!!authorImageUrl && (
@@ -105,39 +140,77 @@ const PreviewDeckCard = ({
           </div>
         </div>
       </div>
-      <Drawer
-        open={isOpen}
-        onOpenChange={async (open: boolean) => {
-          if (!open) {
-            onClose();
-          }
-        }}
-      >
-        <DrawerContent className="p-6 flex flex-col">
-          <DialogTitle>
-            <div className="flex justify-between items-center mb-6">
-              <p className="text-base text-secondary font-bold">
-                What are credits?
-              </p>
-              <div onClick={onClose}>
-                <CloseIcon width={16} height={16} />
-              </div>
-            </div>
-          </DialogTitle>
-          <p>
-            Credits are required to answer this deck. <br /> <br />
-            <b className="text-chomp-blue-light">Premium decks</b> allow you to
-            earn BONK rewards when answers are correct. This cost is calculated
-            based on the sum of the cost of each question. You will be able to
-            pick up this deck if you do not finish in one sitting! <br /> <br />
-            <b>Free decks</b> are available to answer and reveal for results,
-            but you will not be able to earn any BONK from that deck.
-          </p>
-          <Button onClick={onClose} className="h-[50px] mt-6 font-bold">
-            Close
-          </Button>
-        </DrawerContent>
-      </Drawer>
+      <InfoDrawer isOpen={isOpen} onClose={onClose} title="What are credits?">
+        {deckCreditCost !== 0 ? (
+          <div className="text-sm mb-6 space-y-4">
+            <p>
+              {hasEnoughCredits ? deckCreditCost : creditsRequired} Credit
+              {hasEnoughCredits
+                ? deckCreditCost !== 1
+                  ? "s"
+                  : ""
+                : creditsRequired !== 1
+                  ? "s"
+                  : ""}{" "}
+              {hasEnoughCredits
+                ? deckCreditCost === 1
+                  ? "is"
+                  : "are"
+                : creditsRequired === 1
+                  ? "is"
+                  : "are"}{" "}
+              required to answer this deck.
+            </p>
+            <p>
+              Each question in this deck costs {creditsPerQuestion} Credit
+              {creditsPerQuestion !== 1 ? "s" : ""} to answer. Since there{" "}
+              {totalNumberOfQuestions > 1 ? "are" : "is"}{" "}
+              {totalNumberOfQuestions} question
+              {totalNumberOfQuestions !== 1 ? "s" : ""} in this deck, answering{" "}
+              {totalNumberOfQuestions} question
+              {totalNumberOfQuestions !== 1 ? "s" : ""} in this deck, answering
+              the entire deck costs {deckCreditCost} Credit
+              {deckCreditCost !== 1 ? "s" : ""}. You are only charged for
+              questions you see.
+            </p>
+            <p>
+              <b className="text-chomp-blue-light">Validate decks</b> allow you
+              to earn BONK rewards. You&apos;ll get your Credits back for giving
+              the best answer for the first order question, and up to an
+              additional BONK per question depending on the accuracy of your
+              second order response.
+            </p>
+            <p>
+              To learn more about rewards, read our documentation{" "}
+              <a
+                href="https://docs.chomp.games/how-to-earn"
+                target="_blank"
+                className="text-secondary underline"
+              >
+                here
+              </a>
+            </p>
+          </div>
+        ) : (
+          <div className="text-sm mb-6 space-y-4">
+            <p>You can answer this deck without using Credits!</p>
+            <p>
+              <b className="text-[#D0CBB4]">Practice decks</b> allow you to earn
+              streaks or points without earning BONK.
+            </p>
+            <p>
+              To learn more about rewards, read our documentation{" "}
+              <a
+                href="https://docs.chomp.games/how-to-earn"
+                target="_blank"
+                className="text-secondary underline"
+              >
+                here
+              </a>
+            </p>
+          </div>
+        )}
+      </InfoDrawer>
     </QuestionCardLayout>
   );
 };

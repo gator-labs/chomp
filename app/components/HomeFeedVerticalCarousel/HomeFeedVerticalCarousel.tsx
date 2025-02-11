@@ -3,11 +3,11 @@
 import { ReactNode, useState } from "react";
 import "swiper/css";
 
-import DeckInfoDrawer from "../DeckInfoDrawer/DeckInfoDrawer";
 import DeckSwitchTabs from "../DeckSwitchTabs/DeckSwitchTabs";
 import { DECK_FILTERS } from "../DeckSwitchTabs/constants";
 import FreeDeckFeed from "../FreeDeckFeed/FreeDeckFeed";
 import { InfoIcon } from "../Icons/InfoIcon";
+import InfoDrawer from "../InfoDrawer/InfoDrawer";
 import PaidDeckFeed from "../PaidDeckFeed/PaidDeckFeed";
 
 type HomeFeedVerticalCarouselProps = {
@@ -24,18 +24,43 @@ export function HomeFeedVerticalCarousel({
 
   return (
     <>
-      <DeckInfoDrawer
+      <InfoDrawer
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         title="Choose your path: Validate or Practice"
-        description={`Validate: These paid decks help build trusted information and offer rewards for correct answers.\n Practice: Play without paying and learn at your own pace.While these decks don't offer rewards, you might discover some fun surprises along the way.`}
-      />
+      >
+        <div className="text-sm mb-6 space-y-4">
+          <b className="text-chomp-blue-light">Validate</b>
+          <p>
+            These paid decks help build trusted information and offer rewards
+            for correct answers.
+          </p>
+          <div>
+            <b className="text-[#D0CBB4]">Practice</b>
+          </div>
+          <p>
+            Play without paying and learn at your own pace. While these decks
+            don&apos;t offer rewards, you might discover some fun surprises
+            along the way.
+          </p>
+          <p>
+            To learn more about how rewards work, read our documentation{" "}
+            <a
+              href="https://docs.chomp.games/how-to-earn"
+              target="_blank"
+              className="text-secondary underline"
+            >
+              here
+            </a>
+          </p>
+        </div>
+      </InfoDrawer>
 
       <div className={className}>
         <div className="flex justify-between items-center mb-2">
           <div>{title}</div>
           <button onClick={() => setIsOpen(true)}>
-            <InfoIcon width={18} height={18} className="text-gray-400" />
+            <InfoIcon width={18} height={18} fill="#999999" />
           </button>
         </div>
         <DeckSwitchTabs

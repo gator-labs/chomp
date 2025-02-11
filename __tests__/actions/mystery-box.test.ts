@@ -1,26 +1,25 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { dismissMysteryBox } from "@/app/actions/mysteryBox/dismiss";
 import { openMysteryBox } from "@/app/actions/mysteryBox/open";
 import { revealMysteryBox } from "@/app/actions/mysteryBox/reveal";
 import { getUserTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
-import { rewardMysteryBox } from "@/lib/mysteryBox";
-import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import { faker } from "@faker-js/faker";
-import {
-  EBoxPrizeStatus,
-  EBoxTriggerType,
-  EMysteryBoxStatus,
-} from "@prisma/client";
+import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
 
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
   sendBonkFromTreasury: jest.fn(async () =>
-    faker.string.hexadecimal({ length: 88 }),
+    faker.string.hexadecimal({ length: 86 }),
+  ),
+}));
+
+jest.mock("@/actions/getTreasuryAddress", () => ({
+  getTreasuryAddress: jest.fn(async () =>
+    faker.string.hexadecimal({ length: 40 }),
   ),
 }));
 
@@ -46,15 +45,25 @@ export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
       id: { in: validBoxIds },
     },
     include: {
-      triggers: true,
-      MysteryBoxPrize: true,
+      triggers: {
+        select: {
+          id: true,
+          MysteryBoxPrize: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
     },
   });
   await prisma.mysteryBoxPrize.deleteMany({
     where: {
       id: {
         in: boxes.flatMap((box) =>
-          box.MysteryBoxPrize.map((prize) => prize.id),
+          box.triggers.flatMap((trigger) =>
+            trigger.MysteryBoxPrize.map((prize) => prize.id),
+          ),
         ),
       },
     },
@@ -78,9 +87,6 @@ describe("Create mystery box", () => {
   let user1: { id: string; username: string; wallet: string };
   let questionIds: number[];
   let deckId: number;
-  let mysteryBoxId: string | null;
-  let mysteryBoxId2: string | null;
-  let mysteryBoxId3: string | null;
   let mysteryBoxId4: string | null;
   let mysteryBoxId5: string | null;
 
@@ -172,13 +178,9 @@ describe("Create mystery box", () => {
     await deleteDeck(deckId);
 
     await deleteMysteryBoxes(
-      [
-        mysteryBoxId,
-        mysteryBoxId2,
-        mysteryBoxId3,
-        mysteryBoxId4,
-        mysteryBoxId5,
-      ].filter((box) => box !== null && box !== undefined),
+      [mysteryBoxId4, mysteryBoxId5].filter(
+        (box) => box !== null && box !== undefined,
+      ),
     );
 
     await prisma.wallet.deleteMany({
@@ -200,120 +202,20 @@ describe("Create mystery box", () => {
     });
   });
 
-  it("Should create a new mystery box with triggers and prizes", async () => {
-    mysteryBoxId = await rewardMysteryBox(
-      user0.id,
-      EBoxTriggerType.RevealAllCompleted,
-      [questionIds[0]],
-    );
-    if (mysteryBoxId) {
-      const res = await prisma.mysteryBox.findUnique({
-        where: {
-          id: mysteryBoxId,
-        },
-        include: {
-          triggers: true,
-          MysteryBoxPrize: true,
-        },
-      });
-      // Assertions
-      expect(res).toBeDefined();
-      expect(res?.id).toBe(mysteryBoxId);
-      expect(res?.status).toBe("New");
-      expect(res?.triggers).toHaveLength(1);
-      expect(res?.MysteryBoxPrize?.length).toBeGreaterThanOrEqual(1);
-    }
-  });
-
-  it("Should calculate the user's total token winnings", async () => {
-    // Create a second box
-    mysteryBoxId2 = await rewardMysteryBox(
-      user0.id,
-      EBoxTriggerType.RevealAllCompleted,
-      [questionIds[1]],
-    );
-
-    if (!mysteryBoxId || !mysteryBoxId2)
-      throw new Error("Missing mystery box id(s)");
-
-    await prisma.mysteryBoxPrize.updateMany({
-      where: { mysteryBoxId: { in: [mysteryBoxId, mysteryBoxId2] } },
-      data: {
-        status: EBoxPrizeStatus.Claimed,
-        amount: "2300",
-      },
-    });
-
-    const totalWon = await calculateTotalPrizeTokens(
-      user0.id,
-      process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
-    );
-
-    expect(Number(totalWon)).toEqual(4600);
-  });
-
-  it("Should dismiss a mystery box", async () => {
-    // Create a second box
-    mysteryBoxId3 = await rewardMysteryBox(
-      user0.id,
-      EBoxTriggerType.RevealAllCompleted,
-      [questionIds[2]],
-    );
-
-    if (!mysteryBoxId3) throw new Error("Error creating mystery box");
-
-    await dismissMysteryBox(mysteryBoxId3);
-
-    const res = await prisma.mysteryBox.findUnique({
-      where: {
-        id: mysteryBoxId3,
-      },
-      include: {
-        triggers: true,
-        MysteryBoxPrize: true,
-      },
-    });
-
-    expect(res).toBeDefined();
-    expect(res?.id).toBe(mysteryBoxId3);
-    expect(res?.status).toBe("Unopened");
-    expect(res?.MysteryBoxPrize[0].status).toBe("Dismissed");
-
-    // Check we didn't affect other boxes
-
-    if (!mysteryBoxId2) throw new Error("MysteryBox 2 is null");
-
-    const res2 = await prisma.mysteryBox.findUnique({
-      where: {
-        id: mysteryBoxId2,
-      },
-      include: {
-        triggers: true,
-        MysteryBoxPrize: true,
-      },
-    });
-
-    expect(res2).toBeDefined();
-    expect(res2?.id).toBe(mysteryBoxId2);
-    expect(res2?.status).not.toBe("Unopened");
-    expect(res2?.MysteryBoxPrize[0].status).not.toBe("Dismissed");
-  });
-
   it("Should reveal a mystery box", async () => {
     const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
     const res = await prisma.mysteryBox.create({
       data: {
         userId: user0.id,
-        triggers: {
-          createMany: {
-            data: {
-              questionId: questionIds[3],
-              triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
-              mysteryBoxAllowlistId: null,
-            },
-          },
-        },
+      },
+    });
+
+    await prisma.mysteryBoxTrigger.create({
+      data: {
+        questionId: questionIds[3],
+        triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+        mysteryBoxId: res.id,
         MysteryBoxPrize: {
           create: {
             status: EBoxPrizeStatus.Unclaimed,
@@ -362,12 +264,31 @@ describe("Create mystery box", () => {
         id: mysteryBoxId4!,
       },
       include: {
-        MysteryBoxPrize: true,
+        triggers: {
+          include: {
+            MysteryBoxPrize: true,
+          },
+        },
       },
     });
 
     expect(box?.status).toBe(EMysteryBoxStatus.Opened);
-    expect(box?.MysteryBoxPrize[0].status).toBe(EBoxPrizeStatus.Claimed);
+
+    expect(box?.triggers[0].MysteryBoxPrize[0].status).toBe(
+      EBoxPrizeStatus.Claimed,
+    );
+
+    const chainTx = await prisma.chainTx.findUnique({
+      where: {
+        hash: txHashes?.[bonkAddress],
+      },
+    });
+
+    expect(chainTx).toBeDefined();
+    expect(chainTx?.solAmount).toBe("0");
+    expect(chainTx?.tokenAmount).toBe("4500");
+    expect(chainTx?.tokenAddress).toBe(bonkAddress);
+    expect(chainTx?.recipientAddress).toBe(user0.wallet);
   });
 
   it("Should disallow opening an opened mystery box", async () => {
@@ -378,15 +299,14 @@ describe("Create mystery box", () => {
     const res = await prisma.mysteryBox.create({
       data: {
         userId: user0.id,
-        triggers: {
-          createMany: {
-            data: {
-              questionId: questionIds[4],
-              triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
-              mysteryBoxAllowlistId: null,
-            },
-          },
-        },
+      },
+    });
+
+    await prisma.mysteryBoxTrigger.create({
+      data: {
+        questionId: questionIds[4],
+        triggerType: MysteryBoxEventsType.CLAIM_ALL_COMPLETED,
+        mysteryBoxId: res.id,
         MysteryBoxPrize: {
           create: {
             status: EBoxPrizeStatus.Unclaimed,
@@ -409,12 +329,18 @@ describe("Create mystery box", () => {
         id: mysteryBoxId5!,
       },
       include: {
-        MysteryBoxPrize: true,
+        triggers: {
+          include: {
+            MysteryBoxPrize: true,
+          },
+        },
       },
     });
 
     expect(box?.status).toBe(EMysteryBoxStatus.Opened);
-    expect(box?.MysteryBoxPrize[0].status).toBe(EBoxPrizeStatus.Claimed);
+    expect(box?.triggers[0].MysteryBoxPrize[0].status).toBe(
+      EBoxPrizeStatus.Claimed,
+    );
 
     const credits = await getUserTotalCreditAmount();
 

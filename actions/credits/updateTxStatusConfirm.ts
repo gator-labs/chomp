@@ -4,7 +4,11 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { sleep } from "@/app/utils/sleep";
 import { ChainTxStatusUpdateError } from "@/lib/error";
-import { EChainTxStatus } from "@prisma/client";
+import {
+  EChainTxStatus,
+  FungibleAsset,
+  TransactionLogType,
+} from "@prisma/client";
 import pRetry from "p-retry";
 
 const MAX_RETRIES = 3;
@@ -15,7 +19,10 @@ const MAX_RETRIES = 3;
  * @param hash - The hash of the transaction
  * @throws Error if transaction fails to update
  */
-export async function updateTxStatusToConfirmed(hash: string) {
+export async function updateTxStatusToConfirmed(
+  hash: string,
+  creditAmount: number,
+) {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -24,14 +31,28 @@ export async function updateTxStatusToConfirmed(hash: string) {
     };
   }
 
+  const userId = payload.sub;
+
   try {
     await pRetry(
       async () => {
-        await prisma.chainTx.update({
-          where: { hash },
-          data: {
-            status: EChainTxStatus.Confirmed,
-          },
+        await prisma.$transaction(async (tx) => {
+          await tx.chainTx.update({
+            where: { hash },
+            data: {
+              status: EChainTxStatus.Confirmed,
+            },
+          });
+
+          await tx.fungibleAssetTransactionLog.create({
+            data: {
+              chainTxHash: hash,
+              asset: FungibleAsset.Credit,
+              change: creditAmount,
+              type: TransactionLogType.CreditPurchase,
+              userId,
+            },
+          });
         });
       },
       {

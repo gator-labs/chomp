@@ -23,6 +23,7 @@ const colors = {
   green: "#1ED3B3",
   white: "#FFFFFF",
   cream: "#F6FCD6",
+  darkGray50: "rgba(51, 51, 51, 0.5)",
   gray: {
     50: "#FFFFFF",
     100: "#E6E6E6",
@@ -56,6 +57,9 @@ const colors = {
     orange: {
       dark: "#DD7944",
       light: "#F0B392",
+    },
+    yellow: {
+      pale: "#FBF3BA",
     },
     red: {
       dark: "#FF0000",
@@ -114,6 +118,8 @@ module.exports = {
       },
       backgroundImage: {
         "pink-gradient": "linear-gradient(90deg, #A3A3EC 0%, #CFC5F7 100%)",
+        "blue-pink-gradient":
+          "linear-gradient(90deg, #F9F1FB 0%, #89C9FF 25%, #AF7CE7 75%, #FBD7FF 100%)",
       },
       colors: colors,
       borderRadius: {
@@ -124,5 +130,5 @@ module.exports = {
     },
     plugins: [],
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/line-clamp")],
 } satisfies Config;

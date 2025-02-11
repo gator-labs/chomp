@@ -17,13 +17,11 @@ type PotentialRewardsRevealAllProps = {
     question: string;
   }[];
   deckId?: number;
-  isMysteryBoxEnabled: boolean;
 };
 
 export default function PotentialRewardsRevealAll({
   revealableQuestions,
   deckId,
-  isMysteryBoxEnabled,
 }: PotentialRewardsRevealAllProps) {
   const totalRevealTokenAmount = getTotalRevealTokenAmount(revealableQuestions);
   const maxRewardPerQuestion = totalRevealTokenAmount * 2;
@@ -39,25 +37,11 @@ export default function PotentialRewardsRevealAll({
 
   // Data is passed from the useReveal hook, using reveal?.reveal(...data) for execution.
   const revealAll = useCallback(
-    async ({
-      burnTx,
-      revealQuestionIds,
-      pendingChompResults,
-      nftAddress,
-      nftType,
-    }: RevealProps) => {
+    async ({ burnTx, revealQuestionIds, pendingChompResults }: RevealProps) => {
       setIsLoading(true);
       await Promise.all([
         ...(revealQuestionIds
-          ? [
-              revealQuestions(
-                revealQuestionIds,
-                burnTx,
-                nftAddress,
-                nftType,
-                isMysteryBoxEnabled,
-              ),
-            ]
+          ? [revealQuestions(revealQuestionIds, burnTx)]
           : []),
         ...(pendingChompResults?.map((result) =>
           revealQuestion(result.id, result.burnTx),

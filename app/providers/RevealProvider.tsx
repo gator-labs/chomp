@@ -1,12 +1,11 @@
 "use client";
 
-import MysteryBox from "@/components/MysteryBox/MysteryBox";
 import trackEvent from "@/lib/trackEvent";
 import { RevealCallbackProps } from "@/types/reveal";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import classNames from "classnames";
 import Link from "next/link";
-import { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useContext } from "react";
 
 import ChompFullScreenLoader from "../components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { CloseIcon } from "../components/Icons/CloseIcon";
@@ -57,12 +56,10 @@ export function RevealContextProvider({
     insufficientFunds,
     revealPrice,
     pendingTransactions,
-    isSingleQuestionWithNftReveal,
     questionIds,
     questions,
     isLoading,
     isRevealAll,
-    mysteryBoxId,
   } = useReveal({
     bonkBalance,
     address: primaryWallet?.address,
@@ -70,12 +67,10 @@ export function RevealContextProvider({
     solBalance,
   });
 
-  const [showMysteryBox, setShowMysteryBox] = useState(true);
-
   const hasPendingTransactions = pendingTransactions > 0;
 
   const revealButtons = () => {
-    if (insufficientFunds && !isSingleQuestionWithNftReveal) {
+    if (insufficientFunds) {
       return (
         <>
           <Link
@@ -171,11 +166,7 @@ export function RevealContextProvider({
               disabled={processingTransaction}
               isLoading={processingTransaction}
               onClick={() => {
-                if (
-                  !hasPendingTransactions &&
-                  questionIds?.length &&
-                  !isSingleQuestionWithNftReveal
-                )
+                if (!hasPendingTransactions && questionIds?.length)
                   trackEvent(TRACKING_EVENTS.REVEAL_STARTED, {
                     [TRACKING_METADATA.QUESTION_ID]: questionIds,
                     [TRACKING_METADATA.QUESTION_TEXT]: questions,
@@ -189,18 +180,12 @@ export function RevealContextProvider({
             >
               {hasPendingTransactions && !questionIds?.length
                 ? "Continue"
-                : isSingleQuestionWithNftReveal
-                  ? "Reveal with Chomp Collectible"
-                  : "Reveal"}
+                : "Reveal"}
             </Button>
             <Button
               className="font-bold"
               variant="outline"
               onClick={() => {
-                if (!insufficientFunds && isSingleQuestionWithNftReveal)
-                  return burnAndReveal(true);
-
-                resetReveal();
                 trackEvent(TRACKING_EVENTS.REVEAL_DIALOG_CLOSED, {
                   [TRACKING_METADATA.QUESTION_ID]: questionIds,
                   [TRACKING_METADATA.QUESTION_TEXT]: questions,
@@ -208,11 +193,10 @@ export function RevealContextProvider({
                     ? REVEAL_TYPE.ALL
                     : REVEAL_TYPE.SINGLE,
                 });
+                resetReveal();
               }}
             >
-              {!insufficientFunds && isSingleQuestionWithNftReveal
-                ? `Reveal for ${numberToCurrencyFormatter.format(revealPrice)} BONK`
-                : "Cancel"}
+              Cancel
             </Button>
           </>
         );
@@ -247,12 +231,6 @@ export function RevealContextProvider({
       );
     }
 
-    if (isSingleQuestionWithNftReveal) {
-      return (
-        <p className="text-sm">Chomp Collectible will be used for reveal</p>
-      );
-    }
-
     return (
       <p className="text-sm">
         This will cost you{" "}
@@ -276,87 +254,73 @@ export function RevealContextProvider({
 
   return (
     <>
-      {showMysteryBox && mysteryBoxId ? (
-        <MysteryBox
-          isOpen={showMysteryBox}
-          closeBoxDialog={() => {
-            setShowMysteryBox(false);
-          }}
-          mysteryBoxId={mysteryBoxId}
-          isDismissed={false}
-          skipAction={"Dismiss"}
+      <RevealedContext.Provider
+        value={{
+          openRevealModal: onSetReveal,
+          closeRevealModal: resetReveal,
+        }}
+      >
+        <ChompFullScreenLoader
+          isLoading={burnState === "burning"}
+          loadingMessage="Burning $BONK..."
         />
-      ) : (
-        <RevealedContext.Provider
-          value={{
-            openRevealModal: onSetReveal,
-            closeRevealModal: resetReveal,
+        <Drawer
+          open={isRevealModalOpen}
+          onOpenChange={(open: boolean) => {
+            if (!open && burnState !== "burning") {
+              closeRevealModal();
+            }
           }}
+          dismissible={burnState !== "burning"}
         >
-          <ChompFullScreenLoader
-            isLoading={burnState === "burning"}
-            loadingMessage="Burning $BONK..."
-          />
-          <Drawer
-            open={isRevealModalOpen}
-            onOpenChange={(open: boolean) => {
-              if (!open && burnState !== "burning") {
-                closeRevealModal();
-              }
-            }}
-            dismissible={burnState !== "burning"}
-          >
-            <DrawerContent>
-              <div className="relative">
-                {isLoading ? (
-                  <div className="h-[330px] flex items-center justify-center">
-                    <Spinner />
-                  </div>
-                ) : (
-                  <>
-                    <Button
-                      variant="ghost"
-                      onClick={(e) => {
-                        if (isRevealModalOpen) {
-                          e.stopPropagation();
-                          closeRevealModal();
-                        }
-                      }}
-                      className="!absolute !top-3 !right-6 !border-none !w-max !p-0 z-50"
-                    >
-                      <CloseIcon width={16} height={16} />
-                    </Button>
-                    <div className="flex flex-col gap-6 pt-6 px-6 pb-6">
-                      <div className="flex flex-col gap-6">
-                        <div className="flex flex-row w-full items-center justify-between">
-                          <h3
-                            className={classNames("font-bold", {
-                              "text-[#DD7944]": insufficientFunds,
-                              "text-secondary": !insufficientFunds,
-                            })}
-                          >
-                            {insufficientFunds
-                              ? "Insufficient Funds"
-                              : questionIds.length > 1
-                                ? "Reveal all?"
-                                : "Reveal answer?"}
-                          </h3>
-                        </div>
-                        {getDescriptionNode()}
+          <DrawerContent>
+            <div className="relative">
+              {isLoading ? (
+                <div className="h-[330px] flex items-center justify-center">
+                  <Spinner />
+                </div>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => {
+                      if (isRevealModalOpen) {
+                        e.stopPropagation();
+                        closeRevealModal();
+                      }
+                    }}
+                    className="!absolute !top-3 !right-6 !border-none !w-max !p-0 z-50"
+                  >
+                    <CloseIcon width={16} height={16} />
+                  </Button>
+                  <div className="flex flex-col gap-6 pt-6 px-6 pb-6">
+                    <div className="flex flex-col gap-6">
+                      <div className="flex flex-row w-full items-center justify-between">
+                        <h3
+                          className={classNames("font-bold", {
+                            "text-[#DD7944]": insufficientFunds,
+                            "text-secondary": !insufficientFunds,
+                          })}
+                        >
+                          {insufficientFunds
+                            ? "Insufficient Funds"
+                            : questionIds.length > 1
+                              ? "Reveal all?"
+                              : "Reveal answer?"}
+                        </h3>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        {revealButtons()}
-                      </div>
+                      {getDescriptionNode()}
                     </div>
-                  </>
-                )}
-              </div>
-            </DrawerContent>
-          </Drawer>
+                    <div className="flex flex-col gap-2">{revealButtons()}</div>
+                  </div>
+                </>
+              )}
+            </div>
+          </DrawerContent>
+        </Drawer>
 
-          {children}
-        </RevealedContext.Provider>
-      )}
+        {children}
+      </RevealedContext.Provider>
     </>
   );
 }

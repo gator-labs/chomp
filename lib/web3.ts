@@ -1,5 +1,4 @@
 import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
-import { publicKey } from "@metaplex-foundation/umi";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -53,10 +52,4 @@ export const getTokenBalances = async (addr: string | string[]) => {
   }
 
   return tokenBalances;
-};
-
-export const getUserAssets = async (address: string) => {
-  return (dasUmi.rpc as any).getAssetsByOwner({
-    owner: publicKey(address),
-  });
 };

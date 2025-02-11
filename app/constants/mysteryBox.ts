@@ -13,3 +13,5 @@ export const OPEN_MESSAGES: Record<
     subText: ["You earned a mystery box!", "Open it to receive your rewards."],
   },
 } as const;
+
+export const MYSTERY_BOXES_PER_PAGE = 10;
