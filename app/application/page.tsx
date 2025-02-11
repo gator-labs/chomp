@@ -9,23 +9,19 @@ import HomeFeedVerticalDeckSection from "../components/HomeFeedVerticalDeckSecti
 import { Profile } from "../components/Profile/Profile";
 import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import Spinner from "../components/Spinner/Spinner";
-import TutorialMysteryBox from "../components/TutorialMysteryBox/TutorialMysteryBox";
 import { getActiveBanners } from "../queries/banner";
 import { getQuestionsForRevealedSection } from "../queries/home";
-import { getNewUserMysteryBoxId } from "../queries/mysteryBox";
 
 export default async function Page() {
-  const [questionsRevealed, banners, mysteryBoxId] = await Promise.all([
+  const [questionsRevealed, banners] = await Promise.all([
     getQuestionsForRevealedSection(),
     getActiveBanners(),
-    getNewUserMysteryBoxId(),
   ]);
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
   return (
     <>
-      <TutorialMysteryBox mysteryBoxId={mysteryBoxId} />
       <div className="flex flex-col gap-4 px-4">
         <ProfileNavigation />
         <Suspense fallback={<Spinner />}>
