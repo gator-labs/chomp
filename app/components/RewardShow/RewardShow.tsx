@@ -1,18 +1,6 @@
 "use client";
 
-import { claimQuestions } from "@/app/actions/claim";
-import {
-  REVEAL_TYPE,
-  TRACKING_EVENTS,
-  TRACKING_METADATA,
-} from "@/app/constants/tracking";
-import { useClaiming } from "@/app/providers/ClaimingProvider";
-import { useConfetti } from "@/app/providers/ConfettiProvider";
-import { useToast } from "@/app/providers/ToastProvider";
 import { numberToCurrencyFormatter } from "@/app/utils/currency";
-import trackEvent from "@/lib/trackEvent";
-import { useQueryClient } from "@tanstack/react-query";
-import classNames from "classnames";
 
 import BulkIcon from "../Icons/BulkIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
@@ -32,63 +20,11 @@ interface RewardShowProps {
 }
 
 const RewardShow = ({
-  isCreditsQuestion,
   isFirstOrderCorrect,
   isSecondOrderCorrect,
   rewardAmount,
-  questionIds,
-  status,
-  questions,
-  revealAmount,
   creditsRewardAmount,
 }: RewardShowProps) => {
-  const { isClaiming, setIsClaiming } = useClaiming();
-  const queryClient = useQueryClient();
-
-  const { fire } = useConfetti();
-  const { promiseToast } = useToast();
-
-  const onClaim = async () => {
-    try {
-      if (isClaiming) return;
-
-      setIsClaiming(true);
-
-      trackEvent(TRACKING_EVENTS.CLAIM_STARTED, {
-        [TRACKING_METADATA.QUESTION_ID]: questionIds,
-        [TRACKING_METADATA.QUESTION_TEXT]: questions,
-        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
-      });
-
-      promiseToast(claimQuestions(questionIds), {
-        loading: "Claiming your rewards...",
-        success: "You have successfully claimed your rewards!",
-        error: "Failed to claim rewards. Please try again.",
-      })
-        .then((res) => {
-          trackEvent(TRACKING_EVENTS.CLAIM_SUCCEEDED, {
-            [TRACKING_METADATA.QUESTION_ID]: res?.questionIds,
-            [TRACKING_METADATA.CLAIMED_AMOUNT]: res?.claimedAmount,
-            [TRACKING_METADATA.TRANSACTION_SIGNATURE]:
-              res?.transactionSignature,
-            [TRACKING_METADATA.QUESTION_TEXT]: res?.questions,
-            [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
-          });
-          queryClient.resetQueries({ queryKey: ["questions-history"] });
-          fire();
-        })
-        .finally(() => {
-          setIsClaiming(false);
-        });
-    } catch {
-      await trackEvent(TRACKING_EVENTS.CLAIM_FAILED, {
-        [TRACKING_METADATA.QUESTION_ID]: questionIds,
-        [TRACKING_METADATA.QUESTION_TEXT]: questions,
-        [TRACKING_METADATA.REVEAL_TYPE]: REVEAL_TYPE.SINGLE,
-      });
-    }
-  };
-
   if (isFirstOrderCorrect) {
     return (
       <div className="flex bg-gray-700 p-4 rounded-lg justify-between">
