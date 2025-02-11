@@ -34,9 +34,7 @@ describe("Threat level blocking", () => {
       data: [
         { id: users[0].id },
         { id: users[1].id, threatLevel: EThreatLevelType.Bot },
-
         { id: users[2].id, threatLevel: EThreatLevelType.ManualAllow },
-
         { id: users[3].id, threatLevel: EThreatLevelType.ManualBlock },
         { id: users[4].id, threatLevel: EThreatLevelType.PermanentAllow },
       ],
@@ -65,7 +63,7 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_999");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[1].id });
 
-    expect(getCurrentUser).rejects.toThrow(UserThreatLevelDetected);
+    expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
   });
 
   it("should allow a manually-permitted 'bot' to validate a session", async () => {
@@ -80,7 +78,7 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_777");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[3].id });
 
-    expect(getCurrentUser).rejects.toThrow(UserThreatLevelDetected);
+    expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
   });
 
   it("should allow a permanently-allowed user to validate a session", async () => {
