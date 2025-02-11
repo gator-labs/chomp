@@ -20,6 +20,10 @@
     {
       "path": "/api/cron/calculate-correct-answers",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/detect-bot-activity",
+      "schedule": "50 * * * *"
     }
   ]
 }

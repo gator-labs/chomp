@@ -4,6 +4,7 @@ import { decodeJwtPayload } from "@/lib/auth";
 import { UserThreatLevelDetected } from "@/lib/error";
 import { getTokenFromCookie } from "@/lib/jwt";
 import { generateUsers } from "@/scripts/utils";
+import { EThreatLevelType } from "@/types/bots";
 
 jest.mock("@/lib/auth", () => {
   return {
@@ -27,14 +28,16 @@ describe("Threat level blocking", () => {
   let users: { username: string; id: string }[];
 
   beforeAll(async () => {
-    users = await generateUsers(2);
+    users = await generateUsers(5);
 
-    await prisma.user.create({
-      data: { id: users[0].id },
-    });
-
-    await prisma.user.create({
-      data: { id: users[1].id, threatLevel: "bot" },
+    await prisma.user.createMany({
+      data: [
+        { id: users[0].id },
+        { id: users[1].id, threatLevel: EThreatLevelType.Bot },
+        { id: users[2].id, threatLevel: EThreatLevelType.ManualAllow },
+        { id: users[3].id, threatLevel: EThreatLevelType.ManualBlock },
+        { id: users[4].id, threatLevel: EThreatLevelType.PermanentAllow },
+      ],
     });
   });
 
@@ -42,7 +45,7 @@ describe("Threat level blocking", () => {
     await prisma.user.deleteMany({
       where: {
         id: {
-          in: [users[0].id, users[1].id],
+          in: [users[0].id, users[1].id, users[2].id, users[3].id, users[4].id],
         },
       },
     });
@@ -52,7 +55,7 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_123");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[0].id });
 
-    expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
+    await expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
   });
 
   it("should disallow a bot user to validate a session", async () => {
@@ -60,6 +63,29 @@ describe("Threat level blocking", () => {
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_999");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[1].id });
 
-    expect(getCurrentUser).rejects.toThrow(UserThreatLevelDetected);
+    await expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
+  });
+
+  it("should allow a manually-permitted 'bot' to validate a session", async () => {
+    (getTokenFromCookie as jest.Mock).mockResolvedValue("token_888");
+    (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[2].id });
+
+    await expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
+  });
+
+  it("should disallow a manually-blocked user to validate a session", async () => {
+    // toHaveBeenCalledWith() not working, hence work around
+    (getTokenFromCookie as jest.Mock).mockResolvedValue("token_777");
+    (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[3].id });
+
+    await expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
+  });
+
+  it("should allow a permanently-allowed user to validate a session", async () => {
+    // toHaveBeenCalledWith() not working, hence work around
+    (getTokenFromCookie as jest.Mock).mockResolvedValue("token_222");
+    (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[4].id });
+
+    await expect(getCurrentUser()).resolves.not.toThrow(UserThreatLevelDetected);
   });
 });
