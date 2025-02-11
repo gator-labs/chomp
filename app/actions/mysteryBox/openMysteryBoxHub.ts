@@ -206,6 +206,39 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
 
     release();
   } catch (e) {
+    await prisma.mysteryBox.updateMany({
+      where: {
+        id: {
+          in: mysteryBoxIds,
+        },
+      },
+      data: {
+        status: EMysteryBoxStatus.Unopened,
+      },
+    });
+
+    await prisma.mysteryBoxPrize.updateMany({
+      where: {
+        id: {
+          in: tokenPrizes.map((item) => item.id),
+        },
+      },
+      data: {
+        status: EBoxPrizeStatus.Unclaimed,
+      },
+    });
+
+    await prisma.mysteryBoxPrize.updateMany({
+      where: {
+        id: {
+          in: creditPrizes.map((item) => item.id),
+        },
+      },
+      data: {
+        status: EBoxPrizeStatus.Unclaimed,
+      },
+    });
+
     Sentry.captureException(e);
     const openMysteryBoxError = new OpenMysteryBoxError(
       `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxIds}`,
