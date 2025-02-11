@@ -26,6 +26,9 @@ export async function fetchMysteryBoxHistory({
       triggers: {
         some: {
           triggerType: {},
+          MysteryBoxPrize: {
+            some: {}, // Ensures there is at least one MysteryBoxPrize
+          },
         },
       },
     },
@@ -55,8 +58,8 @@ export async function fetchMysteryBoxHistory({
   if (hasMore) records.pop();
 
   const mysteryBoxes = records.map((box) => {
-    let creditsReceived = "0";
-    let bonkReceived = "0";
+    let creditsReceived = 0;
+    let bonkReceived = 0;
     let openedAt = null;
 
     const allPrizes = box.triggers.flatMap(
@@ -65,13 +68,18 @@ export async function fetchMysteryBoxHistory({
 
     for (let i = 0; i < allPrizes.length; i++) {
       const prize = allPrizes[i];
-      if (prize.prizeType == "Credits") creditsReceived = prize.amount;
-      else if (prize.prizeType == "Token" && prize.tokenAddress == bonkAddress)
-        bonkReceived = prize.amount;
+
+      if (prize.prizeType == "Credits") {
+        creditsReceived += parseFloat(prize.amount); // Sum the credits amount
+      } else if (
+        prize.prizeType == "Token" &&
+        prize.tokenAddress == bonkAddress
+      ) {
+        bonkReceived += parseFloat(prize.amount); // Sum the bonk amount
+      }
 
       if (!openedAt) openedAt = prize.claimedAt?.toISOString();
     }
-
     const triggerType = box.triggers?.[0].triggerType;
 
     let category;
@@ -79,7 +87,8 @@ export async function fetchMysteryBoxHistory({
     if (
       triggerType == "RevealAllCompleted" ||
       triggerType == "DailyDeckCompleted" ||
-      triggerType == "ClaimAllCompleted"
+      triggerType == "ClaimAllCompleted" ||
+      triggerType == "ValidationReward"
     )
       category = EMysteryBoxCategory.Validation;
     else if (triggerType == "TutorialCompleted")
@@ -88,8 +97,8 @@ export async function fetchMysteryBoxHistory({
 
     return {
       id: box.id,
-      creditsReceived,
-      bonkReceived,
+      creditsReceived: creditsReceived.toString(),
+      bonkReceived: bonkReceived.toString(),
       openedAt: openedAt ?? null,
       category,
     };
