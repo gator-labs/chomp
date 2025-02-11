@@ -20,6 +20,9 @@ import Trophy from "../Icons/Trophy";
 import Pill from "../Pill/Pill";
 
 interface RewardShowProps {
+  isCreditsQuestion: boolean;
+  isFirstOrderCorrect: boolean;
+  isSecondOrderCorrect?: boolean;
   rewardAmount: number;
   questionIds: number[];
   status: "claimable" | "claimed";
@@ -29,6 +32,9 @@ interface RewardShowProps {
 }
 
 const RewardShow = ({
+  isCreditsQuestion,
+  isFirstOrderCorrect,
+  isSecondOrderCorrect,
   rewardAmount,
   questionIds,
   status,
@@ -83,52 +89,38 @@ const RewardShow = ({
     }
   };
 
-  if (rewardAmount > 0 || creditsRewardAmount !== undefined) {
+  if (isFirstOrderCorrect) {
     return (
       <div className="flex bg-gray-700 p-4 rounded-lg justify-between">
         <div className="flex flex-col gap-4 w-max justify-between">
           <span className="text-xl font-bold text-left">
-            {rewardAmount === revealAmount
-              ? "Well done!"
-              : "Congrats, you won!"}
+            {isSecondOrderCorrect !== undefined && isSecondOrderCorrect === true
+              ? "Congrats, you won!"
+              : "Well done!"}
           </span>
           <div className="h-[1px] w-full bg-gray-500" />
-          <div className="flex items-center gap-1 justify-between">
-            <p className="text-sm font-normal  text-left">Claim reward:</p>
-            <Pill
-              onClick={async () =>
-                status === "claimable" && !isClaiming && onClaim()
-              }
-              variant="white"
-              className={classNames({
-                "opacity-50 cursor-not-allowed": isClaiming,
-                "!cursor-auto": status === "claimed",
-                "!cursor-pointer": status === "claimable",
-              })}
-            >
-              <p className="text-xs font-bold text-center">
-                {numberToCurrencyFormatter.format(
-                  Math.round(rewardAmount || 0),
-                )}{" "}
-                BONK
-              </p>
-            </Pill>
-            <Pill
-              onClick={async () =>
-                status === "claimable" && !isClaiming && onClaim()
-              }
-              variant="white"
-              className={classNames({
-                "opacity-50 cursor-not-allowed": isClaiming,
-                "!cursor-auto": status === "claimed",
-                "!cursor-pointer": status === "claimable",
-              })}
-            >
-              <p className="text-xs font-bold text-center">
-                {Number(creditsRewardAmount) || 0} CREDITS
-              </p>
-            </Pill>
-          </div>
+          {isSecondOrderCorrect !== undefined ? (
+            <div className="flex items-center gap-1 justify-between">
+              <p className="text-sm font-normal  text-left">Claim reward:</p>
+              <Pill variant="white">
+                <p className="text-xs font-bold text-center">
+                  {numberToCurrencyFormatter.format(
+                    Math.round(rewardAmount || 0),
+                  )}{" "}
+                  BONK
+                </p>
+              </Pill>
+              <Pill variant="white">
+                <p className="text-xs font-bold text-center">
+                  {Number(creditsRewardAmount) || 0} CREDITS
+                </p>
+              </Pill>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 justify-between">
+              View your rewards below.
+            </div>
+          )}
         </div>
         <Trophy width={70} height={85} />
       </div>
