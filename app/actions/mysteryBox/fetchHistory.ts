@@ -26,6 +26,9 @@ export async function fetchMysteryBoxHistory({
       triggers: {
         some: {
           triggerType: {},
+          MysteryBoxPrize: {
+            some: {}, // Ensures there is at least one MysteryBoxPrize
+          },
         },
       },
     },
@@ -79,7 +82,8 @@ export async function fetchMysteryBoxHistory({
     if (
       triggerType == "RevealAllCompleted" ||
       triggerType == "DailyDeckCompleted" ||
-      triggerType == "ClaimAllCompleted"
+      triggerType == "ClaimAllCompleted" ||
+      triggerType == "ValidationReward"
     )
       category = EMysteryBoxCategory.Validation;
     else if (triggerType == "TutorialCompleted")
