@@ -4,7 +4,12 @@ import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQ
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxHubReward } from "@/app/utils/algo";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
-import { EBoxPrizeType, EBoxTriggerType, EPrizeSize } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EBoxPrizeType,
+  EBoxTriggerType,
+  EPrizeSize,
+} from "@prisma/client";
 
 import { getJwtPayload } from "../jwt";
 
@@ -42,14 +47,17 @@ export const rewardMysteryBoxHub = async ({
     where: {
       questionId: { in: questionIds },
       triggerType: EBoxTriggerType.ValidationReward,
+      MysteryBoxPrize: {
+        some: { status: EBoxPrizeStatus.Unclaimed },
+      },
     },
   });
 
   const existingQuestionIds = existingTriggers.map(
     (trigger) => trigger.questionId,
   );
-  const existingMysteryBoxIds = existingTriggers.map(
-    (trigger) => trigger.mysteryBoxId,
+  const existingMysteryBoxIds = Array.from(
+    new Set(existingTriggers.map((trigger) => trigger.mysteryBoxId)),
   );
 
   const newQuestionIds = questionIds.filter(
