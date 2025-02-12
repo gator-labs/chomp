@@ -11,6 +11,7 @@ export function useCreditPurchase({ primaryWallet }: UseCreditPurchaseProps) {
   const [isProcessingTx, setIsProcessingTx] = useState(false);
 
   const processCreditPurchase = async (creditsToBuy: number) => {
+    console.log(primaryWallet);
     if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
       return {
         error: "Please connect your Solana wallet",
