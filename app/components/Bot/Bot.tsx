@@ -8,7 +8,6 @@ import { genBonkBurnTx } from "@/app/utils/solana";
 import trackEvent from "@/lib/trackEvent";
 import {
   DynamicWidget,
-  getAuthToken,
   useDynamicContext,
   useTelegramLogin,
 } from "@dynamic-labs/sdk-react-core";
@@ -23,14 +22,13 @@ export default function Bot({
 }: {
   telegramAuthData: TelegramAuthDataProps;
 }) {
-  const { sdkHasLoaded, user, primaryWallet } = useDynamicContext();
+  const { sdkHasLoaded, user, primaryWallet, authToken } = useDynamicContext();
   const { telegramSignIn } = useTelegramLogin();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!sdkHasLoaded) return;
 
-    const authToken = getAuthToken();
     if (authToken) setJwt(authToken, null, telegramAuthData?.id);
 
     if (telegramAuthData) {
