@@ -1,5 +1,6 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getFreeDecks } from "@/app/queries/home";
+import { getIsUserAdmin } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { QuestionType } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
@@ -34,6 +35,10 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
+jest.mock("@/app/queries/user", () => ({
+  getIsUserAdmin: jest.fn().mockResolvedValue(true),
+}));
+
 describe("getPremiumDeck", () => {
   const user1 = {
     id: uuidv4(),
@@ -49,7 +54,7 @@ describe("getPremiumDeck", () => {
     const deckData = [
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -88,7 +93,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
@@ -127,7 +132,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtAnswerCount: null,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -166,7 +171,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -205,7 +210,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
@@ -244,7 +249,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
@@ -283,7 +288,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -323,7 +328,7 @@ describe("getPremiumDeck", () => {
 
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
@@ -373,6 +378,7 @@ describe("getPremiumDeck", () => {
   });
 
   afterAll(async () => {
+    jest.mocked(getIsUserAdmin).mockResolvedValue(true);
     const deletePromises = deckIds.map((deckId) => deleteDeck(deckId));
     await Promise.all(deletePromises);
 
