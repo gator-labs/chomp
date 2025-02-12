@@ -13,7 +13,10 @@ export const checkThreatLevel = async (userId: string) => {
     user.threatLevel === EThreatLevelType.Bot ||
     user.threatLevel === EThreatLevelType.ManualBlock
   ) {
-    throw new UserThreatLevelDetected("User threat level detected");
+    throw new UserThreatLevelDetected(
+      `User threat level detected: user ${userId}, wallet: ${user.wallets?.[0].address}`,
+      { cause: { userId, source: "JWT" } },
+    );
   }
 };
 
