@@ -1,9 +1,9 @@
 "use client";
 
+import { markQuestionAsSeenButNotAnswered } from "@/actions/answer/mark-question-as-seen";
 import {
   SaveQuestionRequest,
   answerQuestion,
-  markQuestionAsSeenButNotAnswered,
   markQuestionAsSkipped,
   markQuestionAsTimedOut,
 } from "@/app/actions/answer";
