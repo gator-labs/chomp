@@ -12,7 +12,6 @@ import { redirect } from "next/navigation";
 
 import prisma from "../services/prisma";
 import { getRandomAvatarPath } from "../utils/avatar";
-import { resetAccountData } from "./demo";
 
 export const getJwtPayload = async () => {
   const token = getTokenFromCookie();
@@ -200,11 +199,6 @@ export const setJwt = async (
     secure: true,
     httpOnly: true,
   });
-
-  const isDemo = process.env.ENVIRONMENT === "demo";
-  if (isDemo) {
-    await resetAccountData();
-  }
 
   if (!!nextPath) redirect(nextPath);
 };
