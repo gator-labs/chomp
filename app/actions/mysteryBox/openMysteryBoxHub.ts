@@ -54,7 +54,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
           in: mysteryBoxIds,
         },
         userId,
-        status: EMysteryBoxStatus.New,
+        status: { in: [EMysteryBoxStatus.New, EMysteryBoxStatus.Unopened] },
       },
 
       include: {
