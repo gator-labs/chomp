@@ -78,7 +78,8 @@ export async function fetchMysteryBoxHistory({
         bonkReceived += parseFloat(prize.amount); // Sum the bonk amount
       }
 
-      if (!openedAt) openedAt = prize.claimedAt?.toISOString();
+      if (!openedAt && !!prize.claimedAt)
+        openedAt = prize.claimedAt?.toISOString();
     }
     const triggerType = box.triggers?.[0].triggerType;
 

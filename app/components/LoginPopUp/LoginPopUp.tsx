@@ -4,7 +4,6 @@ import { setJwt } from "@/app/actions/jwt";
 import LoadingScreen from "@/app/screens/LoginScreens/LoadingScreen";
 import {
   DynamicConnectButton,
-  getAuthToken,
   useDynamicContext,
 } from "@dynamic-labs/sdk-react-core";
 import { RedirectType, redirect } from "next/navigation";
@@ -22,7 +21,7 @@ type LoginPopUpProps = {
 };
 
 const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
-  const { awaitingSignatureState, sdkHasLoaded } = useDynamicContext();
+  const { authToken, awaitingSignatureState } = useDynamicContext();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -35,8 +34,6 @@ const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
     if (!isOpen) return;
 
     setIsLoading(true);
-
-    const authToken = getAuthToken();
 
     if (authToken) setJwt(authToken);
 
@@ -67,7 +64,7 @@ const LoginPopUp = ({ isOpen, onClose, userId, deckId }: LoginPopUpProps) => {
     ) {
       setIsLoading(false);
     }
-  }, [userId, awaitingSignatureState, isOpen, sdkHasLoaded]);
+  }, [authToken, userId, awaitingSignatureState, isOpen]);
 
   if (isLoading) return <LoadingScreen />;
 
