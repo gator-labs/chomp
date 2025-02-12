@@ -1,6 +1,5 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getPremiumDecks } from "@/app/queries/home";
-import { getIsUserAdmin } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { QuestionType } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
@@ -33,10 +32,6 @@ jest.mock("next/navigation", () => ({
 }));
 jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
-}));
-
-jest.mock("@/app/queries/user", () => ({
-  getIsUserAdmin: jest.fn().mockResolvedValue(true),
 }));
 
 describe("getPremiumDeck", () => {
@@ -389,7 +384,6 @@ describe("getPremiumDeck", () => {
   });
 
   afterAll(async () => {
-    jest.mocked(getIsUserAdmin).mockResolvedValue(true);
     const deletePromises = deckIds.map((deckId) => deleteDeck(deckId));
     await Promise.all(deletePromises);
 
