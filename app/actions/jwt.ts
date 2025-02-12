@@ -11,6 +11,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import prisma from "../services/prisma";
+import { getRandomAvatarPath } from "../utils/avatar";
 
 export const getJwtPayload = async () => {
   const token = getTokenFromCookie();
@@ -48,16 +49,18 @@ export const setJwt = async (token: string, nextPath?: string | null) => {
     return;
   }
 
-  const user = await (async () => {
-    // If no updates needed, fetch current user
-    return prisma.user.findUnique({
-      where: { id: payload.sub },
-      include: {
-        wallets: true,
-        emails: true,
-      },
-    });
-  })();
+  const user = await prisma.user.upsert({
+    where: { id: payload.sub },
+    create: {
+      id: payload.sub,
+      profileSrc: getRandomAvatarPath(),
+    },
+    update: {},
+    include: {
+      wallets: true,
+      emails: true,
+    },
+  });
 
   if (!user) throw new Error("Failed to create or update user");
 
