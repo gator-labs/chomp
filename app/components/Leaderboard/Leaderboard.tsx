@@ -41,7 +41,6 @@ export interface Ranking {
   } & User;
   value: number;
   rank: number;
-  telegramUsername?: string | null;
 }
 
 const Leaderboard = ({

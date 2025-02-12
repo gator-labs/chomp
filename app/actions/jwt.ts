@@ -11,7 +11,6 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import prisma from "../services/prisma";
-import { getRandomAvatarPath } from "../utils/avatar";
 
 export const getJwtPayload = async () => {
   const token = getTokenFromCookie();
@@ -36,11 +35,7 @@ export const getJwtPayload = async () => {
   }
 };
 
-export const setJwt = async (
-  token: string,
-  nextPath?: string | null,
-  telegramId?: number | null,
-) => {
+export const setJwt = async (token: string, nextPath?: string | null) => {
   if (!token) {
     clearJwt();
     return;
@@ -53,69 +48,7 @@ export const setJwt = async (
     return;
   }
 
-  const telegramUsername =
-    payload.verified_credentials?.[1]?.format === "oauth"
-      ? payload.verified_credentials?.[1]?.oauth_username
-      : null;
-
   const user = await (async () => {
-    // If no telegramId, simple upsert and return
-    if (!telegramId) {
-      return prisma.user.upsert({
-        where: { id: payload.sub },
-        create: {
-          id: payload.sub,
-          profileSrc: getRandomAvatarPath(),
-        },
-        update: {},
-        include: {
-          wallets: true,
-          emails: true,
-        },
-      });
-    }
-
-    // Check for existing Telegram user
-    const existingTelegramUser = await prisma.user.findFirst({
-      where: { telegramId },
-      select: { id: true, telegramUsername: true },
-    });
-
-    // No existing Telegram user - create new user
-    if (!existingTelegramUser) {
-      return prisma.user.create({
-        data: {
-          id: payload.sub,
-          profileSrc: getRandomAvatarPath(),
-          telegramId,
-          telegramUsername,
-        },
-        include: {
-          wallets: true,
-          emails: true,
-        },
-      });
-    }
-
-    // Update existing user if needed
-    const isTelegramUserDataChanged =
-      existingTelegramUser.id !== payload.sub ||
-      existingTelegramUser.telegramUsername !== telegramUsername;
-
-    if (isTelegramUserDataChanged) {
-      return prisma.user.update({
-        where: { id: existingTelegramUser.id },
-        data: {
-          id: payload.sub,
-          telegramUsername,
-        },
-        include: {
-          wallets: true,
-          emails: true,
-        },
-      });
-    }
-
     // If no updates needed, fetch current user
     return prisma.user.findUnique({
       where: { id: payload.sub },
