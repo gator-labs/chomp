@@ -1,4 +1,3 @@
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { setupTransactionPriorityFee } from "@/lib/priorityFee";
 import type { Wallet } from "@dynamic-labs/sdk-react-core";
@@ -37,7 +36,7 @@ export async function createCreditPurchaseTransaction(
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
 
-  const treasuryAddress = await getTreasuryAddress();
+  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_ADDRESS;
 
   if (!treasuryAddress) {
     return {

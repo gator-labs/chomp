@@ -1,4 +1,3 @@
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
 import { VerificationResult } from "@/types/credits";
@@ -13,7 +12,7 @@ export async function verifyTransactionInstructions(
   txHash: string,
   solAmount: string,
 ): Promise<VerificationResult> {
-  const treasuryAddress = await getTreasuryAddress();
+  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_ADDRESS;
   if (!treasuryAddress) {
     return { success: false, error: "Treasury address not defined" };
   }

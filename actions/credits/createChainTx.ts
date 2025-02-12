@@ -1,6 +1,5 @@
 "use server";
 
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
 import { CreateChainTxError } from "@/lib/error";
@@ -59,7 +58,7 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const treasuryAddress = await getTreasuryAddress();
+  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_ADDRESS;
 
   if (!treasuryAddress) {
     return {
