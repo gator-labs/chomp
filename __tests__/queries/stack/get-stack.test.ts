@@ -21,7 +21,7 @@ jest.mock("@/app/actions/jwt", () => ({
 
 describe("getStack", () => {
   let stackId: number;
-  let deckIds: number[] = [];
+  let createdDeckIds: number[] = [];
   let userId: string;
 
   beforeAll(async () => {
@@ -116,7 +116,7 @@ describe("getStack", () => {
       decks.push(deck);
     }
 
-    deckIds = decks.map((deck) => deck.id);
+    createdDeckIds = decks.map((deck) => deck.id);
   });
 
   afterAll(async () => {
@@ -124,7 +124,7 @@ describe("getStack", () => {
     await prisma.deck.deleteMany({
       where: {
         id: {
-          in: deckIds,
+          in: createdDeckIds,
         },
       },
     });
@@ -258,7 +258,7 @@ describe("getStack", () => {
       decks.push(deck);
     }
 
-    deckIds = decks.map((deck) => deck.id);
+    const deckIds = decks.map((deck) => deck.id);
 
     const result = await getStack(stackId);
     expect(result).not.toBeNull();
@@ -317,7 +317,7 @@ describe("getStack", () => {
       decks.push(deck);
     }
 
-    deckIds = decks.map((deck) => deck.id);
+    const deckIds = decks.map((deck) => deck.id);
 
     const result = await getStack(stackId);
     expect(result).not.toBeNull();
