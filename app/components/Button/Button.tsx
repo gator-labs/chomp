@@ -14,7 +14,7 @@ type ButtonProps = {
     | "aqua"
     | "blue"
     | "grayish";
-  size?: "big" | "normal" | "small";
+  size?: "big" | "normal" | "small" | "tiny";
   disabled?: boolean;
   children: ReactNode;
   isFullWidth?: boolean;
@@ -57,6 +57,7 @@ export function Button({
       "!bg-gray-400": disabled,
       "text-gray-500": disabled,
       "cursor-default": disabled,
+      "py-0 px-2 text-xs font-normal": size === "tiny",
       "py-2 px-4": size === "small",
       "py-4 px-8": size === "normal",
       "py-4 px-16": size === "big",
