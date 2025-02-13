@@ -1,14 +1,17 @@
-import { updateTxStatusToConfirmed } from "@/actions/credits/updateTxStatusConfirm";
-import { verifyPayment } from "@/actions/credits/verifyPayment";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
+import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
+import { verifyPayment } from "@/lib/credits/verifyPayment";
 import * as Sentry from "@sentry/nextjs";
-import { Transaction } from "@solana/web3.js";
 import pRetry from "p-retry";
+import "server-only";
 
-import { TransactionFailedToConfirmError } from "../error";
+import {
+  SendTransactionError,
+  TransactionFailedToConfirmError,
+} from "../error";
 
 const CONFIRMATION_OPTIONS = {
   retries: 2,
@@ -17,16 +20,14 @@ const CONFIRMATION_OPTIONS = {
 /**
  * Send signed transaction on-chain and handle confirmation and finalization
  *
- * @param signedTransaction - The signed transaction to be processed
+ * @param signedTransaction - Searlized and base64 encoded transaction after user signs
  * @param creditsToBuy - Number of credits the user wants to purchase
- * @param setIsProcessingTx - Callback to update transaction processing state in UI
  *
  * @throws Error if transaction simulation fails to send or confirm
  */
 export async function processTransaction(
-  signedTransaction: Transaction,
+  signedTransaction: string,
   creditsToBuy: number,
-  setIsProcessingTx: (isProcessingTx: boolean) => void,
 ) {
   const payload = await getJwtPayload();
 
@@ -36,13 +37,28 @@ export async function processTransaction(
     };
   }
 
-  // Send transaction
-  const txHash = await CONNECTION.sendRawTransaction(
-    signedTransaction.serialize(),
-    {
+  let txHash: string;
+
+  try {
+    txHash = await CONNECTION.sendEncodedTransaction(signedTransaction, {
       skipPreflight: true,
-    },
-  );
+    });
+  } catch (error) {
+    const sendTransactionError = new SendTransactionError(
+      `Send transaction failed for user: ${payload?.sub}`,
+      { cause: error },
+    );
+    Sentry.captureException(sendTransactionError, {
+      extra: {
+        creditAmount: creditsToBuy,
+        transaction: signedTransaction,
+      },
+    });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+    throw new Error("Transaction failed");
+  }
+
+  // Send transaction
 
   try {
     // Wait for confirmation
@@ -64,8 +80,6 @@ export async function processTransaction(
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash, creditsToBuy);
     }, CONFIRMATION_OPTIONS);
-
-    setIsProcessingTx(false);
   } catch (error) {
     const transactionFailedToConfirmError = new TransactionFailedToConfirmError(
       `Credit Transaction Confirmation failed for user: ${payload?.sub}`,

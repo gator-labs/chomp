@@ -169,6 +169,13 @@ export class CreditTransactionValidationError extends Error {
   }
 }
 
+export class SendTransactionError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "SendTransactionError";
+  }
+}
+
 export class UserThreatLevelDetected extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);

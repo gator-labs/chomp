@@ -1,6 +1,6 @@
-import { updateTxStatusToConfirmed } from "@/actions/credits/updateTxStatusConfirm";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
 import {

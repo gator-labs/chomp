@@ -35,83 +35,80 @@ describe("GET /api/process-pending-transaction", () => {
   const currentDate = new Date();
 
   beforeAll(async () => {
-    await prisma.$transaction(async (tx) => {
-      const deck = await prisma.deck.create({
-        data: {
-          deck: `deck ${currentDate}`,
-          revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          stackId: null,
-          deckQuestions: {
-            create: {
-              question: {
-                create: {
-                  stackId: null,
-                  question: "Bonkaton question?",
-                  type: "MultiChoice",
-                  revealTokenAmount: 10,
-                  revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                  durationMiliseconds: BigInt(60000),
-                  questionOptions: {
-                    create: [
-                      {
-                        option: "A",
-                        isCorrect: true,
-                        isLeft: false,
-                      },
-                      {
-                        option: "B",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "C",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                      {
-                        option: "D",
-                        isCorrect: false,
-                        isLeft: false,
-                      },
-                    ],
-                  },
+    const deck = await prisma.deck.create({
+      data: {
+        deck: `deck ${currentDate}`,
+        revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        stackId: null,
+        deckQuestions: {
+          create: {
+            question: {
+              create: {
+                stackId: null,
+                question: "Bonkaton question?",
+                type: "MultiChoice",
+                revealTokenAmount: 10,
+                revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                durationMiliseconds: BigInt(60000),
+                questionOptions: {
+                  create: [
+                    {
+                      option: "A",
+                      isCorrect: true,
+                      isLeft: false,
+                    },
+                    {
+                      option: "B",
+                      isCorrect: false,
+                      isLeft: false,
+                    },
+                    {
+                      option: "C",
+                      isCorrect: false,
+                      isLeft: false,
+                    },
+                    {
+                      option: "D",
+                      isCorrect: false,
+                      isLeft: false,
+                    },
+                  ],
                 },
               },
             },
           },
         },
-        include: {
-          deckQuestions: true,
-        },
-      });
-      deckId = deck.id;
-      questionId = deck.deckQuestions[0].questionId;
-      // Create users
-      await Promise.all([
-        tx.user.create({
-          data: user1,
-        }),
-        tx.user.create({
-          data: user2,
-        }),
-        tx.wallet.create({
-          data: {
+      },
+      include: {
+        deckQuestions: true,
+      },
+    });
+    deckId = deck.id;
+    questionId = deck.deckQuestions[0].questionId;
+    // Create users
+    await Promise.all([
+      prisma.user.createMany({
+        data: [user1, user2],
+      }),
+      prisma.wallet.createMany({
+        data: [
+          {
             userId: user1.id,
             address: address1,
           },
-        }),
-        tx.wallet.create({
-          data: {
+          {
             userId: user2.id,
             address: address2,
           },
-        }),
-      ]);
+        ],
+      }),
+    ]);
 
-      // Create ChompResult records for each user simulating claimed rewards
-      await Promise.all([
-        tx.chompResult.create({
-          data: {
+    // Create ChompResult records for each user simulating claimed rewards
+    await Promise.all([
+      prisma.chompResult.createMany({
+        data: [
+          {
             userId: user1.id,
             result: ResultType.Revealed,
             rewardTokenAmount: 10,
@@ -122,9 +119,7 @@ describe("GET /api/process-pending-transaction", () => {
             burnTransactionSignature:
               "52T85pvmoGzBTmad6ZeDcSL3fZcPVaACQ8GiUvGHmsivaMRrFkhtFTZv54Aaro1xKSqNr2WgjivC1o3MmRz9QaCi",
           },
-        }),
-        tx.chompResult.create({
-          data: {
+          {
             userId: user2.id,
             result: ResultType.Revealed,
             rewardTokenAmount: 10,
@@ -135,9 +130,9 @@ describe("GET /api/process-pending-transaction", () => {
             burnTransactionSignature:
               "gaLBbAbCvBCjmBEacJy5tDvh3BSaTPznr2Y8nBTcmtHnYyhw3NEMHoVSPLz4kYo2h9CuSKXXkKkh5eDi61pXmd",
           },
-        }),
-      ]);
-    });
+        ],
+      }),
+    ]);
   });
 
   afterAll(async () => {

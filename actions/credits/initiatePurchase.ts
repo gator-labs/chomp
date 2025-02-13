@@ -1,24 +1,25 @@
-import { createSignedSignatureChainTx } from "@/actions/credits/createChainTx";
+"use server";
+
 import { getJwtPayload } from "@/app/actions/jwt";
 import { acquireMutex } from "@/app/utils/mutex";
-import { createCreditPurchaseTransaction } from "@/lib/credits/createTransaction";
+import { createSignedSignatureChainTx } from "@/lib/credits/createChainTx";
 import { processTransaction } from "@/lib/credits/processTransaction";
-import { Wallet } from "@dynamic-labs/sdk-react-core";
 
 /**
  * Initiates and processes a credit purchase transaction
  *
  * @param creditsToBuy - Number of credits the user wants to purchase
- * @param wallet - User's wallet instance from Dynamic SDK
- * @param setIsProcessingTx - Callback to update transaction processing state in UI
+ * @param signature - Transaction signature after user signs
+ * @param transaction - Searlized and base64 encoded transaction after user signs
+ *
  *
  * @throws Error if user is not authenticated or processing fails
  *
  */
 export async function initiateCreditPurchase(
   creditsToBuy: number,
-  wallet: Wallet,
-  setIsProcessingTx: (isProcessingTx: boolean) => void,
+  signature: string,
+  transaction: string,
 ) {
   const payload = await getJwtPayload();
   if (!payload) {
@@ -33,22 +34,7 @@ export async function initiateCreditPurchase(
   });
 
   try {
-    // Step 1: Create and sign the transaction
-    const data = await createCreditPurchaseTransaction(
-      creditsToBuy,
-      wallet,
-      setIsProcessingTx,
-    );
-
-    if (!data) {
-      return {
-        error: "Transaction declined",
-      };
-    }
-
-    const { transaction, signature } = data;
-
-    // Step 2: Record the signed transaction in ChainTx
+    // Step 1: Record the signed transaction in ChainTx
     const chainTx = await createSignedSignatureChainTx(
       creditsToBuy,
       signature!,
@@ -60,12 +46,8 @@ export async function initiateCreditPurchase(
       };
     }
 
-    // Step 3: Submit transaction on-chain and handle confirmation
-    const result = await processTransaction(
-      transaction!,
-      creditsToBuy,
-      setIsProcessingTx,
-    );
+    // Step 2: Submit transaction on-chain and handle confirmation
+    const result = await processTransaction(transaction!, creditsToBuy);
 
     if (result?.error) {
       return {
@@ -75,7 +57,6 @@ export async function initiateCreditPurchase(
   } catch (error) {
     throw error;
   } finally {
-    setIsProcessingTx(false);
     release();
   }
 }

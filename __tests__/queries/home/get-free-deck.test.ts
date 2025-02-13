@@ -49,7 +49,7 @@ describe("getPremiumDeck", () => {
     const deckData = [
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -88,7 +88,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
@@ -127,7 +127,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtAnswerCount: null,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -166,7 +166,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -205,7 +205,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
@@ -244,7 +244,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
@@ -283,7 +283,7 @@ describe("getPremiumDeck", () => {
       },
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
@@ -323,7 +323,7 @@ describe("getPremiumDeck", () => {
 
       {
         data: {
-          deck: `deck ${new Date().getTime()}`,
+          deck: `Free Deck ${new Date().getTime()}`,
           revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
           activeFromDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
           revealAtAnswerCount: null,

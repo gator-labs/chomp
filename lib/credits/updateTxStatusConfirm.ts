@@ -1,5 +1,3 @@
-"use server";
-
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { sleep } from "@/app/utils/sleep";
@@ -10,6 +8,7 @@ import {
   TransactionLogType,
 } from "@prisma/client";
 import pRetry from "p-retry";
+import "server-only";
 
 const MAX_RETRIES = 3;
 

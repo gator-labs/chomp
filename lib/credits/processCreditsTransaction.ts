@@ -84,8 +84,7 @@ export async function processCreditsTransaction(
           status: EChainTxStatus.New,
         },
         data: {
-          status: EChainTxStatus.Finalized,
-          finalizedAt: new Date(),
+          status: EChainTxStatus.Confirmed,
         },
       }),
       prisma.fungibleAssetTransactionLog.create({

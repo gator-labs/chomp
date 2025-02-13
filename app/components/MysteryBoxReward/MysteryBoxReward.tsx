@@ -50,7 +50,7 @@ function MysteryBoxReward({
         }`}
       >
         <div
-          className={`flex flex-row items-center rounded-lg px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
+          className={`flex flex-row items-center rounded-lg px-3 md:px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
             isActive ? "cursor-pointer" : "cursor-not-allowed"
           }`}
           style={
@@ -69,10 +69,10 @@ function MysteryBoxReward({
             alt="Mystery box"
             className="w-[140px] h-[140px]"
           />
-          <div className="flex flex-col ml-8 gap-4">
+          <div className="flex flex-col ml-4 md:ml-8 gap-4">
             <h1
               className={classNames(
-                "text-base inline-block text-transparent bg-clip-text font-black",
+                "text-sm md:text-base inline-block text-transparent bg-clip-text font-black",
                 {
                   "bg-gray-400": !isActive,
                   "bg-blue-pink-gradient": isActive,

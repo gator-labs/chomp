@@ -1,5 +1,5 @@
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
+import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { setupTransactionPriorityFee } from "@/lib/priorityFee";
 import type { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
@@ -24,9 +24,8 @@ import Decimal from "decimal.js";
 export async function createCreditPurchaseTransaction(
   creditsToBuy: number,
   wallet: Wallet,
-  setIsProcessingTx: (isProcessingTx: boolean) => void,
 ) {
-  if (!wallet || !isSolanaWallet(wallet)) return null;
+  if (!isSolanaWallet(wallet)) return null;
 
   const payload = await getJwtPayload();
 
@@ -37,11 +36,11 @@ export async function createCreditPurchaseTransaction(
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
 
-  const treasuryAddress = await getTreasuryAddress();
+  const solPaymentAddress = await getSolPaymentAddress();
 
-  if (!treasuryAddress) {
+  if (!solPaymentAddress) {
     return {
-      error: "Invalid treasury address",
+      error: "SOL Payment Address is not defined",
     };
   }
 
@@ -49,7 +48,7 @@ export async function createCreditPurchaseTransaction(
   let tx = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: walletPubkey,
-      toPubkey: new PublicKey(treasuryAddress),
+      toPubkey: new PublicKey(solPaymentAddress),
       lamports: new Decimal(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT!)
         .mul(creditsToBuy)
         .mul(LAMPORTS_PER_SOL)
@@ -60,16 +59,16 @@ export async function createCreditPurchaseTransaction(
   // Setup priority fee and compute units
   tx = await setupTransactionPriorityFee(tx, walletPubkey);
 
-  setIsProcessingTx(true);
-
   try {
     // Sign transaction
     const signedTransaction = await signer.signTransaction(tx);
     const signature = bs58.encode(signedTransaction.signature!);
 
-    return { transaction: signedTransaction, signature };
+    return {
+      transaction: signedTransaction.serialize().toString("base64"),
+      signature,
+    };
   } catch {
-    setIsProcessingTx(false);
     return null;
   }
 }
