@@ -12,6 +12,7 @@ type ButtonProps = {
     | "pink-border"
     | "purple"
     | "aqua"
+    | "blue"
     | "grayish";
   size?: "big" | "normal" | "small";
   disabled?: boolean;
@@ -40,6 +41,7 @@ export function Button({
     pink: "bg-pink text-gray-900",
     "pink-border": "bg-gray-900 text-gray-900-border",
     purple: "bg-purple-500 text-white",
+    blue: "bg-chomp-blue-light text-black",
     grayish: "bg-gray-600",
     aqua: "bg-aqua text-gray-900",
   };
