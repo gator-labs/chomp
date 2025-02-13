@@ -69,7 +69,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   };
 
   const decrementCreditsToBuy = () => {
-    if (creditsToBuy === undefined || creditsToBuy == 0) return;
+    if (creditsToBuy === undefined || creditsToBuy === 0) return;
     setCreditsToBuy(creditsToBuy - 1);
   };
 
@@ -158,7 +158,12 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
             />
             <Button
               className="min-w-[3.5em]"
-              disabled={creditsToBuy == 0 || isProcessingTx || isLoading}
+              disabled={
+                creditsToBuy === 0 ||
+                creditsToBuy === undefined ||
+                isProcessingTx ||
+                isLoading
+              }
               onClick={() => decrementCreditsToBuy()}
             >
               -
@@ -200,7 +205,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
               disabled={
                 hasInsufficientFunds ||
                 creditsToBuy === undefined ||
-                creditsToBuy == 0 ||
+                creditsToBuy === 0 ||
                 isProcessingTx ||
                 isLoading
               }
