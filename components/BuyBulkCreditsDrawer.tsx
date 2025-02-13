@@ -187,7 +187,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
                     {totalSolCost.toString()} SOL{" "}
                     {solBalance?.price !== undefined && (
                       <span className="text-gray-500">
-                        ($
+                        (~$
                         {totalSolCost
                           .mul(solBalance?.price ?? 0)
                           .toDP(2)
