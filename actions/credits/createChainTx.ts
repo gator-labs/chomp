@@ -1,5 +1,3 @@
-"use server";
-
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
@@ -7,6 +5,7 @@ import { CreateChainTxError } from "@/lib/error";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import Decimal from "decimal.js";
+import "server-only";
 
 import { getJwtPayload } from "../../app/actions/jwt";
 

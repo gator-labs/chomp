@@ -1,5 +1,3 @@
-"use server";
-
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
@@ -8,6 +6,7 @@ import { verifyTransactionInstructions } from "@/lib/verifyTransactionInstructio
 import { VerificationResult } from "@/types/credits";
 import { EChainTxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import "server-only";
 
 import { getWalletOwner } from "../../lib/wallet";
 

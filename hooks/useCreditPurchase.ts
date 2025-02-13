@@ -1,3 +1,4 @@
+import { createCreditPurchaseTransaction } from "@/lib/credits/createTransaction";
 import { initiateCreditPurchase } from "@/lib/credits/initiatePurchase";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana";
@@ -18,10 +19,29 @@ export function useCreditPurchase({ primaryWallet }: UseCreditPurchaseProps) {
     }
 
     try {
-      const result = await initiateCreditPurchase(
+      // Step 1: Create and sign the transaction
+      const data = await createCreditPurchaseTransaction(
         creditsToBuy,
         primaryWallet,
-        setIsProcessingTx,
+      );
+
+      if (
+        !data ||
+        data.signature === undefined ||
+        data.transaction === undefined
+      ) {
+        return {
+          error: "Transaction declined",
+        };
+      }
+
+      setIsProcessingTx(true);
+
+      // Step 2: Submit transaction on-chain and handle confirmation
+      const result = await initiateCreditPurchase(
+        creditsToBuy,
+        data?.signature,
+        data?.transaction,
       );
 
       if (result?.error) {
@@ -31,6 +51,8 @@ export function useCreditPurchase({ primaryWallet }: UseCreditPurchaseProps) {
       }
     } catch {
       throw new Error("Credit purchase failed");
+    } finally {
+      setIsProcessingTx(false);
     }
   };
 

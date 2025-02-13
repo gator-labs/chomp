@@ -24,7 +24,6 @@ import Decimal from "decimal.js";
 export async function createCreditPurchaseTransaction(
   creditsToBuy: number,
   wallet: Wallet,
-  setIsProcessingTx: (isProcessingTx: boolean) => void,
 ) {
   if (!wallet || !isSolanaWallet(wallet)) return null;
 
@@ -60,16 +59,16 @@ export async function createCreditPurchaseTransaction(
   // Setup priority fee and compute units
   tx = await setupTransactionPriorityFee(tx, walletPubkey);
 
-  setIsProcessingTx(true);
-
   try {
     // Sign transaction
     const signedTransaction = await signer.signTransaction(tx);
     const signature = bs58.encode(signedTransaction.signature!);
 
-    return { transaction: signedTransaction, signature };
+    return {
+      transaction: signedTransaction.serialize().toString("base64"),
+      signature,
+    };
   } catch {
-    setIsProcessingTx(false);
     return null;
   }
 }
