@@ -8,7 +8,10 @@ import * as Sentry from "@sentry/nextjs";
 import pRetry from "p-retry";
 import "server-only";
 
-import { TransactionFailedToConfirmError } from "../error";
+import {
+  SendTransactionError,
+  TransactionFailedToConfirmError,
+} from "../error";
 
 const CONFIRMATION_OPTIONS = {
   retries: 2,
@@ -34,10 +37,28 @@ export async function processTransaction(
     };
   }
 
+  let txHash: string;
+
+  try {
+    txHash = await CONNECTION.sendEncodedTransaction(signedTransaction, {
+      skipPreflight: true,
+    });
+  } catch (error) {
+    const sendTransactionError = new SendTransactionError(
+      `Send transaction failed for user: ${payload?.sub}`,
+      { cause: error },
+    );
+    Sentry.captureException(sendTransactionError, {
+      extra: {
+        creditAmount: creditsToBuy,
+        transaction: signedTransaction,
+      },
+    });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+    throw new Error("Transaction failed");
+  }
+
   // Send transaction
-  const txHash = await CONNECTION.sendEncodedTransaction(signedTransaction, {
-    skipPreflight: true,
-  });
 
   try {
     // Wait for confirmation
