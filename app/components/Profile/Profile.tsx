@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/app/queries/user";
 import { cn } from "@/app/utils/tailwind";
 import { formatAddress } from "@/app/utils/wallet";
+import { BuyBulkCreditsButton } from "@/components/BuyBulkCreditsButton";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 
@@ -49,7 +50,7 @@ export async function Profile({
           </Link>
         </div>
         <div className="flex gap-2">
-          <div>
+          <div className="flex gap-2 justify-center">
             <Button
               className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-gray-700 !w-fit"
               isPill
@@ -62,6 +63,8 @@ export async function Profile({
                 </div>
               )}
             </Button>
+
+            <BuyBulkCreditsButton />
           </div>
           {showLeaderboardButton && (
             <Link href="/application/leaderboard" className="contents">
