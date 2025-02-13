@@ -1,7 +1,7 @@
-import { verifyPayment } from "@/actions/credits/verifyPayment";
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { verifyPayment } from "@/lib/credits/verifyPayment";
 import { generateUsers } from "@/scripts/utils";
 import { EChainTxType } from "@prisma/client";
 

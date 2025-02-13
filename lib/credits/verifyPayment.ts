@@ -8,7 +8,7 @@ import { EChainTxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import "server-only";
 
-import { getWalletOwner } from "../../lib/wallet";
+import { getWalletOwner } from "../wallet";
 
 export async function verifyPayment(txHash: string) {
   const payload = await getJwtPayload();

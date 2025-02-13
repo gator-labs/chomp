@@ -1,9 +1,9 @@
-import { updateTxStatusToConfirmed } from "@/actions/credits/updateTxStatusConfirm";
-import { verifyPayment } from "@/actions/credits/verifyPayment";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
+import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
+import { verifyPayment } from "@/lib/credits/verifyPayment";
 import * as Sentry from "@sentry/nextjs";
 import pRetry from "p-retry";
 import "server-only";

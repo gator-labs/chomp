@@ -1,7 +1,7 @@
-import { createSignedSignatureChainTx } from "@/actions/credits/createChainTx";
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { createSignedSignatureChainTx } from "@/lib/credits/createChainTx";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
 import Decimal from "decimal.js";

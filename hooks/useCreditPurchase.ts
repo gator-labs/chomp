@@ -1,5 +1,5 @@
+import { initiateCreditPurchase } from "@/actions/credits/initiatePurchase";
 import { createCreditPurchaseTransaction } from "@/lib/credits/createTransaction";
-import { initiateCreditPurchase } from "@/lib/credits/initiatePurchase";
 import { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana";
 import { useState } from "react";

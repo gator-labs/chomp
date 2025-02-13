@@ -1,8 +1,8 @@
 "use server";
 
-import { createSignedSignatureChainTx } from "@/actions/credits/createChainTx";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { acquireMutex } from "@/app/utils/mutex";
+import { createSignedSignatureChainTx } from "@/lib/credits/createChainTx";
 import { processTransaction } from "@/lib/credits/processTransaction";
 
 /**
