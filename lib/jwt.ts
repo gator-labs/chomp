@@ -14,7 +14,7 @@ export const checkThreatLevel = async (userId: string) => {
     user.threatLevel === EThreatLevelType.ManualBlock
   ) {
     throw new UserThreatLevelDetected(
-      `User threat level detected: user ${userId}, username: ${user.username}, wallet: ${user.wallets?.[0].address}`,
+      `User threat level detected: user ${userId}, username: ${user.username}, wallet: ${user.wallets?.[0]?.address}`,
       { cause: { userId, source: "JWT" } },
     );
   }
