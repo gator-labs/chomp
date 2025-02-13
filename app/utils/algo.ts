@@ -33,9 +33,12 @@ export const calculateCorrectAnswer = async (questionIds: number[]) => {
 };
 
 const getMechanismEngineResponse = async (path: string, body: unknown) => {
+  if (!process.env.MECHANISM_ENGINE_URL)
+    throw new Error("MECHANISM_ENGINE_URL not defined");
+
   try {
     return await fetch(
-      `https://mechanism-engine.vercel.app/api/chomp/${path}`,
+      `${process.env.MECHANISM_ENGINE_URL}/api/chomp/${path}`,
       {
         headers: {
           "Content-Type": "application/json",
