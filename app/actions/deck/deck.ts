@@ -98,71 +98,74 @@ export async function deleteDeck(deckId: number) {
     redirect("/application");
   }
 
-  await prisma.$transaction(async (tx) => {
-    const deckQuestions = await tx.deckQuestion.findMany({
-      where: {
-        deckId,
-      },
-      include: {
-        question: {
-          include: {
-            questionOptions: true,
+  await prisma.$transaction(
+    async (tx) => {
+      const deckQuestions = await tx.deckQuestion.findMany({
+        where: {
+          deckId,
+        },
+        include: {
+          question: {
+            include: {
+              questionOptions: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const questionOptionsIds = deckQuestions.flatMap((q) =>
-      q.question.questionOptions.map((qo) => qo.id),
-    );
-    const questionIds = deckQuestions.map((dq) => dq.questionId);
+      const questionOptionsIds = deckQuestions.flatMap((q) =>
+        q.question.questionOptions.map((qo) => qo.id),
+      );
+      const questionIds = deckQuestions.map((dq) => dq.questionId);
 
-    await tx.chompResult.deleteMany({
-      where: {
-        questionId: {
-          in: questionIds,
+      await tx.chompResult.deleteMany({
+        where: {
+          questionId: {
+            in: questionIds,
+          },
         },
-      },
-    });
+      });
 
-    await tx.questionAnswer.deleteMany({
-      where: {
-        questionOptionId: {
-          in: questionOptionsIds,
+      await tx.questionAnswer.deleteMany({
+        where: {
+          questionOptionId: {
+            in: questionOptionsIds,
+          },
         },
-      },
-    });
+      });
 
-    await tx.questionOption.deleteMany({
-      where: {
-        id: {
-          in: questionOptionsIds,
+      await tx.questionOption.deleteMany({
+        where: {
+          id: {
+            in: questionOptionsIds,
+          },
         },
-      },
-    });
+      });
 
-    await tx.deckQuestion.deleteMany({
-      where: {
-        deckId,
-      },
-    });
-
-    await tx.userDeck.deleteMany({
-      where: {
-        deckId,
-      },
-    });
-
-    await tx.deck.delete({ where: { id: deckId } });
-
-    await tx.question.deleteMany({
-      where: {
-        id: {
-          in: questionIds,
+      await tx.deckQuestion.deleteMany({
+        where: {
+          deckId,
         },
-      },
-    });
-  });
+      });
+
+      await tx.userDeck.deleteMany({
+        where: {
+          deckId,
+        },
+      });
+
+      await tx.deck.delete({ where: { id: deckId } });
+
+      await tx.question.deleteMany({
+        where: {
+          id: {
+            in: questionIds,
+          },
+        },
+      });
+    },
+    { maxWait: 5000 },
+  );
 
   revalidatePath("/admin/decks");
 }

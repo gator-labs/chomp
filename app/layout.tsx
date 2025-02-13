@@ -42,8 +42,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const isDemo = process.env.ENVIRONMENT === "demo";
-
   let user;
   try {
     user = await getCurrentUser();
@@ -67,11 +65,6 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${satoshi.variable} h-full`}>
       <body className="bg-gray-900 text-white h-full">
-        {isDemo && (
-          <div className="fixed top-0 left-[50%] -translate-x-1/2 text-sm px-3 py-1 font-semibold bg-primary text-gray-900 rounded-b-lg">
-            Demo mode
-          </div>
-        )}
         <LinkProgressBar />
         <ReactQueryProvider>
           <DynamicProvider>
