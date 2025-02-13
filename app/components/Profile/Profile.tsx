@@ -64,7 +64,7 @@ export async function Profile({
               )}
             </Button>
 
-            <BuyBulkCreditsButton />
+            <BuyBulkCreditsButton size="small" />
           </div>
           {showLeaderboardButton && (
             <Link href="/application/leaderboard" className="contents">
