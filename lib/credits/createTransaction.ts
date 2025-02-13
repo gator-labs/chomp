@@ -25,7 +25,7 @@ export async function createCreditPurchaseTransaction(
   creditsToBuy: number,
   wallet: Wallet,
 ) {
-  if (!wallet || !isSolanaWallet(wallet)) return null;
+  if (!isSolanaWallet(wallet)) return null;
 
   const payload = await getJwtPayload();
 

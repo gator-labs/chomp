@@ -1,15 +1,12 @@
 import { initiateCreditPurchase } from "@/actions/credits/initiatePurchase";
 import { createCreditPurchaseTransaction } from "@/lib/credits/createTransaction";
-import { Wallet } from "@dynamic-labs/sdk-react-core";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana";
 import { useState } from "react";
 
-interface UseCreditPurchaseProps {
-  primaryWallet: Wallet | null;
-}
-
-export function useCreditPurchase({ primaryWallet }: UseCreditPurchaseProps) {
+export function useCreditPurchase() {
   const [isProcessingTx, setIsProcessingTx] = useState(false);
+  const { primaryWallet } = useDynamicContext();
 
   const processCreditPurchase = async (creditsToBuy: number) => {
     if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
