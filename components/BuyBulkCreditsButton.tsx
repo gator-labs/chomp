@@ -7,9 +7,13 @@ import { useState } from "react";
 
 export type BuyBulkCreditsButtonProps = {
   text?: string;
+  size: "small" | "tiny";
 };
 
-export function BuyBulkCreditsButton({ text }: BuyBulkCreditsButtonProps) {
+export function BuyBulkCreditsButton({
+  text,
+  size,
+}: BuyBulkCreditsButtonProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
   return (
@@ -18,7 +22,7 @@ export function BuyBulkCreditsButton({ text }: BuyBulkCreditsButtonProps) {
         className="text-sm font-normal inline-flex items-center gap-2 !border-0 !w-fit"
         variant="blue"
         isPill
-        size="small"
+        size={size}
         onClick={() => setIsDrawerOpen(true)}
       >
         {text ?? ""}
