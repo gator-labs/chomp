@@ -21,8 +21,6 @@ import { toast } from "sonner";
 
 Decimal.set({ toExpNeg: -128 });
 
-const MAX_SOL_SPEND = 1000;
-
 type BuyBulkCreditsDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
