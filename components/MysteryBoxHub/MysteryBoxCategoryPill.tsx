@@ -47,7 +47,7 @@ function MysteryBoxCategoryPill({
   return (
     <span
       className={cn(
-        "rounded-full align-middle px-4 py-1 flex items-center justify-center gap-1 text-sm",
+        "rounded-full align-middle px-3 md:px-4 py-1 flex items-center justify-center gap-1 text-xs md:text-sm",
         `${disabled ? "bg-gray-400" : STYLES[category]}`,
       )}
     >
