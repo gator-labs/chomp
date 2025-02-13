@@ -1,4 +1,5 @@
 import { getJwtPayload } from "@/app/actions/jwt";
+import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { setupTransactionPriorityFee } from "@/lib/priorityFee";
 import type { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
@@ -36,11 +37,11 @@ export async function createCreditPurchaseTransaction(
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
 
-  const treasuryAddress = process.env.NEXT_PUBLIC_TREASURY_ADDRESS;
+  const solPaymentAddress = getSolPaymentAddress();
 
-  if (!treasuryAddress) {
+  if (!solPaymentAddress) {
     return {
-      error: "Invalid treasury address",
+      error: "SOL Payment Address is not defined",
     };
   }
 
@@ -48,7 +49,7 @@ export async function createCreditPurchaseTransaction(
   let tx = new Transaction().add(
     SystemProgram.transfer({
       fromPubkey: walletPubkey,
-      toPubkey: new PublicKey(treasuryAddress),
+      toPubkey: new PublicKey(solPaymentAddress),
       lamports: new Decimal(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT!)
         .mul(creditsToBuy)
         .mul(LAMPORTS_PER_SOL)
