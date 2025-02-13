@@ -136,7 +136,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
               </div>
             </div>
           </DialogTitle>
-          <div>
+          <div className="text-sm font-medium">
             <p>Buy Credits for ${solPricePerCredit} each.</p>
           </div>
           <hr className="border-gray-600 my-2 p-0" />
@@ -176,8 +176,8 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
               +
             </Button>
           </div>
-          <div>
-            <span className="flex justify-between">
+          <div className="flex flex-col gap-2">
+            <span className="flex justify-between my-2 text-sm font-medium">
               <span>Subtotal</span>
               <span>
                 {hasInsufficientFunds ? (
