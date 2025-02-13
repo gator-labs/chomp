@@ -5,7 +5,6 @@ import {
   toastOptions,
 } from "@/app/providers/ToastProvider";
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Decimal from "decimal.js";
 import Link from "next/link";
@@ -37,11 +36,8 @@ function BuyCreditsDrawer({
     .mul(creditsToBuy)
     .toString();
   const router = useRouter();
-  const { primaryWallet } = useDynamicContext();
 
-  const { isProcessingTx, processCreditPurchase } = useCreditPurchase({
-    primaryWallet,
-  });
+  const { isProcessingTx, processCreditPurchase } = useCreditPurchase();
 
   const buyCredits = async () => {
     setIsLoading(true);
