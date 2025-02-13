@@ -2,7 +2,7 @@ import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { CONNECTION } from "@/app/utils/solana";
 import { VerificationResult } from "@/types/credits";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import pRetry from "p-retry";
 import "server-only";
@@ -13,12 +13,10 @@ export async function verifyTransactionInstructions(
   txHash: string,
   solAmount: string,
 ): Promise<VerificationResult> {
-  const solPaymentAddress = getSolPaymentAddress();
+  const solPaymentAddress = await getSolPaymentAddress();
   if (!solPaymentAddress) {
     return { success: false, error: "SOL Payment Address is not defined" };
   }
-
-  const solPaymentWallet = new PublicKey(solPaymentAddress);
 
   try {
     const txInfo = await pRetry(
@@ -52,7 +50,7 @@ export async function verifyTransactionInstructions(
 
         if (
           parsed.type === "transfer" &&
-          parsed.info.source === solPaymentWallet &&
+          parsed.info.source === solPaymentAddress &&
           parsed.info.lamports > 0
         ) {
           return {
@@ -64,7 +62,7 @@ export async function verifyTransactionInstructions(
         if (
           parsed.type === "transfer" &&
           parsed.info.source === wallet &&
-          parsed.info.destination === solPaymentWallet &&
+          parsed.info.destination === solPaymentAddress &&
           parsed.info.lamports === expectedLamports
         ) {
           transferVerified = true;

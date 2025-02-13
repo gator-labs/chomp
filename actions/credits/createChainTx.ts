@@ -59,7 +59,7 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const solPaymentAddress = getSolPaymentAddress();
+  const solPaymentAddress = await getSolPaymentAddress();
 
   if (!solPaymentAddress) {
     return {

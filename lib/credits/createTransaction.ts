@@ -37,7 +37,7 @@ export async function createCreditPurchaseTransaction(
   const signer = await wallet.getSigner();
   const walletPubkey = new PublicKey(wallet.address);
 
-  const solPaymentAddress = getSolPaymentAddress();
+  const solPaymentAddress = await getSolPaymentAddress();
 
   if (!solPaymentAddress) {
     return {
