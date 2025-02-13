@@ -64,8 +64,8 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   };
 
   const incrementCreditsToBuy = () => {
-    if (creditsToBuy === undefined) return;
-    setCreditsToBuy(creditsToBuy + 1);
+    if (creditsToBuy === undefined) setCreditsToBuy(0);
+    else setCreditsToBuy(creditsToBuy + 1);
   };
 
   const decrementCreditsToBuy = () => {
