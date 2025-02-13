@@ -1,8 +1,8 @@
 "use server";
 
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import prisma from "@/app/services/prisma";
+import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { CreateChainTxError } from "@/lib/error";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
@@ -59,11 +59,11 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const treasuryAddress = await getTreasuryAddress();
+  const solPaymentAddress = await getSolPaymentAddress();
 
-  if (!treasuryAddress) {
+  if (!solPaymentAddress) {
     return {
-      error: "Treasury address is not defined",
+      error: "SOL Payment Address is not defined",
     };
   }
 
@@ -74,7 +74,7 @@ export async function createSignedSignatureChainTx(
         status: EChainTxStatus.New,
         solAmount: solAmount.toString(),
         wallet: wallet?.address,
-        recipientAddress: treasuryAddress,
+        recipientAddress: solPaymentAddress,
         type: EChainTxType.CreditPurchase,
       },
     });

@@ -1,7 +1,7 @@
 import { createSignedSignatureChainTx } from "@/actions/credits/createChainTx";
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
 import Decimal from "decimal.js";
@@ -14,8 +14,8 @@ jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
 
-jest.mock("@/actions/getTreasuryAddress", () => ({
-  getTreasuryAddress: jest.fn(),
+jest.mock("@/app/utils/getSolPaymentAddress", () => ({
+  getSolPaymentAddress: jest.fn(),
 }));
 
 describe("createSignedSignatureChainTx", () => {
@@ -62,9 +62,10 @@ describe("createSignedSignatureChainTx", () => {
   });
 
   it("should create chain transaction with correct solAmount and wallet", async () => {
-    (getTreasuryAddress as jest.Mock).mockResolvedValue(
+    (getSolPaymentAddress as jest.Mock).mockResolvedValue(
       faker.string.hexadecimal({ length: { min: 32, max: 44 } }),
     );
+
     const result = await createSignedSignatureChainTx(
       2,
       CREDIT_PURCHASE_SIGNATURE,
@@ -75,7 +76,6 @@ describe("createSignedSignatureChainTx", () => {
     });
 
     const expectedAmount = new Decimal("2").mul(solPerCreditCost).toString();
-    console.log(expectedAmount);
 
     expect(chainTx).toBeDefined();
     expect(chainTx?.solAmount).toBe(expectedAmount);
@@ -83,15 +83,15 @@ describe("createSignedSignatureChainTx", () => {
     expect(result).toBeUndefined();
   });
 
-  it("should return error if Treasury address is not defined", async () => {
-    (getTreasuryAddress as jest.Mock).mockResolvedValue(null);
+  it("should return error if SOL Payment Address is not defined", async () => {
+    (getSolPaymentAddress as jest.Mock).mockResolvedValue(null);
     const result = await createSignedSignatureChainTx(
       2,
       CREDIT_PURCHASE_SIGNATURE,
     );
 
     expect(result).toEqual({
-      error: "Treasury address is not defined",
+      error: "SOL Payment Address is not defined",
     });
   });
 
