@@ -221,7 +221,7 @@ describe("Mystery box history", () => {
     });
     await prisma.user.deleteMany({
       where: {
-        id: { in: [user0.id, user1.id] },
+        id: { in: [user0.id, user1.id, user2.id] },
       },
     });
   });

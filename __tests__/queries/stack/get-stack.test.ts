@@ -30,121 +30,110 @@ describe("getStack", () => {
     // Mock auth guard to return our test user
     (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
-    await prisma.$transaction(async (tx) => {
-      // Create a test stack
-      const createdStack = await tx.stack.create({
-        data: {
-          name: "Test Stack",
-          isActive: true,
-          isVisible: true,
-          image: "https://example.com/test-stack-image.jpg", // Required field from schema
-        },
-      });
-      stackId = createdStack.id;
+    // Create a test stack
+    const createdStack = await prisma.stack.create({
+      data: {
+        name: "Test Stack",
+        isActive: true,
+        isVisible: true,
+        image: "https://example.com/test-stack-image.jpg", // Required field from schema
+      },
+    });
+    stackId = createdStack.id;
 
-      // Create decks with various date combinations to test sorting
-      const yesterday = dayjs().subtract(1, "day").toDate();
-      const tomorrow = dayjs().add(1, "day").toDate();
-      const nextWeek = dayjs().add(7, "days").toDate();
-      const lastWeek = dayjs().subtract(7, "days").toDate();
+    // Create decks with various date combinations to test sorting
+    const yesterday = dayjs().subtract(1, "day").toDate();
+    const tomorrow = dayjs().add(1, "day").toDate();
+    const nextWeek = dayjs().add(7, "days").toDate();
+    const lastWeek = dayjs().subtract(7, "days").toDate();
 
-      // 1. Deck with null revealAtDate (should appear first)
-      const deck1 = await tx.deck.create({
+    // 1. Deck with null revealAtDate (should appear first)
+    const deckData = [
+      {
         data: {
           deck: "Deck 1 - Null Reveal Date",
           revealAtDate: null,
           activeFromDate: yesterday,
           stackId: createdStack.id,
         },
-      });
-
-      // 2. Another deck with null revealAtDate but different activeFromDate
-      const deck2 = await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck 2 - Null Reveal Date",
           revealAtDate: null,
           activeFromDate: tomorrow,
           stackId: createdStack.id,
         },
-      });
-
-      // 3. Open deck with furthest future reveal (should appear first after null reveals)
-      const deck3 = await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck 3 - Future Reveal",
           revealAtDate: nextWeek,
           activeFromDate: yesterday, // Past active date (makes it open)
           stackId: createdStack.id,
         },
-      });
-
-      // 4. Two decks with same revealAtDate but different activeFromDate
-      const deck4 = await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck 4 - Same Reveal as 5",
           revealAtDate: tomorrow,
           activeFromDate: yesterday, // Past active date (makes it open)
           stackId: createdStack.id,
         },
-      });
-
-      const deck5 = await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck 5 - Same Reveal as 4",
           revealAtDate: tomorrow,
           activeFromDate: nextWeek, // Future active date (makes it upcoming)
           stackId: createdStack.id,
         },
-      });
-
-      // Additional test cases for mixed states
-      const deck6 = await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck 6 - Open Now",
           revealAtDate: dayjs().add(2, "days").toDate(), // Between tomorrow and nextWeek
           activeFromDate: lastWeek, // Past active date (makes it open)
           stackId: createdStack.id,
         },
-      });
-
-      const deck7 = await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck 7 - Closed",
           revealAtDate: yesterday, // Past reveal date (makes it closed)
           activeFromDate: lastWeek,
           stackId: createdStack.id,
         },
-      });
+      },
+    ];
 
-      deckIds = [
-        deck1.id,
-        deck2.id,
-        deck3.id,
-        deck4.id,
-        deck5.id,
-        deck6.id,
-        deck7.id,
-      ];
-    });
+    const decks = [];
+
+    for (let i = 0; i < deckData.length; i++) {
+      const deck = await prisma.deck.create({
+        data: deckData[i].data,
+      });
+      decks.push(deck);
+    }
+
+    deckIds = decks.map((deck) => deck.id);
   });
 
   afterAll(async () => {
-    await prisma.$transaction(async (tx) => {
-      // Clean up decks
-      await tx.deck.deleteMany({
-        where: {
-          id: {
-            in: deckIds,
-          },
+    // Clean up decks
+    await prisma.deck.deleteMany({
+      where: {
+        id: {
+          in: deckIds,
         },
-      });
+      },
+    });
 
-      // Clean up stack
-      await tx.stack.delete({
-        where: {
-          id: stackId,
-        },
-      });
+    // Clean up stack
+    await prisma.stack.delete({
+      where: {
+        id: stackId,
+      },
     });
   });
 
@@ -238,29 +227,38 @@ describe("getStack", () => {
   });
 
   it("should handle boundary dates (exactly now)", async () => {
-    await prisma.$transaction(async (tx) => {
-      const now = new Date();
+    const now = new Date();
 
-      // Create a deck that starts exactly now
-      await tx.deck.create({
+    // Create a deck that starts exactly now
+    const deckData = [
+      {
         data: {
           deck: "Deck - Starting Now",
           revealAtDate: dayjs().add(1, "day").toDate(),
           activeFromDate: now,
           stackId: stackId,
         },
-      });
-
-      // Create a deck that reveals exactly now
-      await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck - Revealing Now",
           revealAtDate: now,
           activeFromDate: dayjs().subtract(1, "day").toDate(),
           stackId: stackId,
         },
+      },
+    ];
+
+    const decks = [];
+
+    for (let i = 0; i < deckData.length; i++) {
+      const deck = await prisma.deck.create({
+        data: deckData[i].data,
       });
-    });
+      decks.push(deck);
+    }
+
+    deckIds = decks.map((deck) => deck.id);
 
     const result = await getStack(stackId);
     expect(result).not.toBeNull();
@@ -281,30 +279,45 @@ describe("getStack", () => {
     const startingNowIndex = result!.deck.indexOf(startingNowDeck!);
     const revealingNowIndex = result!.deck.indexOf(revealingNowDeck!);
     expect(startingNowIndex).toBeLessThan(revealingNowIndex);
+
+    // Clean up decks
+    await prisma.deck.deleteMany({
+      where: {
+        id: { in: deckIds },
+      },
+    });
   });
 
   it("should handle missing or invalid date combinations", async () => {
-    await prisma.$transaction(async (tx) => {
-      // Create a deck with missing activeFromDate
-      await tx.deck.create({
+    const deckData = [
+      {
         data: {
           deck: "Deck - Missing ActiveFrom",
           revealAtDate: dayjs().add(1, "day").toDate(),
           activeFromDate: null,
           stackId: stackId,
         },
-      });
-
-      // Create a deck with missing revealAtDate
-      await tx.deck.create({
+      },
+      {
         data: {
           deck: "Deck - Missing Reveal",
           revealAtDate: null,
           activeFromDate: dayjs().subtract(1, "day").toDate(),
           stackId: stackId,
         },
+      },
+    ];
+
+    const decks = [];
+
+    for (let i = 0; i < deckData.length; i++) {
+      const deck = await prisma.deck.create({
+        data: deckData[i].data,
       });
-    });
+      decks.push(deck);
+    }
+
+    deckIds = decks.map((deck) => deck.id);
 
     const result = await getStack(stackId);
     expect(result).not.toBeNull();
@@ -319,5 +332,12 @@ describe("getStack", () => {
 
     expect(missingActiveDeck).toBeDefined();
     expect(missingRevealDeck).toBeDefined();
+
+    // Clean up decks
+    await prisma.deck.deleteMany({
+      where: {
+        id: { in: deckIds },
+      },
+    });
   });
 });

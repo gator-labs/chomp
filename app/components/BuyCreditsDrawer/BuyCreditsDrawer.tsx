@@ -127,7 +127,7 @@ function BuyCreditsDrawer({
             </p>
           </div>
           <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
-            {creditsToBuy} Credit{creditsToBuy !== 1 ? "s" : ""} ~ $
+            {creditsToBuy} Credit{creditsToBuy !== 1 ? "s" : ""} ~{" "}
             {totalSolCost} SOL
           </span>
           <Button
