@@ -52,12 +52,12 @@ export function getTimeUntilReveal(date: Date): string {
     const hoursUntil = differenceInHours(date, now);
 
     if (daysUntil > 0) {
-      return `${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
+      return `View Results in${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
     } else if (hoursUntil > 0) {
-      return `${hoursUntil} hour${hoursUntil > 1 ? "s" : ""}`;
+      return `View Results in ${hoursUntil} hour${hoursUntil > 1 ? "s" : ""}`;
     } else {
       const minutesUntil = differenceInMinutes(date, now);
-      return `${minutesUntil} minute${minutesUntil > 1 ? "s" : ""}`;
+      return `View Results in ${minutesUntil} minute${minutesUntil > 1 ? "s" : ""}`;
     }
   }
 }
