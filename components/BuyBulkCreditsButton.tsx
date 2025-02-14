@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/app/components/Button/Button";
-import { CoinStackIcon } from "@/app/components/Icons/CoinStackIcon";
+import { CoinsIcon } from "@/app/components/Icons/CoinsIcon";
 import BuyBulkCreditsDrawer from "@/components/BuyBulkCreditsDrawer";
 import { useState } from "react";
 
@@ -26,7 +26,7 @@ export function BuyBulkCreditsButton({
         onClick={() => setIsDrawerOpen(true)}
       >
         {text ?? ""}
-        <CoinStackIcon />+
+        <CoinsIcon />+
       </Button>
       <BuyBulkCreditsDrawer
         isOpen={isDrawerOpen}
