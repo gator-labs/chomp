@@ -63,7 +63,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   };
 
   const incrementCreditsToBuy = () => {
-    if (creditsToBuy === undefined) setCreditsToBuy(0);
+    if (creditsToBuy === undefined) setCreditsToBuy(1);
     else setCreditsToBuy(creditsToBuy + 1);
   };
 
