@@ -1868,6 +1868,13 @@
   resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-api-core/-/sdk-api-core-0.0.586.tgz#582e0c4951b15494b1d3529e29acc6567bcc867a"
   integrity sha512-qwmC53aJAWrzTJYLO7xc1qpnD4VVFYExpIQLEtCG+R8I7NgDU6vr0iAJQhF0ycE28yR1NTiDEXpP/HO/1Tcc/A==
 
+"@dynamic-labs/sdk-api@npm:^0.0.628":
+  version: 0.0.628
+  resolution: "@dynamic-labs/sdk-api@npm:0.0.628"
+  checksum: ce8d1fc7f1ec2f7dcf3ed04b81242b0cd11f559db4a2946c8c1eacb4e4909d09e24ba3ac53c41db5c74226e5d51df73154a915821bdd650ca981689b5a852593
+  languageName: node
+  linkType: hard
+
 "@dynamic-labs/sdk-react-core@^3.9.3":
   version "3.9.11"
   resolved "https://registry.yarnpkg.com/@dynamic-labs/sdk-react-core/-/sdk-react-core-3.9.11.tgz#04caf4c74c72e166ed223e6d76a1fb69a93cfea9"
