@@ -4,6 +4,7 @@ import { Deck, Question } from "@/app/components/Deck/Deck";
 import DeckScreenAction from "@/app/components/DeckScreenAction/DeckScreenAction";
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
+import { BuyBulkCreditsButton } from "@/components/BuyBulkCreditsButton";
 import { useState } from "react";
 
 type DeckScreenProps = {
@@ -58,15 +59,18 @@ const DeckScreen = ({
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
           {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
-            <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit">
-              {totalCredits >= deckCreditCost ? (
-                <span className="opacity-50">Balance </span>
-              ) : (
-                <span className="opacity-60 text-chomp-red-dark">
-                  Balance Low{" "}
-                </span>
-              )}
-              {totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}
+            <div className="flex gap-2">
+              <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit align-middle items-center flex gap-1">
+                {totalCredits >= deckCreditCost ? (
+                  <span className="opacity-50">Balance </span>
+                ) : (
+                  <span className="opacity-60 text-chomp-red-dark">
+                    Balance Low{" "}
+                  </span>
+                )}
+                {totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}
+              </div>
+              <BuyBulkCreditsButton text="Buy More" size="tiny" />
             </div>
           ) : null}
           <Stepper
