@@ -54,7 +54,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
 
   const updateCreditsToBuy = (value: string) => {
     const numValue = Number(value);
-    if (isNaN(numValue) || numValue < 0 || !Number.isFinite(1000))
+    if (isNaN(numValue) || numValue < 0 || !Number.isFinite(value))
       setCreditsToBuy(undefined);
     else setCreditsToBuy(numValue);
   };
