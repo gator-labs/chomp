@@ -1869,11 +1869,9 @@
   integrity sha512-qwmC53aJAWrzTJYLO7xc1qpnD4VVFYExpIQLEtCG+R8I7NgDU6vr0iAJQhF0ycE28yR1NTiDEXpP/HO/1Tcc/A==
 
 "@dynamic-labs/sdk-api@npm:^0.0.628":
-  version: 0.0.628
-  resolution: "@dynamic-labs/sdk-api@npm:0.0.628"
-  checksum: ce8d1fc7f1ec2f7dcf3ed04b81242b0cd11f559db4a2946c8c1eacb4e4909d09e24ba3ac53c41db5c74226e5d51df73154a915821bdd650ca981689b5a852593
-  languageName: node
-  linkType: hard
+  version "0.0.628"
+  resolved "https://registry.npmjs.org/@dynamic-labs/sdk-api/-/sdk-api-0.0.628.tgz#061d1fdf0d6607ffd06e7b066ff4dae37a407263"
+  integity sha512-/FOai6j3EJa2so8xHvHnbLQPd1NK6ChYMJLuO3j8H6G+4CIVS0WpcpEfF822i2x4DhbQBbxS4d2K0OL1torWsg==
 
 "@dynamic-labs/sdk-react-core@^3.9.3":
   version "3.9.11"
