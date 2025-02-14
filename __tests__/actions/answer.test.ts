@@ -1,8 +1,10 @@
 import { answerQuestion } from "@/actions/answers/answerQuestion";
+import { markQuestionAsSeenButNotAnswered } from "@/actions/answers/markQuestionAsSeenButNotAnswered";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
+import { AnswerStatus } from "@prisma/client";
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
@@ -120,6 +122,17 @@ describe("Validate points logs for completing questions and decks", () => {
     // Mock the return value of getJwtPayload to simulate the user context
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
+    });
+
+    const answerData = questionOptions.map((qo) => ({
+      questionOptionId: qo.id,
+      userId,
+      status: AnswerStatus.Viewed,
+      selected: false,
+    }));
+
+    await prisma.questionAnswer.createMany({
+      data: answerData,
     });
 
     await answerQuestion({
