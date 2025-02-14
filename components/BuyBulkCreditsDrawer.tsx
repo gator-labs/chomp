@@ -36,9 +36,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   const router = useRouter();
   const { primaryWallet } = useDynamicContext();
 
-  const { isProcessingTx, processCreditPurchase } = useCreditPurchase({
-    primaryWallet,
-  });
+  const { isProcessingTx, processCreditPurchase } = useCreditPurchase();
 
   const { tokenBalances } = useTokenBalances({
     chainName: ChainEnum.Sol,
