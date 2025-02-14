@@ -2,6 +2,7 @@ import { getUserTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { FungibleAsset, TransactionLogType } from "@prisma/client";
+import "server-only";
 
 import { InsufficientCreditsError } from "../error";
 
