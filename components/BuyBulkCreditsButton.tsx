@@ -26,7 +26,8 @@ export function BuyBulkCreditsButton({
         onClick={() => setIsDrawerOpen(true)}
       >
         {text ?? ""}
-        <CoinsIcon />+
+        <CoinsIcon stroke="#000000" />
+        <span className="-ml-2">+</span>
       </Button>
       <BuyBulkCreditsDrawer
         isOpen={isDrawerOpen}
