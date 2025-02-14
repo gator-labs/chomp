@@ -96,10 +96,16 @@ export async function answerQuestion(request: SaveQuestionRequest) {
 
     if (
       userQuestionAnswers.length &&
-      userQuestionAnswers.some((qa) => qa.status === AnswerStatus.Submitted)
+      userQuestionAnswers.some((qa) => qa.status !== AnswerStatus.Viewed)
     ) {
       throw new Error(
         `User with id: ${payload?.sub} has already answered question with id: ${request.questionId}`,
+      );
+    }
+
+    if (userQuestionAnswers.length === 0) {
+      throw new Error(
+        `User with id: ${payload?.sub} has not paid to answer question with id: ${request.questionId}`,
       );
     }
 
