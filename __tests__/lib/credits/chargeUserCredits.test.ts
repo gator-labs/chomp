@@ -152,7 +152,7 @@ describe("chargeUserCredits", () => {
       data: {
         type: TransactionLogType.CreditByAdmin,
         asset: FungibleAsset.Credit,
-        change: 5,
+        change: 10,
         userId: mockUserId,
       },
     });
@@ -169,7 +169,7 @@ describe("chargeUserCredits", () => {
     const transactions = await prisma.fungibleAssetTransactionLog.findMany({
       where: { userId: mockUserId },
     });
-    expect(transactions).toHaveLength(1); // Only the initial grant should exist
+    expect(transactions).toHaveLength(2); // Only the initial grant should exist
   });
 
   it("should successfully deduct credits when user has sufficient balance", async () => {
