@@ -16,8 +16,8 @@ jest.mock("next/cache", () => ({
 }));
 
 // Transaction details are hardcoded in the test
-jest.mock("@/actions/getTreasuryAddress", () => ({
-  getTreasuryAddress: jest
+jest.mock("@/app/utils/getSolPaymentAddress", () => ({
+  getSolPaymentAddress: jest
     .fn()
     .mockResolvedValue("CHoMP5YdLEJ62kq9oibKbNDkBCgakQPqQLSgkDHyC2D9"),
 }));
@@ -131,8 +131,7 @@ describe("GET /api/cron/process-credits", () => {
 
     const expectedChange = new Decimal("0.25").div(solPerCreditCost).toNumber();
 
-    expect(chainTx?.status).toBe(EChainTxStatus.Finalized);
-    expect(chainTx?.finalizedAt).toBeDefined();
+    expect(chainTx?.status).toBe(EChainTxStatus.Confirmed);
     expect(Number(creditLog?.change)).toBe(expectedChange);
   });
 

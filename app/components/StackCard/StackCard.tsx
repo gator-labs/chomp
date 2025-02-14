@@ -54,9 +54,6 @@ const StackCard = ({
           <p className="text-xs font-medium text-gray-400">
             <span className="text-white">{decksToAnswer}</span> deck
             {decksToAnswer === 1 ? "" : "s"} to answer{" "}
-            <span className="text-white">•</span>{" "}
-            <span className="text-white">{decksToReveal}</span> deck
-            {decksToReveal === 1 ? "" : "s"} to reveal
           </p>
         )}
       </div>

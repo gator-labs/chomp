@@ -36,10 +36,18 @@ export async function GET(request: Request) {
   }
 
   try {
+    if (!process.env.MECHANISM_ENGINE_URL)
+      throw new Error("MECHANISM_ENGINE_URL not defined");
+
     const response = await fetch(
-      "https://mechanism-engine.vercel.app/api/chomp/bot-detector",
+      process.env.MECHANISM_ENGINE_URL + "/api/chomp/bot-detector",
       { signal: AbortSignal.timeout(API_TIMEOUT) },
     );
+
+    if (!response.ok)
+      throw new Error(
+        `Mechanism engine bot detector returned error: ${response.status}: ${response.statusText}`,
+      );
 
     const results = await response.json();
 

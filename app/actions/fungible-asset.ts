@@ -1,8 +1,6 @@
 "use server";
 
-import { QuestionMultiDecksError } from "@/lib/error";
 import { FungibleAsset, TransactionLogType } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 
 import { pointsPerAction } from "../constants/points";
@@ -68,50 +66,6 @@ export const incrementFungibleAssetBalance = async ({
     });
   const result = await Promise.all([transactionLogTask]);
   return result[0];
-};
-
-// charge user credits for premium decks/questions
-export const chargeUserCredits = async (questionId: number) => {
-  const payload = await authGuard();
-
-  const creditForQuestion = await prisma.deck.findMany({
-    where: {
-      deckQuestions: {
-        some: {
-          questionId,
-        },
-      },
-    },
-    select: {
-      creditCostPerQuestion: true,
-    },
-  });
-
-  if (creditForQuestion.length > 1) {
-    const questionDeckConflict = new QuestionMultiDecksError(
-      `Question with id ${questionId} is associated with ${creditForQuestion.length}  decks`,
-    );
-    Sentry.captureException(questionDeckConflict, {
-      extra: {
-        questionId,
-        creditForQuestion,
-      },
-    });
-  }
-
-  const creditCostPerQuestion = creditForQuestion[0]?.creditCostPerQuestion;
-
-  if (creditCostPerQuestion === null) return;
-
-  await prisma.fungibleAssetTransactionLog.create({
-    data: {
-      type: TransactionLogType.PremiumQuestionCharge,
-      questionId: questionId,
-      asset: FungibleAsset.Credit,
-      change: -Math.abs(creditCostPerQuestion),
-      userId: payload.sub,
-    },
-  });
 };
 
 export const addXPoints = async () => {

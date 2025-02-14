@@ -1,4 +1,4 @@
-import { answerQuestion } from "@/app/actions/answer";
+import { answerQuestion } from "@/actions/answers/answerQuestion";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { getStack } from "@/app/queries/stack";
 import prisma from "@/app/services/prisma";

@@ -38,7 +38,6 @@ export const TRACKING_EVENTS = {
   SHARE_ALL_X_BUTTON_CLICKED: "ShareAllXButtonClicked",
   SHARE_X_BUTTON_CLICKED: "ShareXButtonClicked",
   SHARE_BUTTON_CLICKED: "ShareButtonClicked",
-  TELEGRAM_USER_MINIAPP_OPENED: "TelegramUserMiniAppOpened",
   MYSTERY_BOX_DIALOG_OPENED: "MysteryBoxDialogOpened",
   MYSTERY_BOX_DIALOG_CLOSED: "MysteryBoxDialogClosed",
   MYSTERY_BOX_OPENED: "MysteryBoxOpened",

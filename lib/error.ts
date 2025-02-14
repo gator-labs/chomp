@@ -169,6 +169,13 @@ export class CreditTransactionValidationError extends Error {
   }
 }
 
+export class SendTransactionError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "SendTransactionError";
+  }
+}
+
 export class UserThreatLevelDetected extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
@@ -180,5 +187,12 @@ export class DynamicRevokeSessionError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "DynamicRevokeSessionError";
+  }
+}
+
+export class InsufficientCreditsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InsufficientCreditsError";
   }
 }

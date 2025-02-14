@@ -1,7 +1,7 @@
-import { verifyPayment } from "@/actions/credits/verifyPayment";
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
+import { verifyPayment } from "@/lib/credits/verifyPayment";
 import { generateUsers } from "@/scripts/utils";
 import { EChainTxType } from "@prisma/client";
 
@@ -9,11 +9,11 @@ jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
 
-jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
-
-jest.mock("@/actions/getTreasuryAddress", () => ({
-  getTreasuryAddress: jest.fn(),
+jest.mock("@/app/utils/getSolPaymentAddress", () => ({
+  getSolPaymentAddress: jest.fn(),
 }));
+
+jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
 describe("Verify SOL payment transaction", () => {
   let users: { id: string; username: string }[] = [];
@@ -51,8 +51,7 @@ describe("Verify SOL payment transaction", () => {
     });
 
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: users[0].id });
-
-    (getTreasuryAddress as jest.Mock).mockResolvedValue(TREASURY_PUBLIC_KEY);
+    (getSolPaymentAddress as jest.Mock).mockResolvedValue(TREASURY_PUBLIC_KEY);
   });
 
   afterAll(async () => {

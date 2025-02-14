@@ -1,8 +1,8 @@
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
+import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { CONNECTION } from "@/app/utils/solana";
 import { VerificationResult } from "@/types/credits";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Decimal from "decimal.js";
 import pRetry from "p-retry";
 import "server-only";
@@ -13,12 +13,10 @@ export async function verifyTransactionInstructions(
   txHash: string,
   solAmount: string,
 ): Promise<VerificationResult> {
-  const treasuryAddress = await getTreasuryAddress();
-  if (!treasuryAddress) {
-    return { success: false, error: "Treasury address not defined" };
+  const solPaymentAddress = await getSolPaymentAddress();
+  if (!solPaymentAddress) {
+    return { success: false, error: "SOL Payment Address is not defined" };
   }
-
-  const treasuryWallet = new PublicKey(treasuryAddress);
 
   try {
     const txInfo = await pRetry(
@@ -52,16 +50,19 @@ export async function verifyTransactionInstructions(
 
         if (
           parsed.type === "transfer" &&
-          parsed.info.source === treasuryWallet &&
+          parsed.info.source === solPaymentAddress &&
           parsed.info.lamports > 0
         ) {
-          return { success: false, error: "Invalid treasury outflow detected" };
+          return {
+            success: false,
+            error: "Invalid SOL Payment Address outflow detected",
+          };
         }
 
         if (
           parsed.type === "transfer" &&
           parsed.info.source === wallet &&
-          parsed.info.destination === treasuryAddress &&
+          parsed.info.destination === solPaymentAddress &&
           parsed.info.lamports === expectedLamports
         ) {
           transferVerified = true;
