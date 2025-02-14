@@ -3,7 +3,9 @@
 import {
   SaveQuestionRequest,
   answerQuestion,
-  markQuestionAsSeenButNotAnswered,
+} from "@/actions/answers/answerQuestion";
+import { markQuestionAsSeenButNotAnswered } from "@/actions/answers/markQuestionAsSeenButNotAnswered";
+import {
   markQuestionAsSkipped,
   markQuestionAsTimedOut,
 } from "@/app/actions/answer";

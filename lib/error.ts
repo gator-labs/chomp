@@ -189,3 +189,10 @@ export class DynamicRevokeSessionError extends Error {
     this.name = "DynamicRevokeSessionError";
   }
 }
+
+export class InsufficientCreditsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InsufficientCreditsError";
+  }
+}
