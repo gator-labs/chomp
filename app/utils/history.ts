@@ -52,7 +52,7 @@ export function getTimeUntilReveal(date: Date): string {
     const hoursUntil = differenceInHours(date, now);
 
     if (daysUntil > 0) {
-      return `View Results in${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
+      return `View Results in ${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
     } else if (hoursUntil > 0) {
       return `View Results in ${hoursUntil} hour${hoursUntil > 1 ? "s" : ""}`;
     } else {
