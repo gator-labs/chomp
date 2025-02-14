@@ -1,4 +1,7 @@
-import { SaveQuestionRequest, answerQuestion } from "@/app/actions/answer";
+import {
+  SaveQuestionRequest,
+  answerQuestion,
+} from "@/actions/answers/answerQuestion";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { deckSchema } from "@/app/schemas/deck";
 import prisma from "@/app/services/prisma";

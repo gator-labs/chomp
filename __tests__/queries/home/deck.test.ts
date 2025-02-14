@@ -201,8 +201,6 @@ describe("queryExpiringDecks", () => {
       (deck: any) => !(deck.id in existingDeckIds),
     );
 
-    console.log(result);
-
     expect(result.length).toBe(1); // Only Deck 2 has unanswered questions for user2
     expect(result[0].deck).toBe("Deck 2");
   });
@@ -211,8 +209,6 @@ describe("queryExpiringDecks", () => {
     const result = (await queryExpiringDecks(user1.id)).filter(
       (deck: any) => !(deck.id in existingDeckIds),
     );
-
-    console.log(result);
 
     expect(result.length).toBe(0); // user1 has answered all the questions in both decks
   });
