@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+const MAX_CREDITS = 1000;
+
 Decimal.set({ toExpNeg: -128 });
 
 type BuyBulkCreditsDrawerProps = {
@@ -47,10 +49,11 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   });
 
   const solBalance = tokenBalances?.find((bal) => bal.symbol == "SOL");
+  const isSolBalanceKnown = solBalance !== undefined;
 
-  const hasInsufficientFunds = totalSolCost.greaterThanOrEqualTo(
-    solBalance?.balance ?? 0,
-  );
+  const hasInsufficientFunds = isSolBalanceKnown
+    ? totalSolCost.greaterThanOrEqualTo(solBalance?.balance ?? 0)
+    : false;
 
   const updateCreditsToBuy = (value: string) => {
     const numValue = Number(value);
@@ -60,7 +63,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   };
 
   const incrementCreditsToBuy = () => {
-    if (creditsToBuy === undefined) setCreditsToBuy(0);
+    if (creditsToBuy === undefined) setCreditsToBuy(1);
     else setCreditsToBuy(creditsToBuy + 1);
   };
 
@@ -144,7 +147,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
               pattern="/^[0-9]*$/"
               step="1"
               min="1"
-              max={solBalance?.balance ?? 0}
+              max={MAX_CREDITS}
               required
               placeholder="0"
               className="block h-full w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
