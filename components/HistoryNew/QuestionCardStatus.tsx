@@ -27,7 +27,7 @@ export function QuestionCardStatus({
   return (
     <div className="flex rounded-sm gap-1 p-1">
       {icon}
-      <div className="bg-gray-800 rounded-sm px-1 align-middle justify-center items-center text-xs font-medium px-2 w-[200px] flex">
+      <div className="bg-gray-800 rounded-sm align-middle justify-center items-center text-xs font-medium px-2 max-w-[140px] md:max-w-[200px] flex">
         <span className="min-w-0 flex-1 truncate">{title}</span>
       </div>
     </div>
