@@ -133,7 +133,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
             </div>
           </DialogTitle>
           <div className="text-sm font-medium">
-            <p>Buy Credits for ${solPricePerCredit} each.</p>
+            <p>Buy Credits for {solPricePerCredit} SOL each.</p>
           </div>
           <hr className="border-gray-600 my-2 p-0" />
           <div className="grid grid-cols-[1fr_auto_auto] gap-2">
