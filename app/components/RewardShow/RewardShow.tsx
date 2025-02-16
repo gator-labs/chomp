@@ -17,6 +17,7 @@ interface RewardShowProps {
   questions: string[];
   revealAmount: number;
   creditsRewardAmount: string | undefined;
+  isPracticeQuestion: boolean;
 }
 
 const RewardShow = ({
@@ -24,6 +25,7 @@ const RewardShow = ({
   isSecondOrderCorrect,
   rewardAmount,
   creditsRewardAmount,
+  isPracticeQuestion,
 }: RewardShowProps) => {
   if (isFirstOrderCorrect) {
     return (
@@ -34,28 +36,34 @@ const RewardShow = ({
               ? "Congrats, you won!"
               : "Well done!"}
           </span>
-          <div className="h-[1px] w-full bg-gray-500" />
-          {isSecondOrderCorrect !== undefined ? (
-            <div className="flex items-center gap-1 justify-between">
-              <p className="text-sm font-normal  text-left">Claim reward:</p>
-              <Pill variant="white">
-                <p className="text-xs font-bold text-center">
-                  {numberToCurrencyFormatter.format(
-                    Math.round(rewardAmount || 0),
-                  )}{" "}
-                  BONK
-                </p>
-              </Pill>
-              <Pill variant="white">
-                <p className="text-xs font-bold text-center">
-                  {Number(creditsRewardAmount) || 0} CREDITS
-                </p>
-              </Pill>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 justify-between">
-              View your rewards below.
-            </div>
+          {!isPracticeQuestion && (
+            <>
+              <div className="h-[1px] w-full bg-gray-500" />
+              {isSecondOrderCorrect !== undefined ? (
+                <div className="flex items-center gap-1 justify-between">
+                  <p className="text-sm font-normal  text-left">
+                    Claim reward:
+                  </p>
+                  <Pill variant="white">
+                    <p className="text-xs font-bold text-center">
+                      {numberToCurrencyFormatter.format(
+                        Math.round(rewardAmount || 0),
+                      )}{" "}
+                      BONK
+                    </p>
+                  </Pill>
+                  <Pill variant="white">
+                    <p className="text-xs font-bold text-center">
+                      {Number(creditsRewardAmount) || 0} CREDITS
+                    </p>
+                  </Pill>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 justify-between">
+                  View your rewards below.
+                </div>
+              )}
+            </>
           )}
         </div>
         <Trophy width={70} height={85} />
