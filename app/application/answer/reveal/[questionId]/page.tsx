@@ -105,6 +105,8 @@ const RevealAnswerPage = async ({ params }: Props) => {
   const sendTransactionSignature =
     chompResult?.sendTransactionSignature ?? null;
 
+  const isPracticeQuestion = questionResponse.creditCostPerQuestion === 0;
+
   if (!questionResponse.isQuestionRevealable) {
     if (
       questionResponse.revealAtDate === null ||
@@ -346,12 +348,15 @@ const RevealAnswerPage = async ({ params }: Props) => {
           questions={[questionResponse.question]}
           revealAmount={questionResponse.revealTokenAmount}
           creditsRewardAmount={creditsPrize?.amount}
+          isPracticeQuestion={isPracticeQuestion}
         />
       )}
       {questionContent}
       {answerContent}
       <ViewRewardsButton
-        disabled={!isFirstOrderCorrect || hasAlreadyClaimedReward}
+        disabled={
+          !isFirstOrderCorrect || hasAlreadyClaimedReward || isPracticeQuestion
+        }
       />
       {!!chompResult.rewardTokenAmount &&
         chompResult.burnTransactionSignature && (

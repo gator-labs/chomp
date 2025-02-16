@@ -8,6 +8,7 @@ import {
   EBoxPrizeStatus,
   EBoxPrizeType,
   EBoxTriggerType,
+  EMysteryBoxStatus,
   EPrizeSize,
 } from "@prisma/client";
 
@@ -49,6 +50,9 @@ export const rewardMysteryBoxHub = async ({
       triggerType: EBoxTriggerType.ValidationReward,
       MysteryBoxPrize: {
         some: { status: EBoxPrizeStatus.Unclaimed },
+      },
+      MysteryBox: {
+        status: { in: [EMysteryBoxStatus.New, EMysteryBoxStatus.Unopened] },
       },
     },
   });
