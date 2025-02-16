@@ -193,6 +193,9 @@ export async function getQuestionWithUserAnswer(questionId: number) {
       MysteryBoxTrigger: {
         where: {
           questionId,
+          MysteryBox: {
+            userId,
+          },
         },
         include: {
           MysteryBoxPrize: {
