@@ -243,6 +243,7 @@ export const calculateReward = async (
       second_order_mean: 0,
       second_order_estimates: [0],
       question_cost: 0,
+      token_reward: 0,
     };
 
     const correctOptionIndex = question.questionOptions.findIndex(
@@ -284,7 +285,8 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion ?? 0,
+        token_reward: question.revealTokenAmount,
       };
     }
 
@@ -402,6 +404,11 @@ export const calculateMysteryBoxHubReward = async (
       )
       .find((answer) => answer.userId === userId && answer.selected);
 
+    if (question.creditCostPerQuestion === null)
+      new Error(
+        "Mechanism engine: unable to calculate reward for legacy question",
+      );
+
     if (!userAnswer) {
       questionRewards.push({
         questionId: question.id,
@@ -418,6 +425,7 @@ export const calculateMysteryBoxHubReward = async (
       second_order_mean: 0,
       second_order_estimates: [0],
       question_cost: 0,
+      token_reward: 0,
     };
 
     const correctOptionIndex = question.questionOptions.findIndex(
@@ -459,7 +467,8 @@ export const calculateMysteryBoxHubReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion ?? 0,
+        token_reward: question.revealTokenAmount,
       };
     }
 
@@ -494,7 +503,8 @@ export const calculateMysteryBoxHubReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion ?? 0,
+        token_reward: question.revealTokenAmount,
       };
     }
 
