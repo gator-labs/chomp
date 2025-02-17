@@ -558,16 +558,13 @@ export default function DeckForm({
       </div>
       {CREDIT_COST_FEATURE_FLAG && (
         <div className="mb-3">
-          <label className="block mb-1">
-            Credit cost per question (optional)
-          </label>
+          <label className="block mb-1">Credit cost per question</label>
           <select
             className="text-gray-800 w-full"
             {...register("creditCostPerQuestion", {
               setValueAs: (v) => (!v ? null : parseInt(v)),
             })}
           >
-            <option value="">None</option>
             {Array.from({ length: 6 }, (_, i) => i).map((i) => (
               <option value={i} key={i}>
                 {i}
