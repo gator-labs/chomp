@@ -31,6 +31,8 @@ type DeckFormProps = {
 const CREDIT_COST_FEATURE_FLAG =
   process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION;
 
+const BONK_PER_CREDIT = Number(process.env.NEXT_PUBLIC_BONK_PER_CREDIT ?? 5000);
+
 export default function DeckForm({
   deck,
   tags,
@@ -47,6 +49,7 @@ export default function DeckForm({
     watch,
     setValue,
     control,
+    getFieldState,
   } = useForm({
     resolver: zodResolver(deckSchema),
     defaultValues: deck || {
@@ -456,7 +459,7 @@ export default function DeckForm({
           variant="secondary"
           {...register("revealTokenAmount", {
             setValueAs: (v) => (!v ? 0 : parseInt(v)),
-            value: 5000,
+            value: BONK_PER_CREDIT,
           })}
         />
         <div className="text-destructive">
@@ -563,6 +566,13 @@ export default function DeckForm({
             className="text-gray-800 w-full"
             {...register("creditCostPerQuestion", {
               setValueAs: (v) => (!v ? null : parseInt(v)),
+              onChange: (e) => {
+                if (!getFieldState("revealTokenAmount").isDirty)
+                  setValue(
+                    "revealTokenAmount",
+                    e.target.value * BONK_PER_CREDIT,
+                  );
+              },
             })}
           >
             {Array.from({ length: 6 }, (_, i) => i).map((i) => (
