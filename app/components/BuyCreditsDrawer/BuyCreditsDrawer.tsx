@@ -5,6 +5,11 @@ import {
   toastOptions,
 } from "@/app/providers/ToastProvider";
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
+import { ChainEnum } from "@dynamic-labs/sdk-api";
+import {
+  useDynamicContext,
+  useTokenBalances,
+} from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Decimal from "decimal.js";
 import Link from "next/link";
@@ -32,12 +37,27 @@ function BuyCreditsDrawer({
 }: BuyCreditsDrawerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
-  const totalSolCost = new Decimal(solPricePerCredit!)
-    .mul(creditsToBuy)
-    .toString();
+  const totalSolCost = new Decimal(solPricePerCredit!).mul(creditsToBuy);
+
   const router = useRouter();
 
   const { isProcessingTx, processCreditPurchase } = useCreditPurchase();
+  const { primaryWallet } = useDynamicContext();
+
+  const { tokenBalances } = useTokenBalances({
+    chainName: ChainEnum.Sol,
+    tokenAddresses: ["11111111111111111111111111111111"],
+    accountAddress: primaryWallet?.address,
+    includeFiat: true,
+    includeNativeBalance: true,
+  });
+
+  const solBalance = tokenBalances?.find((bal) => bal.symbol == "SOL");
+  const isSolBalanceKnown = solBalance !== undefined;
+
+  const hasInsufficientFunds = isSolBalanceKnown
+    ? totalSolCost.greaterThanOrEqualTo(solBalance?.balance ?? 0)
+    : false;
 
   const buyCredits = async () => {
     setIsLoading(true);
@@ -124,14 +144,14 @@ function BuyCreditsDrawer({
           </div>
           <span className="bg-gray-500 w-fit px-2 py-1 my-2 text-sm font-medium rounded">
             {creditsToBuy} Credit{creditsToBuy !== 1 ? "s" : ""} ~{" "}
-            {totalSolCost} SOL
+            {totalSolCost.toString()} SOL
           </span>
           <Button
             onClick={buyCredits}
-            disabled={isProcessingTx || isLoading}
+            disabled={isProcessingTx || isLoading || hasInsufficientFunds}
             isLoading={isProcessingTx || isLoading}
           >
-            Buy Credits
+            {hasInsufficientFunds ? "Insufficient Balance" : "Buy Credits"}
           </Button>
           <Button
             onClick={onClose}
