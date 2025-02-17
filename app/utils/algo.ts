@@ -33,6 +33,10 @@ export const calculateCorrectAnswer = async (questionIds: number[]) => {
 };
 
 const getMechanismEngineResponse = async (path: string, body: unknown) => {
+  if (path.startsWith("/")) {
+    throw new Error("Mechanism engine path must not start with a slash");
+  }
+
   if (!process.env.MECHANISM_ENGINE_URL)
     throw new Error("MECHANISM_ENGINE_URL not defined");
 
@@ -514,7 +518,7 @@ export const calculateMysteryBoxHubReward = async (
       };
     }
 
-    const rewards = await getMechanismEngineResponse("/rewards", body);
+    const rewards = await getMechanismEngineResponse("rewards", body);
 
     questionRewards.push({
       questionId: question.id,
