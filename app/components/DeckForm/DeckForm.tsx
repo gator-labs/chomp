@@ -459,7 +459,7 @@ export default function DeckForm({
           variant="secondary"
           {...register("revealTokenAmount", {
             setValueAs: (v) => (!v ? 0 : parseInt(v)),
-            value: BONK_PER_CREDIT,
+            value: 0,
           })}
         />
         <div className="text-destructive">
