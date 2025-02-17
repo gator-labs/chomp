@@ -48,7 +48,6 @@ function BuyCreditsDrawer({
     chainName: ChainEnum.Sol,
     tokenAddresses: ["11111111111111111111111111111111"],
     accountAddress: primaryWallet?.address,
-    includeFiat: true,
     includeNativeBalance: true,
   });
 
