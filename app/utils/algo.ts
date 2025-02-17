@@ -514,7 +514,7 @@ export const calculateMysteryBoxHubReward = async (
       };
     }
 
-    const rewards = await getMechanismEngineResponse("v2/rewards", body);
+    const rewards = await getMechanismEngineResponse("/rewards", body);
 
     questionRewards.push({
       questionId: question.id,
