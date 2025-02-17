@@ -321,7 +321,8 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion ?? 0,
+        token_reward: question.revealTokenAmount,
       };
     }
 
