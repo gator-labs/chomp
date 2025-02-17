@@ -215,6 +215,11 @@ export const calculateReward = async (
   }[] = [];
 
   for (const question of questions) {
+    if (question.creditCostPerQuestion === null)
+      throw new Error(
+        "Mechanism engine: unable to calculate reward for legacy question",
+      );
+
     const optionsList = question.questionOptions.map((option) => option.id);
     const inputList = ["a", "b", "c", "d", "e", "f", "g"];
 
@@ -285,7 +290,7 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
-        question_cost: question.creditCostPerQuestion ?? 0,
+        question_cost: question.creditCostPerQuestion,
         token_reward: question.revealTokenAmount,
       };
     }
@@ -321,7 +326,7 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
-        question_cost: question.creditCostPerQuestion ?? 0,
+        question_cost: question.creditCostPerQuestion,
         token_reward: question.revealTokenAmount,
       };
     }
@@ -393,6 +398,11 @@ export const calculateMysteryBoxHubReward = async (
   }[] = [];
 
   for (const question of questions) {
+    if (question.creditCostPerQuestion === null)
+      throw new Error(
+        "Mechanism engine: unable to calculate reward for legacy question",
+      );
+
     const optionsList = question.questionOptions.map((option) => option.id);
     const inputList = ["a", "b", "c", "d", "e", "f", "g"];
 
@@ -404,11 +414,6 @@ export const calculateMysteryBoxHubReward = async (
           : answer,
       )
       .find((answer) => answer.userId === userId && answer.selected);
-
-    if (question.creditCostPerQuestion === null)
-      new Error(
-        "Mechanism engine: unable to calculate reward for legacy question",
-      );
 
     if (!userAnswer) {
       questionRewards.push({
@@ -468,7 +473,7 @@ export const calculateMysteryBoxHubReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
-        question_cost: question.creditCostPerQuestion ?? 0,
+        question_cost: question.creditCostPerQuestion,
         token_reward: question.revealTokenAmount,
       };
     }
@@ -504,7 +509,7 @@ export const calculateMysteryBoxHubReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
-        question_cost: question.creditCostPerQuestion ?? 0,
+        question_cost: question.creditCostPerQuestion,
         token_reward: question.revealTokenAmount,
       };
     }
