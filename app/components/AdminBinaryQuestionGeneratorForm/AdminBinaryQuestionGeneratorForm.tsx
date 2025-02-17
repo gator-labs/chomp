@@ -80,7 +80,6 @@ export default function AdminBinaryQuestionGeneratorForm({
             required
             className="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
           >
-            <option value="none">None (legacy)</option>
             <option value="0">0 (free)</option>
             <option value="1">1</option>
             <option value="2">2</option>

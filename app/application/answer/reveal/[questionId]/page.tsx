@@ -353,11 +353,11 @@ const RevealAnswerPage = async ({ params }: Props) => {
       )}
       {questionContent}
       {answerContent}
-      <ViewRewardsButton
-        disabled={
-          !isFirstOrderCorrect || hasAlreadyClaimedReward || isPracticeQuestion
-        }
-      />
+      {!isPracticeQuestion && (
+        <ViewRewardsButton
+          disabled={!isFirstOrderCorrect || hasAlreadyClaimedReward}
+        />
+      )}
       {!!chompResult.rewardTokenAmount &&
         chompResult.burnTransactionSignature && (
           <ShareResult

@@ -31,6 +31,8 @@ type DeckFormProps = {
 const CREDIT_COST_FEATURE_FLAG =
   process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION;
 
+const BONK_PER_CREDIT = Number(process.env.NEXT_PUBLIC_BONK_PER_CREDIT ?? 5000);
+
 export default function DeckForm({
   deck,
   tags,
@@ -47,6 +49,7 @@ export default function DeckForm({
     watch,
     setValue,
     control,
+    getFieldState,
   } = useForm({
     resolver: zodResolver(deckSchema),
     defaultValues: deck || {
@@ -456,7 +459,7 @@ export default function DeckForm({
           variant="secondary"
           {...register("revealTokenAmount", {
             setValueAs: (v) => (!v ? 0 : parseInt(v)),
-            value: 5000,
+            value: 0,
           })}
         />
         <div className="text-destructive">
@@ -558,16 +561,20 @@ export default function DeckForm({
       </div>
       {CREDIT_COST_FEATURE_FLAG && (
         <div className="mb-3">
-          <label className="block mb-1">
-            Credit cost per question (optional)
-          </label>
+          <label className="block mb-1">Credit cost per question</label>
           <select
             className="text-gray-800 w-full"
             {...register("creditCostPerQuestion", {
               setValueAs: (v) => (!v ? null : parseInt(v)),
+              onChange: (e) => {
+                if (!getFieldState("revealTokenAmount").isDirty)
+                  setValue(
+                    "revealTokenAmount",
+                    e.target.value * BONK_PER_CREDIT,
+                  );
+              },
             })}
           >
-            <option value="">None</option>
             {Array.from({ length: 6 }, (_, i) => i).map((i) => (
               <option value={i} key={i}>
                 {i}
