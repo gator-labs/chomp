@@ -215,6 +215,11 @@ export const calculateReward = async (
   }[] = [];
 
   for (const question of questions) {
+    if (question.creditCostPerQuestion === null)
+      throw new Error(
+        "Mechanism engine: unable to calculate reward for legacy question",
+      );
+
     const optionsList = question.questionOptions.map((option) => option.id);
     const inputList = ["a", "b", "c", "d", "e", "f", "g"];
 
@@ -243,6 +248,7 @@ export const calculateReward = async (
       second_order_mean: 0,
       second_order_estimates: [0],
       question_cost: 0,
+      token_reward: 0,
     };
 
     const correctOptionIndex = question.questionOptions.findIndex(
@@ -284,7 +290,8 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion,
+        token_reward: question.revealTokenAmount,
       };
     }
 
@@ -319,7 +326,8 @@ export const calculateReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion,
+        token_reward: question.revealTokenAmount,
       };
     }
 
@@ -390,6 +398,11 @@ export const calculateMysteryBoxHubReward = async (
   }[] = [];
 
   for (const question of questions) {
+    if (question.creditCostPerQuestion === null)
+      throw new Error(
+        "Mechanism engine: unable to calculate reward for legacy question",
+      );
+
     const optionsList = question.questionOptions.map((option) => option.id);
     const inputList = ["a", "b", "c", "d", "e", "f", "g"];
 
@@ -418,6 +431,7 @@ export const calculateMysteryBoxHubReward = async (
       second_order_mean: 0,
       second_order_estimates: [0],
       question_cost: 0,
+      token_reward: 0,
     };
 
     const correctOptionIndex = question.questionOptions.findIndex(
@@ -459,7 +473,8 @@ export const calculateMysteryBoxHubReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion,
+        token_reward: question.revealTokenAmount,
       };
     }
 
@@ -494,11 +509,12 @@ export const calculateMysteryBoxHubReward = async (
           questionOption?.calculatedAveragePercentage ??
           getAverage(second_order_estimates),
         second_order_estimates: second_order_estimates,
-        question_cost: question.revealTokenAmount,
+        question_cost: question.creditCostPerQuestion,
+        token_reward: question.revealTokenAmount,
       };
     }
 
-    const rewards = await getMechanismEngineResponse("v2/rewards", body);
+    const rewards = await getMechanismEngineResponse("/rewards", body);
 
     questionRewards.push({
       questionId: question.id,
