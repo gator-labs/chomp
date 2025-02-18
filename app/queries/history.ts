@@ -231,7 +231,7 @@ export async function getNewHistoryQuery(
         WHEN COUNT(CASE WHEN qa.selected IS NOT NULL THEN 1 ELSE NULL END) = 0 THEN 'unanswered'
         WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() THEN 1 ELSE NULL END) > 0 THEN 'unrevealed'
         WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."calculatedIsCorrect" = true AND qa."selected" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
-        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."calculatedIsCorrect" = false AND qa."selected" = true THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
+        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."calculatedIsCorrect" != qa."selected" THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
     END AS "indicatorType"
 FROM "Question" q
          JOIN
