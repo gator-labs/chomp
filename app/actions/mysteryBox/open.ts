@@ -218,9 +218,6 @@ export async function openMysteryBox(
         },
         {
           retries: 2,
-          onFailedAttempt: (error) => {
-            console.log("Retrying", error);
-          },
         },
       );
 
