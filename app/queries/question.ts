@@ -11,7 +11,7 @@ import {
   mapPercentages,
   populateAnswerCount,
 } from "../utils/question";
-import { answerPercentageQuery } from "./answerPercentageQuery";
+import { calculatedQuestionOrderPercentages } from "./answerPercentageQuery";
 
 export enum ElementType {
   Question = "Question",
@@ -214,9 +214,21 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     return null;
   }
 
+  const calculatedQuestionOptionPercentages = question.questionOptions.map(
+    (qo) => ({
+      id: qo.id,
+      firstOrderSelectedAnswerPercentage:
+        qo.calculatedPercentageOfSelectedAnswers,
+      secondOrderAveragePercentagePicked: qo.calculatedAveragePercentage,
+    }),
+  );
+
   const questionOptionIds = question.questionOptions.map((qo) => qo.id);
-  const questionOptionPercentages =
-    await answerPercentageQuery(questionOptionIds);
+
+  const questionOptionPercentages = await calculatedQuestionOrderPercentages(
+    questionOptionIds,
+    calculatedQuestionOptionPercentages,
+  );
 
   const populated = populateAnswerCount(question);
 

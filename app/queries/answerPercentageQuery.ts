@@ -63,3 +63,32 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
     ),
   }));
 }
+
+export async function calculatedQuestionOrderPercentages(
+  questionOptionIds: number[],
+  calculatedQuestionOptionPercentages: {
+    id: number;
+    firstOrderSelectedAnswerPercentage: number | null;
+    secondOrderAveragePercentagePicked: number | null;
+  }[],
+) {
+  const isNullCalculatedPercentages = calculatedQuestionOptionPercentages.some(
+    (qo) =>
+      qo.firstOrderSelectedAnswerPercentage === null ||
+      qo.secondOrderAveragePercentagePicked === null,
+  );
+
+  if (isNullCalculatedPercentages) {
+    return await answerPercentageQuery(questionOptionIds);
+  } else {
+    return calculatedQuestionOptionPercentages.map((cqop) => ({
+      id: cqop.id,
+      firstOrderSelectedAnswerPercentage: Number(
+        cqop.firstOrderSelectedAnswerPercentage ?? 0,
+      ),
+      secondOrderAveragePercentagePicked: Number(
+        cqop.secondOrderAveragePercentagePicked ?? 0,
+      ),
+    }));
+  }
+}
