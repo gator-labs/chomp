@@ -220,16 +220,15 @@ export async function openMysteryBox(
           retries: 2,
         },
       );
-
-      await prisma.mysteryBox.update({
-        where: {
-          id: mysteryBoxId,
-        },
-        data: {
-          status: EMysteryBoxStatus.Opened,
-        },
-      });
     }
+    await prisma.mysteryBox.update({
+      where: {
+        id: mysteryBoxId,
+      },
+      data: {
+        status: EMysteryBoxStatus.Opened,
+      },
+    });
   } catch (e) {
     try {
       await prisma.mysteryBox.update({
