@@ -1,5 +1,3 @@
-// TODO: 1. Write a test to check if what will be the result if we exclude the bots in binary question
-// 2. Write a test to check if what will be the result if we exclude the bots in multiple choice question
 import { deleteDeck } from "@/app/actions/deck/deck";
 import prisma from "@/app/services/prisma";
 import { calculateCorrectAnswer } from "@/app/utils/algo";
@@ -27,7 +25,7 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
-describe("calculateCorrectAnswe", () => {
+describe("calculateCorrectAnswer", () => {
   let userIds: string[];
   let deckIds: number[];
   beforeAll(async () => {
@@ -232,7 +230,7 @@ describe("calculateCorrectAnswe", () => {
       },
     });
   });
-  it("should compare binary question reslut for bots and non-bots user response", async () => {
+  it("should compare binary question result for bots and non-bots user response", async () => {
     await calculateCorrectAnswer([deckIds[0]]);
 
     const questionOptionsBeforeMarkedBot = await prisma.questionOption.findMany(
@@ -293,7 +291,7 @@ describe("calculateCorrectAnswe", () => {
       );
     });
   });
-  it("should compare multiple choice question reslut for bots and non-bots user response", async () => {
+  it("should compare multiple choice question result for bots and non-bots user response", async () => {
     await calculateCorrectAnswer([deckIds[1]]);
 
     const questionOptionsAfterMarkedBot = await prisma.questionOption.findMany({
