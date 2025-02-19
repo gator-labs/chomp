@@ -27,6 +27,8 @@ jest.mock("next/cache", () => ({
 describe("getNewHistoryQuery", () => {
   let userIds: string[];
 
+  let questionOptionIds: number[];
+
   let deckId: number;
   let questionId: number;
 
@@ -76,11 +78,23 @@ describe("getNewHistoryQuery", () => {
         },
       },
       include: {
-        deckQuestions: true,
+        deckQuestions: {
+          include: {
+            question: {
+              include: {
+                questionOptions: true,
+              },
+            },
+          },
+        },
       },
     });
 
-    questionId = deck?.deckQuestions[0].id;
+    questionId = deck?.deckQuestions[0].question.id;
+
+    questionOptionIds = deck.deckQuestions[0].question.questionOptions.map(
+      (qo) => qo.id,
+    );
 
     deckId = deck?.id;
 
@@ -137,9 +151,9 @@ describe("getNewHistoryQuery", () => {
   });
 
   it("should return unrevealed indicator type", async () => {
-    const result = await getNewHistoryQuery(userIds[0], 10, 1);
+    const result = await getNewHistoryQuery(userIds[0], 1, 1);
 
-    expect(result).toBeDefined();
+    expect(result[0]).toBeDefined();
     expect(result[0]).toEqual(
       expect.objectContaining({
         id: questionId,
@@ -149,7 +163,7 @@ describe("getNewHistoryQuery", () => {
   });
 
   it("should return unanswered indicator type", async () => {
-    const result = await getNewHistoryQuery("mock-id", 10, 1);
+    const result = await getNewHistoryQuery("mock-id", 1, 1);
 
     expect(result).toBeDefined();
     expect(result[0]).toEqual(
@@ -170,15 +184,9 @@ describe("getNewHistoryQuery", () => {
       },
     });
 
-    const questionOptions = await prisma.questionOption.findMany({
-      where: {
-        questionId,
-      },
-    });
-
     await prisma.questionOption.update({
       where: {
-        id: questionOptions[0].id,
+        id: questionOptionIds[0],
       },
       data: {
         calculatedIsCorrect: true,
@@ -187,7 +195,7 @@ describe("getNewHistoryQuery", () => {
 
     await prisma.questionOption.update({
       where: {
-        id: questionOptions[1].id,
+        id: questionOptionIds[1],
       },
       data: {
         calculatedIsCorrect: false,
@@ -196,12 +204,12 @@ describe("getNewHistoryQuery", () => {
 
     const answer = await prisma.questionAnswer.findFirstOrThrow({
       where: {
-        questionOptionId: questionOptions[0].id,
+        questionOptionId: questionOptionIds[0],
         selected: true,
       },
     });
 
-    const result = await getNewHistoryQuery(answer?.userId, 10, 1);
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
 
     expect(result).toBeDefined();
     expect(result[0]).toEqual(
