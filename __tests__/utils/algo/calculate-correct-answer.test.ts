@@ -238,6 +238,9 @@ describe("calculateCorrectAnswe", () => {
     const questionOptionsBeforeMarkedBot = await prisma.questionOption.findMany(
       {
         where: {
+          calculatedAveragePercentage: {
+            not: null,
+          },
           question: {
             deckQuestions: {
               some: {
@@ -264,6 +267,9 @@ describe("calculateCorrectAnswe", () => {
     await calculateCorrectAnswer([deckIds[0]]);
     const questionOptionsAfterMarkedBot = await prisma.questionOption.findMany({
       where: {
+        calculatedAveragePercentage: {
+          not: null,
+        },
         question: {
           deckQuestions: {
             some: {
@@ -292,6 +298,9 @@ describe("calculateCorrectAnswe", () => {
 
     const questionOptionsAfterMarkedBot = await prisma.questionOption.findMany({
       where: {
+        calculatedAveragePercentage: {
+          not: null,
+        },
         question: {
           deckQuestions: {
             some: {
@@ -320,6 +329,9 @@ describe("calculateCorrectAnswe", () => {
     const questionOptionsBeforeMarkedBot = await prisma.questionOption.findMany(
       {
         where: {
+          calculatedAveragePercentage: {
+            not: null,
+          },
           question: {
             deckQuestions: {
               some: {
