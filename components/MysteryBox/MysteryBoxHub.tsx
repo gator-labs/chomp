@@ -1,6 +1,7 @@
 "use client";
 
 import MysteryBoxHistory from "@/components/MysteryBoxHub/MysteryBoxHistory";
+import CampaignBoxIcon from "@/public/images/campign_box.svg";
 import MysteryBoxIcon from "@/public/images/validation-mystery-box.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import React, { useState } from "react";
@@ -42,12 +43,20 @@ function MysteryBoxHub({
             <InfoIcon width={18} height={18} fill="#999999" />
           </button>
         </div>
-        <MysteryBoxReward
-          title="Validation Rewards"
-          isActive={isUserEligibleForValidationReward}
-          icon={MysteryBoxIcon}
-          type={EMysteryBoxCategory.Validation}
-        />
+        <div className="flex flex-col gap-2">
+          <MysteryBoxReward
+            title="Validation Rewards"
+            isActive={isUserEligibleForValidationReward}
+            icon={MysteryBoxIcon}
+            type={EMysteryBoxCategory.Validation}
+          />
+          <MysteryBoxReward
+            title="Campaign Box"
+            isActive={false}
+            icon={CampaignBoxIcon}
+            type={EMysteryBoxCategory.Campaign}
+          />
+        </div>
       </div>
       <hr className="border-gray-600 my-2 p-0" />
       <MysteryBoxHistory />

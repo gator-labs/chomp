@@ -53,7 +53,7 @@ function MysteryBoxCategoryPill({
     >
       <span
         className={cn(
-          "flex items-center justify-center gap-1 ",
+          "flex items-center flex-row justify-center gap-1 ",
           `${disabled ? "text-gray-700" : ""}`,
         )}
       >
