@@ -219,4 +219,23 @@ describe("getNewHistoryQuery", () => {
       }),
     );
   });
+
+  it("should return incorrect indicator type", async () => {
+    const answer = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: false,
+      },
+    });
+
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "incorrect",
+      }),
+    );
+  });
 });
