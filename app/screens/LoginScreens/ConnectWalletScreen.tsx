@@ -40,7 +40,7 @@ const SlideshowScreen = () => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-[14px] items-center w-full py-4">
+        <div className="flex flex-col gap-[14px] items-center w-full pt-4">
           <DynamicConnectButton
             buttonContainerClassName="w-full"
             buttonClassName="w-full flex bg-purple-500 text-white items-center justify-center py-3 px-16 rounded-lg text-sm font-semibold"
