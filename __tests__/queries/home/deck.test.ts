@@ -27,13 +27,17 @@ describe("queryExpiringDecks", () => {
   beforeAll(async () => {
     // Gather any existing decks from the database so we can
     // exclude them from the results later on
+
+    const now = dayjs().startOf("day").utc();
+    const tomorrow = now.add(1, "day");
+
     const existingDecks = await prisma.deck.findMany({
       select: {
         id: true,
       },
       where: {
         revealAtDate: {
-          gt: new Date(),
+          gt: now.toDate(),
         },
       },
     });
@@ -47,15 +51,15 @@ describe("queryExpiringDecks", () => {
       {
         data: {
           deck: "Deck 1",
-          activeFromDate: dayjs().startOf("day").toDate(),
-          revealAtDate: dayjs().add(1, "day").toDate(),
+          activeFromDate: now.toDate(),
+          revealAtDate: tomorrow.toDate(),
         },
       },
       {
         data: {
           deck: "Deck 2",
-          activeFromDate: dayjs().startOf("day").toDate(),
-          revealAtDate: dayjs().add(1, "day").toDate(),
+          activeFromDate: now.toDate(),
+          revealAtDate: tomorrow.toDate(),
         },
       },
     ];
@@ -77,7 +81,7 @@ describe("queryExpiringDecks", () => {
         data: {
           question: "Is the sky blue?",
           type: QuestionType.BinaryQuestion,
-          revealAtDate: new Date("2024-10-11 16:00:00.000"),
+          revealAtDate: tomorrow.toDate(),
           revealToken: Token.Bonk,
           revealTokenAmount: 5000,
           questionOptions: {
@@ -109,7 +113,7 @@ describe("queryExpiringDecks", () => {
         data: {
           question: "Is water wet?",
           type: QuestionType.BinaryQuestion,
-          revealAtDate: new Date("2024-10-12 16:00:00.000"),
+          revealAtDate: tomorrow.toDate(),
           revealToken: Token.Bonk,
           revealTokenAmount: 5000,
           questionOptions: {
