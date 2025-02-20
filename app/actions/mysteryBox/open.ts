@@ -13,6 +13,7 @@ import {
   EMysteryBoxStatus,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
+import pRetry from "p-retry";
 
 import prisma from "../../services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "../../utils/dateUtils";
@@ -110,10 +111,17 @@ export async function openMysteryBox(
     release();
 
     const openMysteryBoxError = new OpenMysteryBoxError(
-      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
+      `Failed to find prize for user ${payload.sub} (wallet: ${userWallet.address}) for Mystery Box: ${mysteryBoxId}`,
       { cause: e },
     );
-    Sentry.captureException(openMysteryBoxError);
+    Sentry.captureException(openMysteryBoxError, {
+      extra: {
+        mysteryBoxId,
+        userId: payload.sub,
+        walletAddress: userWallet.address,
+        error: e,
+      },
+    });
     throw new Error("Error opening mystery box");
   }
 
@@ -133,7 +141,7 @@ export async function openMysteryBox(
 
           if (!sendTx) {
             const sendBonkError = new SendBonkError(
-              `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble opening for Mystery Box: ${mysteryBoxId}`,
+              `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
               { cause: "Failed to send bonk" },
             );
             Sentry.captureException(sendBonkError, {
@@ -153,60 +161,66 @@ export async function openMysteryBox(
         }
       }
 
-      await prisma.$transaction(
-        async (tx) => {
-          const txDate = new Date();
+      await pRetry(
+        async () => {
+          await prisma.$transaction(
+            async (tx) => {
+              const txDate = new Date();
 
-          if (prize.prizeType == EBoxPrizeType.Credits) {
-            await tx.fungibleAssetTransactionLog.create({
-              data: {
-                type: TransactionLogType.MysteryBox,
-                asset: FungibleAsset.Credit,
-                change: prize.amount,
-                userId: payload.sub,
-                mysteryBoxPrizeId: prize.id,
-              },
-            });
-          }
+              if (prize.prizeType == EBoxPrizeType.Credits) {
+                await tx.fungibleAssetTransactionLog.create({
+                  data: {
+                    type: TransactionLogType.MysteryBox,
+                    asset: FungibleAsset.Credit,
+                    change: prize.amount,
+                    userId: payload.sub,
+                    mysteryBoxPrizeId: prize.id,
+                  },
+                });
+              }
 
-          if (sendTx) {
-            const treasury = await getTreasuryAddress();
+              if (sendTx) {
+                const treasury = await getTreasuryAddress();
 
-            if (!treasury) throw new Error("Treasury address not defined");
+                if (!treasury) throw new Error("Treasury address not defined");
 
-            await tx.chainTx.create({
-              data: {
-                hash: sendTx,
-                wallet: treasury,
-                recipientAddress: userWallet.address,
-                type: EChainTxType.MysteryBoxClaim,
-                status: EChainTxStatus.Finalized,
-                solAmount: "0",
-                tokenAmount: prizeAmount.toString(),
-                tokenAddress: bonkAddress,
-                finalizedAt: txDate,
-              },
-            });
-          }
+                await tx.chainTx.create({
+                  data: {
+                    hash: sendTx,
+                    wallet: treasury,
+                    recipientAddress: userWallet.address,
+                    type: EChainTxType.MysteryBoxClaim,
+                    status: EChainTxStatus.Finalized,
+                    solAmount: "0",
+                    tokenAmount: prizeAmount.toString(),
+                    tokenAddress: bonkAddress,
+                    finalizedAt: txDate,
+                  },
+                });
+              }
 
-          await tx.mysteryBoxPrize.update({
-            where: {
-              id: prize.id,
+              await tx.mysteryBoxPrize.update({
+                where: {
+                  id: prize.id,
+                },
+                data: {
+                  status: EBoxPrizeStatus.Claimed,
+                  claimHash: sendTx,
+                  claimedAt: txDate,
+                },
+              });
             },
-            data: {
-              status: EBoxPrizeStatus.Claimed,
-              claimHash: sendTx,
-              claimedAt: txDate,
+            {
+              isolationLevel: "Serializable",
+              timeout: ONE_MINUTE_IN_MILLISECONDS,
             },
-          });
+          );
         },
         {
-          isolationLevel: "Serializable",
-          timeout: ONE_MINUTE_IN_MILLISECONDS,
+          retries: 2,
         },
       );
     }
-
     await prisma.mysteryBox.update({
       where: {
         id: mysteryBoxId,
@@ -215,8 +229,6 @@ export async function openMysteryBox(
         status: EMysteryBoxStatus.Opened,
       },
     });
-
-    release();
   } catch (e) {
     try {
       await prisma.mysteryBox.update({
@@ -232,12 +244,18 @@ export async function openMysteryBox(
     }
 
     const openMysteryBoxError = new OpenMysteryBoxError(
-      `User with id: ${payload.sub} (wallet: ${userWallet}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
+      `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
       { cause: e },
     );
-    Sentry.captureException(openMysteryBoxError);
-
-    throw new Error("Error opening mystery box");
+    Sentry.captureException(openMysteryBoxError, {
+      extra: {
+        mysteryBoxId,
+        userId: payload.sub,
+        walletAddress: userWallet.address,
+        error: e,
+      },
+    });
+    throw new Error("Error processing mystery box prizes");
   } finally {
     release();
     await Sentry.flush(SENTRY_FLUSH_WAIT);

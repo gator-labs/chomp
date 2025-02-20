@@ -186,13 +186,14 @@ function MysteryBox({
     if (status === "Idle" || status === "Opening")
       return "You earned a mystery box!";
     if (boxType === EMysteryBoxType.Tutorial) {
-      return `You won ${creditsReceived.toLocaleString("en-US")} Credits!`;
+      return `You won ${creditsReceived.toLocaleString("en-US")} Credit${creditsReceived === 1 ? "" : "s"}!`;
     }
 
     if (bonkReceived > 0 && creditsReceived > 0) {
       return (
         <>
-          You won {creditsReceived.toLocaleString("en-US")} credits
+          You won {creditsReceived.toLocaleString("en-US")} credit
+          {creditsReceived === 1 ? "" : "s"}
           <br />
           and {bonkReceived.toLocaleString("en-US")} $BONK!
         </>
@@ -200,7 +201,8 @@ function MysteryBox({
     } else if (creditsReceived > 0) {
       return (
         <>
-          You won {creditsReceived.toLocaleString("en-US")} credits!
+          You won {creditsReceived.toLocaleString("en-US")} credit
+          {creditsReceived === 1 ? "" : "s"}!
           <br />
           No $BONK in this box ...
         </>

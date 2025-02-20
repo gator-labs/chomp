@@ -6,10 +6,6 @@
   },
   "crons": [
     {
-      "path": "/api/process-pending-transaction",
-      "schedule": "*/1 * * * *"
-    },
-    {
       "path": "/api/treasury-balance-alert",
       "schedule": "0 * * * *"
     },
