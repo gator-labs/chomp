@@ -12,10 +12,19 @@ import MysteryBoxReward from "../../app/components/MysteryBoxReward/MysteryBoxRe
 
 interface MysteryBoxHubProps {
   isUserEligibleForValidationReward: boolean;
+  campaignBoxes:
+    | {
+        id: string;
+        name: string;
+        infoTitle: string;
+        infoBody: string;
+      }[]
+    | null;
 }
 
 function MysteryBoxHub({
   isUserEligibleForValidationReward,
+  campaignBoxes,
 }: MysteryBoxHubProps) {
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -50,12 +59,18 @@ function MysteryBoxHub({
             icon={MysteryBoxIcon}
             type={EMysteryBoxCategory.Validation}
           />
-          <MysteryBoxReward
-            title="Campaign Box"
-            isActive={false}
-            icon={CampaignBoxIcon}
-            type={EMysteryBoxCategory.Campaign}
-          />
+
+          {campaignBoxes?.map((box) => (
+            <MysteryBoxReward
+              title={box.name}
+              isActive={false}
+              icon={CampaignBoxIcon}
+              type={EMysteryBoxCategory.Campaign}
+              infoTitle={box?.infoTitle}
+              infoBody={box.infoBody}
+              key={box.id}
+            />
+          ))}
         </div>
       </div>
       <hr className="border-gray-600 my-2 p-0" />

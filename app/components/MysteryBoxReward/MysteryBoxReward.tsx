@@ -16,11 +16,15 @@ function MysteryBoxReward({
   type,
   isActive,
   icon,
+  infoTitle,
+  infoBody,
 }: {
   title: string;
   type: EMysteryBoxCategory;
   isActive: boolean;
   icon: StaticImageData;
+  infoTitle?: string;
+  infoBody?: string;
 }) {
   const [showBoxOverlay, setShowBoxOverlay] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +32,8 @@ function MysteryBoxReward({
   const [mystryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
 
   const { promiseToast } = useToast();
+
+  const showTooltip = !!infoBody && !!infoTitle && !isActive;
 
   const rewardBoxHandler = async () => {
     if (!isActive) return;
@@ -52,22 +58,16 @@ function MysteryBoxReward({
       <InfoDrawer
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="What is a Mystery Box?"
+        title={infoTitle ? infoTitle : "What's this?"}
       >
-        <p className="text-sm mb-6">
-          Mystery Boxes are your gateway to exciting rewards! Each box contains
-          surprises like credits or BONK that you can earn through different
-          activities. The more you CHOMP, the more boxes you unlock!
-        </p>
+        <p className="text-sm mb-6">{infoBody}</p>
       </InfoDrawer>
       <div
-        className={`flex flex-row items-center rounded-lg bg-blue-pink-gradient p-[1px] ${
-          isActive ? "cursor-pointer" : "cursor-not-allowed"
-        }`}
+        className={`flex flex-row items-center rounded-lg bg-blue-pink-gradient p-[1px]z`}
       >
         <div
           className={`flex flex-row items-center rounded-lg px-3 md:px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
-            isActive ? "cursor-pointer" : "cursor-not-allowed"
+            isActive || showTooltip ? "cursor-pointer" : "cursor-not-allowed"
           }`}
           style={
             {
@@ -77,7 +77,13 @@ function MysteryBoxReward({
             } as CSSProperties
           }
           onClick={() => {
-            rewardBoxHandler();
+            if (showTooltip) {
+              setIsOpen(true);
+            }
+
+            if (isActive) {
+              rewardBoxHandler();
+            }
           }}
         >
           <Image
@@ -102,7 +108,12 @@ function MysteryBoxReward({
             </p>
             <div className="flex flex-row gap-1 justify-center items-center">
               <MysteryBoxCategoryPill category={type} disabled={!isActive} />
-              <button onClick={() => setIsOpen(true)}>
+              <button
+                className={classNames({
+                  visible: showTooltip,
+                  hidden: !showTooltip,
+                })}
+              >
                 <InfoIcon width={18} height={18} fill="#fff" />
               </button>
             </div>
