@@ -60,6 +60,7 @@ export default function DeckForm({
           file: [],
         },
       ],
+      creditCostPerQuestion: 0,
     },
   });
   const { fields, append, remove } = useFieldArray({
@@ -565,7 +566,7 @@ export default function DeckForm({
           <select
             className="text-gray-800 w-full"
             {...register("creditCostPerQuestion", {
-              setValueAs: (v) => (!v ? null : parseInt(v)),
+              setValueAs: (v) => (!v ? 0 : parseInt(v)),
               onChange: (e) => {
                 if (!getFieldState("revealTokenAmount").isDirty)
                   setValue(
