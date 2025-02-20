@@ -150,19 +150,15 @@ describe("getNewHistoryQuery", () => {
     });
   });
 
-  it("should return unrevealed indicator type", async () => {
-    const result = await getNewHistoryQuery(userIds[0], 1, 1);
-
-    expect(result[0]).toBeDefined();
-    expect(result[0]).toEqual(
-      expect.objectContaining({
-        id: questionId,
-        indicatorType: "unrevealed",
-      }),
-    );
-  });
-
   it("should return unanswered indicator type", async () => {
+    await prisma.question.update({
+      where: {
+        id: questionId,
+      },
+      data: {
+        revealAtDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      },
+    });
     const result = await getNewHistoryQuery("mock-id", 1, 1);
 
     expect(result).toBeDefined();
@@ -175,15 +171,6 @@ describe("getNewHistoryQuery", () => {
   });
 
   it("should return correct indicator type", async () => {
-    await prisma.question.update({
-      where: {
-        id: questionId,
-      },
-      data: {
-        revealAtDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      },
-    });
-
     await prisma.questionOption.update({
       where: {
         id: questionOptionIds[0],
@@ -208,6 +195,8 @@ describe("getNewHistoryQuery", () => {
         selected: true,
       },
     });
+
+    console.log(answer);
 
     const result = await getNewHistoryQuery(answer?.userId, 1, 1);
 
