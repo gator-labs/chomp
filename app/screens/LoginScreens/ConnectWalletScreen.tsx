@@ -10,7 +10,7 @@ const SlideshowScreen = () => {
   return (
     <main className="h-dvh bg-gray-800">
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full">
-        <div className="relative w-full flex mb-4 items-center justify-center">
+        <div className="relative w-full flex mt-4 mb-4 items-center justify-center">
           <ConcentricCirclesIcon className="absolute mx-auto my-auto" />
           <Image
             src={MysteryBox.src}
@@ -27,7 +27,7 @@ const SlideshowScreen = () => {
 
           <div className="flex flex-col gap-4 items-center w-full justify-between">
             <p className="text-sm text-center flex flex-col gap-5">
-              Opinions are like assholes, we're sure you've
+              Opinions are like assholes, we&apos;re sure you&apos;ve
               <br />
               got one. Express your opinions on CHOMP,
               <br />
