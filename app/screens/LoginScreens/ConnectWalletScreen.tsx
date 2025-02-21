@@ -56,14 +56,14 @@ const SlideshowScreen = () => {
           By using connecting your wallet and using this platform, you are
           <br /> agreeing to our{" "}
           <a
-            href="https://app.gitbook.com/o/nKKIh8NqKQqbyvbEXRrQ/s/iK1mvKlE7iGx1zDwKWpp/legal/terms-of-service"
+            href="https://docs.chomp.games/legal/terms-of-service"
             className="underline"
           >
             Terms of Service
           </a>{" "}
           and{" "}
           <a
-            href="https://app.gitbook.com/o/nKKIh8NqKQqbyvbEXRrQ/s/iK1mvKlE7iGx1zDwKWpp/legal/privacy-policy"
+            href="https://docs.chomp.games/legal/privacy-policy"
             className="underline"
           >
             Privacy Policy
