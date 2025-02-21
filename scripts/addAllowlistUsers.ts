@@ -9,6 +9,8 @@ const readline = require("readline");
 const fs = require("fs");
 const path = require("path");
 
+
+
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
@@ -27,6 +29,26 @@ async function main() {
     );
   });
 
+  const campaignBoxId = await new Promise<string>((resolve) => {
+    rl.question(
+      "Enter campaign mystery box id: ",
+      resolve,
+    );
+  });
+
+  const getCampaignMysteryBox = await prisma.campaignMysteryBox.findUnique({
+    where: {
+      id: campaignBoxId
+    }
+  });
+
+  if (getCampaignMysteryBox === null) {
+    throw new Error(
+      `Please provide a valid campaign id`,
+    );
+  }
+
+
   const csvFilePath = path.resolve(__dirname, "allowlist.csv");
   const csv = fs.readFileSync(csvFilePath, "utf8");
   const rows = csv.split(/\r?\n/);
@@ -44,13 +66,22 @@ async function main() {
     return true;
   });
 
+
   await prisma.mysteryBoxAllowlist.createMany({
     data: validRows.map((address: string) => ({
       address: address.trim(),
-      tags,
     })),
     skipDuplicates: true,
   });
+
+
+  await prisma.campaignMysteryBoxAllowed.createMany({
+    data: validRows.map((address: string) => ({
+      allowlistAddress: address.trim(),
+      campaignId: campaignBoxId
+    })),
+    skipDuplicates: true,
+  })
 
   console.log("Allowlist users added successfully!");
   rl.close();
