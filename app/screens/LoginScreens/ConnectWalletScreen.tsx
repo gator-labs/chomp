@@ -9,8 +9,8 @@ import Image from "next/image";
 const SlideshowScreen = () => {
   return (
     <main className="h-dvh bg-gray-800">
-      <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full">
-        <div className="relative w-full flex mt-4 mb-4 items-center justify-center">
+      <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full justify-between py-8">
+        <div className="relative w-full flex mb-4 items-center justify-center">
           <ConcentricCirclesIcon className="absolute mx-auto my-auto" />
           <Image
             src={MysteryBox.src}
@@ -20,7 +20,7 @@ const SlideshowScreen = () => {
             className="absolute"
           />
         </div>
-        <div className="flex flex-col gap-4 items-center ">
+        <div className="flex flex-col gap-4 items-center">
           <h3 className="text-center text-xl leading-6 font-black">
             Believe in something? CHOMP it
           </h3>
