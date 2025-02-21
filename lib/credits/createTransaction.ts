@@ -45,7 +45,12 @@ export async function createCreditPurchaseTransaction(
   }
 
   // Create Transaction
-  let tx = new Transaction().add(
+  let tx = new Transaction();
+
+  // Setup priority fee and compute units
+  tx = await setupTransactionPriorityFee(tx, walletPubkey);
+
+  tx.add(
     SystemProgram.transfer({
       fromPubkey: walletPubkey,
       toPubkey: new PublicKey(solPaymentAddress),
@@ -55,9 +60,6 @@ export async function createCreditPurchaseTransaction(
         .toNumber(),
     }),
   );
-
-  // Setup priority fee and compute units
-  tx = await setupTransactionPriorityFee(tx, walletPubkey);
 
   try {
     // Sign transaction

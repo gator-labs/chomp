@@ -13,7 +13,7 @@ import {
   TransactionFailedToConfirmError,
 } from "../error";
 
-const CONFIRMATION_OPTIONS = {
+const CONFIRMATION_RETRIES = {
   retries: 2,
 };
 
@@ -77,9 +77,17 @@ export async function processTransaction(
         throw new Error("Payment could not be verified");
       }
 
+      const result = await CONNECTION.getParsedTransaction(txHash, {
+        commitment: TRANSACTION_COMMITMENT,
+      });
+
+      if (!result || result?.meta?.err) {
+        throw new Error("Transaction failed");
+      }
+
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash, creditsToBuy);
-    }, CONFIRMATION_OPTIONS);
+    }, CONFIRMATION_RETRIES);
   } catch (error) {
     const transactionFailedToConfirmError = new TransactionFailedToConfirmError(
       `Credit Transaction Confirmation failed for user: ${payload?.sub}`,
