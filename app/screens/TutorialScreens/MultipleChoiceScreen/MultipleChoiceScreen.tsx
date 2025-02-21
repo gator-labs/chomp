@@ -7,13 +7,14 @@ import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
 import { QuestionStep } from "@/types/question";
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";
+import Link from "next/link";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import { STEPS } from "./constants";
 
 interface Props {
   setActiveScreen: Dispatch<
-    SetStateAction<"binary-question" | "multiple-choice" | "reveal" | null>
+    SetStateAction<"binary-question" | "multiple-choice" | null>
   >;
   currentOptionSelected: number | undefined;
   setCurrentOptionSelected: Dispatch<SetStateAction<number | undefined>>;
@@ -24,7 +25,6 @@ const getDueAt = (durationMiliseconds: number): Date => {
 };
 
 const MultipleChoiceScreen = ({
-  setActiveScreen,
   currentOptionSelected,
   setCurrentOptionSelected,
 }: Props) => {
@@ -127,17 +127,13 @@ const MultipleChoiceScreen = ({
       </div>
       {isFlowFinished && (
         <div className="fixed bottom-[0px] w-full p-6 bg-gray-700 flex flex-col gap-6 rounded-t-[32px] left-1/2 -translate-x-1/2 !max-w-[30rem] pointer-events-auto">
-          <h3 className="text-base">You Chomped your first deck! 🎉</h3>
-          <p className="text-sm">
-            Let’s check the answers for the questions you Chomped.
-          </p>
-          <Button
-            variant="white"
-            className="rounded-[32px]"
-            onClick={() => setActiveScreen("reveal")}
-          >
-            Next
-          </Button>
+          <h3 className="text-base">Well done! 🎉</h3>
+          <p className="text-sm">Now you’re ready to Chomp for real!</p>
+          <Link href="/application">
+            <Button variant="white" className="!rounded-[32px]">
+              Yes LFG!{" "}
+            </Button>
+          </Link>
         </div>
       )}
     </>

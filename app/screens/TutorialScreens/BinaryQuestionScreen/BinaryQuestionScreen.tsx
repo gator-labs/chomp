@@ -22,7 +22,7 @@ const getDueAt = (durationMiliseconds: number): Date => {
 
 interface Props {
   setActiveScreen: Dispatch<
-    SetStateAction<"binary-question" | "multiple-choice" | "reveal" | null>
+    SetStateAction<"binary-question" | "multiple-choice" | null>
   >;
 }
 

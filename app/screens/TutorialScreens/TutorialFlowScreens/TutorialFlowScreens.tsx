@@ -5,7 +5,6 @@ import { useState } from "react";
 
 import BinaryQuestionScreen from "../BinaryQuestionScreen/BinaryQuestionScreen";
 import MultipleChoiceScreen from "../MultipleChoiceScreen/MultipleChoiceScreen";
-import RevealScreen from "../RevealScreen/RevealScreen";
 
 interface Props {
   currentUser: User;
@@ -16,7 +15,7 @@ const TutorialFlowScreens = ({ currentUser }: Props) => {
     useState<number>();
 
   const [activeScreen, setActiveScreen] = useState<
-    "binary-question" | "multiple-choice" | "reveal" | null
+    "binary-question" | "multiple-choice" | null
   >("binary-question");
 
   if (!activeScreen) return null;
@@ -30,14 +29,6 @@ const TutorialFlowScreens = ({ currentUser }: Props) => {
         setActiveScreen={setActiveScreen}
         currentOptionSelected={currentMultiOptionSelected}
         setCurrentOptionSelected={setCurrentMultiOptionSelected}
-      />
-    );
-
-  if (activeScreen === "reveal")
-    return (
-      <RevealScreen
-        currentUser={currentUser}
-        isCorrectFirstOrderMultipleQuestion={currentMultiOptionSelected === 1}
       />
     );
 };
