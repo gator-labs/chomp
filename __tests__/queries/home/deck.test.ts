@@ -1,7 +1,6 @@
 import { queryExpiringDecks } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { QuestionType, Token } from "@prisma/client";
-import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
 
 jest.mock("p-retry", () => ({
@@ -25,6 +24,9 @@ describe("queryExpiringDecks", () => {
   let existingDeckIds = {};
 
   beforeAll(async () => {
+    const now = new Date();
+    now.setUTCHours(12, 0, 0, 0); // Set to noon UTC
+
     // Gather any existing decks from the database so we can
     // exclude them from the results later on
     const existingDecks = await prisma.deck.findMany({
@@ -33,7 +35,7 @@ describe("queryExpiringDecks", () => {
       },
       where: {
         revealAtDate: {
-          gt: new Date(),
+          gt: now,
         },
       },
     });
@@ -42,20 +44,23 @@ describe("queryExpiringDecks", () => {
       existingDecks.map((deck) => [deck.id, true]),
     );
 
+    const tomorrow = new Date(now);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
     // Create decks
     const deckData = [
       {
         data: {
           deck: "Deck 1",
-          activeFromDate: dayjs().startOf("day").toDate(),
-          revealAtDate: dayjs().add(1, "day").toDate(),
+          activeFromDate: now,
+          revealAtDate: tomorrow,
         },
       },
       {
         data: {
           deck: "Deck 2",
-          activeFromDate: dayjs().startOf("day").toDate(),
-          revealAtDate: dayjs().add(1, "day").toDate(),
+          activeFromDate: now,
+          revealAtDate: tomorrow,
         },
       },
     ];
@@ -77,7 +82,7 @@ describe("queryExpiringDecks", () => {
         data: {
           question: "Is the sky blue?",
           type: QuestionType.BinaryQuestion,
-          revealAtDate: new Date("2024-10-11 16:00:00.000"),
+          revealAtDate: tomorrow,
           revealToken: Token.Bonk,
           revealTokenAmount: 5000,
           questionOptions: {
@@ -109,7 +114,7 @@ describe("queryExpiringDecks", () => {
         data: {
           question: "Is water wet?",
           type: QuestionType.BinaryQuestion,
-          revealAtDate: new Date("2024-10-12 16:00:00.000"),
+          revealAtDate: tomorrow,
           revealToken: Token.Bonk,
           revealTokenAmount: 5000,
           questionOptions: {
