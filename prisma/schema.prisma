@@ -295,11 +295,12 @@ model MysteryBoxPrize {
 }
 
 model MysteryBoxAllowlist {
-  address           String              @id @unique
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now()) @updatedAt
-  tags              String?
-  MysteryBoxTrigger MysteryBoxTrigger[]
+  address                   String                      @id @unique
+  createdAt                 DateTime                    @default(now())
+  updatedAt                 DateTime                    @default(now()) @updatedAt
+  tags                      String?
+  MysteryBoxTrigger         MysteryBoxTrigger[]
+  CampaignMysteryBoxAllowed CampaignMysteryBoxAllowed[]
 }
 
 model ChainTx {
@@ -322,10 +323,25 @@ model ChainTx {
 }
 
 model CampaignMysteryBox {
-  id        String @id @default(uuid())
-  name      String
-  infoTitle String
-  infoBody  String
+  id                        String                      @id @default(uuid())
+  name                      String
+  infoTitle                 String
+  infoBody                  String
+  CampaignMysteryBoxAllowed CampaignMysteryBoxAllowed[]
+}
+
+model CampaignMysteryBoxAllowed {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  campignId String
+
+  campaignMysteryBox CampaignMysteryBox @relation(fields: [campignId], references: [id])
+
+  allowlistAddress    String
+  mysteryBoxAllowList MysteryBoxAllowlist @relation(fields: [allowlistAddress], references: [address])
+
+  @@unique([campignId, allowlistAddress])
 }
 
 enum EMysteryBoxStatus {
