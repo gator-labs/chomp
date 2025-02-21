@@ -1,3 +1,6 @@
+-- AlterEnum
+ALTER TYPE "EBoxTriggerType" ADD VALUE 'CampaignReward';
+
 -- CreateTable
 CREATE TABLE "CampaignMysteryBoxAllowed" (
     "id" TEXT NOT NULL,
