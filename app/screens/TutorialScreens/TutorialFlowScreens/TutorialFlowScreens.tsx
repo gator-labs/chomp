@@ -10,7 +10,7 @@ interface Props {
   currentUser: User;
 }
 
-const TutorialFlowScreens = ({ currentUser }: Props) => {
+const TutorialFlowScreens = ({}: Props) => {
   const [currentMultiOptionSelected, setCurrentMultiOptionSelected] =
     useState<number>();
 
