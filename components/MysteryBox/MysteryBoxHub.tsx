@@ -1,7 +1,7 @@
 "use client";
 
 import MysteryBoxHistory from "@/components/MysteryBoxHub/MysteryBoxHistory";
-import CampaignBoxIcon from "@/public/images/campign_box.svg";
+import CampaignBoxIcon from "@/public/images/campaign_box.svg";
 import MysteryBoxIcon from "@/public/images/validation-mystery-box.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import React, { useState } from "react";
@@ -13,13 +13,13 @@ import MysteryBoxReward from "../../app/components/MysteryBoxReward/MysteryBoxRe
 interface MysteryBoxHubProps {
   isUserEligibleForValidationReward: boolean;
   campaignBoxes:
-    | {
-        id: string;
-        name: string;
-        infoTitle: string;
-        infoBody: string;
-      }[]
-    | null;
+  | {
+    id: string;
+    name: string;
+    infoTitle: string;
+    infoBody: string;
+  }[]
+  | null;
 }
 
 function MysteryBoxHub({
