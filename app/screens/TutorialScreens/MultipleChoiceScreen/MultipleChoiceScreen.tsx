@@ -1,3 +1,4 @@
+import { addTutorialPoints } from "@/app/actions/answer";
 import { Button } from "@/app/components/Button/Button";
 import { QuestionAction } from "@/app/components/QuestionAction/QuestionAction";
 import { QuestionCard } from "@/app/components/QuestionCard/QuestionCard";
@@ -49,6 +50,7 @@ const MultipleChoiceScreen = ({
 
   useEffect(() => {
     if (tooltipIndex === STEPS.length - 1) {
+      addTutorialPoints();
       setIsFlowFinished(true);
     }
   }, [tooltipIndex]);
