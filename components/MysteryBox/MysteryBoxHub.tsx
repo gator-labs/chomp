@@ -13,13 +13,14 @@ import MysteryBoxReward from "../../app/components/MysteryBoxReward/MysteryBoxRe
 interface MysteryBoxHubProps {
   isUserEligibleForValidationReward: boolean;
   campaignBoxes:
-  | {
-    id: string;
-    name: string;
-    infoTitle: string;
-    infoBody: string;
-  }[]
-  | null;
+    | {
+        id: string;
+        name: string;
+        infoTitle: string;
+        infoBody: string;
+        isEligible: boolean;
+      }[]
+    | null;
 }
 
 function MysteryBoxHub({
@@ -63,7 +64,7 @@ function MysteryBoxHub({
           {campaignBoxes?.map((box) => (
             <MysteryBoxReward
               title={box.name}
-              isActive={false}
+              isActive={box.isEligible}
               icon={CampaignBoxIcon}
               type={EMysteryBoxCategory.Campaign}
               infoTitle={box?.infoTitle}

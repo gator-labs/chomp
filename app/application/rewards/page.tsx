@@ -1,7 +1,7 @@
 import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
 import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQuestion";
 import MysteryBoxHub from "@/components/MysteryBox/MysteryBoxHub";
-import { getCampaignBoxes } from "@/lib/getCampaignBoxes";
+import { getCampaignBoxes } from "@/lib/mysteryBox/getCampaignBoxes";
 
 async function Page() {
   const CREDIT_COST_FEATURE_FLAG =
