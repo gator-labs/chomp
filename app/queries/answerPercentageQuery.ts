@@ -64,7 +64,11 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
   }));
 }
 
-export async function calculatedQuestionOrderPercentages(
+/**
+ * Gets question order percentages from the questionOption percentages table if they exist,
+ * or calculates them from user question answers if they don't.
+ */
+export async function getQuestionOrderPercentages(
   questionOptionIds: number[],
   calculatedQuestionOptionPercentages: {
     id: number;
