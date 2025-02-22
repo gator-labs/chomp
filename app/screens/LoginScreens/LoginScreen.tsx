@@ -8,9 +8,9 @@ import { useDynamicContext, useIsLoggedIn } from "@dynamic-labs/sdk-react-core";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import ConnectWalletScreen from "./ConnectWalletScreen";
 import LoadingScreen from "./LoadingScreen";
 import NewUserScreen from "./NewUserScreen";
-import SlideshowScreen from "./SlideshowScreen";
 
 interface Props {
   hasDailyDeck: boolean;
@@ -71,7 +71,7 @@ const LoginScreen = ({ payload }: Props) => {
 
   if (isLoggedIn && payload?.new_user) return <NewUserScreen />;
 
-  return <SlideshowScreen />;
+  return <ConnectWalletScreen />;
 };
 
 export default LoginScreen;
