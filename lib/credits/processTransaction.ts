@@ -10,6 +10,7 @@ import "server-only";
 
 import {
   SendTransactionError,
+  TransactionFailedError,
   TransactionFailedToConfirmError,
 } from "../error";
 
@@ -82,6 +83,18 @@ export async function processTransaction(
       });
 
       if (!result || result?.meta?.err) {
+        const transactionFailedError = new TransactionFailedError(
+          `Credit Transaction Failed for user: ${payload?.sub}`,
+          { cause: result?.meta?.err },
+        );
+        Sentry.captureException(transactionFailedError, {
+          extra: {
+            error: result?.meta?.err,
+            creditAmount: creditsToBuy,
+            signature: txHash,
+          },
+        });
+        await Sentry.flush(SENTRY_FLUSH_WAIT);
         throw new Error("Transaction failed");
       }
 
@@ -95,6 +108,7 @@ export async function processTransaction(
     );
     Sentry.captureException(transactionFailedToConfirmError, {
       extra: {
+        error: error,
         creditAmount: creditsToBuy,
         signature: txHash,
       },
