@@ -115,7 +115,7 @@ const PreviewDeckCard = ({
                     Rewards {deckCreditCost > 0 && "up to"}{" "}
                   </span>
                   {deckCreditCost > 0
-                    ? `${formatNumber(deckRewardAmount)} BONK`
+                    ? `${formatNumber(deckRewardAmount)} BONK & ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
                     : "Streaks"}
                   <InfoIcon fill="#0d0d0d" />
                 </button>
