@@ -121,6 +121,7 @@ const BinaryQuestionScreen = ({ setActiveScreen }: Props) => {
               ]}
               percentage={optionPercentage}
               setPercentage={setOptionPercentage}
+              randomQuestionMarker={"AI Generated"}
             />
           </div>
         </Tooltip>
