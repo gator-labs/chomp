@@ -252,13 +252,14 @@ export async function openMysteryBox(
         mysteryBoxId,
         userId: payload.sub,
         walletAddress: userWallet.address,
+        prizeId: reward.triggers[0].MysteryBoxPrize[0].id,
         error: e,
       },
     });
     throw new Error("Error processing mystery box prizes");
   } finally {
-    release();
     await Sentry.flush(SENTRY_FLUSH_WAIT);
+    release();
   }
 
   return txHashes;
