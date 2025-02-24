@@ -1,4 +1,3 @@
-// TODO: Add a valid campaign utility
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxReward } from "@/app/utils/algo";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
@@ -11,6 +10,14 @@ import {
 import "server-only";
 
 import { getBonkAddress } from "../env-vars";
+
+/**
+ * @description Validate campaign details. Create new mystery box if doesn't exist else return the existing mb id for new and unclaimed box.
+ * @param {string} address - The wallet address of the user
+ * @param {string} userId - The unique identifier of the user
+ * @param {string} [campaignBoxId] - Optional. The identifier of the campaign box
+ * @returns {Promise<string[]>} A promise that resolves to an array of string IDs representing mystery box identifiers
+ */
 
 export const createCampaignMysteryBox = async (
   address: string,

@@ -1,9 +1,9 @@
 /**
  * Imports allowlist addresses from a CSV file and adds them to the mystery box allowlist database.
- * Provides option to tag the imported batch with comma-separated labels.
+ * Add the campaign and user address data in campaign mystery box allowed table
  *
  * Input: allowlist.csv in the scripts directory
- * Output: Addresses stored in mysteryBoxAllowlist table with optional tags
+ * Output: Addresses stored in mysteryBoxAllowlist table. Campaign and mysterybox relation stored in campaignMysteryBoxAllowed table
  */
 const readline = require("readline");
 const fs = require("fs");
