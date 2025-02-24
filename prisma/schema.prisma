@@ -331,17 +331,17 @@ model CampaignMysteryBox {
 }
 
 model CampaignMysteryBoxAllowed {
-  id         String   @id @default(uuid())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @default(now()) @updatedAt
-  campaignId String
+  id                   String   @id @default(uuid())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now()) @updatedAt
+  campaignMysteryBoxId String
 
-  campaignMysteryBox CampaignMysteryBox @relation(fields: [campaignId], references: [id])
+  campaignMysteryBox CampaignMysteryBox @relation(fields: [campaignMysteryBoxId], references: [id])
 
   allowlistAddress    String
   mysteryBoxAllowList MysteryBoxAllowlist @relation(fields: [allowlistAddress], references: [address])
 
-  @@unique([campaignId, allowlistAddress])
+  @@unique([campaignMysteryBoxId, allowlistAddress])
 }
 
 enum EMysteryBoxStatus {

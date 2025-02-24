@@ -26,11 +26,13 @@ export const getCampaignBoxes = async () => {
     },
     select: {
       id: true,
-      campaignId: true,
+      campaignMysteryBoxId: true,
     },
   });
 
-  const campaignIds = new Set(eligibleBoxes.map((eb) => eb.campaignId));
+  const campaignIds = new Set(
+    eligibleBoxes.map((eb) => eb.campaignMysteryBoxId),
+  );
 
   const updatedData = campaignBoxes.map((cb) => ({
     ...cb,
