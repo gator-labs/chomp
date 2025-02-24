@@ -10,6 +10,8 @@ import {
 } from "@prisma/client";
 import "server-only";
 
+import { getBonkAddress } from "../env-vars";
+
 export const createValidationMysteryBox = async (userId: string) => {
   const revealableQuestions = await getValidationRewardQuestions();
 
@@ -52,7 +54,7 @@ export const createValidationMysteryBox = async (userId: string) => {
     return null;
   }
 
-  const tokenAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
+  const tokenAddress = getBonkAddress();
 
   const getPrizePerTrigger = (reward: {
     questionId: number;
