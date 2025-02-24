@@ -3,14 +3,12 @@ import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxHubReward } from "@/app/utils/algo";
 import {
   EBoxPrizeStatus,
-  EBoxPrizeType,
   EBoxTriggerType,
   EMysteryBoxStatus,
-  EPrizeSize,
 } from "@prisma/client";
 import "server-only";
 
-import { getBonkAddress } from "../env-vars";
+import { getPrizePerTrigger } from "./getPrizePerTrigger";
 
 export const createValidationMysteryBox = async (userId: string) => {
   const revealableQuestions = await getValidationRewardQuestions();
@@ -53,28 +51,6 @@ export const createValidationMysteryBox = async (userId: string) => {
   if (rewards?.length !== newQuestionIds.length) {
     return null;
   }
-
-  const tokenAddress = getBonkAddress();
-
-  const getPrizePerTrigger = (reward: {
-    questionId: number;
-    creditRewardAmount: number;
-    bonkRewardAmount: number;
-  }) => {
-    return [
-      {
-        prizeType: EBoxPrizeType.Credits,
-        size: EPrizeSize.Hub,
-        amount: reward.creditRewardAmount.toString(),
-      },
-      {
-        prizeType: EBoxPrizeType.Token,
-        amount: reward.bonkRewardAmount.toString(),
-        size: EPrizeSize.Hub,
-        tokenAddress: tokenAddress, // Add the bonk address here
-      },
-    ];
-  };
 
   const newMysteryBoxId = await prisma.$transaction(async (tx) => {
     const mb = await tx.mysteryBox.create({
