@@ -3,7 +3,16 @@ import prisma from "@/app/services/prisma";
 import { EMysteryBoxStatus } from "@prisma/client";
 import "server-only";
 
-export const getCampaignBoxes = async () => {
+/**
+ * @description Get new and unclaimed campaigns allowed for user
+ * @returns {Array<Object>} An array containing a single object with item details
+ * @returns {string} returns[0].id - Unique identifier for the item
+ * @returns {string} returns[0].name - Name of the item
+ * @returns {string} returns[0].infoTitle - Title of the item's information
+ * @returns {string} returns[0].infoBody - Body text of the item's information
+ * @returns {boolean} returns[0].isEligible - Eligibility status of the item
+ */
+export const getCampaigns = async () => {
   const payload = await getJwtPayload();
 
   if (!payload) {
