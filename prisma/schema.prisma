@@ -321,6 +321,13 @@ model ChainTx {
   @@index([hash])
 }
 
+model CampaignMysteryBox {
+  id        String @id @default(uuid())
+  name      String
+  infoTitle String
+  infoBody  String
+}
+
 enum EMysteryBoxStatus {
   New
   Opened
