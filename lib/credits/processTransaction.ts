@@ -83,37 +83,35 @@ export async function processTransaction(
       });
 
       if (!result || result?.meta?.err) {
-        const transactionFailedError = new TransactionFailedError(
+        throw new TransactionFailedError(
           `Credit Transaction Failed for user: ${payload?.sub}`,
           { cause: result?.meta?.err },
         );
-        Sentry.captureException(transactionFailedError, {
-          extra: {
-            error: result?.meta?.err,
-            creditAmount: creditsToBuy,
-            signature: txHash,
-          },
-        });
-        await Sentry.flush(SENTRY_FLUSH_WAIT);
-        throw new Error("Transaction failed");
       }
 
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash, creditsToBuy);
     }, CONFIRMATION_RETRIES);
   } catch (error) {
-    const transactionFailedToConfirmError = new TransactionFailedToConfirmError(
-      `Credit Transaction Confirmation failed for user: ${payload?.sub}`,
-      { cause: error },
-    );
-    Sentry.captureException(transactionFailedToConfirmError, {
+    if (!(error instanceof TransactionFailedError)) {
+      error = new TransactionFailedToConfirmError(
+        `Credit Transaction Confirmation failed for user: ${payload?.sub}`,
+        { cause: error },
+      );
+    }
+
+    Sentry.captureException(error, {
       extra: {
-        error: error,
+        error: error instanceof TransactionFailedError ? error.cause : error,
         creditAmount: creditsToBuy,
         signature: txHash,
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    throw new Error("Transaction failed to confirm");
+    throw new Error(
+      error instanceof TransactionFailedError
+        ? "Transaction failed"
+        : "Transaction failed to confirm",
+    );
   }
 }
