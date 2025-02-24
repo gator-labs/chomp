@@ -1,5 +1,4 @@
 import { QuestionType } from "@prisma/client";
-import "server-only";
 
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";

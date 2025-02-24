@@ -1,6 +1,6 @@
-import { EThreatLevelType } from "@/types/bots";
 import { Prisma } from "@prisma/client";
 
+import { EThreatLevelType } from "../../types/bots";
 import prisma from "../services/prisma";
 
 type QuestionOptionPercentage = {
