@@ -31,8 +31,8 @@ export const rewardMysteryBoxHub = async ({
   if (type === EMysteryBoxCategory.Validation) {
     return await createValidationMysteryBox(userId);
   } else if (type === EMysteryBoxCategory.Campaign) {
-    await createCampaignMysteryBox(userWallet.address);
+    await createCampaignMysteryBox(userWallet.address, userId);
   } else {
-    return null;
+    return [];
   }
 };
