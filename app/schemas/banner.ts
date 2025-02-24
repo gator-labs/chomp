@@ -13,6 +13,7 @@ const baseBannerSchema = z.object({
     .url({ message: "Invalid URL format." })
     .or(z.literal("").optional())
     .optional(),
+  text: z.string(),
   isActive: z.coerce.string().transform((val) => val === "true"),
 });
 

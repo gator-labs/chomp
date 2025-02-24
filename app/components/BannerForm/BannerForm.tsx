@@ -31,6 +31,7 @@ const BannerForm = ({ banner, action }: Props) => {
     defaultValues: {
       id: banner?.id,
       url: banner?.url || "",
+      text: banner?.text || "",
       isActive: !!banner?.isActive,
       image: [],
     },
@@ -47,6 +48,7 @@ const BannerForm = ({ banner, action }: Props) => {
 
         formData.append("id", banner?.id.toString() || "");
         formData.append("url", data.url);
+        formData.append("text", data.text);
         formData.append("image", data.image[0]);
         formData.append("isActive", data.isActive.toString());
 
@@ -59,6 +61,11 @@ const BannerForm = ({ banner, action }: Props) => {
         <label className="block mb-1">Url</label>
         <TextInput variant="secondary" {...register("url")} />
         <div className="text-destructive">{errors.url?.message}</div>
+      </div>
+      <div className="mb-3">
+        <label className="block mb-1">Text</label>
+        <TextInput variant="secondary" {...register("text")} />
+        <div className="text-destructive">{errors.text?.message}</div>
       </div>
       <div className="mb-3">
         <label className="mr-3">Is active</label>

@@ -41,6 +41,7 @@ export async function createBanner(formData: FormData) {
     data: {
       isActive: data.isActive,
       image: imageUrl,
+      text: data.text,
       url: data.url,
     },
   });
@@ -99,6 +100,7 @@ export async function updateBanner(formData: FormData) {
     data: {
       isActive: data.isActive,
       image: imageUrl,
+      text: data.text,
       url: data.url,
     },
   });

@@ -16,10 +16,14 @@ export const columns: ColumnDef<Banner>[] = [
         alt="banner-image"
         className="object-contain"
         src={row.original.image}
-        width={80}
-        height={80}
+        width={48}
+        height={48}
       />
     ),
+  },
+  {
+    accessorKey: "text",
+    header: "Text",
   },
   {
     accessorKey: "isActive",
