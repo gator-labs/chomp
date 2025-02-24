@@ -270,8 +270,11 @@ model MysteryBoxTrigger {
   mysteryBoxId          String
   allowlist             MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
   mysteryBoxAllowlistId String?
+  campaignMysteryBoxId  String?
+  campaignMysteryBox    CampaignMysteryBox?  @relation(fields: [campaignMysteryBoxId], references: [id])
   MysteryBoxPrize       MysteryBoxPrize[]
 
+  @@unique([campaignMysteryBoxId, mysteryBoxAllowlistId])
   @@unique([mysteryBoxId, questionId, triggerType])
   @@unique([mysteryBoxId, deckId, triggerType])
 }
@@ -328,6 +331,7 @@ model CampaignMysteryBox {
   infoTitle                 String
   infoBody                  String
   CampaignMysteryBoxAllowed CampaignMysteryBoxAllowed[]
+  MysteryBoxTrigger         MysteryBoxTrigger[]
 }
 
 model CampaignMysteryBoxAllowed {
