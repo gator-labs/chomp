@@ -148,10 +148,10 @@ export class TransactionFailedToConfirmError extends Error {
   }
 }
 
-export class TransactionFailedToFinalizeError extends Error {
+export class TransactionFailedError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
-    this.name = "TransactionFailedToFinalizeError";
+    this.name = "TransactionFailedError";
   }
 }
 
