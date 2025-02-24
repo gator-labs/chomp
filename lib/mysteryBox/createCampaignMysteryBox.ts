@@ -1,12 +1,102 @@
+// TODO: Add a valid campaign utility
 import prisma from "@/app/services/prisma";
+import { calculateMysteryBoxReward } from "@/app/utils/algo";
+import { MysteryBoxEventsType } from "@/types/mysteryBox";
+import {
+  EBoxPrizeType,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
+  EPrizeSize,
+} from "@prisma/client";
 import "server-only";
 
-export const createCampaignMysteryBox = async (address: string) => {
-  const campaignBoxes = await prisma.campaignMysteryBoxAllowed.findMany({
+import { getBonkAddress } from "../env-vars";
+
+export const createCampaignMysteryBox = async (
+  address: string,
+  userId: string,
+  campaignBoxId?: string,
+) => {
+  if (!campaignBoxId) {
+    throw new Error("Campaign doesn't exist");
+  }
+  const validCampaign = await prisma.campaignMysteryBoxAllowed.findFirst({
     where: {
+      campaignMysteryBoxId: campaignBoxId,
       allowlistAddress: address,
     },
   });
 
-  console.log(campaignBoxes);
+  if (!validCampaign) {
+    throw new Error("User is not eligible for reward");
+  }
+
+  // TODO: Switch to actual mechanism engine endpoint when ready.
+  const calculatedReward = await calculateMysteryBoxReward(
+    MysteryBoxEventsType.CHOMPMAS,
+  );
+
+  const tokenAddress = getBonkAddress();
+
+  let mysteryBoxId;
+
+  await prisma.$transaction(async (tx) => {
+    const existingBox = await tx.mysteryBoxTrigger.findFirst({
+      where: {
+        campaignMysteryBoxId: campaignBoxId,
+      },
+      include: {
+        MysteryBox: {
+          where: {
+            status: { in: [EMysteryBoxStatus.New, EMysteryBoxStatus.Unopened] },
+          },
+        },
+      },
+    });
+    if (existingBox) {
+      mysteryBoxId = existingBox.id;
+    } else {
+      // First, create the mysteryBox
+      const newMysteryBox = await tx.mysteryBox.create({
+        data: {
+          userId: userId,
+        },
+      });
+
+      // Then, create the associated trigger
+      await tx.mysteryBoxTrigger.create({
+        data: {
+          triggerType: EBoxTriggerType.CampaignReward,
+          mysteryBoxAllowlistId: address,
+          mysteryBoxId: newMysteryBox.id,
+          campaignMysteryBoxId: campaignBoxId,
+          MysteryBoxPrize: {
+            createMany: {
+              data: [
+                {
+                  prizeType: EBoxPrizeType.Credits,
+                  size: EPrizeSize.Hub,
+                  amount: calculatedReward.credits.toString(),
+                },
+                {
+                  prizeType: EBoxPrizeType.Token,
+                  amount: calculatedReward.bonk.toString(),
+                  size: EPrizeSize.Hub,
+                  tokenAddress: tokenAddress,
+                },
+              ],
+            },
+          },
+        },
+      });
+
+      mysteryBoxId = newMysteryBox.id;
+    }
+  });
+
+  if (!mysteryBoxId) {
+    throw new Error("Error failed to get a mystery box id");
+  }
+
+  return [mysteryBoxId];
 };
