@@ -69,6 +69,7 @@ function MysteryBoxHub({
               type={EMysteryBoxCategory.Campaign}
               infoTitle={box?.infoTitle}
               infoBody={box.infoBody}
+              campaignBoxId={box.id}
               key={box.id}
             />
           ))}

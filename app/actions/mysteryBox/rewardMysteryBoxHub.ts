@@ -10,12 +10,15 @@ import { getJwtPayload } from "../jwt";
 /**
  * Function to reward mystery box hub based on validation reward questions.
  * @param {EMysteryBoxCategory} type - The type of mystery box category.
+ * @param campaignBoxId -- optional campaign id if user is opening a campaign box
  * @returns Returns an array of mystery box IDs or null.
  */
 export const rewardMysteryBoxHub = async ({
   type,
+  campaignBoxId,
 }: {
   type: EMysteryBoxCategory;
+  campaignBoxId?: string;
 }) => {
   const payload = await getJwtPayload();
   if (!payload) {
@@ -31,7 +34,11 @@ export const rewardMysteryBoxHub = async ({
   if (type === EMysteryBoxCategory.Validation) {
     return await createValidationMysteryBox(userId);
   } else if (type === EMysteryBoxCategory.Campaign) {
-    await createCampaignMysteryBox(userWallet.address, userId);
+    return await createCampaignMysteryBox(
+      userWallet.address,
+      userId,
+      campaignBoxId,
+    );
   } else {
     return [];
   }
