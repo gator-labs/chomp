@@ -19,14 +19,6 @@ async function main() {
     output: process.stdout,
   });
 
-  // Ask for tags if required
-  const tags = await new Promise<string>((resolve) => {
-    rl.question(
-      "Enter tags for this batch (comma-separated) or press enter to skip: ",
-      resolve,
-    );
-  });
-
   const campaignBoxId = await new Promise<string>((resolve) => {
     rl.question("Enter campaign mystery box id: ", resolve);
   });
