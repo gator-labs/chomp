@@ -298,12 +298,12 @@ model MysteryBoxPrize {
 }
 
 model MysteryBoxAllowlist {
-  address                   String                      @id @unique
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime                    @default(now()) @updatedAt
+  address                   String                        @id @unique
+  createdAt                 DateTime                      @default(now())
+  updatedAt                 DateTime                      @default(now()) @updatedAt
   tags                      String?
   MysteryBoxTrigger         MysteryBoxTrigger[]
-  CampaignMysteryBoxAllowed CampaignMysteryBoxAllowed[]
+  CampaignMysteryBoxAllowed CampaignMysteryBoxAllowlist[]
 }
 
 model ChainTx {
@@ -326,15 +326,15 @@ model ChainTx {
 }
 
 model CampaignMysteryBox {
-  id                        String                      @id @default(uuid())
-  name                      String
-  infoTitle                 String
-  infoBody                  String
-  CampaignMysteryBoxAllowed CampaignMysteryBoxAllowed[]
-  MysteryBoxTrigger         MysteryBoxTrigger[]
+  id                          String                        @id @default(uuid())
+  name                        String
+  infoTitle                   String
+  infoBody                    String
+  CampaignMysteryBoxAllowlist CampaignMysteryBoxAllowlist[]
+  MysteryBoxTrigger           MysteryBoxTrigger[]
 }
 
-model CampaignMysteryBoxAllowed {
+model CampaignMysteryBoxAllowlist {
   id                   String   @id @default(uuid())
   createdAt            DateTime @default(now())
   updatedAt            DateTime @default(now()) @updatedAt
@@ -342,10 +342,10 @@ model CampaignMysteryBoxAllowed {
 
   campaignMysteryBox CampaignMysteryBox @relation(fields: [campaignMysteryBoxId], references: [id])
 
-  allowlistAddress    String
-  mysteryBoxAllowList MysteryBoxAllowlist @relation(fields: [allowlistAddress], references: [address])
+  address             String
+  mysteryBoxAllowList MysteryBoxAllowlist @relation(fields: [address], references: [address])
 
-  @@unique([campaignMysteryBoxId, allowlistAddress])
+  @@unique([campaignMysteryBoxId, address])
 }
 
 enum EMysteryBoxStatus {

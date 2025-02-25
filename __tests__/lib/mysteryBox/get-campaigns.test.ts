@@ -11,6 +11,7 @@ jest.mock("@/app/actions/jwt", () => ({
 describe("getCampaigns", () => {
   let user: { id: string; username: string; wallet: string };
   let campaign: { id: string };
+
   beforeAll(async () => {
     const users = await generateUsers(1);
     user = {
@@ -36,7 +37,7 @@ describe("getCampaigns", () => {
   });
 
   afterAll(async () => {
-    await prisma.campaignMysteryBoxAllowed.deleteMany({
+    await prisma.campaignMysteryBoxAllowlist.deleteMany({
       where: {
         campaignMysteryBoxId: campaign.id,
       },
@@ -89,12 +90,13 @@ describe("getCampaigns", () => {
       },
     });
 
-    await prisma.campaignMysteryBoxAllowed.create({
+    await prisma.campaignMysteryBoxAllowlist.create({
       data: {
-        allowlistAddress: user.wallet,
+        address: user.wallet,
         campaignMysteryBoxId: campaign.id,
       },
     });
+
     // Arrange
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user.id });
 

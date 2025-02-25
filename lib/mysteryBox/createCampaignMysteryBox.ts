@@ -13,24 +13,26 @@ import { getBonkAddress } from "../env-vars";
 
 /**
  * @description Validate campaign details. Create new mystery box if doesn't exist else return the existing mb id for new and unclaimed box.
- * @param {string} address - The wallet address of the user
  * @param {string} userId - The unique identifier of the user
  * @param {string} [campaignBoxId] - Optional. The identifier of the campaign box
  * @returns {Promise<string[]>} A promise that resolves to an array of string IDs representing mystery box identifiers
  */
 
 export const createCampaignMysteryBox = async (
-  address: string,
   userId: string,
   campaignBoxId?: string,
 ) => {
+  const userWallet = await prisma.wallet.findFirst({ where: { userId } });
+
+  if (!userWallet) return null;
+
   if (!campaignBoxId) {
     throw new Error("Campaign doesn't exist");
   }
-  const validCampaign = await prisma.campaignMysteryBoxAllowed.findFirst({
+  const validCampaign = await prisma.campaignMysteryBoxAllowlist.findFirst({
     where: {
       campaignMysteryBoxId: campaignBoxId,
-      allowlistAddress: address,
+      address: userWallet.address,
     },
   });
 
@@ -61,7 +63,7 @@ export const createCampaignMysteryBox = async (
       },
     });
     if (existingBox) {
-      mysteryBoxId = existingBox.id;
+      mysteryBoxId = existingBox.MysteryBox?.id;
     } else {
       // First, create the mysteryBox
       const newMysteryBox = await tx.mysteryBox.create({
@@ -74,7 +76,7 @@ export const createCampaignMysteryBox = async (
       await tx.mysteryBoxTrigger.create({
         data: {
           triggerType: EBoxTriggerType.CampaignReward,
-          mysteryBoxAllowlistId: address,
+          mysteryBoxAllowlistId: userWallet.address,
           mysteryBoxId: newMysteryBox.id,
           campaignMysteryBoxId: campaignBoxId,
           MysteryBoxPrize: {

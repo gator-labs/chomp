@@ -1,6 +1,5 @@
 "use server";
 
-import prisma from "@/app/services/prisma";
 import { createCampaignMysteryBox } from "@/lib/mysteryBox/createCampaignMysteryBox";
 import { createValidationMysteryBox } from "@/lib/mysteryBox/createValidationMysteryBox";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
@@ -27,18 +26,10 @@ export const rewardMysteryBoxHub = async ({
 
   const userId = payload.sub;
 
-  const userWallet = await prisma.wallet.findFirst({ where: { userId } });
-
-  if (!userWallet) return null;
-
   if (type === EMysteryBoxCategory.Validation) {
     return await createValidationMysteryBox(userId);
   } else if (type === EMysteryBoxCategory.Campaign) {
-    return await createCampaignMysteryBox(
-      userWallet.address,
-      userId,
-      campaignBoxId,
-    );
+    return await createCampaignMysteryBox(userId, campaignBoxId);
   } else {
     return [];
   }

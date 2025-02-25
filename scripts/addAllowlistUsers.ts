@@ -57,9 +57,9 @@ async function main() {
     skipDuplicates: true,
   });
 
-  await prisma.campaignMysteryBoxAllowed.createMany({
+  await prisma.campaignMysteryBoxAllowlist.createMany({
     data: validRows.map((address: string) => ({
-      allowlistAddress: address.trim(),
+      address: address.trim(),
       campaignMysteryBoxId: campaignBoxId,
     })),
     skipDuplicates: true,

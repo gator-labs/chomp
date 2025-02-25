@@ -30,9 +30,9 @@ export const getCampaigns = async () => {
 
   const campaignBoxes = await prisma.campaignMysteryBox.findMany();
 
-  const validCampaignBoxes = await prisma.campaignMysteryBoxAllowed.findMany({
+  const validCampaignBoxes = await prisma.campaignMysteryBoxAllowlist.findMany({
     where: {
-      allowlistAddress: userWallet.address,
+      address: userWallet.address,
     },
     select: {
       id: true,
