@@ -1,7 +1,7 @@
 "use client";
 
 import MysteryBoxHistory from "@/components/MysteryBoxHub/MysteryBoxHistory";
-import CampaignBoxIcon from "@/public/images/campign_box.svg";
+import CampaignBoxIcon from "@/public/images/campaign_box.svg";
 import MysteryBoxIcon from "@/public/images/validation-mystery-box.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import React, { useState } from "react";
@@ -18,6 +18,7 @@ interface MysteryBoxHubProps {
         name: string;
         infoTitle: string;
         infoBody: string;
+        isEligible: boolean;
       }[]
     | null;
 }
@@ -63,11 +64,12 @@ function MysteryBoxHub({
           {campaignBoxes?.map((box) => (
             <MysteryBoxReward
               title={box.name}
-              isActive={false}
+              isActive={box.isEligible}
               icon={CampaignBoxIcon}
               type={EMysteryBoxCategory.Campaign}
               infoTitle={box?.infoTitle}
               infoBody={box.infoBody}
+              campaignBoxId={box.id}
               key={box.id}
             />
           ))}

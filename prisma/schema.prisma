@@ -271,8 +271,11 @@ model MysteryBoxTrigger {
   mysteryBoxId          String
   allowlist             MysteryBoxAllowlist? @relation(fields: [mysteryBoxAllowlistId], references: [address])
   mysteryBoxAllowlistId String?
+  campaignMysteryBoxId  String?
+  campaignMysteryBox    CampaignMysteryBox?  @relation(fields: [campaignMysteryBoxId], references: [id])
   MysteryBoxPrize       MysteryBoxPrize[]
 
+  @@unique([campaignMysteryBoxId, mysteryBoxAllowlistId])
   @@unique([mysteryBoxId, questionId, triggerType])
   @@unique([mysteryBoxId, deckId, triggerType])
 }
@@ -296,11 +299,12 @@ model MysteryBoxPrize {
 }
 
 model MysteryBoxAllowlist {
-  address           String              @id @unique
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now()) @updatedAt
-  tags              String?
-  MysteryBoxTrigger MysteryBoxTrigger[]
+  address                   String                        @id @unique
+  createdAt                 DateTime                      @default(now())
+  updatedAt                 DateTime                      @default(now()) @updatedAt
+  tags                      String?
+  MysteryBoxTrigger         MysteryBoxTrigger[]
+  CampaignMysteryBoxAllowed CampaignMysteryBoxAllowlist[]
 }
 
 model ChainTx {
@@ -323,10 +327,26 @@ model ChainTx {
 }
 
 model CampaignMysteryBox {
-  id        String @id @default(uuid())
-  name      String
-  infoTitle String
-  infoBody  String
+  id                          String                        @id @default(uuid())
+  name                        String
+  infoTitle                   String
+  infoBody                    String
+  CampaignMysteryBoxAllowlist CampaignMysteryBoxAllowlist[]
+  MysteryBoxTrigger           MysteryBoxTrigger[]
+}
+
+model CampaignMysteryBoxAllowlist {
+  id                   String   @id @default(uuid())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now()) @updatedAt
+  campaignMysteryBoxId String
+
+  campaignMysteryBox CampaignMysteryBox @relation(fields: [campaignMysteryBoxId], references: [id])
+
+  address             String
+  mysteryBoxAllowList MysteryBoxAllowlist @relation(fields: [address], references: [address])
+
+  @@unique([campaignMysteryBoxId, address])
 }
 
 enum EMysteryBoxStatus {
@@ -343,6 +363,7 @@ enum EBoxTriggerType {
   RevealAllCompleted
   ValidationReward
   Combined
+  CampaignReward
 }
 
 enum EBoxPrizeStatus {

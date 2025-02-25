@@ -18,6 +18,7 @@ function MysteryBoxReward({
   icon,
   infoTitle,
   infoBody,
+  campaignBoxId,
 }: {
   title: string;
   type: EMysteryBoxCategory;
@@ -25,6 +26,7 @@ function MysteryBoxReward({
   icon: StaticImageData;
   infoTitle?: string;
   infoBody?: string;
+  campaignBoxId?: string;
 }) {
   const [showBoxOverlay, setShowBoxOverlay] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -38,11 +40,14 @@ function MysteryBoxReward({
   const rewardBoxHandler = async () => {
     if (!isActive) return;
     try {
-      const res = await promiseToast(rewardMysteryBoxHub({ type }), {
-        loading: "Opening Mystery Box. Please wait...",
-        success: "Mystery Box created successfully! ",
-        error: "Failed to open the Mystery Box. Please try again later. 😔",
-      });
+      const res = await promiseToast(
+        rewardMysteryBoxHub({ type, campaignBoxId }),
+        {
+          loading: "Opening Mystery Box. Please wait...",
+          success: "Mystery Box created successfully! ",
+          error: "Failed to open the Mystery Box. Please try again later. 😔",
+        },
+      );
       if (res) {
         setMysteryBoxIds(res);
       }
