@@ -41,7 +41,7 @@ const getMechanismEngineResponse = async (path: string, body: unknown) => {
     throw new Error("MECHANISM_ENGINE_URL not defined");
 
   try {
-    return await fetch(
+    const response = await fetch(
       `${process.env.MECHANISM_ENGINE_URL}/api/chomp/${path}`,
       {
         headers: {
@@ -50,9 +50,17 @@ const getMechanismEngineResponse = async (path: string, body: unknown) => {
         method: "POST",
         body: JSON.stringify(body),
       },
-    ).then((res) => res.json());
+    );
+
+    if (!response.ok)
+      throw new Error(
+        `Mechanism engine returned error: ${response.status}: ${response.statusText}`,
+      );
+
+    return await response.json();
   } catch (e) {
     console.error("exception", e, "triggered with this data", path, body);
+    throw e;
   }
 };
 
