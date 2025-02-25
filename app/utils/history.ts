@@ -42,22 +42,28 @@ export function getRevealAtText(date: Date): string {
   }
 }
 
-export function getTimeUntilReveal(date: Date): string {
+export function getTimeUntilReveal(date: Date, isDeckCard?: boolean): string {
   const now = new Date();
 
   if (isPast(date)) {
-    return "Revealed";
+    return isDeckCard ? "" : "Revealed";
   } else {
     const daysUntil = differenceInDays(date, now);
     const hoursUntil = differenceInHours(date, now);
 
     if (daysUntil > 0) {
-      return `View Results in ${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
+      return isDeckCard
+        ? `(${daysUntil}d left)`
+        : `View Results in ${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
     } else if (hoursUntil > 0) {
-      return `View Results in ${hoursUntil} hour${hoursUntil > 1 ? "s" : ""}`;
+      return isDeckCard
+        ? `(${hoursUntil}h left)`
+        : `View Results in ${hoursUntil} hour${hoursUntil > 1 ? "s" : ""}`;
     } else {
       const minutesUntil = differenceInMinutes(date, now);
-      return `View Results in ${minutesUntil} minute${minutesUntil > 1 ? "s" : ""}`;
+      return isDeckCard
+        ? `(${minutesUntil}m left)`
+        : `View Results in ${minutesUntil} minute${minutesUntil > 1 ? "s" : ""}`;
     }
   }
 }
