@@ -8,11 +8,8 @@ import {
 } from "./common/imageSchema";
 
 const baseBannerSchema = z.object({
-  url: z
-    .string()
-    .url({ message: "Invalid URL format." })
-    .or(z.literal("").optional())
-    .optional(),
+  url: z.string().url({ message: "Invalid URL format." }).or(z.literal("")),
+  text: z.string().trim().min(1),
   isActive: z.coerce.string().transform((val) => val === "true"),
 });
 
