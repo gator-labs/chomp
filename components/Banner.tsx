@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 type BannerProps = {
-  url?: string;
+  url?: string | null;
   iconUrl: string;
   text: string;
   onDismiss: () => void;

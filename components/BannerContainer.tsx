@@ -27,7 +27,7 @@ export function BannerContainer() {
 
   return (
     <Banner
-      url={banner.url ?? undefined}
+      url={banner.url}
       iconUrl={banner.image}
       text={banner.text}
       onDismiss={handleDismiss}
