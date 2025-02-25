@@ -1,4 +1,7 @@
-import { ChompResult } from "@prisma/client";
+import {
+  TransactionFailedError,
+  TransactionFailedToConfirmError,
+} from "@/lib/error";
 import * as Sentry from "@sentry/nextjs";
 import {
   createAssociatedTokenAccountInstruction,
@@ -22,15 +25,11 @@ import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import { CONNECTION } from "./solana";
 
-export const sendBonk = async (
-  toWallet: PublicKey,
-  amount: number,
-  chompResults?: ChompResult[],
-  questionIds?: number[],
-) => {
+export const sendBonk = async (toWallet: PublicKey, amount: number) => {
   const payload = await getJwtPayload();
 
   if (!payload) return null;
+
   const fromWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -73,7 +72,7 @@ export const sendBonk = async (
 
   instructions.push(transferInstruction);
 
-  let blockhashResponse = await CONNECTION.getLatestBlockhash("confirmed");
+  let blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
 
   const v0message = new TransactionMessage({
     payerKey: fromWallet.publicKey,
@@ -154,32 +153,40 @@ export const sendBonk = async (
           },
           "confirmed",
         );
+
+        const result = await CONNECTION.getParsedTransaction(signature, {
+          commitment: "confirmed",
+        });
+
+        if (!result || result?.meta?.err) {
+          throw new TransactionFailedError(
+            `Send Bonk Transaction Failed for user: ${payload?.sub}`,
+            { cause: result?.meta?.err },
+          );
+        }
       },
       {
         retries: 1,
-        onFailedAttempt: (error) => {
-          console.log(
-            `Attempt ${error.attemptNumber} failed. ${error.retriesLeft} retries left.`,
-          );
-        },
       },
     );
-  } catch {
-    Sentry.captureException(
-      `User with id: ${payload?.sub} is having trouble claiming question IDs: ${questionIds} with transaction confirmation`,
-      {
-        level: "fatal",
-        tags: {
-          category: "claim-tx-confirmation-error",
-        },
-        extra: {
-          chompResults: chompResults?.map((r) => r.id),
-          transactionHash: signature,
-        },
+  } catch (error) {
+    if (!(error instanceof TransactionFailedError)) {
+      error = new TransactionFailedToConfirmError(
+        `Send Bonk Transaction Confirmation failed for user: ${payload?.sub}`,
+        { cause: error },
+      );
+    }
+
+    Sentry.captureException(error, {
+      extra: {
+        error: error instanceof TransactionFailedError ? error.cause : error,
+        userId: payload?.sub,
+        walletAddress: toWallet.toBase58(),
+        signature,
       },
-    );
+    });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
   }
-  await Sentry.flush(SENTRY_FLUSH_WAIT);
 
   return signature;
 };

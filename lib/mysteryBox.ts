@@ -4,7 +4,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
-import { sendBonk } from "@/app/utils/claim";
+import { sendBonk } from "@/app/utils/sendBonk";
 import { FindMysteryBoxError } from "@/lib/error";
 import { EBoxTriggerType, EMysteryBoxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";

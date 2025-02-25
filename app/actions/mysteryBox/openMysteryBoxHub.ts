@@ -128,7 +128,6 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     if (totalBonkAmount > 0) {
       txHash = await sendBonkFromTreasury(totalBonkAmount, userWallet.address);
       if (!txHash) {
-        release();
         throw new Error("Send bonk transaction failed");
       }
     }
@@ -216,27 +215,42 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       },
     });
   } catch (e) {
-    await prisma.mysteryBox.updateMany({
-      where: {
-        id: {
-          in: mysteryBoxIds,
-        },
-      },
-      data: {
-        status: EMysteryBoxStatus.Unopened,
-      },
-    });
+    await pRetry(
+      async () => {
+        await prisma.$transaction(
+          async (tx) => {
+            await tx.mysteryBox.updateMany({
+              where: {
+                id: {
+                  in: mysteryBoxIds,
+                },
+              },
+              data: {
+                status: EMysteryBoxStatus.Unopened,
+              },
+            });
 
-    await prisma.mysteryBoxPrize.updateMany({
-      where: {
-        id: {
-          in: allPrizes.map((prize) => prize.id),
-        },
+            await tx.mysteryBoxPrize.updateMany({
+              where: {
+                id: {
+                  in: allPrizes.map((prize) => prize.id),
+                },
+              },
+              data: {
+                status: EBoxPrizeStatus.Unclaimed,
+              },
+            });
+          },
+          {
+            isolationLevel: "Serializable",
+            timeout: ONE_MINUTE_IN_MILLISECONDS,
+          },
+        );
       },
-      data: {
-        status: EBoxPrizeStatus.Unclaimed,
+      {
+        retries: 2,
       },
-    });
+    );
 
     const openMysteryBoxHubError = new OpenMysteryBoxHubError(
       `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
