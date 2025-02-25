@@ -183,7 +183,6 @@ export async function claimQuestions(questionIds: number[]) {
     resultIds = chompResults.map((r) => r.id);
     sendTx = await sendClaimedBonkFromTreasury(
       chompResults,
-      questionIds,
       userWallet.address,
     );
 
