@@ -33,6 +33,7 @@ export type DeckExpiringSoon = {
   id: number;
   deck: string;
   revealAtDate?: Date;
+  creditCostPerQuestion: number;
   date?: Date;
   stackId: number;
   answerCount?: number;
@@ -59,7 +60,6 @@ export async function getDecksForExpiringSection(): Promise<
   const payload = await authGuard();
 
   const decks = await queryExpiringDecks(payload.sub);
-
   return decks;
 }
 
@@ -86,6 +86,7 @@ async function getNextDeckIdQuery(
     d."revealAtDate",
     d."revealAtAnswerCount",
     d."stackId",
+    d."creditCostPerQuestion",
     c."image"
     from public."Deck" d
     full join public."Stack" c on c."id" = d."stackId"
@@ -131,7 +132,21 @@ async function getNextDeckIdQuery(
         )
   `;
 
+  const previousDeck = deckExpiringSoon.filter((deck) => deck.id === deckId)[0];
+
+  // Remove previous deck from the deck list
   const filteredDecks = deckExpiringSoon.filter((deck) => deck.id !== deckId);
+
+  /* Sort decks based on credit cost:
+   * If previous deck was paid, sort from highest to lowest cost
+   * If previous deck was free, sort from lowest to highest cost
+   * */
+  const sortedDecks = filteredDecks.sort((a, b) => {
+    const costDifference = b.creditCostPerQuestion - a.creditCostPerQuestion;
+    return previousDeck.creditCostPerQuestion > 0
+      ? costDifference
+      : -costDifference;
+  });
 
   const stackMatch = filteredDecks.find((deck) => deck.stackId === stackId);
 
@@ -139,7 +154,7 @@ async function getNextDeckIdQuery(
     return stackMatch.id;
   }
 
-  return filteredDecks.length > 0 ? filteredDecks[0].id : undefined;
+  return sortedDecks.length > 0 ? sortedDecks[0].id : undefined;
 }
 
 export async function queryExpiringDecks(
