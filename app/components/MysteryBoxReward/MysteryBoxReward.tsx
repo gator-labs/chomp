@@ -111,7 +111,7 @@ function MysteryBoxReward({
             <p className={classNames("text-purple-100 text-xs  font-black")}>
               {isActive ? "OPEN NOW!" : "Come back later!"}
             </p>
-            <div className="flex flex-row gap-1 justify-center items-center">
+            <div className="flex flex-row gap-1 justify-start items-center">
               <MysteryBoxCategoryPill category={type} disabled={!isActive} />
               <button
                 className={classNames({
