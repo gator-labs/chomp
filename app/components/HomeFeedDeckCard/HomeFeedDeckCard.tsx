@@ -27,11 +27,14 @@ type HomeFeedDeckCardProps = {
   deckId: number;
   deckCreditCost?: number;
   deckRewardAmount?: number;
+  totalQuestions?: number;
+  completedQuestions?: number;
 };
 
 const getStatusText = (
   status: StatusUnion,
   revealAtDate: Date | null | undefined,
+  completedQuestions: number | undefined,
 ) => {
   switch (status) {
     case "chomped":
@@ -43,10 +46,16 @@ const getStatusText = (
     case "start":
       return (
         <div className="flex items-center justify-center gap-1 text-xs">
-          <p>Start</p>
-          <p className="text-gray-400">
-            {revealAtDate && getTimeUntilReveal(revealAtDate, true)}
-          </p>
+          {completedQuestions && completedQuestions > 0 ? (
+            <p>Continue</p>
+          ) : (
+            <>
+              <p>Start</p>
+              <p className="text-gray-400">
+                {revealAtDate && getTimeUntilReveal(revealAtDate, true)}
+              </p>
+            </>
+          )}
           <ArrowRightCircle width={18} height={18} />
         </div>
       );
@@ -66,9 +75,16 @@ export function HomeFeedDeckCard({
   deckId,
   deckCreditCost,
   deckRewardAmount,
+  totalQuestions,
+  completedQuestions,
 }: HomeFeedDeckCardProps) {
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
+  const progressPercentage =
+    totalQuestions && completedQuestions
+      ? (completedQuestions / totalQuestions) * 100
+      : 0;
   return (
     <a
       href={date ? ANSWER_PATH : getDeckPath(deckId)}
@@ -81,7 +97,11 @@ export function HomeFeedDeckCard({
       }}
       className="bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 cursor-pointer h-full"
     >
-      <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center">
+      <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center relative">
+        <div
+          className="absolute top-0 left-0 h-full bg-green opacity-35 z-0 rounded-l-2xl"
+          style={{ width: `${progressPercentage}%` }}
+        ></div>
         <div className="w-[59px] h-[60px] bg-purple-500 rounded-xl flex-shrink-0 relative p-1">
           {imageUrl ? (
             <>
@@ -98,7 +118,7 @@ export function HomeFeedDeckCard({
             <DeckGraphic className="w-full h-full" />
           )}
         </div>
-        <div className="text-white font-semibold text-base line-clamp-2">
+        <div className="text-white font-semibold text-base line-clamp-2 z-10">
           {deck}
         </div>
       </div>
@@ -142,7 +162,7 @@ export function HomeFeedDeckCard({
             underline: status === "continue",
           })}
         >
-          {status && getStatusText(status, revealAtDate)}
+          {status && getStatusText(status, revealAtDate, completedQuestions)}
         </div>
       </div>
     </a>

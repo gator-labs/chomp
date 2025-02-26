@@ -41,6 +41,8 @@ export type DeckExpiringSoon = {
   total_count?: number;
   total_credit_cost?: number;
   total_reward_amount?: number;
+  total_questions?: number;
+  completed_questions?: number;
 };
 
 export type QuestionsForReveal = {
@@ -432,6 +434,19 @@ WITH premium_deck_cte AS (
     d."date",
     d."revealAtDate",
     c."image",
+    (SELECT COUNT(DISTINCT dq."questionId")
+     FROM public."DeckQuestion" dq
+     WHERE dq."deckId" = d."id"
+    ) as total_questions,
+    (SELECT COUNT(DISTINCT q."id")
+     FROM public."DeckQuestion" dq
+     JOIN public."Question" q ON dq."questionId" = q."id"
+     JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+     JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+     WHERE dq."deckId" = d."id"
+     AND qa."userId" = ${userId}
+     AND qa."status" IN ('Submitted', 'Viewed')
+    ) as completed_questions,
     (SELECT sum("creditCostPerQuestion") 
      FROM public."DeckQuestion" dq
      JOIN public."Question" q 
@@ -515,7 +530,20 @@ async function queryExpiringFreeDecks(
     d."date",
     d."revealAtDate",
     c."image",
-    0 as "total_credit_cost"
+    0 as "total_credit_cost",
+    (SELECT COUNT(DISTINCT dq."questionId")
+     FROM public."DeckQuestion" dq
+     WHERE dq."deckId" = d."id"
+    ) as total_questions,
+    (SELECT COUNT(DISTINCT q."id")
+     FROM public."DeckQuestion" dq
+     JOIN public."Question" q ON dq."questionId" = q."id"
+     JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+     JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+     WHERE dq."deckId" = d."id"
+     AND qa."userId" = ${userId}
+     AND qa."status" IN ('Submitted', 'Viewed')
+    ) as completed_questions
 FROM
     public."Deck" d
 FULL JOIN
