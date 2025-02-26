@@ -68,7 +68,7 @@ function MysteryBoxReward({
         <p className="text-sm mb-6">{infoBody}</p>
       </InfoDrawer>
       <div
-        className={`flex flex-row items-center rounded-lg bg-blue-pink-gradient p-[1px]z`}
+        className={`flex flex-row items-center rounded-lg bg-blue-pink-gradient p-[1px]`}
       >
         <div
           className={`flex flex-row items-center rounded-lg px-3 md:px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
@@ -111,7 +111,7 @@ function MysteryBoxReward({
             <p className={classNames("text-purple-100 text-xs  font-black")}>
               {isActive ? "OPEN NOW!" : "Come back later!"}
             </p>
-            <div className="flex flex-row gap-1 justify-center items-center">
+            <div className="flex flex-row gap-1 justify-start items-center">
               <MysteryBoxCategoryPill category={type} disabled={!isActive} />
               <button
                 className={classNames({
