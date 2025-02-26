@@ -1,4 +1,4 @@
-import { EBoxPrizeType, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import Decimal from "decimal.js";
 
 import { calculateMysteryBoxHubReward } from "../app/utils/algo";
@@ -10,7 +10,6 @@ async function updateMysteryBoxPrizes() {
   const mysteryBoxPrizes = await prisma.mysteryBoxPrize.findMany({
     where: {
       amount: "NaN", // We're looking for "NaN" stored as a string
-      prizeType: EBoxPrizeType.Token,
     },
     include: {
       mysteryBoxTrigger: {
@@ -47,39 +46,35 @@ async function updateMysteryBoxPrizes() {
 
     // Invoke calculateMysteryBoxHubReward
     const rewardData = await calculateMysteryBoxHubReward(userId, [questionId]);
+    console.log("rewardData", rewardData);
 
     // Step 3: Update the MysteryBoxPrize amount with the new value (if it's found)
     if (rewardData && rewardData.length > 0) {
       const newAmount = rewardData[0].bonkRewardAmount;
 
-      if (!newAmount) {
-        console.warn(
-          `No reward data found for user: ${userId}, question: ${questionId}. Skipping update.`,
-        );
-        console.log(newAmount);
-
-        continue;
-      }
-
       console.log(
         `Updating MysteryBoxPrize for user: ${userId}, question: ${questionId} with amount: ${newAmount}`,
       );
 
-      // Convert the amount to a Decimal object to ensure it is a valid number
-      const newAmountChecked = new Decimal(newAmount).toString();
+      try {
+        // Convert the amount to a Decimal object to ensure it is a valid number
+        const newAmountChecked = new Decimal(newAmount).toString();
 
-      await prisma.mysteryBoxPrize.update({
-        where: {
-          id: prize.id,
-        },
-        data: {
-          amount: newAmountChecked, // Ensure the amount is updated as a string
-        },
-      });
+        await prisma.mysteryBoxPrize.update({
+          where: {
+            id: prize.id,
+          },
+          data: {
+            amount: newAmountChecked, // Ensure the amount is updated as a string
+          },
+        });
 
-      console.log(
-        `MysteryBoxPrize for user: ${userId} updated successfully to ${newAmountChecked}`,
-      );
+        console.log(
+          `MysteryBoxPrize for user: ${userId} updated successfully to ${newAmountChecked}`,
+        );
+      } catch (e) {
+        console.error("Error updating MysteryBoxPrize:", e);
+      }
     } else {
       console.log(
         `No reward data found for user: ${userId}, question: ${questionId}. Skipping update.`,
