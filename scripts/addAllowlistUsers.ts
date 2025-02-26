@@ -1,9 +1,9 @@
 /**
  * Imports allowlist addresses from a CSV file and adds them to the mystery box allowlist database.
- * Provides option to tag the imported batch with comma-separated labels.
+ * Add the campaign and user address data in campaign mystery box allowed table
  *
  * Input: allowlist.csv in the scripts directory
- * Output: Addresses stored in mysteryBoxAllowlist table with optional tags
+ * Output: Addresses stored in mysteryBoxAllowlist table. Campaign and mysterybox relation stored in campaignMysteryBoxAllowed table
  */
 const readline = require("readline");
 const fs = require("fs");
@@ -19,13 +19,19 @@ async function main() {
     output: process.stdout,
   });
 
-  // Ask for tags if required
-  const tags = await new Promise<string>((resolve) => {
-    rl.question(
-      "Enter tags for this batch (comma-separated) or press enter to skip: ",
-      resolve,
-    );
+  const campaignBoxId = await new Promise<string>((resolve) => {
+    rl.question("Enter campaign mystery box id: ", resolve);
   });
+
+  const getCampaignMysteryBox = await prisma.campaignMysteryBox.findUnique({
+    where: {
+      id: campaignBoxId,
+    },
+  });
+
+  if (getCampaignMysteryBox === null) {
+    throw new Error(`Please provide a valid campaign id`);
+  }
 
   const csvFilePath = path.resolve(__dirname, "allowlist.csv");
   const csv = fs.readFileSync(csvFilePath, "utf8");
@@ -47,7 +53,14 @@ async function main() {
   await prisma.mysteryBoxAllowlist.createMany({
     data: validRows.map((address: string) => ({
       address: address.trim(),
-      tags,
+    })),
+    skipDuplicates: true,
+  });
+
+  await prisma.campaignMysteryBoxAllowlist.createMany({
+    data: validRows.map((address: string) => ({
+      address: address.trim(),
+      campaignMysteryBoxId: campaignBoxId,
     })),
     skipDuplicates: true,
   });

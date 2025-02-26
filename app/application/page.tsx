@@ -1,6 +1,6 @@
+import { BannerContainer } from "@/components/BannerContainer";
 import { Suspense } from "react";
 
-import BannerSlider from "../components/BannerSlider/BannerSlider";
 import { DashboardUserStats } from "../components/DashboardUserStats/DashboardUserStats";
 import { HomeFeedDeckExpiringSection } from "../components/HomeFeedDeckExpiringSection/HomeFeedDeckExpiringSection";
 import { HomeFeedReadyToRevealSection } from "../components/HomeFeedReadyToRevealSection/HomeFeedReadyToRevealSection";
@@ -9,13 +9,11 @@ import HomeFeedVerticalDeckSection from "../components/HomeFeedVerticalDeckSecti
 import { Profile } from "../components/Profile/Profile";
 import ProfileNavigation from "../components/ProfileNavigation/ProfileNavigation";
 import Spinner from "../components/Spinner/Spinner";
-import { getActiveBanners } from "../queries/banner";
 import { getQuestionsForRevealedSection } from "../queries/home";
 
 export default async function Page() {
-  const [questionsRevealed, banners] = await Promise.all([
+  const [questionsRevealed] = await Promise.all([
     getQuestionsForRevealedSection(),
-    getActiveBanners(),
   ]);
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
@@ -33,7 +31,7 @@ export default async function Page() {
         </Suspense>
       </div>
 
-      {!!banners.length && <BannerSlider banners={banners} />}
+      <BannerContainer />
       {CREDIT_COST_FEATURE_FLAG ? (
         <Suspense fallback={<Spinner />}>
           <HomeFeedVerticalDeckSection />

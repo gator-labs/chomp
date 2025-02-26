@@ -58,6 +58,12 @@ export class OpenMysteryBoxError extends Error {
   }
 }
 
+export class OpenMysteryBoxHubError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "OpenMysteryBoxHubError";
+  }
+}
 export class SendBonkError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
@@ -103,13 +109,6 @@ export class UserAllowlistError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
     this.name = "UserAllowlistError";
-  }
-}
-
-export class GetUnopenedMysteryBoxError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.name = "GetUnopenedMysteryBoxError";
   }
 }
 
