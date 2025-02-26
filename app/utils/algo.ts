@@ -1,5 +1,6 @@
+"server-only";
+
 import { QuestionType } from "@prisma/client";
-import "server-only";
 
 import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
@@ -458,7 +459,6 @@ export const calculateMysteryBoxHubReward = async (
         id: userAnswer.questionOptionId,
       },
     });
-
     if (question.type === QuestionType.BinaryQuestion) {
       const correctOption = question.questionOptions[correctOptionIndex];
 
