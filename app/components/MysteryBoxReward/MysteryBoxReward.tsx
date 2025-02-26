@@ -8,30 +8,46 @@ import classNames from "classnames";
 import Image, { StaticImageData } from "next/image";
 import React, { CSSProperties, useState } from "react";
 
+import { InfoIcon } from "../Icons/InfoIcon";
+import InfoDrawer from "../InfoDrawer/InfoDrawer";
+
 function MysteryBoxReward({
   title,
   type,
   isActive,
   icon,
+  infoTitle,
+  infoBody,
+  campaignBoxId,
 }: {
   title: string;
   type: EMysteryBoxCategory;
   isActive: boolean;
   icon: StaticImageData;
+  infoTitle?: string;
+  infoBody?: string;
+  campaignBoxId?: string;
 }) {
   const [showBoxOverlay, setShowBoxOverlay] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const [mystryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
 
   const { promiseToast } = useToast();
 
+  const showTooltip = !!infoBody && !!infoTitle && !isActive;
+
   const rewardBoxHandler = async () => {
     if (!isActive) return;
     try {
-      const res = await promiseToast(rewardMysteryBoxHub({ type }), {
-        loading: "Opening Mystery Box. Please wait...",
-        success: "Mystery Box created successfully! ",
-        error: "Failed to open the Mystery Box. Please try again later. 😔",
-      });
+      const res = await promiseToast(
+        rewardMysteryBoxHub({ type, campaignBoxId }),
+        {
+          loading: "Opening Mystery Box. Please wait...",
+          success: "Mystery Box created successfully! ",
+          error: "Failed to open the Mystery Box. Please try again later. 😔",
+        },
+      );
       if (res) {
         setMysteryBoxIds(res);
       }
@@ -44,14 +60,19 @@ function MysteryBoxReward({
 
   return (
     <>
+      <InfoDrawer
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title={infoTitle ? infoTitle : "What's this?"}
+      >
+        <p className="text-sm mb-6">{infoBody}</p>
+      </InfoDrawer>
       <div
-        className={`flex flex-row items-center rounded-lg bg-blue-pink-gradient p-[1px] ${
-          isActive ? "cursor-pointer" : "cursor-not-allowed"
-        }`}
+        className={`flex flex-row items-center rounded-lg bg-blue-pink-gradient p-[1px]`}
       >
         <div
           className={`flex flex-row items-center rounded-lg px-3 md:px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
-            isActive ? "cursor-pointer" : "cursor-not-allowed"
+            isActive || showTooltip ? "cursor-pointer" : "cursor-not-allowed"
           }`}
           style={
             {
@@ -61,7 +82,13 @@ function MysteryBoxReward({
             } as CSSProperties
           }
           onClick={() => {
-            rewardBoxHandler();
+            if (showTooltip) {
+              setIsOpen(true);
+            }
+
+            if (isActive) {
+              rewardBoxHandler();
+            }
           }}
         >
           <Image
@@ -84,7 +111,17 @@ function MysteryBoxReward({
             <p className={classNames("text-purple-100 text-xs  font-black")}>
               {isActive ? "OPEN NOW!" : "Come back later!"}
             </p>
-            <MysteryBoxCategoryPill category={type} disabled={!isActive} />
+            <div className="flex flex-row gap-1 justify-start items-center">
+              <MysteryBoxCategoryPill category={type} disabled={!isActive} />
+              <button
+                className={classNames({
+                  visible: showTooltip,
+                  hidden: !showTooltip,
+                })}
+              >
+                <InfoIcon width={18} height={18} fill="#fff" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

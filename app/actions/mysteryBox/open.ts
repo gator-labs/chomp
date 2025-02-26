@@ -2,7 +2,7 @@
 
 import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
-import { OpenMysteryBoxError, SendBonkError } from "@/lib/error";
+import { OpenMysteryBoxError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { FungibleAsset, TransactionLogType } from "@prisma/client";
 import {
@@ -140,24 +140,10 @@ export async function openMysteryBox(
           sendTx = await sendBonkFromTreasury(prizeAmount, userWallet.address);
 
           if (!sendTx) {
-            const sendBonkError = new SendBonkError(
-              `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Box: ${mysteryBoxId}`,
-              { cause: "Failed to send bonk" },
-            );
-            Sentry.captureException(sendBonkError, {
-              level: "fatal",
-              tags: {
-                category: "mystery-box-tx-confirmation-error",
-              },
-              extra: {
-                transactionHash: sendTx,
-              },
-            });
+            throw new Error("Send bonk transaction failed");
           } else {
             txHashes[prize.tokenAddress] = sendTx;
           }
-        } else {
-          sendTx = null;
         }
       }
 
@@ -252,13 +238,14 @@ export async function openMysteryBox(
         mysteryBoxId,
         userId: payload.sub,
         walletAddress: userWallet.address,
+        prizeId: reward.triggers[0].MysteryBoxPrize[0].id,
         error: e,
       },
     });
     throw new Error("Error processing mystery box prizes");
   } finally {
-    release();
     await Sentry.flush(SENTRY_FLUSH_WAIT);
+    release();
   }
 
   return txHashes;

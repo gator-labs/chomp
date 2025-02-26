@@ -1,14 +1,16 @@
 import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
 import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQuestion";
 import MysteryBoxHub from "@/components/MysteryBox/MysteryBoxHub";
+import { getCampaigns } from "@/lib/mysteryBox/getCampaigns";
 
 async function Page() {
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
   if (CREDIT_COST_FEATURE_FLAG) {
-    const [validationRewardQuestions] = await Promise.all([
+    const [validationRewardQuestions, campaignBoxes] = await Promise.all([
       getValidationRewardQuestions(),
+      getCampaigns(),
     ]);
 
     const isUserEligibleForValidationReward: boolean =
@@ -19,6 +21,7 @@ async function Page() {
         <ProfileNavigation />
         <MysteryBoxHub
           isUserEligibleForValidationReward={isUserEligibleForValidationReward}
+          campaignBoxes={campaignBoxes}
         />
       </div>
     );

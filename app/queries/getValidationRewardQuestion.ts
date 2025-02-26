@@ -71,7 +71,7 @@ WHERE
         WHERE 
             qo."questionId" = q.id
             AND qa.selected = TRUE
-            AND (qo."calculatedIsCorrect" IS NOT NULL OR qo."calculatedAveragePercentage" IS NOT NULL)
+            AND (qo."calculatedIsCorrect" = TRUE OR qo."calculatedAveragePercentage" IS NOT NULL)
             AND qa."userId" = ${userId}
     )
     AND fatl."userId" = ${userId}

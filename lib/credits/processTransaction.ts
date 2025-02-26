@@ -10,10 +10,11 @@ import "server-only";
 
 import {
   SendTransactionError,
+  TransactionFailedError,
   TransactionFailedToConfirmError,
 } from "../error";
 
-const CONFIRMATION_OPTIONS = {
+const CONFIRMATION_RETRIES = {
   retries: 2,
 };
 
@@ -77,21 +78,40 @@ export async function processTransaction(
         throw new Error("Payment could not be verified");
       }
 
+      const result = await CONNECTION.getParsedTransaction(txHash, {
+        commitment: TRANSACTION_COMMITMENT,
+      });
+
+      if (!result || result?.meta?.err) {
+        throw new TransactionFailedError(
+          `Credit Transaction Failed for user: ${payload?.sub}`,
+          { cause: result?.meta?.err },
+        );
+      }
+
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash, creditsToBuy);
-    }, CONFIRMATION_OPTIONS);
+    }, CONFIRMATION_RETRIES);
   } catch (error) {
-    const transactionFailedToConfirmError = new TransactionFailedToConfirmError(
-      `Credit Transaction Confirmation failed for user: ${payload?.sub}`,
-      { cause: error },
-    );
-    Sentry.captureException(transactionFailedToConfirmError, {
+    if (!(error instanceof TransactionFailedError)) {
+      error = new TransactionFailedToConfirmError(
+        `Credit Transaction Confirmation failed for user: ${payload?.sub}`,
+        { cause: error },
+      );
+    }
+
+    Sentry.captureException(error, {
       extra: {
+        error: error instanceof TransactionFailedError ? error.cause : error,
         creditAmount: creditsToBuy,
         signature: txHash,
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    throw new Error("Transaction failed to confirm");
+    throw new Error(
+      error instanceof TransactionFailedError
+        ? "Transaction failed"
+        : "Transaction failed to confirm",
+    );
   }
 }

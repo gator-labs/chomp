@@ -58,6 +58,12 @@ export class OpenMysteryBoxError extends Error {
   }
 }
 
+export class OpenMysteryBoxHubError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "OpenMysteryBoxHubError";
+  }
+}
 export class SendBonkError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
@@ -106,13 +112,6 @@ export class UserAllowlistError extends Error {
   }
 }
 
-export class GetUnopenedMysteryBoxError extends Error {
-  constructor(message: string, options?: ErrorOptions) {
-    super(message, options);
-    this.name = "GetUnopenedMysteryBoxError";
-  }
-}
-
 export class InvalidBurnTxError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
@@ -148,10 +147,10 @@ export class TransactionFailedToConfirmError extends Error {
   }
 }
 
-export class TransactionFailedToFinalizeError extends Error {
+export class TransactionFailedError extends Error {
   constructor(message: string, options?: ErrorOptions) {
     super(message, options);
-    this.name = "TransactionFailedToFinalizeError";
+    this.name = "TransactionFailedError";
   }
 }
 

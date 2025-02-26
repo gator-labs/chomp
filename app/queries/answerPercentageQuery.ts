@@ -1,3 +1,4 @@
+import { EThreatLevelType } from "@/types/bots";
 import { Prisma } from "@prisma/client";
 
 import prisma from "../services/prisma";
@@ -23,21 +24,24 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                   (
                     select count(*)
                     from public."QuestionAnswer" subQa
-                    where subQa.selected = true and subQa."questionOptionId" = qo."id" and subQa."status" = 'Submitted'
+                    join public."User" u on subQa."userId" = u."id"
+                    where subQa.selected = true and subQa."questionOptionId" = qo."id" and subQa."status" = 'Submitted' and (u."threatLevel" IS NULL OR u."threatLevel" IN (${EThreatLevelType.ManualAllow}, ${EThreatLevelType.PermanentAllow}))
                   ) 
                   /
                   NULLIF(
                     (
                       select count(*)
                       from public."QuestionAnswer" subQa
-                      where subQa."questionOptionId" = qo."id" and subQa."status" = 'Submitted'
+                      join public."User" u on subQa."userId" = u."id"
+                      where subQa."questionOptionId" = qo."id" and subQa."status" = 'Submitted'and (u."threatLevel" IS NULL OR u."threatLevel" IN (${EThreatLevelType.ManualAllow}, ${EThreatLevelType.PermanentAllow}))
                     )
                   , 0)
                   * 100) as "firstOrderSelectedAnswerPercentage",
                 (
                   select round(avg(percentage))
                   from public."QuestionAnswer"
-                  where "questionOptionId" = qo."id" and "status" = 'Submitted'
+                  join public."User" u on "userId" = u."id"
+                  where "questionOptionId" = qo."id" and "status" = 'Submitted' and (u."threatLevel" IS NULL OR u."threatLevel" IN (${EThreatLevelType.ManualAllow}, ${EThreatLevelType.PermanentAllow}))
                 ) as "secondOrderAveragePercentagePicked"
               from public."QuestionOption" qo
               where qo."id" in (${Prisma.join(questionOptionIds)})
@@ -58,4 +62,37 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
         : (qo.secondOrderAveragePercentagePicked ?? 0),
     ),
   }));
+}
+
+/**
+ * Gets question order percentages from the questionOption percentages table if they exist,
+ * or calculates them from user question answers if they don't.
+ */
+export async function getQuestionOrderPercentages(
+  questionOptionIds: number[],
+  calculatedQuestionOptionPercentages: {
+    id: number;
+    firstOrderSelectedAnswerPercentage: number | null;
+    secondOrderAveragePercentagePicked: number | null;
+  }[],
+) {
+  const isNullCalculatedPercentages = calculatedQuestionOptionPercentages.some(
+    (qo) =>
+      qo.firstOrderSelectedAnswerPercentage === null ||
+      qo.secondOrderAveragePercentagePicked === null,
+  );
+
+  if (isNullCalculatedPercentages) {
+    return await answerPercentageQuery(questionOptionIds);
+  } else {
+    return calculatedQuestionOptionPercentages.map((cqop) => ({
+      id: cqop.id,
+      firstOrderSelectedAnswerPercentage: Number(
+        cqop.firstOrderSelectedAnswerPercentage ?? 0,
+      ),
+      secondOrderAveragePercentagePicked: Number(
+        cqop.secondOrderAveragePercentagePicked ?? 0,
+      ),
+    }));
+  }
 }
