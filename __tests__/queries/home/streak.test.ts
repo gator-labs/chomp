@@ -3,9 +3,12 @@ import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import {
   AnswerStatus,
+  EMysteryBoxStatus,
+  FungibleAsset,
   QuestionType,
   ResultType,
   Token,
+  TransactionLogType,
   TransactionStatus,
 } from "@prisma/client";
 import { subDays } from "date-fns";
@@ -177,6 +180,24 @@ describe("getUsersLatestStreak", () => {
         ],
       });
 
+      await tx.mysteryBox.create({
+        data: {
+          status: EMysteryBoxStatus.Opened,
+          userId: user1.id,
+          createdAt: subDays(new Date(), 3),
+        },
+      });
+
+      await tx.fungibleAssetTransactionLog.create({
+        data: {
+          type: TransactionLogType.CreditPurchase,
+          userId: user1.id,
+          createdAt: subDays(new Date(), 4),
+          change: 100,
+          asset: FungibleAsset.Credit,
+        },
+      });
+
       // User 2 answers questions but has a gap (2 consecutive days, then 1 day gap)
       await tx.questionAnswer.createMany({
         data: [
@@ -318,6 +339,16 @@ describe("getUsersLatestStreak", () => {
 
   afterAll(async () => {
     await prisma.$transaction(async (tx) => {
+      await tx.fungibleAssetTransactionLog.deleteMany({
+        where: {
+          userId: { in: [user1.id, user2.id, user3.id] },
+        },
+      });
+      await tx.mysteryBox.deleteMany({
+        where: {
+          userId: { in: [user1.id, user2.id, user3.id] },
+        },
+      });
       await tx.chompResult.deleteMany({
         where: {
           userId: { in: [user1.id, user2.id, user3.id] },
@@ -350,7 +381,7 @@ describe("getUsersLatestStreak", () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
     const latestStreak = await getUsersLatestStreak();
 
-    expect(latestStreak).toBe(3); // User1's streak ends today after answering for 3 consecutive days
+    expect(latestStreak).toBe(5); // User1's streak ends today after answering for 3 consecutive days
   });
 
   it("should return the latest streak for user2 ending today", async () => {
