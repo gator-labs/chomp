@@ -298,10 +298,11 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
     AND qa."status" = 'Submitted'
     UNION
     SELECT DISTINCT DATE("createdAt") AS activityDate
-    FROM public."fungibleAssetTransactionLog" fatl
+    FROM public."FungibleAssetTransactionLog" fatl
     WHERE "userId" = ${userId}
     AND fatl."asset" = 'Credit'
     AND fatl."type" = 'CreditPurchase'
+    UNION
     SELECT DISTINCT DATE("createdAt") AS activityDate
     FROM public."MysteryBox" mbox
     WHERE "userId" = ${userId}
