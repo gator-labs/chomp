@@ -51,6 +51,10 @@ function PaidDeckFeed() {
             status="start"
             deckCreditCost={d.total_credit_cost ? d.total_credit_cost : 0}
             deckRewardAmount={d.total_reward_amount ? d.total_reward_amount : 0}
+            totalQuestions={d.total_questions ? d.total_questions : 0}
+            completedQuestions={
+              d.completed_questions ? d.completed_questions : 0
+            }
           />
         </div>
       ))}
