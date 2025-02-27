@@ -231,8 +231,15 @@ describe("Mystery box history", () => {
 
     expect(boxesPage1?.data.length).toEqual(MYSTERY_BOXES_PER_PAGE);
     expect(boxesPage1?.hasMore).toBeTruthy();
+    boxesPage1.data.map((item) => {
+      expect(["Validation", "Campaign"]).toContain(item.category);
+    });
 
     const boxesPage2 = await fetchMysteryBoxHistory({ currentPage: 2 });
+
+    boxesPage2.data.map((item) => {
+      expect(["Validation", "Campaign"]).toContain(item.category);
+    });
 
     expect(boxesPage2?.data.length).toEqual(2);
     expect(boxesPage2?.hasMore).toBeFalsy();
