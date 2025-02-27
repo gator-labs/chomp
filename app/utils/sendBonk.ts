@@ -156,6 +156,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
 
         const result = await CONNECTION.getParsedTransaction(signature, {
           commitment: "confirmed",
+          maxSupportedTransactionVersion: 0,
         });
 
         if (!result || result?.meta?.err) {
