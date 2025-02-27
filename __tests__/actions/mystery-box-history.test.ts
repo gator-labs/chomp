@@ -181,6 +181,23 @@ describe("Mystery box history", () => {
           }),
         ),
       );
+
+      await prisma.mysteryBoxTrigger.create({
+        data: {
+          triggerType: EBoxTriggerType.ClaimAllCompleted,
+          mysteryBoxId: createdBoxes[0].id,
+          MysteryBoxPrize: {
+            create: {
+              status: EBoxPrizeStatus.Claimed,
+              size: EPrizeSize.Small,
+              prizeType: EBoxPrizeType.Credits,
+              tokenAddress: null,
+              amount: "1000",
+              claimedAt: new Date(),
+            },
+          },
+        },
+      });
     }
 
     await createMysteryBoxTriggers();
@@ -231,8 +248,15 @@ describe("Mystery box history", () => {
 
     expect(boxesPage1?.data.length).toEqual(MYSTERY_BOXES_PER_PAGE);
     expect(boxesPage1?.hasMore).toBeTruthy();
+    boxesPage1.data.map((item) => {
+      expect(["Validation", "Campaign"]).toContain(item.category);
+    });
 
     const boxesPage2 = await fetchMysteryBoxHistory({ currentPage: 2 });
+
+    boxesPage2.data.map((item) => {
+      expect(["Validation", "Campaign"]).toContain(item.category);
+    });
 
     expect(boxesPage2?.data.length).toEqual(2);
     expect(boxesPage2?.hasMore).toBeFalsy();

@@ -25,7 +25,9 @@ export async function fetchMysteryBoxHistory({
       status: EMysteryBoxStatus.Opened,
       triggers: {
         some: {
-          triggerType: {},
+          triggerType: {
+            in: ["ValidationReward", "CampaignReward"],
+          },
           MysteryBoxPrize: {
             some: {}, // Ensures there is at least one MysteryBoxPrize
           },
