@@ -290,7 +290,7 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
   WITH userActivity AS (
     SELECT DISTINCT DATE("createdAt") AS activityDate
     FROM public."ChompResult"
-    WHERE "userId" = ${userId}  
+    WHERE "userId" = ${userId}
     UNION
     SELECT DISTINCT DATE("createdAt") AS activityDate
     FROM public."QuestionAnswer" qa
@@ -308,19 +308,19 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
     WHERE "userId" = ${userId}
   ),
   consecutiveDays AS (
-    SELECT 
+    SELECT
       activityDate,
       LAG(activityDate) OVER (ORDER BY activityDate) AS previousDate
     FROM userActivity
   ),
   "streakGroups" AS (
-    SELECT 
+    SELECT
       activityDate,
-      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END) 
+      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END)
       OVER (ORDER BY activityDate) AS "streakGroup"
     FROM consecutiveDays
   )
-  SELECT 
+  SELECT
     MIN(activityDate) AS "streakStartDate",
     MAX(activityDate) AS "streakEndDate",
     COUNT(*) AS "streakLength"
