@@ -181,6 +181,23 @@ describe("Mystery box history", () => {
           }),
         ),
       );
+
+      await prisma.mysteryBoxTrigger.create({
+        data: {
+          triggerType: EBoxTriggerType.ClaimAllCompleted,
+          mysteryBoxId: createdBoxes[0].id,
+          MysteryBoxPrize: {
+            create: {
+              status: EBoxPrizeStatus.Claimed,
+              size: EPrizeSize.Small,
+              prizeType: EBoxPrizeType.Credits,
+              tokenAddress: null,
+              amount: "1000",
+              claimedAt: new Date(),
+            },
+          },
+        },
+      });
     }
 
     await createMysteryBoxTriggers();
