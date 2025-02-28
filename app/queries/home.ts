@@ -296,6 +296,15 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
     FROM public."QuestionAnswer" qa
     WHERE "userId" = ${userId}
     AND qa."status" = 'Submitted'
+    UNION
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."fungibleAssetTransactionLog" fatl
+    WHERE "userId" = ${userId}
+    AND fatl."asset" = 'Credit'
+    AND fatl."type" = 'CreditPurchase'
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."MysteryBox" mbox
+    WHERE "userId" = ${userId}
   ),
   consecutiveDays AS (
     SELECT 
