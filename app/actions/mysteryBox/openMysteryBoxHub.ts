@@ -122,7 +122,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
   );
 
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS || "";
-
+  const txHash: string | null = null;
   try {
     let txHash = null;
     if (totalBonkAmount > 0) {
@@ -131,7 +131,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         throw new Error("Send bonk transaction failed");
       }
     }
-
+    console.log("1");
     await pRetry(
       async () => {
         await prisma.$transaction(
@@ -192,6 +192,18 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
                 claimedAt: date,
               },
             });
+
+            await tx.mysteryBox.updateMany({
+              where: {
+                id: {
+                  in: mysteryBoxIds,
+                },
+                userId: userId,
+              },
+              data: {
+                status: EMysteryBoxStatus.Opened,
+              },
+            });
           },
           {
             isolationLevel: "Serializable",
@@ -204,17 +216,9 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       },
     );
 
-    await prisma.mysteryBox.updateMany({
-      where: {
-        id: {
-          in: mysteryBoxIds,
-        },
-      },
-      data: {
-        status: EMysteryBoxStatus.Opened,
-      },
-    });
+    console.log("2");
   } catch (e) {
+    console.log("3", e);
     await pRetry(
       async () => {
         await prisma.$transaction(
@@ -252,6 +256,8 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       },
     );
 
+    console.log("4");
+
     const openMysteryBoxHubError = new OpenMysteryBoxHubError(
       `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
       { cause: e },
@@ -262,6 +268,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         userId: payload.sub,
         walletAddress: userWallet.address,
         prizesIds: allPrizes.map((prize) => prize.id),
+        txHash: txHash,
         error: e,
       },
     });
