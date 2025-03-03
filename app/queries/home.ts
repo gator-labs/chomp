@@ -134,6 +134,11 @@ async function getNextDeckIdQuery(
 
   const previousDeck = deckExpiringSoon.filter((deck) => deck.id === deckId)[0];
 
+  // If no previous deck is found, return the first available deck
+  if (!previousDeck) {
+    return deckExpiringSoon.length > 0 ? deckExpiringSoon[0].id : undefined;
+  }
+
   // Remove previous deck from the deck list
   const filteredDecks = deckExpiringSoon.filter((deck) => deck.id !== deckId);
 
