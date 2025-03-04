@@ -1,20 +1,19 @@
 "use client";
 
-import { getTimeString } from "@/app/utils/dateUtils";
+import { getTimeUntilReveal } from "@/app/utils/history";
+import { formatNumber } from "@/app/utils/number";
 import { getDeckPath } from "@/lib/urls";
 import { cn } from "@/lib/utils";
-import { ChompResult, Question, ResultType } from "@prisma/client";
-import { isAfter } from "date-fns";
+import { Clock3Icon, TrophyIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
 import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
 import CardsIcon from "../Icons/CardsIcon";
-import { ClockIcon } from "../Icons/ClockIcon";
-import GiftIcon from "../Icons/GiftIcon";
-import HalfEyeIcon from "../Icons/HalfEyeIcon";
-import HourGlassIcon from "../Icons/HourGlassIcon";
+import { CoinsIcon } from "../Icons/CoinsIcon";
+import TrophyQuestionMarkIcon from "../Icons/TrophyQuestionMarkIcon";
+import TrophyStarMarkIcon from "../Icons/TrophyStarMarkIcon";
 import LoginPopUp from "../LoginPopUp/LoginPopUp";
 
 type StackDeckCardProps = {
@@ -22,14 +21,56 @@ type StackDeckCardProps = {
   deckName: string;
   imageUrl: string;
   revealAtDate: Date;
-  numberOfQuestionsOptions: number;
-  numberOfUserQuestionsAnswers: number;
-  activeFromDate: Date;
-  chompResults: (ChompResult & {
-    question: Question;
-  })[];
-  deckQuestions: Question[];
   userId?: string;
+  deckCreditCost?: number;
+  deckRewardAmount?: number;
+  answeredQuestions: number;
+  totalQuestions: number;
+};
+
+const getButtonText = (
+  revealAtDate: Date,
+  answeredQuestions: number,
+  totalQuestions: number,
+) => {
+  const currentDate = new Date();
+  const isDeckReadyToReveal = currentDate > revealAtDate;
+  const hasStarted = answeredQuestions > 0;
+
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-center gap-1 text-xs",
+        !isDeckReadyToReveal &&
+          answeredQuestions === totalQuestions &&
+          "text-neutral-700",
+      )}
+    >
+      {isDeckReadyToReveal ? (
+        <p>Results</p>
+      ) : answeredQuestions === totalQuestions ? (
+        <p>Results</p>
+      ) : hasStarted ? (
+        <p>Continue</p>
+      ) : (
+        <>
+          <p>Start</p>
+          <p className="text-gray-400">
+            ({revealAtDate && getTimeUntilReveal(revealAtDate, true)} left)
+          </p>
+        </>
+      )}
+      <ArrowRightCircle
+        width={18}
+        height={18}
+        fill={
+          !isDeckReadyToReveal && answeredQuestions === totalQuestions
+            ? "#404040"
+            : "#AFADEB"
+        }
+      />
+    </div>
+  );
 };
 
 const StackDeckCard = ({
@@ -37,120 +78,21 @@ const StackDeckCard = ({
   deckName,
   imageUrl,
   revealAtDate,
-  numberOfQuestionsOptions,
-  numberOfUserQuestionsAnswers,
-  activeFromDate,
-  chompResults,
-  deckQuestions,
   userId,
+  deckCreditCost = 0,
+  deckRewardAmount = 0,
+  answeredQuestions,
+  totalQuestions,
 }: StackDeckCardProps) => {
-  const currentDate = new Date();
-  const isDeckReadyToReveal = isAfter(currentDate, revealAtDate);
-  const isDeckActive = isAfter(currentDate, activeFromDate);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const timeString = getTimeString(
-    isDeckActive ? revealAtDate : activeFromDate,
-  );
+  const currentDate = new Date();
+  const isDeckReadyToReveal = currentDate > revealAtDate;
 
-  const answeredQuestionsInPercentage =
-    (numberOfUserQuestionsAnswers / numberOfQuestionsOptions) * 100;
-
-  const claimableAmount = chompResults
-    .filter((cr) => cr.result === ResultType.Revealed)
-    .reduce((acc, cur) => acc + Number(cur.rewardTokenAmount ?? 0), 0);
-
-  const claimedAmount = chompResults
-    .filter((cr) => cr.result === ResultType.Claimed)
-    .reduce((acc, cur) => acc + Number(cur.rewardTokenAmount ?? 0), 0);
-
-  const revealedAtTimeString = chompResults[0]?.createdAt
-    ? getTimeString(chompResults[0].createdAt)
-    : "";
-
-  let timeLabel = `Expiring in ${timeString}`;
-  if (!isDeckActive) {
-    timeLabel = `Starting in ${timeString}`;
-  } else if (
-    answeredQuestionsInPercentage === 100 &&
-    !isDeckReadyToReveal &&
-    !!userId
-  ) {
-    timeLabel = `Reveal in ${timeString}`;
-  } else if (chompResults.length === deckQuestions.length && !!userId) {
-    if (claimedAmount === 0 || claimableAmount > 0) {
-      timeLabel = `Revealed ${revealedAtTimeString} ago`;
-    } else {
-      timeLabel = `${claimedAmount.toLocaleString("en-US")} BONK claimed`;
-    }
-  } else if (isDeckReadyToReveal) {
-    timeLabel =
-      answeredQuestionsInPercentage > 0 && !!userId
-        ? "Potential rewards"
-        : !!userId
-          ? "No potential rewards"
-          : "Expired";
-  }
-
-  let buttonText = !!userId ? "Continue" : "";
-  if (!isDeckActive) {
-    buttonText = "Wait to start";
-  } else if (answeredQuestionsInPercentage === 0 && !isDeckReadyToReveal) {
-    buttonText = "Start";
-  } else if (answeredQuestionsInPercentage === 100 && !isDeckReadyToReveal) {
-    buttonText = "Wait to reveal";
-  } else if (chompResults.length === deckQuestions.length && !!userId) {
-    if (claimedAmount === 0 && !!userId) {
-      buttonText = "No rewards";
-    } else if (claimableAmount > 0) {
-      buttonText = "Claim your reward";
-    } else {
-      buttonText = "View results";
-    }
-  } else if (isDeckReadyToReveal && !!userId) {
-    buttonText = "Reveal results";
-  }
-
-  const icon = !isDeckActive ? (
-    <HourGlassIcon />
-  ) : chompResults.length === deckQuestions.length &&
-    (claimedAmount === 0 || claimableAmount > 0) &&
-    userId ? (
-    <HalfEyeIcon />
-  ) : isDeckReadyToReveal && !!userId ? (
-    <GiftIcon
-      fill={
-        answeredQuestionsInPercentage === 0 ||
-        chompResults.length === deckQuestions.length
-          ? "#999"
-          : "#fff"
-      }
-    />
-  ) : (
-    <ClockIcon width={16} height={16} />
-  );
-
-  const textClass = cn("text-xs", {
-    "text-gray-400":
-      (chompResults.length === deckQuestions.length &&
-        claimedAmount !== 0 &&
-        claimableAmount === 0) ||
-      (isDeckReadyToReveal &&
-        answeredQuestionsInPercentage === 0 &&
-        chompResults.length !== deckQuestions.length) ||
-      !userId,
-  });
-
-  const buttonIconVisible =
-    (isDeckActive &&
-      answeredQuestionsInPercentage !== 100 &&
-      !isDeckReadyToReveal) ||
-    (isDeckReadyToReveal && chompResults.length !== deckQuestions.length) ||
-    (claimedAmount !== 0 && claimableAmount === 0);
-
-  const giftIconVisible =
-    chompResults.length === deckQuestions.length &&
-    (claimedAmount === 0 || claimableAmount > 0);
+  const progressPercentage =
+    totalQuestions && answeredQuestions
+      ? (answeredQuestions / totalQuestions) * 100
+      : 0;
 
   const linkPath = getDeckPath(deckId);
 
@@ -169,84 +111,108 @@ const StackDeckCard = ({
           if (!userId) setIsLoginModalOpen(true);
         }}
         href={linkPath}
-        className={cn(
-          "p-4 bg-gray-800 border-[0.5px] border-gray-700 rounded-[8px] flex flex-col gap-2",
-          {
-            "cursor-pointer":
-              buttonText === "Claim your reward" ||
-              buttonText === "Reveal results" ||
-              !userId,
-          },
-        )}
+        className="bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 h-full cursor-pointer"
       >
-        <div className="flex gap-4">
-          <div className="w-[77px] h-[87px] flex-shrink-0 relative">
+        <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center relative">
+          {!(answeredQuestions === totalQuestions) && !isDeckReadyToReveal && (
+            <div
+              className="absolute top-0 left-0 h-full bg-green opacity-35 z-0 rounded-l-2xl"
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          )}
+          <div className="w-[59px] h-[60px] bg-purple-500 rounded-xl flex-shrink-0 relative p-1">
             {imageUrl ? (
               <>
                 <CardsIcon className="absolute top-0 left-0 w-full h-full" />
                 <Image
                   src={imageUrl}
                   alt="logo"
-                  width={38}
-                  height={38}
-                  className="z-10 absolute w-9 h-9 rounded-full top-1/2 left-1/2 translate-x-[-50%] -translate-y-1/2 object-cover"
+                  width={36}
+                  height={36}
+                  className="z-10 absolute w-8 h-8 rounded-full top-1/2 left-1/2 translate-x-[-50%] -translate-y-1/2 object-cover"
                 />
               </>
             ) : (
               <DeckGraphic className="w-full h-full" />
             )}
           </div>
-          <div className="flex flex-col justify-between flex-1">
-            <p className="text-[14px] leading-[18.9px] text-purple-100 font-bold">
-              {deckName}
-            </p>
-
-            <div className="flex justify-between">
-              <div className="flex items-center gap-1">
-                {icon}
-                <p className={textClass}>{timeLabel}</p>
-              </div>
-              {!!buttonText && (
-                <div className="flex items-center gap-1">
-                  <p
-                    className={cn("text-xs text-nowrap", {
-                      "text-gray-400":
-                        chompResults.length === deckQuestions.length &&
-                        claimedAmount === 0,
-                    })}
-                  >
-                    {buttonText}
-                  </p>
-
-                  {buttonIconVisible && (
-                    <ArrowRightCircle width={16} height={16} />
-                  )}
-                  {giftIconVisible && (
-                    <GiftIcon
-                      fill={
-                        (answeredQuestionsInPercentage === 0 ||
-                          chompResults.length === deckQuestions.length) &&
-                        (claimableAmount === 0 || claimedAmount === 0)
-                          ? "#999"
-                          : "#fff"
-                      }
-                    />
-                  )}
-                </div>
-              )}
-            </div>
+          <div className="text-white font-semibold text-base line-clamp-2 z-10">
+            {deckName}
           </div>
         </div>
-        {answeredQuestionsInPercentage > 0 &&
-          answeredQuestionsInPercentage < 100 &&
-          !isDeckReadyToReveal && (
-            <div className="w-full h-2 bg-gray-700 rounded-[8px] overflow-hidden relative">
-              <div
-                className="absolute top-0 left-0 h-full bg-purple-500"
-                style={{ width: `${answeredQuestionsInPercentage}%` }}
-              />
+        <div className="flex items-center justify-between">
+          {deckCreditCost === 0 ? (
+            <div className="flex items-center gap-2">
+              {answeredQuestions === totalQuestions ? (
+                isDeckReadyToReveal ? (
+                  <div className="flex bg-[#6C633A] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-white">
+                    <TrophyIcon width={16} height={16} />
+                    <b>No Rewards</b>
+                  </div>
+                ) : (
+                  <div className="flex bg-[#EDE1AB] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                    <Clock3Icon width={16} height={16} />
+                    <b>Reveals in {getTimeUntilReveal(revealAtDate, true)}</b>
+                  </div>
+                )
+              ) : isDeckReadyToReveal ? (
+                <div className="flex bg-[#6C633A] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-white">
+                  <TrophyIcon width={16} height={16} />
+                  <b>No Rewards</b>
+                </div>
+              ) : (
+                <>
+                  <div className="flex bg-[#EDE1AB] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                    <TrophyIcon width={16} height={16} />
+                    <b>No Rewards</b>
+                  </div>
+                  <div className="flex bg-[#EDE1AB] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                    <CoinsIcon width={18} height={18} stroke="#000000" />
+                    <b>Free</b>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              {answeredQuestions === totalQuestions ? (
+                isDeckReadyToReveal ? (
+                  <div className="flex bg-[#426D64] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-white">
+                    <TrophyStarMarkIcon width={16} height={16} />
+                    <b>{formatNumber(deckRewardAmount!)} BONK</b>
+                    <b className="text-white/50">Rewarded</b>
+                  </div>
+                ) : (
+                  <div className="flex bg-chomp-blue-light justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                    <Clock3Icon width={16} height={16} />
+                    <b>Reveals in {getTimeUntilReveal(revealAtDate, true)}</b>
+                  </div>
+                )
+              ) : isDeckReadyToReveal ? (
+                <div className="flex bg-[#426D64] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-white">
+                  <TrophyStarMarkIcon width={16} height={16} />
+                  <b>0 BONK</b>
+                  <b className="text-white/50">Rewarded</b>
+                </div>
+              ) : (
+                <>
+                  <div className="flex bg-chomp-blue-light justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                    <TrophyQuestionMarkIcon width={16} height={16} />
+                    <b className="text-black/50">Up to</b>
+                    <b>{formatNumber(deckRewardAmount!)} BONK</b>
+                  </div>
+                  <div className="flex bg-chomp-blue-light justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                    <CoinsIcon width={18} height={18} stroke="#000000" />
+                    <b>{deckCreditCost}</b>
+                  </div>
+                </>
+              )}
             </div>
           )}
+          <div className="bg-gray-800 p-3 leading-6 rounded-full">
+            {getButtonText(revealAtDate, answeredQuestions, totalQuestions)}
+          </div>
+        </div>
       </Wrapper>
     </>
   );

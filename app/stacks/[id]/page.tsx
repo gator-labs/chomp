@@ -62,40 +62,42 @@ const StackPage = async ({ params: { id } }: PageProps) => {
         <p className="text-sm">Decks</p>
       </div>
       <ul className="flex flex-col gap-2 px-4 overflow-auto">
-        {stack.deck.map((deck) => (
-          <StackDeckCard
-            key={deck.id}
-            deckId={deck.id}
-            chompResults={deck.deckQuestions.flatMap((dq) =>
-              dq.question.chompResults.map((cr) => ({
-                ...cr,
-                question: dq.question,
-              })),
-            )}
-            deckQuestions={deck.deckQuestions.map((dq) => ({
-              ...dq.question,
-              chompResults: undefined,
-            }))}
-            deckName={deck.deck}
-            imageUrl={deck.imageUrl ? deck.imageUrl : stack.image}
-            revealAtDate={deck.revealAtDate!}
-            numberOfQuestionsOptions={
-              deck.deckQuestions.flatMap((dq) => dq.question.questionOptions)
-                .length
-            }
-            numberOfUserQuestionsAnswers={
-              deck.deckQuestions
-                .flatMap((dq) =>
-                  dq.question.questionOptions.flatMap(
-                    (qo) => qo.questionAnswers,
-                  ),
-                )
-                .filter((qa) => qa.userId === user?.id).length
-            }
-            activeFromDate={deck.activeFromDate || deck.createdAt}
-            userId={user?.id}
-          />
-        ))}
+        {stack.deck.map((deck) => {
+          const totalCreditCost = deck.deckQuestions.reduce((total, dq) => {
+            return total + (dq.question.creditCostPerQuestion || 0);
+          }, 0);
+
+          const totalRewardAmount = deck.deckQuestions.reduce((total, dq) => {
+            return total + (dq.question.revealTokenAmount || 0);
+          }, 0);
+
+          return (
+            <StackDeckCard
+              key={deck.id}
+              deckId={deck.id}
+              deckName={deck.deck}
+              imageUrl={deck.imageUrl ? deck.imageUrl : stack.image}
+              revealAtDate={deck.revealAtDate!}
+              userId={user?.id}
+              deckCreditCost={totalCreditCost}
+              deckRewardAmount={totalRewardAmount}
+              answeredQuestions={
+                deck.deckQuestions
+                  .flatMap((dq) =>
+                    dq.question.questionOptions.flatMap(
+                      (qo) => qo.questionAnswers,
+                    ),
+                  )
+                  .filter(
+                    (qa) =>
+                      qa.userId === user?.id &&
+                      (qa.status === "Submitted" || qa.status === "Viewed"),
+                  ).length / 2
+              }
+              totalQuestions={deck.deckQuestions.length}
+            />
+          );
+        })}
       </ul>
     </div>
   );
