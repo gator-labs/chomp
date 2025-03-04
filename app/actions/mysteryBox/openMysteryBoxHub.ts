@@ -220,7 +220,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
           await tx.mysteryBox.updateMany({
             where: {
               id: {
-                in: mysteryBoxIds,
+                in: rewards.map((r) => r.id),
               },
               userId: userId,
             },
@@ -268,6 +268,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     Sentry.captureException(openMysteryBoxHubError, {
       extra: {
         mysteryBoxIds,
+        rewardsMbIdList: rewards.map((r) => r.id),
         userId: payload.sub,
         walletAddress: userWallet.address,
         prizesIds: allPrizes.map((prize) => prize.id),
