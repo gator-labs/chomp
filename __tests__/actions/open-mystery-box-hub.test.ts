@@ -130,12 +130,6 @@ describe("openMysteryBoxHub", () => {
   });
 
   afterAll(async () => {
-    await prisma.wallet.deleteMany({
-      where: {
-        userId: user.id,
-      },
-    });
-
     const mysteryBox = await prisma.mysteryBox.findMany({
       where: {
         id: {
@@ -144,6 +138,14 @@ describe("openMysteryBoxHub", () => {
       },
       include: {
         triggers: true,
+      },
+    });
+
+    await prisma.fungibleAssetTransactionLog.deleteMany({
+      where: {
+        userId: {
+          in: [user.id, user1.id],
+        },
       },
     });
 
@@ -173,11 +175,9 @@ describe("openMysteryBoxHub", () => {
       },
     });
 
-    await prisma.fungibleAssetTransactionLog.deleteMany({
+    await prisma.wallet.deleteMany({
       where: {
-        userId: {
-          in: [user.id, user1.id],
-        },
+        userId: user.id,
       },
     });
 
