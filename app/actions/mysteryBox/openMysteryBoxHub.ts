@@ -199,7 +199,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         await tx.mysteryBox.updateMany({
           where: {
             id: {
-              in: mysteryBoxIds,
+              in: rewards.map((r) => r.id),
             },
             userId: userId,
           },
