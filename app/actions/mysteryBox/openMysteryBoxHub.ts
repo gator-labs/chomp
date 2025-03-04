@@ -131,94 +131,90 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         throw new Error("Send bonk transaction failed");
       }
     }
-    console.log("1");
-    await pRetry(
-      async () => {
-        await prisma.$transaction(
-          async (tx) => {
-            const date = new Date();
 
-            await tx.fungibleAssetTransactionLog.createMany({
-              data: creditPrizes.map((prize) => ({
-                type: TransactionLogType.MysteryBox,
-                asset: FungibleAsset.Credit,
-                change: prize.amount.toString(),
-                userId: payload.sub,
-                mysteryBoxPrizeId: prize.id,
-              })),
-            });
+    await prisma.$transaction(
+      async (tx) => {
+        const date = new Date();
 
-            if (txHash) {
-              const treasury = await getTreasuryAddress();
+        // Step 1: Create fungible asset transaction logs
+        await tx.fungibleAssetTransactionLog.createMany({
+          data: creditPrizes.map((prize) => ({
+            type: TransactionLogType.MysteryBox,
+            asset: FungibleAsset.Credit,
+            change: prize.amount.toString(),
+            userId: payload.sub,
+            mysteryBoxPrizeId: prize.id,
+          })),
+        });
 
-              if (!treasury) throw new Error("Treasury address not defined");
+        // Step 2: Create chain transaction if txHash is provided
+        if (txHash) {
+          const treasury = await getTreasuryAddress();
 
-              await tx.chainTx.create({
-                data: {
-                  hash: txHash,
-                  wallet: treasury,
-                  recipientAddress: userWallet.address,
-                  type: EChainTxType.MysteryBoxClaim,
-                  status: EChainTxStatus.Finalized,
-                  solAmount: "0",
-                  tokenAmount: totalBonkAmount.toString(),
-                  tokenAddress: bonkAddress,
-                  finalizedAt: date,
-                },
-              });
-            }
+          if (!treasury) {
+            throw new Error("Treasury address not defined");
+          }
 
-            await tx.mysteryBoxPrize.updateMany({
-              where: {
-                id: {
-                  in: tokenPrizes.map((item) => item.id),
-                },
-              },
-              data: {
-                status: EBoxPrizeStatus.Claimed,
-                claimHash: txHash,
-                claimedAt: date,
-              },
-            });
+          await tx.chainTx.create({
+            data: {
+              hash: txHash,
+              wallet: treasury,
+              recipientAddress: userWallet.address,
+              type: EChainTxType.MysteryBoxClaim,
+              status: EChainTxStatus.Finalized,
+              solAmount: "0",
+              tokenAmount: totalBonkAmount.toString(),
+              tokenAddress: bonkAddress,
+              finalizedAt: date,
+            },
+          });
+        }
 
-            await tx.mysteryBoxPrize.updateMany({
-              where: {
-                id: {
-                  in: creditPrizes.map((item) => item.id),
-                },
-              },
-              data: {
-                status: EBoxPrizeStatus.Claimed,
-                claimedAt: date,
-              },
-            });
-
-            await tx.mysteryBox.updateMany({
-              where: {
-                id: {
-                  in: mysteryBoxIds,
-                },
-                userId: userId,
-              },
-              data: {
-                status: EMysteryBoxStatus.Opened,
-              },
-            });
+        // Step 3: Update mystery box prizes for token prizes
+        await tx.mysteryBoxPrize.updateMany({
+          where: {
+            id: {
+              in: tokenPrizes.map((item) => item.id),
+            },
           },
-          {
-            isolationLevel: "Serializable",
-            timeout: ONE_MINUTE_IN_MILLISECONDS,
+          data: {
+            status: EBoxPrizeStatus.Claimed,
+            claimHash: txHash,
+            claimedAt: date,
           },
-        );
+        });
+
+        // Step 4: Update mystery box prizes for credit prizes
+        await tx.mysteryBoxPrize.updateMany({
+          where: {
+            id: {
+              in: creditPrizes.map((item) => item.id),
+            },
+          },
+          data: {
+            status: EBoxPrizeStatus.Claimed,
+            claimedAt: date,
+          },
+        });
+
+        await tx.mysteryBox.updateMany({
+          where: {
+            id: {
+              in: mysteryBoxIds,
+            },
+            userId: userId,
+          },
+          data: {
+            status: EMysteryBoxStatus.Opened,
+          },
+        });
       },
       {
-        retries: 2,
+        isolationLevel: "Serializable",
+        timeout: ONE_MINUTE_IN_MILLISECONDS,
       },
     );
-
-    console.log("2");
   } catch (e) {
-    console.log("3", e);
     await pRetry(
       async () => {
         await prisma.$transaction(
@@ -255,8 +251,6 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         retries: 2,
       },
     );
-
-    console.log("4");
 
     const openMysteryBoxHubError = new OpenMysteryBoxHubError(
       `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
