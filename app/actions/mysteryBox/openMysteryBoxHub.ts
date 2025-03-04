@@ -13,7 +13,6 @@ import {
   TransactionLogType,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import pRetry from "p-retry";
 
 import { SENTRY_FLUSH_WAIT } from "../../constants/sentry";
 import prisma from "../../services/prisma";
@@ -215,43 +214,53 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       },
     );
   } catch (e) {
-    await pRetry(
-      async () => {
-        await prisma.$transaction(
-          async (tx) => {
-            await tx.mysteryBox.updateMany({
-              where: {
-                id: {
-                  in: mysteryBoxIds,
-                },
+    try {
+      await prisma.$transaction(
+        async (tx) => {
+          await tx.mysteryBox.updateMany({
+            where: {
+              id: {
+                in: mysteryBoxIds,
               },
-              data: {
-                status: EMysteryBoxStatus.Unopened,
-              },
-            });
+              userId: userId,
+            },
+            data: {
+              status: EMysteryBoxStatus.Unopened,
+            },
+          });
 
-            await tx.mysteryBoxPrize.updateMany({
-              where: {
-                id: {
-                  in: allPrizes.map((prize) => prize.id),
-                },
+          await tx.mysteryBoxPrize.updateMany({
+            where: {
+              id: {
+                in: allPrizes.map((prize) => prize.id),
               },
-              data: {
-                status: EBoxPrizeStatus.Unclaimed,
-              },
-            });
-          },
-          {
-            isolationLevel: "Serializable",
-            timeout: ONE_MINUTE_IN_MILLISECONDS,
-          },
-        );
-      },
-      {
-        retries: 2,
-      },
-    );
-
+            },
+            data: {
+              status: EBoxPrizeStatus.Unclaimed,
+            },
+          });
+        },
+        {
+          isolationLevel: "Serializable",
+          timeout: ONE_MINUTE_IN_MILLISECONDS,
+        },
+      );
+    } catch (error) {
+      const openMysteryBoxHubError = new OpenMysteryBoxHubError(
+        `Trouble rolling back data with User id: ${payload.sub} (wallet: ${userWallet.address}) for Mystery Boxes: ${mysteryBoxIds}`,
+        { cause: error },
+      );
+      Sentry.captureException(openMysteryBoxHubError, {
+        extra: {
+          mysteryBoxIds,
+          userId: payload.sub,
+          walletAddress: userWallet.address,
+          prizesIds: allPrizes.map((prize) => prize.id),
+          txHash: txHash,
+          error,
+        },
+      });
+    }
     const openMysteryBoxHubError = new OpenMysteryBoxHubError(
       `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
       { cause: e },
