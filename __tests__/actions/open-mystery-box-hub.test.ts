@@ -9,18 +9,11 @@ import {
   EBoxTriggerType,
   EPrizeSize,
 } from "@prisma/client";
-import { expect } from "@storybook/test";
 
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
-}));
-jest.mock("next/navigation", () => ({
-  redirect: jest.fn(),
-}));
-jest.mock("next/cache", () => ({
-  revalidatePath: jest.fn(),
 }));
 
 describe("openMysteryBoxHub", () => {
