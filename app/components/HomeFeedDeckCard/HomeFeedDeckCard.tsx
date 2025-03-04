@@ -1,11 +1,12 @@
 "use client";
 
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
+import { getTimeUntilReveal } from "@/app/utils/history";
 import { formatNumber } from "@/app/utils/number";
 import trackEvent from "@/lib/trackEvent";
 import { ANSWER_PATH, getDeckPath } from "@/lib/urls";
 import classNames from "classnames";
-import { BadgeDollarSignIcon } from "lucide-react";
+import { TrophyIcon } from "lucide-react";
 import Image from "next/image";
 
 import { DeckGraphic } from "../Graphics/DeckGraphic";
@@ -26,9 +27,15 @@ type HomeFeedDeckCardProps = {
   deckId: number;
   deckCreditCost?: number;
   deckRewardAmount?: number;
+  totalQuestions?: number;
+  completedQuestions?: number;
 };
 
-const getStatusText = (status: StatusUnion) => {
+const getStatusText = (
+  status: StatusUnion,
+  revealAtDate: Date | null | undefined,
+  completedQuestions: number | undefined,
+) => {
   switch (status) {
     case "chomped":
       return "Chomped";
@@ -39,7 +46,16 @@ const getStatusText = (status: StatusUnion) => {
     case "start":
       return (
         <div className="flex items-center justify-center gap-1 text-xs">
-          <p>Start</p>
+          {completedQuestions && completedQuestions > 0 ? (
+            <p>Continue</p>
+          ) : (
+            <>
+              <p>Start</p>
+              <p className="text-gray-400">
+                {revealAtDate && getTimeUntilReveal(revealAtDate, true)}
+              </p>
+            </>
+          )}
           <ArrowRightCircle width={18} height={18} />
         </div>
       );
@@ -59,9 +75,16 @@ export function HomeFeedDeckCard({
   deckId,
   deckCreditCost,
   deckRewardAmount,
+  totalQuestions,
+  completedQuestions,
 }: HomeFeedDeckCardProps) {
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
+
+  const progressPercentage =
+    totalQuestions && completedQuestions
+      ? (completedQuestions / totalQuestions) * 100
+      : 0;
   return (
     <a
       href={date ? ANSWER_PATH : getDeckPath(deckId)}
@@ -74,7 +97,11 @@ export function HomeFeedDeckCard({
       }}
       className="bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 cursor-pointer h-full"
     >
-      <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center">
+      <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center relative">
+        <div
+          className="absolute top-0 left-0 h-full bg-green opacity-35 z-0 rounded-l-2xl"
+          style={{ width: `${progressPercentage}%` }}
+        ></div>
         <div className="w-[59px] h-[60px] bg-purple-500 rounded-xl flex-shrink-0 relative p-1">
           {imageUrl ? (
             <>
@@ -91,47 +118,36 @@ export function HomeFeedDeckCard({
             <DeckGraphic className="w-full h-full" />
           )}
         </div>
-        <div className="text-white font-semibold text-base line-clamp-2">
+        <div className="text-white font-semibold text-base line-clamp-2 z-10">
           {deck}
         </div>
       </div>
       <div className="flex items-center justify-between">
         {CREDIT_COST_FEATURE_FLAG && deckCreditCost != null ? (
-          <div
-            className={classNames(
-              "flex flex-row justify-center items-center rounded-2xl p-2 gap-2 font-medium text-xs",
-              {
-                "bg-[#D0CBB4]": deckCreditCost === 0,
-                "bg-chomp-blue-light": deckCreditCost > 0,
-              },
-            )}
-          >
-            {deckCreditCost === 0 ? (
-              <>
-                <span className="flex bg-black/30 rounded-xl items-center py-1.5 px-2 gap-1">
-                  <BadgeDollarSignIcon width={18} height={18} />
-                  <p>No Rewards</p>
-                </span>
-                <span className="flex bg-black/30 rounded-xl items-center py-1.5 px-2 gap-1">
-                  <CoinsIcon width={18} height={18} />
-                  <p>Free</p>
-                </span>
-              </>
-            ) : (
-              <>
-                <span className="flex bg-black/30 rounded-xl items-center py-1.5 px-2 gap-1">
-                  <BadgeDollarSignIcon width={18} height={18} />
-                  <p>{formatNumber(deckRewardAmount!)} BONK</p>
-                </span>
-                <span className="flex bg-black/30 rounded-xl items-center py-1.5 px-2 gap-1">
-                  <CoinsIcon width={18} height={18} />
-                  <p>
-                    {deckCreditCost} Credit{deckCreditCost !== 1 ? "s" : ""}
-                  </p>
-                </span>
-              </>
-            )}
-          </div>
+          deckCreditCost === 0 ? (
+            <div className="flex items-center gap-2">
+              <div className="flex bg-[#EDE1AB] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                <TrophyIcon width={16} height={16} />
+                <b>No Rewards</b>
+              </div>
+              <div className="flex bg-[#EDE1AB] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                <CoinsIcon width={18} height={18} stroke="#000000" />
+                <b>Free</b>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="flex bg-chomp-blue-light justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                <TrophyIcon width={16} height={16} />
+                <b className="text-black/50">Up to</b>
+                <b>{formatNumber(deckRewardAmount!)} BONK</b>
+              </div>
+              <div className="flex bg-chomp-blue-light justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-black">
+                <CoinsIcon width={18} height={18} stroke="#000000" />
+                <b>{deckCreditCost}</b>
+              </div>
+            </div>
+          )
         ) : (
           <RevealCardInfo
             answerCount={answerCount}
@@ -140,13 +156,13 @@ export function HomeFeedDeckCard({
           />
         )}
         <div
-          className={classNames("bg-gray-800 p-[14px] leading-6 rounded-2xl", {
+          className={classNames("bg-gray-800 p-3 leading-6 rounded-full", {
             "text-aqua": status && ["chomped", "continue"].includes(status),
             "text-gray": status === "new",
             underline: status === "continue",
           })}
         >
-          {status && getStatusText(status)}
+          {status && getStatusText(status, revealAtDate, completedQuestions)}
         </div>
       </div>
     </a>

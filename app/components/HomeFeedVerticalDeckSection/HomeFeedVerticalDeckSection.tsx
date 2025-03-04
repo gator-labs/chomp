@@ -5,7 +5,7 @@ import { HomeFeedVerticalCarousel } from "../HomeFeedVerticalCarousel/HomeFeedVe
 async function HomeFeedVerticalDeckSection() {
   return (
     <HomeFeedVerticalCarousel
-      className="mt-8  px-4"
+      className="mt-8 px-4"
       title={<span className="text-lg">Share Opinions</span>}
     />
   );
