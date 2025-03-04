@@ -255,7 +255,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
           userId: payload.sub,
           walletAddress: userWallet.address,
           prizesIds: allPrizes.map((prize) => prize.id),
-          txHash: txHash,
+          txHash,
           error,
         },
       });
@@ -271,7 +271,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         userId: payload.sub,
         walletAddress: userWallet.address,
         prizesIds: allPrizes.map((prize) => prize.id),
-        txHash: txHash,
+        txHash,
         error: e,
       },
     });
