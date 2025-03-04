@@ -20,23 +20,23 @@ export function QuestionIncorrectIcon({
       <path
         d="M12 19.1667C15.6819 19.1667 18.6667 16.1819 18.6667 12.5C18.6667 8.81814 15.6819 5.83337 12 5.83337C8.3181 5.83337 5.33333 8.81814 5.33333 12.5C5.33333 16.1819 8.3181 19.1667 12 19.1667Z"
         stroke="black"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M14 10.5L10 14.5"
         stroke="black"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M10 10.5L14 14.5"
         stroke="black"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

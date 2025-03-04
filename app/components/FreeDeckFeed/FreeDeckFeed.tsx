@@ -25,9 +25,14 @@ function FreeDeckFeed() {
   });
 
   const formattedData = useMemo(() => {
-    return data?.pages.reduce((acc, page) => {
+    // Sanity check for null data and pages
+    if (!data?.pages || !Array.isArray(data.pages)) return [];
+
+    return data.pages.reduce((acc, page) => {
+      // Type check for page
+      if (!Array.isArray(page)) return acc;
       return [...acc, ...page];
-    }, []);
+    }, [] as any[]);
   }, [data]);
 
   if (

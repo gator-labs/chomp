@@ -20,16 +20,16 @@ export function QuestionUnansweredIcon({
       <path
         d="M5.37468 12.732C5.31912 12.5823 5.31912 12.4177 5.37468 12.268C5.91581 10.9559 6.83435 9.83402 8.01386 9.0446C9.19336 8.25517 10.5807 7.83374 12 7.83374C13.4193 7.83374 14.8067 8.25517 15.9862 9.0446C17.1657 9.83402 18.0842 10.9559 18.6253 12.268C18.6809 12.4177 18.6809 12.5823 18.6253 12.732C18.0842 14.0441 17.1657 15.166 15.9862 15.9554C14.8067 16.7448 13.4193 17.1663 12 17.1663C10.5807 17.1663 9.19336 16.7448 8.01386 15.9554C6.83435 15.166 5.91581 14.0441 5.37468 12.732Z"
         stroke="white"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M12 14.5C13.1046 14.5 14 13.6046 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5Z"
         stroke="white"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
