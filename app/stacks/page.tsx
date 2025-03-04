@@ -15,7 +15,6 @@ const StacksPage = async () => {
         <StackCard
           imageSrc={"/images/chompy.png"}
           decksToAnswer={dailyDecks.decksToAnswer?.length}
-          decksToReveal={dailyDecks.decksToReveal?.length}
           name="Daily Decks"
           id="daily-deck"
           numberOfDecks={dailyDecks.decks.length}
@@ -25,7 +24,6 @@ const StacksPage = async () => {
             key={stack.id}
             imageSrc={stack.image}
             decksToAnswer={stack.decksToAnswer?.length}
-            decksToReveal={stack.decksToReveal?.length}
             name={stack.name}
             id={stack.id}
             numberOfDecks={stack.decks.length}
