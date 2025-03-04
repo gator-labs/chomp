@@ -121,9 +121,8 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
   );
 
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS || "";
-  const txHash: string | null = null;
+  let txHash: string | null = null;
   try {
-    let txHash = null;
     if (totalBonkAmount > 0) {
       txHash = await sendBonkFromTreasury(totalBonkAmount, userWallet.address);
       if (!txHash) {
