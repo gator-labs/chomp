@@ -1,6 +1,7 @@
 import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQuestion";
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxHubReward } from "@/app/utils/algo";
+import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
 import {
   EBoxPrizeStatus,
   EBoxTriggerType,
@@ -28,6 +29,7 @@ export const createValidationMysteryBox = async (userId: string) => {
       },
       MysteryBox: {
         status: { in: [EMysteryBoxStatus.New, EMysteryBoxStatus.Unopened] },
+        userId: userId,
       },
     },
   });
@@ -52,27 +54,32 @@ export const createValidationMysteryBox = async (userId: string) => {
     return null;
   }
 
-  const newMysteryBoxId = await prisma.$transaction(async (tx) => {
-    const mb = await tx.mysteryBox.create({
-      data: {
-        userId: userId,
-      },
-    });
-
-    for (const reward of rewards) {
-      await tx.mysteryBoxTrigger.create({
+  const newMysteryBoxId = await prisma.$transaction(
+    async (tx) => {
+      const mb = await tx.mysteryBox.create({
         data: {
-          questionId: reward.questionId,
-          triggerType: EBoxTriggerType.ValidationReward,
-          mysteryBoxId: mb.id,
-          MysteryBoxPrize: {
-            createMany: { data: getPrizePerTrigger(reward) },
-          },
+          userId: userId,
         },
       });
-    }
-    return mb.id;
-  });
+
+      for (const reward of rewards) {
+        await tx.mysteryBoxTrigger.create({
+          data: {
+            questionId: reward.questionId,
+            triggerType: EBoxTriggerType.ValidationReward,
+            mysteryBoxId: mb.id,
+            MysteryBoxPrize: {
+              createMany: { data: getPrizePerTrigger(reward) },
+            },
+          },
+        });
+      }
+      return mb.id;
+    },
+    {
+      timeout: ONE_MINUTE_IN_MILLISECONDS,
+    },
+  );
 
   return [...existingMysteryBoxIds, newMysteryBoxId];
 };
