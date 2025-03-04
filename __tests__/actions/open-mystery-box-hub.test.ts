@@ -197,7 +197,7 @@ describe("openMysteryBoxHub", () => {
     });
   });
 
-  it("should create a validation mystery box", async () => {
+  it("should open a mystery box and return the box reward", async () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: user.id,
     });
