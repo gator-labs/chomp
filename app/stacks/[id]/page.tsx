@@ -63,14 +63,6 @@ const StackPage = async ({ params: { id } }: PageProps) => {
       </div>
       <ul className="flex flex-col gap-2 px-4 overflow-auto">
         {stack.deck.map((deck) => {
-          const totalCreditCost = deck.deckQuestions.reduce((total, dq) => {
-            return total + (dq.question.creditCostPerQuestion || 0);
-          }, 0);
-
-          const totalRewardAmount = deck.deckQuestions.reduce((total, dq) => {
-            return total + (dq.question.revealTokenAmount || 0);
-          }, 0);
-
           return (
             <StackDeckCard
               key={deck.id}
@@ -79,8 +71,8 @@ const StackPage = async ({ params: { id } }: PageProps) => {
               imageUrl={deck.imageUrl ? deck.imageUrl : stack.image}
               revealAtDate={deck.revealAtDate!}
               userId={user?.id}
-              deckCreditCost={totalCreditCost}
-              deckRewardAmount={totalRewardAmount}
+              deckCreditCost={deck.totalCreditCost}
+              deckRewardAmount={deck.totalRewardAmount}
               answeredQuestions={
                 deck.deckQuestions
                   .flatMap((dq) =>

@@ -58,6 +58,8 @@ export async function getStack(id: number) {
                       questionAnswers: {
                         where: {
                           userId:
+                            // If user isn't logged in, match against a non-existent user
+                            // to avoid pulling records for ALL users.
                             userId ?? "00000000-0000-0000-0000-000000000000",
                         },
                       },
