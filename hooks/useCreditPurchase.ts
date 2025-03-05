@@ -6,9 +6,12 @@ import { useState } from "react";
 
 export function useCreditPurchase() {
   const [isProcessingTx, setIsProcessingTx] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
   const { primaryWallet } = useDynamicContext();
 
   const processCreditPurchase = async (creditsToBuy: number) => {
+    setTxHash(null);
+
     if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
       return {
         error: "Please connect your Solana wallet",
@@ -32,6 +35,7 @@ export function useCreditPurchase() {
         };
       }
 
+      setTxHash(data?.signature ?? null);
       setIsProcessingTx(true);
 
       // Step 2: Submit transaction on-chain and handle confirmation
@@ -43,6 +47,7 @@ export function useCreditPurchase() {
 
       if (result?.error) {
         return {
+          txHash: data?.signature,
           error: result.error,
         };
       }
@@ -53,8 +58,14 @@ export function useCreditPurchase() {
     }
   };
 
+  const abortCreditPurchase = () => {
+    setIsProcessingTx(false);
+  };
+
   return {
     isProcessingTx,
+    txHash,
     processCreditPurchase,
+    abortCreditPurchase,
   };
 }

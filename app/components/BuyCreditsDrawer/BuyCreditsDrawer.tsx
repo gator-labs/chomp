@@ -15,6 +15,7 @@ import Decimal from "decimal.js";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 import ChompFullScreenLoader from "../ChompFullScreenLoader/ChompFullScreenLoader";
@@ -36,12 +37,15 @@ function BuyCreditsDrawer({
   creditsToBuy,
 }: BuyCreditsDrawerProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(solPricePerCredit!).mul(creditsToBuy);
 
   const router = useRouter();
 
-  const { isProcessingTx, processCreditPurchase } = useCreditPurchase();
+  const { isProcessingTx, processCreditPurchase, abortCreditPurchase, txHash } =
+    useCreditPurchase();
   const { primaryWallet } = useDynamicContext();
 
   const { tokenBalances } = useTokenBalances({
@@ -60,6 +64,13 @@ function BuyCreditsDrawer({
 
   const buyCredits = async () => {
     setIsLoading(true);
+    setIsTimedOut(false);
+
+    if (timer) {
+      clearTimeout(timer);
+      setTimer(null);
+    }
+
     try {
       const result = await processCreditPurchase(creditsToBuy);
 
@@ -96,6 +107,30 @@ function BuyCreditsDrawer({
     }
   };
 
+  useEffect(() => {
+    if (isProcessingTx) {
+      const t = setTimeout(() => {
+        setIsTimedOut(true);
+        abortCreditPurchase();
+        setIsLoading(false);
+      }, 10000);
+
+      setTimer(t);
+    } else {
+      if (timer !== null) {
+        clearTimeout(timer);
+        setTimer(null);
+      }
+    }
+
+    return () => {
+      if (timer !== null) {
+        clearTimeout(timer);
+        setTimer(null);
+      }
+    };
+  }, [isProcessingTx]);
+
   return (
     <>
       {isProcessingTx && (
@@ -108,6 +143,7 @@ function BuyCreditsDrawer({
         open={isOpen}
         onOpenChange={async (open: boolean) => {
           if (!open && !isProcessingTx) {
+            if (isTimedOut) setIsTimedOut(false);
             onClose();
           }
         }}
@@ -145,6 +181,25 @@ function BuyCreditsDrawer({
             {creditsToBuy} Credit{creditsToBuy !== 1 ? "s" : ""} ~{" "}
             {totalSolCost.toString()} SOL
           </span>
+          {isTimedOut && (
+            <div className="text-red-500 border border-red-500 p-2 rounded-sm text-sm flex flex-col gap-2">
+              <p>Timed out waiting for transaction confirmation.</p>
+
+              {txHash && (
+                <p>
+                  You can check if it went through on-chain{" "}
+                  <a
+                    href={`https://solana.fm/tx/${txHash}`}
+                    className="text-white underline"
+                    target="_blank"
+                  >
+                    here
+                  </a>{" "}
+                  or try again.
+                </p>
+              )}
+            </div>
+          )}
           <Button
             onClick={buyCredits}
             disabled={isProcessingTx || isLoading || hasInsufficientFunds}
