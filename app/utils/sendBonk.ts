@@ -53,7 +53,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
   );
 
   // Simulate the transaction to estimate fees
-  const dummyInstructions = [
+  const simulateTransactionInstructions = [
     createTransferInstruction(
       treasuryAssociatedAddress,
       receiverAssociatedAddress,
@@ -64,7 +64,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
 
   // If the receiver doesn't have an ATA, add one more instruction to create ATA
   if (!receiverAccountInfo) {
-    dummyInstructions.unshift(
+    simulateTransactionInstructions.unshift(
       createAssociatedTokenAccountInstruction(
         fromWallet.publicKey,
         receiverAssociatedAddress,
@@ -74,18 +74,20 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     );
   }
 
-  const dummyBlockhash = await CONNECTION.getLatestBlockhash("finalized");
-  const dummyMessage = new TransactionMessage({
+  const latestBlockhash = await CONNECTION.getLatestBlockhash("finalized");
+  const simulateTransactionMessage = new TransactionMessage({
     payerKey: fromWallet.publicKey,
-    recentBlockhash: dummyBlockhash.blockhash,
-    instructions: dummyInstructions,
+    recentBlockhash: latestBlockhash.blockhash,
+    instructions: simulateTransactionInstructions,
   }).compileToV0Message();
 
-  const dummyTransaction = new VersionedTransaction(dummyMessage);
-  dummyTransaction.sign([fromWallet]);
+  const simulateTransaction = new VersionedTransaction(
+    simulateTransactionMessage,
+  );
+  simulateTransaction.sign([fromWallet]);
 
   // Determine the priority fee to use
-  const priorityFee = await getRecentPrioritizationFees(dummyTransaction);
+  const priorityFee = await getRecentPrioritizationFees(simulateTransaction);
   const microLamports = Math.round(
     priorityFee?.result?.priorityFeeLevels?.high || HIGH_PRIORITY_FEE,
   );
