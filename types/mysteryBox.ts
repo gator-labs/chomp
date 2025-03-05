@@ -17,6 +17,7 @@ export enum MysteryBoxEventsType {
   CHOMPMAS = "Chompmas",
   TUTORIAL_COMPLETED = "TutorialCompleted",
   REVEAL_ALL_COMPLETED = "RevealAllCompleted",
+  WEEEK_1_Campaign = "Bis1",
 }
 
 export type MysteryBoxSkipAction = "Skip" | "Dismiss" | "Close";

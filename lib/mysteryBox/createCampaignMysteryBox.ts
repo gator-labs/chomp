@@ -42,7 +42,7 @@ export const createCampaignMysteryBox = async (
 
   // TODO: Switch to actual mechanism engine endpoint when ready.
   const calculatedReward = await calculateMysteryBoxReward(
-    MysteryBoxEventsType.CHOMPMAS,
+    MysteryBoxEventsType.WEEEK_1_Campaign,
   );
 
   const tokenAddress = getBonkAddress();
