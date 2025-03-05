@@ -23,6 +23,7 @@ import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
+import { sleep } from "./sleep";
 import { CONNECTION } from "./solana";
 
 export const sendBonk = async (toWallet: PublicKey, amount: number) => {
@@ -179,40 +180,51 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     return null;
   }
 
+  // Wait for 2 seconds to ensure the transaction is processed before confirming
+  await sleep(2000);
+
   try {
     await pRetry(
       async () => {
-        const currentBlockhash = await CONNECTION.getLatestBlockhash();
-        await CONNECTION.confirmTransaction(
-          {
-            signature,
-            ...currentBlockhash,
-          },
-          "confirmed",
+        // This is latest confirmation method: https://solana.com/docs/rpc/http/getsignaturestatuses
+        const status = await CONNECTION.getSignatureStatus(signature);
+
+        if (status?.value?.err) {
+          throw new Error(status.value.err.toString());
+        }
+
+        // If the transaction is confirmed or finalized, return signature
+        if (
+          status?.value?.confirmationStatus === "confirmed" ||
+          status?.value?.confirmationStatus === "finalized"
+        ) {
+          return signature;
+        }
+
+        throw new Error(
+          `Transaction failed to confirm with last status: ${status?.value?.confirmationStatus}`,
         );
       },
       {
         retries: 2,
+        onFailedAttempt: async () => {
+          // Wait for 2 seconds to ensure status is updated
+          await sleep(2000);
+        },
       },
     );
   } catch (error) {
-    // Determine the specific error type and create a descriptive error message
-    let errorType = "SEND_BONK_FAILED";
-    let errorDetails = error;
-
-    if (error instanceof TransactionFailedToConfirmError) {
-      errorType = "TRANSACTION_CONFIRMATION_FAILED";
-      errorDetails = error.cause;
-    } else {
-      error = new TransactionFailedError(`Send Bonk Transaction failed`, {
+    const transactionFailedToConfirm = new TransactionFailedToConfirmError(
+      `Send Bonk Transaction Confirmation failed`,
+      {
         cause: error,
-      });
-    }
+      },
+    );
 
-    Sentry.captureException(error, {
+    Sentry.captureException(transactionFailedToConfirm, {
       extra: {
-        errorPhase: errorType,
-        errorDetails: errorDetails,
+        errorPhase: "TRANSACTION_CONFIRMATION_FAILED",
+        errorDetails: error,
         userId: payload?.sub,
         walletAddress: toWallet.toBase58(),
         signature,
