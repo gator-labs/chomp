@@ -30,16 +30,23 @@ function MysteryBoxReward({
 }) {
   const [showBoxOverlay, setShowBoxOverlay] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [mystryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
 
-  const { promiseToast } = useToast();
+  const { promiseToast, infoToast } = useToast();
 
   const showTooltip = !!infoBody && !!infoTitle && !isActive;
 
   const rewardBoxHandler = async () => {
     if (!isActive) return;
+    if (isSubmitting) {
+      infoToast("Please wait while we are processing you reward!");
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
       const res = await promiseToast(
         rewardMysteryBoxHub({ type, campaignBoxId }),
         {
@@ -54,6 +61,7 @@ function MysteryBoxReward({
     } catch {
       console.log("Failed to open the Mystery Box. Please try again later. 😔");
     } finally {
+      setIsSubmitting(false);
       setShowBoxOverlay(true);
     }
   };
