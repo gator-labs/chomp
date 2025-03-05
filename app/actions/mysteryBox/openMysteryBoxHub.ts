@@ -13,7 +13,6 @@ import {
   TransactionLogType,
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
-import pRetry from "p-retry";
 
 import { SENTRY_FLUSH_WAIT } from "../../constants/sentry";
 import prisma from "../../services/prisma";
@@ -122,9 +121,8 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
   );
 
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS || "";
-
+  let txHash: string | null = null;
   try {
-    let txHash = null;
     if (totalBonkAmount > 0) {
       txHash = await sendBonkFromTreasury(totalBonkAmount, userWallet.address);
       if (!txHash) {
@@ -132,126 +130,136 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       }
     }
 
-    await pRetry(
-      async () => {
-        await prisma.$transaction(
-          async (tx) => {
-            const date = new Date();
+    await prisma.$transaction(
+      async (tx) => {
+        const date = new Date();
 
-            await tx.fungibleAssetTransactionLog.createMany({
-              data: creditPrizes.map((prize) => ({
-                type: TransactionLogType.MysteryBox,
-                asset: FungibleAsset.Credit,
-                change: prize.amount.toString(),
-                userId: payload.sub,
-                mysteryBoxPrizeId: prize.id,
-              })),
-            });
+        // Step 1: Create fungible asset transaction logs
+        await tx.fungibleAssetTransactionLog.createMany({
+          data: creditPrizes.map((prize) => ({
+            type: TransactionLogType.MysteryBox,
+            asset: FungibleAsset.Credit,
+            change: prize.amount.toString(),
+            userId: payload.sub,
+            mysteryBoxPrizeId: prize.id,
+          })),
+        });
 
-            if (txHash) {
-              const treasury = await getTreasuryAddress();
+        // Step 2: Create chain transaction if txHash is provided
+        if (txHash) {
+          const treasury = await getTreasuryAddress();
 
-              if (!treasury) throw new Error("Treasury address not defined");
+          if (!treasury) {
+            throw new Error("Treasury address not defined");
+          }
 
-              await tx.chainTx.create({
-                data: {
-                  hash: txHash,
-                  wallet: treasury,
-                  recipientAddress: userWallet.address,
-                  type: EChainTxType.MysteryBoxClaim,
-                  status: EChainTxStatus.Finalized,
-                  solAmount: "0",
-                  tokenAmount: totalBonkAmount.toString(),
-                  tokenAddress: bonkAddress,
-                  finalizedAt: date,
-                },
-              });
-            }
+          await tx.chainTx.create({
+            data: {
+              hash: txHash,
+              wallet: treasury,
+              recipientAddress: userWallet.address,
+              type: EChainTxType.MysteryBoxClaim,
+              status: EChainTxStatus.Finalized,
+              solAmount: "0",
+              tokenAmount: totalBonkAmount.toString(),
+              tokenAddress: bonkAddress,
+              finalizedAt: date,
+            },
+          });
+        }
 
-            await tx.mysteryBoxPrize.updateMany({
-              where: {
-                id: {
-                  in: tokenPrizes.map((item) => item.id),
-                },
-              },
-              data: {
-                status: EBoxPrizeStatus.Claimed,
-                claimHash: txHash,
-                claimedAt: date,
-              },
-            });
-
-            await tx.mysteryBoxPrize.updateMany({
-              where: {
-                id: {
-                  in: creditPrizes.map((item) => item.id),
-                },
-              },
-              data: {
-                status: EBoxPrizeStatus.Claimed,
-                claimedAt: date,
-              },
-            });
+        // Step 3: Update mystery box prizes for token prizes
+        await tx.mysteryBoxPrize.updateMany({
+          where: {
+            id: {
+              in: tokenPrizes.map((item) => item.id),
+            },
           },
-          {
-            isolationLevel: "Serializable",
-            timeout: ONE_MINUTE_IN_MILLISECONDS,
+          data: {
+            status: EBoxPrizeStatus.Claimed,
+            claimHash: txHash,
+            claimedAt: date,
           },
-        );
+        });
+
+        // Step 4: Update mystery box prizes for credit prizes
+        await tx.mysteryBoxPrize.updateMany({
+          where: {
+            id: {
+              in: creditPrizes.map((item) => item.id),
+            },
+          },
+          data: {
+            status: EBoxPrizeStatus.Claimed,
+            claimedAt: date,
+          },
+        });
+
+        await tx.mysteryBox.updateMany({
+          where: {
+            id: {
+              in: rewards.map((r) => r.id),
+            },
+            userId: userId,
+          },
+          data: {
+            status: EMysteryBoxStatus.Opened,
+          },
+        });
       },
       {
-        retries: 2,
+        isolationLevel: "Serializable",
+        timeout: ONE_MINUTE_IN_MILLISECONDS,
       },
     );
-
-    await prisma.mysteryBox.updateMany({
-      where: {
-        id: {
-          in: mysteryBoxIds,
-        },
-      },
-      data: {
-        status: EMysteryBoxStatus.Opened,
-      },
-    });
   } catch (e) {
-    await pRetry(
-      async () => {
-        await prisma.$transaction(
-          async (tx) => {
-            await tx.mysteryBox.updateMany({
-              where: {
-                id: {
-                  in: mysteryBoxIds,
-                },
+    try {
+      await prisma.$transaction(
+        async (tx) => {
+          await tx.mysteryBox.updateMany({
+            where: {
+              id: {
+                in: rewards.map((r) => r.id),
               },
-              data: {
-                status: EMysteryBoxStatus.Unopened,
-              },
-            });
+              userId: userId,
+            },
+            data: {
+              status: EMysteryBoxStatus.Unopened,
+            },
+          });
 
-            await tx.mysteryBoxPrize.updateMany({
-              where: {
-                id: {
-                  in: allPrizes.map((prize) => prize.id),
-                },
+          await tx.mysteryBoxPrize.updateMany({
+            where: {
+              id: {
+                in: allPrizes.map((prize) => prize.id),
               },
-              data: {
-                status: EBoxPrizeStatus.Unclaimed,
-              },
-            });
-          },
-          {
-            isolationLevel: "Serializable",
-            timeout: ONE_MINUTE_IN_MILLISECONDS,
-          },
-        );
-      },
-      {
-        retries: 2,
-      },
-    );
-
+            },
+            data: {
+              status: EBoxPrizeStatus.Unclaimed,
+            },
+          });
+        },
+        {
+          isolationLevel: "Serializable",
+          timeout: ONE_MINUTE_IN_MILLISECONDS,
+        },
+      );
+    } catch (error) {
+      const openMysteryBoxHubError = new OpenMysteryBoxHubError(
+        `Trouble rolling back data with User id: ${payload.sub} (wallet: ${userWallet.address}) for Mystery Boxes: ${mysteryBoxIds}`,
+        { cause: error },
+      );
+      Sentry.captureException(openMysteryBoxHubError, {
+        extra: {
+          mysteryBoxIds,
+          userId: payload.sub,
+          walletAddress: userWallet.address,
+          prizesIds: allPrizes.map((prize) => prize.id),
+          txHash,
+          error,
+        },
+      });
+    }
     const openMysteryBoxHubError = new OpenMysteryBoxHubError(
       `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
       { cause: e },
@@ -259,9 +267,11 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     Sentry.captureException(openMysteryBoxHubError, {
       extra: {
         mysteryBoxIds,
+        rewardsMbIdList: rewards.map((r) => r.id),
         userId: payload.sub,
         walletAddress: userWallet.address,
         prizesIds: allPrizes.map((prize) => prize.id),
+        txHash,
         error: e,
       },
     });

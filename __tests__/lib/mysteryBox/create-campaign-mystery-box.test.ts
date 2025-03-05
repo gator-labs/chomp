@@ -3,7 +3,7 @@ import { createCampaignMysteryBox } from "@/lib/mysteryBox/createCampaignMystery
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
 
-describe("rewardMysteryBoxHub", () => {
+describe("createCampaignMysteryBox", () => {
   let user: { id: string; username: string; wallet: string };
   let campaign: { id: string };
   let mysteryBoxId: string;
@@ -112,7 +112,7 @@ describe("rewardMysteryBoxHub", () => {
     });
   });
 
-  it("should create a validation mystery box", async () => {
+  it("should create a campaign mystery box", async () => {
     const res = await createCampaignMysteryBox(user.id, campaign.id);
 
     if (res) {
@@ -124,7 +124,7 @@ describe("rewardMysteryBoxHub", () => {
     expect(typeof res?.[0]).toBe("string");
   });
 
-  it("should retun an existing validation mystery box", async () => {
+  it("should retun an existing campaign mystery box", async () => {
     const res = await createCampaignMysteryBox(user.id, campaign.id);
 
     expect(Array.isArray(res)).toBe(true);

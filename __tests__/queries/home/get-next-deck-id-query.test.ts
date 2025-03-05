@@ -279,4 +279,68 @@ describe("getNextDeckIdQuery", () => {
     expect(previousDeck?.creditCostPerQuestion).toBeGreaterThan(0);
     expect(nextDeck?.creditCostPerQuestion).toBeGreaterThan(0);
   });
+
+  it("should handle expired decks gracefully and return a valid next deck", async () => {
+    // Mock the authGuard to resolve with a user ID
+    (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
+
+    // Create an expired deck
+    const expiredDeck = await prisma.deck.create({
+      data: {
+        deck: `Expired Deck ${new Date().getTime()}`,
+        revealAtDate: new Date(Date.now() - 24 * 60 * 60 * 1000), // Set to 24 hours ago
+        activeFromDate: new Date(Date.now() - 48 * 60 * 60 * 1000),
+        creditCostPerQuestion: 0,
+        deckQuestions: {
+          create: {
+            question: {
+              create: {
+                stackId: null,
+                question: "Expired Question",
+                type: QuestionType.BinaryQuestion,
+                revealTokenAmount: 10,
+                revealAtDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                durationMiliseconds: BigInt(60000),
+                creditCostPerQuestion: 0,
+                questionOptions: {
+                  create: [
+                    {
+                      option: "A",
+                      isCorrect: true,
+                      isLeft: false,
+                    },
+                    {
+                      option: "B",
+                      isCorrect: false,
+                      isLeft: false,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Add the expired deck ID to our cleanup list
+    deckIds.push(expiredDeck.id);
+
+    // Try to get the next deck ID for the expired deck
+    const nextDeckId = await getNextDeckId(expiredDeck.id, null);
+
+    // Verify we got a valid next deck ID
+    expect(nextDeckId).not.toBeUndefined();
+
+    // Verify the next deck exists and is not expired
+    const nextDeck = await prisma.deck.findUnique({
+      where: {
+        id: nextDeckId,
+      },
+    });
+
+    expect(nextDeck).not.toBeNull();
+    expect(nextDeck?.revealAtDate).toBeInstanceOf(Date);
+    expect(nextDeck?.revealAtDate!.getTime()).toBeGreaterThan(Date.now());
+  });
 });
