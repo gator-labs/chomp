@@ -36,11 +36,13 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
 
   const bonkMint = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
+  // Get the associated token address for the treasury wallet
   const treasuryAssociatedAddress = await getAssociatedTokenAddress(
     bonkMint,
     fromWallet.publicKey,
   );
 
+  // Get the associated token address for the receiver wallet
   const receiverAssociatedAddress = await getAssociatedTokenAddress(
     bonkMint,
     toWallet,
@@ -50,10 +52,66 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     receiverAssociatedAddress,
   );
 
+  // Simulate the transaction to estimate fees
+  const simulateTransactionInstructions = [
+    createTransferInstruction(
+      treasuryAssociatedAddress,
+      receiverAssociatedAddress,
+      fromWallet.publicKey,
+      amount,
+    ),
+  ];
+
+  // If the receiver doesn't have an ATA, add one more instruction to create ATA
+  if (!receiverAccountInfo) {
+    simulateTransactionInstructions.unshift(
+      createAssociatedTokenAccountInstruction(
+        fromWallet.publicKey,
+        receiverAssociatedAddress,
+        toWallet,
+        bonkMint,
+      ),
+    );
+  }
+
+  const latestBlockhash = await CONNECTION.getLatestBlockhash("finalized");
+  const simulateTransactionMessage = new TransactionMessage({
+    payerKey: fromWallet.publicKey,
+    recentBlockhash: latestBlockhash.blockhash,
+    instructions: simulateTransactionInstructions,
+  }).compileToV0Message();
+
+  const simulateTransaction = new VersionedTransaction(
+    simulateTransactionMessage,
+  );
+  simulateTransaction.sign([fromWallet]);
+
+  // Determine the priority fee to use
+  const priorityFee = await getRecentPrioritizationFees(simulateTransaction);
+  const microLamports = Math.round(
+    priorityFee?.result?.priorityFeeLevels?.high || HIGH_PRIORITY_FEE,
+  );
+
+  // Prepare the actual instructions
   const instructions = [];
 
-  // If token mint account doesn't exist for the user create a mint account
+  // Add compute budget instructions first
+  // 1. Set compute unit price (priority fee)
+  const computeBudgetIx = ComputeBudgetProgram.setComputeUnitPrice({
+    microLamports,
+  });
+  instructions.push(computeBudgetIx);
+
+  // 2. Set compute unit limit based on whether we need to create an ATA
   if (!receiverAccountInfo) {
+    // Based on latest tx: https://solscan.io/tx/3dj4mxREr1K5yJPKM3CUStQQEiV7H7HdnpLEY9kqmeJ4iDZDKX4YUG5zFXvxPQUr1V9cvW8TVfWrvMYUKPwdyphT
+    const computeUnitFix = Math.ceil(28352 * 1.15); // 15% buffer to address budget issues
+    const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: computeUnitFix,
+    });
+    instructions.push(computeUnitsIx);
+
+    // 3. Add ATA creation instruction
     const ataInstruction = createAssociatedTokenAccountInstruction(
       fromWallet.publicKey,
       receiverAssociatedAddress,
@@ -61,86 +119,65 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       bonkMint,
     );
     instructions.push(ataInstruction);
+  } else {
+    // Based on latest tx: https://solscan.io/tx/4kcpQ4NEjbfyiLK9HR6jMPmHtXDTGTGz1Yz6xdHcBpxnoArajFtGEhFfDkEFFtFK8vK5UJrMqGnpG7EnTM3dFNsK
+    const computeUnitFix = Math.ceil(4944 * 1.15); // 15% buffer to address budget issues
+    const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
+      units: computeUnitFix,
+    });
+    instructions.push(computeUnitsIx);
   }
 
+  // 4. Add transfer instruction
   const transferInstruction = createTransferInstruction(
     treasuryAssociatedAddress,
     receiverAssociatedAddress,
     fromWallet.publicKey,
     amount,
   );
-
   instructions.push(transferInstruction);
 
-  let blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
+  // Get latest blockhash
+  const blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
 
+  // Create transaction message with all instructions
   const v0message = new TransactionMessage({
     payerKey: fromWallet.publicKey,
     recentBlockhash: blockhashResponse.blockhash,
     instructions,
   }).compileToV0Message();
 
+  // Create and sign the transaction
   const versionedTransaction = new VersionedTransaction(v0message);
-
   versionedTransaction.sign([fromWallet]);
 
-  const estimateFee = await getRecentPrioritizationFees(versionedTransaction);
+  // Send the transaction
+  let signature;
 
-  // Add the compute unit price instruction with the estimated fee
-  const computeBudgetIx = ComputeBudgetProgram.setComputeUnitPrice({
-    microLamports: Math.round(
-      estimateFee?.result?.priorityFeeLevels?.high || HIGH_PRIORITY_FEE,
-    ),
-  });
-
-  // update the instructions with compute budget instruction.
-  instructions.unshift(computeBudgetIx);
-
-  if (!!receiverAccountInfo) {
-    // based on historical transaction cost
-    // eg https://solscan.io/tx/3jGXyvQ3hwfLWC4ABijJQhYQ8YK6duDXGqijmQEuPJ3RSsGYxjHX7G4aPZ1oVDmuVscxEQj2qamt7igsja4Gjgkn
-    const computeUnitFix = 4994;
-
-    // Buffer to make sure the transaction doesn't fail because of insufficient compute units
-    const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
-      units: Math.round(computeUnitFix * 1.1),
-    });
-
-    // update the instructions with compute unit instruction (unshift will move compute unit to the start and it is recommended in docs as well.)
-    instructions.unshift(computeUnitsIx);
-  } else {
-    // based on recent ATA creation CU consumption
-    // https://solscan.io/tx/37aEx5VpNMLXrKrMYPoGFbUmhg2YBGgvR3azHY17mWk1uupve229jhdyJWxA3HHAuJq8mtmeQBSR7dkuvhnVYbgs
-    const computeUnitFix = 27695;
-
-    // Buffer to compensate any additional usage
-    const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
-      units: Math.round(computeUnitFix * 1.05),
-    });
-
-    instructions.unshift(computeUnitsIx);
-  }
-
-  blockhashResponse = await CONNECTION.getLatestBlockhash("finalized");
-
-  const v0updatedMessage = new TransactionMessage({
-    payerKey: fromWallet.publicKey,
-    recentBlockhash: blockhashResponse.blockhash,
-    instructions,
-  }).compileToV0Message();
-
-  const updatedVersionedTransaction = new VersionedTransaction(
-    v0updatedMessage,
-  );
-
-  updatedVersionedTransaction.sign([fromWallet]);
-
-  const signature = await CONNECTION.sendTransaction(
-    updatedVersionedTransaction,
-    {
+  try {
+    signature = await CONNECTION.sendTransaction(versionedTransaction, {
       maxRetries: 10,
-    },
-  );
+    });
+  } catch (error) {
+    const transactionFailedError = new TransactionFailedError(
+      "Send Bonk Transaction failed to send",
+      { cause: error },
+    );
+    Sentry.captureException(transactionFailedError, {
+      extra: {
+        errorPhase: "TRANSACTION_SEND",
+        errorDetails: error instanceof Error ? error.message : String(error),
+        userId: payload?.sub,
+        walletAddress: toWallet.toBase58(),
+        transactionType: !receiverAccountInfo
+          ? "with_ata_creation"
+          : "transfer_only",
+        amount,
+      },
+    });
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+    return null;
+  }
 
   try {
     await pRetry(
@@ -153,40 +190,41 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
           },
           "confirmed",
         );
-
-        const result = await CONNECTION.getParsedTransaction(signature, {
-          commitment: "confirmed",
-          maxSupportedTransactionVersion: 0,
-        });
-
-        if (!result || result?.meta?.err) {
-          throw new TransactionFailedError(
-            `Send Bonk Transaction Failed for user: ${payload?.sub}`,
-            { cause: result?.meta?.err },
-          );
-        }
       },
       {
-        retries: 1,
+        retries: 2,
       },
     );
   } catch (error) {
-    if (!(error instanceof TransactionFailedError)) {
-      error = new TransactionFailedToConfirmError(
-        `Send Bonk Transaction Confirmation failed for user: ${payload?.sub}`,
-        { cause: error },
-      );
+    // Determine the specific error type and create a descriptive error message
+    let errorType = "SEND_BONK_FAILED";
+    let errorDetails = error;
+
+    if (error instanceof TransactionFailedToConfirmError) {
+      errorType = "TRANSACTION_CONFIRMATION_FAILED";
+      errorDetails = error.cause;
+    } else {
+      error = new TransactionFailedError(`Send Bonk Transaction failed`, {
+        cause: error,
+      });
     }
 
     Sentry.captureException(error, {
       extra: {
-        error: error instanceof TransactionFailedError ? error.cause : error,
+        errorPhase: errorType,
+        errorDetails: errorDetails,
         userId: payload?.sub,
         walletAddress: toWallet.toBase58(),
         signature,
+        transactionType: !receiverAccountInfo
+          ? "with_ata_creation"
+          : "transfer_only",
+        amount,
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
+
+    return null;
   }
 
   return signature;
