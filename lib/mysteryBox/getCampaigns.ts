@@ -45,11 +45,15 @@ export const getCampaigns = async () => {
       campaignMysteryBoxId: {
         in: validCampaignBoxes.map((eb) => eb.campaignMysteryBoxId),
       },
+      MysteryBox: {
+        userId: payload?.sub,
+      },
     },
     include: {
       MysteryBox: {
         where: {
           status: { in: [EMysteryBoxStatus.Opened] },
+          userId: payload.sub,
         },
       },
     },

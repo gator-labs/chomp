@@ -53,11 +53,15 @@ export const createCampaignMysteryBox = async (
     const existingBox = await tx.mysteryBoxTrigger.findFirst({
       where: {
         campaignMysteryBoxId: campaignBoxId,
+        MysteryBox: {
+          userId: userId,
+        },
       },
       include: {
         MysteryBox: {
           where: {
             status: { in: [EMysteryBoxStatus.New, EMysteryBoxStatus.Unopened] },
+            userId: userId,
           },
         },
       },
