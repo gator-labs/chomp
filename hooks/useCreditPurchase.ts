@@ -47,7 +47,6 @@ export function useCreditPurchase() {
 
       if (result?.error) {
         return {
-          txHash: data?.signature,
           error: result.error,
         };
       }
