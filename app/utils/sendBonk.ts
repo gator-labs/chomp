@@ -16,13 +16,13 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
-import pRetry from "p-retry";
 import "server-only";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
+import { checkTransactionStatus } from "./checkTransactionStatus";
 import { sleep } from "./sleep";
 import { CONNECTION } from "./solana";
 
@@ -153,7 +153,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
   versionedTransaction.sign([fromWallet]);
 
   // Send the transaction
-  let signature;
+  let signature: string | null = null;
 
   try {
     signature = await CONNECTION.sendTransaction(versionedTransaction, {
@@ -177,42 +177,16 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    return null;
   }
 
   // Wait for 2 seconds to ensure the transaction is processed before confirming
   await sleep(2000);
 
   try {
-    await pRetry(
-      async () => {
-        // This is latest confirmation method: https://solana.com/docs/rpc/http/getsignaturestatuses
-        const status = await CONNECTION.getSignatureStatus(signature);
-
-        if (status?.value?.err) {
-          throw new Error(status.value.err.toString());
-        }
-
-        // If the transaction is confirmed or finalized, return signature
-        if (
-          status?.value?.confirmationStatus === "confirmed" ||
-          status?.value?.confirmationStatus === "finalized"
-        ) {
-          return signature;
-        }
-
-        throw new Error(
-          `Transaction failed to confirm with last status: ${status?.value?.confirmationStatus}`,
-        );
-      },
-      {
-        retries: 2,
-        onFailedAttempt: async () => {
-          // Wait for 2 seconds to ensure status is updated
-          await sleep(2000);
-        },
-      },
-    );
+    if (!signature) {
+      throw new Error("Transaction signature is null");
+    }
+    await checkTransactionStatus(signature);
   } catch (error) {
     const transactionFailedToConfirm = new TransactionFailedToConfirmError(
       `Send Bonk Transaction Confirmation failed`,
@@ -235,8 +209,6 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-
-    return null;
   }
 
   return signature;
