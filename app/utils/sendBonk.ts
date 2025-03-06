@@ -223,8 +223,6 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-
-    return null;
   }
 
   return signature;
