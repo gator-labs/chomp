@@ -4,6 +4,7 @@ import { CreditTransactionValidationError } from "@/lib/error";
 import { getWalletOwner } from "@/lib/wallet";
 import { ChainTxResult, TransactionProcessingResult } from "@/types/credits";
 import {
+  CreditPack,
   EChainTxStatus,
   FungibleAsset,
   TransactionLogType,
@@ -15,7 +16,7 @@ import "server-only";
 import { verifyCreditPayment } from "./verifyCreditPayment";
 
 export async function processCreditsTransaction(
-  tx: ChainTxResult,
+  tx: ChainTxResult & { creditPack: CreditPack | null },
 ): Promise<TransactionProcessingResult> {
   const solCostPerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
 
@@ -72,9 +73,13 @@ export async function processCreditsTransaction(
       return { success: false, error: "Wallet owner not found" };
     }
 
+    const creditCost = tx.creditPack
+      ? tx.creditPack.costPerCredit
+      : solCostPerCredit;
+
     // Process the credit purchase
     const creditAmount = new Decimal(tx.solAmount)
-      .div(new Decimal(solCostPerCredit))
+      .div(new Decimal(creditCost))
       .toNumber();
 
     await prisma.$transaction([
@@ -94,6 +99,7 @@ export async function processCreditsTransaction(
           type: TransactionLogType.CreditPurchase,
           asset: FungibleAsset.Credit,
           chainTxHash: tx.hash,
+          creditPackId: tx.creditPack?.id,
         },
       }),
     ]);

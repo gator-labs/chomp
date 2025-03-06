@@ -79,6 +79,7 @@ export async function createSignedSignatureChainTx(
         wallet: wallet?.address,
         recipientAddress: solPaymentAddress,
         type: EChainTxType.CreditPurchase,
+        creditPackId: creditPack?.id,
       },
     });
   } catch (error) {

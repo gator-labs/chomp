@@ -324,6 +324,8 @@ model ChainTx {
   failedAt                    DateTime?
   FungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxPrize             MysteryBoxPrize[]
+  creditPack                  CreditPack?                   @relation(fields: [creditPackId], references: [id])
+  creditPackId                String?
 
   @@index([hash])
 }
@@ -358,6 +360,7 @@ model CreditPack {
   originalCostPerCredit String
   isActive              Boolean
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
+  chainTx               ChainTx[]
   createdAt             DateTime @default(now())
 }
 
