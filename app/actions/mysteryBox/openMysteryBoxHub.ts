@@ -134,17 +134,6 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       async (tx) => {
         const date = new Date();
 
-        // Step 1: Create fungible asset transaction logs
-        await tx.fungibleAssetTransactionLog.createMany({
-          data: creditPrizes.map((prize) => ({
-            type: TransactionLogType.MysteryBox,
-            asset: FungibleAsset.Credit,
-            change: prize.amount.toString(),
-            userId: payload.sub,
-            mysteryBoxPrizeId: prize.id,
-          })),
-        });
-
         // Step 2: Create chain transaction if txHash is provided
         if (txHash) {
           const treasury = await getTreasuryAddress();
@@ -212,54 +201,65 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         timeout: ONE_MINUTE_IN_MILLISECONDS,
       },
     );
+    // TEMP FIX: Create fungible asset transaction logs
+    await prisma.fungibleAssetTransactionLog.createMany({
+      data: creditPrizes.map((prize) => ({
+        type: TransactionLogType.MysteryBox,
+        asset: FungibleAsset.Credit,
+        change: prize.amount.toString(),
+        userId: payload.sub,
+        mysteryBoxPrizeId: prize.id,
+      })),
+    });
   } catch (e) {
-    try {
-      await prisma.$transaction(
-        async (tx) => {
-          await tx.mysteryBox.updateMany({
-            where: {
-              id: {
-                in: rewards.map((r) => r.id),
-              },
-              userId: userId,
-            },
-            data: {
-              status: EMysteryBoxStatus.Unopened,
-            },
-          });
+    // TEMP FIX: disable rollback
+    // try {
+    //   await prisma.$transaction(
+    //     async (tx) => {
+    //       await tx.mysteryBox.updateMany({
+    //         where: {
+    //           id: {
+    //             in: rewards.map((r) => r.id),
+    //           },
+    //           userId: userId,
+    //         },
+    //         data: {
+    //           status: EMysteryBoxStatus.Unopened,
+    //         },
+    //       });
 
-          await tx.mysteryBoxPrize.updateMany({
-            where: {
-              id: {
-                in: allPrizes.map((prize) => prize.id),
-              },
-            },
-            data: {
-              status: EBoxPrizeStatus.Unclaimed,
-            },
-          });
-        },
-        {
-          isolationLevel: "Serializable",
-          timeout: ONE_MINUTE_IN_MILLISECONDS,
-        },
-      );
-    } catch (error) {
-      const openMysteryBoxHubError = new OpenMysteryBoxHubError(
-        `Trouble rolling back data with User id: ${payload.sub} (wallet: ${userWallet.address}) for Mystery Boxes: ${mysteryBoxIds}`,
-        { cause: error },
-      );
-      Sentry.captureException(openMysteryBoxHubError, {
-        extra: {
-          mysteryBoxIds,
-          userId: payload.sub,
-          walletAddress: userWallet.address,
-          prizesIds: allPrizes.map((prize) => prize.id),
-          txHash,
-          error,
-        },
-      });
-    }
+    //       await tx.mysteryBoxPrize.updateMany({
+    //         where: {
+    //           id: {
+    //             in: allPrizes.map((prize) => prize.id),
+    //           },
+    //         },
+    //         data: {
+    //           status: EBoxPrizeStatus.Unclaimed,
+    //         },
+    //       });
+    //     },
+    //     {
+    //       isolationLevel: "Serializable",
+    //       timeout: ONE_MINUTE_IN_MILLISECONDS,
+    //     },
+    //   );
+    // } catch (error) {
+    //   const openMysteryBoxHubError = new OpenMysteryBoxHubError(
+    //     `Trouble rolling back data with User id: ${payload.sub} (wallet: ${userWallet.address}) for Mystery Boxes: ${mysteryBoxIds}`,
+    //     { cause: error },
+    //   );
+    //   Sentry.captureException(openMysteryBoxHubError, {
+    //     extra: {
+    //       mysteryBoxIds,
+    //       userId: payload.sub,
+    //       walletAddress: userWallet.address,
+    //       prizesIds: allPrizes.map((prize) => prize.id),
+    //       txHash,
+    //       error,
+    //     },
+    //   });
+    // }
     const openMysteryBoxHubError = new OpenMysteryBoxHubError(
       `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
       { cause: e },
