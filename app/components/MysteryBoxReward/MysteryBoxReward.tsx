@@ -32,7 +32,7 @@ function MysteryBoxReward({
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const [mystryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
+  const [mysteryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
 
   const { promiseToast, infoToast } = useToast();
 
@@ -133,12 +133,12 @@ function MysteryBoxReward({
           </div>
         </div>
       </div>
-      {mystryBoxIds.length > 0 && (
+      {mysteryBoxIds.length > 0 && (
         <OpenMysteryBox
           closeBoxDialog={() => setShowBoxOverlay(false)}
           isOpen={showBoxOverlay}
           boxType={type}
-          mysteryBoxIds={mystryBoxIds}
+          mysteryBoxIds={mysteryBoxIds}
         />
       )}
     </>
