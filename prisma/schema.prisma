@@ -207,6 +207,8 @@ model FungibleAssetTransactionLog {
   mysteryBoxPrizeId String?            @unique
   chainTx           ChainTx?           @relation(fields: [chainTxHash], references: [hash])
   chainTxHash       String?
+  creditPack        CreditPack?        @relation(fields: [creditPackId], references: [id])
+  creditPackId      String?
 
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
@@ -347,6 +349,16 @@ model CampaignMysteryBoxAllowlist {
   mysteryBoxAllowList MysteryBoxAllowlist @relation(fields: [address], references: [address])
 
   @@unique([campaignMysteryBoxId, address])
+}
+
+model CreditPack {
+  id                    String @id @default(uuid())
+  amount                Int
+  costPerCredit         String
+  originalCostPerCredit String
+  isActive              Boolean
+  fungibleAssetTransactionLog FungibleAssetTransactionLog[]
+  createdAt             DateTime @default(now())
 }
 
 enum EMysteryBoxStatus {
