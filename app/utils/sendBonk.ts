@@ -152,7 +152,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
   versionedTransaction.sign([fromWallet]);
 
   // Send the transaction
-  let signature;
+  let signature: string | null = null;
 
   try {
     signature = await CONNECTION.sendTransaction(versionedTransaction, {
@@ -176,7 +176,6 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    return null;
   }
 
   try {
@@ -185,7 +184,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
         const currentBlockhash = await CONNECTION.getLatestBlockhash();
         await CONNECTION.confirmTransaction(
           {
-            signature,
+            signature: signature!,
             ...currentBlockhash,
           },
           "confirmed",
@@ -223,8 +222,6 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-
-    return null;
   }
 
   return signature;
