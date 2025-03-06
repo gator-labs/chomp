@@ -85,7 +85,10 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   const buyCredits = async () => {
     setIsLoading(true);
     try {
-      const result = await processCreditPurchase(creditsToBuy ?? 0);
+      const result = await processCreditPurchase(
+        creditsToBuy ?? 0,
+        selectedPack,
+      );
 
       if (result && "error" in result) {
         toast(errorToastLayout(result.error), toastOptions);

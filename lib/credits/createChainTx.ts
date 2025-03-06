@@ -3,6 +3,7 @@ import prisma from "@/app/services/prisma";
 import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { CreateChainTxError } from "@/lib/error";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
+import { CreditPack } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import Decimal from "decimal.js";
 import "server-only";
@@ -15,8 +16,8 @@ Decimal.set({ toExpNeg: -128 });
  * Creates initial chainTx record when user signs a credit purchase transaction
  *
  * @param creditsToBuy The amount of credits being purchased
- *
  * @param signature Transaction signature after user signs
+ * @param creditPack Credit pack used (if any)
  *
  * @returns Created chainTx record or error
  */
@@ -24,6 +25,7 @@ Decimal.set({ toExpNeg: -128 });
 export async function createSignedSignatureChainTx(
   creditsToBuy: number,
   signature: string,
+  creditPack: CreditPack | null = null,
 ) {
   const payload = await getJwtPayload();
 
@@ -33,7 +35,9 @@ export async function createSignedSignatureChainTx(
     };
   }
 
-  const solanaCostPerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
+  const solanaCostPerCredit = creditPack
+    ? creditPack.costPerCredit
+    : process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
 
   if (!solanaCostPerCredit) {
     return {
