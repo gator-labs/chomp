@@ -43,7 +43,7 @@ export type DeckExpiringSoon = {
   total_credit_cost?: number;
   total_reward_amount?: number;
   total_questions?: number;
-  completed_questions?: number;
+  answered_questions?: number;
 };
 
 export type QuestionsForReveal = {
@@ -476,7 +476,7 @@ WITH premium_deck_cte AS (
      WHERE dq."deckId" = d."id"
      AND qa."userId" = ${userId}
      AND qa."status" IN ('Submitted', 'Viewed')
-    ) as completed_questions,
+    ) as answered_questions,
     (SELECT sum("creditCostPerQuestion") 
      FROM public."DeckQuestion" dq
      JOIN public."Question" q 
@@ -573,7 +573,7 @@ async function queryExpiringFreeDecks(
      WHERE dq."deckId" = d."id"
      AND qa."userId" = ${userId}
      AND qa."status" IN ('Submitted', 'Viewed')
-    ) as completed_questions
+    ) as answered_questions
 FROM
     public."Deck" d
 FULL JOIN
