@@ -161,12 +161,12 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     });
   } catch (error) {
     const transactionFailedError = new TransactionFailedError(
-      "Send Bonk Transaction failed to send",
+      "Failed to send Bonk Transaction",
       { cause: error },
     );
     Sentry.captureException(transactionFailedError, {
       extra: {
-        errorPhase: "TRANSACTION_SEND",
+        errorPhase: "SEND_TRANSACTION_FAILED",
         errorDetails: error instanceof Error ? error.message : String(error),
         userId: payload?.sub,
         walletAddress: toWallet.toBase58(),
@@ -189,7 +189,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     await checkTransactionStatus(signature);
   } catch (error) {
     const transactionFailedToConfirm = new TransactionFailedToConfirmError(
-      `Send Bonk Transaction Confirmation failed`,
+      `Failed to confirm Bonk Transaction`,
       {
         cause: error,
       },
