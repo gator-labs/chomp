@@ -183,7 +183,6 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
                 selected={selectedPackId}
               />
               <div className="relative flex items-center py-2">
-                <hr />
                 <div className="border-gray-500 border-t w-full"></div>
                 <span className="px-6 font-bold text-sm">Or</span>
                 <div className="border-gray-500 border-b w-full h-1/2"></div>
