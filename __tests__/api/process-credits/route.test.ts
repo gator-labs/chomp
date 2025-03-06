@@ -2,6 +2,7 @@ import { GET } from "@/app/api/cron/process-credits/route";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import { EChainTxStatus, EChainTxType } from "@prisma/client";
+import { CreditPack } from "@prisma/client";
 import Decimal from "decimal.js";
 
 const secret = process.env.CRON_SECRET || "";
@@ -29,16 +30,21 @@ describe("GET /api/cron/process-credits", () => {
   let users: { id: string; username: string }[];
   const address1 = "2K88XKbcHW5kLNVyKrgWQUoW3dJPYUjMXJreAoVHWTKW";
   const address2 = "b726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc6";
+  const address3 = "GmUV9W6FqNPuHCwLLu9o9QyrR13CDYkP7Mkd3bZod16A";
 
   const validTxHash =
     "48CCstjYwRC5DaBxGP1cdXdgmsAWvBv21F9BNk7Ln8xA2VFpKyKFrzpHHKQj4WcqRbcFevw5rHypoP4zUMYQHvSR";
+  const validTxHash2 =
+    "3rEHsyEXRuVcrD6R1kQH1D8t4cHc2oTMqVbJYqYku1FXV1WBiWW1JPSX13hJpNBk6PzjMhYFV775M58DAdpNofi3";
   const invalidTxHash =
     "gaLBbAbCvBCjmBEacJy5tDvh3BSaTPznr2Y8nBTcmtHnYyhw3NEMHoVSPLz4kYo2h9CuSKXXkKkh5eDi61pXmd";
 
   const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 
+  let creditPack: CreditPack;
+
   beforeAll(async () => {
-    users = await generateUsers(2);
+    users = await generateUsers(3);
 
     await prisma.user.createMany({
       data: users,
@@ -48,7 +54,17 @@ describe("GET /api/cron/process-credits", () => {
       data: [
         { userId: users[0].id, address: address1 },
         { userId: users[1].id, address: address2 },
+        { userId: users[2].id, address: address3 },
       ],
+    });
+
+    creditPack = await prisma.creditPack.create({
+      data: {
+        amount: 100,
+        costPerCredit: "0.00002",
+        originalCostPerCredit: "0.001",
+        isActive: true,
+      },
     });
 
     // Create ChainTx records
@@ -75,31 +91,49 @@ describe("GET /api/cron/process-credits", () => {
           createdAt: threeDaysAgo,
         },
       }),
+      // Valid transaction with credit pack
+      prisma.chainTx.create({
+        data: {
+          hash: validTxHash2,
+          wallet: address3,
+          type: EChainTxType.CreditPurchase,
+          solAmount: "0.002",
+          creditPackId: creditPack.id,
+          recipientAddress: "CHoMP5YdLEJ62kq9oibKbNDkBCgakQPqQLSgkDHyC2D9",
+          createdAt: threeDaysAgo,
+        },
+      }),
     ]);
   });
 
   afterAll(async () => {
+    await prisma.creditPack.deleteMany({
+      where: {
+        id: creditPack.id,
+      },
+    });
+
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: {
-        userId: { in: [users[0].id, users[1].id] },
+        userId: { in: [users[0].id, users[1].id, users[2].id] },
       },
     });
 
     await prisma.chainTx.deleteMany({
       where: {
-        hash: { in: [validTxHash, invalidTxHash] },
+        hash: { in: [validTxHash, validTxHash2, invalidTxHash] },
       },
     });
 
     await prisma.wallet.deleteMany({
       where: {
-        userId: { in: [users[0].id, users[1].id] },
+        userId: { in: [users[0].id, users[1].id, users[2].id] },
       },
     });
 
     await prisma.user.deleteMany({
       where: {
-        id: { in: [users[0].id, users[1].id] },
+        id: { in: [users[0].id, users[1].id, users[2].id] },
       },
     });
   });
@@ -133,6 +167,18 @@ describe("GET /api/cron/process-credits", () => {
 
     expect(chainTx?.status).toBe(EChainTxStatus.Confirmed);
     expect(Number(creditLog?.change)).toBe(expectedChange);
+
+    const creditLog2 = await prisma.fungibleAssetTransactionLog.findFirst({
+      where: {
+        userId: users[2].id,
+        chainTxHash: validTxHash2,
+      },
+    });
+
+    // Check credit pack was applied
+    expect(chainTx?.status).toBe(EChainTxStatus.Confirmed);
+    expect(Number(creditLog2?.change)).toBe(100);
+    expect(creditLog2?.creditPackId).toBe(creditPack.id);
   });
 
   it("should mark invalid transaction as failed", async () => {

@@ -3,6 +3,7 @@ import prisma from "@/app/services/prisma";
 import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
+import { CreditPack } from "@prisma/client";
 import {
   EChainTxStatus,
   EChainTxType,
@@ -17,7 +18,11 @@ jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
 describe("updateTxStatusToConfirmed", () => {
   const CREDIT_CONFIRM_SIGNATURE = "CREDIT_CONFIRM_SIGNATURE_" + "X".repeat(62);
+  const CREDIT_CONFIRM_SIGNATURE_2 =
+    "CREDIT_CONFIRM_SIGNATURE_" + "Y".repeat(62);
   let user: { id: string; wallet: string };
+
+  let creditPack: CreditPack;
 
   beforeAll(async () => {
     const users = await generateUsers(1);
@@ -39,6 +44,15 @@ describe("updateTxStatusToConfirmed", () => {
       },
     });
 
+    creditPack = await prisma.creditPack.create({
+      data: {
+        amount: 100,
+        costPerCredit: "0.00002",
+        originalCostPerCredit: "0.001",
+        isActive: true,
+      },
+    });
+
     await prisma.chainTx.create({
       data: {
         hash: CREDIT_CONFIRM_SIGNATURE,
@@ -52,12 +66,37 @@ describe("updateTxStatusToConfirmed", () => {
         type: EChainTxType.CreditPurchase,
       },
     });
+
+    await prisma.chainTx.create({
+      data: {
+        hash: CREDIT_CONFIRM_SIGNATURE_2,
+        status: EChainTxStatus.New,
+        solAmount: "0.003",
+        wallet: user.wallet,
+        creditPackId: creditPack.id,
+        feeSolAmount: "0",
+        recipientAddress: faker.string.hexadecimal({
+          length: { min: 32, max: 42 },
+        }),
+        type: EChainTxType.CreditPurchase,
+      },
+    });
   });
 
   afterAll(async () => {
+    await prisma.creditPack.deleteMany({
+      where: {
+        id: creditPack.id,
+      },
+    });
+
     // Clean up all created records
     await prisma.fungibleAssetTransactionLog.deleteMany({
-      where: { chainTxHash: CREDIT_CONFIRM_SIGNATURE },
+      where: {
+        chainTxHash: {
+          in: [CREDIT_CONFIRM_SIGNATURE, CREDIT_CONFIRM_SIGNATURE_2],
+        },
+      },
     });
     await prisma.chainTx.deleteMany({
       where: { wallet: user.wallet },
@@ -91,6 +130,25 @@ describe("updateTxStatusToConfirmed", () => {
     expect(fatl).toBeDefined();
     expect(Number(fatl?.change)).toBe(1);
     expect(fatl?.type).toBe(TransactionLogType.CreditPurchase);
+  });
+
+  it("should create update tx status (with credit pack) to confirmed", async () => {
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: user.id,
+    });
+
+    await updateTxStatusToConfirmed(
+      CREDIT_CONFIRM_SIGNATURE_2,
+      100,
+      creditPack.id,
+    );
+
+    const fatl = await prisma.fungibleAssetTransactionLog.findFirst({
+      where: { chainTxHash: CREDIT_CONFIRM_SIGNATURE_2 },
+    });
+
+    expect(fatl).toBeDefined();
+    expect(Number(fatl?.change)).toBe(100);
   });
 
   it("should return error if Payload is not defined", async () => {

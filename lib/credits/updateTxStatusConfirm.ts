@@ -21,6 +21,7 @@ const MAX_RETRIES = 3;
 export async function updateTxStatusToConfirmed(
   hash: string,
   creditAmount: number,
+  creditPackId: string | undefined = undefined,
 ) {
   const payload = await getJwtPayload();
 
@@ -49,6 +50,7 @@ export async function updateTxStatusToConfirmed(
               asset: FungibleAsset.Credit,
               change: creditAmount,
               type: TransactionLogType.CreditPurchase,
+              creditPackId: creditPackId ?? null,
               userId,
             },
           });

@@ -4,6 +4,7 @@ import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
 import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
 import { verifyPayment } from "@/lib/credits/verifyPayment";
+import { CreditPack } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import pRetry from "p-retry";
 import "server-only";
@@ -23,12 +24,14 @@ const CONFIRMATION_RETRIES = {
  *
  * @param signedTransaction - Searlized and base64 encoded transaction after user signs
  * @param creditsToBuy - Number of credits the user wants to purchase
+ * @param creditPack - Credit pack that was used (if any)
  *
  * @throws Error if transaction simulation fails to send or confirm
  */
 export async function processTransaction(
   signedTransaction: string,
   creditsToBuy: number,
+  creditPack: CreditPack | null = null,
 ) {
   const payload = await getJwtPayload();
 
@@ -52,6 +55,7 @@ export async function processTransaction(
     Sentry.captureException(sendTransactionError, {
       extra: {
         creditAmount: creditsToBuy,
+        creditPack,
         transaction: signedTransaction,
       },
     });
@@ -90,7 +94,7 @@ export async function processTransaction(
       }
 
       // Update chain tx status to confirmed
-      await updateTxStatusToConfirmed(txHash, creditsToBuy);
+      await updateTxStatusToConfirmed(txHash, creditsToBuy, creditPack?.id);
     }, CONFIRMATION_RETRIES);
   } catch (error) {
     if (!(error instanceof TransactionFailedError)) {
@@ -104,6 +108,7 @@ export async function processTransaction(
       extra: {
         error: error instanceof TransactionFailedError ? error.cause : error,
         creditAmount: creditsToBuy,
+        creditPack,
         signature: txHash,
       },
     });
