@@ -205,6 +205,7 @@ export async function copyDeck(deckId: number): Promise<number> {
   let newDeckId: number | undefined = undefined;
 
   await prisma.$transaction(async (tx) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...newDeck } = deck;
 
     newDeck.deck = "Copy of " + newDeck.deck;
@@ -219,6 +220,7 @@ export async function copyDeck(deckId: number): Promise<number> {
     const now = new Date();
 
     for (const deckQuestion of deckQuestions) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id, question, questionId, ...newDeckQuestion } = deckQuestion;
       const { questionOptions, questionTags, ...newQuestion } = question;
 
@@ -230,6 +232,7 @@ export async function copyDeck(deckId: number): Promise<number> {
       newDeckQuestion.updatedAt = now;
 
       const questionOptionsData = questionOptions.map((qo) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { questionId, id, ...rest } = qo;
         rest.createdAt = now;
         rest.updatedAt = now;
@@ -237,11 +240,13 @@ export async function copyDeck(deckId: number): Promise<number> {
       });
 
       const questionTagsData = questionTags.map((qt) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { questionId, id, ...rest } = qt;
         return rest;
       });
 
       if (newQuestion) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...newQuestionWithoutId } = newQuestion;
 
         const newData = {
