@@ -18,7 +18,7 @@ jest.mock("next/navigation", () => ({
 // Set.isDisjointFrom() Polyfill (need Node v22)
 const isDisjointFrom = (set1: Set<number>, set2: Set<number>) => {
   const arrSet1 = Array.from(set1);
-  for (let elem of arrSet1) {
+  for (const elem of arrSet1) {
     if (set2.has(elem)) return false;
   }
   return true;
