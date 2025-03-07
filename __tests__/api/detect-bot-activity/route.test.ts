@@ -145,7 +145,7 @@ describe("GET /api/cron/detect-bot-activity", () => {
       },
     });
 
-    // Unchanged since we're in the same window
+    // Outside of window, so now updated.
     expect(userRecord?.threatLevel).toEqual(EThreatLevelType.Bot);
     expect(userRecord?.threatLevelWindow?.toISOString()).toEqual(
       "2025-01-10T00:00:00.000Z",
