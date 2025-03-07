@@ -204,6 +204,7 @@ export async function copyDeck(deckId: number): Promise<number> {
     newDeck.revealAtDate = null;
     newDeck.createdAt = new Date();
     newDeck.updatedAt = new Date();
+    newDeck.imageUrl = null;
 
     const createdDeck = await tx.deck.create({ data: newDeck });
 
@@ -214,6 +215,7 @@ export async function copyDeck(deckId: number): Promise<number> {
       const { questionOptions, questionTags, ...newQuestion } = question;
 
       newQuestion.revealAtDate = null;
+      newQuestion.imageUrl = null;
 
       newDeckQuestion.deckId = createdDeck.id;
       newDeckQuestion.createdAt = now;

@@ -38,6 +38,8 @@ describe("Copying a Deck", () => {
         revealTokenAmount: 10,
         revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         durationMiliseconds: BigInt(60000),
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/en/thumb/8/80/Wikipedia-logo-v2.svg/1280px-Wikipedia-logo-v2.svg.png",
         questionOptions: {
           create: [
             {
@@ -68,6 +70,8 @@ describe("Copying a Deck", () => {
     const deck = await prisma.deck.create({
       data: {
         deck: `deck_test ${new Date().toISOString()}`,
+        imageUrl:
+          "https://upload.wikimedia.org/wikipedia/en/thumb/8/80/Wikipedia-logo-v2.svg/1280px-Wikipedia-logo-v2.svg.png",
         revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         stackId: null,
         deckQuestions: {
@@ -132,6 +136,9 @@ describe("Copying a Deck", () => {
       ),
     );
 
+    const newUrls =
+      newDeck?.deckQuestions.map((dq) => dq.question.imageUrl) ?? [];
+
     const origDeck = await prisma.deck.findUnique({
       where: { id: deckId },
       include: {
@@ -173,5 +180,11 @@ describe("Copying a Deck", () => {
       isDisjointFrom(newQuestionOptionIds, origQuestionOptionIds),
     ).toBeTruthy();
     expect(newDeck?.revealAtDate).toBeNull();
+    expect(newDeck?.activeFromDate).toBeNull();
+    expect(newDeck?.imageUrl).toBeNull();
+
+    for (let i = 0; i < newUrls.length; i++) {
+      expect(newUrls[i]).toBeNull();
+    }
   });
 });
