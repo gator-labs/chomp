@@ -29,6 +29,9 @@ export const getWeekStartAndEndDates = (
   };
 };
 
+/**
+ * returns start and end of the current UTC day
+ */
 export const getStartAndEndOfDay = (
   date: Date,
 ): {

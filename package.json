@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "compose:db:up": "docker-compose -f db-compose.yml up",
+    "compose:db:up:v2": "docker compose -f db-compose.yml up",
     "compose:db:down": "docker-compose -f db-compose.yml down",
     "prisma": "dotenv -c -- prisma",
     "prisma:studio": "dotenv -c -- prisma studio",

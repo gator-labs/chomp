@@ -7,7 +7,7 @@ jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
 
-describe.skip("queryExpiringDecks", () => {
+describe("queryExpiringDecks", () => {
   const user1 = {
     id: uuidv4(),
     username: `user1`,
@@ -24,6 +24,7 @@ describe.skip("queryExpiringDecks", () => {
   let existingDeckIds = {};
 
   beforeAll(async () => {
+
     const now = new Date();
     now.setUTCHours(12, 0, 0, 0); // Set to noon UTC
 
@@ -200,6 +201,21 @@ describe.skip("queryExpiringDecks", () => {
       await tx.user.deleteMany({ where: { id: { in: [user1.id, user2.id] } } });
     });
   });
+
+  it("times should be in UTC", async () => {
+    const deckOne = await prisma.deck.findUnique({
+      where: {
+        id: deckIds[0],
+      },
+    });
+
+    expect(deckOne?.activeFromDate?.toISOString()).toBe('2025-03-07T12:00:00.000Z');
+    expect(deckOne?.revealAtDate?.toISOString()).toBe('2025-03-08T12:00:00.000Z')
+  });
+
+  // TODO: should return decks that are partially anwered
+    // if only one question is anwered should still return deck
+    // if two questions are anwered shoun't return deck
 
   it("should return decks expiring today with unanswered questions for user2", async () => {
     const result = (await queryExpiringDecks(user2.id)).filter(

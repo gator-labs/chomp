@@ -10,6 +10,7 @@ import { DECK_LIMIT } from "../constants/decks";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
 import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
+import { getStartAndEndOfDay } from "../utils/date";
 
 dayjs.extend(duration);
 
@@ -164,11 +165,21 @@ async function getNextDeckIdQuery(
   return sortedDecks.length > 0 ? sortedDecks[0].id : undefined;
 }
 
+/**
+ * return decks that expire today and have not yet expired
+ *
+ * returns decks that  
+ *  revealAtDate has not yet passed (not expired)
+ *  and activeFromDate already have passed (are active) or has no activeFromDate date
+ *  and date is in current day
+ *  and have unaswered questions for this user (so the user can finish them if incomplete)
+ *  
+ *  the current day is based on UTC
+ */
 export async function queryExpiringDecks(
   userId: string,
 ): Promise<DeckExpiringSoon[]> {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
-  const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const { startOfTheDay, endOfTheDay } = getStartAndEndOfDay(new Date())
 
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
   SELECT
@@ -177,30 +188,37 @@ export async function queryExpiringDecks(
     d."date",
     d."revealAtDate",
     c."image"
-FROM
-    public."Deck" d
-FULL JOIN
-    public."Stack" c ON c."id" = d."stackId"
-WHERE
-    d."revealAtDate" > NOW() 
-    AND (d."activeFromDate" <= NOW() OR  
-    d."activeFromDate" IS NULL
-    AND d."date" >= ${currentDayStart}
-    AND d."date" <= ${currentDayEnd})
-    AND EXISTS (
-        SELECT 1
-        FROM public."DeckQuestion" dq
-        JOIN public."Question" q ON dq."questionId" = q."id"
-        LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
-        LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id" 
-        AND qa."userId" = ${userId}
-        WHERE dq."deckId" = d."id"
-        GROUP BY dq."deckId"
-        HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
-    )
-    ORDER BY
-    d."date" ASC,
-    d."revealAtDate" ASC
+  FROM
+      public."Deck" d
+  FULL JOIN
+      public."Stack" c ON c."id" = d."stackId"
+  WHERE
+      d."revealAtDate" > NOW() -- Reveal date is in the future
+
+      AND (
+        d."activeFromDate" <= NOW() -- Deck is active
+        OR (
+          d."activeFromDate" IS NULL -- Or has no activeFromDate 
+          AND d."date" >= ${startOfTheDay} -- Date is within the "today" range
+          AND d."date" <= ${endOfTheDay}
+        )
+      )
+  
+      AND EXISTS (
+          SELECT 1
+          FROM public."DeckQuestion" dq
+          JOIN public."Question" q ON dq."questionId" = q."id"
+          LEFT JOIN public."QuestionOption" qo ON qo."questionId" = q."id"
+          LEFT JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id" 
+          AND qa."userId" = ${userId}
+          WHERE dq."deckId" = d."id"
+          GROUP BY dq."deckId"
+          HAVING COUNT(DISTINCT qo."id") > COUNT(qa."id")
+      ) -- There is unaswered questions for this deck
+
+      ORDER BY
+      d."date" ASC,
+      d."revealAtDate" ASC
   `;
 
   return deckExpiringSoon;
