@@ -6,7 +6,7 @@ export type BotDetectorResponse = {
   mean_bot_score: Record<string, number>;
 };
 
-export const queryBotDetector = async(): Promise<BotDetectorResponse> => {
+export const queryBotDetector = async (): Promise<BotDetectorResponse> => {
   if (!process.env.MECHANISM_ENGINE_URL)
     throw new Error("MECHANISM_ENGINE_URL not defined");
 
@@ -20,10 +20,10 @@ export const queryBotDetector = async(): Promise<BotDetectorResponse> => {
       `Mechanism engine bot detector returned error: ${response.status}: ${response.statusText}`,
     );
 
-    const results = await response.json();
+  const results = await response.json();
 
-    if (!("mean_bot_score" in results) || !results["mean_bot_score"])
-      throw new Error("Missing field in bot detector API results");
+  if (!("mean_bot_score" in results) || !results["mean_bot_score"])
+    throw new Error("Missing field in bot detector API results");
 
-    return results;
-}
+  return results;
+};

@@ -1,7 +1,7 @@
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { tryAcquireMutex } from "@/app/utils/mutex";
+import { queryBotDetector } from "@/lib/bot-detector";
 import { updateBots } from "@/lib/bots";
-import { queryBotDetector } from '@/lib/bot-detector';
 import * as Sentry from "@sentry/nextjs";
 
 /**
