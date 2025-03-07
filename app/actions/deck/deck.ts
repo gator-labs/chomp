@@ -156,6 +156,14 @@ export async function deleteDeck(deckId: number) {
 
       await tx.deck.delete({ where: { id: deckId } });
 
+      await tx.questionTag.deleteMany({
+        where: {
+          questionId: {
+            in: questionIds,
+          },
+        },
+      });
+
       await tx.question.deleteMany({
         where: {
           id: {
