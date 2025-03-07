@@ -9,8 +9,8 @@ import { getJwtPayload } from "../actions/jwt";
 import { DECK_LIMIT } from "../constants/decks";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
-import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 import { getStartAndEndOfDay } from "../utils/date";
+import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 dayjs.extend(duration);
 
@@ -168,18 +168,18 @@ async function getNextDeckIdQuery(
 /**
  * return decks that expire today and have not yet expired
  *
- * returns decks that  
+ * returns decks that
  *  revealAtDate has not yet passed (not expired)
  *  and activeFromDate already have passed (are active) or has no activeFromDate date
  *  and date is in current day
  *  and have unaswered questions for this user (so the user can finish them if incomplete)
- *  
+ *
  *  the current day is based on UTC
  */
 export async function queryExpiringDecks(
   userId: string,
 ): Promise<DeckExpiringSoon[]> {
-  const { startOfTheDay, endOfTheDay } = getStartAndEndOfDay(new Date())
+  const { startOfTheDay, endOfTheDay } = getStartAndEndOfDay(new Date());
 
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
   SELECT
