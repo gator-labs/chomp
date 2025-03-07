@@ -27,9 +27,18 @@ const isDisjointFrom = (set1: Set<number>, set2: Set<number>) => {
 describe("Copying a Deck", () => {
   let deckId: number | undefined = undefined;
   let newDeckId: number | undefined = undefined;
+  let tagId: number | undefined = undefined;
 
   // Add mock deck with one question and a user to database
   beforeAll(async () => {
+    const tag = await prisma.tag.create({
+      data: {
+        tag: `Tag_CopyTest_{new Date().toISOString()`,
+      },
+    });
+
+    tagId = tag.id;
+
     const question = {
       create: {
         stackId: null,
@@ -64,6 +73,9 @@ describe("Copying a Deck", () => {
             },
           ],
         },
+        questionTags: {
+          create: [{ tagId }],
+        },
       },
     };
 
@@ -88,8 +100,9 @@ describe("Copying a Deck", () => {
 
   // delete all the deck and user data after all the test run
   afterAll(async () => {
-    if (deckId) await deleteDeck(deckId);
     if (newDeckId) await deleteDeck(newDeckId);
+    if (deckId) await deleteDeck(deckId);
+    if (tagId) await prisma.tag.delete({ where: { id: tagId } });
   });
 
   it("should test isDisjointFrom() polyfill", async () => {
@@ -135,6 +148,16 @@ describe("Copying a Deck", () => {
         dq.question.questionOptions.map((qo) => qo.id),
       ),
     );
+    const newQuestionTagIds = new Set(
+      newDeck?.deckQuestions.flatMap((dq) =>
+        dq.question.questionTags.map((qt) => qt.id),
+      ),
+    );
+    const newTagIds = new Set(
+      newDeck?.deckQuestions.flatMap((dq) =>
+        dq.question.questionTags.map((qt) => qt.tagId),
+      ),
+    );
 
     const newUrls =
       newDeck?.deckQuestions.map((dq) => dq.question.imageUrl) ?? [];
@@ -166,6 +189,16 @@ describe("Copying a Deck", () => {
         dq.question.questionOptions.map((qo) => qo.id),
       ),
     );
+    const origQuestionTagIds = new Set(
+      origDeck?.deckQuestions.flatMap((dq) =>
+        dq.question.questionTags.map((qt) => qt.id),
+      ),
+    );
+    const origTagIds = new Set(
+      origDeck?.deckQuestions.flatMap((dq) =>
+        dq.question.questionTags.map((qt) => qt.tagId),
+      ),
+    );
 
     expect(newDeckId).toBeDefined();
     expect(newDeckId).not.toBe(deckId);
@@ -179,6 +212,10 @@ describe("Copying a Deck", () => {
     expect(
       isDisjointFrom(newQuestionOptionIds, origQuestionOptionIds),
     ).toBeTruthy();
+    expect(isDisjointFrom(newQuestionTagIds, origQuestionTagIds)).toBeTruthy();
+    expect(newTagIds.size).toBe(1);
+    expect(origTagIds.size).toBe(1);
+    expect(Array.from(newTagIds)[0]).toBe(Array.from(origTagIds)[0]);
     expect(newDeck?.revealAtDate).toBeNull();
     expect(newDeck?.activeFromDate).toBeNull();
     expect(newDeck?.imageUrl).toBeNull();
