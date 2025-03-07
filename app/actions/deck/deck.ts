@@ -170,6 +170,93 @@ export async function deleteDeck(deckId: number) {
   revalidatePath("/admin/decks");
 }
 
+export async function copyDeck(deckId: number): Promise<number> {
+  const isAdmin = await getIsUserAdmin();
+
+  if (!isAdmin) {
+    redirect("/application");
+  }
+  const deck = await prisma.deck.findUnique({
+    where: { id: deckId },
+  });
+
+  if (!deck) throw new Error("Deck not found");
+
+  const deckQuestions = await prisma.deckQuestion.findMany({
+    where: { deckId },
+    include: {
+      question: {
+        include: {
+          questionOptions: true,
+          questionTags: true,
+        },
+      },
+    },
+  });
+
+  let newDeckId: number | undefined = undefined;
+
+  await prisma.$transaction(async (tx) => {
+    const { id, ...newDeck } = deck;
+
+    newDeck.deck = "Copy of " + newDeck.deck;
+    newDeck.activeFromDate = null;
+    newDeck.revealAtDate = null;
+    newDeck.createdAt = new Date();
+    newDeck.updatedAt = new Date();
+
+    const createdDeck = await tx.deck.create({ data: newDeck });
+
+    const now = new Date();
+
+    for (const deckQuestion of deckQuestions) {
+      const { id, question, questionId, ...newDeckQuestion } = deckQuestion;
+      const { questionOptions, questionTags, ...newQuestion } = question;
+
+      newQuestion.revealAtDate = null;
+
+      newDeckQuestion.deckId = createdDeck.id;
+      newDeckQuestion.createdAt = now;
+      newDeckQuestion.updatedAt = now;
+
+      const questionOptionsData = questionOptions.map((qo) => {
+        const { questionId, id, ...rest } = qo;
+        rest.createdAt = now;
+        rest.updatedAt = now;
+        return rest;
+      });
+
+      const questionTagsData = questionTags.map((qt) => {
+        const { questionId, id, ...rest } = qt;
+        return rest;
+      });
+
+      if (newQuestion) {
+        const { id, ...newQuestionWithoutId } = newQuestion;
+
+        const newData = {
+          ...newQuestionWithoutId,
+          deckQuestions: { create: newDeckQuestion },
+          questionOptions: { create: questionOptionsData },
+          questionTags: { create: questionTagsData },
+        };
+
+        await tx.question.create({
+          data: newData,
+        });
+      }
+    }
+
+    newDeckId = createdDeck.id;
+  });
+
+  revalidatePath("/admin/decks");
+
+  if (!newDeckId) throw new Error("Deck not copied");
+
+  return newDeckId;
+}
+
 export async function createDeck(data: z.infer<typeof deckSchema>) {
   const isAdmin = await getIsUserAdmin();
 
