@@ -34,15 +34,17 @@ export const createCampaignMysteryBox = async (
       campaignMysteryBoxId: campaignBoxId,
       address: userWallet.address,
     },
+    include: {
+      campaignMysteryBox: true,
+    },
   });
 
   if (!validCampaign) {
     throw new Error("User is not eligible for reward");
   }
 
-  // TODO: Switch to actual mechanism engine endpoint when ready.
   const calculatedReward = await calculateMysteryBoxReward(
-    MysteryBoxEventsType.WEEK_1_Campaign,
+    validCampaign.campaignMysteryBox.boxType,
   );
 
   const tokenAddress = getBonkAddress();
