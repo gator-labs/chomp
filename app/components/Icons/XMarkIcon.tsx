@@ -16,9 +16,9 @@ export function XMarkIcon({
       <path
         d="M6.75729 17.46L11.9999 12.2174M17.2426 6.97477L11.9999 12.2174M11.9999 12.2174L6.75729 6.97477M11.9999 12.2174L17.2426 17.46"
         stroke="white"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

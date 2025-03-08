@@ -20,16 +20,16 @@ export function QuestionCorrectIcon({
       <path
         d="M11.9999 19.1667C15.6818 19.1667 18.6666 16.1819 18.6666 12.5C18.6666 8.81814 15.6818 5.83337 11.9999 5.83337C8.31805 5.83337 5.33328 8.81814 5.33328 12.5C5.33328 16.1819 8.31805 19.1667 11.9999 19.1667Z"
         stroke="black"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M10 12.5L11.3333 13.8333L14 11.1666"
         stroke="black"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

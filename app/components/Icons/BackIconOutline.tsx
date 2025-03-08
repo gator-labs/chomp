@@ -16,9 +16,9 @@ export function BackIconOutline({
       <path
         d="M19 12H6.5M6.5 12L12.5 6M6.5 12L12.5 18"
         stroke="white"
-        stroke-width="1.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

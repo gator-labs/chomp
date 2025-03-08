@@ -9,7 +9,6 @@ import { getJwtPayload } from "../actions/jwt";
 import { DECK_LIMIT } from "../constants/decks";
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
-import { filterQuestionsByMinimalNumberOfAnswers } from "../utils/question";
 
 dayjs.extend(duration);
 
@@ -204,99 +203,6 @@ WHERE
   `;
 
   return deckExpiringSoon;
-}
-
-export async function getQuestionsForRevealedSection(): Promise<
-  RevealedQuestion[]
-> {
-  const payload = await authGuard();
-
-  const questions = await queryRevealedQuestions(payload.sub);
-
-  return questions;
-}
-
-async function queryRevealedQuestions(
-  userId: string,
-): Promise<RevealedQuestion[]> {
-  const revealQuestions: RevealedQuestion[] = await prisma.$queryRaw`
-  SELECT DISTINCT
-    q."id",
-    q."question",
-    q."revealAtDate",
-    q."revealAtAnswerCount",
-    q."revealTokenAmount",
-    c."image"
-  FROM public."Question" q
-  LEFT JOIN public."Stack" c ON c."id" = q."stackId"
-  LEFT JOIN public."ChompResult" cr1 
-      ON cr1."questionId" = q."id" 
-      AND cr1."userId" = ${userId} 
-      AND cr1."transactionStatus" = 'Completed'
-  LEFT JOIN public."DeckQuestion" dq 
-      ON dq."questionId" = q."id"
-  LEFT JOIN public."QuestionOption" qo 
-      ON qo."questionId" = q."id"
-  LEFT JOIN public."QuestionAnswer" qa 
-      ON qa."questionOptionId" = qo."id" 
-      AND qa."userId" = ${userId} AND qa."status" = 'Submitted'
-  WHERE
-      cr1."questionId" IS NULL
-      AND qa."id" IS NULL
-      AND q."revealAtDate" IS NOT NULL 
-      AND q."revealAtDate" < now() 
-  ORDER BY q."revealAtDate" DESC
-  LIMIT 5
-  `;
-
-  return revealQuestions;
-}
-
-export async function getQuestionsForReadyToRevealSection(): Promise<
-  QuestionsForReveal[]
-> {
-  const payload = await authGuard();
-
-  const questions = await queryQuestionsForReadyToReveal(payload.sub);
-
-  return filterQuestionsByMinimalNumberOfAnswers(questions);
-}
-
-async function queryQuestionsForReadyToReveal(
-  userId: string,
-): Promise<QuestionsForReveal[]> {
-  const revealQuestions: QuestionsForReveal[] = await prisma.$queryRaw`
-  SELECT
-  q."id",
-  q."question",
-  q."revealAtDate",
-  (
-  		SELECT
-          	COUNT(DISTINCT CONCAT(qa."userId",qo."questionId"))
-	    FROM public."QuestionOption" qo
-	    JOIN public."QuestionAnswer" qa on qa."questionOptionId" = qo."id"
-	    WHERE qo."questionId" = q."id"
-  	) as "answerCount",
-  q."revealTokenAmount"
-  FROM public."Question" q
-  LEFT JOIN public."ChompResult" cr on cr."questionId" = q.id
-  AND cr."userId" = ${userId}
-  AND cr."transactionStatus" = 'Completed'
-  JOIN public."QuestionOption" qo ON q.id = qo."questionId"
-  JOIN public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
-  WHERE
-  cr."questionId" is null
-  AND
-  q."revealAtDate" is not null
-  AND
-  q."revealAtDate" < now()
-  AND
-  qa.selected = true AND qa."userId" = ${userId}
-  ORDER BY  q."createdAt" DESC
-  LIMIT 100
-  `;
-
-  return revealQuestions;
 }
 
 export async function getUsersLatestStreak(): Promise<number> {
