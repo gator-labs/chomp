@@ -29,6 +29,7 @@ describe("createCampaignMysteryBox", () => {
         name: "test",
         infoBody: "test",
         infoTitle: "test",
+        boxType: "Bis1",
       },
     });
 

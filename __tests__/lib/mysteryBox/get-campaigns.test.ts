@@ -32,6 +32,7 @@ describe("getCampaigns", () => {
         name: "test",
         infoBody: "test",
         infoTitle: "test",
+        boxType: "Bis1",
       },
     });
   });
