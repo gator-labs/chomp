@@ -1,6 +1,5 @@
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxReward } from "@/app/utils/algo";
-import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import {
   EBoxPrizeType,
   EBoxTriggerType,
