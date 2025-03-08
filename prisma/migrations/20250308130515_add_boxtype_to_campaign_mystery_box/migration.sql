@@ -1,8 +1,7 @@
-/*
-  Warnings:
-
-  - Added the required column `boxType` to the `CampaignMysteryBox` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- AlterTable
-ALTER TABLE "CampaignMysteryBox" ADD COLUMN     "boxType" TEXT NOT NULL;
+ALTER TABLE "CampaignMysteryBox" ADD COLUMN     "boxType" TEXT;
+
+UPDATE "CampaignMysteryBox" SET "boxType" = 'Bis1' WHERE "boxType" IS NULL;
+
+-- AlterTable
+ALTER TABLE "CampaignMysteryBox" ALTER COLUMN "boxType" SET NOT NULL;
