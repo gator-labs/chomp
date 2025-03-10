@@ -33,7 +33,7 @@
     "build-storybook": "storybook build",
     "test": "jest --watch",
     "gh-test": "jest",
-    "gh-test-sync": "yarn jest --runInBand",
+    "gh-test-sync": "jest --runInBand",
     "knip": "knip",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
