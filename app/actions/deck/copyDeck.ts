@@ -34,36 +34,40 @@ export async function copyDeck(deckId: number): Promise<number> {
 
   await prisma.$transaction(async (tx) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...newDeck } = deck;
+    const {
+      id,
+      createdAt,
+      updatedAt,
+      activeFromDate,
+      revealAtDate,
+      ...newDeck
+    } = deck;
 
     newDeck.deck = "Copy of " + newDeck.deck;
-    newDeck.activeFromDate = null;
-    newDeck.revealAtDate = null;
-    newDeck.createdAt = new Date();
-    newDeck.updatedAt = new Date();
     newDeck.imageUrl = null;
 
     const createdDeck = await tx.deck.create({ data: newDeck });
 
-    const now = new Date();
-
     for (const deckQuestion of deckQuestions) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { id, question, questionId, ...newDeckQuestion } = deckQuestion;
+      const {
+        id,
+        question,
+        questionId,
+        createdAt,
+        updatedAt,
+        ...newDeckQuestion
+      } = deckQuestion;
       const { questionOptions, questionTags, ...newQuestion } = question;
 
       newQuestion.revealAtDate = null;
       newQuestion.imageUrl = null;
 
       newDeckQuestion.deckId = createdDeck.id;
-      newDeckQuestion.createdAt = now;
-      newDeckQuestion.updatedAt = now;
 
       const questionOptionsData = questionOptions.map((qo) => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { questionId, id, ...rest } = qo;
-        rest.createdAt = now;
-        rest.updatedAt = now;
+        const { questionId, id, createdAt, updatedAt, ...rest } = qo;
         return rest;
       });
 
