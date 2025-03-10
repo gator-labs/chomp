@@ -40,6 +40,9 @@ const StackPage = async ({ params: { id } }: PageProps) => {
             alt={stack.name}
             className="object-cover"
             sizes="(max-width: 600px) 80px, (min-width: 601px) 100.5px"
+            onError={(e) => {
+              e.currentTarget.src = "/images/chompy.png";
+            }}
             priority
           />
         </div>
