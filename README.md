@@ -17,6 +17,8 @@ Prerequisites:
 - Install Docker
 - Create a [Dynamic](https://www.dynamic.xyz/) account
 - Solana RPC like Helius
+- Solana account priv key for the Treasury
+- Redis 
 
 ```sh
 # install dependencies
