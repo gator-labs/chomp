@@ -104,12 +104,14 @@ We are in the process of adapting another set of "[Wisdom of the Crowd](https://
 
 SPL token interaction is thoroughly tested for transfer and burn correctness. [Bankrun](https://github.com/kevinheavey/solana-bankrun/tree/main) is used for testing on-chain transactions. See `__tests__` for code.
 
+Tests need a database for running, you could create a new one with a new db-compose-tests.yml or just use the same one, tests clean after themselves after running. We recommend running them serially so they don't interfere with each other.
+
 ```sh
 # Setup test environment
 cp .env.example .env.test
 
 # Run tests
-yarn test
+yarn gh-test-sync
 ```
 
 ## Restoring database
