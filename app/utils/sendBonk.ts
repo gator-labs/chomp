@@ -16,13 +16,14 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import base58 from "bs58";
-import pRetry from "p-retry";
 import "server-only";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
+import { checkTransactionStatus } from "./checkTransactionStatus";
+import { sleep } from "./sleep";
 import { CONNECTION } from "./solana";
 
 export const sendBonk = async (toWallet: PublicKey, amount: number) => {
@@ -152,7 +153,7 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
   versionedTransaction.sign([fromWallet]);
 
   // Send the transaction
-  let signature;
+  let signature: string | null = null;
 
   try {
     signature = await CONNECTION.sendTransaction(versionedTransaction, {
@@ -160,12 +161,12 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     });
   } catch (error) {
     const transactionFailedError = new TransactionFailedError(
-      "Send Bonk Transaction failed to send",
+      "Failed to send Bonk Transaction",
       { cause: error },
     );
     Sentry.captureException(transactionFailedError, {
       extra: {
-        errorPhase: "TRANSACTION_SEND",
+        errorPhase: "SEND_TRANSACTION_FAILED",
         errorDetails: error instanceof Error ? error.message : String(error),
         userId: payload?.sub,
         walletAddress: toWallet.toBase58(),
@@ -176,43 +177,28 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    return null;
   }
 
+  // Wait for 2 seconds to ensure the transaction is processed before confirming
+  await sleep(2000);
+
   try {
-    await pRetry(
-      async () => {
-        const currentBlockhash = await CONNECTION.getLatestBlockhash();
-        await CONNECTION.confirmTransaction(
-          {
-            signature,
-            ...currentBlockhash,
-          },
-          "confirmed",
-        );
-      },
+    if (!signature) {
+      throw new Error("Transaction signature is null");
+    }
+    await checkTransactionStatus(signature);
+  } catch (error) {
+    const transactionFailedToConfirm = new TransactionFailedToConfirmError(
+      `Failed to confirm Bonk Transaction`,
       {
-        retries: 2,
+        cause: error,
       },
     );
-  } catch (error) {
-    // Determine the specific error type and create a descriptive error message
-    let errorType = "SEND_BONK_FAILED";
-    let errorDetails = error;
 
-    if (error instanceof TransactionFailedToConfirmError) {
-      errorType = "TRANSACTION_CONFIRMATION_FAILED";
-      errorDetails = error.cause;
-    } else {
-      error = new TransactionFailedError(`Send Bonk Transaction failed`, {
-        cause: error,
-      });
-    }
-
-    Sentry.captureException(error, {
+    Sentry.captureException(transactionFailedToConfirm, {
       extra: {
-        errorPhase: errorType,
-        errorDetails: errorDetails,
+        errorPhase: "TRANSACTION_CONFIRMATION_FAILED",
+        errorDetails: error,
         userId: payload?.sub,
         walletAddress: toWallet.toBase58(),
         signature,
@@ -223,8 +209,6 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
       },
     });
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-
-    return null;
   }
 
   return signature;
