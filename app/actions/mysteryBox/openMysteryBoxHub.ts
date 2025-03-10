@@ -7,7 +7,6 @@ import {
   EBoxPrizeStatus,
   EBoxPrizeType,
   EChainTxStatus,
-  EChainTxType,
   EMysteryBoxStatus,
   FungibleAsset,
   TransactionLogType,
@@ -120,7 +119,6 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     0,
   );
 
-  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS || "";
   let txHash: string | null = null;
   try {
     if (totalBonkAmount > 0) {
@@ -142,17 +140,13 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
             throw new Error("Treasury address not defined");
           }
 
-          await tx.chainTx.create({
+          await tx.chainTx.update({
             data: {
-              hash: txHash,
-              wallet: treasury,
-              recipientAddress: userWallet.address,
-              type: EChainTxType.MysteryBoxClaim,
               status: EChainTxStatus.Finalized,
-              solAmount: "0",
-              tokenAmount: totalBonkAmount.toString(),
-              tokenAddress: bonkAddress,
               finalizedAt: date,
+            },
+            where: {
+              hash: txHash,
             },
           });
         }

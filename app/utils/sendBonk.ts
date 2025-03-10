@@ -2,6 +2,8 @@ import {
   TransactionFailedError,
   TransactionFailedToConfirmError,
 } from "@/lib/error";
+import { EChainTxType } from "@prisma/client";
+import { EChainTxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
   createAssociatedTokenAccountInstruction,
@@ -22,6 +24,7 @@ import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
+import prisma from "../services/prisma";
 import { checkTransactionStatus } from "./checkTransactionStatus";
 import { sleep } from "./sleep";
 import { CONNECTION } from "./solana";
@@ -159,9 +162,22 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     signature = await CONNECTION.sendTransaction(versionedTransaction, {
       maxRetries: 10,
     });
+
+    await prisma.chainTx.create({
+      data: {
+        hash: signature,
+        status: EChainTxStatus.New,
+        solAmount: "0",
+        wallet: fromWallet.publicKey.toBase58(),
+        recipientAddress: toWallet.toBase58(),
+        type: EChainTxType.MysteryBoxClaim,
+        tokenAmount: (amount / 10 ** 5).toString(),
+        tokenAddress: bonkMint.toBase58(),
+      },
+    });
   } catch (error) {
     const transactionFailedError = new TransactionFailedError(
-      "Failed to send Bonk Transaction",
+      "Failed to send Bonk Transaction or create ChainTx",
       { cause: error },
     );
     Sentry.captureException(transactionFailedError, {
