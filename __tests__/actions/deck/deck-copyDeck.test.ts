@@ -1,4 +1,5 @@
-import { copyDeck, deleteDeck } from "@/app/actions/deck/deck";
+import { copyDeck } from "@/app/actions/deck/copyDeck";
+import { deleteDeck } from "@/app/actions/deck/deck";
 import prisma from "@/app/services/prisma";
 
 // Mocking Next.js dependencies and functions that are not the focus of this test

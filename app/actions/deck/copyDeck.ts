@@ -1,0 +1,101 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+import { getIsUserAdmin } from "../../queries/user";
+import prisma from "../../services/prisma";
+
+export async function copyDeck(deckId: number): Promise<number> {
+  const isAdmin = await getIsUserAdmin();
+
+  if (!isAdmin) {
+    redirect("/application");
+  }
+  const deck = await prisma.deck.findUnique({
+    where: { id: deckId },
+  });
+
+  if (!deck) throw new Error("Deck not found");
+
+  const deckQuestions = await prisma.deckQuestion.findMany({
+    where: { deckId },
+    include: {
+      question: {
+        include: {
+          questionOptions: true,
+          questionTags: true,
+        },
+      },
+    },
+  });
+
+  let newDeckId: number | undefined = undefined;
+
+  await prisma.$transaction(async (tx) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...newDeck } = deck;
+
+    newDeck.deck = "Copy of " + newDeck.deck;
+    newDeck.activeFromDate = null;
+    newDeck.revealAtDate = null;
+    newDeck.createdAt = new Date();
+    newDeck.updatedAt = new Date();
+    newDeck.imageUrl = null;
+
+    const createdDeck = await tx.deck.create({ data: newDeck });
+
+    const now = new Date();
+
+    for (const deckQuestion of deckQuestions) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, question, questionId, ...newDeckQuestion } = deckQuestion;
+      const { questionOptions, questionTags, ...newQuestion } = question;
+
+      newQuestion.revealAtDate = null;
+      newQuestion.imageUrl = null;
+
+      newDeckQuestion.deckId = createdDeck.id;
+      newDeckQuestion.createdAt = now;
+      newDeckQuestion.updatedAt = now;
+
+      const questionOptionsData = questionOptions.map((qo) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { questionId, id, ...rest } = qo;
+        rest.createdAt = now;
+        rest.updatedAt = now;
+        return rest;
+      });
+
+      const questionTagsData = questionTags.map((qt) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { questionId, id, ...rest } = qt;
+        return rest;
+      });
+
+      if (newQuestion) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...newQuestionWithoutId } = newQuestion;
+
+        const newData = {
+          ...newQuestionWithoutId,
+          deckQuestions: { create: newDeckQuestion },
+          questionOptions: { create: questionOptionsData },
+          questionTags: { create: questionTagsData },
+        };
+
+        await tx.question.create({
+          data: newData,
+        });
+      }
+    }
+
+    newDeckId = createdDeck.id;
+  });
+
+  revalidatePath("/admin/decks");
+
+  if (!newDeckId) throw new Error("Deck not copied");
+
+  return newDeckId;
+}
