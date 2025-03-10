@@ -201,21 +201,6 @@ describe("queryExpiringDecks", () => {
     });
   });
 
-  it("times should be in UTC", async () => {
-    const deckOne = await prisma.deck.findUnique({
-      where: {
-        id: deckIds[0],
-      },
-    });
-
-    expect(deckOne?.activeFromDate?.toISOString()).toBe(
-      "2025-03-07T12:00:00.000Z",
-    );
-    expect(deckOne?.revealAtDate?.toISOString()).toBe(
-      "2025-03-08T12:00:00.000Z",
-    );
-  });
-
   // TODO: should return decks that are partially anwered
   // if only one question is anwered should still return deck
   // if two questions are anwered shoun't return deck

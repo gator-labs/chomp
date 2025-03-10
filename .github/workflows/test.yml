@@ -93,4 +93,4 @@ jobs:
       - name: Run Jest Tests
         run: |
           echo "Running Jest tests using the pulled and sanitized environment variables."
-          npm run gh-test
+          npm run gh-test-sync
