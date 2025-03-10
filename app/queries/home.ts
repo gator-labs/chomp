@@ -166,8 +166,6 @@ async function getNextDeckIdQuery(
 }
 
 /**
- * return decks that expire today and have not yet expired
- *
  * returns decks that
  *  revealAtDate has not yet passed (not expired)
  *  and activeFromDate already have passed (are active) or has no activeFromDate date
