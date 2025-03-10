@@ -42,7 +42,7 @@ export const createCampaignMysteryBox = async (
 
   // TODO: Switch to actual mechanism engine endpoint when ready.
   const calculatedReward = await calculateMysteryBoxReward(
-    MysteryBoxEventsType.CHOMPMAS,
+    MysteryBoxEventsType.WEEK_1_Campaign,
   );
 
   const tokenAddress = getBonkAddress();
@@ -53,11 +53,15 @@ export const createCampaignMysteryBox = async (
     const existingBox = await tx.mysteryBoxTrigger.findFirst({
       where: {
         campaignMysteryBoxId: campaignBoxId,
+        MysteryBox: {
+          userId: userId,
+        },
       },
       include: {
         MysteryBox: {
           where: {
             status: { in: [EMysteryBoxStatus.New, EMysteryBoxStatus.Unopened] },
+            userId: userId,
           },
         },
       },
