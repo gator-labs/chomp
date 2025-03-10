@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -5,6 +6,8 @@ import { redirect } from "next/navigation";
 
 import { getIsUserAdmin } from "../../queries/user";
 import prisma from "../../services/prisma";
+
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 export async function copyDeck(deckId: number): Promise<number> {
   const isAdmin = await getIsUserAdmin();
@@ -33,7 +36,6 @@ export async function copyDeck(deckId: number): Promise<number> {
   let newDeckId: number | undefined = undefined;
 
   await prisma.$transaction(async (tx) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {
       id,
       createdAt,
@@ -49,7 +51,6 @@ export async function copyDeck(deckId: number): Promise<number> {
     const createdDeck = await tx.deck.create({ data: newDeck });
 
     for (const deckQuestion of deckQuestions) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {
         id,
         question,
@@ -66,19 +67,16 @@ export async function copyDeck(deckId: number): Promise<number> {
       newDeckQuestion.deckId = createdDeck.id;
 
       const questionOptionsData = questionOptions.map((qo) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { questionId, id, createdAt, updatedAt, ...rest } = qo;
         return rest;
       });
 
       const questionTagsData = questionTags.map((qt) => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { questionId, id, ...rest } = qt;
         return rest;
       });
 
       if (newQuestion) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, ...newQuestionWithoutId } = newQuestion;
 
         const newData = {
