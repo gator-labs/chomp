@@ -34,7 +34,7 @@ describe("Copying a Deck", () => {
   beforeAll(async () => {
     const tag = await prisma.tag.create({
       data: {
-        tag: `Tag_CopyTest_{new Date().toISOString()`,
+        tag: `Tag_CopyTest_${new Date().toISOString()}`,
       },
     });
 
