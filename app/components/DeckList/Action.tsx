@@ -1,6 +1,7 @@
 "use client";
 
-import { copyDeck, deleteDeck } from "@/app/actions/deck/deck";
+import { copyDeck } from "@/app/actions/deck/copyDeck";
+import { deleteDeck } from "@/app/actions/deck/deck";
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { Row } from "@tanstack/react-table";
