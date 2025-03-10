@@ -58,7 +58,7 @@ const StackPage = async ({ params: { id } }: PageProps) => {
           </Link>
         </div>
       </div>
-      <div className="py-2 px-4 overflow-hidden">
+      <div className="py-2 px-4 overflow-hidden mb-2">
         <p className="text-sm">Decks</p>
       </div>
       <ul className="flex flex-col gap-2 px-4 overflow-auto">

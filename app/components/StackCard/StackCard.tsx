@@ -26,7 +26,7 @@ const StackCard = ({
       href={`${STACKS_PATH}/${id}`}
       className="p-4 rounded-[8px] bg-gray-800 border-[0.5px] border-solid border-gray-500 flex items-center justify-between gap-4"
       style={{
-        pointerEvents: decksToAnswer === 0 ? "none" : "auto",
+        pointerEvents: numberOfDecks === 0 ? "none" : "auto",
       }}
     >
       <div className="relative w-[52px] h-[52px]">
@@ -51,7 +51,7 @@ const StackCard = ({
           </p>
         )}
       </div>
-      {!(decksToAnswer === 0) && (
+      {!(numberOfDecks === 0) && (
         <div className="flex-shrink-0">
           <ArrowRightCircle />
         </div>
