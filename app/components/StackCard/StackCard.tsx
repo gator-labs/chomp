@@ -11,7 +11,6 @@ type StackCardProps = {
   name: string;
   numberOfDecks: number;
   decksToAnswer?: number;
-  decksToReveal?: number;
 };
 
 const StackCard = ({
@@ -19,20 +18,15 @@ const StackCard = ({
   imageSrc,
   name,
   decksToAnswer,
-  decksToReveal,
   numberOfDecks,
 }: StackCardProps) => {
-  const hasDeckDetails =
-    decksToAnswer !== undefined &&
-    decksToReveal !== undefined &&
-    numberOfDecks > 0;
+  const hasDeckDetails = decksToAnswer !== undefined && numberOfDecks > 0;
   return (
     <a
       href={`${STACKS_PATH}/${id}`}
       className="p-4 rounded-[8px] bg-gray-800 border-[0.5px] border-solid border-gray-500 flex items-center justify-between gap-4"
       style={{
-        pointerEvents:
-          decksToAnswer === 0 && decksToReveal === 0 ? "none" : "auto",
+        pointerEvents: numberOfDecks === 0 ? "none" : "auto",
       }}
     >
       <div className="relative w-[52px] h-[52px]">
@@ -57,7 +51,7 @@ const StackCard = ({
           </p>
         )}
       </div>
-      {!(decksToAnswer === 0 && decksToReveal === 0) && (
+      {!(numberOfDecks === 0) && (
         <div className="flex-shrink-0">
           <ArrowRightCircle />
         </div>
