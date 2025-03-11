@@ -1,6 +1,5 @@
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
-import Decimal from "decimal.js";
 
 type CreditPackListItemProps = {
   amount: number;
@@ -23,11 +22,6 @@ function CreditPackListItem({
     }
   };
 
-  const originalTotal = new Decimal(originalCostPerCredit)
-    .mul(amount)
-    .toString();
-  const newTotal = new Decimal(costPerCredit).mul(amount).toString();
-
   return (
     <li
       className={cn(
@@ -48,10 +42,10 @@ function CreditPackListItem({
       <div className="flex flex-col text-sm font-bold">
         {costPerCredit != originalCostPerCredit && (
           <span className="text-gray-400 line-through">
-            {originalTotal} SOL
+            {originalCostPerCredit} SOL
           </span>
         )}
-        <span> {newTotal} SOL</span>
+        <span> {costPerCredit} SOL</span>
       </div>
 
       <div>
