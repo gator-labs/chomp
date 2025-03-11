@@ -188,7 +188,7 @@ export const sendBonk = async (
     });
   } catch (error) {
     const transactionFailedError = new TransactionFailedError(
-      "Failed to send Bonk Transaction or create ChainTx",
+      "Failed to send Bonk Transaction",
       { cause: error },
     );
     Sentry.captureException(transactionFailedError, {
