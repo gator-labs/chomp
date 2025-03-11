@@ -1,5 +1,6 @@
 "use client";
 
+import { copyDeck } from "@/app/actions/deck/copyDeck";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
@@ -17,9 +18,11 @@ type Props = {
 
 const Action = ({ row }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCopyModalOpen, setIsCopyModalOpen] = useState(false);
   const [totalNumberOfAnswersInDeck, setTotalNumberOfAnswersInDeck] =
     useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
   const { infoToast, successToast } = useToast();
 
@@ -82,6 +85,39 @@ const Action = ({ row }: Props) => {
           </div>
         </div>
       </Modal>
+      <Modal
+        isOpen={isCopyModalOpen}
+        onClose={() => !isDeleting && setIsCopyModalOpen(false)}
+        title={`Deck: ${row.original.deck}`}
+      >
+        <div className="flex flex-col gap-2">
+          <p>
+            Create a copy of <b>{row.original.deck}</b>?
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="primary"
+              disabled={isCopying || isFetching}
+              onClick={async () => {
+                setIsCopying(true);
+                await copyDeck(row.original.id);
+                setIsCopying(false);
+                setIsCopyModalOpen(false);
+                successToast(`${row.original.deck} copied!`);
+              }}
+            >
+              {isCopying ? "Copying" : "Copy"}
+            </Button>
+            <Button
+              variant={"outline"}
+              disabled={isDeleting || isFetching}
+              onClick={() => setIsModalOpen(false)}
+            >
+              No
+            </Button>
+          </div>
+        </div>
+      </Modal>
       <Button isFullWidth={false} onClick={handleCopyPublicDeckLink}>
         Deck link
       </Button>
@@ -90,6 +126,9 @@ const Action = ({ row }: Props) => {
           Edit
         </Button>
       </Link>
+      <Button isFullWidth={false} onClick={() => setIsCopyModalOpen(true)}>
+        Copy
+      </Button>
       <Button
         variant="destructive"
         isFullWidth={false}

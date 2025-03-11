@@ -1,62 +1,74 @@
-import StackDeckCard from "@/app/components/StackDeckCard/StackDeckCard";
-import StacksHeader from "@/app/components/StacksHeader/StacksHeader";
-import { getDailyDecks } from "@/app/queries/stack";
-import { getCurrentUser } from "@/app/queries/user";
-import { getTotalNumberOfDeckQuestions } from "@/app/utils/question";
+"use client";
+
+import type { ExtendedStack } from "@/types/stack";
 import Image from "next/image";
+import Link from "next/link";
+import type { GetPlaiceholderReturn } from "plaiceholder";
 
-const StackPage = async () => {
-  const [user, dailyDecks] = await Promise.all([
-    getCurrentUser(),
-    getDailyDecks(),
-  ]);
+import TrophyOutlineIcon from "../Icons/TrophyOutlinedIcon";
+import StackDeckCard from "../StackDeckCard/StackDeckCard";
+import StacksHeader from "../StacksHeader/StacksHeader";
 
-  const totalNumberOfCards = getTotalNumberOfDeckQuestions(
-    dailyDecks.decks.flatMap((d) => d.deckQuestions),
-  );
+type StackProps = {
+  stack: ExtendedStack;
+  totalNumberOfCards: number;
+  blurData: GetPlaiceholderReturn;
+  userId: string | undefined;
+};
 
+export const Stack = ({
+  stack,
+  totalNumberOfCards,
+  blurData,
+  userId,
+}: StackProps) => {
   return (
     <div className="flex flex-col gap-2 pt-4 overflow-hidden pb-2">
       <StacksHeader backAction="stacks" className="px-4" />
       <div className="p-4 bg-gray-850 flex gap-4">
         <div className="relative w-[100.5px] h-[100.5px]">
           <Image
-            src="/images/chompy.png"
+            src={stack.image}
+            blurDataURL={blurData?.base64}
+            placeholder="blur"
             fill
-            alt="Daily Decks"
+            alt={stack.name}
             className="object-cover"
             sizes="(max-width: 600px) 80px, (min-width: 601px) 100.5px"
+            onError={(e) => {
+              e.currentTarget.src = "/images/chompy.png";
+            }}
             priority
           />
         </div>
         <div className="flex flex-col">
-          <h1 className="text-base mb-3">Daily Decks</h1>
+          <h1 className="text-base mb-3">{stack.name}</h1>
           <p className="text-xs mb-6">
-            {dailyDecks.decks.length} deck
-            {dailyDecks.decks.length === 1 ? "" : "s"}, {totalNumberOfCards}{" "}
-            cards
+            {stack.deck.length} deck{stack.deck.length === 1 ? "" : "s"},{" "}
+            {totalNumberOfCards} cards
           </p>
+          <Link
+            href={`/application/leaderboard/stack/${stack.id}`}
+            className="mt-auto py-1 flex gap-1 items-center w-fit px-2 bg-gray-800 border border-gray-600 rounded-[56px]"
+          >
+            <p className="text-[12px] leading-[16px]">Leaderboards</p>
+            <TrophyOutlineIcon />
+          </Link>
         </div>
       </div>
       <div className="py-2 px-4 mb-2">
         <p className="text-sm">Decks</p>
       </div>
       <ul className="flex flex-col gap-2 px-4 overflow-auto">
-        {dailyDecks.decks.map((deck) => {
+        {stack.deck.map((deck) => {
           return (
             <StackDeckCard
               key={deck.id}
               deckId={deck.id}
               deckName={deck.deck}
-              imageUrl={
-                deck.imageUrl
-                  ? deck.imageUrl.startsWith("https")
-                    ? deck.imageUrl
-                    : `/images/chompy.png`
-                  : "/images/chompy.png"
-              }
+              imageUrl={deck.imageUrl ? deck.imageUrl : stack.image}
               revealAtDate={deck.revealAtDate!}
-              userId={user?.id}
+              userId={userId}
               deckCreditCost={deck.totalCreditCost}
               deckRewardAmount={deck.totalRewardAmount}
               answeredQuestions={
@@ -68,7 +80,7 @@ const StackPage = async () => {
                   )
                   .filter(
                     (qa) =>
-                      qa.userId === user?.id &&
+                      qa.userId === userId &&
                       (qa.status === "Submitted" || qa.status === "Viewed"),
                   ).length / 2
               }
@@ -80,5 +92,3 @@ const StackPage = async () => {
     </div>
   );
 };
-
-export default StackPage;
