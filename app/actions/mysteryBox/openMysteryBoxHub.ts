@@ -1,12 +1,11 @@
 "use server";
 
-import { getTreasuryAddress } from "@/actions/getTreasuryAddress";
 import { OpenMysteryBoxHubError } from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import {
   EBoxPrizeStatus,
   EBoxPrizeType,
-  EChainTxStatus,
+  EChainTxType,
   EMysteryBoxStatus,
   FungibleAsset,
   TransactionLogType,
@@ -122,7 +121,11 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
   let txHash: string | null = null;
   try {
     if (totalBonkAmount > 0) {
-      txHash = await sendBonkFromTreasury(totalBonkAmount, userWallet.address);
+      txHash = await sendBonkFromTreasury(
+        totalBonkAmount,
+        userWallet.address,
+        EChainTxType.MysteryBoxClaim,
+      );
       if (!txHash) {
         throw new Error("Send bonk transaction failed");
       }
@@ -132,26 +135,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
       async (tx) => {
         const date = new Date();
 
-        // Step 2: Create chain transaction if txHash is provided
-        if (txHash) {
-          const treasury = await getTreasuryAddress();
-
-          if (!treasury) {
-            throw new Error("Treasury address not defined");
-          }
-
-          await tx.chainTx.update({
-            data: {
-              status: EChainTxStatus.Finalized,
-              finalizedAt: date,
-            },
-            where: {
-              hash: txHash,
-            },
-          });
-        }
-
-        // Step 3: Update mystery box prizes for token prizes
+        // Step 2: Update mystery box prizes for token prizes
         await tx.mysteryBoxPrize.updateMany({
           where: {
             id: {
@@ -165,7 +149,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
           },
         });
 
-        // Step 4: Update mystery box prizes for credit prizes
+        // Step 3: Update mystery box prizes for credit prizes
         await tx.mysteryBoxPrize.updateMany({
           where: {
             id: {

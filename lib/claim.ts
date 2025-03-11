@@ -1,7 +1,7 @@
 "use server";
 
 import { sendBonk } from "@/app/utils/sendBonk";
-import { ChompResult } from "@prisma/client";
+import { ChompResult, EChainTxType } from "@prisma/client";
 import { PublicKey } from "@solana/web3.js";
 
 export async function sendClaimedBonkFromTreasury(
@@ -17,6 +17,7 @@ export async function sendClaimedBonkFromTreasury(
     const sendTx = await sendBonk(
       new PublicKey(address),
       Math.round(tokenAmount * 10 ** 5),
+      EChainTxType.MysteryBoxClaim,
     );
     return sendTx;
   }
