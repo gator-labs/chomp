@@ -70,19 +70,35 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
 
   const updateCreditsToBuy = (value: string) => {
     const numValue = Number(value);
+    if (selectedPackId !== null) {
+      setSelectedPack(null);
+      setSelectedPackId(null);
+    }
     if (isNaN(numValue) || numValue < 0 || !Number.isFinite(numValue))
       setCreditsToBuy(undefined);
     else setCreditsToBuy(numValue);
   };
 
   const incrementCreditsToBuy = () => {
-    if (creditsToBuy === undefined) setCreditsToBuy(1);
-    else setCreditsToBuy(creditsToBuy + 1);
+    if (selectedPackId !== null) {
+      setSelectedPack(null);
+      setSelectedPackId(null);
+      setCreditsToBuy(1);
+    } else {
+      if (creditsToBuy === undefined) setCreditsToBuy(1);
+      else setCreditsToBuy(creditsToBuy + 1);
+    }
   };
 
   const decrementCreditsToBuy = () => {
-    if (creditsToBuy === undefined || creditsToBuy === 0) return;
-    setCreditsToBuy(creditsToBuy - 1);
+    if (selectedPackId !== null) {
+      setSelectedPack(null);
+      setSelectedPackId(null);
+      setCreditsToBuy(1);
+    } else {
+      if (creditsToBuy === undefined || creditsToBuy === 0) return;
+      setCreditsToBuy(creditsToBuy - 1);
+    }
   };
 
   const buyCredits = async () => {
@@ -237,13 +253,12 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
               placeholder="0 Credits"
               className="block h-full w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
               value={selectedPackId === null ? creditsToBuy : ""}
-              disabled={selectedPackId !== null || isProcessingTx || isLoading}
+              disabled={isProcessingTx || isLoading}
               onChange={(e) => updateCreditsToBuy(e.target.value)}
             />
             <Button
               className="min-w-[3.5em]"
               disabled={
-                selectedPackId !== null ||
                 creditsToBuy === 0 ||
                 creditsToBuy === undefined ||
                 isProcessingTx ||
@@ -256,8 +271,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
             <Button
               className="min-w-[3.5em]"
               disabled={
-                selectedPackId !== null ||
-                hasInsufficientFunds ||
+                (hasInsufficientFunds && selectedPackId === null) ||
                 isProcessingTx ||
                 isLoading
               }
