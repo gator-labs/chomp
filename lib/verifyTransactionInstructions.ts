@@ -31,7 +31,7 @@ export async function verifyTransactionInstructions(
       { retries: MAX_RETRIES },
     );
 
-    if (!txInfo) {
+    if (!txInfo || txInfo.meta?.err) {
       return { success: false, error: "Transaction info not found" };
     }
 
