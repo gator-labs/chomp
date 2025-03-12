@@ -3,6 +3,7 @@ import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { setupTransactionPriorityFee } from "@/lib/priorityFee";
 import type { Wallet } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana-core";
+import { CreditPack } from "@prisma/client";
 import {
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -17,13 +18,14 @@ import Decimal from "decimal.js";
  *
  * @param creditsToBuy - Number of credits to purchase
  * @param wallet - User's wallet instance from Dynamic SDK
- * @param setIsProcessingTx - Callback to update transaction processing state
+ * @param creditPack - Credit pack (optional).
  *
  * @returns Transaction object with signature, or null if transaction signing fails
  */
 export async function createCreditPurchaseTransaction(
   creditsToBuy: number,
   wallet: Wallet,
+  creditPack: CreditPack | null = null,
 ) {
   if (!isSolanaWallet(wallet)) return null;
 
@@ -31,6 +33,16 @@ export async function createCreditPurchaseTransaction(
 
   if (!payload) {
     return null;
+  }
+
+  if (creditPack) {
+    // Basic sanity checks; we will verify the full
+    // details later on the backend.
+
+    if (!creditPack.costPerCredit) throw new Error("Invalid credit pack");
+
+    if (creditPack.amount !== creditsToBuy)
+      throw new Error("Credit pack amount mismatch");
   }
 
   const signer = await wallet.getSigner();
@@ -50,11 +62,15 @@ export async function createCreditPurchaseTransaction(
   // Setup priority fee and compute units
   tx = await setupTransactionPriorityFee(tx, walletPubkey);
 
+  const costPerCredit =
+    creditPack?.costPerCredit ??
+    process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT!;
+
   tx.add(
     SystemProgram.transfer({
       fromPubkey: walletPubkey,
       toPubkey: new PublicKey(solPaymentAddress),
-      lamports: new Decimal(process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT!)
+      lamports: new Decimal(costPerCredit)
         .mul(creditsToBuy)
         .mul(LAMPORTS_PER_SOL)
         .toNumber(),

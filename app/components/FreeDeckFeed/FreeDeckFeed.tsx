@@ -63,9 +63,7 @@ function FreeDeckFeed() {
             status="start"
             deckCreditCost={d.total_credit_cost ? d.total_credit_cost : 0}
             totalQuestions={d.total_questions ? d.total_questions : 0}
-            completedQuestions={
-              d.completed_questions ? d.completed_questions : 0
-            }
+            answeredQuestions={d.answered_questions ? d.answered_questions : 0}
           />
         </div>
       ))}

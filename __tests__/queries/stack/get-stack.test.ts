@@ -19,7 +19,7 @@ jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
 
-describe.skip("getStack", () => {
+describe("getStack", () => {
   let stackId: number;
   let createdDeckIds: number[] = [];
   let userId: string;

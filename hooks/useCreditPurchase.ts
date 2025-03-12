@@ -2,6 +2,7 @@ import { initiateCreditPurchase } from "@/actions/credits/initiatePurchase";
 import { createCreditPurchaseTransaction } from "@/lib/credits/createTransaction";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { isSolanaWallet } from "@dynamic-labs/solana";
+import { CreditPack } from "@prisma/client";
 import { useState } from "react";
 
 export function useCreditPurchase() {
@@ -9,7 +10,10 @@ export function useCreditPurchase() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const { primaryWallet } = useDynamicContext();
 
-  const processCreditPurchase = async (creditsToBuy: number) => {
+  const processCreditPurchase = async (
+    creditsToBuy: number,
+    creditPack: CreditPack | null = null,
+  ) => {
     setTxHash(null);
 
     if (!primaryWallet || !isSolanaWallet(primaryWallet)) {
@@ -23,6 +27,7 @@ export function useCreditPurchase() {
       const data = await createCreditPurchaseTransaction(
         creditsToBuy,
         primaryWallet,
+        creditPack,
       );
 
       if (
@@ -43,6 +48,7 @@ export function useCreditPurchase() {
         creditsToBuy,
         data?.signature,
         data?.transaction,
+        creditPack?.id,
       );
 
       if (result?.error) {
