@@ -1,3 +1,4 @@
+import { DeckHistoryItem } from "@/types/history";
 import { QuestionCardIndicatorType } from "@/types/question";
 
 import prisma from "../services/prisma";
@@ -361,4 +362,52 @@ WHERE
 	`;
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
+}
+
+export async function getAnsweredDecksForHistory(
+  userId: string,
+  pageSize: number,
+  currentPage: number,
+): Promise<DeckHistoryItem[]> {
+  const offset = (currentPage - 1) * pageSize;
+
+  const result: DeckHistoryItem[] = await prisma.$queryRaw`
+    SELECT 
+      d.id,
+      d.deck,
+      d."imageUrl",
+      d."revealAtDate",
+      COALESCE((SELECT sum(q."revealTokenAmount") 
+       FROM public."DeckQuestion" dq
+       JOIN public."Question" q 
+       ON dq."questionId" = q.id
+       WHERE dq."deckId" = d.id), 0) AS "total_reward_amount",
+      COALESCE((SELECT sum(q."creditCostPerQuestion") 
+       FROM public."DeckQuestion" dq
+       JOIN public."Question" q 
+       ON dq."questionId" = q.id
+       WHERE dq."deckId" = d.id), 0) AS "total_credit_cost"
+    FROM 
+      public."Deck" d
+    WHERE 
+      d."revealAtDate" IS NOT NULL
+      AND d."revealAtDate" <= NOW()
+      AND EXISTS (
+        SELECT 1
+        FROM public."DeckQuestion" dq
+        JOIN public."Question" q ON dq."questionId" = q.id
+        JOIN public."QuestionOption" qo ON qo."questionId" = q.id
+        JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
+        WHERE dq."deckId" = d.id
+        AND qa."userId" = ${userId}
+        AND qa."status" IN ('Submitted', 'Viewed')
+      )
+    GROUP BY 
+      d.id, d.deck, d."imageUrl", d."revealAtDate"
+    ORDER BY 
+      d."revealAtDate" DESC
+    LIMIT ${pageSize} OFFSET ${offset}
+  `;
+
+  return result;
 }
