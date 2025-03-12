@@ -221,8 +221,19 @@ export async function queryExpiringDecks(
   return deckExpiringSoon;
 }
 
+// TODO: Remove this once testing simulation is done
+let errorCount = 0;
+const MAX_ERRORS = Number(process.env.NEXT_PUBLIC_STREAK_QUERY_MAX_ERRORS);
+
 export async function getUsersLatestStreak(): Promise<number> {
   const payload = await authGuard();
+
+  // THIS IS ONLY FOR TESTING PURPOSES
+  if (errorCount < MAX_ERRORS) {
+    errorCount++;
+    console.log(`🚨 Throwing test error from streak query #${errorCount}`);
+    throw new Error("Error fetching users latest streak");
+  }
 
   const longestStreak = await queryUsersLatestStreak(payload.sub);
 

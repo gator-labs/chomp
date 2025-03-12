@@ -9,8 +9,10 @@ export function ErrorHandler() {
 
   useEffect(() => {
     const handleError = () => {
+      console.log("🚒 Error detected");
       // Only refresh once
       if (!hasRefreshed.current) {
+        console.log("🧯 Refreshing the page");
         hasRefreshed.current = true;
         router.refresh();
       }

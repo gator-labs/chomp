@@ -1,16 +1,29 @@
 import { DECK_LIMIT } from "@/app/constants/decks";
 import { getPremiumDecks } from "@/app/queries/home";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 
 import { HomeFeedDeckCard } from "../HomeFeedDeckCard/HomeFeedDeckCard";
 import LoadMore from "../LoadMore/LoadMore";
 import NoDeck from "../NoDecks/NoDeck";
 
 function PaidDeckFeed() {
+  // THIS IS ONLY FOR TESTING PURPOSES
+  const errorCount = useRef(0);
+  const MAX_ERRORS = Number(process.env.NEXT_PUBLIC_DECK_FEED_MAX_ERRORS);
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
     queryKey: ["premium-decks"],
-    queryFn: ({ pageParam }) => getPremiumDecks({ pageParam }),
+    queryFn: ({ pageParam }) => {
+      // Throw Error only once for testing purpose
+      if (errorCount.current < MAX_ERRORS) {
+        errorCount.current += 1;
+        console.log(
+          "🚨 Error Simuation: Throwing error from Paid Deck Feed for testing purpose",
+        );
+        throw new Error("Error fetching premium decks");
+      }
+      return getPremiumDecks({ pageParam });
+    },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       // Sanity check for last page
