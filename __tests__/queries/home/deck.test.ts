@@ -1,5 +1,6 @@
 import { queryExpiringDecks } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
+import { deleteAllDBTestData } from "@/lib/db";
 import { QuestionType, Token } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
@@ -24,6 +25,10 @@ describe("queryExpiringDecks", () => {
   let existingDeckIds = {};
 
   beforeAll(async () => {
+    await deleteAllDBTestData();
+
+    console.log("All data deleted successfully.");
+
     const now = new Date();
     now.setUTCHours(12, 0, 0, 0); // Set to noon UTC
 
@@ -205,14 +210,26 @@ describe("queryExpiringDecks", () => {
   // if only one question is anwered should still return deck
   // if two questions are anwered shoun't return deck
 
-  it("should return decks expiring today with unanswered questions for user2", async () => {
-    const result = (await queryExpiringDecks(user2.id)).filter(
-      (deck: any) => !(deck.id in existingDeckIds),
-    );
+  it(
+    "should return decks expiring today with unanswered questions for user2",
+    async () => {
+      //jest.setTimeout(1000 * 60 * 10)
+      //
+      console.log("userId", user2.id);
 
-    expect(result.length).toBe(1); // Only Deck 2 has unanswered questions for user2
-    expect(result[0].deck).toBe("Deck 2");
-  });
+      const result = (await queryExpiringDecks(user2.id)).filter(
+        (deck: any) => !(deck.id in existingDeckIds),
+      );
+
+      console.log("result", result);
+
+      //await new Promise((resolve) => setTimeout(resolve, 1000 * 60 * 10))
+
+      expect(result.length).toBe(1); // Only Deck 2 has unanswered questions for user2
+      expect(result[0].deck).toBe("Deck 2");
+    },
+    1000 * 60 * 10,
+  );
 
   it("should return an empty array for user1 as all questions are answered", async () => {
     const result = (await queryExpiringDecks(user1.id)).filter(

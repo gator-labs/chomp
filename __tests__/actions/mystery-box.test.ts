@@ -8,7 +8,11 @@ import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import { faker } from "@faker-js/faker";
-import { EBoxPrizeStatus, EChainTxType, EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EChainTxType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
@@ -89,6 +93,7 @@ describe("Create mystery box", () => {
   let deckId: number;
   let mysteryBoxId4: string | null;
   let mysteryBoxId5: string | null;
+  let txHashes: string[];
 
   beforeAll(async () => {
     const question = {
@@ -183,6 +188,16 @@ describe("Create mystery box", () => {
       ),
     );
 
+    // Delete all ChainTx records that belong to these wallets
+    await prisma.chainTx.deleteMany({
+      where: {
+        hash: {
+          in: txHashes,
+        },
+      },
+    });
+
+    // Delete the actuall wallets
     await prisma.wallet.deleteMany({
       where: {
         userId: { in: [user0.id, user1.id] },
@@ -252,7 +267,9 @@ describe("Create mystery box", () => {
 
     const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
-    const txHashes = await openMysteryBox(mysteryBoxId4!, false);
+    const txHashesObj = await openMysteryBox(mysteryBoxId4!, false);
+
+    txHashes = Object.values(txHashesObj || {});
 
     expect(sendBonkFromTreasury).toHaveBeenCalledWith(
       4500,
@@ -260,8 +277,8 @@ describe("Create mystery box", () => {
       EChainTxType.MysteryBoxClaim,
     );
 
-    expect(Object.keys(txHashes ?? {}).length).toBe(1);
-    expect(txHashes?.[bonkAddress]).toBeDefined();
+    expect(Object.keys(txHashesObj ?? {}).length).toBe(1);
+    expect(txHashesObj?.[bonkAddress]).toBeDefined();
 
     const box = await prisma.mysteryBox.findUnique({
       where: {
@@ -284,7 +301,7 @@ describe("Create mystery box", () => {
 
     const chainTx = await prisma.chainTx.findUnique({
       where: {
-        hash: txHashes?.[bonkAddress],
+        hash: txHashesObj?.[bonkAddress],
       },
     });
 
