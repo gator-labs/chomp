@@ -45,7 +45,10 @@ function CreditPackListItem({
             {originalCostPerCredit} SOL
           </span>
         )}
-        <span> {costPerCredit} SOL per credit</span>
+        <span>
+          {" "}
+          {costPerCredit} SOL <br /> per credit
+        </span>
       </div>
 
       <div>
