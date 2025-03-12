@@ -1,3 +1,4 @@
+import { SOLANA_TRANSACTION_BUFFER } from "@/app/constants/solana";
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   errorToastLayout,
@@ -59,7 +60,9 @@ function BuyCreditsDrawer({
   const isSolBalanceKnown = solBalance !== undefined;
 
   const hasInsufficientFunds = isSolBalanceKnown
-    ? totalSolCost.greaterThanOrEqualTo(solBalance?.balance ?? 0)
+    ? totalSolCost
+        .add(SOLANA_TRANSACTION_BUFFER)
+        .greaterThanOrEqualTo(solBalance?.balance ?? 0)
     : false;
 
   const buyCredits = async () => {

@@ -3,6 +3,7 @@ import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompF
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { Button } from "@/app/components/ui/button";
 import { Drawer, DrawerContent } from "@/app/components/ui/drawer";
+import { SOLANA_TRANSACTION_BUFFER } from "@/app/constants/solana";
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   errorToastLayout,
@@ -40,9 +41,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
-  const [creditsToBuy, setCreditsToBuy] = useState<number | undefined>(
-    undefined,
-  );
+  const [creditsToBuy, setCreditsToBuy] = useState<number | undefined>(0);
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(
     selectedPack !== null ? selectedPack.costPerCredit : solPricePerCredit!,
@@ -65,7 +64,9 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   const isSolBalanceKnown = solBalance !== undefined;
 
   const hasInsufficientFunds = isSolBalanceKnown
-    ? totalSolCost.greaterThanOrEqualTo(solBalance?.balance ?? 0)
+    ? totalSolCost
+      .add(SOLANA_TRANSACTION_BUFFER)
+      .greaterThanOrEqualTo(solBalance?.balance ?? 0)
     : false;
 
   const updateCreditsToBuy = (value: string) => {
