@@ -14,6 +14,7 @@ import prisma from "../services/prisma";
 import { getRandomAvatarPath } from "../utils/avatar";
 
 export const getJwtPayload = async () => {
+
   const token = getTokenFromCookie();
 
   if (!token) {
@@ -28,12 +29,13 @@ export const getJwtPayload = async () => {
     } as DynamicJwtPayload;
     await checkThreatLevel(payload.sub);
     return payload;
-  } else {
-    const payload = await decodeJwtPayload(token.value);
-    if (!payload) return payload;
-    await checkThreatLevel(payload.sub);
-    return payload;
   }
+
+  const payload = await decodeJwtPayload(token.value);
+  if (!payload) return payload;
+  await checkThreatLevel(payload.sub);
+  return payload;
+
 };
 
 export const setJwt = async (token: string, nextPath?: string | null) => {

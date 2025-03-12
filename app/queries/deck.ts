@@ -81,9 +81,9 @@ export async function getDailyDeck() {
 
 export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
-  if (!payload?.sub) return null;
+  const userId = payload?.sub || null;
 
-  const userId = payload.sub;
+  console.log('userId', userId)
 
   const deck = await prisma.deck.findFirst({
     where: {
@@ -96,11 +96,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
             include: {
               questionOptions: {
                 include: {
-                  questionAnswers: {
-                    where: {
-                      userId,
-                    },
-                  },
+                  questionAnswers: userId ? { where: { userId } } : true, // Include all if null
                 },
               },
               questionTags: {
@@ -114,6 +110,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       },
     },
   });
+
   if (!deck) {
     return null;
   }
@@ -140,17 +137,21 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   const creditCostUnansweredQuestion = await prisma.deckQuestion.findMany({
     where: {
       deckId: deckId,
-      question: {
-        questionOptions: {
-          every: {
-            questionAnswers: {
-              none: {
-                userId: userId,
+      ...(userId
+        ? {
+          question: {
+            questionOptions: {
+              every: {
+                questionAnswers: {
+                  none: {
+                    userId: userId,
+                  },
+                },
               },
             },
           },
-        },
-      },
+        }
+        : {}), // If userId is null, remove the condition entirely
     },
     select: {
       question: {
@@ -170,8 +171,8 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   )
     ? null
     : creditCostUnansweredQuestion.reduce((total, dq) => {
-        return total + (dq?.question?.creditCostPerQuestion || 0);
-      }, 0);
+      return total + (dq?.question?.creditCostPerQuestion || 0);
+    }, 0);
 
   const deckRewardAmount = creditCostUnansweredQuestion.reduce((total, dq) => {
     return total + (dq?.question?.revealTokenAmount || 0);

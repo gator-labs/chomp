@@ -1,3 +1,4 @@
+import { getJwtPayload } from "@/app/actions/jwt";
 import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
@@ -17,6 +18,9 @@ type PageProps = {
 };
 
 export default async function Page({ params: { id } }: PageProps) {
+  const payload = await getJwtPayload();
+  const isUserLoggedIn = !!payload?.sub;
+
   const currentDeckId = Number(id);
   const deck = await getDeckQuestionsForAnswerById(currentDeckId);
 
@@ -24,11 +28,12 @@ export default async function Page({ params: { id } }: PageProps) {
 
   const stackData = stackId ? await getStackImage(stackId) : null;
 
-  const nextDeckId = await getNextDeckId(currentDeckId, stackId);
+  const nextDeckId = isUserLoggedIn ? await getNextDeckId(currentDeckId, stackId) : undefined;
 
-  const freeExpiringDeckId = await getCreditFreeDeckId();
+  const freeExpiringDeckId = isUserLoggedIn ? await getCreditFreeDeckId() : null;
 
-  const totalCredits = await getUserTotalCreditAmount();
+  const totalCredits = isUserLoggedIn ? await getUserTotalCreditAmount() : null;
+
   let blurData;
   const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
 

@@ -18,7 +18,7 @@ const Main = ({ children, className, userId }: Props) => {
         "flex-grow overflow-y-auto w-full max-w-lg mx-auto flex flex-col pt-12 overflow-x-hidden",
         {
           "px-4": !pathname.endsWith("application"),
-          "pt-0": !userId,
+          //"pt-0": !userId,
         },
         className,
       )}
