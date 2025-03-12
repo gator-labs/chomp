@@ -1,20 +1,14 @@
 import prisma from "@/app/services/prisma";
-import { deleteAllDBTestData } from "@/lib/db";
 import { createCampaignMysteryBox } from "@/lib/mysteryBox/createCampaignMysteryBox";
-import { getShared, resetShared } from "@/lib/shareable";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
 
 describe("createCampaignMysteryBox", () => {
   let user: { id: string; username: string; wallet: string };
   let campaign: { id: string };
-  let shared: { mysteryBoxId?: string };
+  let mysteryBoxId: string;
 
   beforeAll(async () => {
-    resetShared();
-    shared = getShared();
-    await deleteAllDBTestData();
-
     const users = await generateUsers(1);
     user = {
       id: users[0].id,
@@ -111,7 +105,6 @@ describe("createCampaignMysteryBox", () => {
         },
       },
     });
-
     await prisma.user.delete({
       where: {
         id: user.id,
@@ -120,12 +113,11 @@ describe("createCampaignMysteryBox", () => {
   });
 
   it("should create a campaign mystery box", async () => {
-    console.log("1 ============================");
     const res = await createCampaignMysteryBox(user.id, campaign.id);
 
     if (res) {
-      shared.mysteryBoxId = res?.[0];
-      console.log("mysteryBoxId", shared.mysteryBoxId);
+      mysteryBoxId = res?.[0];
+      console.log("mysteryBoxId", mysteryBoxId);
     }
 
     expect(Array.isArray(res)).toBe(true);
@@ -134,13 +126,11 @@ describe("createCampaignMysteryBox", () => {
   });
 
   it("should retun an existing campaign mystery box", async () => {
-    console.log("2 ===============================");
     const res = await createCampaignMysteryBox(user.id, campaign.id);
-    console.log("mysteryBoxId2", shared.mysteryBoxId);
 
     expect(Array.isArray(res)).toBe(true);
     expect(res?.length).toBe(1);
     expect(typeof res?.[0]).toBe("string");
-    expect(res?.[0]).toBe(shared.mysteryBoxId);
+    expect(res?.[0]).toBe(mysteryBoxId);
   });
 });

@@ -1,6 +1,5 @@
 import { queryExpiringDecks } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
-import { deleteAllDBTestData } from "@/lib/db";
 import { QuestionType, Token } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
@@ -25,10 +24,6 @@ describe("queryExpiringDecks", () => {
   let existingDeckIds = {};
 
   beforeAll(async () => {
-    await deleteAllDBTestData();
-
-    console.log("All data deleted successfully.");
-
     const now = new Date();
     now.setUTCHours(12, 0, 0, 0); // Set to noon UTC
 

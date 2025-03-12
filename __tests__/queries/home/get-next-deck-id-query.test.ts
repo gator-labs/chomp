@@ -2,7 +2,6 @@ import { deleteDeck } from "@/app/actions/deck/deck";
 import { getNextDeckId } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
-import { deleteAllDBTestData } from "@/lib/db";
 import { QuestionType } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
@@ -38,8 +37,6 @@ describe("getNextDeckIdQuery", () => {
   let deckIds: number[] = [];
 
   beforeAll(async () => {
-    await deleteAllDBTestData();
-
     // Create users
     await prisma.user.create({ data: user1 });
 
