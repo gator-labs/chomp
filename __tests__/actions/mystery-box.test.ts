@@ -8,7 +8,11 @@ import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import { faker } from "@faker-js/faker";
-import { EBoxPrizeStatus, EChainTxType, EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EChainTxType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
