@@ -205,26 +205,14 @@ describe("queryExpiringDecks", () => {
   // if only one question is anwered should still return deck
   // if two questions are anwered shoun't return deck
 
-  it(
-    "should return decks expiring today with unanswered questions for user2",
-    async () => {
-      //jest.setTimeout(1000 * 60 * 10)
-      //
-      console.log("userId", user2.id);
+  it("should return decks expiring today with unanswered questions for user2", async () => {
+    const result = (await queryExpiringDecks(user2.id)).filter(
+      (deck: any) => !(deck.id in existingDeckIds),
+    );
 
-      const result = (await queryExpiringDecks(user2.id)).filter(
-        (deck: any) => !(deck.id in existingDeckIds),
-      );
-
-      console.log("result", result);
-
-      //await new Promise((resolve) => setTimeout(resolve, 1000 * 60 * 10))
-
-      expect(result.length).toBe(1); // Only Deck 2 has unanswered questions for user2
-      expect(result[0].deck).toBe("Deck 2");
-    },
-    1000 * 60 * 10,
-  );
+    expect(result.length).toBe(1); // Only Deck 2 has unanswered questions for user2
+    expect(result[0].deck).toBe("Deck 2");
+  });
 
   it("should return an empty array for user1 as all questions are answered", async () => {
     const result = (await queryExpiringDecks(user1.id)).filter(

@@ -39,14 +39,13 @@ async function getRowCounts() {
 
 beforeAll(async () => {
   global.initialRowCounts = await getRowCounts();
-  console.log(
-    "Shared beforeAll: Running before all tests in this file",
-    global.initialRowCounts,
-  );
+  //console.log(
+  //  "Shared beforeAll: Running before all tests in this file",
+  //  global.initialRowCounts,
+  //);
 });
 
 afterAll(async () => {
-  console.log("Shared afterAll: Running after all tests in this file");
   const finalRowCounts = await getRowCounts();
 
   for (const [table, initialCount] of Object.entries(global.initialRowCounts)) {

@@ -34,7 +34,7 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
-describe.only("getPremiumDeck", () => {
+describe("getPremiumDeck", () => {
   const user1 = {
     id: uuidv4(),
     username: `user1`,

@@ -117,7 +117,6 @@ describe("createCampaignMysteryBox", () => {
 
     if (res) {
       mysteryBoxId = res?.[0];
-      console.log("mysteryBoxId", mysteryBoxId);
     }
 
     expect(Array.isArray(res)).toBe(true);

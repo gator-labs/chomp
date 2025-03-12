@@ -71,7 +71,6 @@ export const createCampaignMysteryBox = async (
 
     // if MysteryBox already exists save its id
     if (existingBox) {
-      console.log("RETURNING EXISTING BOX", existingBox);
       mysteryBoxId = existingBox.MysteryBox?.id;
       // TODO: What to do then the id is undefined?
       return;
