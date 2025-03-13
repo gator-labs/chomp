@@ -5,11 +5,8 @@ import {
   toastOptions,
 } from "@/app/providers/ToastProvider";
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
-import { ChainEnum } from "@dynamic-labs/sdk-api";
-import {
-  useDynamicContext,
-  useTokenBalances,
-} from "@dynamic-labs/sdk-react-core";
+import { useSolBalance } from "@/hooks/useSolBalance";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Decimal from "decimal.js";
 import Link from "next/link";
@@ -48,19 +45,8 @@ function BuyCreditsDrawer({
     useCreditPurchase();
   const { primaryWallet } = useDynamicContext();
 
-  const { tokenBalances } = useTokenBalances({
-    chainName: ChainEnum.Sol,
-    tokenAddresses: ["11111111111111111111111111111111"],
-    accountAddress: primaryWallet?.address,
-    includeNativeBalance: true,
-  });
-
-  const solBalance = tokenBalances?.find((bal) => bal.symbol == "SOL");
-  const isSolBalanceKnown = solBalance !== undefined;
-
-  const hasInsufficientFunds = isSolBalanceKnown
-    ? totalSolCost.greaterThanOrEqualTo(solBalance?.balance ?? 0)
-    : false;
+  const { hasBalanceWithBuffer } = useSolBalance(primaryWallet);
+  const hasSufficientFunds = hasBalanceWithBuffer(totalSolCost);
 
   const buyCredits = async () => {
     setIsLoading(true);
@@ -202,10 +188,10 @@ function BuyCreditsDrawer({
           )}
           <Button
             onClick={buyCredits}
-            disabled={isProcessingTx || isLoading || hasInsufficientFunds}
+            disabled={isProcessingTx || isLoading || !hasSufficientFunds}
             isLoading={isProcessingTx || isLoading}
           >
-            {hasInsufficientFunds ? "Insufficient Balance" : "Buy Credits"}
+            {!hasSufficientFunds ? "Insufficient Balance" : "Buy Credits"}
           </Button>
           <Button
             onClick={onClose}
