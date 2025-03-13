@@ -98,11 +98,7 @@ export async function getStack(id: number) {
         deck.deckQuestions
           .filter((dq) =>
             dq.question.questionOptions.some((qo) =>
-              qo.questionAnswers.some(
-                (qa) =>
-                  qa.userId === userId &&
-                  (qa.status === "Submitted" || qa.status === "Viewed"),
-              ),
+              qo.questionAnswers.some((qa) => qa.userId === userId),
             ),
           )
           .map((dq) => dq.question.id),
