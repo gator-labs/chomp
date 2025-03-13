@@ -34,6 +34,8 @@
     "test": "jest --watch",
     "gh-test": "jest",
     "gh-test-sync": "jest --runInBand",
+    "test-local": "jest --no-cache --bail --runInBand",
+    "test-inspect": "node inspect $(yarn bin jest) --runInBand --bail",
     "knip": "knip",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",

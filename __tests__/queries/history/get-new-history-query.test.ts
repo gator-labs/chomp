@@ -196,8 +196,6 @@ describe("getNewHistoryQuery", () => {
       },
     });
 
-    console.log(answer);
-
     const result = await getNewHistoryQuery(answer?.userId, 1, 1);
 
     expect(result).toBeDefined();
