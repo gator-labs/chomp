@@ -5,7 +5,7 @@ import { startOfDay, sub } from "date-fns";
 
 /**
  * This API processes pending credit purchase transactions that fall within
- * the 1 week to 10 minutes before the current time.
+ * the 1 week
  *
  * Actions performed:
  * 1. Attempts to validate the payment transaction hash
@@ -23,7 +23,6 @@ export async function GET(request: Request) {
 
   const currentTime = new Date();
   const weekAgo = sub(currentTime, { days: 7 });
-  const tenMinutesAgo = sub(currentTime, { minutes: 10 });
 
   try {
     // Fetch all new transactions within specific date range
@@ -33,7 +32,6 @@ export async function GET(request: Request) {
         status: EChainTxStatus.New,
         createdAt: {
           gte: startOfDay(weekAgo),
-          lte: tenMinutesAgo,
         },
         failedAt: null,
       },
