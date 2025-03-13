@@ -5,12 +5,9 @@ import {
   successToastLayout,
   toastOptions,
 } from "@/app/providers/ToastProvider";
+import { getSolBalance } from "@/app/utils/solana";
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
-import { ChainEnum } from "@dynamic-labs/sdk-api";
-import {
-  useDynamicContext,
-  useTokenBalances,
-} from "@dynamic-labs/sdk-react-core";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Decimal from "decimal.js";
 import Link from "next/link";
@@ -42,6 +39,7 @@ function BuyCreditsDrawer({
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(solPricePerCredit!).mul(creditsToBuy);
+  const [solBalance, setSolBalance] = useState<number | undefined>(undefined);
 
   const router = useRouter();
 
@@ -49,20 +47,23 @@ function BuyCreditsDrawer({
     useCreditPurchase();
   const { primaryWallet } = useDynamicContext();
 
-  const { tokenBalances } = useTokenBalances({
-    chainName: ChainEnum.Sol,
-    tokenAddresses: ["11111111111111111111111111111111"],
-    accountAddress: primaryWallet?.address,
-    includeNativeBalance: true,
-  });
+  useEffect(() => {
+    const fetchSolBalance = async () => {
+      if (primaryWallet?.address) {
+        const balance = await getSolBalance(primaryWallet.address);
+        setSolBalance(balance);
+      }
+    };
 
-  const solBalance = tokenBalances?.find((bal) => bal.symbol == "SOL");
+    fetchSolBalance();
+  }, [primaryWallet?.address]);
+
   const isSolBalanceKnown = solBalance !== undefined;
 
   const hasInsufficientFunds = isSolBalanceKnown
     ? totalSolCost
         .add(SOLANA_TRANSACTION_BUFFER)
-        .greaterThanOrEqualTo(solBalance?.balance ?? 0)
+        .greaterThanOrEqualTo(solBalance ?? 0)
     : false;
 
   const buyCredits = async () => {
