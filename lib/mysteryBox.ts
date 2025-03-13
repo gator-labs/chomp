@@ -4,7 +4,11 @@ import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { sendBonk } from "@/app/utils/sendBonk";
 import { FindMysteryBoxError } from "@/lib/error";
-import { EBoxTriggerType, EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxTriggerType,
+  EChainTxType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { PublicKey } from "@solana/web3.js";
 import "server-only";
@@ -40,11 +44,13 @@ export async function calculateTotalPrizeTokens(
 export async function sendBonkFromTreasury(
   rewardAmount: number,
   address: string,
+  type: EChainTxType,
 ) {
   if (rewardAmount > 0) {
     const sendTx = await sendBonk(
       new PublicKey(address),
       Math.round(rewardAmount * 10 ** 5),
+      type,
     );
 
     return sendTx;

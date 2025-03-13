@@ -2,7 +2,6 @@
 
 import { stringifyDecimals } from "@/app/utils/decimal";
 import {
-  ChompResult,
   Deck,
   DeckQuestion,
   Question,
@@ -54,25 +53,13 @@ export async function getStack(id: number) {
             include: {
               question: {
                 include: {
-                  chompResults: {
-                    include: {
-                      question: true,
-                    },
-                    where: {
-                      // If user isn't logged in, match against a non-existent user
-                      // to avoid pulling records for ALL users. We keep this clause
-                      // so the type contains chompResult (empty array).
-                      userId: userId ?? "00000000-0000-0000-0000-000000000000",
-                    },
-                  },
                   questionOptions: {
                     include: {
                       questionAnswers: {
                         where: {
-                          // If user isn't logged in, match against a non-existent user
-                          // to avoid pulling records for ALL users. We keep this clause
-                          // so the type contains chompResult (empty array).
                           userId:
+                            // If user isn't logged in, match against a non-existent user
+                            // to avoid pulling records for ALL users.
                             userId ?? "00000000-0000-0000-0000-000000000000",
                         },
                       },
@@ -93,56 +80,88 @@ export async function getStack(id: number) {
 
   stringifyDecimals(stack);
 
-  const sortedDecks = [...stack.deck].sort((a, b) => {
-    if (
-      a.activeFromDate &&
-      b.activeFromDate &&
-      a.revealAtDate &&
-      b.revealAtDate
-    ) {
-      const activeFromDateA = new Date(a.activeFromDate);
-      const activeFromDateB = new Date(b.activeFromDate);
-      const revealAtDateA = new Date(a.revealAtDate);
-      const revealAtDateB = new Date(b.revealAtDate);
+  const sortedDecks = [...stack.deck]
+    .map((deck) => {
+      const totalCreditCost = deck.deckQuestions.reduce((total, dq) => {
+        return total + (dq.question.creditCostPerQuestion || 0);
+      }, 0);
 
-      // Open answer period
-      const isOpenA = revealAtDateA > now && activeFromDateA <= now;
-      const isOpenB = revealAtDateB > now && activeFromDateB <= now;
+      const totalRewardAmount = deck.deckQuestions.reduce((total, dq) => {
+        return total + (dq.question.revealTokenAmount || 0);
+      }, 0);
 
-      // Upcoming answer period
-      const isUpcomingA = activeFromDateA > now;
-      const isUpcomingB = activeFromDateB > now;
+      // Calculate total questions (count of distinct question IDs)
+      const totalQuestions = deck.deckQuestions.length;
 
-      // Closed answer period
-      const isClosedA = revealAtDateA <= now;
-      const isClosedB = revealAtDateB <= now;
+      // Calculate answered questions (count of distinct questions that have been answered)
+      const answeredQuestions = new Set(
+        deck.deckQuestions
+          .filter((dq) =>
+            dq.question.questionOptions.some((qo) =>
+              qo.questionAnswers.some((qa) => qa.userId === userId),
+            ),
+          )
+          .map((dq) => dq.question.id),
+      ).size;
 
-      // Group 1: Open answer periods (ascending `revealAtDate`)
-      if (isOpenA && isOpenB) {
-        return revealAtDateA.getTime() - revealAtDateB.getTime();
+      return {
+        ...deck,
+        totalCreditCost,
+        totalRewardAmount,
+        totalQuestions,
+        answeredQuestions,
+      };
+    })
+    .sort((a, b) => {
+      if (
+        a.activeFromDate &&
+        b.activeFromDate &&
+        a.revealAtDate &&
+        b.revealAtDate
+      ) {
+        const activeFromDateA = new Date(a.activeFromDate);
+        const activeFromDateB = new Date(b.activeFromDate);
+        const revealAtDateA = new Date(a.revealAtDate);
+        const revealAtDateB = new Date(b.revealAtDate);
+
+        // Open answer period
+        const isOpenA = revealAtDateA > now && activeFromDateA <= now;
+        const isOpenB = revealAtDateB > now && activeFromDateB <= now;
+
+        // Upcoming answer period
+        const isUpcomingA = activeFromDateA > now;
+        const isUpcomingB = activeFromDateB > now;
+
+        // Closed answer period
+        const isClosedA = revealAtDateA <= now;
+        const isClosedB = revealAtDateB <= now;
+
+        // Group 1: Open answer periods (ascending `revealAtDate`)
+        if (isOpenA && isOpenB) {
+          return revealAtDateA.getTime() - revealAtDateB.getTime();
+        }
+        if (isOpenA !== isOpenB) {
+          return isOpenA ? -1 : 1; // Open periods come first
+        }
+
+        // Group 2: Upcoming answer periods (ascending `activeFromDate`)
+        if (isUpcomingA && isUpcomingB) {
+          return activeFromDateA.getTime() - activeFromDateB.getTime();
+        }
+        if (isUpcomingA !== isUpcomingB) {
+          return isUpcomingA ? -1 : 1; // Upcoming periods come after open
+        }
+
+        // Group 3: Closed answer periods (descending `revealAtDate`)
+        if (isClosedA && isClosedB) {
+          return revealAtDateB.getTime() - revealAtDateA.getTime();
+        }
+
+        return 0; // Default case
       }
-      if (isOpenA !== isOpenB) {
-        return isOpenA ? -1 : 1; // Open periods come first
-      }
 
-      // Group 2: Upcoming answer periods (ascending `activeFromDate`)
-      if (isUpcomingA && isUpcomingB) {
-        return activeFromDateA.getTime() - activeFromDateB.getTime();
-      }
-      if (isUpcomingA !== isUpcomingB) {
-        return isUpcomingA ? -1 : 1; // Upcoming periods come after open
-      }
-
-      // Group 3: Closed answer periods (descending `revealAtDate`)
-      if (isClosedA && isClosedB) {
-        return revealAtDateB.getTime() - revealAtDateA.getTime();
-      }
-
-      return 0; // Default case
-    }
-
-    return 0; // Default equality case
-  });
+      return 0; // Default equality case
+    });
 
   return {
     ...stack,
@@ -185,11 +204,6 @@ export async function getAllStacks() {
             include: {
               question: {
                 include: {
-                  chompResults: {
-                    where: {
-                      userId,
-                    },
-                  },
                   questionOptions: {
                     include: {
                       questionAnswers: {
@@ -213,7 +227,6 @@ export async function getAllStacks() {
     ...stack,
     decks: stack.deck,
     decksToAnswer: !!userId ? getDecksToAnswer(stack.deck) : undefined,
-    decksToReveal: !!userId ? getDecksToReveal(stack.deck) : undefined,
     deck: undefined,
   }));
 }
@@ -236,14 +249,9 @@ export async function getDailyDecks() {
                 include: {
                   questionAnswers: {
                     where: {
-                      userId,
+                      userId: userId ?? "00000000-0000-0000-0000-000000000000",
                     },
                   },
-                },
-              },
-              chompResults: {
-                where: {
-                  userId,
                 },
               },
             },
@@ -256,10 +264,45 @@ export async function getDailyDecks() {
     },
   });
 
+  const decksWithCosts = dailyDecks.map((deck) => {
+    const totalCreditCost = deck.deckQuestions.reduce((total, dq) => {
+      return total + (dq.question.creditCostPerQuestion || 0);
+    }, 0);
+
+    const totalRewardAmount = deck.deckQuestions.reduce((total, dq) => {
+      return total + (dq.question.revealTokenAmount || 0);
+    }, 0);
+
+    // Calculate total questions (count of distinct question IDs)
+    const totalQuestions = deck.deckQuestions.length;
+
+    // Calculate answered questions (count of distinct questions that have been answered)
+    const answeredQuestions = new Set(
+      deck.deckQuestions
+        .filter((dq) =>
+          dq.question.questionOptions.some((qo) =>
+            qo.questionAnswers.some(
+              (qa) =>
+                qa.userId === userId &&
+                (qa.status === "Submitted" || qa.status === "Viewed"),
+            ),
+          ),
+        )
+        .map((dq) => dq.question.id),
+    ).size;
+
+    return {
+      ...deck,
+      totalCreditCost,
+      totalRewardAmount,
+      totalQuestions,
+      answeredQuestions,
+    };
+  });
+
   return {
-    decks: dailyDecks,
-    decksToAnswer: !!userId ? getDecksToAnswer(dailyDecks) : undefined,
-    decksToReveal: !!userId ? getDecksToReveal(dailyDecks) : undefined,
+    decks: decksWithCosts,
+    decksToAnswer: !!userId ? getDecksToAnswer(decksWithCosts) : undefined,
   };
 }
 
@@ -281,25 +324,6 @@ function getDecksToAnswer(
       deck.deckQuestions.flatMap((dq) => dq.question.questionOptions).length !==
         deck.deckQuestions.flatMap((dq) =>
           dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
-        ).length,
-  );
-}
-
-function getDecksToReveal(
-  decks: (Deck & {
-    deckQuestions: (DeckQuestion & {
-      question: Question & {
-        chompResults: ChompResult[];
-      };
-    })[];
-  })[],
-) {
-  return decks.filter(
-    (deck) =>
-      isAfter(new Date(), deck.revealAtDate!) &&
-      deck.deckQuestions.map((dq) => dq.question).length !==
-        deck.deckQuestions.flatMap((dq) =>
-          dq.question.chompResults.map((cr) => cr),
         ).length,
   );
 }

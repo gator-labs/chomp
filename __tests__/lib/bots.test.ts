@@ -2,14 +2,13 @@ import prisma from "@/app/services/prisma";
 import { updateBots } from "@/lib/bots";
 import { generateUsers } from "@/scripts/utils";
 import { EThreatLevelType } from "@/types/bots";
-import dayjs from "dayjs";
 
 describe("Update bot list", () => {
   let users: { username: string; id: string }[] = [];
   let userIds: string[] = [];
 
-  const windowStart = dayjs().subtract(5, "day").toDate();
-  const windowEnd = new Date();
+  const windowStart = new Date("2025-02-06T00:00:00.000Z");
+  const windowEnd = new Date("2025-02-10T00:00:00.000Z");
 
   beforeAll(async () => {
     users = await generateUsers(10);
@@ -121,7 +120,7 @@ describe("Update bot list", () => {
       where: { id: { in: userIds } },
     });
 
-    await updateBots([userIds[0], userIds[1]], windowStart, windowEnd);
+    await updateBots([userIds[2], userIds[3]], windowStart, windowEnd);
 
     const records = await prisma.user.findMany({
       select: { id: true, threatLevel: true },
@@ -133,7 +132,7 @@ describe("Update bot list", () => {
     );
 
     // Should both still be bot
-    expect(userState[userIds[0]]).toBeNull();
-    expect(userState[userIds[1]]).toBeNull();
+    expect(userState[userIds[2]]).toBeNull();
+    expect(userState[userIds[3]]).toBeNull();
   });
 });

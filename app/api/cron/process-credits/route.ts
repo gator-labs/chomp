@@ -37,6 +37,9 @@ export async function GET(request: Request) {
         },
         failedAt: null,
       },
+      include: {
+        creditPack: true,
+      },
     });
 
     // Process transactions

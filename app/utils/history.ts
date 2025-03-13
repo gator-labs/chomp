@@ -53,16 +53,16 @@ export function getTimeUntilReveal(date: Date, isDeckCard?: boolean): string {
 
     if (daysUntil > 0) {
       return isDeckCard
-        ? `(${daysUntil}d left)`
+        ? `${daysUntil}d`
         : `View Results in ${daysUntil} day${daysUntil > 1 ? "s" : ""}`;
     } else if (hoursUntil > 0) {
       return isDeckCard
-        ? `(${hoursUntil}h left)`
+        ? `${hoursUntil}h`
         : `View Results in ${hoursUntil} hour${hoursUntil > 1 ? "s" : ""}`;
     } else {
       const minutesUntil = differenceInMinutes(date, now);
       return isDeckCard
-        ? `(${minutesUntil}m left)`
+        ? `${minutesUntil}m`
         : `View Results in ${minutesUntil} minute${minutesUntil > 1 ? "s" : ""}`;
     }
   }

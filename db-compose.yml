@@ -13,3 +13,5 @@ services:
       - ../postgres-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+    command: >
+      -c max_connections=1000

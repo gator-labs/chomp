@@ -7,7 +7,7 @@ jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
 
-describe.skip("queryExpiringDecks", () => {
+describe("queryExpiringDecks", () => {
   const user1 = {
     id: uuidv4(),
     username: `user1`,
@@ -200,6 +200,10 @@ describe.skip("queryExpiringDecks", () => {
       await tx.user.deleteMany({ where: { id: { in: [user1.id, user2.id] } } });
     });
   });
+
+  // TODO: should return decks that are partially anwered
+  // if only one question is anwered should still return deck
+  // if two questions are anwered shoun't return deck
 
   it("should return decks expiring today with unanswered questions for user2", async () => {
     const result = (await queryExpiringDecks(user2.id)).filter(

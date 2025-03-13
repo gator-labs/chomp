@@ -8,7 +8,11 @@ import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { generateUsers } from "@/scripts/utils";
 import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import { faker } from "@faker-js/faker";
-import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeStatus,
+  EChainTxType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 
 jest.mock("@/lib/mysteryBox", () => ({
   ...jest.requireActual("@/lib/mysteryBox"),
@@ -254,7 +258,11 @@ describe("Create mystery box", () => {
 
     const txHashes = await openMysteryBox(mysteryBoxId4!, false);
 
-    expect(sendBonkFromTreasury).toHaveBeenCalledWith(4500, user0.wallet);
+    expect(sendBonkFromTreasury).toHaveBeenCalledWith(
+      4500,
+      user0.wallet,
+      EChainTxType.MysteryBoxClaim,
+    );
 
     expect(Object.keys(txHashes ?? {}).length).toBe(1);
     expect(txHashes?.[bonkAddress]).toBeDefined();

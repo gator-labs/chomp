@@ -38,50 +38,32 @@ const StackPage = async () => {
           </p>
         </div>
       </div>
-      <div className="py-2 px-4">
+      <div className="py-2 px-4 mb-2">
         <p className="text-sm">Decks</p>
       </div>
       <ul className="flex flex-col gap-2 px-4 overflow-auto">
-        {dailyDecks.decks.map((deck) => (
-          <StackDeckCard
-            key={deck.id}
-            deckId={deck.id}
-            chompResults={deck.deckQuestions.flatMap((dq) =>
-              dq.question.chompResults.map((cr) => ({
-                ...cr,
-                question: dq.question,
-              })),
-            )}
-            deckQuestions={deck.deckQuestions.map((dq) => ({
-              ...dq.question,
-              chompResults: undefined,
-            }))}
-            deckName={deck.deck}
-            imageUrl={
-              deck.imageUrl
-                ? deck.imageUrl.startsWith("https")
-                  ? deck.imageUrl
-                  : `/images/chompy.png`
-                : "/images/chompy.png"
-            }
-            revealAtDate={deck.revealAtDate!}
-            numberOfQuestionsOptions={
-              deck.deckQuestions.flatMap((dq) => dq.question.questionOptions)
-                .length
-            }
-            numberOfUserQuestionsAnswers={
-              deck.deckQuestions
-                .flatMap((dq) =>
-                  dq.question.questionOptions.flatMap(
-                    (qo) => qo.questionAnswers,
-                  ),
-                )
-                .filter((qa) => qa.userId === user?.id).length
-            }
-            activeFromDate={deck.activeFromDate || deck.createdAt}
-            userId={user?.id}
-          />
-        ))}
+        {dailyDecks.decks.map((deck) => {
+          return (
+            <StackDeckCard
+              key={deck.id}
+              deckId={deck.id}
+              deckName={deck.deck}
+              imageUrl={
+                deck.imageUrl
+                  ? deck.imageUrl.startsWith("https")
+                    ? deck.imageUrl
+                    : `/images/chompy.png`
+                  : "/images/chompy.png"
+              }
+              revealAtDate={deck.revealAtDate!}
+              userId={user?.id}
+              deckCreditCost={deck.totalCreditCost}
+              deckRewardAmount={deck.totalRewardAmount}
+              answeredQuestions={deck.answeredQuestions}
+              totalQuestions={deck.totalQuestions}
+            />
+          );
+        })}
       </ul>
     </div>
   );
