@@ -1,12 +1,11 @@
-import { SOLANA_TRANSACTION_BUFFER } from "@/app/constants/solana";
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   errorToastLayout,
   successToastLayout,
   toastOptions,
 } from "@/app/providers/ToastProvider";
-import { getSolBalance } from "@/app/utils/solana";
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
+import { useSolBalance } from "@/hooks/useSolBalance";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import Decimal from "decimal.js";
@@ -39,7 +38,6 @@ function BuyCreditsDrawer({
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(solPricePerCredit!).mul(creditsToBuy);
-  const [solBalance, setSolBalance] = useState<number | undefined>(undefined);
 
   const router = useRouter();
 
@@ -47,24 +45,8 @@ function BuyCreditsDrawer({
     useCreditPurchase();
   const { primaryWallet } = useDynamicContext();
 
-  useEffect(() => {
-    const fetchSolBalance = async () => {
-      if (primaryWallet?.address) {
-        const balance = await getSolBalance(primaryWallet.address);
-        setSolBalance(balance);
-      }
-    };
-
-    fetchSolBalance();
-  }, [primaryWallet?.address]);
-
-  const isSolBalanceKnown = solBalance !== undefined;
-
-  const hasInsufficientFunds = isSolBalanceKnown
-    ? totalSolCost
-        .add(SOLANA_TRANSACTION_BUFFER)
-        .greaterThanOrEqualTo(solBalance ?? 0)
-    : false;
+  const { hasBalanceWithBuffer } = useSolBalance(primaryWallet);
+  const hasSufficientFunds = hasBalanceWithBuffer(totalSolCost);
 
   const buyCredits = async () => {
     setIsLoading(true);
@@ -206,10 +188,10 @@ function BuyCreditsDrawer({
           )}
           <Button
             onClick={buyCredits}
-            disabled={isProcessingTx || isLoading || hasInsufficientFunds}
+            disabled={isProcessingTx || isLoading || !hasSufficientFunds}
             isLoading={isProcessingTx || isLoading}
           >
-            {hasInsufficientFunds ? "Insufficient Balance" : "Buy Credits"}
+            {!hasSufficientFunds ? "Insufficient Balance" : "Buy Credits"}
           </Button>
           <Button
             onClick={onClose}

@@ -3,7 +3,6 @@ import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompF
 import { CloseIcon } from "@/app/components/Icons/CloseIcon";
 import { Button } from "@/app/components/ui/button";
 import { Drawer, DrawerContent } from "@/app/components/ui/drawer";
-import { SOLANA_TRANSACTION_BUFFER } from "@/app/constants/solana";
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import {
   errorToastLayout,
@@ -11,6 +10,7 @@ import {
   toastOptions,
 } from "@/app/providers/ToastProvider";
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
+import { useSolBalance } from "@/hooks/useSolBalance";
 import { ChainEnum } from "@dynamic-labs/sdk-api";
 import { useTokenBalances } from "@dynamic-labs/sdk-react-core";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
@@ -41,7 +41,10 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
   const [isTimedOut, setIsTimedOut] = useState<boolean>(false);
-  const [creditsToBuy, setCreditsToBuy] = useState<number | undefined>(0);
+  const [creditsToBuy, setCreditsToBuy] = useState<number | undefined>(
+    undefined,
+  );
+
   const solPricePerCredit = process.env.NEXT_PUBLIC_SOLANA_COST_PER_CREDIT;
   const totalSolCost = new Decimal(
     selectedPack !== null ? selectedPack.costPerCredit : solPricePerCredit!,
@@ -60,14 +63,10 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
     includeNativeBalance: true,
   });
 
-  const solBalance = tokenBalances?.find((bal) => bal.symbol == "SOL");
-  const isSolBalanceKnown = solBalance !== undefined;
+  const solPrice = tokenBalances?.find((bal) => bal.symbol == "SOL");
+  const { hasBalanceWithBuffer } = useSolBalance(primaryWallet);
 
-  const hasInsufficientFunds = isSolBalanceKnown
-    ? totalSolCost
-      .add(SOLANA_TRANSACTION_BUFFER)
-      .greaterThanOrEqualTo(solBalance?.balance ?? 0)
-    : false;
+  const hasSufficientFunds = hasBalanceWithBuffer(totalSolCost);
 
   const updateCreditsToBuy = (value: string) => {
     const numValue = Number(value);
@@ -272,7 +271,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
             <Button
               className="min-w-[3.5em]"
               disabled={
-                (hasInsufficientFunds && selectedPackId === null) ||
+                (!hasSufficientFunds && selectedPackId === null) ||
                 isProcessingTx ||
                 isLoading
               }
@@ -305,16 +304,16 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
             <span className="flex justify-between my-2 text-sm font-medium">
               <span>Subtotal</span>
               <span>
-                {hasInsufficientFunds ? (
+                {!hasSufficientFunds ? (
                   <span>Insufficient funds</span>
                 ) : (
                   <>
                     {totalSolCost.toString()} SOL{" "}
-                    {solBalance?.price !== undefined && (
+                    {solPrice?.price !== undefined && (
                       <span className="text-gray-500">
                         (~$
                         {totalSolCost
-                          .mul(solBalance?.price ?? 0)
+                          .mul(solPrice?.price ?? 0)
                           .toDP(2)
                           .toNumber()
                           .toLocaleString("en-US")}
@@ -328,7 +327,7 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
             <Button
               onClick={buyCredits}
               disabled={
-                hasInsufficientFunds ||
+                !hasSufficientFunds ||
                 creditsToBuy === undefined ||
                 creditsToBuy === 0 ||
                 isProcessingTx ||
