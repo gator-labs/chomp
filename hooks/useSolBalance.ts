@@ -25,7 +25,7 @@ export function useSolBalance(primaryWallet: { address: string } | null) {
   ) => {
     if (!isSolBalanceKnown) return false;
 
-    return cost.add(buffer).greaterThanOrEqualTo(solBalance ?? 0);
+    return cost.add(buffer).lessThanOrEqualTo(solBalance ?? 0);
   };
 
   return {
