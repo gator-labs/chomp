@@ -4,7 +4,7 @@ import HistoryHeader from "@/app/components/HistoryHeader/HistoryHeader";
 import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
 import { getAllQuestionsReadyForReveal } from "@/app/queries/history";
 import { getProfileImage } from "@/app/queries/profile";
-import HistoryNew from "@/components/HistoryNew/History";
+import HistoryList from "@/components/HistoryNew/HistoryList";
 
 export default async function Page() {
   const [revealableQuestions, totalClaimableRewards, profileImg] =
@@ -28,7 +28,7 @@ export default async function Page() {
 
             <hr className="border-gray-600 my-0 p-0" />
 
-            <HistoryNew />
+            <HistoryList />
           </>
         ) : (
           <>

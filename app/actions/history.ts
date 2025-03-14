@@ -1,10 +1,12 @@
 "use server";
 
+import { DeckHistoryItem } from "@/types/history";
+
 import {
   NewQuestionHistory,
   NewQuestionHistoryData,
   QuestionHistory,
-  getDecksHistory,
+  getAnsweredDecksForHistory,
   getHistoryHeadersData,
   getNewHistoryQuery,
   getQuestionsHistoryQuery,
@@ -14,14 +16,18 @@ import { getJwtPayload } from "./jwt";
 
 const PAGE_SIZE = 10;
 
-export const getHistoryDecks = async () => {
+export const getHistoryDecks = async ({
+  pageParam,
+}: {
+  pageParam: number;
+}): Promise<DeckHistoryItem[]> => {
   const payload = await getJwtPayload();
 
   if (!payload?.sub) {
     return [];
   }
 
-  return getDecksHistory(payload.sub);
+  return getAnsweredDecksForHistory(payload.sub, PAGE_SIZE, pageParam);
 };
 
 export const getQuestionsHistory = async ({
