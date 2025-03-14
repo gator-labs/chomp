@@ -5,8 +5,6 @@ import {
   Question,
   QuestionAnswer,
   QuestionOption,
-  ResultType,
-  TransactionStatus,
 } from "@prisma/client";
 import dayjs from "dayjs";
 
@@ -35,59 +33,6 @@ const CHAR_CODE_A_ASCII = 65;
 
 export function getAlphaIdentifier(index: number) {
   return String.fromCharCode(CHAR_CODE_A_ASCII + index);
-}
-
-export function getQuestionState(question: DeckQuestionIncludes): {
-  isAnswered: boolean;
-  isRevealed: boolean;
-  isRevealable: boolean;
-  isClaimed: boolean;
-  isClaimable: boolean;
-} {
-  const isAnswered = question.questionOptions?.some(
-    (qo) => qo.questionAnswers.length !== 0,
-  );
-  const isRevealed =
-    question.chompResults.filter(
-      (cr) => cr.transactionStatus === TransactionStatus.Completed,
-    )?.length !== 0;
-  const isRevealable = isEntityRevealable(question) && !isRevealed;
-  const isClaimed =
-    question.chompResults &&
-    question.chompResults.length > 0 &&
-    question.chompResults[0].result === ResultType.Claimed;
-
-  const isClaimable =
-    (Number(question.chompResults?.[0]?.rewardTokenAmount) ?? 0) > 0 &&
-    isRevealed &&
-    !isClaimed;
-
-  return { isAnswered, isRevealed, isRevealable, isClaimed, isClaimable };
-}
-
-export function getDeckState(
-  deck: Deck & {
-    answerCount?: number;
-    deckQuestions: {
-      question: DeckQuestionIncludes;
-    }[];
-    chompResults: ChompResult[];
-  },
-): {
-  isAnswered: boolean;
-  isRevealed: boolean;
-  isRevealable: boolean;
-} {
-  const isAnswered = deck.deckQuestions?.some((dq) =>
-    dq.question?.questionOptions?.some((qo) => qo.questionAnswers.length !== 0),
-  );
-  const isRevealed =
-    deck.chompResults.filter(
-      (cr) => cr.transactionStatus === TransactionStatus.Completed,
-    )?.length !== 0;
-  const isRevealable = isEntityRevealable(deck);
-
-  return { isAnswered, isRevealed, isRevealable };
 }
 
 export const populateAnswerCount = (
