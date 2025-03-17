@@ -19,7 +19,7 @@ export async function getQuestionsNeedingCorrectAnswer() {
       revealAtAnswerCount: number;
     }[]
   >`
-      WITH AnswerCounts AS (
+      WITH "AnswerCounts" AS (
           SELECT qo."questionId",
                  COUNT(DISTINCT qa."userId") AS "answerCount"
           FROM "QuestionOption" qo
@@ -32,11 +32,14 @@ export async function getQuestionsNeedingCorrectAnswer() {
              q."revealAtAnswerCount",
              sub."answerCount"
       FROM "Question" q
-               JOIN AnswerCounts sub ON sub."questionId" = q.id
-      WHERE
-          (q."revealAtDate" IS NOT NULL AND q."revealAtDate" < NOW())
-         OR
-          ((q."revealAtAnswerCount" IS NOT NULL AND q."revealAtAnswerCount" <= sub."answerCount")
-              AND sub."answerCount" >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)});
+               JOIN "AnswerCounts" sub ON sub."questionId" = q.id
+      WHERE (
+                (
+                    (q."revealAtDate" IS NOT NULL AND q."revealAtDate" < NOW())
+                        OR (q."revealAtAnswerCount" IS NOT NULL AND q."revealAtAnswerCount" <= sub."answerCount")
+                    ) AND (
+                    sub."answerCount" >= ${Number(process.env.MINIMAL_ANSWERS_PER_QUESTION)}
+                    )
+                );
   `;
 }
