@@ -71,20 +71,8 @@ export const Stack = ({
               userId={userId}
               deckCreditCost={deck.totalCreditCost}
               deckRewardAmount={deck.totalRewardAmount}
-              answeredQuestions={
-                deck.deckQuestions
-                  .flatMap((dq) =>
-                    dq.question.questionOptions.flatMap(
-                      (qo) => qo.questionAnswers,
-                    ),
-                  )
-                  .filter(
-                    (qa) =>
-                      qa.userId === userId &&
-                      (qa.status === "Submitted" || qa.status === "Viewed"),
-                  ).length / 2
-              }
-              totalQuestions={deck.deckQuestions.length}
+              answeredQuestions={deck.answeredQuestions}
+              totalQuestions={deck.totalQuestions}
             />
           );
         })}

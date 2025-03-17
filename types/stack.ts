@@ -24,6 +24,8 @@ type ExtendedDeck = Deck & {
   deckQuestions: ExtendedDeckQuestion[];
   totalCreditCost: number;
   totalRewardAmount: number;
+  totalQuestions: number;
+  answeredQuestions: number;
 };
 
 export type ExtendedStack = Stack & {
