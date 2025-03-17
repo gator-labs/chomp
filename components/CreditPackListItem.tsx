@@ -41,11 +41,24 @@ function CreditPackListItem({
 
       <div className="flex flex-col text-sm font-bold">
         {costPerCredit != originalCostPerCredit && (
-          <span className="text-gray-400 line-through">
+          <span
+            className={cn("line-through", {
+              "text-gray-400": !isSelected,
+              "text-gray-200": isSelected,
+            })}
+          >
             {originalCostPerCredit} SOL
           </span>
         )}
         <span> {costPerCredit} SOL</span>
+        <span
+          className={cn("text-xs", {
+            "text-gray-400": !isSelected,
+            "text-gray-200": isSelected,
+          })}
+        >
+          per credit
+        </span>
       </div>
 
       <div>

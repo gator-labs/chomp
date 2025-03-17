@@ -90,10 +90,26 @@ export async function getStack(id: number) {
         return total + (dq.question.revealTokenAmount || 0);
       }, 0);
 
+      // Calculate total questions (count of distinct question IDs)
+      const totalQuestions = deck.deckQuestions.length;
+
+      // Calculate answered questions (count of distinct questions that have been answered)
+      const answeredQuestions = new Set(
+        deck.deckQuestions
+          .filter((dq) =>
+            dq.question.questionOptions.some((qo) =>
+              qo.questionAnswers.some((qa) => qa.userId === userId),
+            ),
+          )
+          .map((dq) => dq.question.id),
+      ).size;
+
       return {
         ...deck,
         totalCreditCost,
         totalRewardAmount,
+        totalQuestions,
+        answeredQuestions,
       };
     })
     .sort((a, b) => {
@@ -257,10 +273,30 @@ export async function getDailyDecks() {
       return total + (dq.question.revealTokenAmount || 0);
     }, 0);
 
+    // Calculate total questions (count of distinct question IDs)
+    const totalQuestions = deck.deckQuestions.length;
+
+    // Calculate answered questions (count of distinct questions that have been answered)
+    const answeredQuestions = new Set(
+      deck.deckQuestions
+        .filter((dq) =>
+          dq.question.questionOptions.some((qo) =>
+            qo.questionAnswers.some(
+              (qa) =>
+                qa.userId === userId &&
+                (qa.status === "Submitted" || qa.status === "Viewed"),
+            ),
+          ),
+        )
+        .map((dq) => dq.question.id),
+    ).size;
+
     return {
       ...deck,
       totalCreditCost,
       totalRewardAmount,
+      totalQuestions,
+      answeredQuestions,
     };
   });
 
