@@ -32,7 +32,10 @@ export async function verifyTransactionInstructions(
     );
 
     if (!txInfo || txInfo.meta?.err) {
-      return { success: false, error: "Transaction info not found" };
+      return {
+        success: false,
+        error: "Transaction Failed",
+      };
     }
 
     const instructions = txInfo.transaction.message.instructions;
