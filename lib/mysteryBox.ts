@@ -13,6 +13,7 @@ import * as Sentry from "@sentry/nextjs";
 import { PublicKey } from "@solana/web3.js";
 import "server-only";
 
+import { canDistributeBonk } from "./bonk/rateLimiter";
 import { UserAllowlistError } from "./error";
 
 export type FindMysteryBoxResult = {
@@ -46,7 +47,9 @@ export async function sendBonkFromTreasury(
   address: string,
   type: EChainTxType,
 ) {
-  if (rewardAmount > 0) {
+  const allowDistributeBonk = await canDistributeBonk(rewardAmount);
+
+  if (rewardAmount > 0 || allowDistributeBonk) {
     const sendTx = await sendBonk(
       new PublicKey(address),
       Math.round(rewardAmount * 10 ** 5),
