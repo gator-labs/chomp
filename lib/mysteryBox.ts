@@ -3,7 +3,7 @@ import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { sendBonk } from "@/app/utils/sendBonk";
-import { FindMysteryBoxError } from "@/lib/error";
+import { BonkRateLimitExceedError, FindMysteryBoxError } from "@/lib/error";
 import {
   EBoxTriggerType,
   EChainTxType,
@@ -13,7 +13,7 @@ import * as Sentry from "@sentry/nextjs";
 import { PublicKey } from "@solana/web3.js";
 import "server-only";
 
-import { canDistributeBonk } from "./bonk/rateLimiter";
+import { checkBonkRateLimit } from "./bonk/rateLimiter";
 import { UserAllowlistError } from "./error";
 
 export type FindMysteryBoxResult = {
@@ -46,17 +46,32 @@ export async function sendBonkFromTreasury(
   rewardAmount: number,
   address: string,
   type: EChainTxType,
+  userId?: string,
 ) {
-  const allowDistributeBonk = await canDistributeBonk(rewardAmount);
+  if (rewardAmount > 0) {
+    const isWithinBonkHourlyLimit = await checkBonkRateLimit(rewardAmount);
 
-  if (rewardAmount > 0 || allowDistributeBonk) {
-    const sendTx = await sendBonk(
-      new PublicKey(address),
-      Math.round(rewardAmount * 10 ** 5),
-      type,
-    );
-
-    return sendTx;
+    if (isWithinBonkHourlyLimit) {
+      const sendTx = await sendBonk(
+        new PublicKey(address),
+        Math.round(rewardAmount * 10 ** 5),
+        type,
+      );
+      return sendTx;
+    } else {
+      const bonkRateLimitExceedError = new BonkRateLimitExceedError(
+        `User with id: ${userId} (wallet: ${address}) is having trouble claiming. `,
+      );
+      Sentry.captureException(bonkRateLimitExceedError, {
+        extra: {
+          userId,
+          walletAddress: address,
+          rewardAmount,
+          remainingWindowAmount: 0,
+        },
+      });
+      return null;
+    }
   }
 
   return null;
