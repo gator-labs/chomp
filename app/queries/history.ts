@@ -372,6 +372,7 @@ export async function getAnsweredDecksForHistory(
   const offset = (currentPage - 1) * pageSize;
 
   const result: DeckHistoryItem[] = await prisma.$queryRaw`
+  WITH history_deck_cte AS (
     SELECT 
       d.id,
       d.deck,
@@ -400,12 +401,21 @@ export async function getAnsweredDecksForHistory(
         JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
         WHERE dq."deckId" = d.id
         AND qa."userId" = ${userId}
-        AND qa."status" IN ('Submitted', 'Viewed')
+        AND qa."status" IN ('Submitted', 'Viewed', 'Skipped')
       )
-    GROUP BY 
+     GROUP BY 
       d.id, d.deck, d."imageUrl", d."revealAtDate"
-    ORDER BY 
-      d."revealAtDate" DESC
+    )
+    , total_count AS (
+      SELECT COUNT(*) AS count FROM history_deck_cte
+    )
+  SELECT
+    history_deck_cte.*,
+    total_count.count AS total_count
+  FROM
+    history_deck_cte, total_count
+  ORDER BY 
+      history_deck_cte."revealAtDate" DESC
     LIMIT ${pageSize} OFFSET ${offset}
   `;
 

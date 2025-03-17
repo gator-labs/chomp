@@ -5,4 +5,5 @@ export type DeckHistoryItem = {
   revealAtDate: Date;
   total_reward_amount: number;
   total_credit_cost: number;
+  total_count: number;
 };

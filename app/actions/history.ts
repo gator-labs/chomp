@@ -2,6 +2,7 @@
 
 import { DeckHistoryItem } from "@/types/history";
 
+import { HISTORY_DECK_LIMIT } from "../constants/decks";
 import {
   NewQuestionHistory,
   NewQuestionHistoryData,
@@ -27,7 +28,7 @@ export const getHistoryDecks = async ({
     return [];
   }
 
-  return getAnsweredDecksForHistory(payload.sub, PAGE_SIZE, pageParam);
+  return getAnsweredDecksForHistory(payload.sub, HISTORY_DECK_LIMIT, pageParam);
 };
 
 export const getQuestionsHistory = async ({
