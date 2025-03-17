@@ -82,17 +82,6 @@ export async function processTransaction(
         throw new Error("Payment could not be verified");
       }
 
-      const result = await CONNECTION.getParsedTransaction(txHash, {
-        commitment: TRANSACTION_COMMITMENT,
-      });
-
-      if (!result || result?.meta?.err) {
-        throw new TransactionFailedError(
-          `Credit Transaction Failed for user: ${payload?.sub}`,
-          { cause: result?.meta?.err },
-        );
-      }
-
       // Update chain tx status to confirmed
       await updateTxStatusToConfirmed(txHash, creditsToBuy, creditPack?.id);
     }, CONFIRMATION_RETRIES);
