@@ -1,5 +1,5 @@
-import { SOLANA_TRANSACTION_BUFFER } from "@/app/constants/solana";
 import { getSolBalance } from "@/app/utils/solana";
+import { SOLANA_TRANSACTION_BUFFER } from "@/constants/solana";
 import Decimal from "decimal.js";
 import { useEffect, useState } from "react";
 

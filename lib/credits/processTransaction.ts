@@ -1,7 +1,7 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
-import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { CONNECTION } from "@/app/utils/solana";
+import { TRANSACTION_COMMITMENT } from "@/constants/solana";
 import { updateTxStatusToConfirmed } from "@/lib/credits/updateTxStatusConfirm";
 import { verifyPayment } from "@/lib/credits/verifyPayment";
 import { CreditPack } from "@prisma/client";
