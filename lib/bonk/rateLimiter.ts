@@ -24,5 +24,8 @@ export async function checkBonkRateLimit(amount: number) {
   });
 
   // Only allow if within limits and amount doesn't exceed remaining
-  return success && amount <= remaining;
+  return {
+    isWithinBonkHourlyLimit: success && amount <= remaining,
+    remainingLimit: remaining,
+  };
 }

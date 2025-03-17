@@ -49,7 +49,8 @@ export async function sendBonkFromTreasury(
   userId?: string,
 ) {
   if (rewardAmount > 0) {
-    const isWithinBonkHourlyLimit = await checkBonkRateLimit(rewardAmount);
+    const { isWithinBonkHourlyLimit, remainingLimit } =
+      await checkBonkRateLimit(rewardAmount);
 
     if (isWithinBonkHourlyLimit) {
       const sendTx = await sendBonk(
@@ -67,7 +68,7 @@ export async function sendBonkFromTreasury(
           userId,
           walletAddress: address,
           rewardAmount,
-          remainingWindowAmount: 0,
+          remainingWindowLimit: remainingLimit,
         },
       });
       return null;
