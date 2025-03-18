@@ -10,7 +10,6 @@ export const bonkRateLimiter = new Ratelimit({
   redis: kv,
   limiter: Ratelimit.slidingWindow(HOURLY_LIMIT, "3600 s"),
   analytics: true,
-  prefix: "bonk_distribution",
 });
 
 // Function to check if distribution is allowed
