@@ -1,7 +1,7 @@
 import { DECK_LIMIT } from "@/app/constants/decks";
 import { getPremiumDecks } from "@/app/queries/home";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
 import { HomeFeedDeckCard } from "../HomeFeedDeckCard/HomeFeedDeckCard";
 import LoadMore from "../LoadMore/LoadMore";
@@ -13,6 +13,10 @@ function PaidDeckFeed() {
     queryFn: ({ pageParam }) => getPremiumDecks({ pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
+      // Sanity check for last page
+      if (!lastPage || !Array.isArray(lastPage) || lastPage.length === 0) {
+        return undefined;
+      }
       const totalCount = lastPage?.[0]?.total_count;
       const totalPages = totalCount
         ? Math.ceil(totalCount / DECK_LIMIT)
@@ -25,9 +29,17 @@ function PaidDeckFeed() {
   });
 
   const formattedData = useMemo(() => {
-    return data?.pages.reduce((acc, page) => {
-      return [...acc, ...page];
-    }, []);
+    // Sanity check for null data and pages
+    if (!data?.pages) return [];
+
+    return data.pages.reduce((acc, page) => {
+      // Type check for page
+      if (Array.isArray(page)) {
+        return [...acc, ...page];
+      }
+
+      return acc;
+    }, [] as any[]);
   }, [data]);
 
   if (

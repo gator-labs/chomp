@@ -16,44 +16,44 @@ function TrophyIcon({ width = 38, height = 39, fill = "#A3A3EC" }: IconProps) {
       <path
         d="M9.50002 14.25H7.12502C6.07521 14.25 5.06839 13.833 4.32606 13.0906C3.58372 12.3483 3.16669 11.3415 3.16669 10.2917C3.16669 9.24185 3.58372 8.23504 4.32606 7.4927C5.06839 6.75037 6.07521 6.33334 7.12502 6.33334H9.50002"
         stroke="#8784E1"
-        stroke-width="3.16667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.16667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M28.5 14.25H30.875C31.9248 14.25 32.9316 13.833 33.674 13.0906C34.4163 12.3483 34.8333 11.3415 34.8333 10.2917C34.8333 9.24185 34.4163 8.23504 33.674 7.4927C32.9316 6.75037 31.9248 6.33334 30.875 6.33334H28.5"
         stroke="#8784E1"
-        stroke-width="3.16667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.16667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M6.33331 34.8333H31.6666"
         stroke="#8784E1"
-        stroke-width="3.16667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.16667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M15.8333 23.2115V26.9165C15.8333 27.7874 15.0891 28.4682 14.2975 28.8324C12.4291 29.6874 11.0833 32.0465 11.0833 34.8332"
         stroke="#8784E1"
-        stroke-width="3.16667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.16667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M22.1667 23.2115V26.9165C22.1667 27.7874 22.9109 28.4682 23.7025 28.8324C25.5709 29.6874 26.9167 32.0465 26.9167 34.8332"
         stroke="#8784E1"
-        stroke-width="3.16667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.16667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M28.5 3.16666H9.5V14.25C9.5 16.7696 10.5009 19.1859 12.2825 20.9675C14.0641 22.7491 16.4804 23.75 19 23.75C21.5196 23.75 23.9359 22.7491 25.7175 20.9675C27.4991 19.1859 28.5 16.7696 28.5 14.25V3.16666Z"
         stroke="#8784E1"
-        stroke-width="3.16667"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="3.16667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

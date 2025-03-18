@@ -20,16 +20,16 @@ export function QuestionUnrevealedIcon({
       <path
         d="M12 19.1667C15.6819 19.1667 18.6667 16.1819 18.6667 12.5C18.6667 8.81814 15.6819 5.83337 12 5.83337C8.3181 5.83337 5.33333 8.81814 5.33333 12.5C5.33333 16.1819 8.3181 19.1667 12 19.1667Z"
         stroke="black"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M12 8.5V12.5L14.6667 13.8333"
         stroke="black"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
