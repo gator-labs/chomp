@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Script to run our test suite multiple times until it fails
+# it allow us to investigate our flaky tests problem more easily
+# just run 'yarn test-n-times 100' to run our tests 100 times or until error
+
 # Check if the number of iterations is provided
 if [ -z "$1" ]; then
   echo "Usage: $0 <number_of_iterations> [filename]"
