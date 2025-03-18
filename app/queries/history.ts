@@ -1,4 +1,5 @@
 import { QuestionCardIndicatorType } from "@/types/question";
+import assert from "node:assert";
 
 import prisma from "../services/prisma";
 import { authGuard } from "../utils/auth";
@@ -87,6 +88,10 @@ export async function getQuestionsHistoryQuery(
   deckId?: number,
   filter: QuestionHistoryFilter = "all",
 ): Promise<QuestionHistory[]> {
+  // NOTE: In some weird cases a string is sent here in deckId instead of a number
+  // TODO: If you find the bug please remove this
+  assert(typeof deckId === "number");
+
   const offset = (currentPage - 1) * pageSize;
 
   const getAllDecks = !deckId;
