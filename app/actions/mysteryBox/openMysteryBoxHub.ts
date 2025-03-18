@@ -254,8 +254,6 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         error: e,
       },
     });
-
-    throw new Error("Error processing mystery box prizes");
   } finally {
     await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
