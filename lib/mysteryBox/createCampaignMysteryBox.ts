@@ -28,7 +28,6 @@ export const createCampaignMysteryBox = async (
   if (!campaignBoxId) {
     throw new Error("Campaign doesn't exist");
   }
-
   const validCampaign = await prisma.campaignMysteryBoxAllowlist.findFirst({
     where: {
       campaignMysteryBoxId: campaignBoxId,
@@ -68,49 +67,45 @@ export const createCampaignMysteryBox = async (
         },
       },
     });
-
-    // if MysteryBox already exists save its id
     if (existingBox) {
       mysteryBoxId = existingBox.MysteryBox?.id;
-      // TODO: What to do then the id is undefined?
-      return;
-    }
+    } else {
+      // First, create the mysteryBox
+      const newMysteryBox = await tx.mysteryBox.create({
+        data: {
+          userId: userId,
+        },
+      });
 
-    // If MysteryBox does not exists create it and save its id
-    const newMysteryBox = await tx.mysteryBox.create({
-      data: {
-        userId: userId,
-      },
-    });
-
-    // Then, create the associated trigger
-    await tx.mysteryBoxTrigger.create({
-      data: {
-        triggerType: EBoxTriggerType.CampaignReward,
-        mysteryBoxAllowlistId: userWallet.address,
-        mysteryBoxId: newMysteryBox.id,
-        campaignMysteryBoxId: campaignBoxId,
-        MysteryBoxPrize: {
-          createMany: {
-            data: [
-              {
-                prizeType: EBoxPrizeType.Credits,
-                size: EPrizeSize.Hub,
-                amount: calculatedReward.credits.toString(),
-              },
-              {
-                prizeType: EBoxPrizeType.Token,
-                amount: calculatedReward.bonk.toString(),
-                size: EPrizeSize.Hub,
-                tokenAddress: tokenAddress,
-              },
-            ],
+      // Then, create the associated trigger
+      await tx.mysteryBoxTrigger.create({
+        data: {
+          triggerType: EBoxTriggerType.CampaignReward,
+          mysteryBoxAllowlistId: userWallet.address,
+          mysteryBoxId: newMysteryBox.id,
+          campaignMysteryBoxId: campaignBoxId,
+          MysteryBoxPrize: {
+            createMany: {
+              data: [
+                {
+                  prizeType: EBoxPrizeType.Credits,
+                  size: EPrizeSize.Hub,
+                  amount: calculatedReward.credits.toString(),
+                },
+                {
+                  prizeType: EBoxPrizeType.Token,
+                  amount: calculatedReward.bonk.toString(),
+                  size: EPrizeSize.Hub,
+                  tokenAddress: tokenAddress,
+                },
+              ],
+            },
           },
         },
-      },
-    });
+      });
 
-    mysteryBoxId = newMysteryBox.id;
+      mysteryBoxId = newMysteryBox.id;
+    }
   });
 
   if (!mysteryBoxId) {
