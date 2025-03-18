@@ -59,7 +59,7 @@ export async function sendBonkFromTreasury(
   // Handle rate limit exception first
   if (!isWithinBonkHourlyLimit) {
     const bonkRateLimitExceedError = new BonkRateLimitExceedError(
-      `User with id: ${userId} (wallet: ${address}) is having trouble claiming. `,
+      `User with id: ${userId} (wallet: ${address}) isn't able to claim because global rate limit exceeded.`,
     );
     Sentry.captureException(bonkRateLimitExceedError, {
       extra: {
