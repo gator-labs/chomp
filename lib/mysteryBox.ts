@@ -48,34 +48,36 @@ export async function sendBonkFromTreasury(
   type: EChainTxType,
   userId?: string,
 ) {
-  if (rewardAmount > 0) {
-    const { isWithinBonkHourlyLimit, remainingLimit } =
-      await checkBonkRateLimit(rewardAmount);
-
-    if (isWithinBonkHourlyLimit) {
-      const sendTx = await sendBonk(
-        new PublicKey(address),
-        Math.round(rewardAmount * 10 ** 5),
-        type,
-      );
-      return sendTx;
-    } else {
-      const bonkRateLimitExceedError = new BonkRateLimitExceedError(
-        `User with id: ${userId} (wallet: ${address}) is having trouble claiming. `,
-      );
-      Sentry.captureException(bonkRateLimitExceedError, {
-        extra: {
-          userId,
-          walletAddress: address,
-          rewardAmount,
-          remainingWindowLimit: remainingLimit,
-        },
-      });
-      return null;
-    }
+  // Early return if no reward
+  if (rewardAmount <= 0) {
+    return null;
   }
 
-  return null;
+  const { isWithinBonkHourlyLimit, remainingLimit } =
+    await checkBonkRateLimit(rewardAmount);
+
+  // Handle rate limit exception first
+  if (!isWithinBonkHourlyLimit) {
+    const bonkRateLimitExceedError = new BonkRateLimitExceedError(
+      `User with id: ${userId} (wallet: ${address}) is having trouble claiming. `,
+    );
+    Sentry.captureException(bonkRateLimitExceedError, {
+      extra: {
+        userId,
+        walletAddress: address,
+        rewardAmount,
+        remainingWindowLimit: remainingLimit,
+      },
+    });
+    return null;
+  }
+  // Main case (successful path)
+  const sendTx = await sendBonk(
+    new PublicKey(address),
+    Math.round(rewardAmount * 10 ** 5),
+    type,
+  );
+  return sendTx;
 }
 
 export async function isUserInAllowlist(): Promise<boolean> {
