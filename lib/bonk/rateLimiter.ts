@@ -19,7 +19,7 @@ export async function checkBonkRateLimit(amount: number) {
 
   // Check if distribution is possible
   const { success, remaining } = await bonkRateLimiter.limit(identifier, {
-    rate: amount,
+    rate: Math.round(amount),
   });
 
   // Only allow if within limits and amount doesn't exceed remaining
