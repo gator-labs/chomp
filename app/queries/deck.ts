@@ -83,8 +83,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
   const userId = payload?.sub || null;
 
-  console.log("userId", userId);
-
   const deck = await prisma.deck.findFirst({
     where: {
       id: deckId,

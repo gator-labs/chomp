@@ -70,7 +70,6 @@ export default async function Page() {
           deckRewardAmount={deck?.deckRewardAmount ?? 0}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
-          isUserLoggedIn={true}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeck?.id} />

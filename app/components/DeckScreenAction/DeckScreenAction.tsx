@@ -2,6 +2,7 @@ import { Button } from "@/app/components/ui/button";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { getUserTotalCreditAmount } from "@/app/queries/home";
 import trackEvent from "@/lib/trackEvent";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { CircleArrowRight, Dice5Icon } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import { usePathname } from "next/navigation";
@@ -16,7 +17,6 @@ type DeckScreenActionProps = {
   deckCreditCost: number | null;
   freeExpiringDeckId: number | null;
   creditCostFeatureFlag: boolean;
-  isUserLoggedIn: boolean;
 };
 
 const DeckScreenAction = ({
@@ -26,11 +26,11 @@ const DeckScreenAction = ({
   deckCreditCost,
   freeExpiringDeckId,
   creditCostFeatureFlag,
-  isUserLoggedIn,
 }: DeckScreenActionProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useDynamicContext();
 
   const hasEnoughCredits = deckCreditCost
     ? totalCredits >= deckCreditCost
@@ -42,7 +42,7 @@ const DeckScreenAction = ({
     setIsOpen(false);
   };
 
-  if (!isUserLoggedIn) {
+  if (!user) {
     return (
       <div className="flex flex-col gap-4 py-4">
         <Button

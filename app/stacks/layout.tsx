@@ -19,8 +19,6 @@ const StacksLayout = async ({ children }: PageLayoutProps) => {
 
   const address = user?.wallets[0].address || "";
 
-  const isUserLoggedIn = !!user?.id;
-
   const [bonkBalance, solBalance] = await Promise.all([
     getBonkBalance(address),
     getSolBalance(address),
@@ -41,7 +39,6 @@ const StacksLayout = async ({ children }: PageLayoutProps) => {
               date: h.createdAt,
             }))}
             address={address}
-            isUserLoggedIn={isUserLoggedIn}
           />
         )}
         {children}

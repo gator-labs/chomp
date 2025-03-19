@@ -8,7 +8,9 @@ export const AuthRedirect = async () => {
   const path = headers().get("x-path");
 
   // add any path logged off users should be able to see here
-  const pathExceptionsOfAuthRedirect = ["/decks"];
+  // NOTICE: be sure to add the '/application' part or you could
+  // remove auth from an admin route
+  const pathExceptionsOfAuthRedirect = ["/application/decks"];
   let pathExemptOfAuthR = false;
   for (let i = 0; i < pathExceptionsOfAuthRedirect.length; i++) {
     if (path?.includes(pathExceptionsOfAuthRedirect[i])) {

@@ -21,8 +21,6 @@ export default async function Layout({ children }: PageLayoutProps) {
     getTransactionHistory(),
   ]);
 
-  const isUserLoggedIn = !!user?.id;
-
   const address = user?.wallets?.[0]?.address || "";
 
   const [bonkBalance, solBalance] = await Promise.all([
@@ -50,7 +48,6 @@ export default async function Layout({ children }: PageLayoutProps) {
                   date: h.createdAt,
                 }))}
                 address={address}
-                isUserLoggedIn={isUserLoggedIn}
               />
               <div className="flex-grow pb-20">{children}</div>
             </Main>

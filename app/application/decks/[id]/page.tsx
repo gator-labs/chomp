@@ -89,7 +89,6 @@ export default async function Page({ params: { id } }: PageProps) {
           deckRewardAmount={deck?.deckRewardAmount ?? 0}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
-          isUserLoggedIn={isUserLoggedIn}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />

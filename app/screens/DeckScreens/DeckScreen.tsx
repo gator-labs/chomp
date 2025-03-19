@@ -5,6 +5,7 @@ import DeckScreenAction from "@/app/components/DeckScreenAction/DeckScreenAction
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
 import { BuyBulkCreditsButton } from "@/components/BuyBulkCreditsButton";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useState } from "react";
 
 type DeckScreenProps = {
@@ -28,7 +29,6 @@ type DeckScreenProps = {
   freeExpiringDeckId: number | null;
   blurData: string | undefined;
   deckRewardAmount: number;
-  isUserLoggedIn: boolean;
 };
 
 const DeckScreen = ({
@@ -43,8 +43,9 @@ const DeckScreen = ({
   freeExpiringDeckId,
   blurData,
   deckRewardAmount,
-  isUserLoggedIn,
 }: DeckScreenProps) => {
+  const { user } = useDynamicContext();
+
   const hasDeckInfo =
     !!deckInfo?.description || !!deckInfo?.footer || !!deckInfo?.imageUrl;
 
@@ -60,9 +61,7 @@ const DeckScreen = ({
     <>
       {!isDeckStarted ? (
         <div className="flex flex-col gap-4 h-full w-full">
-          {CREDIT_COST_FEATURE_FLAG &&
-          deckCreditCost !== null &&
-          isUserLoggedIn ? (
+          {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null && user ? (
             <div className="flex gap-2">
               <div className="rounded-[56px] bg-chomp-blue-light text-xs text-gray-900 font-medium px-2 py-1 w-fit align-middle items-center flex gap-1">
                 {totalCredits >= deckCreditCost ? (
@@ -99,7 +98,6 @@ const DeckScreen = ({
             deckCreditCost={deckCreditCost}
             freeExpiringDeckId={freeExpiringDeckId}
             creditCostFeatureFlag={CREDIT_COST_FEATURE_FLAG}
-            isUserLoggedIn={isUserLoggedIn}
           />
         </div>
       ) : (
