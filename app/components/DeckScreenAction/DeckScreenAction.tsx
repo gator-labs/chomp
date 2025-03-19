@@ -16,6 +16,7 @@ type DeckScreenActionProps = {
   deckCreditCost: number | null;
   freeExpiringDeckId: number | null;
   creditCostFeatureFlag: boolean;
+  isUserLoggedIn: boolean;
 };
 
 const DeckScreenAction = ({
@@ -25,6 +26,7 @@ const DeckScreenAction = ({
   deckCreditCost,
   freeExpiringDeckId,
   creditCostFeatureFlag,
+  isUserLoggedIn,
 }: DeckScreenActionProps) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -39,6 +41,22 @@ const DeckScreenAction = ({
   const onClose = () => {
     setIsOpen(false);
   };
+
+  if (!isUserLoggedIn) {
+    return (
+      <div className="flex flex-col gap-4 py-4">
+        <Button
+          onClick={() => {
+            router.push("/login");
+          }}
+        >
+          Login
+          <CircleArrowRight />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 py-4">
       <Button

@@ -28,11 +28,15 @@ export default async function Page({ params: { id } }: PageProps) {
 
   const stackData = stackId ? await getStackImage(stackId) : null;
 
-  const nextDeckId = isUserLoggedIn ? await getNextDeckId(currentDeckId, stackId) : undefined;
+  const nextDeckId = isUserLoggedIn
+    ? await getNextDeckId(currentDeckId, stackId)
+    : undefined;
 
-  const freeExpiringDeckId = isUserLoggedIn ? await getCreditFreeDeckId() : null;
+  const freeExpiringDeckId = isUserLoggedIn
+    ? await getCreditFreeDeckId()
+    : null;
 
-  const totalCredits = isUserLoggedIn ? await getUserTotalCreditAmount() : null;
+  const totalCredits = isUserLoggedIn ? await getUserTotalCreditAmount() : 0;
 
   let blurData;
   const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
@@ -85,6 +89,7 @@ export default async function Page({ params: { id } }: PageProps) {
           deckRewardAmount={deck?.deckRewardAmount ?? 0}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
+          isUserLoggedIn={isUserLoggedIn}
         />
       ) : deck.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />

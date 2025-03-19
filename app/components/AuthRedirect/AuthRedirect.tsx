@@ -8,7 +8,7 @@ export const AuthRedirect = async () => {
   const path = headers().get("x-path");
 
   // add any path logged users should be able to see here
-  const pathExceptionsOfAuthRedirect = ['/decks'];
+  const pathExceptionsOfAuthRedirect = ["/decks"];
   let pathExemptOfAuthR = false;
   for (let i = 0; i < pathExceptionsOfAuthRedirect.length; i++) {
     if (path?.includes(pathExceptionsOfAuthRedirect[i])) {
@@ -16,7 +16,7 @@ export const AuthRedirect = async () => {
     }
   }
 
-  console.log('[AuthRedirect] path: ', path)
+  console.log("[AuthRedirect] path: ", path);
 
   if (!jwt && !pathExemptOfAuthR) {
     if (!path || path === "/application") {

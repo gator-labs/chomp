@@ -1,5 +1,6 @@
 "use client";
 
+import { redirectToMainDomain } from "@/app/utils/router";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,6 +16,7 @@ export type NavbarProps = {
   transactions: TransactionData[];
   bonkBalance: number;
   solBalance: number;
+  isUserLoggedIn?: boolean;
 };
 
 export function Navbar({
@@ -23,6 +25,7 @@ export function Navbar({
   address,
   bonkBalance,
   solBalance,
+  isUserLoggedIn = true,
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -34,29 +37,42 @@ export function Navbar({
     setIsOpen(true);
   };
 
+  const handleChompIconClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    redirectToMainDomain();
+  };
+
   return (
     <nav className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-900 z-10 max-w-lg">
-      <Link href="/application">
-        <ChompFlatIcon fill="#fff" />
+      <Link
+        href={isUserLoggedIn ? "/application" : "#"}
+        passHref
+        legacyBehavior
+      >
+        <a onClick={isUserLoggedIn ? undefined : handleChompIconClick}>
+          <ChompFlatIcon fill="#fff" />
+        </a>
       </Link>
-      <div className="flex gap-6 items-center">
-        <button onClick={openQuickProfile}>
-          <Avatar
-            src={avatarSrc || AvatarPlaceholder.src}
-            size="small"
-            className="border-white"
+      {!isUserLoggedIn ? null : (
+        <div className="flex gap-6 items-center">
+          <button onClick={openQuickProfile}>
+            <Avatar
+              src={avatarSrc || AvatarPlaceholder.src}
+              size="small"
+              className="border-white"
+            />
+          </button>
+          <QuickViewProfile
+            isOpen={isOpen}
+            onClose={closeQuickProfile}
+            transactions={transactions}
+            avatarSrc={avatarSrc}
+            address={address}
+            bonkAmount={bonkBalance}
+            solAmount={solBalance}
           />
-        </button>
-        <QuickViewProfile
-          isOpen={isOpen}
-          onClose={closeQuickProfile}
-          transactions={transactions}
-          avatarSrc={avatarSrc}
-          address={address}
-          bonkAmount={bonkBalance}
-          solAmount={solBalance}
-        />
-      </div>
+        </div>
+      )}
     </nav>
   );
 }

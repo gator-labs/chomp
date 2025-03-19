@@ -17,6 +17,8 @@ const TutorialPage = async () => {
 
   const currentUser = await getCurrentUser();
 
+  const isUserLoggedIn = !!currentUser?.id;
+
   if (!currentUser) {
     redirect("/login");
   }
@@ -39,6 +41,7 @@ const TutorialPage = async () => {
               bonkBalance={0}
               solBalance={0}
               transactions={[]}
+              isUserLoggedIn={isUserLoggedIn}
             />
           </div>
           <div className="px-6 py-5 mb-2">
