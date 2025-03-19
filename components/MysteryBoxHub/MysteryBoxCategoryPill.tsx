@@ -27,17 +27,17 @@ const DISABLEDICONS: Record<EMysteryBoxCategory, any> = {
 };
 
 const ICONS: Record<EMysteryBoxCategory, any> = {
-  Streaks: <CalendarCheckIcon />,
-  Validation: <MoneyOutlineIcon />,
-  Practice: <LabelIcon />,
-  Campaign: <FlagOutlineIcon />,
+  Streaks: <CalendarCheckIcon color="black" />,
+  Validation: <MoneyOutlineIcon color="black" />,
+  Practice: <LabelIcon color="black" />,
+  Campaign: <FlagOutlineIcon color="black" />,
 };
 
 const STYLES: Record<EMysteryBoxCategory, string> = {
-  Streaks: "bg-chomp-yellow-pale text-black",
-  Validation: "bg-chomp-orange-dark text-white",
-  Practice: "bg-chomp-green-light text-black",
-  Campaign: "bg-chomp-blue-light text-black",
+  Streaks: "bg-chomp-yellow-pale",
+  Validation: "bg-chomp-yellow-light",
+  Practice: "bg-chomp-blue-light",
+  Campaign: "bg-chomp-pink-light",
 };
 
 function MysteryBoxCategoryPill({
@@ -54,7 +54,7 @@ function MysteryBoxCategoryPill({
       <span
         className={cn(
           "flex items-center flex-row justify-center gap-1 ",
-          `${disabled ? "text-gray-700" : ""}`,
+          `${disabled ? "text-gray-700" : "text-black"}`,
         )}
       >
         {LABELS[category]}{" "}
