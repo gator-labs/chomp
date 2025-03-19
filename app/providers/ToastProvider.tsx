@@ -14,6 +14,7 @@ type ToastContextType = {
   infoToast: (message: string, description?: string) => void;
   errorToast: (message: string | ReactNode, description?: string) => void;
   defaultToast: (message: string) => void;
+  loadingToast: (message: string) => void;
   promiseToast: <T>(
     promise: Promise<T>,
     msgs: {
@@ -117,6 +118,10 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
     toast(defaultToastLayout(message), toastOptions);
   };
 
+  const loadingToast = (message: string) => {
+    toast(toastLayout(SpinnerIcon, message), toastOptions);
+  };
+
   const promiseToast = <T,>(
     promise: Promise<T>,
     msgs: {
@@ -155,6 +160,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
         errorToast,
         promiseToast,
         defaultToast,
+        loadingToast,
       }}
     >
       {children}
