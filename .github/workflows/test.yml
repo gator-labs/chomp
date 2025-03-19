@@ -26,11 +26,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-          cache: "npm"
+          cache: "yarn"
 
       # Step 4: Install Vercel CLI
       - name: Install Vercel CLI
-        run: npm install -g vercel
+        run: yarn global add vercel
 
       # Step 5: Pull Vercel Environment Variables
       - name: Pull Vercel Environment Variables
@@ -87,10 +87,10 @@ jobs:
       - name: Install Dependencies
         run: |
           echo "Installing project dependencies."
-          npm install
+          yarn install
 
       # Step 8: Run Jest Tests
       - name: Run Jest Tests
         run: |
           echo "Running Jest tests using the pulled and sanitized environment variables."
-          npm run gh-test-sync
+          yarn gh-test-sync
