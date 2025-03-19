@@ -7,6 +7,8 @@ jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
 
+let hasTestFailed = false;
+
 describe("queryExpiringDecks", () => {
   const user1 = {
     id: uuidv4(),
@@ -180,6 +182,13 @@ describe("queryExpiringDecks", () => {
   });
 
   afterAll(async () => {
+    if (hasTestFailed) {
+      console.log("Skipping deleting data for test");
+      console.log("userIds", [user1.id, user2.id]);
+      console.log("questionIds", questionIds);
+      console.log("deckIds", deckIds);
+      return;
+    }
     // Clean up the data after the test
     await prisma.$transaction(async (tx) => {
       await tx.questionAnswer.deleteMany({
@@ -199,6 +208,18 @@ describe("queryExpiringDecks", () => {
       await tx.deck.deleteMany({ where: { id: { in: deckIds } } });
       await tx.user.deleteMany({ where: { id: { in: [user1.id, user2.id] } } });
     });
+  });
+
+  beforeEach(() => {
+    // Reset the flag before each test
+    hasTestFailed = false;
+  });
+
+  afterEach(() => {
+    // If a test fails, set the flag to true
+    if (expect.getState().currentTest?.status === "failed") {
+      hasTestFailed = true;
+    }
   });
 
   // TODO: should return decks that are partially anwered
