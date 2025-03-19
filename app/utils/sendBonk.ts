@@ -2,6 +2,8 @@ import {
   TransactionFailedError,
   TransactionFailedToConfirmError,
 } from "@/lib/error";
+import { EChainTxType } from "@prisma/client";
+import { EChainTxStatus } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import {
   createAssociatedTokenAccountInstruction,
@@ -22,11 +24,23 @@ import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
+import prisma from "../services/prisma";
 import { checkTransactionStatus } from "./checkTransactionStatus";
 import { sleep } from "./sleep";
 import { CONNECTION } from "./solana";
 
-export const sendBonk = async (toWallet: PublicKey, amount: number) => {
+/**
+ * Send Bonk to a wallet
+ * @param toWallet - The recipient wallet address
+ * @param amount - The amount of Bonk to send
+ * @param type - The trigger type of the transaction
+ * @returns The signature of the transaction or null if the transaction fails
+ */
+export const sendBonk = async (
+  toWallet: PublicKey,
+  amount: number,
+  type: EChainTxType,
+) => {
   const payload = await getJwtPayload();
 
   if (!payload) return null;
@@ -152,6 +166,19 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
   const versionedTransaction = new VersionedTransaction(v0message);
   versionedTransaction.sign([fromWallet]);
 
+  await prisma.chainTx.create({
+    data: {
+      hash: base58.encode(versionedTransaction.signatures[0]),
+      status: EChainTxStatus.New,
+      solAmount: "0",
+      wallet: fromWallet.publicKey.toBase58(),
+      recipientAddress: toWallet.toBase58(),
+      type: type,
+      tokenAmount: (amount / 10 ** 5).toString(),
+      tokenAddress: bonkMint.toBase58(),
+    },
+  });
+
   // Send the transaction
   let signature: string | null = null;
 
@@ -186,7 +213,14 @@ export const sendBonk = async (toWallet: PublicKey, amount: number) => {
     if (!signature) {
       throw new Error("Transaction signature is null");
     }
-    await checkTransactionStatus(signature);
+    const isConfirmed = await checkTransactionStatus(signature);
+
+    if (isConfirmed) {
+      await prisma.chainTx.update({
+        where: { hash: signature },
+        data: { status: EChainTxStatus.Finalized, finalizedAt: new Date() },
+      });
+    }
   } catch (error) {
     const transactionFailedToConfirm = new TransactionFailedToConfirmError(
       `Failed to confirm Bonk Transaction`,

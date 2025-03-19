@@ -16,7 +16,6 @@ import {
 } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
-import { release } from "os";
 
 export type SaveQuestionRequest = {
   questionId: number;
@@ -191,7 +190,6 @@ export async function answerQuestion(request: SaveQuestionRequest) {
     );
     Sentry.captureException(answerError);
     await Sentry.flush(SENTRY_FLUSH_WAIT);
-    release();
     throw error;
   }
 }
