@@ -72,11 +72,7 @@ export async function sendBonkFromTreasury(
     return null;
   }
   // Main case (successful path)
-  const sendTx = await sendBonk(
-    new PublicKey(address),
-    Math.round(rewardAmount * 10 ** 5),
-    type,
-  );
+  const sendTx = await sendBonk(new PublicKey(address), rewardAmount, type);
   return sendTx;
 }
 

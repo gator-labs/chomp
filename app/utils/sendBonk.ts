@@ -47,6 +47,8 @@ export const sendBonk = async (
 
   if (!payload) return null;
 
+  const rawAmount = Math.round(amount * 10 ** 5);
+
   const fromWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
   );
@@ -75,7 +77,7 @@ export const sendBonk = async (
       treasuryAssociatedAddress,
       receiverAssociatedAddress,
       fromWallet.publicKey,
-      amount,
+      rawAmount,
     ),
   ];
 
@@ -150,7 +152,7 @@ export const sendBonk = async (
     treasuryAssociatedAddress,
     receiverAssociatedAddress,
     fromWallet.publicKey,
-    amount,
+    rawAmount,
   );
   instructions.push(transferInstruction);
 
@@ -176,7 +178,7 @@ export const sendBonk = async (
       wallet: fromWallet.publicKey.toBase58(),
       recipientAddress: toWallet.toBase58(),
       type: type,
-      tokenAmount: (amount / 10 ** 5).toString(),
+      tokenAmount: amount.toString(),
       tokenAddress: bonkMint.toBase58(),
     },
   });
