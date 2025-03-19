@@ -19,7 +19,7 @@ export async function sendClaimedBonkFromTreasury(
       tokenAmount,
       EChainTxType.MysteryBoxClaim,
     );
-    return sendTx;
+    return sendTx.signature;
   }
 
   return null;

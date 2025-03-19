@@ -137,11 +137,12 @@ export async function openMysteryBox(
 
       if (prize.prizeType == EBoxPrizeType.Token) {
         if (prizeAmount > 0 && prize.tokenAddress === bonkAddress) {
-          sendTx = await sendBonkFromTreasury(
+          const tx = await sendBonkFromTreasury(
             prizeAmount,
             userWallet.address,
             EChainTxType.MysteryBoxClaim,
           );
+          sendTx = tx.signature ?? null;
 
           if (!sendTx) {
             throw new Error("Send bonk transaction failed");
