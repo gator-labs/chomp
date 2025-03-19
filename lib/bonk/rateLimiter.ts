@@ -17,6 +17,15 @@ export async function checkBonkRateLimit(amount: number) {
   // Use a global identifier for tracking total Bonk distribution
   const identifier = "global_bonk_distribution";
 
+  const remainingWindow = await bonkRateLimiter.getRemaining(identifier);
+
+  if (remainingWindow.remaining - amount < 0) {
+    return {
+      isWithinBonkHourlyLimit: false,
+      remainingLimit: remainingWindow.remaining,
+    };
+  }
+
   // Check if distribution is possible
   const { success, remaining } = await bonkRateLimiter.limit(identifier, {
     rate: Math.round(amount),
