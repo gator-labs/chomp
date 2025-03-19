@@ -195,3 +195,10 @@ export class InsufficientCreditsError extends Error {
     this.name = "InsufficientCreditsError";
   }
 }
+
+export class BonkRateLimitExceedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BonkRateLimitExceedError";
+  }
+}

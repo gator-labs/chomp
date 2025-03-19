@@ -16,7 +16,7 @@ export async function sendClaimedBonkFromTreasury(
   if (tokenAmount > 0) {
     const sendTx = await sendBonk(
       new PublicKey(address),
-      Math.round(tokenAmount * 10 ** 5),
+      tokenAmount,
       EChainTxType.MysteryBoxClaim,
     );
     return sendTx;

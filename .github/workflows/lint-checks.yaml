@@ -13,28 +13,28 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "18"
-          cache: "npm"
+          cache: "yarn"
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: Run Prettier
         run: |
-          npm run format || (
+          yarn format || (
             echo '❌ Prettier Check Failed. Run yarn format, add changes, and try again.'
             exit 1
           )
 
       - name: Run ESLint
         run: |
-          npm run lint || (
+          yarn lint || (
             echo '❌ ESLint Check Failed. Please fix the issues listed above.'
             exit 1
           )
 
       - name: TypeScript type check
         run: |
-          npm run check-types || (
+          yarn check-types || (
             echo '❌ TypeScript type check failed. Please resolve the errors.'
             exit 1
           )

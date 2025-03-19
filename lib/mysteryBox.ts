@@ -3,7 +3,7 @@ import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { sendBonk } from "@/app/utils/sendBonk";
-import { FindMysteryBoxError } from "@/lib/error";
+import { BonkRateLimitExceedError, FindMysteryBoxError } from "@/lib/error";
 import {
   EBoxTriggerType,
   EChainTxType,
@@ -13,6 +13,7 @@ import * as Sentry from "@sentry/nextjs";
 import { PublicKey } from "@solana/web3.js";
 import "server-only";
 
+import { checkBonkRateLimit } from "./bonk/rateLimiter";
 import { UserAllowlistError } from "./error";
 
 export type FindMysteryBoxResult = {
@@ -45,18 +46,34 @@ export async function sendBonkFromTreasury(
   rewardAmount: number,
   address: string,
   type: EChainTxType,
+  userId?: string,
 ) {
-  if (rewardAmount > 0) {
-    const sendTx = await sendBonk(
-      new PublicKey(address),
-      Math.round(rewardAmount * 10 ** 5),
-      type,
-    );
-
-    return sendTx;
+  // Early return if no reward
+  if (rewardAmount <= 0) {
+    return null;
   }
 
-  return null;
+  const { isWithinBonkHourlyLimit, remainingLimit } =
+    await checkBonkRateLimit(rewardAmount);
+
+  // Handle rate limit exception first
+  if (!isWithinBonkHourlyLimit) {
+    const bonkRateLimitExceedError = new BonkRateLimitExceedError(
+      `User with id: ${userId} (wallet: ${address}) isn't able to claim because global rate limit exceeded.`,
+    );
+    Sentry.captureException(bonkRateLimitExceedError, {
+      extra: {
+        userId,
+        walletAddress: address,
+        rewardAmount,
+        remainingWindowLimit: remainingLimit,
+      },
+    });
+    return null;
+  }
+  // Main case (successful path)
+  const sendTx = await sendBonk(new PublicKey(address), rewardAmount, type);
+  return sendTx;
 }
 
 export async function isUserInAllowlist(): Promise<boolean> {
