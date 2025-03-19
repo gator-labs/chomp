@@ -118,17 +118,34 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     0,
   );
 
-  let txHash: string | null = null;
+  const txHash: string | null = null;
   try {
     if (totalBonkAmount > 0) {
-      txHash = await sendBonkFromTreasury(
+      const txRes = await sendBonkFromTreasury(
         totalBonkAmount,
         userWallet.address,
         EChainTxType.MysteryBoxClaim,
         userId,
       );
-      if (!txHash) {
-        throw new Error("Send bonk transaction failed");
+      if (txRes.success === false) {
+        throw txRes.error;
+      }
+      if (txRes.success === undefined) {
+        const openMysteryBoxHubError = new OpenMysteryBoxHubError(
+          `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
+          { cause: txRes.error },
+        );
+        Sentry.captureException(openMysteryBoxHubError, {
+          extra: {
+            mysteryBoxIds,
+            rewardsMbIdList: rewards.map((r) => r.id),
+            userId: payload.sub,
+            walletAddress: userWallet.address,
+            prizesIds: allPrizes.map((prize) => prize.id),
+            txHash,
+            error: txRes.error,
+          },
+        });
       }
     }
 
@@ -254,12 +271,18 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         error: e,
       },
     });
+    return {
+      success: false,
+      totalCreditAmount: 0,
+      totalBonkAmount: 0,
+    };
   } finally {
     await Sentry.flush(SENTRY_FLUSH_WAIT);
     release();
   }
 
   return {
+    success: true,
     totalCreditAmount,
     totalBonkAmount,
   };
