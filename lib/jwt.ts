@@ -11,7 +11,8 @@ export const checkThreatLevel = async (userId: string) => {
   if (!user) throw new Error("User not found");
   if (
     user.threatLevel === EThreatLevelType.Bot ||
-    user.threatLevel === EThreatLevelType.ManualBlock
+    user.threatLevel === EThreatLevelType.ManualBlock ||
+    user.threatLevel === EThreatLevelType.EngBlock
   ) {
     throw new UserThreatLevelDetected(
       `User threat level detected: user ${userId}, username: ${user.username}, wallet: ${user.wallets?.[0]?.address}`,
