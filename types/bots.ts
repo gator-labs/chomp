@@ -25,3 +25,10 @@ export enum EThreatLevelType {
   // and won't be blocked by the bot checker.
   PermanentAllow = "permanent-allow",
 }
+
+export enum EThreatLevelAction {
+  // User sees 204
+  Unavailable = "unavailable",
+  // User sees 403
+  Forbidden = "forbidden",
+}
