@@ -5,6 +5,7 @@ import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
 import RevealDeck from "@/app/components/RevealDeck/RevealDeck";
 import {
   getCreditFreeDeckId,
+  getDeckForLoggedOutUsers,
   getDeckQuestionsForAnswerById,
 } from "@/app/queries/deck";
 import { getNextDeckId, getUserTotalCreditAmount } from "@/app/queries/home";
@@ -12,6 +13,7 @@ import { getStackImage } from "@/app/queries/stack";
 import DeckScreen from "@/app/screens/DeckScreens/DeckScreen";
 import { getBlurData } from "@/app/utils/getBlurData";
 import RevealDeckNew from "@/components/RevealDeckNew/RevealDeck";
+import { notFound } from "next/navigation";
 
 type PageProps = {
   params: { id: string };
@@ -22,9 +24,22 @@ export default async function Page({ params: { id } }: PageProps) {
   const isUserLoggedIn = !!payload?.sub;
 
   const currentDeckId = Number(id);
-  const deck = await getDeckQuestionsForAnswerById(currentDeckId);
 
-  const stackId = Number(deck?.stackId) || null;
+  if (!Number.isSafeInteger(currentDeckId)) {
+    notFound();
+  }
+
+  let deckIn;
+  let deckOut;
+  if (isUserLoggedIn) {
+    deckIn = await getDeckQuestionsForAnswerById(currentDeckId);
+  } else {
+    deckOut = await getDeckForLoggedOutUsers(currentDeckId);
+  }
+
+  const anyDeck = deckIn || deckOut;
+
+  const stackId = Number(anyDeck?.stackId) || null;
 
   const stackData = stackId ? await getStackImage(stackId) : null;
 
@@ -39,7 +54,7 @@ export default async function Page({ params: { id } }: PageProps) {
   const totalCredits = isUserLoggedIn ? await getUserTotalCreditAmount() : 0;
 
   let blurData;
-  const imgUrl = deck?.deckInfo?.imageUrl || stackData?.image;
+  const imgUrl = anyDeck?.deckInfo?.imageUrl || stackData?.image;
 
   const FF_CREDITS = !!process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION;
 
@@ -47,65 +62,99 @@ export default async function Page({ params: { id } }: PageProps) {
     blurData = await getBlurData(imgUrl);
   }
 
+  if (!isUserLoggedIn) {
+    if (!deckOut) {
+      // Deck does not exists
+      notFound();
+    }
+
+    // Only show active decks that are not revealed yet
+    return (
+      <div className="h-full pt-3 pb-4">
+        <DeckScreen
+          currentDeckId={deckOut.id}
+          nextDeckId={nextDeckId}
+          questions={deckOut.questions}
+          stackImage={stackData?.image ?? ""}
+          deckInfo={{
+            ...deckOut.deckInfo,
+            totalNumberOfQuestions: deckOut.totalDeckQuestions,
+          }}
+          numberOfUserAnswers={0}
+          totalCredits={totalCredits}
+          deckCreditCost={deckOut?.deckCreditCost}
+          deckRewardAmount={deckOut?.deckRewardAmount ?? 0}
+          freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
+          blurData={blurData?.base64}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="h-full pt-3 pb-4">
-      {deck === null ? (
+      {deckIn === null ? (
+        // There were not questions unanswered so we show "You finished the deck"
+        // TODO: this also causes that 404 decks show as finished
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
-      ) : deck.revealAtDate &&
-        deck.revealAtDate < new Date() &&
-        deck.deckInfo ? (
+      ) : deckIn!.revealAtDate &&
+        deckIn!.revealAtDate < new Date() &&
+        deckIn!.deckInfo ? (
         FF_CREDITS ? (
           <RevealDeckNew
             deckId={currentDeckId}
-            deckTitle={deck.deckInfo.heading}
-            deckDescription={deck.deckInfo.description}
-            deckFooter={deck.deckInfo.footer}
-            deckImage={deck.deckInfo.imageUrl || stackData?.image}
-            numberOfQuestions={deck.totalDeckQuestions}
+            deckTitle={deckIn!.deckInfo.heading}
+            deckDescription={deckIn!.deckInfo.description}
+            deckFooter={deckIn!.deckInfo.footer}
+            deckImage={deckIn!.deckInfo.imageUrl || stackData?.image}
+            numberOfQuestions={deckIn!.totalDeckQuestions}
           />
         ) : (
           <RevealDeck
             deckId={currentDeckId}
-            deckTitle={deck.deckInfo.heading}
-            deckDescription={deck.deckInfo.description}
-            deckFooter={deck.deckInfo.footer}
-            deckImage={deck.deckInfo.imageUrl || stackData?.image}
-            numberOfQuestions={deck.totalDeckQuestions}
+            deckTitle={deckIn!.deckInfo.heading}
+            deckDescription={deckIn!.deckInfo.description}
+            deckFooter={deckIn!.deckInfo.footer}
+            deckImage={deckIn!.deckInfo.imageUrl || stackData?.image}
+            numberOfQuestions={deckIn!.totalDeckQuestions}
           />
         )
-      ) : deck.questions?.length > 0 && deck.deckInfo ? (
+      ) : deckIn!.questions?.length > 0 && deckIn!.deckInfo ? (
+        // you have unanswered questions
         <DeckScreen
-          currentDeckId={deck.id}
+          currentDeckId={deckIn!.id}
           nextDeckId={nextDeckId}
-          questions={deck.questions}
+          questions={deckIn!.questions}
           stackImage={stackData?.image ?? ""}
           deckInfo={{
-            ...deck.deckInfo!,
-            totalNumberOfQuestions: deck.questions.length,
+            ...deckIn!.deckInfo!,
+            totalNumberOfQuestions: deckIn!.questions.length,
           }}
-          numberOfUserAnswers={deck.numberOfUserAnswers!}
+          numberOfUserAnswers={deckIn!.numberOfUserAnswers!}
           totalCredits={totalCredits}
-          deckCreditCost={deck?.deckCreditCost}
-          deckRewardAmount={deck?.deckRewardAmount ?? 0}
+          deckCreditCost={deckIn!.deckCreditCost}
+          deckRewardAmount={deckIn?.deckRewardAmount ?? 0}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
         />
-      ) : deck.questions.length === 0 ? (
+      ) : deckIn!.questions.length === 0 ? (
         <NoQuestionsCard variant={"regular-deck"} nextDeckId={nextDeckId} />
-      ) : deck.activeFromDate && deck.activeFromDate > new Date() ? (
+      ) : deckIn!.activeFromDate && deckIn!.activeFromDate > new Date() ? (
+        // Deck is not yet available, we show remaining time left
         <NotActiveDeck
-          deckName={deck.name}
-          deckInfo={deck.deckInfo}
+          deckName={deckIn!.name}
+          deckInfo={deckIn!.deckInfo}
           stackImage={stackData?.image}
-          totalNumberOfQuestions={deck.totalDeckQuestions}
-          activeFrom={deck.activeFromDate}
-          deckCreditCost={deck?.deckCreditCost}
+          totalNumberOfQuestions={deckIn!.totalDeckQuestions}
+          activeFrom={deckIn!.activeFromDate}
+          deckCreditCost={deckIn!.deckCreditCost}
           blurData={blurData?.base64}
           totalCredits={totalCredits}
-          deckRewardAmount={deck?.deckRewardAmount ?? 0}
+          deckRewardAmount={deckIn?.deckRewardAmount ?? 0}
         />
       ) : (
-        <ComingSoonDeck deckName={deck?.name} />
+        // deck created but not scheduled yet?
+        <ComingSoonDeck deckName={deckIn?.name} />
       )}
     </div>
   );

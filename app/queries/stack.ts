@@ -170,12 +170,6 @@ export async function getStack(id: number) {
 }
 
 export async function getStackImage(id: number) {
-  const payload = await getJwtPayload();
-
-  if (!payload) {
-    return null;
-  }
-
   return prisma.stack.findUnique({
     where: {
       id,

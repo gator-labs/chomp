@@ -79,9 +79,108 @@ export async function getDailyDeck() {
   };
 }
 
+/**
+ * Gets a deck and calculates its cost and reward for all its answers
+ * used for logged out users, only get active decks that are not revealed yet
+ */
+export async function getDeckForLoggedOutUsers(deckId: number) {
+  const now = new Date();
+
+  const deckWithQuestionsAndCount = await prisma.deck.findUnique({
+    where: {
+      id: deckId,
+      activeFromDate: {
+        lt: now, // activeFromDate < now (already active)
+      },
+      revealAtDate: {
+        gt: now, // revealAtDate > now (not revealed yet)
+      },
+    },
+    include: {
+      deckQuestions: {
+        include: {
+          question: {
+            include: {
+              questionOptions: true,
+              questionTags: {
+                include: {
+                  tag: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          deckQuestions: true,
+        },
+      },
+    },
+  });
+
+  if (!deckWithQuestionsAndCount) {
+    return null;
+  }
+
+  // Deck Questions flattened array
+  const deckQuestions = deckWithQuestionsAndCount.deckQuestions.map(
+    (dq) => dq.question,
+  );
+
+  // Calculate the sum of the cost of all questions
+  // NOTICE: we are using the Question.creditCostPerQuestion and not the Deck.creditCostPerQuestion
+  //  if every creditCostPerQuestion is null then our deck is legacy and has no cost to answer (null)
+  //  otherwise calculate the cost by summing the price of all questions
+  const areAllQuestionCostsNull = deckQuestions.every(
+    (dq) => dq.creditCostPerQuestion == null,
+  );
+
+  let deckCreditCost;
+  if (areAllQuestionCostsNull) {
+    // deck is legacy, free to answer
+    deckCreditCost = null;
+  } else {
+    // deck is current version
+    deckCreditCost = deckQuestions.reduce((total, dq) => {
+      return total + (dq.creditCostPerQuestion || 0);
+    }, 0);
+  }
+
+  // calculate the reward amount by summing all revealTokenAmount
+  const deckRewardAmount = deckQuestions.reduce((total, dq) => {
+    return total + (dq.revealTokenAmount || 0);
+  }, 0);
+
+  return {
+    ...deckWithQuestionsAndCount,
+    totalDeckQuestions: deckWithQuestionsAndCount._count.deckQuestions,
+    deckCreditCost,
+    deckRewardAmount,
+    deckInfo: {
+      heading:
+        deckWithQuestionsAndCount.heading || deckWithQuestionsAndCount.deck,
+      description: deckWithQuestionsAndCount.description,
+      imageUrl: deckWithQuestionsAndCount.imageUrl,
+      footer: deckWithQuestionsAndCount.footer,
+      author: deckWithQuestionsAndCount.author,
+      authorImageUrl: deckWithQuestionsAndCount.authorImageUrl,
+    },
+    questions: mapQuestionFromDeck(deckWithQuestionsAndCount),
+  };
+}
+
+/**
+ * Gets a deck by id and returns it with its cost and rewards
+ * for unanswered questions for a specific userId
+ * user for loggedIn users who haven't started a deck
+ * or are going to continue it
+ */
 export async function getDeckQuestionsForAnswerById(deckId: number) {
   const payload = await getJwtPayload();
-  const userId = payload?.sub || null;
+  if (!payload?.sub) return null;
+
+  const userId = payload.sub;
 
   const deck = await prisma.deck.findFirst({
     where: {
@@ -94,7 +193,11 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
             include: {
               questionOptions: {
                 include: {
-                  questionAnswers: userId ? { where: { userId } } : true, // Include all if null
+                  questionAnswers: {
+                    where: {
+                      userId,
+                    },
+                  },
                 },
               },
               questionTags: {
@@ -108,7 +211,6 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       },
     },
   });
-
   if (!deck) {
     return null;
   }
@@ -135,21 +237,17 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
   const creditCostUnansweredQuestion = await prisma.deckQuestion.findMany({
     where: {
       deckId: deckId,
-      ...(userId
-        ? {
-            question: {
-              questionOptions: {
-                every: {
-                  questionAnswers: {
-                    none: {
-                      userId: userId,
-                    },
-                  },
-                },
+      question: {
+        questionOptions: {
+          every: {
+            questionAnswers: {
+              none: {
+                userId: userId,
               },
             },
-          }
-        : {}), // If userId is null, remove the condition entirely
+          },
+        },
+      },
     },
     select: {
       question: {
