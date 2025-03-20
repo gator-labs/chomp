@@ -31,6 +31,7 @@ model User {
   isBotSubscriber             Boolean                       @default(false)
   threatLevel                 String?
   threatLevelWindow           DateTime?                     @db.Date
+  threatLevelDetails          String?
   MysteryBox                  MysteryBox[]
 }
 
