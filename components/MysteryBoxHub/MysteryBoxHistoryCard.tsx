@@ -34,10 +34,13 @@ function MysteryBoxHistoryCard({ box }: MysteryBoxHistoryCardProps) {
               <div className="text-right">Opened on</div>
               <div className="text-right">
                 <b>
-                  {openDate?.toLocaleString("en-US", { month: "short" })}{" "}
-                  {openDate?.getDate()}
+                  {new Date(openDate)?.toLocaleString("en-US", {
+                    month: "short",
+                    timeZone: "UTC",
+                  })}{" "}
+                  {openDate?.getUTCDate()}
                 </b>{" "}
-                {openDate.getFullYear()}
+                {openDate?.getUTCFullYear()}
               </div>
             </>
           ) : (
