@@ -1,6 +1,6 @@
-import { TRANSACTION_COMMITMENT } from "@/app/constants/solana";
 import { getSolPaymentAddress } from "@/app/utils/getSolPaymentAddress";
 import { CONNECTION } from "@/app/utils/solana";
+import { TRANSACTION_COMMITMENT } from "@/constants/solana";
 import { VerificationResult } from "@/types/credits";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import Decimal from "decimal.js";
@@ -31,8 +31,11 @@ export async function verifyTransactionInstructions(
       { retries: MAX_RETRIES },
     );
 
-    if (!txInfo) {
-      return { success: false, error: "Transaction info not found" };
+    if (!txInfo || txInfo.meta?.err) {
+      return {
+        success: false,
+        error: "Transaction Failed",
+      };
     }
 
     const instructions = txInfo.transaction.message.instructions;

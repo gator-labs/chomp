@@ -16,9 +16,9 @@ export function ChevronRightIcon({
       <path
         d="M6 12.1274L10 8.12744L6 4.12744"
         stroke="white"
-        stroke-width="1.33333"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="1.33333"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );

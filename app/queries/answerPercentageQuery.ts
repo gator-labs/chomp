@@ -41,7 +41,7 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
                   select round(avg(percentage))
                   from public."QuestionAnswer"
                   join public."User" u on "userId" = u."id"
-                  where "questionOptionId" = qo."id" and "status" = 'Submitted' and (u."threatLevel" IS NULL OR u."threatLevel" IN (${EThreatLevelType.ManualAllow}, ${EThreatLevelType.PermanentAllow}))
+                  where "questionOptionId" = qo."id" and "selected" is true AND "status" = 'Submitted' and (u."threatLevel" IS NULL OR u."threatLevel" IN (${EThreatLevelType.ManualAllow}, ${EThreatLevelType.PermanentAllow}))
                 ) as "secondOrderAveragePercentagePicked"
               from public."QuestionOption" qo
               where qo."id" in (${Prisma.join(questionOptionIds)})

@@ -125,6 +125,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         totalBonkAmount,
         userWallet.address,
         EChainTxType.MysteryBoxClaim,
+        userId,
       );
       if (!txHash) {
         throw new Error("Send bonk transaction failed");
