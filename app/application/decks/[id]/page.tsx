@@ -29,8 +29,8 @@ export default async function Page({ params: { id } }: PageProps) {
     notFound();
   }
 
-  let deckIn;
-  let deckOut;
+  let deckIn; // deck for logged in users
+  let deckOut; // deck for logged out users
   if (isUserLoggedIn) {
     deckIn = await getDeckQuestionsForAnswerById(currentDeckId);
   } else {
@@ -64,7 +64,7 @@ export default async function Page({ params: { id } }: PageProps) {
 
   if (!isUserLoggedIn) {
     if (!deckOut) {
-      // Deck does not exists
+      // Deck does not exist or we are not showing it to logged out users
       notFound();
     }
 
@@ -82,8 +82,8 @@ export default async function Page({ params: { id } }: PageProps) {
           }}
           numberOfUserAnswers={0}
           totalCredits={totalCredits}
-          deckCreditCost={deckOut?.deckCreditCost}
-          deckRewardAmount={deckOut?.deckRewardAmount ?? 0}
+          deckCreditCost={deckOut.deckCreditCost}
+          deckRewardAmount={deckOut.deckRewardAmount ?? 0}
           freeExpiringDeckId={freeExpiringDeckId?.id ?? null}
           blurData={blurData?.base64}
         />
@@ -153,7 +153,6 @@ export default async function Page({ params: { id } }: PageProps) {
           deckRewardAmount={deckIn?.deckRewardAmount ?? 0}
         />
       ) : (
-        // deck created but not scheduled yet?
         <ComingSoonDeck deckName={deckIn?.name} />
       )}
     </div>
