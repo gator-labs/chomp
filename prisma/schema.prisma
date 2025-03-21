@@ -78,6 +78,7 @@ model QuestionOption {
   id                                    Int              @id @default(autoincrement())
   option                                String
   isCorrect                             Boolean          @default(false)
+  isRandomOption                        Boolean          @default(false)
   calculatedIsCorrect                   Boolean?
   calculatedAveragePercentage           Int? // avg `percentage` column
   calculatedPercentageOfSelectedAnswers Int? // percentage of people that selected
@@ -357,14 +358,14 @@ model CampaignMysteryBoxAllowlist {
 }
 
 model CreditPack {
-  id                    String @id @default(uuid())
-  amount                Int
-  costPerCredit         String
-  originalCostPerCredit String
-  isActive              Boolean
+  id                          String                        @id @default(uuid())
+  amount                      Int
+  costPerCredit               String
+  originalCostPerCredit       String
+  isActive                    Boolean
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
-  chainTx               ChainTx[]
-  createdAt             DateTime @default(now())
+  chainTx                     ChainTx[]
+  createdAt                   DateTime                      @default(now())
 }
 
 enum EMysteryBoxStatus {
