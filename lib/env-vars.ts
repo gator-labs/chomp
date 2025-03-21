@@ -21,3 +21,10 @@ export const getBonkOneTimeLimit = () => {
   }
   return Number(process.env.BONK_ONE_TIME_LIMIT);
 };
+
+export const getCreditOneTimeLimit = () => {
+  if (!process.env.CREDITS_ONE_TIME_LIMIT) {
+    return 1000;
+  }
+  return Number(process.env.CREDITS_ONE_TIME_LIMIT);
+};
