@@ -44,7 +44,7 @@ function OpenMysteryBox({
 
   const queryClient = useQueryClient();
 
-  const { promiseToast } = useToast();
+  const { errorToast, loadingToast, successToast } = useToast();
   const message: MysteryBoxOpenMessage = "REGULAR";
 
   if (!isOpen) return null;
@@ -57,11 +57,14 @@ function OpenMysteryBox({
     setIsSubmitting(true);
 
     try {
-      const res = await promiseToast(openMysteryBoxHub(mysteryBoxIds), {
-        loading: "Opening Mystery Box. Please wait...",
-        success: "Mystery Box opened successfully! ",
-        error: "Failed to open the Mystery Box. Please try again later. 😔",
-      });
+      loadingToast("Opening Mystery Box. Please wait...");
+      const res = await openMysteryBoxHub(mysteryBoxIds);
+
+      if (!res?.success) {
+        throw new Error(
+          "Failed to open the Mystery Box. Please try again later. 😔",
+        );
+      }
 
       setStatus("Opening");
 
@@ -70,8 +73,13 @@ function OpenMysteryBox({
       }, 500);
 
       if (res) {
-        setMysteryBoxReward(res);
+        setMysteryBoxReward({
+          totalBonkAmount: res.totalBonkAmount,
+          totalCreditAmount: res.totalCreditAmount,
+        });
       }
+
+      successToast("Mystery Box opened successfully!");
 
       setTimeout(
         () => {
@@ -80,7 +88,9 @@ function OpenMysteryBox({
         lottieRef!.current!.getDuration()! * 1000 + 500,
       );
     } catch {
-      console.error("Failed to open the Mystery Box");
+      errorToast(
+        '"Failed to open the Mystery Box. Please try again later. 😔"',
+      );
     } finally {
       setIsSubmitting(false);
       queryClient.invalidateQueries({ queryKey: ["mystery-boxes-history"] });

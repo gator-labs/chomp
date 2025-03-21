@@ -1,10 +1,5 @@
-import {
-  TransactionFailedError,
-  TransactionFailedToConfirmError,
-} from "@/lib/error";
 import { EChainTxType } from "@prisma/client";
 import { EChainTxStatus } from "@prisma/client";
-import * as Sentry from "@sentry/nextjs";
 import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
@@ -22,7 +17,6 @@ import "server-only";
 
 import { getJwtPayload } from "../actions/jwt";
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
-import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
 import prisma from "../services/prisma";
 import { checkTransactionStatus } from "./checkTransactionStatus";
@@ -45,7 +39,12 @@ export const sendBonk = async (
 ) => {
   const payload = await getJwtPayload();
 
-  if (!payload) return null;
+  if (!payload)
+    return {
+      success: false,
+      error: "Invalid Jwt payload",
+      signature: null,
+    };
 
   const rawAmount = Math.round(amount * 10 ** 5);
 
@@ -170,45 +169,32 @@ export const sendBonk = async (
   const versionedTransaction = new VersionedTransaction(v0message);
   versionedTransaction.sign([fromWallet]);
 
-  await prisma.chainTx.create({
-    data: {
-      hash: base58.encode(versionedTransaction.signatures[0]),
-      status: EChainTxStatus.New,
-      solAmount: "0",
-      wallet: fromWallet.publicKey.toBase58(),
-      recipientAddress: toWallet.toBase58(),
-      type: type,
-      tokenAmount: amount.toString(),
-      tokenAddress: bonkMint.toBase58(),
-    },
-  });
-
+  try {
+    await prisma.chainTx.create({
+      data: {
+        hash: base58.encode(versionedTransaction.signatures[0]),
+        status: EChainTxStatus.New,
+        solAmount: "0",
+        wallet: fromWallet.publicKey.toBase58(),
+        recipientAddress: toWallet.toBase58(),
+        type: type,
+        tokenAmount: amount.toString(),
+        tokenAddress: bonkMint.toBase58(),
+      },
+    });
+  } catch (err) {
+    return {
+      success: false,
+      error: err,
+      signature: null,
+    };
+  }
   // Send the transaction
   let signature: string | null = null;
 
-  try {
-    signature = await CONNECTION.sendTransaction(versionedTransaction, {
-      maxRetries: 10,
-    });
-  } catch (error) {
-    const transactionFailedError = new TransactionFailedError(
-      "Failed to send Bonk Transaction",
-      { cause: error },
-    );
-    Sentry.captureException(transactionFailedError, {
-      extra: {
-        errorPhase: "SEND_TRANSACTION_FAILED",
-        errorDetails: error instanceof Error ? error.message : String(error),
-        userId: payload?.sub,
-        walletAddress: toWallet.toBase58(),
-        transactionType: !receiverAccountInfo
-          ? "with_ata_creation"
-          : "transfer_only",
-        amount,
-      },
-    });
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
-  }
+  signature = await CONNECTION.sendTransaction(versionedTransaction, {
+    maxRetries: 10,
+  });
 
   // Wait for 2 seconds to ensure the transaction is processed before confirming
   await sleep(2000);
@@ -225,29 +211,17 @@ export const sendBonk = async (
         data: { status: EChainTxStatus.Finalized, finalizedAt: new Date() },
       });
     }
-  } catch (error) {
-    const transactionFailedToConfirm = new TransactionFailedToConfirmError(
-      `Failed to confirm Bonk Transaction`,
-      {
-        cause: error,
-      },
-    );
-
-    Sentry.captureException(transactionFailedToConfirm, {
-      extra: {
-        errorPhase: "TRANSACTION_CONFIRMATION_FAILED",
-        errorDetails: error,
-        userId: payload?.sub,
-        walletAddress: toWallet.toBase58(),
-        signature,
-        transactionType: !receiverAccountInfo
-          ? "with_ata_creation"
-          : "transfer_only",
-        amount,
-      },
-    });
-    await Sentry.flush(SENTRY_FLUSH_WAIT);
+  } catch (err) {
+    return {
+      success: undefined,
+      error: err,
+      singnature: signature,
+    };
   }
 
-  return signature;
+  return {
+    success: true,
+    error: null,
+    signature,
+  };
 };
