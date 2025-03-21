@@ -2,6 +2,7 @@ import { Button } from "@/app/components/ui/button";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { getUserTotalCreditAmount } from "@/app/queries/home";
 import trackEvent from "@/lib/trackEvent";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { CircleArrowRight, Dice5Icon } from "lucide-react";
 import { useRouter } from "next-nprogress-bar";
 import { usePathname } from "next/navigation";
@@ -29,6 +30,7 @@ const DeckScreenAction = ({
   const router = useRouter();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useDynamicContext();
 
   const hasEnoughCredits = deckCreditCost
     ? totalCredits >= deckCreditCost
@@ -39,6 +41,22 @@ const DeckScreenAction = ({
   const onClose = () => {
     setIsOpen(false);
   };
+
+  if (!user) {
+    return (
+      <div className="flex flex-col gap-4 py-4">
+        <Button
+          onClick={() => {
+            router.push("/login");
+          }}
+        >
+          Login
+          <CircleArrowRight />
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 py-4">
       <Button
