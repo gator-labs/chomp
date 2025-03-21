@@ -11,4 +11,5 @@ export const ignoreErrors = [
   "User is having trouble logging in: [object Object]",
   "Cannot assign to read only property 'request' of object '#<c>'",
   "Cannot assign to read only property 'request' of object '#<u>'",
+  /Cannot destructure property 'register' of .* as it is undefined/,
 ];
