@@ -45,7 +45,7 @@ export const updateBots = async (
 
   await prisma.user.updateMany({
     data: {
-      threatLevel: "bot",
+      threatLevel: EThreatLevelType.Bot,
       threatLevelWindow: analysisWindowEnd,
     },
     where: {
