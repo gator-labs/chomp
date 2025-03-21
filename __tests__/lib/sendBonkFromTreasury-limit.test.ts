@@ -23,7 +23,7 @@ describe("sendBonkFromTreasury limit", () => {
     expect(jest.isMockFunction(getBonkOneTimeLimit)).toBeTruthy();
     expect(jest.isMockFunction(sendBonk)).toBeTruthy();
 
-    const sendTx = sendBonkFromTreasury(
+    const sendTx = await sendBonkFromTreasury(
       10_000,
       "2R4FJYwB5TyJrLHbE9Gv4unRggCXwKpFGpB2dUJP15Yb",
       EChainTxType.MysteryBoxClaim,
