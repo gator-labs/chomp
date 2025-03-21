@@ -75,10 +75,13 @@ function MysteryBoxBreakdownDialog({
               <div>Revealed on</div>
               <div>
                 <span className="font-bold">
-                  {revealedDate.toLocaleString("en-US", { month: "short" })}{" "}
-                  {revealedDate.getDate()}
+                  {revealedDate.toLocaleString("en-US", {
+                    month: "short",
+                    timeZone: "UTC",
+                  })}{" "}
+                  {revealedDate.getUTCDate()}
                 </span>{" "}
-                {revealedDate.getFullYear()}
+                {revealedDate.getUTCFullYear()}
               </div>
             </div>
           )}
