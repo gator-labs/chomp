@@ -19,5 +19,5 @@ export const getBonkOneTimeLimit = () => {
   if (!process.env.BONK_ONE_TIME_LIMIT) {
     return 3_000_000;
   }
-  return Number(process.env.ONE_TIME_LIMIT);
+  return Number(process.env.BONK_ONE_TIME_LIMIT);
 };
