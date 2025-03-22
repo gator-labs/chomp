@@ -166,7 +166,7 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
 
     const body = {
       first_order_answers: questionOptions.flatMap((option) =>
-        option.questionAnswers.map(() => optionsList.indexOf(option.id)),
+        option.questionAnswers.filter(qa => qa.selected).map(() => optionsList.indexOf(option.id)),
       ),
       second_order_answers: questionOptions.map((option) =>
         option.questionAnswers
