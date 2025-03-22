@@ -49,6 +49,9 @@ const NotAvailableYet = ({ msg }: { msg: string }) => {
 };
 
 const RevealAnswerPage = async ({ params }: Props) => {
+  if (params.questionId === undefined)
+    throw new Promise((r) => setTimeout(r, 0));
+
   const [questionResponse, user] = await Promise.all([
     getQuestionWithUserAnswer(Number(params.questionId)),
     getCurrentUser(),
