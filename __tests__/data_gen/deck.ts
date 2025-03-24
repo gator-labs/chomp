@@ -1,4 +1,3 @@
-
 import prisma from "@/app/services/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -11,10 +10,12 @@ export class TestDataGenerator {
   static async createDecksWithQuestions(
     decks: Array<{
       deck: Prisma.DeckCreateInput;
-      questions: Array<Prisma.QuestionCreateInput & {
-        options: Prisma.QuestionOptionCreateManyQuestionInput[];
-      }>;
-    }>
+      questions: Array<
+        Prisma.QuestionCreateInput & {
+          options: Prisma.QuestionOptionCreateManyQuestionInput[];
+        }
+      >;
+    }>,
   ): Promise<number[]> {
     const createdDecks = [];
 
@@ -33,12 +34,12 @@ export class TestDataGenerator {
           return prisma.question.create({
             data: {
               ...questionData,
-              revealToken: questionData.revealToken ?? 'Bonk',
+              revealToken: questionData.revealToken ?? "Bonk",
               revealTokenAmount: questionData.revealTokenAmount ?? 5000,
               revealAtDate: questionData.revealAtDate ?? this.getTomorrow(),
               questionOptions: {
                 createMany: {
-                  data: options.map(opt => ({
+                  data: options.map((opt) => ({
                     ...opt,
                     isLeft: opt.isLeft ?? false,
                     isCorrect: opt.isCorrect ?? false,
@@ -50,7 +51,7 @@ export class TestDataGenerator {
               questionOptions: true,
             },
           });
-        })
+        }),
       );
 
       await prisma.deckQuestion.createMany({
@@ -69,30 +70,30 @@ export class TestDataGenerator {
   /**
    * Creates test users
    */
-  static async createUsers(
-    users: Prisma.UserCreateInput[]
-  ): Promise<string[]> {
+  static async createUsers(users: Prisma.UserCreateInput[]): Promise<string[]> {
     const createdUsers = await Promise.all(
-      users.map(user => prisma.user.create({
-        data: {
-          ...user,
-          isAdmin: user.isAdmin ?? false,
-        },
-      }))
+      users.map((user) =>
+        prisma.user.create({
+          data: {
+            ...user,
+            isAdmin: user.isAdmin ?? false,
+          },
+        }),
+      ),
     );
-    return createdUsers.map(u => u.id);
+    return createdUsers.map((u) => u.id);
   }
 
   /**
    * Creates answers for questions
    */
   static async createAnswers(
-    answers: Prisma.QuestionAnswerCreateManyInput[]
+    answers: Prisma.QuestionAnswerCreateManyInput[],
   ): Promise<void> {
     await prisma.questionAnswer.createMany({
-      data: answers.map(answer => ({
+      data: answers.map((answer) => ({
         ...answer,
-        status: answer.status ?? 'Submitted',
+        status: answer.status ?? "Submitted",
       })),
     });
   }
@@ -103,9 +104,11 @@ export class TestDataGenerator {
   static async createTestScenario(config: {
     decks: Array<{
       deck: Prisma.DeckCreateInput;
-      questions: Array<Prisma.QuestionCreateInput & {
-        options: Prisma.QuestionOptionCreateManyQuestionInput[];
-      }>;
+      questions: Array<
+        Prisma.QuestionCreateInput & {
+          options: Prisma.QuestionOptionCreateManyQuestionInput[];
+        }
+      >;
     }>;
     users: Prisma.UserCreateInput[];
     answers: Array<{
@@ -135,7 +138,7 @@ export class TestDataGenerator {
       },
     });
 
-    const questionIds = questions.map(q => q.id);
+    const questionIds = questions.map((q) => q.id);
 
     // Create users
     const userIds = await this.createUsers(config.users);
@@ -143,10 +146,11 @@ export class TestDataGenerator {
     // Create answers
     const answerData: Prisma.QuestionAnswerCreateManyInput[] = [];
     for (const answerConfig of config.answers) {
-      const question = questions.find(q => q.id === answerConfig.questionId);
+      const question = questions.find((q) => q.id === answerConfig.questionId);
       if (!question) continue;
 
-      const questionOption = question.questionOptions[answerConfig.selectedOptionIndex];
+      const questionOption =
+        question.questionOptions[answerConfig.selectedOptionIndex];
       if (!questionOption) continue;
 
       answerData.push({
@@ -172,9 +176,9 @@ export class TestDataGenerator {
   }
 
   /**
- * Cleans up test data
- * @param ids Object containing IDs to clean up
- */
+   * Cleans up test data
+   * @param ids Object containing IDs to clean up
+   */
   static async cleanup(ids: {
     deckIds?: number[];
     questionIds?: number[];

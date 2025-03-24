@@ -90,7 +90,7 @@ export async function getDailyDeck() {
 }
 
 /**
- * Gets a deck and calculates its cost and reward for all its answers
+ * Gets a deck and calculates its cost and reward for all its questions
  * used for logged out users, only get active decks that are not revealed yet
  */
 export async function getDeckForLoggedOutUsers(deckId: number) {
