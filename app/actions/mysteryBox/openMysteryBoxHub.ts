@@ -127,13 +127,13 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
         EChainTxType.MysteryBoxClaim,
         userId,
       );
-      if (txRes.success === false) {
-        throw txRes.error;
+      if (txRes?.success === false) {
+        throw txRes?.error;
       }
-      if (txRes.success === undefined) {
+      if (txRes?.success === undefined) {
         const openMysteryBoxHubError = new OpenMysteryBoxHubError(
           `User with id: ${payload.sub} (wallet: ${userWallet.address}) is having trouble claiming for Mystery Boxes: ${mysteryBoxIds}`,
-          { cause: txRes.error },
+          { cause: txRes?.error },
         );
         Sentry.captureException(openMysteryBoxHubError, {
           extra: {
@@ -143,7 +143,7 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
             walletAddress: userWallet.address,
             prizesIds: allPrizes.map((prize) => prize.id),
             txHash,
-            error: txRes.error,
+            error: txRes?.error,
           },
         });
       }

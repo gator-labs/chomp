@@ -142,7 +142,7 @@ export async function openMysteryBox(
             userWallet.address,
             EChainTxType.MysteryBoxClaim,
           );
-          sendTx = tx.signature ?? null;
+          sendTx = tx?.signature ?? null;
 
           if (!sendTx) {
             throw new Error("Send bonk transaction failed");
