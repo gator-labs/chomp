@@ -49,6 +49,9 @@ const NotAvailableYet = ({ msg }: { msg: string }) => {
 };
 
 const RevealAnswerPage = async ({ params }: Props) => {
+  // Parameters can be undefined on the first render;
+  // return a promise to trigger suspense further up
+  // the tree until we have the values.
   if (params.questionId === undefined)
     throw new Promise((r) => setTimeout(r, 0));
 
