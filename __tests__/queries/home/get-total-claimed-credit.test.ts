@@ -1,4 +1,3 @@
-import { deleteMysteryBoxes } from "@/__tests__/actions/mystery-box.test";
 import { getJwtPayload } from "@/app/actions/jwt";
 import { getUserTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
@@ -23,6 +22,52 @@ jest.mock("next/headers", () => ({
 jest.mock("p-retry", () => ({
   retry: jest.fn((fn) => fn()),
 }));
+
+export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
+  // Filter out null/undefined values and ensure valid mysteryBoxIds
+  const validBoxIds = mysteryBoxIds.filter(
+    (id): id is string => id !== null && id !== undefined,
+  );
+
+  const boxes = await prisma.mysteryBox.findMany({
+    where: {
+      id: { in: validBoxIds },
+    },
+    include: {
+      triggers: {
+        select: {
+          id: true,
+          MysteryBoxPrize: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  await prisma.mysteryBoxPrize.deleteMany({
+    where: {
+      id: {
+        in: boxes.flatMap((box) =>
+          box.triggers.flatMap((trigger) =>
+            trigger.MysteryBoxPrize.map((prize) => prize.id),
+          ),
+        ),
+      },
+    },
+  });
+  await prisma.mysteryBoxTrigger.deleteMany({
+    where: {
+      id: { in: boxes.flatMap((box) => box.triggers.map((prize) => prize.id)) },
+    },
+  });
+  await prisma.mysteryBox.deleteMany({
+    where: {
+      id: { in: validBoxIds },
+    },
+  });
+}
 
 describe("getUserTotalCreditAmount", () => {
   const user1 = {

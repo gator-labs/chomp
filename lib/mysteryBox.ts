@@ -50,11 +50,11 @@ export async function sendBonkFromTreasury(
 ) {
   // Early return if no reward
   if (rewardAmount <= 0) {
-  return {
-    success: false,
-    error: "Nothing to claim",
-    signature: null,
-  };
+    return {
+      success: false,
+      error: "Nothing to claim",
+      signature: null,
+    };
   }
 
   const { isWithinBonkHourlyLimit, remainingLimit } =
@@ -73,12 +73,12 @@ export async function sendBonkFromTreasury(
         remainingWindowLimit: remainingLimit,
       },
     });
-  
-  return {
-    success: false,
-    error: "Nothing to claim",
-    signature: null,
-  };
+
+    return {
+      success: false,
+      error: "Nothing to claim",
+      signature: null,
+    };
   }
   // Main case (successful path)
   const res = await sendBonk(new PublicKey(address), rewardAmount, type);
