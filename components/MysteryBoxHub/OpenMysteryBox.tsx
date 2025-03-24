@@ -23,7 +23,7 @@ const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 
 export interface OpenMysteryBoxProps {
   isOpen: boolean;
-  closeBoxDialog?: () => void;
+  closeBoxDialog?: (wasOpened: boolean) => void;
   boxType: EMysteryBoxCategory;
   mysteryBoxIds: string[];
 }
@@ -222,7 +222,7 @@ function OpenMysteryBox({
           <Button
             variant={"outline"}
             onClick={() => {
-              closeBoxDialog?.();
+              closeBoxDialog?.(true);
               revalidateRewards();
             }}
           >
@@ -233,7 +233,7 @@ function OpenMysteryBox({
         {status === "Idle" && (
           <div
             className="text-sm cursor-pointer text-center text-chomp-grey-a1 underline pt-8"
-            onClick={closeBoxDialog}
+            onClick={() => closeBoxDialog?.(false)}
           >
             Close
           </div>

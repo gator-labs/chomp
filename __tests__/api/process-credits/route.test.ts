@@ -29,7 +29,7 @@ describe("GET /api/cron/process-credits", () => {
   // Arrange
   let users: { id: string; username: string }[];
   const address1 = "2K88XKbcHW5kLNVyKrgWQUoW3dJPYUjMXJreAoVHWTKW";
-  const address2 = "b726gyjcGcApcX3bBfV6zPAF1mGnyQtdL8CZVavLaGc6";
+  const address2 = "7vHzCeEEBHpy9szStx1CMqMH1CwWWnv6TCa7e8zQtgPx";
   const address3 = "GmUV9W6FqNPuHCwLLu9o9QyrR13CDYkP7Mkd3bZod16A";
 
   const validTxHash =
@@ -37,7 +37,7 @@ describe("GET /api/cron/process-credits", () => {
   const validTxHash2 =
     "3rEHsyEXRuVcrD6R1kQH1D8t4cHc2oTMqVbJYqYku1FXV1WBiWW1JPSX13hJpNBk6PzjMhYFV775M58DAdpNofi3";
   const invalidTxHash =
-    "gaLBbAbCvBCjmBEacJy5tDvh3BSaTPznr2Y8nBTcmtHnYyhw3NEMHoVSPLz4kYo2h9CuSKXXkKkh5eDi61pXmd";
+    "2RagSK6kmaR7s9rJBjVH66AkSqHzdTYyBR3LEGy52T2yLZZD8wG4efhtLAZSzp2UtJ4jTYTqUCpv3mnoemDNzLzt";
 
   const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
 

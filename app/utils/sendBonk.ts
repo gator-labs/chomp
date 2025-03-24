@@ -30,12 +30,14 @@ import { sleep } from "./sleep";
 import { CONNECTION } from "./solana";
 
 /**
- * Send Bonk to a wallet
- * @param toWallet - The recipient wallet address
- * @param amount - The amount of Bonk to send
- * @param type - The trigger type of the transaction
- * @returns The signature of the transaction or null if the transaction fails
- */
+
+Send Bonk to a wallet
+@warning 🚨 DO NOT USE THIS METHOD DIRECTLY - Use sendBonkFromTreasury instead which implements rate limiting
+@param toWallet - The recipient wallet address
+@param amount - The amount of Bonk to send
+@param type - The trigger type of the transaction
+@returns The signature of the transaction or null if the transaction fails
+*/
 export const sendBonk = async (
   toWallet: PublicKey,
   amount: number,
@@ -44,6 +46,8 @@ export const sendBonk = async (
   const payload = await getJwtPayload();
 
   if (!payload) return null;
+
+  const rawAmount = Math.round(amount * 10 ** 5);
 
   const fromWallet = Keypair.fromSecretKey(
     base58.decode(process.env.CHOMP_TREASURY_PRIVATE_KEY || ""),
@@ -73,7 +77,7 @@ export const sendBonk = async (
       treasuryAssociatedAddress,
       receiverAssociatedAddress,
       fromWallet.publicKey,
-      amount,
+      rawAmount,
     ),
   ];
 
@@ -148,7 +152,7 @@ export const sendBonk = async (
     treasuryAssociatedAddress,
     receiverAssociatedAddress,
     fromWallet.publicKey,
-    amount,
+    rawAmount,
   );
   instructions.push(transferInstruction);
 
@@ -174,7 +178,7 @@ export const sendBonk = async (
       wallet: fromWallet.publicKey.toBase58(),
       recipientAddress: toWallet.toBase58(),
       type: type,
-      tokenAmount: (amount / 10 ** 5).toString(),
+      tokenAmount: amount.toString(),
       tokenAddress: bonkMint.toBase58(),
     },
   });

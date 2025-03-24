@@ -28,7 +28,7 @@ describe("Threat level blocking", () => {
   let users: { username: string; id: string }[];
 
   beforeAll(async () => {
-    users = await generateUsers(5);
+    users = await generateUsers(7);
 
     await prisma.user.createMany({
       data: [
@@ -37,6 +37,8 @@ describe("Threat level blocking", () => {
         { id: users[2].id, threatLevel: EThreatLevelType.ManualAllow },
         { id: users[3].id, threatLevel: EThreatLevelType.ManualBlock },
         { id: users[4].id, threatLevel: EThreatLevelType.PermanentAllow },
+        { id: users[5].id, threatLevel: EThreatLevelType.EngBlock },
+        { id: users[6].id, threatLevel: EThreatLevelType.EngAllow },
       ],
     });
   });
@@ -45,7 +47,15 @@ describe("Threat level blocking", () => {
     await prisma.user.deleteMany({
       where: {
         id: {
-          in: [users[0].id, users[1].id, users[2].id, users[3].id, users[4].id],
+          in: [
+            users[0].id,
+            users[1].id,
+            users[2].id,
+            users[3].id,
+            users[4].id,
+            users[5].id,
+            users[6].id,
+          ],
         },
       },
     });
@@ -89,6 +99,24 @@ describe("Threat level blocking", () => {
     // toHaveBeenCalledWith() not working, hence work around
     (getTokenFromCookie as jest.Mock).mockResolvedValue("token_222");
     (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[4].id });
+
+    await expect(getCurrentUser()).resolves.not.toThrow(
+      UserThreatLevelDetected,
+    );
+  });
+
+  it("should disallow a engineer-blocked user to validate a session", async () => {
+    // toHaveBeenCalledWith() not working, hence work around
+    (getTokenFromCookie as jest.Mock).mockResolvedValue("token_116");
+    (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[5].id });
+
+    await expect(getCurrentUser()).rejects.toThrow(UserThreatLevelDetected);
+  });
+
+  it("should allow a engineer-allowed user to validate a session", async () => {
+    // toHaveBeenCalledWith() not working, hence work around
+    (getTokenFromCookie as jest.Mock).mockResolvedValue("token_117");
+    (decodeJwtPayload as jest.Mock).mockResolvedValue({ sub: users[6].id });
 
     await expect(getCurrentUser()).resolves.not.toThrow(
       UserThreatLevelDetected,

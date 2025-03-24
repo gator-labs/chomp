@@ -105,7 +105,6 @@ describe("createCampaignMysteryBox", () => {
         },
       },
     });
-
     await prisma.user.delete({
       where: {
         id: user.id,
