@@ -3,8 +3,8 @@ import ComingSoonDeck from "@/app/components/ComingSoonDeck/ComingSoonDeck";
 import { NoQuestionsCard } from "@/app/components/NoQuestionsCard/NoQuestionsCard";
 import NotActiveDeck from "@/app/components/NotActiveDeck/NotActiveDeck";
 import {
+  getActiveDeckForLoggedOutUsers,
   getCreditFreeDeckId,
-  getDeckForLoggedOutUsers,
   getDeckQuestionsForAnswerById,
   getRawDeck,
 } from "@/app/queries/deck";
@@ -50,7 +50,7 @@ export default async function Page({ params: { id } }: PageProps) {
   }
 
   if (!isUserLoggedIn) {
-    const hydratedDeck = await getDeckForLoggedOutUsers(currentDeckId);
+    const hydratedDeck = await getActiveDeckForLoggedOutUsers(currentDeckId);
 
     if (!hydratedDeck) {
       // Deck does not exist or we are not showing it to logged out users

@@ -1,5 +1,8 @@
-import { getDeckForLoggedOutUsers } from "@/app/queries/deck";
+import { getActiveDeckForLoggedOutUsers } from "@/app/queries/deck";
+import prisma from "@/app/services/prisma";
+import "@/app/utils/date";
 import { QuestionType } from "@prisma/client";
+import dayjs from "dayjs";
 
 import { TestDataGenerator } from "../../../lib/data_gen/deck";
 
@@ -84,7 +87,7 @@ describe("queries/deck/getDeckForLoggedOutUsers", () => {
   });
 
   it("should get deck with questions, cost and rewards", async () => {
-    const deck = await getDeckForLoggedOutUsers(testData.deckIds[0]);
+    const deck = await getActiveDeckForLoggedOutUsers(testData.deckIds[0]);
 
     expect(deck).toBeTruthy();
     expect(deck?.totalDeckQuestions).toEqual(2);
@@ -92,5 +95,51 @@ describe("queries/deck/getDeckForLoggedOutUsers", () => {
     expect(deck?.deckCreditCost).toEqual(5);
     expect(deck?.deckRewardAmount).toEqual(14);
     expect(deck?.deckInfo?.heading).toEqual("Super deck");
+  });
+
+  it("should not return a deck that is not active yet", async () => {
+    await prisma.deck.update({
+      where: {
+        id: testData.deckIds[0],
+      },
+      data: {
+        activeFromDate: dayjs().utc().add(1, "day").toDate(),
+      },
+    });
+
+    const deck = await getActiveDeckForLoggedOutUsers(testData.deckIds[0]);
+
+    expect(deck).toBeFalsy();
+  });
+
+  it("should not return a deck that has already been revealed", async () => {
+    await prisma.deck.update({
+      where: {
+        id: testData.deckIds[0],
+      },
+      data: {
+        revealAtDate: dayjs().utc().subtract(1, "day").toDate(),
+      },
+    });
+
+    const deck = await getActiveDeckForLoggedOutUsers(testData.deckIds[0]);
+
+    expect(deck).toBeFalsy();
+  });
+
+  it("should not return a daily deck", async () => {
+    await prisma.deck.update({
+      where: {
+        id: testData.deckIds[0],
+      },
+      data: {
+        activeFromDate: null,
+        date: new Date(),
+      },
+    });
+
+    const deck = await getActiveDeckForLoggedOutUsers(testData.deckIds[0]);
+
+    expect(deck).toBeFalsy();
   });
 });
