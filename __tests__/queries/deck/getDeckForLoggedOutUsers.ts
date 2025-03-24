@@ -1,7 +1,7 @@
 import { getDeckForLoggedOutUsers } from "@/app/queries/deck";
 import { QuestionType } from "@prisma/client";
 
-import { TestDataGenerator } from "../../data_gen/deck";
+import { TestDataGenerator } from "../../../lib/data_gen/deck";
 
 describe("queries/deck/getDeckForLoggedOutUsers", () => {
   let testData: {
