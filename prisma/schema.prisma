@@ -78,7 +78,6 @@ model QuestionOption {
   id                                    Int              @id @default(autoincrement())
   option                                String
   isCorrect                             Boolean          @default(false)
-  isRandomOption                        Boolean          @default(false)
   calculatedIsCorrect                   Boolean?
   calculatedAveragePercentage           Int? // avg `percentage` column
   calculatedPercentageOfSelectedAnswers Int? // percentage of people that selected
@@ -160,6 +159,7 @@ model QuestionAnswer {
   questionOption   QuestionOption @relation(fields: [questionOptionId], references: [id])
   userId           String
   user             User           @relation(fields: [userId], references: [id])
+  isRandomOption   Boolean        @default(false)
   percentage       Int?
   // NOTICE: The actual initial value of status is Viewed
   status           AnswerStatus   @default(Submitted)
