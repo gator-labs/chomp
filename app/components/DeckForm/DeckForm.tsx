@@ -567,7 +567,7 @@ export default function DeckForm({
             variant="secondary"
             type="number"
             min="0"
-            pattern="/^[0-9]$/"
+            pattern="/^[0-9]+$/"
             className="text-gray-800 w-full"
             {...register("creditCostPerQuestion", {
               setValueAs: (v) => (!v ? 0 : parseInt(v)),
