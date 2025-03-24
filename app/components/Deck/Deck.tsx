@@ -107,10 +107,6 @@ export function Deck({
       ? questions[currentQuestionIndex].questionOptions.length - 1
       : 0;
 
-  const { random, generateRandom, setRandom } = useRandom({
-    min,
-    max,
-  });
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
   const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
   const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
@@ -166,7 +162,7 @@ export function Deck({
   // we mark it as "seen"
   useEffect(() => {
     const run = async () => {
-      const res = await markQuestionAsSeenButNotAnswered(question.id);
+      const res = await markQuestionAsSeenButNotAnswered(question.id, max);
       if (!!res?.hasError) {
         handleNextIndex();
         return;
