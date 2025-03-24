@@ -109,6 +109,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
     }
 
     await prisma.$transaction(async (tx) => {
+      // TODO: This is pre-current team, nobody know why we delete them here
       await tx.questionAnswer.deleteMany({
         where: {
           questionOption: {

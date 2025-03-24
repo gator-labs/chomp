@@ -16,6 +16,16 @@ import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { getTotalNumberOfDeckQuestions } from "../utils/question";
 
+export async function getRawDeck(deckId: number) {
+  const deck = await prisma.deck.findUnique({
+    where: {
+      id: deckId,
+    },
+  });
+
+  return deck;
+}
+
 export async function getDailyDeck() {
   const currentDayStart = dayjs(new Date()).subtract(1, "day").toDate();
   const currentDayEnd = dayjs(new Date()).toDate();
