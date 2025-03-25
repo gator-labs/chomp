@@ -33,7 +33,7 @@ export interface MysteryBoxProps {
   boxType?: EMysteryBoxType;
 }
 
-export type MysteryBoxDeckBreakdown = {
+export type MysteryBoxBreakdown = {
   id: number;
   name: string;
   creditsReceived: number;
@@ -47,5 +47,4 @@ export type MysteryBox = {
   creditsReceived: string;
   openedAt: string | null;
   category: EMysteryBoxCategory;
-  deckBreakdown?: MysteryBoxDeckBreakdown[];
 };

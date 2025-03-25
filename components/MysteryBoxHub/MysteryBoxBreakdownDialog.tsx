@@ -1,13 +1,15 @@
 "use client";
 
 import { ChevronRightIcon } from "@/app/components/Icons/ChevronRightIcon";
+import Spinner from "@/app/components/Spinner/Spinner";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/app/components/ui/dialog";
-import { MysteryBox, MysteryBoxDeckBreakdown } from "@/types/mysteryBox";
+import { useMysteryBoxBreakdown } from "@/hooks/useMysteryBoxBreakdown";
+import { MysteryBox, MysteryBoxBreakdown } from "@/types/mysteryBox";
 import { useRouter } from "next-nprogress-bar";
 
 import MysteryBoxCategoryPill from "./MysteryBoxCategoryPill";
@@ -26,21 +28,24 @@ function MysteryBoxBreakdownDialog({
   isOpen,
   onClose,
 }: MysteryBoxBreakdownDialogProps) {
+  const breakdown = useMysteryBoxBreakdown(isOpen ? box.id : undefined);
+
   const router = useRouter();
   const openDate = box.openedAt ? new Date(box.openedAt) : null;
 
   const totalCredits = Number(box.creditsReceived).toLocaleString("en-US");
   const totalBonk = Number(box.bonkReceived).toLocaleString("en-US");
 
-  const hasValidDeckBreakdown =
-    box.deckBreakdown && box.deckBreakdown.length > 0;
+  const boxBreakdown = breakdown?.data?.breakdown ?? [];
+
+  const hasValidDeckBreakdown = boxBreakdown && boxBreakdown.length > 0;
 
   const handleDeckClick = (deckId: number) => {
     router.push(`/application/decks/${deckId}`);
     onClose();
   };
 
-  const answeredDeckCard = (deck: MysteryBoxDeckBreakdown) => {
+  const answeredDeckCard = (deck: MysteryBoxBreakdown) => {
     const revealedDate = deck.revealedOn ? new Date(deck.revealedOn) : null;
 
     return (
@@ -133,9 +138,13 @@ function MysteryBoxBreakdownDialog({
           <div className="flex flex-col gap-2">
             <h3 className="text-white text-sm">Answered Decks</h3>
             <div className="max-h-[200px] overflow-y-auto">
-              {hasValidDeckBreakdown ? (
+              {breakdown.isLoading ? (
+                <div className="bg-gray-700 rounded-xl pt-1 pb-4 text-gray-400 text-center">
+                  <Spinner />
+                </div>
+              ) : hasValidDeckBreakdown ? (
                 <div className="flex flex-col gap-3">
-                  {box.deckBreakdown!.map(answeredDeckCard)}
+                  {boxBreakdown!.map(answeredDeckCard)}
                 </div>
               ) : (
                 <div className="bg-gray-700 rounded-xl p-4 text-gray-400 text-center">

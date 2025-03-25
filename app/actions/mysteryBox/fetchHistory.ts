@@ -66,7 +66,6 @@ export async function fetchMysteryBoxHistory({
 
   if (hasMore) records.pop();
 
-  // Process each mystery box to include deck breakdown information
   const mysteryBoxes = await Promise.all(
     records.map(async (box) => {
       let creditsReceived = 0;
@@ -108,106 +107,12 @@ export async function fetchMysteryBoxHistory({
       } else {
         category = EMysteryBoxCategory.Campaign;
       }
-
-      const questionIds = box.triggers
-        .filter((trigger) => trigger.questionId !== null)
-        .map((trigger) => trigger.questionId) as number[];
-
-      const deckBreakdown: Array<{
-        id: number;
-        name: string;
-        creditsReceived: number;
-        bonkReceived: number;
-        revealedOn: string | null;
-      }> = [];
-
-      if (questionIds.length > 0) {
-        const deckQuestions = await prisma.deckQuestion.findMany({
-          where: {
-            questionId: { in: questionIds },
-          },
-          include: {
-            deck: {
-              select: {
-                id: true,
-                deck: true,
-                revealAtDate: true,
-              },
-            },
-          },
-        });
-
-        const decksMap = new Map<
-          number,
-          {
-            id: number;
-            name: string;
-            creditsReceived: number;
-            bonkReceived: number;
-            revealedOn: string | null;
-            questionIds: Set<number>;
-          }
-        >();
-
-        // Process deck questions to build the map of decks
-        deckQuestions.forEach((dq) => {
-          const deckId = dq.deckId;
-
-          if (!decksMap.has(deckId)) {
-            decksMap.set(deckId, {
-              id: deckId,
-              name: dq.deck.deck,
-              creditsReceived: 0,
-              bonkReceived: 0,
-              revealedOn: dq.deck.revealAtDate
-                ? dq.deck.revealAtDate.toISOString()
-                : null,
-              questionIds: new Set(),
-            });
-          }
-
-          decksMap.get(deckId)!.questionIds.add(dq.questionId);
-        });
-
-        // Process each trigger to add up prizes by deck
-        box.triggers.forEach((trigger) => {
-          if (!trigger.questionId) return;
-
-          // Find the deck that contains this question
-          decksMap.forEach((deckInfo) => {
-            if (deckInfo.questionIds.has(trigger.questionId!)) {
-              trigger.MysteryBoxPrize.forEach((prize) => {
-                if (prize.prizeType === "Credits") {
-                  deckInfo.creditsReceived += parseFloat(prize.amount);
-                } else if (
-                  prize.prizeType === "Token" &&
-                  prize.tokenAddress === bonkAddress
-                ) {
-                  deckInfo.bonkReceived += parseFloat(prize.amount);
-                }
-              });
-            }
-          });
-        });
-
-        decksMap.forEach((deckInfo) => {
-          deckBreakdown.push({
-            id: deckInfo.id,
-            name: deckInfo.name,
-            creditsReceived: deckInfo.creditsReceived,
-            bonkReceived: deckInfo.bonkReceived,
-            revealedOn: deckInfo.revealedOn,
-          });
-        });
-      }
-
       return {
         id: box.id,
         creditsReceived: creditsReceived.toString(),
         bonkReceived: bonkReceived.toString(),
         openedAt: openedAt ?? null,
         category,
-        deckBreakdown,
       };
     }),
   );
