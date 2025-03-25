@@ -23,3 +23,8 @@ export const formatNumber = (number: number) => {
   }
   return number;
 };
+
+export function formatCompactAmount(amount: number | string) {
+  let formatter = Intl.NumberFormat("en", { notation: "compact" });
+  return formatter.format(Number(amount));
+}

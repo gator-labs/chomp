@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/app/components/ui/dialog";
+import { formatCompactAmount } from "@/app/utils/number";
 import { useMysteryBoxBreakdown } from "@/hooks/useMysteryBoxBreakdown";
 import { MysteryBox, MysteryBoxBreakdown } from "@/types/mysteryBox";
 import { useRouter } from "next-nprogress-bar";
@@ -51,17 +52,17 @@ function MysteryBoxBreakdownDialog({
     return (
       <div
         key={deck.id}
-        className="bg-gray-600 rounded-lg px-4 py-3 flex flex-col gap-1 cursor-pointer hover:bg-gray-700"
+        className="bg-gray-600 rounded-lg px-4 py-3 flex flex-col gap-3 cursor-pointer hover:bg-gray-700"
         onClick={() => handleDeckClick(deck.id)}
       >
         <div className="flex justify-between items-center">
           <span className="max-w-[15rem] md:max-w-[20rem]">
-            <h4 className="font-medium text-sm line-clamp-1">{deck.name}</h4>
+            <h4 className="font-black text-xs line-clamp-1">{deck.name}</h4>
           </span>
           <ChevronRightIcon className="text-gray-400" />
         </div>
         <div className="flex justify-between">
-          <div className="text-purple-100 text-sm">
+          <div className="text-purple-100 text-xs">
             <div>
               Credits{" "}
               <span className="font-bold">
@@ -76,7 +77,7 @@ function MysteryBoxBreakdownDialog({
             </div>
           </div>
           {revealedDate && (
-            <div className="text-purple-100 text-sm text-right">
+            <div className="text-purple-100 text-xs text-right">
               <div>Revealed on</div>
               <div>
                 <span className="font-bold">
@@ -97,9 +98,9 @@ function MysteryBoxBreakdownDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md p-4 bg-[#202020] border-0 data-[state=open]:rounded-2xl">
+      <DialogContent className="p-4 bg-[#202020] border-0 data-[state=open]:rounded-2xl w-[90%] sm:w-[100%]">
         <DialogHeader>
-          <DialogTitle className="text-white font-medium">
+          <DialogTitle className="text-white font-bold text-base">
             Claimed Mystery Box
           </DialogTitle>
         </DialogHeader>
@@ -107,21 +108,25 @@ function MysteryBoxBreakdownDialog({
         {/* Summary Section */}
         <div className="flex flex-col gap-2">
           <div className="flex justify-between bg-gray-700 rounded-xl p-4">
-            <div className="flex flex-col text-purple-300 text-sm">
+            <div className="flex flex-col text-purple-300 text-base font-medium gap-1">
               <div>
                 Total Credits{" "}
-                <span className="font-bold text-secondary">{totalCredits}</span>
+                <span className="font-black text-secondary">
+                  {formatCompactAmount(totalCredits)}
+                </span>
               </div>
               <div>
                 Total BONK{" "}
-                <span className="font-bold text-secondary">{totalBonk}</span>
+                <span className="font-black text-secondary">
+                  {formatCompactAmount(totalBonk)}
+                </span>
               </div>
             </div>
             {openDate && (
-              <div className="text-purple-300 text-sm text-right">
+              <div className="flex flex-col text-purple-300 text-base text-right font-medium gap-1">
                 <div>Opened on</div>
                 <div>
-                  <span className="font-bold">
+                  <span>
                     {openDate.toLocaleString("en-US", { month: "short" })}{" "}
                     {openDate.getDate()}
                   </span>{" "}
@@ -132,11 +137,11 @@ function MysteryBoxBreakdownDialog({
           </div>
 
           {/* Separator */}
-          <div className="h-px bg-gray-600"></div>
+          <div className="h-px bg-gray-700"></div>
 
           {/* Answered Decks Section */}
           <div className="flex flex-col gap-2">
-            <h3 className="text-white text-sm">Answered Decks</h3>
+            <h3 className="text-white text-xs font-black">Answered Decks</h3>
             <div className="max-h-[200px] overflow-y-auto">
               {breakdown.isLoading ? (
                 <div className="bg-gray-700 rounded-xl pt-1 pb-4 text-gray-400 text-center">
@@ -159,7 +164,7 @@ function MysteryBoxBreakdownDialog({
 
           {/* Box Type Section */}
           <div className="flex items-center gap-2">
-            <div className="text-sm">Box Type:</div>
+            <div className="text-xs">Box Type:</div>
             <MysteryBoxCategoryPill category={box.category} />
           </div>
         </div>
