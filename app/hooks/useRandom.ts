@@ -9,7 +9,6 @@ type RandomProps = {
 
 export function useRandom({ min, max }: RandomProps) {
   const [random, setRandom] = useState<number | undefined>(undefined);
-  console.log(min, max);
 
   useEffect(() => {
     setRandom(getRandomInteger(min, max));
@@ -17,7 +16,9 @@ export function useRandom({ min, max }: RandomProps) {
 
   const generateRandom = useCallback(
     ({ min, max }: RandomProps) => {
-      setRandom(getRandomInteger(min, max));
+      const randomValue = getRandomInteger(min, max);
+      setRandom(randomValue);
+      return randomValue;
     },
     [setRandom],
   );
