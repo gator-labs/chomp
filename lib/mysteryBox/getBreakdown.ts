@@ -1,4 +1,4 @@
-"use server";
+"server-only";
 
 import prisma from "@/app/services/prisma";
 import { MysteryBoxBreakdown } from "@/types/mysteryBox";
