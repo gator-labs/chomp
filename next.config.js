@@ -30,8 +30,9 @@ const nextConfig = {
   swcMinify: true,
   experimental: {
     missingSuspenseWithCSRBailout: false,
+    // https://nextjs.org/docs/14/app/api-reference/next-config-js/serverActions#bodysizelimit
     serverActions: {
-      bodySizeLimit: "3mb",
+      bodySizeLimit: "30mb",
     },
     serverComponentsExternalPackages: ["@aws-sdk"],
   },
