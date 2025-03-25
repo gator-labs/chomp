@@ -81,7 +81,6 @@ describe("Create mystery box", () => {
   const currentDate = new Date();
 
   let user0: { id: string; username: string; wallet: string };
-  let user1: { id: string; username: string; wallet: string };
   let questionIds: number[];
   let deckId: number;
   let mysteryBoxId: string | null;
