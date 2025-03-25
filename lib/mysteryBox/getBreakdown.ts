@@ -7,7 +7,7 @@ import { EMysteryBoxStatus } from "@prisma/client";
 export async function getMysteryBoxBreakdown(
   userId: string,
   mysteryBoxId: string,
-) {
+): Promise<MysteryBoxBreakdown[]> {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
   const box = await prisma.mysteryBox.findFirst({
