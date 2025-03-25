@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 
+
 const colors = {
   // OLD COLORS
   aqua: "#6DECAF",
@@ -60,6 +61,7 @@ const colors = {
     },
     yellow: {
       pale: "#FBF3BA",
+      light: "#D0CBB4",
     },
     red: {
       dark: "#FF0000",
@@ -69,6 +71,9 @@ const colors = {
     },
     grey: {
       a1: "#B3B3B3",
+    },
+    pink: {
+      light: "#FCD6EA",
     },
   },
 };

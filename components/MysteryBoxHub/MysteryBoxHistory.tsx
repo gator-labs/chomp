@@ -37,8 +37,6 @@ function MysteryBoxHistory({}: MysteryBoxHistoryProps) {
           </h1>
         </div>
 
-        {/*<h2 className="font-extrabold py-1 px-2">Sort by Date</h2>*/}
-
         {mysteryBoxes?.length === 0 && !isFetching && (
           <div className="flex items-center justify-center py-8">
             No mystery boxes!

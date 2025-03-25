@@ -91,7 +91,7 @@ const PreviewDeckCard = ({
                   className={classNames(
                     "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50",
                     {
-                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-yellow-light": deckCreditCost === 0,
                       "bg-chomp-blue-light": deckCreditCost > 0,
                     },
                   )}
@@ -105,7 +105,7 @@ const PreviewDeckCard = ({
                   className={classNames(
                     "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50 -mt-1",
                     {
-                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-yellow-light": deckCreditCost === 0,
                       "bg-chomp-blue-light": deckCreditCost > 0,
                     },
                   )}
@@ -195,8 +195,8 @@ const PreviewDeckCard = ({
           <div className="text-sm mb-6 space-y-4">
             <p>You can answer this deck without using Credits!</p>
             <p>
-              <b className="text-[#D0CBB4]">Practice decks</b> allow you to earn
-              streaks or points without earning BONK.
+              <b className="text-chomp-yellow-light">Practice decks</b> allow
+              you to earn streaks or points without earning BONK.
             </p>
             <p>
               To learn more about rewards, read our documentation{" "}
