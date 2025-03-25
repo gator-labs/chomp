@@ -147,6 +147,12 @@ function MysteryBoxBreakdownDialog({
                 <div className="bg-gray-700 rounded-xl pt-1 pb-4 text-gray-400 text-center">
                   <Spinner />
                 </div>
+              ) : breakdown.isError ? (
+                <div className="bg-gray-700 rounded-xl p-4 text-gray-400 text-center">
+                  <p className="text-xs">
+                    Unable to load mystery box breakdown.
+                  </p>
+                </div>
               ) : hasValidDeckBreakdown ? (
                 <div className="flex flex-col gap-3">
                   {boxBreakdown!.map(answeredDeckCard)}
