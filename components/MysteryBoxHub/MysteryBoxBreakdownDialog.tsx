@@ -34,9 +34,6 @@ function MysteryBoxBreakdownDialog({
   const router = useRouter();
   const openDate = box.openedAt ? new Date(box.openedAt) : null;
 
-  const totalCredits = Number(box.creditsReceived).toLocaleString("en-US");
-  const totalBonk = Number(box.bonkReceived).toLocaleString("en-US");
-
   const boxBreakdown = breakdown?.data?.breakdown ?? [];
 
   const hasValidDeckBreakdown = boxBreakdown && boxBreakdown.length > 0;
@@ -112,13 +109,13 @@ function MysteryBoxBreakdownDialog({
               <div>
                 Total Credits{" "}
                 <span className="font-black text-secondary">
-                  {formatCompactAmount(totalCredits)}
+                  {formatCompactAmount(box.creditsReceived)}
                 </span>
               </div>
               <div>
                 Total BONK{" "}
                 <span className="font-black text-secondary">
-                  {formatCompactAmount(totalBonk)}
+                  {formatCompactAmount(box.bonkReceived)}
                 </span>
               </div>
             </div>
