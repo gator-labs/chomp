@@ -4,9 +4,9 @@ import "@/app/utils/date";
 import { QuestionType } from "@prisma/client";
 import dayjs from "dayjs";
 
-import { TestDataGenerator } from "../../../lib/data_gen/deck";
+import { TestDataGenerator } from "../../__utils__/data-gen-deck";
 
-describe("queries/deck/getDeckForLoggedOutUsers", () => {
+describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
   let testData: {
     deckIds: number[];
     questionIds: number[];
