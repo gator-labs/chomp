@@ -155,7 +155,6 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
 
   for (const question of questions) {
     const questionOptions = question.questionOptions;
-    const correctOption = questionOptions.find((option) => option.isCorrect);
 
     const optionsList = questionOptions.map((option) => option.id);
 
