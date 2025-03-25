@@ -1,19 +1,10 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
-import { openMysteryBox } from "@/app/actions/mysteryBox/open";
-import { revealMysteryBox } from "@/app/actions/mysteryBox/reveal";
-import { getUserTotalCreditAmount } from "@/app/queries/home";
 import prisma from "@/app/services/prisma";
-import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import { getMysteryBoxBreakdown } from "@/lib/mysteryBox/getBreakdown";
 import { generateUsers } from "@/scripts/utils";
-import { MysteryBoxEventsType } from "@/types/mysteryBox";
 import { faker } from "@faker-js/faker";
-import {
-  EBoxPrizeStatus,
-  EChainTxType,
-  EMysteryBoxStatus,
-} from "@prisma/client";
+import { EBoxPrizeStatus, EMysteryBoxStatus } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 
 jest.mock("@/lib/mysteryBox", () => ({
