@@ -4,7 +4,11 @@ import { MYSTERY_BOXES_PER_PAGE } from "@/app/constants/mysteryBox";
 import { authGuard } from "@/app/utils/auth";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import { MysteryBox } from "@/types/mysteryBox";
-import { EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeType,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 
 import prisma from "../../services/prisma";
 
@@ -77,10 +81,10 @@ export async function fetchMysteryBoxHistory({
       );
 
       for (const prize of allPrizes) {
-        if (prize.prizeType === "Credits") {
+        if (prize.prizeType === EBoxPrizeType.Credits) {
           creditsReceived += parseFloat(prize.amount);
         } else if (
-          prize.prizeType === "Token" &&
+          prize.prizeType === EBoxPrizeType.Token &&
           prize.tokenAddress === bonkAddress
         ) {
           bonkReceived += parseFloat(prize.amount);
@@ -96,13 +100,13 @@ export async function fetchMysteryBoxHistory({
       let category;
 
       if (
-        triggerType === "RevealAllCompleted" ||
-        triggerType === "DailyDeckCompleted" ||
-        triggerType === "ClaimAllCompleted" ||
-        triggerType === "ValidationReward"
+        triggerType === EBoxTriggerType.RevealAllCompleted ||
+        triggerType === EBoxTriggerType.DailyDeckCompleted ||
+        triggerType === EBoxTriggerType.ClaimAllCompleted ||
+        triggerType === EBoxTriggerType.ValidationReward
       ) {
         category = EMysteryBoxCategory.Validation;
-      } else if (triggerType === "TutorialCompleted") {
+      } else if (triggerType === EBoxTriggerType.TutorialCompleted) {
         category = EMysteryBoxCategory.Practice;
       } else {
         category = EMysteryBoxCategory.Campaign;
