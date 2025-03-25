@@ -1,5 +1,6 @@
 "use client";
 
+import { addRandomOption } from "@/actions/answers/addRandomOption";
 import {
   SaveQuestionRequest,
   answerQuestion,
@@ -107,6 +108,11 @@ export function Deck({
       ? questions[currentQuestionIndex].questionOptions.length - 1
       : 0;
 
+  const { random, generateRandom, setRandom } = useRandom({
+    min,
+    max,
+  });
+
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
   const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
   const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
@@ -162,7 +168,7 @@ export function Deck({
   // we mark it as "seen"
   useEffect(() => {
     const run = async () => {
-      const res = await markQuestionAsSeenButNotAnswered(question.id, max);
+      const res = await markQuestionAsSeenButNotAnswered(question.id);
       if (!!res?.hasError) {
         handleNextIndex();
         return;
@@ -199,6 +205,9 @@ export function Deck({
         setRandom(
           question.questionOptions.findIndex((option) => option.id === number),
         );
+
+        await addRandomOption(question.id, number);
+
         setDeckResponse((prev) => [
           ...prev,
           { questionId: question.id, questionOptionId: number },
