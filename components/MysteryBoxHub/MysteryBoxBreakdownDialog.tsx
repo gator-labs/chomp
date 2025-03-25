@@ -12,6 +12,7 @@ import { formatCompactAmount } from "@/app/utils/number";
 import { useMysteryBoxBreakdown } from "@/hooks/useMysteryBoxBreakdown";
 import { MysteryBox, MysteryBoxBreakdown } from "@/types/mysteryBox";
 import { useRouter } from "next-nprogress-bar";
+import Link from "next/link";
 
 import MysteryBoxCategoryPill from "./MysteryBoxCategoryPill";
 
@@ -38,58 +39,51 @@ function MysteryBoxBreakdownDialog({
 
   const hasValidDeckBreakdown = boxBreakdown && boxBreakdown.length > 0;
 
-  const handleDeckClick = (deckId: number) => {
-    router.push(`/application/decks/${deckId}`);
-    onClose();
-  };
-
   const answeredDeckCard = (deck: MysteryBoxBreakdown) => {
     const revealedDate = deck.revealedOn ? new Date(deck.revealedOn) : null;
 
     return (
-      <div
-        key={deck.id}
-        className="bg-gray-600 rounded-lg px-4 py-3 flex flex-col gap-3 cursor-pointer hover:bg-gray-700"
-        onClick={() => handleDeckClick(deck.id)}
-      >
-        <div className="flex justify-between items-center">
-          <span className="max-w-[15rem] md:max-w-[20rem]">
-            <h4 className="font-black text-xs line-clamp-1">{deck.name}</h4>
-          </span>
-          <ChevronRightIcon className="text-gray-400" />
-        </div>
-        <div className="flex justify-between">
-          <div className="text-purple-100 text-xs">
-            <div>
-              Credits{" "}
-              <span className="font-bold">
-                {deck.creditsReceived.toLocaleString("en-US")}
-              </span>
-            </div>
-            <div>
-              BONK{" "}
-              <span className="font-bold">
-                {deck.bonkReceived.toLocaleString("en-US")}
-              </span>
-            </div>
+      <Link href={`/application/decks/${deck.id}`} key={deck.id}>
+        <div className="bg-gray-600 rounded-lg px-4 py-3 flex flex-col gap-3 cursor-pointer hover:bg-gray-700">
+          <div className="flex justify-between items-center">
+            <span className="max-w-[15rem] md:max-w-[20rem]">
+              <h4 className="font-black text-xs line-clamp-1">{deck.name}</h4>
+            </span>
+            <ChevronRightIcon className="text-gray-400" />
           </div>
-          {revealedDate && (
-            <div className="text-purple-100 text-xs text-right">
-              <div>Revealed on</div>
+          <div className="flex justify-between">
+            <div className="text-purple-100 text-xs">
               <div>
+                Credits{" "}
                 <span className="font-bold">
-                  {revealedDate.toLocaleString("en-US", {
-                    month: "short",
-                    timeZone: "UTC",
-                  })}{" "}
-                  {revealedDate.getUTCDate()}
-                </span>{" "}
-                {revealedDate.getUTCFullYear()}
+                  {deck.creditsReceived.toLocaleString("en-US")}
+                </span>
+              </div>
+              <div>
+                BONK{" "}
+                <span className="font-bold">
+                  {deck.bonkReceived.toLocaleString("en-US")}
+                </span>
               </div>
             </div>
-          )}
+            {revealedDate && (
+              <div className="text-purple-100 text-xs text-right">
+                <div>Revealed on</div>
+                <div>
+                  <span className="font-bold">
+                    {revealedDate.toLocaleString("en-US", {
+                      month: "short",
+                      timeZone: "UTC",
+                    })}{" "}
+                    {revealedDate.getUTCDate()}
+                  </span>{" "}
+                  {revealedDate.getUTCFullYear()}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </Link>
     );
   };
 
