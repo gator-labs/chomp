@@ -11,7 +11,6 @@ import {
 import { formatCompactAmount } from "@/app/utils/number";
 import { useMysteryBoxBreakdown } from "@/hooks/useMysteryBoxBreakdown";
 import { MysteryBox, MysteryBoxBreakdown } from "@/types/mysteryBox";
-import { useRouter } from "next-nprogress-bar";
 import Link from "next/link";
 
 import MysteryBoxCategoryPill from "./MysteryBoxCategoryPill";
@@ -32,7 +31,6 @@ function MysteryBoxBreakdownDialog({
 }: MysteryBoxBreakdownDialogProps) {
   const breakdown = useMysteryBoxBreakdown(isOpen ? box.id : undefined);
 
-  const router = useRouter();
   const openDate = box.openedAt ? new Date(box.openedAt) : null;
 
   const boxBreakdown = breakdown?.data?.breakdown ?? [];
