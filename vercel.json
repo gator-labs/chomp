@@ -19,7 +19,7 @@
     },
     {
       "path": "/api/cron/detect-bot-activity",
-      "schedule": "50 * * * *"
+      "schedule": "58 * * * *"
     }
   ]
 }
