@@ -157,16 +157,13 @@ const calculateMultiChoiceCorrectAnswer = async (questionIds: number[]) => {
     const questionOptions = question.questionOptions;
     const correctOption = questionOptions.find((option) => option.isCorrect);
 
-    if (!!correctOption) {
-      correctOptionIds.push(correctOption.id);
-      continue;
-    }
-
     const optionsList = questionOptions.map((option) => option.id);
 
     const body = {
       first_order_answers: questionOptions.flatMap((option) =>
-        option.questionAnswers.filter(qa => qa.selected).map(() => optionsList.indexOf(option.id)),
+        option.questionAnswers
+          .filter((qa) => qa.selected)
+          .map(() => optionsList.indexOf(option.id)),
       ),
       second_order_answers: questionOptions.map((option) =>
         option.questionAnswers
