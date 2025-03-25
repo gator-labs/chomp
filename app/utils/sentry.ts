@@ -9,7 +9,6 @@ export const ignoreErrors = [
   "Cannot destructure property 'address' of '(intermediate value)' as it is undefined.",
   "t.json is not a function. (In 't.json()', 't.json' is undefined)",
   "User is having trouble logging in: [object Object]",
-  "Cannot assign to read only property 'request' of object '#<c>'",
-  "Cannot assign to read only property 'request' of object '#<u>'",
   /Cannot destructure property 'register' of .* as it is undefined/,
+  /Cannot assign to read only property/,
 ];
