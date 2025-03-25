@@ -22,11 +22,10 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const params = Object.fromEntries(searchParams.entries());
     req = schema.parse(params);
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: "Invalid request" }),
-      { status: 500 },
-    );
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid request" }), {
+      status: 500,
+    });
   }
 
   const mysteryBoxId = req.id;
