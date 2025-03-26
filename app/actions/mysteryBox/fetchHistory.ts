@@ -4,10 +4,19 @@ import { MYSTERY_BOXES_PER_PAGE } from "@/app/constants/mysteryBox";
 import { authGuard } from "@/app/utils/auth";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import { MysteryBox } from "@/types/mysteryBox";
-import { EMysteryBoxStatus } from "@prisma/client";
+import {
+  EBoxPrizeType,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
+} from "@prisma/client";
 
 import prisma from "../../services/prisma";
 
+/**
+ * Fetches the mystery box history for the authenticated user
+ * @param currentPage - The page number to fetch
+ * @returns A promise with the mystery box data and whether there are more pages
+ */
 export async function fetchMysteryBoxHistory({
   currentPage,
 }: {
@@ -37,7 +46,9 @@ export async function fetchMysteryBoxHistory({
     include: {
       triggers: {
         select: {
+          id: true,
           triggerType: true,
+          questionId: true,
           MysteryBoxPrize: {
             select: {
               id: true,
@@ -55,57 +66,60 @@ export async function fetchMysteryBoxHistory({
     orderBy: { createdAt: "desc" },
   });
 
-  const hasMore = records.length == MYSTERY_BOXES_PER_PAGE + 1;
+  const hasMore = records.length === MYSTERY_BOXES_PER_PAGE + 1;
 
   if (hasMore) records.pop();
 
-  const mysteryBoxes = records.map((box) => {
-    let creditsReceived = 0;
-    let bonkReceived = 0;
-    let openedAt = null;
+  const mysteryBoxes = await Promise.all(
+    records.map(async (box) => {
+      let creditsReceived = 0;
+      let bonkReceived = 0;
+      let openedAt = null;
 
-    const allPrizes = box.triggers.flatMap(
-      (trigger) => trigger.MysteryBoxPrize,
-    );
+      const allPrizes = box.triggers.flatMap(
+        (trigger) => trigger.MysteryBoxPrize,
+      );
 
-    for (let i = 0; i < allPrizes.length; i++) {
-      const prize = allPrizes[i];
+      for (const prize of allPrizes) {
+        if (prize.prizeType === EBoxPrizeType.Credits) {
+          creditsReceived += parseFloat(prize.amount);
+        } else if (
+          prize.prizeType === EBoxPrizeType.Token &&
+          prize.tokenAddress === bonkAddress
+        ) {
+          bonkReceived += parseFloat(prize.amount);
+        }
 
-      if (prize.prizeType == "Credits") {
-        creditsReceived += parseFloat(prize.amount); // Sum the credits amount
-      } else if (
-        prize.prizeType == "Token" &&
-        prize.tokenAddress == bonkAddress
-      ) {
-        bonkReceived += parseFloat(prize.amount); // Sum the bonk amount
+        if (!openedAt && prize.claimedAt) {
+          openedAt = prize.claimedAt.toISOString();
+        }
       }
 
-      if (!openedAt && !!prize.claimedAt)
-        openedAt = prize.claimedAt?.toISOString();
-    }
-    const triggerType = box.triggers?.[0].triggerType;
+      const triggerType = box.triggers?.[0].triggerType;
 
-    let category;
+      let category;
 
-    if (
-      triggerType == "RevealAllCompleted" ||
-      triggerType == "DailyDeckCompleted" ||
-      triggerType == "ClaimAllCompleted" ||
-      triggerType == "ValidationReward"
-    )
-      category = EMysteryBoxCategory.Validation;
-    else if (triggerType == "TutorialCompleted")
-      category = EMysteryBoxCategory.Practice;
-    else category = EMysteryBoxCategory.Campaign;
-
-    return {
-      id: box.id,
-      creditsReceived: creditsReceived.toString(),
-      bonkReceived: bonkReceived.toString(),
-      openedAt: openedAt ?? null,
-      category,
-    };
-  });
+      if (
+        triggerType === EBoxTriggerType.RevealAllCompleted ||
+        triggerType === EBoxTriggerType.DailyDeckCompleted ||
+        triggerType === EBoxTriggerType.ClaimAllCompleted ||
+        triggerType === EBoxTriggerType.ValidationReward
+      ) {
+        category = EMysteryBoxCategory.Validation;
+      } else if (triggerType === EBoxTriggerType.TutorialCompleted) {
+        category = EMysteryBoxCategory.Practice;
+      } else {
+        category = EMysteryBoxCategory.Campaign;
+      }
+      return {
+        id: box.id,
+        creditsReceived: creditsReceived.toString(),
+        bonkReceived: bonkReceived.toString(),
+        openedAt: openedAt ?? null,
+        category,
+      };
+    }),
+  );
 
   return { data: mysteryBoxes, hasMore };
 }
