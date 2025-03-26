@@ -7,7 +7,18 @@ export const AuthRedirect = async () => {
   const jwt = await getJwtPayload();
   const path = headers().get("x-path");
 
-  if (!jwt) {
+  // add any path logged off users should be able to see here
+  // NOTICE: be sure to add the '/application' part or you could
+  // remove auth from an admin route
+  const exemptAuthRedirectPaths = ["/application/decks"];
+  let isPathExemptFromAuthRedirect = false;
+  for (let i = 0; i < exemptAuthRedirectPaths.length; i++) {
+    if (path?.includes(exemptAuthRedirectPaths[i])) {
+      isPathExemptFromAuthRedirect = true;
+    }
+  }
+
+  if (!jwt && !isPathExemptFromAuthRedirect) {
     if (!path || path === "/application") {
       redirect("/login");
     }
@@ -21,5 +32,6 @@ export const AuthRedirect = async () => {
       redirect("/application");
     }
   }
+
   return null;
 };

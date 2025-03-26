@@ -160,6 +160,7 @@ model QuestionAnswer {
   userId           String
   user             User           @relation(fields: [userId], references: [id])
   percentage       Int?
+  // NOTICE: The actual initial value of status is Viewed
   status           AnswerStatus   @default(Submitted)
   selected         Boolean
   timeToAnswer     BigInt?
@@ -450,7 +451,9 @@ enum NftType {
 }
 
 enum AnswerStatus {
+  // A question will be marked a Viewed as soon as they start answering
   Viewed
+  // Submitted questions are only the ones that have both question orders answered
   Submitted
   TimedOut
   Skipped
