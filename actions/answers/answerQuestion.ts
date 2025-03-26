@@ -77,6 +77,15 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           ? 100 - request!.percentageGiven!
           : percentageForQuestionOption;
 
+      if (
+        qo.questionAnswers[0].questionOptionId ===
+          request.percentageGivenForAnswerId &&
+        qo.questionAnswers[0].isRandomOption !== true
+      ) {
+        throw new Error(
+          `Question with id: ${request.questionId} second order respose doesn't match the give random option id.`,
+        );
+      }
       return {
         id: qo.questionAnswers[0].id,
         selected: isOptionSelected,
