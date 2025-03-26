@@ -123,8 +123,8 @@ export const sendBonk = async (
 
   // 2. Set compute unit limit based on whether we need to create an ATA
   if (!receiverAccountInfo) {
-    // Based on latest tx: https://solscan.io/tx/3dj4mxREr1K5yJPKM3CUStQQEiV7H7HdnpLEY9kqmeJ4iDZDKX4YUG5zFXvxPQUr1V9cvW8TVfWrvMYUKPwdyphT
-    const computeUnitFix = Math.ceil(28352 * 1.15); // 15% buffer to address budget issues
+    // Based on latest tx: https://solscan.io/tx/3q2sg2mqD9ZCy1ELSQAEr3biArVGRNthBcWJcCEqsoKrj73CeSMGA9sB6wpjBoY3VDhNfSAYzgUgsHGSpEHfFrbR
+    const computeUnitFix = Math.ceil(32852 * 1.3); // 30% buffer to address budget issues
     const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
       units: computeUnitFix,
     });
@@ -140,7 +140,7 @@ export const sendBonk = async (
     instructions.push(ataInstruction);
   } else {
     // Based on latest tx: https://solscan.io/tx/4kcpQ4NEjbfyiLK9HR6jMPmHtXDTGTGz1Yz6xdHcBpxnoArajFtGEhFfDkEFFtFK8vK5UJrMqGnpG7EnTM3dFNsK
-    const computeUnitFix = Math.ceil(4944 * 1.15); // 15% buffer to address budget issues
+    const computeUnitFix = Math.ceil(4944 * 1.3); // 30% buffer to address budget issues
     const computeUnitsIx = ComputeBudgetProgram.setComputeUnitLimit({
       units: computeUnitFix,
     });
