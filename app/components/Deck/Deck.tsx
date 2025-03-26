@@ -233,6 +233,13 @@ export function Deck({
           return;
         }
 
+        await addRandomOption(
+          question.id,
+          random !== undefined
+            ? question.questionOptions[random]?.id
+            : undefined,
+        );
+
         setDeckResponse((prev) => [
           ...prev,
           {
