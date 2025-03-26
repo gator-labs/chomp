@@ -83,7 +83,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
         qo.questionAnswers[0].isRandomOption !== true
       ) {
         throw new Error(
-          `Question with id: ${request.questionId} second order respose doesn't match the give random option id.`,
+          `User with id: ${payload?.sub} second order respose doesn't match the give random option id for question id ${request.questionId}.`,
         );
       }
       return {

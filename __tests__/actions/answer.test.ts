@@ -1,3 +1,4 @@
+import { addRandomOption } from "@/actions/answers/addRandomOption";
 import { answerQuestion } from "@/actions/answers/answerQuestion";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
@@ -104,7 +105,7 @@ describe("Validate points logs for completing questions and decks", () => {
     });
   });
 
-  it("should allow a user to answer a question once", async () => {
+  it("should not allow to answer a question if no random option selected", async () => {
     //find question options
     const questionOptions = await prisma.questionOption.findMany({
       where: {
@@ -133,6 +134,43 @@ describe("Validate points logs for completing questions and decks", () => {
     await prisma.questionAnswer.createMany({
       data: answerData,
     });
+
+    try {
+      await answerQuestion({
+        questionId: deckQuestionId,
+        questionOptionId: questionOptions[1].id,
+        percentageGiven: 50,
+        percentageGivenForAnswerId: questionOptions[1].id,
+        timeToAnswerInMiliseconds: 3638,
+        deckId: deckId,
+      });
+    } catch (error: any) {
+      expect(error.message).toBe(
+        `User with id: ${userId} second order respose doesn't match the give random option id for question id ${deckQuestionId}.`,
+      );
+    }
+  });
+
+  it("should allow a user to answer a question once", async () => {
+    //find question options
+    const questionOptions = await prisma.questionOption.findMany({
+      where: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
+      },
+    });
+
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: userId,
+    });
+
+    await addRandomOption(questionOptions[1].id);
 
     await answerQuestion({
       questionId: deckQuestionId,
