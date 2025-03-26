@@ -3,10 +3,7 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 
-export async function addRandomOption(
-  questionId: number,
-  random: number | undefined,
-) {
+export async function addRandomOption(random: number | undefined) {
   const payload = await getJwtPayload();
 
   if (!payload) return;
@@ -17,7 +14,7 @@ export async function addRandomOption(
   });
 
   try {
-    const res = await prisma.questionAnswer.update({
+    await prisma.questionAnswer.update({
       where: {
         id: questionAnswer[0].id,
       },
@@ -25,7 +22,6 @@ export async function addRandomOption(
         isRandomOption: true,
       },
     });
-    console.log(res);
   } catch (err) {
     console.log(err);
   }

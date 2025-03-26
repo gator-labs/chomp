@@ -206,7 +206,7 @@ export function Deck({
           question.questionOptions.findIndex((option) => option.id === number),
         );
 
-        await addRandomOption(question.id, number);
+        await addRandomOption(number);
 
         setDeckResponse((prev) => [
           ...prev,
@@ -234,7 +234,6 @@ export function Deck({
         }
 
         await addRandomOption(
-          question.id,
           random !== undefined
             ? question.questionOptions[random]?.id
             : undefined,
