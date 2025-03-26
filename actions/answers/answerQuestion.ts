@@ -49,6 +49,11 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       },
       include: {
         question: true,
+        questionAnswers: {
+          where: {
+            userId,
+          },
+        },
       },
     });
 
@@ -73,6 +78,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           : percentageForQuestionOption;
 
       return {
+        id: qo.questionAnswers[0].id,
         selected: isOptionSelected,
         percentage,
         questionOptionId: qo.id,
@@ -81,6 +87,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           : null,
         userId,
         status: AnswerStatus.Submitted,
+        isRandomOption: qo.questionAnswers[0].isRandomOption,
       } as QuestionAnswer;
     });
 
