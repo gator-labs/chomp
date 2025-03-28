@@ -1,11 +1,11 @@
 "use client";
 
 import { formatAddress } from "@/app/utils/wallet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Button } from "../Button/Button";
-import CheckMarkIconSimple from "../Icons/CheckMarkIconSimple";
-import { CopyIconSimple } from "../Icons/CopyIconSimple";
+import { Button } from "../../app/components/Button/Button";
+import CheckMarkIconSimple from "../../app/components/Icons/CheckMarkIconSimple";
+import { CopyIconSimple } from "../../app/components/Icons/CopyIconSimple";
 
 type ProfileWalletAddressButtonProps = {
   address: string;
@@ -15,15 +15,24 @@ export function ProfileWalletAddressButton({
   address,
 }: ProfileWalletAddressButtonProps) {
   const [isCopyingAddress, setIsCopyingAddress] = useState(false);
+  const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   const handleAddressClick = () => {
     navigator.clipboard.writeText(address);
     setIsCopyingAddress(true);
 
-    setTimeout(() => {
+    const id = setTimeout(() => {
       setIsCopyingAddress(false);
     }, 2000);
+    setTimeoutId(id);
   };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup the timeout if component unmounts
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [timeoutId]);
 
   return (
     <Button

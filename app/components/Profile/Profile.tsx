@@ -4,9 +4,9 @@ import { BuyBulkCreditsButton } from "@/components/BuyBulkCreditsButton";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 
+import { ProfileWalletAddressButton } from "../../../components/ProfileWalletAddressButton/ProfileWalletAddressButton";
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
-import { ProfileWalletAddressButton } from "../ProfileWalletAddressButton/ProfileWalletAddressButton";
 
 type ProfileProps = {
   showLeaderboardButton?: boolean;
