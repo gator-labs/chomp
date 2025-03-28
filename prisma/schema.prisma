@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -33,6 +34,8 @@ model User {
   threatLevelWindow           DateTime?                     @db.Date
   threatLevelDetails          String?
   MysteryBox                  MysteryBox[]
+  DeckRewards                 DeckRewards[]
+  QuestionRewards             QuestionRewards[]
 }
 
 model Wallet {
@@ -72,6 +75,7 @@ model Question {
   stackId                     Int?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
+  QuestionRewards             QuestionRewards[]
 }
 
 model QuestionOption {
@@ -129,6 +133,7 @@ model Deck {
   author                      String?
   authorImageUrl              String?
   MysteryBoxTrigger           MysteryBoxTrigger[]
+  DeckRewards                 DeckRewards[]
 }
 
 model UserDeck {
@@ -357,14 +362,36 @@ model CampaignMysteryBoxAllowlist {
 }
 
 model CreditPack {
-  id                    String @id @default(uuid())
-  amount                Int
-  costPerCredit         String
-  originalCostPerCredit String
-  isActive              Boolean
+  id                          String                        @id @default(uuid())
+  amount                      Int
+  costPerCredit               String
+  originalCostPerCredit       String
+  isActive                    Boolean
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
-  chainTx               ChainTx[]
-  createdAt             DateTime @default(now())
+  chainTx                     ChainTx[]
+  createdAt                   DateTime                      @default(now())
+}
+
+view DeckRewards {
+  bonkReward    String
+  creditsReward String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  deckId Int  @id
+  deck   Deck @relation(fields: [deckId], references: [id])
+}
+
+view QuestionRewards {
+  bonkReward    String
+  creditsReward String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  questionId Int      @id
+  question   Question @relation(fields: [questionId], references: [id])
 }
 
 enum EMysteryBoxStatus {
