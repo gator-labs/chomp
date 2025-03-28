@@ -1,4 +1,3 @@
-import { addRandomOption } from "@/actions/answers/addRandomOption";
 import { answerQuestion } from "@/actions/answers/answerQuestion";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
@@ -169,8 +168,6 @@ describe("Validate points logs for completing questions and decks", () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
     });
-
-    await addRandomOption(questionOptions[1].id);
 
     await answerQuestion({
       questionId: deckQuestionId,
