@@ -4,7 +4,9 @@ import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
 
+import { CoinsIcon } from "../Icons/CoinsIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
+import TrophyQuestionMarkIcon from "../Icons/TrophyQuestionMarkIcon";
 import InfoDrawer from "../InfoDrawer/InfoDrawer";
 import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
@@ -97,9 +99,12 @@ const PreviewDeckCard = ({
                   )}
                   onClick={() => setIsOpen(true)}
                 >
-                  <span className="opacity-50 pr-1">Entry </span>
+                  <CoinsIcon stroke="#000000" width={16} height={16} />
+                  <span className="opacity-50 pr-1 ml-1">Entry </span>
                   {`${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
-                  <InfoIcon fill="#0d0d0d" />
+                  <div className="ml-1">
+                    <InfoIcon fill="#0d0d0d" />
+                  </div>
                 </button>
                 <button
                   className={classNames(
@@ -111,13 +116,22 @@ const PreviewDeckCard = ({
                   )}
                   onClick={() => setIsOpen(true)}
                 >
-                  <span className="opacity-50 pr-1">
-                    Rewards {deckCreditCost > 0 && "up to"}{" "}
-                  </span>
-                  {deckCreditCost > 0
-                    ? `${formatNumber(deckRewardAmount)} BONK & ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
-                    : "Streaks"}
-                  <InfoIcon fill="#0d0d0d" />
+                  <div className="ml-1">
+                    <TrophyQuestionMarkIcon width={13} height={14} />
+                  </div>
+                  <div className="flex flex-col ml-2">
+                    <span className="opacity-50 pr-1 text-left text-xs">
+                      Rewards {deckCreditCost > 0 && "up to"}{" "}
+                    </span>
+                    <span className="text-left text-xs">
+                      {deckCreditCost > 0
+                        ? `${formatNumber(deckRewardAmount)} BONK + ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
+                        : "Streaks"}
+                    </span>
+                  </div>
+                  <div className="ml-1">
+                    <InfoIcon className="ml-1" fill="#0d0d0d" />
+                  </div>
                 </button>
               </>
             ) : null}
