@@ -1,24 +1,21 @@
 import { getCurrentUser } from "@/app/queries/user";
 import { cn } from "@/app/utils/tailwind";
-import { formatAddress } from "@/app/utils/wallet";
 import { BuyBulkCreditsButton } from "@/components/BuyBulkCreditsButton";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import Link from "next/link";
 
 import { Avatar } from "../Avatar/Avatar";
 import { Button } from "../Button/Button";
-import { PenIcon } from "../Icons/PenIcon";
+import { ProfileWalletAddressButton } from "../ProfileWalletAddressButton/ProfileWalletAddressButton";
 
 type ProfileProps = {
   showLeaderboardButton?: boolean;
-  editAllowed?: boolean;
   avatarHref?: string;
   className?: string;
 };
 
 export async function Profile({
   showLeaderboardButton = false,
-  editAllowed = false,
   className,
 }: ProfileProps) {
   const user = await getCurrentUser();
@@ -45,27 +42,16 @@ export async function Profile({
           )}
           <Link href="/application/settings">
             <span className="font-normal text-sm text-secondary">
-              {"Edit profile"}
+              Edit profile
             </span>
           </Link>
         </div>
         <div className="flex gap-2">
           <div className="flex gap-2 justify-center">
-            <Button
-              className="text-sm font-normal inline-flex items-center gap-2 !border-0 bg-gray-700 !w-fit"
-              isPill
-              size="small"
-            >
-              <span className="font-normal">{formatAddress(address)}</span>
-              {editAllowed && (
-                <div className="p-[3.5px]">
-                  <PenIcon width={12} height={12} fill="#999999" />
-                </div>
-              )}
-            </Button>
-
+            <ProfileWalletAddressButton address={address} />
             <BuyBulkCreditsButton size="small" />
           </div>
+
           {showLeaderboardButton && (
             <Link href="/application/leaderboard" className="contents">
               <Button
