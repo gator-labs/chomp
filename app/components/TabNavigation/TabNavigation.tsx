@@ -1,7 +1,6 @@
 "use client";
 
 import { STACKS_PATH } from "@/lib/urls";
-import { NotebookPen } from "lucide-react";
 
 import { ChallengeIcon } from "../Icons/ChallengeIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
@@ -18,12 +17,6 @@ const navigationItems = [
   },
   { label: "Home", icon: <HomeIcon />, href: "/application" },
   { label: "Stacks", icon: <StacksIcon />, href: STACKS_PATH },
-  {
-    label: "Ask",
-    icon: <NotebookPen />,
-    href: "/application/ask",
-    isActive: process.env.NEXT_PUBLIC_FF_ASK,
-  },
 ];
 
 const adminNavigationItems = [

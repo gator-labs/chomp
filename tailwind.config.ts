@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import defaultTheme from "tailwindcss/defaultTheme";
 
+
 const colors = {
   // OLD COLORS
   aqua: "#6DECAF",

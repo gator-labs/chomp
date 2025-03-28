@@ -11,7 +11,6 @@ type NavigationProps = {
     icon: ReactNode;
     href: string;
     isActiveRegex?: string;
-    isActive?: boolean;
   }[];
   classes?: string;
 };
@@ -19,13 +18,9 @@ type NavigationProps = {
 export function Navigation({ items, classes }: NavigationProps) {
   const pathname = usePathname();
 
-  const activeRoutes = items.filter(
-    (item) => !item.isActive || item.isActive !== true,
-  );
-
   return (
     <div className={classNames("flex justify-center bg-gray-800 ", classes)}>
-      {activeRoutes.map((item, index) => (
+      {items.map((item, index) => (
         <Link
           key={index}
           href={item.href}
