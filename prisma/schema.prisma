@@ -168,6 +168,7 @@ model QuestionAnswer {
   updatedAt        DateTime       @default(now()) @updatedAt
 
   @@unique([questionOptionId, userId], name: "question_option_user")
+  @@index([userId, selected])
 }
 
 model ChompResult {
