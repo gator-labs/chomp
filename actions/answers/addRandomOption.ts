@@ -19,7 +19,7 @@ export async function addRandomOption(random: number | undefined) {
         id: questionAnswer[0].id,
       },
       data: {
-        isRandomOption: true,
+        isAssigned2ndOrderOption: true,
       },
     });
   } catch (err) {

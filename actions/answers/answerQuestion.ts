@@ -80,7 +80,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       if (
         qo.questionAnswers[0].questionOptionId ===
           request.percentageGivenForAnswerId &&
-        qo.questionAnswers[0].isRandomOption !== true
+        qo.questionAnswers[0].isAssigned2ndOrderOption !== true
       ) {
         throw new Error(
           `User with id: ${payload?.sub} second order respose doesn't match the give random option id for question id ${request.questionId}.`,
@@ -96,7 +96,8 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           : null,
         userId,
         status: AnswerStatus.Submitted,
-        isRandomOption: qo.questionAnswers[0].isRandomOption,
+        isAssigned2ndOrderOption:
+          qo.questionAnswers[0].isAssigned2ndOrderOption,
       } as QuestionAnswer;
     });
 
