@@ -54,6 +54,8 @@ const PreviewDeckCard = ({
     ? deckCreditCost / totalNumberOfQuestions
     : 0;
 
+  const isDeckFree = deckCreditCost == 0;
+
   const onClose = () => {
     setIsOpen(false);
   };
@@ -101,7 +103,9 @@ const PreviewDeckCard = ({
                 >
                   <CoinsIcon stroke="#000000" width={16} height={16} />
                   <span className="opacity-50 pr-1 ml-1">Entry </span>
-                  {`${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
+                  {isDeckFree
+                    ? "Free"
+                    : `${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
                   <div className="ml-1">
                     <InfoIcon fill="#0d0d0d" />
                   </div>
@@ -120,14 +124,23 @@ const PreviewDeckCard = ({
                     <TrophyQuestionMarkIcon width={13} height={14} />
                   </div>
                   <div className="flex flex-col ml-2">
-                    <span className="opacity-50 pr-1 text-left text-xs">
-                      Rewards {deckCreditCost > 0 && "up to"}{" "}
-                    </span>
-                    <span className="text-left text-xs">
-                      {deckCreditCost > 0
-                        ? `${formatNumber(deckRewardAmount)} BONK + ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
-                        : "Streaks"}
-                    </span>
+                    {deckCreditCost > 0 ? (
+                      <>
+                        <span className="opacity-50 pr-1 text-left text-xs">
+                          Rewards up to{" "}
+                        </span>
+                        <span className="text-left text-xs">
+                          {`${formatNumber(deckRewardAmount)} BONK + ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
+                        </span>
+                      </>
+                    ) : (
+                      <div className="flex items-center">
+                        <span className="opacity-50 pr-1 text-left text-xs">
+                          Rewards{" "}
+                        </span>
+                        <span className="text-left text-xs">Streaks</span>
+                      </div>
+                    )}
                   </div>
                   <div className="ml-1">
                     <InfoIcon className="ml-1" fill="#0d0d0d" />
