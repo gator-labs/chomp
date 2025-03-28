@@ -1,4 +1,5 @@
 import { answerQuestion } from "@/actions/answers/answerQuestion";
+import { markQuestionAsSeenButNotAnswered } from "@/actions/answers/markQuestionAsSeenButNotAnswered";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
@@ -22,11 +23,14 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
+jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
+
 describe("Validate points logs for completing questions and decks", () => {
   const currentDate = new Date();
   let userId: string;
   let deckId: number;
   let deckQuestionId: number;
+  let randomRes: number | undefined;
   beforeAll(async () => {
     // create a new deck
     const deck = await prisma.deck.create({
@@ -169,11 +173,18 @@ describe("Validate points logs for completing questions and decks", () => {
       sub: userId,
     });
 
+    const seenQuestion = await markQuestionAsSeenButNotAnswered(
+      deckQuestionId,
+      questionOptions.length,
+    );
+
+    randomRes = seenQuestion?.random;
+
     await answerQuestion({
       questionId: deckQuestionId,
       questionOptionId: questionOptions[1].id,
       percentageGiven: 50,
-      percentageGivenForAnswerId: questionOptions[1].id,
+      percentageGivenForAnswerId: randomRes,
       timeToAnswerInMiliseconds: 3638,
       deckId: deckId,
     });
@@ -213,7 +224,7 @@ describe("Validate points logs for completing questions and decks", () => {
         questionId: deckQuestionId,
         questionOptionId: questionOptions[1].id,
         percentageGiven: 50,
-        percentageGivenForAnswerId: questionOptions[1].id,
+        percentageGivenForAnswerId: randomRes,
         timeToAnswerInMiliseconds: 3638,
         deckId: deckId,
       });
