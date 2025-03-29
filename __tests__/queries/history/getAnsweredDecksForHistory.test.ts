@@ -3,6 +3,10 @@ import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import {
   AnswerStatus,
+  EBoxPrizeType,
+  EBoxTriggerType,
+  EMysteryBoxStatus,
+  EPrizeSize,
   QuestionOption,
   QuestionType,
   Token,
@@ -24,6 +28,7 @@ describe("getAnsweredDecksForHistory", () => {
   let question2Id: number;
   let question3Id: number;
   let question4Id: number;
+  let mysteryBoxId: string;
   let questionOptions: QuestionOption[] = [];
   let deckQuestionIds: number[] = [];
 
@@ -253,6 +258,25 @@ describe("getAnsweredDecksForHistory", () => {
 
   afterAll(async () => {
     // Clean up in reverse order
+
+    if (mysteryBoxId) {
+      const box = await prisma.mysteryBox.findFirstOrThrow({
+        where: { id: mysteryBoxId },
+        include: { triggers: { include: { MysteryBoxPrize: true } } },
+      });
+      const triggerIds = box.triggers.map((trigger) => trigger.id);
+      const prizeIds = box.triggers.flatMap((trigger) =>
+        trigger.MysteryBoxPrize.map((prize) => prize.id),
+      );
+      await prisma.mysteryBoxPrize.deleteMany({
+        where: { id: { in: prizeIds } },
+      });
+      await prisma.mysteryBoxTrigger.deleteMany({
+        where: { id: { in: triggerIds } },
+      });
+      await prisma.mysteryBox.delete({ where: { id: mysteryBoxId } });
+    }
+
     await prisma.questionAnswer.deleteMany({
       where: {
         userId,
@@ -318,14 +342,53 @@ describe("getAnsweredDecksForHistory", () => {
     // Find deck1 in results (the one with rewards)
     const deck1Result = result.find((deck) => deck.id === deck1Id);
     expect(deck1Result).toBeDefined();
-    expect(Number(deck1Result?.total_reward_amount)).toBe(100);
+    expect(deck1Result?.total_reward_amount).toBe(null);
+    expect(Number(deck1Result?.total_potential_reward_amount)).toBe(100);
     expect(Number(deck1Result?.total_credit_cost)).toBe(2);
 
     // Find deck2 in results (the one without rewards)
     const deck2Result = result.find((deck) => deck.id === deck2Id);
     expect(deck2Result).toBeDefined();
+    expect(Number(deck2Result?.total_potential_reward_amount)).toBe(0);
     expect(Number(deck2Result?.total_reward_amount)).toBe(0);
     expect(Number(deck2Result?.total_credit_cost)).toBe(0);
+  });
+
+  it("should correctly calculate rewards after mystery box creation", async () => {
+    const box = await prisma.mysteryBox.create({
+      data: {
+        status: EMysteryBoxStatus.Opened,
+        userId,
+        triggers: {
+          create: [
+            {
+              questionId: question1Id,
+              triggerType: EBoxTriggerType.ValidationReward,
+              MysteryBoxPrize: {
+                createMany: {
+                  data: [
+                    {
+                      tokenAddress: process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
+                      prizeType: EBoxPrizeType.Token,
+                      amount: "50",
+                      size: EPrizeSize.Small,
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    mysteryBoxId = box.id;
+
+    const result = await getAnsweredDecksForHistory(userId, 10, 1);
+
+    const deck1Result = result.find((deck) => deck.id === deck1Id);
+    expect(deck1Result).toBeDefined();
+    expect(Number(deck1Result?.total_reward_amount)).toBe(50);
   });
 
   it("should respect pagination parameters", async () => {
