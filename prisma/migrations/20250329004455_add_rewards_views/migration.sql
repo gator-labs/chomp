@@ -8,6 +8,7 @@ SELECT
     LEFT JOIN "MysteryBoxTrigger" mbt ON mbt."questionId" = dq."questionId"
     LEFT JOIN "MysteryBox" mb ON mbt."mysteryBoxId" = mb.id
     LEFT JOIN "MysteryBoxPrize" mbp ON mbp."mysteryBoxTriggerId" = mbt.id
+    WHERE "userId" IS NOT NULL
     GROUP BY ("userId", dq."deckId");
 
 CREATE VIEW "QuestionRewards" AS
@@ -19,4 +20,5 @@ SELECT
     FROM "MysteryBoxTrigger" mbt
     LEFT JOIN "MysteryBox" mb ON mbt."mysteryBoxId" = mb.id
     LEFT JOIN "MysteryBoxPrize" mbp ON mbp."mysteryBoxTriggerId" = mbt.id
+    WHERE "userId" IS NOT NULL
     GROUP BY("userId", "questionId");
