@@ -10,7 +10,7 @@ export function CommunityAskList({ askList }: CommunityAskListProps) {
   return (
     <div>
       {askList.map((question) => (
-        <CommunityAskListItem question={question} />
+        <CommunityAskListItem question={question} key={question.id} />
       ))}
     </div>
   );
