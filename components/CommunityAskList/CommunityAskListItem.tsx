@@ -36,7 +36,22 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
   return (
     <div className="border p-2 m-2 rounded-md bg-gray-700 flex flex-col gap-2">
       <div className="bg-white text-black p-2 rounded-md">
-        {question.question}
+        {question.imageUrl && (
+          <span className="mr-1">
+            <Image
+              src={question.imageUrl}
+              alt="Avatar"
+              width={32}
+              height={32}
+              className={"rounded-full border-2 inline-block"}
+              style={{
+                width: 32,
+                height: 32,
+              }}
+            />
+          </span>
+        )}{" "}
+        <span>{question.question}</span>
         <div className="float-right bg-gray-700 text-white px-2 rounded-md">
           {question.type == QuestionType.BinaryQuestion
             ? "binary"
