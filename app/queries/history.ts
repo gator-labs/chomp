@@ -378,11 +378,12 @@ export async function getAnsweredDecksForHistory(
       d.deck,
       d."imageUrl",
       d."revealAtDate",
+      dr."bonkReward" as "total_reward_amount",
       COALESCE((SELECT sum(q."revealTokenAmount") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
        ON dq."questionId" = q.id
-       WHERE dq."deckId" = d.id), 0) AS "total_reward_amount",
+       WHERE dq."deckId" = d.id), 0) AS "total_potential_reward_amount",
       COALESCE((SELECT sum(q."creditCostPerQuestion") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
@@ -390,6 +391,7 @@ export async function getAnsweredDecksForHistory(
        WHERE dq."deckId" = d.id), 0) AS "total_credit_cost"
     FROM 
       public."Deck" d
+      LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
     WHERE 
       d."revealAtDate" IS NOT NULL
       AND d."revealAtDate" <= NOW()
@@ -404,7 +406,7 @@ export async function getAnsweredDecksForHistory(
         AND qa."status" IN ('Submitted', 'Viewed', 'Skipped')
       )
      GROUP BY 
-      d.id, d.deck, d."imageUrl", d."revealAtDate"
+      d.id, d.deck, d."imageUrl", d."revealAtDate", dr."bonkReward"
     )
     , total_count AS (
       SELECT COUNT(*) AS count FROM history_deck_cte

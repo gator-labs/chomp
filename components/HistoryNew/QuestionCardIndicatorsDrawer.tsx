@@ -7,7 +7,7 @@ import { Button } from "@/app/components/ui/button";
 import { Drawer, DrawerContent } from "@/app/components/ui/drawer";
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import { useEffect } from "react";
 
 type QuestionCardIndicatorsDrawerProps = {
@@ -38,17 +38,18 @@ const QuestionCardIndicatorsDrawer = ({
       }}
     >
       <DrawerContent className="p-6 flex flex-col z-index z-[999]">
-        <DialogTitle>
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-base text-secondary font-bold">
-              Question Card Indicators
-            </p>
-            <div onClick={onClose}>
-              <CloseIcon width={16} height={16} />
+        <Dialog>
+          <DialogTitle>
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-base text-secondary font-bold">
+                Question Card Indicators
+              </p>
+              <div onClick={onClose}>
+                <CloseIcon width={16} height={16} />
+              </div>
             </div>
-          </div>
-        </DialogTitle>
-
+          </DialogTitle>
+        </Dialog>
         <div className="mx-2">
           <p className="text-xs mb-6 font-medium gap-3 items-center flex">
             <QuestionCorrectIcon /> You got this question right!
