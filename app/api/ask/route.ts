@@ -6,7 +6,7 @@ import { type NextRequest } from "next/server";
 import z from "zod";
 
 const addToDeckSchema = z.object({
-  questionId: z.number().int().gt(1).lte(Number.MIN_SAFE_INTEGER),
+  questionId: z.number().int().gt(0).lte(Number.MAX_SAFE_INTEGER),
 });
 
 export async function GET() {
@@ -66,8 +66,8 @@ export async function PATCH(request: NextRequest) {
   try {
     const data = await request.json();
     req = addToDeckSchema.parse(data);
-  } catch {
-    return new Response(JSON.stringify({ error: "Invalid request" }), {
+  } catch (error) {
+    return new Response(JSON.stringify({ error: "Invalid request", exception: error }), {
       status: 500,
     });
   }
