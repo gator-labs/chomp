@@ -16,7 +16,9 @@ export function useRandom({ min, max }: RandomProps) {
 
   const generateRandom = useCallback(
     ({ min, max }: RandomProps) => {
-      setRandom(getRandomInteger(min, max));
+      const randomValue = getRandomInteger(min, max);
+      setRandom(randomValue);
+      return randomValue;
     },
     [setRandom],
   );

@@ -176,7 +176,10 @@ describe("markQuestionAsSeenButNotAnswered", () => {
     (getUserTotalCreditAmount as jest.Mock).mockResolvedValue(10);
 
     // Act
-    await markQuestionAsSeenButNotAnswered(currentQuestionId);
+    await markQuestionAsSeenButNotAnswered(
+      currentQuestionId,
+      currentQuestionOptions.length,
+    );
 
     // Assert: QuestionAnswers were created for all options
     const questionOptionsIds = currentQuestionOptions.map(
@@ -208,7 +211,10 @@ describe("markQuestionAsSeenButNotAnswered", () => {
     (getUserTotalCreditAmount as jest.Mock).mockResolvedValue(0);
 
     // Act
-    await markQuestionAsSeenButNotAnswered(currentQuestionId);
+    await markQuestionAsSeenButNotAnswered(
+      currentQuestionId,
+      currentQuestionOptions.length,
+    );
 
     // Assert: No QuestionAnswers were created
     const answers = await prisma.questionAnswer.findMany({
