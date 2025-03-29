@@ -11,7 +11,7 @@ describe("Update bot list", () => {
   const windowEnd = new Date("2025-02-10T00:00:00.000Z");
 
   beforeAll(async () => {
-    users = await generateUsers(10);
+    users = await generateUsers(12);
 
     userIds = users.map((user) => user.id);
 
@@ -52,6 +52,24 @@ describe("Update bot list", () => {
       },
       where: {
         id: { in: [userIds[6], userIds[7]] },
+      },
+    });
+
+    await prisma.user.updateMany({
+      data: {
+        threatLevel: EThreatLevelType.EngAllow,
+      },
+      where: {
+        id: { in: [userIds[8]] },
+      },
+    });
+
+    await prisma.user.updateMany({
+      data: {
+        threatLevel: EThreatLevelType.EngBlock,
+      },
+      where: {
+        id: { in: [userIds[9]] },
       },
     });
   });
@@ -107,9 +125,15 @@ describe("Update bot list", () => {
     expect(userState[userIds[6]]).toBe(EThreatLevelType.PermanentAllow);
     expect(userState[userIds[7]]).toBe(EThreatLevelType.PermanentAllow);
 
+    // Should stay eng-allow
+    expect(userState[userIds[8]]).toBe(EThreatLevelType.EngAllow);
+
+    // Should stay eng-block
+    expect(userState[userIds[9]]).toBe(EThreatLevelType.EngBlock);
+
     // Should be untouched
-    expect(userState[userIds[8]]).toBeNull();
-    expect(userState[userIds[9]]).toBeNull();
+    expect(userState[userIds[10]]).toBeNull();
+    expect(userState[userIds[11]]).toBeNull();
   });
 
   it("should not update threat level again in the same analysis window", async () => {

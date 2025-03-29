@@ -2,6 +2,7 @@
 
 import { TELEGRAM_SUPPORT_LINK } from "@/app/constants/support";
 import { HOME_PATH } from "@/lib/urls";
+import { EThreatLevelAction } from "@/types/bots";
 import * as Sentry from "@sentry/nextjs";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -19,18 +20,29 @@ function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
   // Check if it's a server-side error
   const isServerError = (error as any).digest !== undefined;
   const isThreatLevelError = error.name === "UserThreatLevelDetected";
+  const threatLevelCause = isThreatLevelError
+    ? (error?.cause as Record<string, any>)
+    : ({} as never);
 
   // Set status code and error message
-  const statusCode = isThreatLevelError ? 204 : isServerError ? 500 : 400;
+  const statusCode = isThreatLevelError
+    ? threatLevelCause.action === EThreatLevelAction.Forbidden
+      ? 403
+      : 204
+    : isServerError
+      ? 500
+      : 400;
   const errorMessages = isThreatLevelError
-    ? "Content Unavailable"
+    ? threatLevelCause.action == EThreatLevelAction.Forbidden
+      ? "Forbidden"
+      : "Content Unavailable"
     : isServerError
       ? "Server error. Please refresh the page and try again."
       : "Client error. Please refresh the page and try again.";
 
   const debugInfo = isThreatLevelError ? (
     <ul className="font-mono text-[14px]">
-      {Object.keys(error?.cause as Record<string, any>).map((key: string) => (
+      {Object.keys(threatLevelCause).map((key: string) => (
         <li key={key}>
           {key}: {JSON.stringify((error?.cause as Record<string, any>)[key])}
         </li>

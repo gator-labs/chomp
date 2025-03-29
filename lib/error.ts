@@ -202,3 +202,10 @@ export class BonkRateLimitExceedError extends Error {
     this.name = "BonkRateLimitExceedError";
   }
 }
+
+export class CreditRateLimitExceedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CreditRateLimitExceedError";
+  }
+}

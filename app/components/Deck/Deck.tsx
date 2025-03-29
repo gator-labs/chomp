@@ -162,6 +162,8 @@ export function Deck({
     [questions, currentQuestionIndex],
   );
 
+  // every time we have a different truthy question.id
+  // we mark it as "seen"
   useEffect(() => {
     const run = async () => {
       const res = await markQuestionAsSeenButNotAnswered(question.id);

@@ -3,6 +3,7 @@ import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getCurrentUser } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
 import { sendBonk } from "@/app/utils/sendBonk";
+import { getBonkOneTimeLimit } from "@/lib/env-vars";
 import { BonkRateLimitExceedError, FindMysteryBoxError } from "@/lib/error";
 import {
   EBoxTriggerType,
@@ -50,6 +51,23 @@ export async function sendBonkFromTreasury(
 ) {
   // Early return if no reward
   if (rewardAmount <= 0) {
+    return null;
+  }
+
+  const oneTimeLimit = getBonkOneTimeLimit();
+
+  if (rewardAmount > oneTimeLimit) {
+    const bonkRateLimitExceedError = new BonkRateLimitExceedError(
+      `User with id: ${userId} (wallet: ${address}) isn't able to claim because one-time rate limit exceeded.`,
+    );
+    Sentry.captureException(bonkRateLimitExceedError, {
+      extra: {
+        userId,
+        walletAddress: address,
+        rewardAmount,
+        oneTimeLimit,
+      },
+    });
     return null;
   }
 

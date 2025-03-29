@@ -1,4 +1,5 @@
 const nextJest = require("next/jest");
+const { defaults } = require("jest-config");
 
 const createJestConfig = nextJest({
   dir: "./",
@@ -6,6 +7,7 @@ const createJestConfig = nextJest({
 
 const customJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
+  testPathIgnorePatterns: [...defaults.testPathIgnorePatterns, "/__utils__/"],
   collectCoverage: true,
   coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov", "json"],
