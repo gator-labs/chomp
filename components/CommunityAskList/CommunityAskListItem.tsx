@@ -1,16 +1,37 @@
 import { Button } from "@/app/components/Button/Button";
+import { useToast } from "@/app/providers/ToastProvider";
 import { formatDate } from "@/app/utils/date";
+import { useCommunityAskAddToDeck } from "@/hooks/useCommunityAskAddToDeck";
 import { CommunityAskQuestion } from "@/lib/ask/getCommunityAskList";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { QuestionOption, QuestionType } from "@prisma/client";
 import Image from "next/image";
+import { useEffect } from "react";
 
 export type CommunityAskListItemProps = {
   question: CommunityAskQuestion;
 };
 
 export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
+  const { successToast, errorToast } = useToast();
+
+  const addToDeck = useCommunityAskAddToDeck();
+
   const avatarSrc = question.user?.profileSrc || AvatarPlaceholder.src;
+
+  const handleAddToDeck = async () => {
+    addToDeck.mutate(question.id);
+  };
+
+  useEffect(() => {
+    if (addToDeck.isError)
+      errorToast("Failed to add question to the community deck.");
+  }, [addToDeck.isError]);
+
+  useEffect(() => {
+    if (addToDeck.isSuccess)
+      successToast("Successfully added question to the community deck");
+  }, [addToDeck.isSuccess]);
 
   return (
     <div className="border p-2 m-2 rounded-md bg-gray-700 flex flex-col gap-2">
@@ -59,8 +80,18 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
           <Button variant="primary" disabled={true}>
             Added at {formatDate(question.addedToDeckAt)}
           </Button>
+        ) : addToDeck.isSuccess ? (
+          <Button variant="secondary" disabled={true}>
+            ✔️ Added to Community Deck
+          </Button>
         ) : (
-          <Button variant="primary">Add to Community Deck</Button>
+          <Button
+            variant="primary"
+            onClick={handleAddToDeck}
+            disabled={addToDeck.isPending}
+          >
+            {addToDeck.isPending ? "Adding..." : "Add to Community Deck"}
+          </Button>
         )}
       </div>
     </div>
