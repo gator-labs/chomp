@@ -15,6 +15,9 @@ export async function getCommunityAskList(): Promise<CommunityAskQuestion[]> {
     include: {
       questionOptions: true,
     },
+    orderBy: {
+      createdAt: 'desc',
+    }
   });
 
   // TODO: remove this and get real author in the query above
