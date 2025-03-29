@@ -129,7 +129,7 @@ const PreviewDeckCard = ({
                         <span className="opacity-50 pr-1 text-left text-xs">
                           Rewards up to{" "}
                         </span>
-                        <span className="text-left text-xs">
+                        <span className="font-bold text-left text-xs">
                           {`${formatNumber(deckRewardAmount)} BONK + ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
                         </span>
                       </>
