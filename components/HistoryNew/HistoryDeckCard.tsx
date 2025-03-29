@@ -67,7 +67,7 @@ export const HistoryDeckCard = ({ deck }: HistoryDeckCardProps) => {
         ) : isDeckRevealed ? (
           <div className="flex bg-[#426D64] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-white">
             <TrophyStarMarkIcon width={16} height={16} />
-            <b>{formatCompactAmount(total_reward_amount)} BONK</b>
+            <b>{formatCompactAmount(total_reward_amount ?? 0)} BONK</b>
             <b className="text-white/50">Rewarded</b>
           </div>
         ) : (
