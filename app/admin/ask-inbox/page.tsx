@@ -3,7 +3,7 @@
 import { CommunityAskList } from "@/components/CommunityAskList/CommunityAskList";
 import { useCommunityAskListQuery } from "@/hooks/useCommunityAskListQuery";
 
-export default async function Page() {
+export default function Page() {
   const askList = useCommunityAskListQuery();
 
   if (askList.isError) return <div>Error fetching ask list.</div>;
