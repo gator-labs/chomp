@@ -55,7 +55,7 @@ export const formatDate = (date: Date | string) => {
 
   const dateVal = [
     value.getUTCFullYear(),
-    value.getUTCMonth().toString().padStart(2, "0"),
+    (1 + value.getUTCMonth()).toString().padStart(2, "0"),
     value.getUTCDate().toString().padStart(2, "0"),
   ].join("-");
 
