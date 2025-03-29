@@ -4,7 +4,7 @@ import {
   TRACKING_METADATA,
 } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import { useEffect } from "react";
 
 import { CloseIcon } from "../Icons/CloseIcon";
@@ -55,14 +55,16 @@ const StatsDrawer = ({
       }}
     >
       <DrawerContent className="p-6 flex flex-col">
-        <DialogTitle>
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-base text-secondary font-bold">{title}</p>
-            <div onClick={onClose}>
-              <CloseIcon width={16} height={16} />
+        <Dialog>
+          <DialogTitle>
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-base text-secondary font-bold">{title}</p>
+              <div onClick={onClose}>
+                <CloseIcon width={16} height={16} />
+              </div>
             </div>
-          </div>
-        </DialogTitle>
+          </DialogTitle>
+        </Dialog>
         {descriptionSections}
 
         <Button onClick={onClose} className="h-[50px] mt-2 font-bold">
