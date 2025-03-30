@@ -233,15 +233,18 @@ model RevealNft {
 }
 
 model Stack {
-  id                   Int        @id @default(autoincrement())
+  id                   Int            @id @default(autoincrement())
+  specialId            ESpecialStack? // Identifies special stacks, e.g. community stack
   name                 String
   isActive             Boolean
-  isVisible            Boolean    @default(true)
-  hideDeckFromHomepage Boolean    @default(false)
+  isVisible            Boolean        @default(true)
+  hideDeckFromHomepage Boolean        @default(false)
   image                String
   questions            Question[]
-  createdAt            DateTime   @default(now())
+  createdAt            DateTime       @default(now())
   deck                 Deck[]
+
+  @@unique(specialId)
 }
 
 model Banner {
@@ -359,14 +362,18 @@ model CampaignMysteryBoxAllowlist {
 }
 
 model CreditPack {
-  id                    String @id @default(uuid())
-  amount                Int
-  costPerCredit         String
-  originalCostPerCredit String
-  isActive              Boolean
+  id                          String                        @id @default(uuid())
+  amount                      Int
+  costPerCredit               String
+  originalCostPerCredit       String
+  isActive                    Boolean
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
-  chainTx               ChainTx[]
-  createdAt             DateTime @default(now())
+  chainTx                     ChainTx[]
+  createdAt                   DateTime                      @default(now())
+}
+
+enum ESpecialStack {
+  CommunityAsk
 }
 
 enum EMysteryBoxStatus {
