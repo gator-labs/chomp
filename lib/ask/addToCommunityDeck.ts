@@ -6,18 +6,18 @@ import { ESpecialStack } from "@prisma/client";
 export async function addToCommunityDeck(questionId: number): Promise<void> {
   let stack = await prisma.stack.findUnique({
     where: {
-      specialId: ESpecialStack.CommunityAsk
-    }
+      specialId: ESpecialStack.CommunityAsk,
+    },
   });
 
   if (!stack) {
     stack = await prisma.stack.create({
       data: {
-        name: 'Community Stack',
+        name: "Community Stack",
         specialId: ESpecialStack.CommunityAsk,
         isActive: false,
-        image: '',
-      }
+        image: "",
+      },
     });
   }
 
@@ -26,21 +26,18 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
   let deck = await prisma.deck.findFirst({
     where: {
       stackId: stack.id,
-      OR: [
-        { activeFromDate: null },
-        { activeFromDate: { gt: now } },
-      ]
+      OR: [{ activeFromDate: null }, { activeFromDate: { gt: now } }],
     },
     orderBy: {
-      'createdAt': 'desc'
-    }
+      createdAt: "desc",
+    },
   });
 
   if (!deck) {
     deck = await prisma.deck.create({
       data: {
         stackId: stack.id,
-        deck: 'Community Deck',
+        deck: "Community Deck",
       },
     });
   }
@@ -53,7 +50,7 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
       data: {
         questionId,
         deckId: deck.id,
-      }
+      },
     });
 
     // Sync values from the parent deck
@@ -62,9 +59,10 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
         creditCostPerQuestion: deck.creditCostPerQuestion,
         revealAtDate: deck.revealAtDate,
         revealAtAnswerCount: deck.revealAtAnswerCount,
-      }, where: {
-        id: questionId
-      }
+      },
+      where: {
+        id: questionId,
+      },
     });
   });
 }
