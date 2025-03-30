@@ -11,7 +11,7 @@ export default function Page() {
   if (askList.isLoading || !askList.data) return <div>Loading...</div>;
 
   if (askList.data.askList.length == 0)
-    return <div>No unassigned questions found</div>;
+    return <div>No unassigned questions found.</div>;
 
   return (
     <div className="flex flex-col gap-2">
