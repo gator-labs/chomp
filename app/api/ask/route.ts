@@ -1,8 +1,10 @@
 import { getJwtPayload } from "@/app/actions/jwt";
+import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getIsUserAdmin } from "@/app/queries/user";
 import { acquireMutex } from "@/app/utils/mutex";
 import { addToCommunityDeck } from "@/lib/ask/addToCommunityDeck";
 import { getCommunityAskList } from "@/lib/ask/getCommunityAskList";
+import * as Sentry from "@sentry/nextjs";
 import { type NextRequest } from "next/server";
 import z from "zod";
 
@@ -85,6 +87,14 @@ export async function PATCH(request: NextRequest) {
   try {
     await addToCommunityDeck(req.questionId);
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: {
+        category: "admin",
+      },
+    });
+
+    await Sentry.flush(SENTRY_FLUSH_WAIT);
+
     return new Response(
       JSON.stringify({ error: "Unable to complete action", excpetion: error }),
       {
