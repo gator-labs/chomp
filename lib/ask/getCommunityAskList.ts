@@ -12,12 +12,17 @@ export type CommunityAskQuestion = Question & {
 export async function getCommunityAskList(): Promise<CommunityAskQuestion[]> {
   // TODO: update to fetch only community questions
   const askList = await prisma.question.findMany({
+    where: {
+      deckQuestions: {
+        none: {},
+      },
+    },
     include: {
       questionOptions: true,
     },
     orderBy: {
-      createdAt: 'desc',
-    }
+      createdAt: "desc",
+    },
   });
 
   // TODO: remove this and get real author in the query above
