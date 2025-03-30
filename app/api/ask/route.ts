@@ -1,5 +1,6 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import { getIsUserAdmin } from "@/app/queries/user";
+import { acquireMutex } from "@/app/utils/mutex";
 import { addToCommunityDeck } from "@/lib/ask/addToCommunityDeck";
 import { getCommunityAskList } from "@/lib/ask/getCommunityAskList";
 import { type NextRequest } from "next/server";
@@ -61,15 +62,24 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  const release = await acquireMutex({
+    identifier: "API_ADD_TO_COMMUNITY_DECK",
+    data: {},
+  });
+
   let req;
 
   try {
     const data = await request.json();
     req = addToDeckSchema.parse(data);
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Invalid request", exception: error }), {
-      status: 500,
-    });
+    release();
+    return new Response(
+      JSON.stringify({ error: "Invalid request", exception: error }),
+      {
+        status: 500,
+      },
+    );
   }
 
   try {
@@ -81,6 +91,8 @@ export async function PATCH(request: NextRequest) {
         status: 500,
       },
     );
+  } finally {
+    release();
   }
 
   return new Response(
