@@ -36,6 +36,7 @@ model User {
   MysteryBox                  MysteryBox[]
   DeckRewards                 DeckRewards[]
   QuestionRewards             QuestionRewards[]
+  Question                    Question[]
 }
 
 model Wallet {
@@ -73,9 +74,12 @@ model Question {
   chompResults                ChompResult[]
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
+  isSubmittedByUser           Boolean                       @default(false)
+  createdByUserId             String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
   QuestionRewards             QuestionRewards[]
+  user                        User?                         @relation(fields: [createdByUserId], references: [id])
 }
 
 model QuestionOption {
@@ -173,6 +177,7 @@ model QuestionAnswer {
   updatedAt        DateTime       @default(now()) @updatedAt
 
   @@unique([questionOptionId, userId], name: "question_option_user")
+  @@index([userId, selected])
 }
 
 model ChompResult {
@@ -236,15 +241,18 @@ model RevealNft {
 }
 
 model Stack {
-  id                   Int        @id @default(autoincrement())
+  id                   Int            @id @default(autoincrement())
+  specialId            ESpecialStack? // Identifies special stacks, e.g. community stack
   name                 String
   isActive             Boolean
-  isVisible            Boolean    @default(true)
-  hideDeckFromHomepage Boolean    @default(false)
+  isVisible            Boolean        @default(true)
+  hideDeckFromHomepage Boolean        @default(false)
   image                String
   questions            Question[]
-  createdAt            DateTime   @default(now())
+  createdAt            DateTime       @default(now())
   deck                 Deck[]
+
+  @@unique(specialId)
 }
 
 model Banner {
@@ -392,6 +400,10 @@ view QuestionRewards {
 
   questionId Int      @id
   question   Question @relation(fields: [questionId], references: [id])
+}
+
+enum ESpecialStack {
+  CommunityAsk
 }
 
 enum EMysteryBoxStatus {

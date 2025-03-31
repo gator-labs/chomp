@@ -1,5 +1,6 @@
 import { ADMIN_PATH, STACKS_PATH } from "@/lib/urls";
 
+import { AskIcon } from "../Icons/AskIcon";
 import { BackIcon } from "../Icons/BackIcon";
 import { FilterIcon } from "../Icons/FilterIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
@@ -16,6 +17,12 @@ const navigationItems = [
     icon: <SortByIcon />,
     href: "/admin/decks",
     isActiveRegex: "/admin/decks.*",
+  },
+  {
+    label: "Ask",
+    icon: <AskIcon />,
+    href: "/admin/ask-inbox",
+    isActiveRegex: "/admin/ask-inbox.*",
   },
   {
     label: "Tags",
