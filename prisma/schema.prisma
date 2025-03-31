@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -33,6 +34,8 @@ model User {
   threatLevelWindow           DateTime?                     @db.Date
   threatLevelDetails          String?
   MysteryBox                  MysteryBox[]
+  DeckRewards                 DeckRewards[]
+  QuestionRewards             QuestionRewards[]
   Question                    Question[]
 }
 
@@ -75,6 +78,7 @@ model Question {
   createdByUserId             String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
+  QuestionRewards             QuestionRewards[]
   user                        User?                         @relation(fields: [createdByUserId], references: [id])
 }
 
@@ -133,6 +137,7 @@ model Deck {
   author                      String?
   authorImageUrl              String?
   MysteryBoxTrigger           MysteryBoxTrigger[]
+  DeckRewards                 DeckRewards[]
 }
 
 model UserDeck {
@@ -373,6 +378,28 @@ model CreditPack {
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   chainTx                     ChainTx[]
   createdAt                   DateTime                      @default(now())
+}
+
+view DeckRewards {
+  bonkReward    String
+  creditsReward String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  deckId Int  @id
+  deck   Deck @relation(fields: [deckId], references: [id])
+}
+
+view QuestionRewards {
+  bonkReward    String
+  creditsReward String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  questionId Int      @id
+  question   Question @relation(fields: [questionId], references: [id])
 }
 
 enum ESpecialStack {
