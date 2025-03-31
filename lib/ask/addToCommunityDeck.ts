@@ -44,7 +44,15 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
     }
 
     // Ensure the question exists
-    await tx.question.findFirstOrThrow({ where: { id: questionId } });
+    // TODO: update to ensure this is a community question
+    await tx.question.findFirstOrThrow({
+      where: {
+        id: questionId,
+        deckQuestions: {
+          none: {},
+        },
+      },
+    });
 
     await tx.deckQuestion.create({
       data: {
