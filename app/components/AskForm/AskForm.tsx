@@ -1,50 +1,65 @@
 "use client";
 
+import { createQuestion } from "@/app/actions/question/question";
+import { useToast } from "@/app/providers/ToastProvider";
 import { askQuestionSchema } from "@/app/schemas/ask";
-import { questionSchema } from "@/app/schemas/question";
+import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType } from "@prisma/client";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { getDefaultOptions } from "../QuestionForm/QuestionForm";
-import { SubmitButton } from "../SubmitButton/SubmitButton";
 import { TextInput } from "../TextInput/TextInput";
+import { Button } from "../ui/button";
 
 function AskForm() {
+  const { errorToast } = useToast();
+
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    formState: { errors, isSubmitting },
     watch,
     setValue,
-    control,
-    getFieldState,
   } = useForm({
     resolver: zodResolver(askQuestionSchema),
-    // defaultValues: deck || {
-    //     questions: [
-    //         {
-    //             type: QuestionType.MultiChoice,
-    //             questionOptions: getDefaultOptions(QuestionType.MultiChoice),
-    //             file: [],
-    //         },
-    //     ],
-    //     creditCostPerQuestion: 0,
-    // },
+    defaultValues: {
+      question: "",
+      type: QuestionType.MultiChoice,
+      questionOptions: getDefaultOptions(QuestionType.MultiChoice),
+      file: undefined,
+    },
   });
-  console.log(errors);
-  const file = watch("file")?.[0]; // The file for deck image
-  const questionImage = watch("imageUrl"); // The URL for the deck image
-  const questionPreviewUrl = !!file
-    ? URL.createObjectURL(file!)
-    : questionImage;
 
+  console.log(errors);
+
+  const file = watch("file")?.[0]; // The file for question image
+  const questionPreviewUrl = file ? URL.createObjectURL(file) : null;
   const questionType = watch("type");
 
+  // Clean up object URL when component unmounts or file changes
+  useEffect(() => {
+    return () => {
+      if (file && questionPreviewUrl) {
+        URL.revokeObjectURL(questionPreviewUrl);
+      }
+    };
+  }, [file, questionPreviewUrl]);
+
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data);
+    let imageUrl;
+
+    if (data.file?.[0]) {
+      imageUrl = await uploadImageToS3Bucket(data.file[0]);
+    }
+
+    const result = await createQuestion(data);
+
+    if (result?.errorMessage) {
+      errorToast("Failed to save deck", result.errorMessage);
+    }
   });
 
   return (
@@ -53,80 +68,86 @@ function AskForm() {
       <div className="mb-3">
         <label className="block mb-1">Question statement</label>
         <TextInput variant="secondary" {...register("question")} />
-        {/* <div className="text-destructive">{JSON.stringify(errors)}</div> */}
+        <div className="text-destructive">{errors.question?.message}</div>
+      </div>
 
-        <div className="mb-3">
-          <label className="block mb-1">Type</label>
-          <select
-            className="text-gray-800"
-            {...register(`type`, {
-              onChange: (e) => {
-                setValue("questionOptions", getDefaultOptions(e.target.value));
-              },
-            })}
-          >
-            {Object.values(QuestionType).map((type) => (
-              <option value={type} key={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-          {/* <div className="text-destructive">{errors.type?.message}</div> */}
-        </div>
+      <div className="mb-3">
+        <label className="block mb-1">Type</label>
+        <select
+          className="text-gray-800 w-full p-2 rounded"
+          {...register("type", {
+            onChange: (e) => {
+              setValue("questionOptions", getDefaultOptions(e.target.value));
+            },
+          })}
+        >
+          {Object.values(QuestionType).map((type) => (
+            <option value={type} key={type}>
+              {type}
+            </option>
+          ))}
+        </select>
+        <div className="text-destructive">{errors.type?.message}</div>
+      </div>
 
-        <div className="mb-3">
-          <label className="block mb-1">Image URL (optional)</label>
-          {!!questionPreviewUrl && (
-            <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg">
-              <Image
-                fill
-                alt="preview-image-stack"
-                src={questionPreviewUrl}
-                className="object-cover w-full h-full"
-              />
-            </div>
+      <div className="mb-3">
+        <label className="block mb-1">Image (optional)</label>
+        {questionPreviewUrl && (
+          <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg mb-2">
+            <Image
+              fill
+              alt="preview-image"
+              src={questionPreviewUrl}
+              className="object-cover w-full h-full"
+            />
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 mt-2">
+          <input
+            type="file"
+            accept="image/png, image/jpeg, image/webp"
+            {...register("file")}
+          />
+          <div className="text-destructive">{errors.file?.message}</div>
+
+          {questionPreviewUrl && (
+            <Button
+              type="button"
+              onClick={() => {
+                setValue("file", undefined);
+              }}
+              variant="destructive"
+              className="!w-fit !h-[30px]"
+            >
+              Remove Image
+            </Button>
           )}
         </div>
-
-        <div className="mb-3 flex flex-col gap-2">
-          <label className="block">Options</label>
-          {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
-            .fill(null)
-            .map((_, index) => (
-              <div key={`${questionType}-${index}`}>
-                <div className="flex gap-4">
-                  <div className="w-1/4">
-                    <TextInput
-                      variant="secondary"
-                      {...register(`questionOptions.${index}.option`)}
-                    />
-                  </div>
-                  <div className="w-28 flex justify-center items-center gap-2">
-                    <div>is correct?</div>
-                    <input
-                      type="checkbox"
-                      {...register(`questionOptions.${index}.isCorrect`)}
-                    />
-                  </div>
-                  {watch("type") === QuestionType.BinaryQuestion && (
-                    <div className="w-24 flex justify-center items-center gap-2">
-                      <div>is left?</div>
-                      <input
-                        type="checkbox"
-                        {...register(`questionOptions.${index}.isLeft`)}
-                      />
-                    </div>
-                  )}
-                </div>
-                {/* <div className="text-destructive">
-                  {errors.questionOptions &&
-                    errors.questionOptions[index]?.option?.message}
-                </div> */}
-              </div>
-            ))}
-        </div>
       </div>
-      <SubmitButton />
+
+      <div className="mb-3 flex flex-col gap-2">
+        <label className="block">Options</label>
+        {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
+          .fill(null)
+          .map((_, index) => (
+            <div key={`${questionType}-${index}`}>
+              <div className="flex gap-4">
+                <TextInput
+                  variant="secondary"
+                  placeholder={`Option ${index + 1}`}
+                  {...register(`questionOptions.${index}.option`)}
+                />
+              </div>
+              <div className="text-destructive">
+                {errors.questionOptions?.[index]?.option?.message}
+              </div>
+            </div>
+          ))}
+      </div>
+      <Button type="submit" disabled={isSubmitting} className="mb-8">
+        Submit
+      </Button>
     </form>
   );
 }
