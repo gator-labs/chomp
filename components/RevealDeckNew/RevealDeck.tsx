@@ -25,7 +25,7 @@ const RevealDeck = async ({
   const indicators = await getNewHistoryHeaderData(deckId);
 
   return (
-    <div className="pt-4 flex flex-col gap-4 overflow-hidden w-full max-w-lg mx-auto px-4">
+    <div className="pt-4 flex flex-col gap-4 overflow-hidden w-full max-w-lg mx-auto">
       <BackButton text="Deck" />
       <HistoryHeader
         deckId={deckId}
