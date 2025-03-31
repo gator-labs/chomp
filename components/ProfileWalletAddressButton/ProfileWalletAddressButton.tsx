@@ -1,11 +1,12 @@
 "use client";
 
+import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { formatAddress } from "@/app/utils/wallet";
 import { useEffect, useState } from "react";
 
 import { Button } from "../../app/components/Button/Button";
-import CheckMarkIconSimple from "../../app/components/Icons/CheckMarkIconSimple";
-import { CopyIconSimple } from "../../app/components/Icons/CopyIconSimple";
+import CheckMarkIconSimple from "../../components/icons/CheckMarkIconSimple";
+import { CopyIconSimple } from "../../components/icons/CopyIconSimple";
 
 type ProfileWalletAddressButtonProps = {
   address: string;
@@ -18,7 +19,7 @@ export function ProfileWalletAddressButton({
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
 
   const handleAddressClick = () => {
-    navigator.clipboard.writeText(address);
+    copyTextToClipboard(address);
     setIsCopyingAddress(true);
 
     const id = setTimeout(() => {
