@@ -1,8 +1,5 @@
 import prisma from "@/app/services/prisma";
 import { getCommunityAskList } from "@/lib/ask/getCommunityAskList";
-import { updateBots } from "@/lib/bots";
-import { generateUsers } from "@/scripts/utils";
-import { EThreatLevelType } from "@/types/bots";
 
 describe("Get community ask list", () => {
   let question1: { id: number };
