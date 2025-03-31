@@ -22,7 +22,7 @@ describe("Get community ask list", () => {
         type: "BinaryQuestion",
         revealTokenAmount: 10,
         isSubmittedByUser: true,
-        createdBy: users[0].id,
+        createdByUserId: users[0].id,
         questionOptions: {
           create: [
             {

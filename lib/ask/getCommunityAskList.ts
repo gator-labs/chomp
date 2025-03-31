@@ -16,7 +16,7 @@ export async function getCommunityAskList(): Promise<CommunityAskQuestion[]> {
       deckQuestions: {
         none: {},
       },
-      createdBy: { not: null },
+      createdByUserId: { not: null },
     },
     include: {
       user: {
