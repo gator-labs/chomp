@@ -72,10 +72,10 @@ model Question {
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
   isSubmittedByUser           Boolean                       @default(false)
-  createdBy                   String?
+  createdByUserId             String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
-  user                        User?                         @relation(fields: [createdBy], references: [id])
+  user                        User?                         @relation(fields: [createdByUserId], references: [id])
 }
 
 model QuestionOption {
