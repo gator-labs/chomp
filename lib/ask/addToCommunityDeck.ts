@@ -21,31 +21,31 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
     });
   }
 
-  const now = new Date();
+  await prisma.$transaction(async (tx) => {
+    const now = new Date();
 
-  let deck = await prisma.deck.findFirst({
-    where: {
-      stackId: stack.id,
-      OR: [{ activeFromDate: null }, { activeFromDate: { gt: now } }],
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
-
-  if (!deck) {
-    deck = await prisma.deck.create({
-      data: {
+    let deck = await tx.deck.findFirst({
+      where: {
         stackId: stack.id,
-        deck: "Community Deck",
+        OR: [{ activeFromDate: null }, { activeFromDate: { gt: now } }],
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
-  }
 
-  // Ensure the question exists
-  await prisma.question.findFirstOrThrow({ where: { id: questionId } });
+    if (!deck) {
+      deck = await tx.deck.create({
+        data: {
+          stackId: stack.id,
+          deck: "Community Deck",
+        },
+      });
+    }
 
-  await prisma.$transaction(async (tx) => {
+    // Ensure the question exists
+    await tx.question.findFirstOrThrow({ where: { id: questionId } });
+
     await tx.deckQuestion.create({
       data: {
         questionId,
