@@ -44,10 +44,10 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
     }
 
     // Ensure the question exists
-    // TODO: update to ensure this is a community question
     await tx.question.findFirstOrThrow({
       where: {
         id: questionId,
+        isSubmittedByUser: true,
         deckQuestions: {
           none: {},
         },

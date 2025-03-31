@@ -18,14 +18,13 @@ describe("Add to community ask list", () => {
       where: { specialId: ESpecialStack.CommunityAsk },
     });
 
-    // TODO: make a user-submitted question (with
-    // appropriate flag)
     question1 = await prisma.question.create({
       data: {
         stackId: null,
         question: "User question",
         type: "BinaryQuestion",
         revealTokenAmount: 10,
+        isSubmittedByUser: true,
         questionOptions: {
           create: [
             {
@@ -56,6 +55,7 @@ describe("Add to community ask list", () => {
         question: "Non-user question",
         type: "BinaryQuestion",
         revealTokenAmount: 10,
+        isSubmittedByUser: false,
         questionOptions: {
           create: [
             {
