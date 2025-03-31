@@ -121,6 +121,22 @@ export default function QuestionForm({
                   />
                 </div>
               </div>
+              <div className="w-28 flex justify-center items-center gap-2">
+                <div>is correct?</div>
+                <input
+                  type="checkbox"
+                  {...register(`questionOptions.${index}.isCorrect`)}
+                />
+              </div>
+              {watch("type") === QuestionType.BinaryQuestion && (
+                <div className="w-24 flex justify-center items-center gap-2">
+                  <div>is left?</div>
+                  <input
+                    type="checkbox"
+                    {...register(`questionOptions.${index}.isLeft`)}
+                  />
+                </div>
+              )}
               <div className="text-destructive">
                 {errors.questionOptions &&
                   errors.questionOptions[index]?.option?.message}
