@@ -68,29 +68,36 @@ const PreviewDeckCard = ({
       </div>
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-4">
-          {(imageUrl || stackImage) && (
-            <div className="relative w-[77px] h-[77px]">
-              <Image
-                src={imageUrl || stackImage}
-                blurDataURL={blurData}
-                alt=""
-                fill
-                placeholder="blur"
-                className="rounded-full overflow-hidden"
-                sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
-                style={{ objectFit: "cover" }}
-              />
-            </div>
-          )}
+          <div className="flex flex-col gap-2">
+            {/** Deck Image **/}
+            {(imageUrl || stackImage) && (
+              <div className="relative w-[77px] h-[77px]">
+                <Image
+                  src={imageUrl || stackImage}
+                  blurDataURL={blurData}
+                  alt=""
+                  fill
+                  placeholder="blur"
+                  className="rounded-full overflow-hidden"
+                  sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+            )}
 
-          <div className="flex flex-col gap-3">
-            {!!footer && <p className="text-[14px]">{footer}</p>}
-            <p className="text-[14px]">
+            <p className="text-[14px] font-medium">
               Total {totalNumberOfQuestions} card
               {totalNumberOfQuestions > 1 && "s"}
             </p>
+          </div>
+
+          <div className="flex flex-col gap-3 h-full justify-end">
+            {!!footer && <p className="text-[14px]">{footer}</p>}
+
+            {/** Entry Fee and Rewards buttons **/}
             {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
               <>
+                {/** Entry Fee button **/}
                 <button
                   className={classNames(
                     "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50",
@@ -110,6 +117,8 @@ const PreviewDeckCard = ({
                     <InfoIcon fill="#0d0d0d" />
                   </div>
                 </button>
+
+                {/** Rewards Button **/}
                 <button
                   className={classNames(
                     "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50 -mt-1",
@@ -148,6 +157,7 @@ const PreviewDeckCard = ({
                 </button>
               </>
             ) : null}
+
             <div className="flex gap-2 items-center">
               {!!authorImageUrl && (
                 <div className="">
