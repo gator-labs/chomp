@@ -28,6 +28,7 @@ export async function createAskQuestion(
     id: undefined,
     durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
     isSubmittedByUser: true,
+    createdBy: payload.sub,
   };
 
   await prisma.question.create({
