@@ -138,20 +138,18 @@ describe("Validate points logs for completing questions and decks", () => {
       data: answerData,
     });
 
-    try {
-      await answerQuestion({
+    await expect(
+      answerQuestion({
         questionId: deckQuestionId,
         questionOptionId: questionOptions[1].id,
         percentageGiven: 50,
         percentageGivenForAnswerId: questionOptions[1].id,
         timeToAnswerInMiliseconds: 3638,
         deckId: deckId,
-      });
-    } catch (error: any) {
-      expect(error.message).toBe(
-        `User with id: ${userId} second order respose doesn't match the give random option id for question id ${deckQuestionId}.`,
-      );
-    }
+      }),
+    ).rejects.toThrowError(
+      `User with id: ${userId} second order respose doesn't match the give random option id for question id ${deckQuestionId}.`,
+    );
   });
 
   it("should allow a user to answer a question once", async () => {
@@ -216,20 +214,18 @@ describe("Validate points logs for completing questions and decks", () => {
       sub: userId,
     });
 
-    try {
-      await answerQuestion({
+    await expect(
+      answerQuestion({
         questionId: deckQuestionId,
         questionOptionId: questionOptions[1].id,
         percentageGiven: 50,
         percentageGivenForAnswerId: randomRes,
         timeToAnswerInMiliseconds: 3638,
         deckId: deckId,
-      });
-    } catch (error: any) {
-      expect(error.message).toBe(
-        `User with id: ${userId} has already answered question with id: ${deckQuestionId}`,
-      );
-    }
+      }),
+    ).rejects.toThrowError(
+      `User with id: ${userId} has already answered question with id: ${deckQuestionId}`,
+    );
   });
 
   it("Records points correctly for deck and question completion", async () => {
