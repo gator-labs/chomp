@@ -188,6 +188,9 @@ export function Deck({
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
       ) {
+        setRandom(
+          question.questionOptions.findIndex((option) => option.id === number),
+        );
         setDeckResponse((prev) => [
           ...prev,
           { questionId: question.id, questionOptionId: number },

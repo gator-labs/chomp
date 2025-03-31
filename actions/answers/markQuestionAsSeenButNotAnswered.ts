@@ -4,7 +4,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { getRandomInteger } from "@/app/utils/randomUtils";
 import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
-import { AnswerStatus } from "@prisma/client";
+import { AnswerStatus, QuestionType } from "@prisma/client";
 
 export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   const payload = await getJwtPayload();
@@ -14,6 +14,9 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   const userId = payload.sub;
   const questionOptions = await prisma.questionOption.findMany({
     where: { questionId },
+    include: {
+      question: true,
+    },
   });
 
   try {
@@ -28,14 +31,19 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
       questionOptionId: qo.id,
       userId,
       status: AnswerStatus.Viewed,
-      isAssigned2ndOrderOption: index === random,
+      isAssigned2ndOrderOption:
+        index === random &&
+        questionOptions[0].question.type === QuestionType.MultiChoice,
       selected: false,
     }));
     await prisma.questionAnswer.createMany({
       data: answerData,
     });
     return {
-      random,
+      random:
+        questionOptions[0].question.type === QuestionType.MultiChoice
+          ? random
+          : 0,
     };
   } catch (error) {
     console.log("Error in markQuestionAsSeenButNotAnswered", error);
