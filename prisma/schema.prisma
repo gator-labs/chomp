@@ -70,6 +70,7 @@ model Question {
   chompResults                ChompResult[]
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
+  isSubmittedByUser           Boolean                       @default(false)
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
 }
@@ -357,14 +358,14 @@ model CampaignMysteryBoxAllowlist {
 }
 
 model CreditPack {
-  id                    String @id @default(uuid())
-  amount                Int
-  costPerCredit         String
-  originalCostPerCredit String
-  isActive              Boolean
+  id                          String                        @id @default(uuid())
+  amount                      Int
+  costPerCredit               String
+  originalCostPerCredit       String
+  isActive                    Boolean
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
-  chainTx               ChainTx[]
-  createdAt             DateTime @default(now())
+  chainTx                     ChainTx[]
+  createdAt                   DateTime                      @default(now())
 }
 
 enum EMysteryBoxStatus {

@@ -63,6 +63,7 @@ export default function DeckForm({
       creditCostPerQuestion: 0,
     },
   });
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "questions",
