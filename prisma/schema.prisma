@@ -33,6 +33,7 @@ model User {
   threatLevelWindow           DateTime?                     @db.Date
   threatLevelDetails          String?
   MysteryBox                  MysteryBox[]
+  Question                    Question[]
 }
 
 model Wallet {
@@ -71,8 +72,10 @@ model Question {
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
   isSubmittedByUser           Boolean                       @default(false)
+  createdBy                   String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
+  user                        User?                         @relation(fields: [createdBy], references: [id])
 }
 
 model QuestionOption {
