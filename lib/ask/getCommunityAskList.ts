@@ -10,31 +10,29 @@ export type CommunityAskQuestion = Question & {
 };
 
 export async function getCommunityAskList(): Promise<CommunityAskQuestion[]> {
-  const askList = await prisma.question.findMany({
+  const askList = (await prisma.question.findMany({
     where: {
       isSubmittedByUser: true,
       deckQuestions: {
         none: {},
       },
+      createdBy: { not: null },
     },
     include: {
+      user: {
+        include: {
+          wallets: true,
+        },
+      },
       questionOptions: true,
     },
     orderBy: {
       createdAt: "desc",
     },
-  });
-
-  // TODO: remove this and get real author in the query above
-  const user = await prisma.user.findFirstOrThrow({
-    include: {
-      wallets: true,
-    },
-  });
+  })) as CommunityAskQuestion[];
 
   return askList.map((question) => ({
     ...question,
     addedToDeckAt: null,
-    user: user,
   }));
 }
