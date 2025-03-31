@@ -6,10 +6,7 @@ import { getRandomInteger } from "@/app/utils/randomUtils";
 import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
 import { AnswerStatus } from "@prisma/client";
 
-export async function markQuestionAsSeenButNotAnswered(
-  questionId: number,
-  max: number,
-) {
+export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   const payload = await getJwtPayload();
 
   if (!payload) return;
@@ -22,7 +19,10 @@ export async function markQuestionAsSeenButNotAnswered(
   try {
     await chargeUserCredits(questionId);
 
-    const random = getRandomInteger(0, max);
+    const numOptions =
+      questionOptions.length > 0 ? questionOptions.length - 1 : 0;
+
+    const random = getRandomInteger(0, numOptions);
 
     const answerData = questionOptions.map((qo, index) => ({
       questionOptionId: qo.id,

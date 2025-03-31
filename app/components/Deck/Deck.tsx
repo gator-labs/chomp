@@ -125,6 +125,7 @@ export function Deck({
       setDueAt(getDueAt(questions, currentQuestionIndex + 1));
     }
     setDeckResponse([]);
+    setRandom(0);
     setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
     setOptionPercentage(50);
@@ -150,12 +151,7 @@ export function Deck({
   // we mark it as "seen"
   useEffect(() => {
     const run = async () => {
-      const max =
-        !!questions[currentQuestionIndex] &&
-        questions[currentQuestionIndex].questionOptions.length > 0
-          ? questions[currentQuestionIndex].questionOptions.length - 1
-          : 0;
-      const res = await markQuestionAsSeenButNotAnswered(question.id, max);
+      const res = await markQuestionAsSeenButNotAnswered(question.id);
       if (res?.random) {
         setRandom(res?.random);
       }
@@ -260,6 +256,7 @@ export function Deck({
 
       try {
         await answerQuestion({ ...deckResponse[0], deckId });
+
         trackAnswerStatus({ ...deckResponse[0], deckId }, "SUCCEEDED");
       } catch {
         trackAnswerStatus({ ...deckResponse[0], deckId }, "FAILED");
@@ -328,7 +325,6 @@ export function Deck({
       </div>
     );
   }
-
   // get random option for 2nd order question.
   const randomQuestionMarker =
     random === undefined

@@ -173,10 +173,7 @@ describe("Validate points logs for completing questions and decks", () => {
       sub: userId,
     });
 
-    const seenQuestion = await markQuestionAsSeenButNotAnswered(
-      deckQuestionId,
-      questionOptions.length,
-    );
+    const seenQuestion = await markQuestionAsSeenButNotAnswered(deckQuestionId);
 
     randomRes = seenQuestion?.random;
 
