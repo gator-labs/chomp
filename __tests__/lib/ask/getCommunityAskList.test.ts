@@ -1,12 +1,20 @@
 import prisma from "@/app/services/prisma";
 import { getCommunityAskList } from "@/lib/ask/getCommunityAskList";
+import { generateUsers } from "@/scripts/utils";
 
 describe("Get community ask list", () => {
   let question1: { id: number };
   let question2: { id: number };
   let deck: { id: number };
+  let users: { id: string }[];
 
   beforeAll(async () => {
+    users = await generateUsers(1);
+
+    await prisma.user.create({
+      data: users[0],
+    });
+
     question1 = await prisma.question.create({
       data: {
         stackId: null,
@@ -14,6 +22,7 @@ describe("Get community ask list", () => {
         type: "BinaryQuestion",
         revealTokenAmount: 10,
         isSubmittedByUser: true,
+        createdBy: users[0].id,
         questionOptions: {
           create: [
             {
@@ -75,6 +84,9 @@ describe("Get community ask list", () => {
       where: { id: { in: [question1.id, question2.id] } },
     });
     await prisma.deck.delete({ where: { id: deck.id } });
+    await prisma.user.deleteMany({
+      where: { id: { in: users.map((user) => user.id) } },
+    });
   });
 
   it("should fetch community quesitons", async () => {
