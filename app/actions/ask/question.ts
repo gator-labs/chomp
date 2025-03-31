@@ -1,3 +1,5 @@
+"use server";
+
 import { askQuestionSchema } from "@/app/schemas/ask";
 import prisma from "@/app/services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
@@ -25,6 +27,7 @@ export async function createAskQuestion(
     questionOptions: undefined,
     id: undefined,
     durationMiliseconds: ONE_MINUTE_IN_MILLISECONDS,
+    isSubmittedByUser: true,
   };
 
   await prisma.question.create({

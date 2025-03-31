@@ -33,8 +33,6 @@ function AskForm() {
     },
   });
 
-  console.log(errors);
-
   const file = watch("file")?.[0]; // The file for question image
   const questionPreviewUrl = file ? URL.createObjectURL(file) : null;
   const questionType = watch("type");
