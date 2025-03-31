@@ -74,6 +74,9 @@ describe("createAskQuestion", () => {
       include: {
         questionOptions: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
     expect(result?.question).toBe(mockQuestionData.question);
