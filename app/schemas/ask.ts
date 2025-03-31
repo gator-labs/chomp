@@ -8,7 +8,6 @@ import {
 } from "../constants/images";
 
 export const askQuestionSchema = z.object({
-  id: z.number().optional(),
   question: z
     .string({
       invalid_type_error: "Invalid question",
@@ -33,7 +32,6 @@ export const askQuestionSchema = z.object({
     }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
   questionOptions: z
     .object({
-      id: z.number().optional(),
       option: z.string().min(1),
     })
     .array(),
