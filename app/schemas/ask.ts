@@ -35,8 +35,6 @@ export const askQuestionSchema = z.object({
     .object({
       id: z.number().optional(),
       option: z.string().min(1),
-      isCorrect: z.boolean().optional(),
-      isLeft: z.boolean(),
     })
     .array(),
   imageUrl: z

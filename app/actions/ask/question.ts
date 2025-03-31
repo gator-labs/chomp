@@ -14,7 +14,7 @@ export async function createAskQuestion(
 ) {
   const payload = await getJwtPayload();
 
-  if (!payload) return;
+  if (!payload) return null;
   const validatedFields = askQuestionSchema.safeParse(data);
 
   if (!validatedFields.success) {

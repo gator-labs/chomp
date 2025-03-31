@@ -10,9 +10,17 @@ import Image from "next/image";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
-import { getDefaultOptions } from "../QuestionForm/QuestionForm";
 import { TextInput } from "../TextInput/TextInput";
 import { Button } from "../ui/button";
+
+const getDefaultOptions = (type: QuestionType) => {
+  switch (type) {
+    case QuestionType.BinaryQuestion:
+      return [{ option: "" }, { option: "" }];
+    default:
+      return [{ option: "" }, { option: "" }, { option: "" }, { option: "" }];
+  }
+};
 
 function AskForm() {
   const { errorToast } = useToast();
