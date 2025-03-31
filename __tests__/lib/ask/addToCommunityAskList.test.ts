@@ -6,8 +6,18 @@ describe("Add to community ask list", () => {
   let question1: { id: number };
   let question2: { id: number };
   let deck: { id: number };
+  let origCommunityStack: { id: number } | null;
+  let origCommunityDeck: { id: number } | null;
 
   beforeAll(async () => {
+    origCommunityStack = await prisma.stack.findUnique({
+      where: { specialId: ESpecialStack.CommunityAsk },
+    });
+
+    origCommunityDeck = await prisma.stack.findUnique({
+      where: { specialId: ESpecialStack.CommunityAsk },
+    });
+
     // TODO: make a user-submitted question (with
     // appropriate flag)
     question1 = await prisma.question.create({
@@ -76,6 +86,16 @@ describe("Add to community ask list", () => {
       where: { id: { in: [question1.id, question2.id] } },
     });
     await prisma.deck.delete({ where: { id: deck.id } });
+
+    if (!origCommunityDeck)
+      await prisma.deck.deleteMany({
+        where: { stack: { specialId: ESpecialStack.CommunityAsk } },
+      });
+
+    if (!origCommunityStack)
+      await prisma.stack.delete({
+        where: { specialId: ESpecialStack.CommunityAsk },
+      });
   });
 
   it("should add a community question to list", async () => {
