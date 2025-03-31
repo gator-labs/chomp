@@ -10,9 +10,9 @@ export type CommunityAskQuestion = Question & {
 };
 
 export async function getCommunityAskList(): Promise<CommunityAskQuestion[]> {
-  // TODO: update to fetch only community questions
   const askList = await prisma.question.findMany({
     where: {
+      isSubmittedByUser: true,
       deckQuestions: {
         none: {},
       },
