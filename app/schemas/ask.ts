@@ -39,4 +39,23 @@ export const askQuestionSchema = z.object({
       isLeft: z.boolean(),
     })
     .array(),
+  imageUrl: z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (value) => {
+        if (!value) return true;
+
+        try {
+          new URL(value);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: "Invalid image source",
+      },
+    ),
 });

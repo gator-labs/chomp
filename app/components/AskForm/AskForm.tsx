@@ -1,6 +1,6 @@
 "use client";
 
-import { createQuestion } from "@/app/actions/question/question";
+import { createAskQuestion } from "@/app/actions/ask/question";
 import { useToast } from "@/app/providers/ToastProvider";
 import { askQuestionSchema } from "@/app/schemas/ask";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
@@ -55,7 +55,12 @@ function AskForm() {
       imageUrl = await uploadImageToS3Bucket(data.file[0]);
     }
 
-    const result = await createQuestion(data);
+    const result = await createAskQuestion({
+      question: data?.question,
+      type: data?.type,
+      imageUrl,
+      questionOptions: data?.questionOptions,
+    });
 
     if (result?.errorMessage) {
       errorToast("Failed to save deck", result.errorMessage);
