@@ -23,6 +23,7 @@ function AskForm() {
     formState: { errors, isSubmitting },
     watch,
     setValue,
+    reset,
   } = useForm({
     resolver: zodResolver(askQuestionSchema),
     defaultValues: {
@@ -63,6 +64,7 @@ function AskForm() {
     if (result?.errorMessage) {
       errorToast("Failed to save deck", result.errorMessage);
     }
+    reset();
   });
 
   return (
