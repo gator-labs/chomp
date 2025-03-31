@@ -70,6 +70,7 @@ model Question {
   chompResults                ChompResult[]
   stack                       Stack?                        @relation(fields: [stackId], references: [id])
   stackId                     Int?
+  isSubmittedByUser           Boolean                       @default(false)
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
 }
