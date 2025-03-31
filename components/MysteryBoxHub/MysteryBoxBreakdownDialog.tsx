@@ -89,9 +89,11 @@ function MysteryBoxBreakdownDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="p-4 bg-[#202020] border-0 data-[state=open]:rounded-2xl w-[90%] sm:w-[100%]">
         <DialogHeader>
-          <DialogTitle className="text-white font-bold text-base">
-            Claimed Mystery Box
-          </DialogTitle>
+          <Dialog>
+            <DialogTitle className="text-white font-bold text-base">
+              Claimed Mystery Box
+            </DialogTitle>
+          </Dialog>
         </DialogHeader>
 
         {/* Summary Section */}

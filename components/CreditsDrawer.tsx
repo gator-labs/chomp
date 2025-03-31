@@ -3,7 +3,7 @@ import { Button } from "@/app/components/ui/button";
 import { Drawer, DrawerContent } from "@/app/components/ui/drawer";
 import { TRACKING_EVENTS } from "@/app/constants/tracking";
 import trackEvent from "@/lib/trackEvent";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import { useEffect } from "react";
 
 type CreditsDrawerProps = {
@@ -29,17 +29,18 @@ const CreditsDrawer = ({ isOpen, onClose }: CreditsDrawerProps) => {
       }}
     >
       <DrawerContent className="p-6 flex flex-col z-index z-[999]">
-        <DialogTitle>
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-base text-secondary font-bold">
-              Credits? What could this be? 🤔
-            </p>
-            <div onClick={onClose}>
-              <CloseIcon width={16} height={16} />
+        <Dialog>
+          <DialogTitle>
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-base text-secondary font-bold">
+                Credits? What could this be? 🤔
+              </p>
+              <div onClick={onClose}>
+                <CloseIcon width={16} height={16} />
+              </div>
             </div>
-          </div>
-        </DialogTitle>
-
+          </DialogTitle>
+        </Dialog>
         <p className="text-sm mb-6">
           Chompy has the best answer for this (like they do with any question,
           of course), but it&apos;s not the right time to tell you yet 😉.

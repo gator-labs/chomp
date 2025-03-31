@@ -6,7 +6,7 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { copyTextToClipboard } from "@/app/utils/clipboard";
 import { ShareClaimAllError } from "@/lib/error";
 import trackEvent from "@/lib/trackEvent";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import * as Sentry from "@sentry/nextjs";
 import { getLinkPreview } from "link-preview-js";
 import Image from "next/image";
@@ -83,20 +83,22 @@ const ClaimShareDrawer = ({
       }}
     >
       <DrawerContent className="p-6 px-4 flex flex-col">
-        <DialogTitle>
-          <div className="flex justify-between items-center mb-6">
-            <p className="text-base text-secondary font-bold">
-              Claim succeeded!
-            </p>
-            <div
-              onClick={() => {
-                onClose();
-              }}
-            >
-              <CloseIcon width={16} height={16} />
+        <Dialog>
+          <DialogTitle>
+            <div className="flex justify-between items-center mb-6">
+              <p className="text-base text-secondary font-bold">
+                Claim succeeded!
+              </p>
+              <div
+                onClick={() => {
+                  onClose();
+                }}
+              >
+                <CloseIcon width={16} height={16} />
+              </div>
             </div>
-          </div>
-        </DialogTitle>
+          </DialogTitle>
+        </Dialog>
 
         <p className="text-sm mb-6">{description}</p>
         {ogImageUrl && (
