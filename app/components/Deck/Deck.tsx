@@ -10,7 +10,6 @@ import {
   markQuestionAsTimedOut,
 } from "@/app/actions/answer";
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
-import { useRandom } from "@/app/hooks/useRandom";
 import { useStopwatch } from "@/app/hooks/useStopwatch";
 import { getUserTotalCreditAmount } from "@/app/queries/home";
 import {
@@ -100,26 +99,18 @@ export function Deck({
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
   const [processingSkipQuestion, setProcessingSkipQuestion] = useState(false);
-  const min = 0;
-  const max =
-    !!questions[currentQuestionIndex] &&
-    questions[currentQuestionIndex].questionOptions.length > 0
-      ? questions[currentQuestionIndex].questionOptions.length - 1
-      : 0;
 
-  const { random, generateRandom, setRandom } = useRandom({
-    min,
-    max,
-  });
   const { start, reset, getTimePassedSinceStart } = useStopwatch();
   const [isTimeOutPopUpVisible, setIsTimeOutPopUpVisible] = useState(false);
   const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
   const [isCreditsLow, setIsCreditsLow] = useState(false);
+  const [random, setRandom] = useState(0);
 
   useEffect(() => {
     start();
   }, [start]);
 
+  // handle next question
   const handleNextIndex = useCallback(async () => {
     if (creditCostFeatureFlag && deckCost !== null && deckCost > 0) {
       const userCreditBal = await getUserTotalCreditAmount();
@@ -134,24 +125,18 @@ export function Deck({
       setDueAt(getDueAt(questions, currentQuestionIndex + 1));
     }
     setDeckResponse([]);
+    setRandom(0);
     setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
-    const min = 0;
-    const max =
-      !!questions[currentQuestionIndex + 1] &&
-      questions[currentQuestionIndex + 1].questionOptions.length > 0
-        ? questions[currentQuestionIndex + 1].questionOptions.length - 1
-        : 0;
-    generateRandom({ min, max });
+
     reset();
     setIsSubmitting(false);
   }, [
     currentQuestionIndex,
     setCurrentQuestionIndex,
     setCurrentQuestionStep,
-    generateRandom,
     setCurrentOptionSelected,
     reset,
     questions,
@@ -167,6 +152,9 @@ export function Deck({
   useEffect(() => {
     const run = async () => {
       const res = await markQuestionAsSeenButNotAnswered(question.id);
+      if (res?.random) {
+        setRandom(res?.random);
+      }
       if (!!res?.hasError) {
         handleNextIndex();
         return;
@@ -271,6 +259,7 @@ export function Deck({
 
       try {
         await answerQuestion({ ...deckResponse[0], deckId });
+
         trackAnswerStatus({ ...deckResponse[0], deckId }, "SUCCEEDED");
       } catch {
         trackAnswerStatus({ ...deckResponse[0], deckId }, "FAILED");
@@ -339,7 +328,6 @@ export function Deck({
       </div>
     );
   }
-
   // get random option for 2nd order question.
   const randomQuestionMarker =
     random === undefined

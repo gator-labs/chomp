@@ -49,6 +49,11 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       },
       include: {
         question: true,
+        questionAnswers: {
+          where: {
+            userId,
+          },
+        },
       },
     });
 
@@ -72,7 +77,18 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           ? 100 - request!.percentageGiven!
           : percentageForQuestionOption;
 
+      if (
+        qo.questionAnswers[0].questionOptionId ===
+          request.percentageGivenForAnswerId &&
+        qo.questionAnswers[0].isAssigned2ndOrderOption !== true &&
+        qo.question.type === QuestionType.MultiChoice
+      ) {
+        throw new Error(
+          `User with id: ${payload?.sub} second order respose doesn't match the give random option id for question id ${request.questionId}.`,
+        );
+      }
       return {
+        id: qo.questionAnswers[0].id,
         selected: isOptionSelected,
         percentage,
         questionOptionId: qo.id,
@@ -81,6 +97,8 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           : null,
         userId,
         status: AnswerStatus.Submitted,
+        isAssigned2ndOrderOption:
+          qo.questionAnswers[0].isAssigned2ndOrderOption,
       } as QuestionAnswer;
     });
 

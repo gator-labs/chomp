@@ -165,18 +165,20 @@ model DeckQuestion {
 }
 
 model QuestionAnswer {
-  id               Int            @id @default(autoincrement())
-  questionOptionId Int
-  questionOption   QuestionOption @relation(fields: [questionOptionId], references: [id])
-  userId           String
-  user             User           @relation(fields: [userId], references: [id])
-  percentage       Int?
+  id                       Int            @id @default(autoincrement())
+  questionOptionId         Int
+  questionOption           QuestionOption @relation(fields: [questionOptionId], references: [id])
+  userId                   String
+  user                     User           @relation(fields: [userId], references: [id])
+  // Random option assigned by app for second order response 
+  isAssigned2ndOrderOption Boolean        @default(false)
+  percentage               Int?
   // NOTICE: The actual initial value of status is Viewed
-  status           AnswerStatus   @default(Submitted)
-  selected         Boolean
-  timeToAnswer     BigInt?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @default(now()) @updatedAt
+  status                   AnswerStatus   @default(Submitted)
+  selected                 Boolean
+  timeToAnswer             BigInt?
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @default(now()) @updatedAt
 
   @@unique([questionOptionId, userId], name: "question_option_user")
   @@index([userId, selected])
