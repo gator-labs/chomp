@@ -60,6 +60,10 @@ const PreviewDeckCard = ({
     setIsOpen(false);
   };
 
+  const deckImage = imageUrl || stackImage;
+
+  const showTotalCardsOnTheRight = !deckImage;
+
   return (
     <QuestionCardLayout className={className}>
       <div className="flex flex-col gap-5">
@@ -67,13 +71,14 @@ const PreviewDeckCard = ({
         {!!description && <p className="text-[14px]">{description}</p>}
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col gap-2">
-            {/** Deck Image **/}
-            {(imageUrl || stackImage) && (
+        <div className="flex items-center">
+          {/** Deck Image & Total n Cards **/}
+          {deckImage && (
+            <div className="flex flex-col gap-2 mr-4">
               <div className="relative w-[77px] h-[77px]">
+                {/** Deck Image **/}
                 <Image
-                  src={imageUrl || stackImage}
+                  src={deckImage}
                   blurDataURL={blurData}
                   alt=""
                   fill
@@ -83,18 +88,19 @@ const PreviewDeckCard = ({
                   style={{ objectFit: "cover" }}
                 />
               </div>
-            )}
 
-            <p className="text-[14px] font-medium">
-              Total {totalNumberOfQuestions} card
-              {totalNumberOfQuestions > 1 && "s"}
-            </p>
-          </div>
+              {/** Total n Cards (show under image when image exist) **/}
+              <p className="text-[14px] font-medium">
+                Total {totalNumberOfQuestions} card
+                {totalNumberOfQuestions > 1 && "s"}
+              </p>
+            </div>
+          )}
 
-          <div className="flex flex-col gap-3 h-full justify-end">
+          {/** Entry Fee and Rewards buttons **/}
+          <div className="flex flex-col gap-4 h-full mr-4 justify-end">
             {!!footer && <p className="text-[14px]">{footer}</p>}
 
-            {/** Entry Fee and Rewards buttons **/}
             {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
               <>
                 {/** Entry Fee button **/}
@@ -175,6 +181,16 @@ const PreviewDeckCard = ({
               )}
             </div>
           </div>
+
+          {/** Total n Cards (show on the right when there's no image) **/}
+          {showTotalCardsOnTheRight && (
+            <div className="flex items-end h-full mb-6">
+              <p className="text-[14px] font-medium">
+                Total {totalNumberOfQuestions} card
+                {totalNumberOfQuestions > 1 && "s"}
+              </p>
+            </div>
+          )}
         </div>
       </div>
       <InfoDrawer isOpen={isOpen} onClose={onClose} title="What are credits?">
