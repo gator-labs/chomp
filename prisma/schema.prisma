@@ -34,12 +34,10 @@ model User {
   threatLevelWindow           DateTime?                     @db.Date
   threatLevelDetails          String?
   MysteryBox                  MysteryBox[]
-  <<<<<<< HEAD
-  =======
   DeckRewards                 DeckRewards[]
   QuestionRewards             QuestionRewards[]
-  >>>>>>> main
-  Question                    Question[]
+
+  Question Question[]
 }
 
 model Wallet {
@@ -81,11 +79,9 @@ model Question {
   createdByUserId             String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
-  <<<<<<< HEAD
-  =======
   QuestionRewards             QuestionRewards[]
-  >>>>>>> main
-  user                        User?                         @relation(fields: [createdByUserId], references: [id])
+
+  user User? @relation(fields: [createdByUserId], references: [id])
 }
 
 model QuestionOption {
