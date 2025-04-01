@@ -58,7 +58,7 @@ export function AnswerResult({
           value={percentage}
           setValue={handleRatioChange}
           hideThumb
-          className={`rounded-[4px] w-full ${answerText.length > 20 ? "min-h-20" : "min-h-10"}`}
+          className={`rounded-[4px] w-full h-fit}`}
           backgroundColor="#4c4c4c"
           progressColor={progressColor ? progressColor : "#A3A3EC"}
           trackClassName={classNames(
