@@ -15,7 +15,7 @@ import { ChainEnum } from "@dynamic-labs/sdk-api";
 import { useTokenBalances } from "@dynamic-labs/sdk-react-core";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { CreditPack } from "@prisma/client";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import Decimal from "decimal.js";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -212,14 +212,18 @@ function BuyBulkCreditsDrawer({ isOpen, onClose }: BuyBulkCreditsDrawerProps) {
         }}
       >
         <DrawerContent className="p-6 flex flex-col gap-2">
-          <DialogTitle>
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-base text-secondary font-bold">Buy Credits</p>
-              <div onClick={onClose}>
-                <CloseIcon width={16} height={16} />
+          <Dialog>
+            <DialogTitle>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-base text-secondary font-bold">
+                  Buy Credits
+                </p>
+                <div onClick={onClose}>
+                  <CloseIcon width={16} height={16} />
+                </div>
               </div>
-            </div>
-          </DialogTitle>
+            </DialogTitle>
+          </Dialog>
           <div className="text-sm font-medium mb-2">
             <p>
               Select your desired amount of credits and tap on &quot;Buy

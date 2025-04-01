@@ -13,7 +13,8 @@ type ButtonProps = {
     | "purple"
     | "aqua"
     | "blue"
-    | "grayish";
+    | "grayish"
+    | "green";
   size?: "big" | "normal" | "small" | "tiny";
   disabled?: boolean;
   children: ReactNode;
@@ -44,6 +45,7 @@ export function Button({
     blue: "bg-chomp-blue-light text-black",
     grayish: "bg-gray-600",
     aqua: "bg-aqua text-gray-900",
+    green: "bg-green text-gray-900",
   };
 
   const variantClasses = variantStyles[variant] || variantStyles.primary;
