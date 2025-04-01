@@ -4,7 +4,7 @@ import { DeckGraphic } from "@/app/components/Graphics/DeckGraphic";
 import { ArrowRightCircle } from "@/app/components/Icons/ArrowRightCircle";
 import CardsIcon from "@/app/components/Icons/CardsIcon";
 import TrophyStarMarkIcon from "@/app/components/Icons/TrophyStarMarkIcon";
-import { formatNumber } from "@/app/utils/number";
+import { formatCompactAmount } from "@/app/utils/number";
 import { getDeckPath } from "@/lib/urls";
 import { DeckHistoryItem } from "@/types/history";
 import { TrophyIcon } from "lucide-react";
@@ -67,7 +67,7 @@ export const HistoryDeckCard = ({ deck }: HistoryDeckCardProps) => {
         ) : isDeckRevealed ? (
           <div className="flex bg-[#426D64] justify-center items-center rounded-xl p-3 gap-1 font-medium text-xs text-white">
             <TrophyStarMarkIcon width={16} height={16} />
-            <b>{formatNumber(total_reward_amount)} BONK</b>
+            <b>{formatCompactAmount(total_reward_amount ?? 0)} BONK</b>
             <b className="text-white/50">Rewarded</b>
           </div>
         ) : (
