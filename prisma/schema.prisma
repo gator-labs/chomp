@@ -36,7 +36,8 @@ model User {
   MysteryBox                  MysteryBox[]
   DeckRewards                 DeckRewards[]
   QuestionRewards             QuestionRewards[]
-  Question                    Question[]
+
+  Question Question[]
 }
 
 model Wallet {
@@ -79,7 +80,8 @@ model Question {
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
   QuestionRewards             QuestionRewards[]
-  user                        User?                         @relation(fields: [createdByUserId], references: [id])
+
+  user User? @relation(fields: [createdByUserId], references: [id])
 }
 
 model QuestionOption {
