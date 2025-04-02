@@ -16,6 +16,7 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
         name: "Community Stack",
         specialId: ESpecialStack.CommunityAsk,
         isActive: false,
+        isVisible: false,
         image: "",
       },
     });
