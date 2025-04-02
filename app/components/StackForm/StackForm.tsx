@@ -67,8 +67,13 @@ export default function StackForm({ stack, action }: StackFormProps) {
         }
       })}
     >
-      <h1 className="text-3xl mb-3">
+      <h1 className="text-3xl mb-3 flex align-items: center">
         {stack ? `Edit stack #${stack.id}` : "Create stack"}
+        {stack?.specialId && (
+          <span className="bg-purple-600 rounded-md p-2 ml-4 text-sm font-bold">
+            Special: {stack?.specialId}
+          </span>
+        )}
       </h1>
       <div className="mb-3">
         <label className="block mb-1">Stack</label>
