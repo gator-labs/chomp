@@ -80,7 +80,10 @@ export async function editStack(data: z.infer<typeof stackSchema>) {
     },
   });
 
-  if (currentStack?.image !== validatedFields.data.image) {
+  if (
+    currentStack?.image !== validatedFields.data.image &&
+    !!currentStack?.image
+  ) {
     const deleteObject = new DeleteObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET_NAME!,
       Key: currentStack!.image.split("/").pop(),
