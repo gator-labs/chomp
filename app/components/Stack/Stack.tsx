@@ -12,7 +12,7 @@ import StacksHeader from "../StacksHeader/StacksHeader";
 type StackProps = {
   stack: ExtendedStack;
   totalNumberOfCards: number;
-  blurData: GetPlaiceholderReturn;
+  blurData?: GetPlaiceholderReturn;
   userId: string | undefined;
 };
 
@@ -29,8 +29,8 @@ export const Stack = ({
         <div className="relative w-[100.5px] h-[100.5px]">
           <Image
             src={stack.image}
-            blurDataURL={blurData?.base64}
-            placeholder="blur"
+            blurDataURL={blurData?.base64 ?? ""}
+            placeholder={blurData?.base64 ? "blur" : "empty"}
             fill
             alt={stack.name}
             className="object-cover"
