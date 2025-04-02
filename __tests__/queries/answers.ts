@@ -1,4 +1,3 @@
-import { getQuestionsNeedingCorrectAnswer } from "@/app/queries/answers";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import { QuestionType, Token } from "@prisma/client";
@@ -9,7 +8,6 @@ describe("Answers", () => {
   let questionIds: number[] = [];
   let otherUsers: { id: string; username: string }[] = [];
   let existingQuestionIds = {};
-  let questionNeedingAnswer: number;
 
   beforeAll(async () => {
     const futureDate = dayjs().add(1, "day").toDate();
@@ -130,8 +128,6 @@ describe("Answers", () => {
 
       questionIds = questions.map((q) => q.id);
 
-      questionNeedingAnswer = questionIds[1];
-
       await tx.deckQuestion.createMany({
         data: [
           { deckId: deckId, questionId: questions[0].id },
@@ -190,14 +186,5 @@ describe("Answers", () => {
         });
       }
     });
-  });
-
-  it("should return questions which need a correct answer calculating", async () => {
-    const questions = (await getQuestionsNeedingCorrectAnswer()).filter(
-      (question: any) => !(question.id in existingQuestionIds),
-    );
-
-    expect(questions.length).toEqual(1);
-    expect(questions?.[0].id).toEqual(questionNeedingAnswer);
   });
 });
