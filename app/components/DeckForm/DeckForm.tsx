@@ -63,6 +63,7 @@ export default function DeckForm({
       creditCostPerQuestion: 0,
     },
   });
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "questions",
@@ -563,7 +564,11 @@ export default function DeckForm({
       {CREDIT_COST_FEATURE_FLAG && (
         <div className="mb-3">
           <label className="block mb-1">Credit cost per question</label>
-          <select
+          <TextInput
+            variant="secondary"
+            type="number"
+            min="0"
+            pattern="/^[0-9]+$/"
             className="text-gray-800 w-full"
             {...register("creditCostPerQuestion", {
               setValueAs: (v) => (!v ? 0 : parseInt(v)),
@@ -575,13 +580,10 @@ export default function DeckForm({
                   );
               },
             })}
-          >
-            {Array.from({ length: 6 }, (_, i) => i).map((i) => (
-              <option value={i} key={i}>
-                {i}
-              </option>
-            ))}
-          </select>
+          />
+          <div className="text-destructive">
+            {errors.creditCostPerQuestion?.message}
+          </div>
         </div>
       )}
       <div className="mb-4">

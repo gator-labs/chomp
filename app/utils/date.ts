@@ -49,3 +49,21 @@ export const getStartAndEndOfDay = (
     endOfTheDay,
   };
 };
+
+export const formatDate = (date: Date | string) => {
+  const value = new Date(date);
+
+  const dateVal = [
+    value.getUTCFullYear(),
+    (1 + value.getUTCMonth()).toString().padStart(2, "0"),
+    value.getUTCDate().toString().padStart(2, "0"),
+  ].join("-");
+
+  const timeVal = [
+    value.getUTCHours().toString().padStart(2, "0"),
+    value.getUTCMinutes().toString().padStart(2, "0"),
+    value.getUTCSeconds().toString().padStart(2, "0"),
+  ].join(":");
+
+  return `${dateVal} ${timeVal}`;
+};

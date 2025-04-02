@@ -2,8 +2,9 @@
 
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { getRandomInteger } from "@/app/utils/randomUtils";
 import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
-import { AnswerStatus } from "@prisma/client";
+import { AnswerStatus, QuestionType } from "@prisma/client";
 
 export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   const payload = await getJwtPayload();
@@ -13,25 +14,37 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   const userId = payload.sub;
   const questionOptions = await prisma.questionOption.findMany({
     where: { questionId },
+    include: {
+      question: true,
+    },
   });
 
-  const CREDIT_COST_FEATURE_FLAG =
-    process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
-
   try {
-    if (CREDIT_COST_FEATURE_FLAG) {
-      await chargeUserCredits(questionId);
-    }
+    await chargeUserCredits(questionId);
 
-    const answerData = questionOptions.map((qo) => ({
+    const numOptions =
+      questionOptions.length > 0 ? questionOptions.length - 1 : 0;
+
+    const random = getRandomInteger(0, numOptions);
+
+    const answerData = questionOptions.map((qo, index) => ({
       questionOptionId: qo.id,
       userId,
       status: AnswerStatus.Viewed,
+      isAssigned2ndOrderOption:
+        index === random &&
+        questionOptions[0].question.type === QuestionType.MultiChoice,
       selected: false,
     }));
     await prisma.questionAnswer.createMany({
       data: answerData,
     });
+    return {
+      random:
+        questionOptions[0].question.type === QuestionType.MultiChoice
+          ? random
+          : 0,
+    };
   } catch (error) {
     console.log("Error in markQuestionAsSeenButNotAnswered", error);
     return { hasError: true };

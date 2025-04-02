@@ -60,6 +60,7 @@ const colors = {
     },
     yellow: {
       pale: "#FBF3BA",
+      light: "#D0CBB4",
     },
     red: {
       dark: "#FF0000",
@@ -69,6 +70,9 @@ const colors = {
     },
     grey: {
       a1: "#B3B3B3",
+    },
+    pink: {
+      light: "#FCD6EA",
     },
   },
 };

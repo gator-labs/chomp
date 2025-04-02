@@ -14,3 +14,17 @@ export const getBonkAddress = () => {
   }
   return process.env.NEXT_PUBLIC_BONK_ADDRESS;
 };
+
+export const getBonkOneTimeLimit = () => {
+  if (!process.env.BONK_ONE_TIME_LIMIT) {
+    return 3_000_000;
+  }
+  return Number(process.env.BONK_ONE_TIME_LIMIT);
+};
+
+export const getCreditOneTimeLimit = () => {
+  if (!process.env.CREDITS_ONE_TIME_LIMIT) {
+    return 1000;
+  }
+  return Number(process.env.CREDITS_ONE_TIME_LIMIT);
+};

@@ -7,7 +7,7 @@ import {
 import { useCreditPurchase } from "@/hooks/useCreditPurchase";
 import { useSolBalance } from "@/hooks/useSolBalance";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import Decimal from "decimal.js";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -135,16 +135,18 @@ function BuyCreditsDrawer({
         }}
       >
         <DrawerContent className="p-6 flex flex-col gap-2">
-          <DialogTitle>
-            <div className="flex justify-between items-center mb-2">
-              <p className="text-base text-secondary font-bold">
-                Buy {creditsToBuy} More Credit{creditsToBuy !== 1 ? "s" : ""}?
-              </p>
-              <div onClick={onClose}>
-                <CloseIcon width={16} height={16} />
+          <Dialog>
+            <DialogTitle>
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-base text-secondary font-bold">
+                  Buy {creditsToBuy} More Credit{creditsToBuy !== 1 ? "s" : ""}?
+                </p>
+                <div onClick={onClose}>
+                  <CloseIcon width={16} height={16} />
+                </div>
               </div>
-            </div>
-          </DialogTitle>
+            </DialogTitle>
+          </Dialog>
           <div className="space-y-4">
             <p>Credits are required to answer this deck.</p>
             <p>

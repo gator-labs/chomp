@@ -57,8 +57,8 @@ describe("getStack", () => {
     const lastWeek = new Date(baseDate);
     lastWeek.setUTCDate(baseDate.getUTCDate() - 7);
 
-    // 1. Deck with null revealAtDate (should appear first)
     const deckData = [
+      // 1. Deck with null revealAtDate (should appear first)
       {
         data: {
           deck: "Deck 1 - Null Reveal Date",

@@ -4,7 +4,9 @@ import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
 
+import { CoinsIcon } from "../Icons/CoinsIcon";
 import { InfoIcon } from "../Icons/InfoIcon";
+import TrophyQuestionMarkIcon from "../Icons/TrophyQuestionMarkIcon";
 import InfoDrawer from "../InfoDrawer/InfoDrawer";
 import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
 
@@ -52,9 +54,15 @@ const PreviewDeckCard = ({
     ? deckCreditCost / totalNumberOfQuestions
     : 0;
 
+  const isDeckFree = deckCreditCost == 0;
+
   const onClose = () => {
     setIsOpen(false);
   };
+
+  const deckImage = imageUrl || stackImage;
+
+  const showTotalCardsOnTheRight = !deckImage;
 
   return (
     <QuestionCardLayout className={className}>
@@ -63,64 +71,99 @@ const PreviewDeckCard = ({
         {!!description && <p className="text-[14px]">{description}</p>}
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-4">
-          {(imageUrl || stackImage) && (
-            <div className="relative w-[77px] h-[77px]">
-              <Image
-                src={imageUrl || stackImage}
-                blurDataURL={blurData}
-                alt=""
-                fill
-                placeholder="blur"
-                className="rounded-full overflow-hidden"
-                sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
-                style={{ objectFit: "cover" }}
-              />
+        <div className="flex items-center">
+          {/** Deck Image & Total n Cards **/}
+          {deckImage && (
+            <div className="flex flex-col gap-2 mr-4">
+              <div className="relative w-[77px] h-[77px]">
+                {/** Deck Image **/}
+                <Image
+                  src={deckImage}
+                  blurDataURL={blurData}
+                  alt=""
+                  fill
+                  placeholder="blur"
+                  className="rounded-full overflow-hidden"
+                  sizes="(max-width: 600px) 50px, (min-width: 601px) 77px"
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+
+              {/** Total n Cards (show under image when image exist) **/}
+              <p className="text-[14px] font-medium">
+                Total {totalNumberOfQuestions} card
+                {totalNumberOfQuestions > 1 && "s"}
+              </p>
             </div>
           )}
 
-          <div className="flex flex-col gap-3">
+          {/** Entry Fee and Rewards buttons **/}
+          <div className="flex flex-col gap-4 h-full mr-4 justify-end">
             {!!footer && <p className="text-[14px]">{footer}</p>}
-            <p className="text-[14px]">
-              Total {totalNumberOfQuestions} card
-              {totalNumberOfQuestions > 1 && "s"}
-            </p>
+
             {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
               <>
+                {/** Entry Fee button **/}
                 <button
                   className={classNames(
                     "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50",
                     {
-                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-yellow-light": deckCreditCost === 0,
                       "bg-chomp-blue-light": deckCreditCost > 0,
                     },
                   )}
                   onClick={() => setIsOpen(true)}
                 >
-                  <span className="opacity-50 pr-1">Entry </span>
-                  {`${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
-                  <InfoIcon fill="#0d0d0d" />
+                  <CoinsIcon stroke="#000000" width={16} height={16} />
+                  <span className="opacity-50 pr-1 ml-1">Entry </span>
+                  {isDeckFree
+                    ? "Free"
+                    : `${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
+                  <div className="ml-1">
+                    <InfoIcon fill="#0d0d0d" />
+                  </div>
                 </button>
+
+                {/** Rewards Button **/}
                 <button
                   className={classNames(
                     "flex items-center rounded-[56px] text-xs text-gray-900 font-medium px-2 py-0.5 w-fit z-50 -mt-1",
                     {
-                      "bg-[#D0CBB4]": deckCreditCost === 0,
+                      "bg-chomp-yellow-light": deckCreditCost === 0,
                       "bg-chomp-blue-light": deckCreditCost > 0,
                     },
                   )}
                   onClick={() => setIsOpen(true)}
                 >
-                  <span className="opacity-50 pr-1">
-                    Rewards {deckCreditCost > 0 && "up to"}{" "}
-                  </span>
-                  {deckCreditCost > 0
-                    ? `${formatNumber(deckRewardAmount)} BONK & ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`
-                    : "Streaks"}
-                  <InfoIcon fill="#0d0d0d" />
+                  <div className="ml-1">
+                    <TrophyQuestionMarkIcon width={13} height={14} />
+                  </div>
+                  <div className="flex flex-col ml-2">
+                    {deckCreditCost > 0 ? (
+                      <>
+                        <span className="opacity-50 pr-1 text-left text-xs">
+                          Rewards up to{" "}
+                        </span>
+                        <span className="font-bold text-left text-xs">
+                          {`${formatNumber(deckRewardAmount)} BONK + ${deckCreditCost} Credit${deckCreditCost !== 1 ? "s" : ""}`}
+                        </span>
+                      </>
+                    ) : (
+                      <div className="flex items-center">
+                        <span className="opacity-50 pr-1 text-left text-xs">
+                          Rewards{" "}
+                        </span>
+                        <span className="text-left text-xs">Streaks</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="ml-1">
+                    <InfoIcon className="ml-1" fill="#0d0d0d" />
+                  </div>
                 </button>
               </>
             ) : null}
+
             <div className="flex gap-2 items-center">
               {!!authorImageUrl && (
                 <div className="">
@@ -138,6 +181,16 @@ const PreviewDeckCard = ({
               )}
             </div>
           </div>
+
+          {/** Total n Cards (show on the right when there's no image) **/}
+          {showTotalCardsOnTheRight && (
+            <div className="flex items-end h-full mb-6">
+              <p className="text-[14px] font-medium">
+                Total {totalNumberOfQuestions} card
+                {totalNumberOfQuestions > 1 && "s"}
+              </p>
+            </div>
+          )}
         </div>
       </div>
       <InfoDrawer isOpen={isOpen} onClose={onClose} title="What are credits?">
@@ -195,8 +248,8 @@ const PreviewDeckCard = ({
           <div className="text-sm mb-6 space-y-4">
             <p>You can answer this deck without using Credits!</p>
             <p>
-              <b className="text-[#D0CBB4]">Practice decks</b> allow you to earn
-              streaks or points without earning BONK.
+              <b className="text-chomp-yellow-light">Practice decks</b> allow
+              you to earn streaks or points without earning BONK.
             </p>
             <p>
               To learn more about rewards, read our documentation{" "}

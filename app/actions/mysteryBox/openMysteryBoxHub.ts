@@ -1,6 +1,10 @@
 "use server";
 
-import { OpenMysteryBoxHubError } from "@/lib/error";
+import { getCreditOneTimeLimit } from "@/lib/env-vars";
+import {
+  CreditRateLimitExceedError,
+  OpenMysteryBoxHubError,
+} from "@/lib/error";
 import { sendBonkFromTreasury } from "@/lib/mysteryBox";
 import {
   EBoxPrizeStatus,
@@ -118,8 +122,16 @@ export const openMysteryBoxHub = async (mysteryBoxIds: string[]) => {
     0,
   );
 
+  const creditLimit = getCreditOneTimeLimit();
+
   let txHash: string | null = null;
   try {
+    if (totalCreditAmount > creditLimit) {
+      throw new CreditRateLimitExceedError(
+        `Tried to send ${totalCreditAmount} credits, but configured limit is ${creditLimit}`,
+      );
+    }
+
     if (totalBonkAmount > 0) {
       txHash = await sendBonkFromTreasury(
         totalBonkAmount,

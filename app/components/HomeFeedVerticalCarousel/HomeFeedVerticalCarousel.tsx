@@ -36,7 +36,7 @@ export function HomeFeedVerticalCarousel({
             for correct answers.
           </p>
           <div>
-            <b className="text-[#D0CBB4]">Practice</b>
+            <b className="text-chomp-yellow-light">Practice</b>
           </div>
           <p>
             Play without paying and learn at your own pace. While these decks

@@ -1,4 +1,4 @@
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { Dialog, DialogTitle } from "@radix-ui/react-dialog";
 import React, { ReactNode, useState } from "react";
 
 import { CloseIcon } from "../Icons/CloseIcon";
@@ -54,21 +54,23 @@ function DisconnectSocial({
         }}
       >
         <DrawerContent className="p-6 px-4 flex flex-col">
-          <DialogTitle>
-            <div className="flex flex-col justify-between">
-              <div className="flex justify-between items-center">
-                <p className="text-base text-secondary font-bold mb-4">
-                  Unlink Account
-                </p>
-                <div onClick={closeDrawer}>
-                  <CloseIcon width={16} height={16} />
+          <Dialog>
+            <DialogTitle>
+              <div className="flex flex-col justify-between">
+                <div className="flex justify-between items-center">
+                  <p className="text-base text-secondary font-bold mb-4">
+                    Unlink Account
+                  </p>
+                  <div onClick={closeDrawer}>
+                    <CloseIcon width={16} height={16} />
+                  </div>
                 </div>
+                <p className="text-sm mb-4">
+                  Unlink {socialName} account from your profile?
+                </p>
               </div>
-              <p className="text-sm mb-4">
-                Unlink {socialName} account from your profile?
-              </p>
-            </div>
-          </DialogTitle>
+            </DialogTitle>
+          </Dialog>
           <div className="flex flex-col gap-2">
             <Button
               variant="destructive"

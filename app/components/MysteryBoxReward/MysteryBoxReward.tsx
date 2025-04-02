@@ -6,7 +6,7 @@ import OpenedMysteryBox from "@/public/images/opened-mystery-box.png";
 import { EMysteryBoxCategory } from "@/types/mysteryBox";
 import classNames from "classnames";
 import Image, { StaticImageData } from "next/image";
-import React, { CSSProperties, useState } from "react";
+import React, { CSSProperties, useEffect, useState } from "react";
 
 import { InfoIcon } from "../Icons/InfoIcon";
 import InfoDrawer from "../InfoDrawer/InfoDrawer";
@@ -31,6 +31,7 @@ function MysteryBoxReward({
   const [showBoxOverlay, setShowBoxOverlay] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [wasOpened, setBoxWasOpened] = useState(false);
 
   const [mysteryBoxIds, setMysteryBoxIds] = useState<string[]>([]);
 
@@ -51,7 +52,7 @@ function MysteryBoxReward({
         rewardMysteryBoxHub({ type, campaignBoxId }),
         {
           loading: "Opening Mystery Box. Please wait...",
-          success: "Mystery Box created successfully! ",
+          success: "Mystery Box created successfully!",
           error: "Failed to open the Mystery Box. Please try again later. 😔",
         },
       );
@@ -65,6 +66,10 @@ function MysteryBoxReward({
       setShowBoxOverlay(true);
     }
   };
+
+  useEffect(() => {
+    setBoxWasOpened(false);
+  }, [isActive]);
 
   return (
     <>
@@ -80,7 +85,9 @@ function MysteryBoxReward({
       >
         <div
           className={`flex flex-row items-center rounded-lg px-3 md:px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
-            isActive || showTooltip ? "cursor-pointer" : "cursor-not-allowed"
+            (isActive && !isSubmitting && !wasOpened) || showTooltip
+              ? "cursor-pointer"
+              : "cursor-not-allowed"
           }`}
           style={
             {
@@ -94,7 +101,7 @@ function MysteryBoxReward({
               setIsOpen(true);
             }
 
-            if (isActive) {
+            if (isActive && !isSubmitting && !wasOpened) {
               rewardBoxHandler();
             }
           }}
@@ -120,7 +127,12 @@ function MysteryBoxReward({
               {isActive ? "OPEN NOW!" : "Come back later!"}
             </p>
             <div className="flex flex-row gap-1 justify-start items-center">
-              <MysteryBoxCategoryPill category={type} disabled={!isActive} />
+              <MysteryBoxCategoryPill
+                category={type}
+                disabled={
+                  !isActive || isSubmitting || showBoxOverlay || wasOpened
+                }
+              />
               <button
                 className={classNames({
                   visible: showTooltip,
@@ -135,7 +147,10 @@ function MysteryBoxReward({
       </div>
       {mysteryBoxIds.length > 0 && (
         <OpenMysteryBox
-          closeBoxDialog={() => setShowBoxOverlay(false)}
+          closeBoxDialog={(wasOpened) => {
+            setBoxWasOpened(wasOpened);
+            setShowBoxOverlay(false);
+          }}
           isOpen={showBoxOverlay}
           boxType={type}
           mysteryBoxIds={mysteryBoxIds}

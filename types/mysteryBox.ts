@@ -33,6 +33,14 @@ export interface MysteryBoxProps {
   boxType?: EMysteryBoxType;
 }
 
+export type MysteryBoxBreakdown = {
+  id: number;
+  name: string;
+  creditsReceived: number;
+  bonkReceived: number;
+  revealedOn: string | null;
+};
+
 export type MysteryBox = {
   id: string;
   bonkReceived: string;

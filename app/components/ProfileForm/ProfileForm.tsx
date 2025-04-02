@@ -80,6 +80,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
     if (!!res?.error) {
       errorToast(res?.error);
+      return;
     }
     router.push("/application");
     successToast("Profile successfully updated");

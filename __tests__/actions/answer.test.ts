@@ -1,4 +1,5 @@
 import { answerQuestion } from "@/actions/answers/answerQuestion";
+import { markQuestionAsSeenButNotAnswered } from "@/actions/answers/markQuestionAsSeenButNotAnswered";
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
@@ -22,11 +23,14 @@ jest.mock("next/cache", () => ({
   revalidatePath: jest.fn(),
 }));
 
+jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
+
 describe("Validate points logs for completing questions and decks", () => {
   const currentDate = new Date();
   let userId: string;
   let deckId: number;
   let deckQuestionId: number;
+  let randomRes: number | undefined;
   beforeAll(async () => {
     // create a new deck
     const deck = await prisma.deck.create({
@@ -104,7 +108,7 @@ describe("Validate points logs for completing questions and decks", () => {
     });
   });
 
-  it("should allow a user to answer a question once", async () => {
+  it("should not allow to answer a question if no random option selected", async () => {
     //find question options
     const questionOptions = await prisma.questionOption.findMany({
       where: {
@@ -134,11 +138,48 @@ describe("Validate points logs for completing questions and decks", () => {
       data: answerData,
     });
 
+    await expect(
+      answerQuestion({
+        questionId: deckQuestionId,
+        questionOptionId: questionOptions[1].id,
+        percentageGiven: 50,
+        percentageGivenForAnswerId: questionOptions[1].id,
+        timeToAnswerInMiliseconds: 3638,
+        deckId: deckId,
+      }),
+    ).rejects.toThrowError(
+      `User with id: ${userId} second order respose doesn't match the give random option id for question id ${deckQuestionId}.`,
+    );
+  });
+
+  it("should allow a user to answer a question once", async () => {
+    //find question options
+    const questionOptions = await prisma.questionOption.findMany({
+      where: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
+      },
+    });
+
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: userId,
+    });
+
+    const seenQuestion = await markQuestionAsSeenButNotAnswered(deckQuestionId);
+
+    randomRes = seenQuestion?.random;
+
     await answerQuestion({
       questionId: deckQuestionId,
       questionOptionId: questionOptions[1].id,
       percentageGiven: 50,
-      percentageGivenForAnswerId: questionOptions[1].id,
+      percentageGivenForAnswerId: randomRes,
       timeToAnswerInMiliseconds: 3638,
       deckId: deckId,
     });
@@ -173,20 +214,18 @@ describe("Validate points logs for completing questions and decks", () => {
       sub: userId,
     });
 
-    try {
-      await answerQuestion({
+    await expect(
+      answerQuestion({
         questionId: deckQuestionId,
         questionOptionId: questionOptions[1].id,
         percentageGiven: 50,
-        percentageGivenForAnswerId: questionOptions[1].id,
+        percentageGivenForAnswerId: randomRes,
         timeToAnswerInMiliseconds: 3638,
         deckId: deckId,
-      });
-    } catch (error: any) {
-      expect(error.message).toBe(
-        `User with id: ${userId} has already answered question with id: ${deckQuestionId}`,
-      );
-    }
+      }),
+    ).rejects.toThrowError(
+      `User with id: ${userId} has already answered question with id: ${deckQuestionId}`,
+    );
   });
 
   it("Records points correctly for deck and question completion", async () => {
