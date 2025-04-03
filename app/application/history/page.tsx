@@ -1,6 +1,7 @@
 import { getTotalClaimableRewards } from "@/app/actions/history";
 import History from "@/app/components/History/History";
 import HistoryHeader from "@/app/components/HistoryHeader/HistoryHeader";
+import NewHistoryHeader from "@/app/components/NewHistoryHeader/NewHistoryHeader";
 import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
 import { getAllQuestionsReadyForReveal } from "@/app/queries/history";
 import { getProfileImage } from "@/app/queries/profile";
@@ -24,10 +25,7 @@ export default async function Page() {
 
         {FF_CREDITS ? (
           <>
-            <h1 className="font-bold py-2 px-2 text-2xl">History</h1>
-
-            <hr className="border-gray-600 my-0 p-0" />
-
+            <NewHistoryHeader />
             <HistoryList />
           </>
         ) : (
