@@ -5,7 +5,13 @@ import React, { useState } from "react";
 import { InfoIcon } from "../Icons/InfoIcon";
 import InfoDrawer from "../InfoDrawer/InfoDrawer";
 
-function NewHistoryHeader() {
+function NewHistoryHeader({
+  handleToggleChange,
+  showAnsweredDeck,
+}: {
+  handleToggleChange: () => void;
+  showAnsweredDeck: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
@@ -21,7 +27,12 @@ function NewHistoryHeader() {
       </InfoDrawer>
       <div className="flex items-center gap-2">
         <label className="cursor-pointer">
-          <input type="checkbox" className="sr-only peer" />
+          <input
+            type="checkbox"
+            className="sr-only peer"
+            checked={showAnsweredDeck}
+            onChange={handleToggleChange}
+          />
           <div className="relative w-11 h-6 bg-gray-600 rounded-full peer-checked:bg-purple-200 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
         </label>
         <p className="text-sm">Only decks I&rsquo;ve answered.</p>

@@ -5,6 +5,7 @@ import { ArrowRightCircle } from "@/app/components/Icons/ArrowRightCircle";
 import CardsIcon from "@/app/components/Icons/CardsIcon";
 import TrophyStarMarkIcon from "@/app/components/Icons/TrophyStarMarkIcon";
 import { formatCompactAmount } from "@/app/utils/number";
+import { cn } from "@/app/utils/tailwind";
 import { getDeckPath } from "@/lib/urls";
 import { DeckHistoryItem } from "@/types/history";
 import { TrophyIcon } from "lucide-react";
@@ -22,17 +23,23 @@ export const HistoryDeckCard = ({ deck }: HistoryDeckCardProps) => {
     revealAtDate,
     total_reward_amount,
     total_credit_cost,
+    answerCount,
   } = deck;
 
   const currentDate = new Date();
   const isDeckRevealed = currentDate > revealAtDate;
 
   const linkPath = getDeckPath(id);
-
+  console.log(answerCount, deck);
   return (
     <a
       href={linkPath}
-      className="bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 h-full cursor-pointer"
+      className={cn(
+        "bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 h-full cursor-pointer",
+        {
+          "bg-chomp-indigo-dark": answerCount && answerCount > 0,
+        },
+      )}
     >
       <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center">
         <div className="w-[59px] h-[60px] bg-purple-500 rounded-xl flex-shrink-0 relative p-1">
