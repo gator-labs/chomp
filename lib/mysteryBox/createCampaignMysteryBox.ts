@@ -1,11 +1,13 @@
 import prisma from "@/app/services/prisma";
 import { calculateMysteryBoxReward } from "@/app/utils/algo";
+import { MAX_DECIMALS } from "@/constants/tokens";
 import {
   EBoxPrizeType,
   EBoxTriggerType,
   EMysteryBoxStatus,
   EPrizeSize,
 } from "@prisma/client";
+import Decimal from "decimal.js";
 import "server-only";
 
 import { getBonkAddress } from "../env-vars";
@@ -94,7 +96,9 @@ export const createCampaignMysteryBox = async (
                 },
                 {
                   prizeType: EBoxPrizeType.Token,
-                  amount: calculatedReward.bonk.toString(),
+                  amount: new Decimal(calculatedReward.bonk)
+                    .toDP(MAX_DECIMALS.BONK, Decimal.ROUND_DOWN)
+                    .toString(),
                   size: EPrizeSize.Hub,
                   tokenAddress: tokenAddress,
                 },

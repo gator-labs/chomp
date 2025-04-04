@@ -24,7 +24,11 @@ export const formatNumber = (number: number) => {
   return number;
 };
 
-export function formatCompactAmount(amount: number | string) {
-  const formatter = Intl.NumberFormat("en", { notation: "compact" });
+export function formatCompactAmount(amount: number | string, maxDecimals = 4) {
+  const formatter = Intl.NumberFormat("en", {
+    notation: "compact",
+    maximumFractionDigits: maxDecimals,
+    roundingMode: "trunc",
+  });
   return formatter.format(Number(amount));
 }
