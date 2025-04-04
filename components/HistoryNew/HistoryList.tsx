@@ -37,35 +37,40 @@ export default function HistoryList() {
     }, []);
   }, [data]);
 
-  if (
-    (formattedData?.length === 0 || formattedData === undefined) &&
-    !isFetching
-  ) {
-    return <NoDeck />;
-  }
-
-  if (isLoading) return <HistoryListSkeleton />;
-
   return (
     <>
       <NewHistoryHeader
         handleToggleChange={() => setShowAnsweredDeck(!showAnsweredDeck)}
         showAnsweredDeck={showAnsweredDeck}
       />
-      <div className="flex flex-col gap-2 overflow-hidden">
-        <ul className="flex flex-col gap-2 overflow-y-auto pb-2">
-          {formattedData?.map((deck) => (
-            <li key={deck.id}>
-              <HistoryDeckCard deck={deck} />
-            </li>
-          ))}
-        </ul>
-        <LoadMore
-          isFetching={isFetching}
-          fetchNextPage={fetchNextPage}
-          hasNextPage={hasNextPage}
-        />
-      </div>
+      {isLoading ? (
+        <HistoryListSkeleton />
+      ) : (
+        <>
+          {/* Check for empty or undefined data */}
+          {formattedData?.length === 0 || formattedData === undefined ? (
+            <NoDeck />
+          ) : (
+            <div className="flex flex-col gap-2 overflow-hidden">
+              {/* List of Decks */}
+              <ul className="flex flex-col gap-2 overflow-y-auto pb-2">
+                {formattedData?.map((deck) => (
+                  <li key={deck.id}>
+                    <HistoryDeckCard deck={deck} />
+                  </li>
+                ))}
+              </ul>
+
+              {/* Load More Button */}
+              <LoadMore
+                isFetching={isFetching}
+                fetchNextPage={fetchNextPage}
+                hasNextPage={hasNextPage}
+              />
+            </div>
+          )}
+        </>
+      )}
     </>
   );
 }
