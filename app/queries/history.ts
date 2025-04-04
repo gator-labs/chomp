@@ -389,12 +389,16 @@ export async function getAnsweredDecksForHistory(
        JOIN public."Question" q 
        ON dq."questionId" = q.id
        WHERE dq."deckId" = d.id), 0) AS "total_credit_cost",
-      (SELECT count(*) FROM public."DeckQuestion" dq
+      (SELECT COUNT(DISTINCT q."id") FROM public."DeckQuestion" dq
         JOIN public."Question" q ON dq."questionId" = q.id
         JOIN public."QuestionOption" qo ON qo."questionId" = q.id
         JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
         WHERE dq."deckId" = d.id
-        AND qa."userId" = ${userId}) AS "answerCount"
+        AND qa."userId" = ${userId}) AS "answeredQuestions",
+        (SELECT COUNT(DISTINCT dq."questionId")
+     FROM public."DeckQuestion" dq
+     WHERE dq."deckId" = d."id"
+    ) as "totalQuestions"
     FROM 
       public."Deck" d
       LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
@@ -454,12 +458,16 @@ export async function getDecksForHistory(
        JOIN public."Question" q 
        ON dq."questionId" = q.id
        WHERE dq."deckId" = d.id), 0) AS "total_credit_cost",
-       (SELECT count(*) FROM public."DeckQuestion" dq
+       (SELECT COUNT(DISTINCT q."id") FROM public."DeckQuestion" dq
         JOIN public."Question" q ON dq."questionId" = q.id
         JOIN public."QuestionOption" qo ON qo."questionId" = q.id
         JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
         WHERE dq."deckId" = d.id
-        AND qa."userId" = ${userId}) AS "answerCount"
+        AND qa."userId" = ${userId}) AS "answeredQuestions",
+         (SELECT COUNT(DISTINCT dq."questionId")
+     FROM public."DeckQuestion" dq
+     WHERE dq."deckId" = d."id"
+    ) as "totalQuestions"
     FROM 
       public."Deck" d
       LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
