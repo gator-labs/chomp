@@ -30,7 +30,7 @@ export const HistoryDeckCard = ({ deck }: HistoryDeckCardProps) => {
   const isDeckRevealed = currentDate > revealAtDate;
 
   const linkPath = getDeckPath(id);
-  console.log(answerCount, deck);
+
   return (
     <a
       href={linkPath}
