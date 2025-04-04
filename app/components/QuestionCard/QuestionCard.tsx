@@ -25,6 +25,7 @@ type QuestionCardProps = {
   question: string;
   type: QuestionType;
   dueAt?: Date;
+  isTimerPaused?: boolean;
   onDurationRanOut?: () => void;
   viewImageSrc?: string;
   className?: string;
@@ -40,6 +41,7 @@ export function QuestionCard({
   viewImageSrc,
   type,
   dueAt,
+  isTimerPaused,
   className,
   onDurationRanOut,
   style,
@@ -50,7 +52,7 @@ export function QuestionCard({
   const [hasDurationRanOut, setHasDurationRanOut] = useState(false);
 
   const handleDueAtFormatted = useCallback(() => {
-    if (!dueAt || hasDurationRanOut) return;
+    if (!dueAt || hasDurationRanOut || isTimerPaused) return;
 
     setDueAtFormatted(getDueAtString(dueAt));
 
@@ -60,7 +62,7 @@ export function QuestionCard({
         setHasDurationRanOut(true);
       }
     }
-  }, [dueAt, onDurationRanOut, hasDurationRanOut]);
+  }, [dueAt, onDurationRanOut, hasDurationRanOut, isTimerPaused]);
 
   useEffect(() => {
     // Set initial dueAtFormatted only on the client side after mount

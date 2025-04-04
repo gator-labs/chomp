@@ -170,9 +170,10 @@ export function Deck({
   }, [question, handleNextIndex, setDeckResponse]);
 
   const handleOnDurationRanOut = useCallback(async () => {
+    if (isSubmitting) return;
     await markQuestionAsTimedOut(question.id);
     setIsTimeOutPopUpVisible(true);
-  }, [question, handleNextIndex, setDeckResponse]);
+  }, [question, handleNextIndex, setDeckResponse, isSubmitting]);
 
   const handleSkipQuestion = async () => {
     if (processingSkipQuestion) return;
@@ -352,6 +353,7 @@ export function Deck({
             type={question.type}
             viewImageSrc={question.imageUrl}
             onDurationRanOut={handleOnDurationRanOut}
+            isTimerPaused={isSubmitting}
           >
             <QuestionCardContent
               optionSelectedId={currentOptionSelected}
