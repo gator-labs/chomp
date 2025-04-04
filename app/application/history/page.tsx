@@ -24,10 +24,6 @@ export default async function Page() {
 
         {FF_CREDITS ? (
           <>
-            <h1 className="font-bold py-2 px-2 text-2xl">History</h1>
-
-            <hr className="border-gray-600 my-0 p-0" />
-
             <HistoryList />
           </>
         ) : (

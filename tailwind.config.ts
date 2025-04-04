@@ -50,6 +50,9 @@ const colors = {
   },
 
   chomp: {
+    indigo: {
+      dark: "#363548",
+    },
     blue: {
       dark: "#89E0CD",
       light: "#D6FCF4",

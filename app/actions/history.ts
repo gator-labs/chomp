@@ -1,13 +1,9 @@
 "use server";
 
-import { DeckHistoryItem } from "@/types/history";
-
-import { HISTORY_DECK_LIMIT } from "../constants/decks";
 import {
   NewQuestionHistory,
   NewQuestionHistoryData,
   QuestionHistory,
-  getAnsweredDecksForHistory,
   getHistoryHeadersData,
   getNewHistoryQuery,
   getQuestionsHistoryQuery,
@@ -16,20 +12,6 @@ import prisma from "../services/prisma";
 import { getJwtPayload } from "./jwt";
 
 const PAGE_SIZE = 10;
-
-export const getHistoryDecks = async ({
-  pageParam,
-}: {
-  pageParam: number;
-}): Promise<DeckHistoryItem[]> => {
-  const payload = await getJwtPayload();
-
-  if (!payload?.sub) {
-    return [];
-  }
-
-  return getAnsweredDecksForHistory(payload.sub, HISTORY_DECK_LIMIT, pageParam);
-};
 
 export const getQuestionsHistory = async ({
   pageParam,

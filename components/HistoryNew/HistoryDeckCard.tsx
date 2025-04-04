@@ -5,6 +5,7 @@ import { ArrowRightCircle } from "@/app/components/Icons/ArrowRightCircle";
 import CardsIcon from "@/app/components/Icons/CardsIcon";
 import TrophyStarMarkIcon from "@/app/components/Icons/TrophyStarMarkIcon";
 import { formatCompactAmount } from "@/app/utils/number";
+import { cn } from "@/app/utils/tailwind";
 import { getDeckPath } from "@/lib/urls";
 import { DeckHistoryItem } from "@/types/history";
 import { TrophyIcon } from "lucide-react";
@@ -22,6 +23,8 @@ export const HistoryDeckCard = ({ deck }: HistoryDeckCardProps) => {
     revealAtDate,
     total_reward_amount,
     total_credit_cost,
+    answeredQuestions,
+    totalQuestions,
   } = deck;
 
   const currentDate = new Date();
@@ -29,12 +32,28 @@ export const HistoryDeckCard = ({ deck }: HistoryDeckCardProps) => {
 
   const linkPath = getDeckPath(id);
 
+  const progressPercentage =
+    totalQuestions && answeredQuestions
+      ? (answeredQuestions / totalQuestions) * 100
+      : 0;
+
   return (
     <a
       href={linkPath}
-      className="bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 h-full cursor-pointer"
+      className={cn(
+        "bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 h-full cursor-pointer",
+        {
+          "bg-chomp-indigo-dark": answeredQuestions && answeredQuestions > 0,
+        },
+      )}
     >
-      <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center">
+      <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center relative">
+        {!(answeredQuestions === totalQuestions) && (
+          <div
+            className="absolute top-0 left-0 h-full bg-green opacity-35 z-0 rounded-l-2xl"
+            style={{ width: `${progressPercentage}%` }}
+          ></div>
+        )}
         <div className="w-[59px] h-[60px] bg-purple-500 rounded-xl flex-shrink-0 relative p-1">
           {imageUrl ? (
             <>

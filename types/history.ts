@@ -7,4 +7,6 @@ export type DeckHistoryItem = {
   total_potential_reward_amount: number;
   total_credit_cost: number;
   total_count: number;
+  answeredQuestions: number;
+  totalQuestions: number;
 };
