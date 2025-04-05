@@ -114,7 +114,7 @@ export const deckSchema = z
     revealTokenAmount: z.number().min(0),
     revealAtDate: z.date({ message: "Reveal at date is required" }),
     revealAtAnswerCount: z.number().min(0).nullish(),
-    creditCostPerQuestion: z.number().min(0).nullish(),
+    creditCostPerQuestion: z.number().min(0).max(100).nullish(),
     questions: z
       .object({
         id: z.number().optional(),
