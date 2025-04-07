@@ -117,7 +117,7 @@ export const deckSchema = z
     creditCostPerQuestion: z
       .number()
       .min(0)
-      .max(process.env.MAX_CREDIT_COST_PER_QUESTION ?? 100)
+      .max(Number(process.env.MAX_CREDIT_COST_PER_QUESTION ?? 100))
       .nullish(),
     questions: z
       .object({
