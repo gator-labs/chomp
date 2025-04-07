@@ -342,7 +342,9 @@ describe("getAnsweredDecksForHistory", () => {
     // Find deck1 in results (the one with rewards)
     const deck1Result = result.find((deck) => deck.id === deck1Id);
     expect(deck1Result).toBeDefined();
-    expect(deck1Result?.total_reward_amount).toBe(null);
+
+    expect(Number(deck1Result?.total_reward_amount)).toBe(0);
+
     expect(Number(deck1Result?.total_potential_reward_amount)).toBe(100);
     expect(Number(deck1Result?.total_credit_cost)).toBe(2);
 
@@ -462,6 +464,8 @@ describe("getAnsweredDecksForHistory", () => {
     expect(deck).toHaveProperty("revealAtDate");
     expect(deck).toHaveProperty("total_reward_amount");
     expect(deck).toHaveProperty("total_credit_cost");
+    expect(deck).toHaveProperty("answeredQuestions");
+    expect(deck).toHaveProperty("totalQuestions");
 
     // Check specific values
     expect(deck?.deck).toBe("Premium Deck");

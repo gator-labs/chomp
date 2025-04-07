@@ -415,7 +415,7 @@ export async function getAnsweredDecksForHistory(
         AND qa."userId" = ${userId}
       )
     GROUP BY 
-      d.id, d.deck, d."imageUrl", d."revealAtDate"  -- Removed dr.bonkReward
+      d.id, d.deck, d."imageUrl", d."revealAtDate"  
   ),
   total_count AS (
     SELECT COUNT(*) AS count FROM history_deck_cte
@@ -488,7 +488,7 @@ export async function getDecksForHistory(
     history_deck_cte, total_count
   ORDER BY 
     history_deck_cte."revealAtDate" DESC,
-    history_deck_cte.id DESC
+    history_deck_cte.id DESC -- Added secondary sort
   LIMIT ${pageSize} OFFSET ${offset}
   `;
 
