@@ -1,0 +1,38 @@
+
+Investigation results
+
+- We have 24 TXs that does not exist in blockchain, 3 of them in April 2th
+- We have 12 failed transactions in total 
+
+- Solana RPC false positivies:
+
+
+- [ ] Where are the not existant transactions generated?
+- [ ] Where are the failed transactions generated and why do we detected as successful?
+- [ ] MBPs createdAt and claimedAt happen most of the times in the same second, what's its life cycle?
+
+- [ ] on this month not existant transactions what are the details? user? etc.
+"id","status","size","prizeType","tokenAddress","amount","claimHash","claimFungibleTxId","createdAt","updatedAt","claimedAt","mysteryBoxTriggerId"
+
+"963e9be6-e866-4457-ae0c-0fc202be2353","Claimed","Hub","Token","DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263","14910.060691290822","2MLA199dMEFjxwYTgKCXLQkczRTLx8zgQs4827cAYBS2CdTMFNiMXKT3huKhJhJsPs6WztTd1eUcQ4nCNry8QZfg",,"2025-04-02 20:13:34.164","2025-04-02 20:13:48.601","2025-04-02 20:13:48.6","cf663155-ea69-4882-9e99-bc2b4457ed31"
+
+userId: 8a6ce628-bff0-4c7c-9463-20a996e7c308
+
+"f96cdb38-6226-4fe5-9360-01654ee75791","Claimed","Hub","Token","DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263","13338.119833941997","5BAL88FeRi3dyymknQiHeiQtdJVryovkkyrE4HfGQPUNdP6qQ3xFjk6jnnaRVXHkGZsbyD2ApZ2V1p5yapEVAsGM",,"2025-04-02 20:24:48.448","2025-04-02 20:25:02.711","2025-04-02 20:25:02.71","2ada0dbd-7f82-49df-b641-2c8c1105e700"
+
+userId: c9628a3c-09c2-418f-9b23-14277eb442a1
+
+"be0dd389-ec9e-471e-9b78-db33f3c85ea0","Claimed","Hub","Token","DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263","0","5yGmmQbnjCazNvwiD8qWA4mUToFQtyqpWzGAbxWYuirRGVp9mgk8KGn4ZufpJYc4pY2LBQfwG9bRSUm3x6QmGhvt",,"2025-04-02 20:29:05.285","2025-04-02 20:29:19.501","2025-04-02 20:29:19.5","344f0891-2734-489e-a93e-810f7b37b86f"
+
+userId: f61d74e5-cccc-42b6-9c34-06dc7155f7fb
+
+
+Queries:
+
+-- Get user from MBP id
+SELECT u.* AS userId
+FROM "MysteryBoxPrize" mbp
+JOIN "MysteryBoxTrigger" mbt ON mbp."mysteryBoxTriggerId" = mbt.id
+JOIN "MysteryBox" mb ON mbt."mysteryBoxId" = mb.id
+JOIN "User" u ON mb."userId" = u.id
+WHERE mbp.id = 'be0dd389-ec9e-471e-9b78-db33f3c85ea0';

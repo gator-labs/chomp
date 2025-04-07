@@ -7,6 +7,7 @@ import { DefaultArgs } from "@prisma/client/runtime/library";
 };
 
 const prismaClientSingleton = () => {
+  // TODO: log sql
   return new PrismaClient();
 };
 
