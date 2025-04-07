@@ -1,4 +1,4 @@
-import { AnswerStatus, EBoxPrizeType, Prisma } from "@prisma/client";
+import { AnswerStatus, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
 
