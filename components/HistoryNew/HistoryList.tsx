@@ -2,13 +2,13 @@
 
 import HistoryListSkeleton from "@/app/components/HistoryListSkeleton/HistoryListSkeleton";
 import LoadMore from "@/app/components/LoadMore/LoadMore";
-import NewHistoryHeader from "@/app/components/NewHistoryHeader/NewHistoryHeader";
 import NoDeck from "@/app/components/NoDecks/NoDeck";
 import { HISTORY_DECK_LIMIT } from "@/app/constants/decks";
 import { DeckHistoryItem } from "@/types/history";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
+import NewHistoryHeader from "../NewHistoryHeader/NewHistoryHeader";
 import { HistoryDeckCard } from "./HistoryDeckCard";
 
 export default function HistoryList() {
@@ -27,8 +27,7 @@ export default function HistoryList() {
       },
       initialPageParam: 1,
       getNextPageParam: (lastPage, allPages) => {
-        // Get total_count from the API response structure
-        const totalCount = lastPage.history[0]?.total_count; // Updated this line
+        const totalCount = lastPage.history[0]?.total_count;
         const totalPages = totalCount
           ? Math.ceil(totalCount / HISTORY_DECK_LIMIT)
           : allPages.length;
@@ -42,9 +41,9 @@ export default function HistoryList() {
       (acc: DeckHistoryItem[], page: { history: DeckHistoryItem[] }) => {
         return [...acc, ...page.history];
       },
-      [], // Initial empty array of DeckHistoryItem[]
+      [],
     );
-  }, [data]);
+  }, [data?.pages]);
 
   return (
     <>

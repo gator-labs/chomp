@@ -1,9 +1,8 @@
 "use client";
 
+import { InfoIcon } from "@/app/components/Icons/InfoIcon";
+import InfoDrawer from "@/app/components/InfoDrawer/InfoDrawer";
 import React, { useState } from "react";
-
-import { InfoIcon } from "../Icons/InfoIcon";
-import InfoDrawer from "../InfoDrawer/InfoDrawer";
 
 function NewHistoryHeader({
   handleToggleChange,
