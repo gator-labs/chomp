@@ -2,7 +2,6 @@
 
 import { QuestionType } from "@prisma/client";
 
-import { answerPercentageQuery } from "../queries/answerPercentageQuery";
 import prisma from "../services/prisma";
 import { getAverage } from "./array";
 

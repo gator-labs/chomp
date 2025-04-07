@@ -22,7 +22,7 @@ import {
   getAlphaIdentifier,
 } from "@/app/utils/question";
 import ViewRewardsButton from "@/components/ViewRewardsButton";
-import { EBoxPrizeType, QuestionType, ResultType } from "@prisma/client";
+import { QuestionType, ResultType } from "@prisma/client";
 import { isPast } from "date-fns";
 import { notFound } from "next/navigation";
 
@@ -62,27 +62,32 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   if (!questionResponse) notFound();
 
+  if (!questionResponse.isCalculated) {
+    return <NotAvailableYet msg={"Question results not calculated yet."} />;
+  } else if (!questionResponse.isQuestionRevealable) {
+    if (
+      questionResponse.revealAtDate === null ||
+      isPast(questionResponse.revealAtDate)
+    ) {
+      return <NotAvailableYet msg={"Question not revealed yet."} />;
+    } else {
+      return (
+        <NotAvailableYet
+          msg={`Question not revealed yet. ${getRevealAtText(questionResponse.revealAtDate)}.`}
+        />
+      );
+    }
+  }
+
   const FF_CREDITS =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION == "true";
   const isCreditsQuestion =
     FF_CREDITS && questionResponse.creditCostPerQuestion !== null;
 
-  const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
-  const creditsPrize =
-    questionResponse.MysteryBoxTrigger[0]?.MysteryBoxPrize.find(
-      (prize) => prize.prizeType == EBoxPrizeType.Credits,
-    );
-
-  const bonkPrizes =
-    questionResponse.MysteryBoxTrigger[0]?.MysteryBoxPrize.filter(
-      (prize) =>
-        prize.prizeType == EBoxPrizeType.Token &&
-        prize.tokenAddress == bonkAddress,
-    );
-
-  const bonkPrizeAmount = bonkPrizes?.reduce(
-    (total, prize) => total + Number(prize.amount ?? 0),
-    0,
+  const creditsPrizeAmount =
+    questionResponse.QuestionRewards?.[0]?.creditsReward ?? "0";
+  const bonkPrizeAmount = Number(
+    questionResponse.QuestionRewards?.[0]?.bonkReward ?? 0,
   );
 
   const chompResult = isCreditsQuestion
@@ -105,33 +110,18 @@ const RevealAnswerPage = async ({ params }: Props) => {
           userId: user?.id ?? "",
         };
 
-  const hasAlreadyClaimedReward =
-    !isCreditsQuestion || questionResponse.MysteryBoxTrigger.length > 0;
+  const hasAlreadyClaimedReward = questionResponse.hasAlreadyClaimedReward;
 
   const sendTransactionSignature =
     chompResult?.sendTransactionSignature ?? null;
 
   const isPracticeQuestion = questionResponse.creditCostPerQuestion === 0;
 
-  if (!questionResponse.isQuestionRevealable) {
-    if (
-      questionResponse.revealAtDate === null ||
-      isPast(questionResponse.revealAtDate)
-    ) {
-      return <NotAvailableYet msg={"Question not revealed yet."} />;
-    } else {
-      return (
-        <NotAvailableYet
-          msg={`Question not revealed yet. ${getRevealAtText(questionResponse.revealAtDate)}.`}
-        />
-      );
-    }
-  }
-
   const isBinary = questionResponse.type === QuestionType.BinaryQuestion;
   const answerSelected = questionResponse.userAnswers.find((ua) => ua.selected);
 
   const isFirstOrderCorrect =
+    questionResponse.correctAnswer !== null &&
     questionResponse.correctAnswer?.id === answerSelected?.questionOptionId;
   const isSecondOrderCorrect = isCreditsQuestion
     ? hasAlreadyClaimedReward
@@ -353,7 +343,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
           questionIds={[questionResponse.id]}
           questions={[questionResponse.question]}
           revealAmount={questionResponse.revealTokenAmount}
-          creditsRewardAmount={creditsPrize?.amount}
+          creditsRewardAmount={creditsPrizeAmount}
           isPracticeQuestion={isPracticeQuestion}
         />
       )}
