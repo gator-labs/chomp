@@ -7,21 +7,9 @@ describe("Answers", () => {
   let deckId: number;
   let questionIds: number[] = [];
   let otherUsers: { id: string; username: string }[] = [];
-  let existingQuestionIds = {};
-
   beforeAll(async () => {
     const futureDate = dayjs().add(1, "day").toDate();
     const pastDate = dayjs().subtract(1, "day").toDate();
-
-    const existingQuestions = await prisma.question.findMany({
-      select: {
-        id: true,
-      },
-    });
-
-    existingQuestionIds = Object.fromEntries(
-      existingQuestions.map((question) => [question.id, true]),
-    );
 
     await prisma.$transaction(async (tx) => {
       // Create deck
