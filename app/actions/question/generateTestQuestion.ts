@@ -11,6 +11,7 @@ export async function generateBinaryTestQuestion(
   correctOption: string,
   tag: string,
   creditCostPerQuestion: number | null,
+  questionCount: number,
 ): Promise<{ deckLink: string }> {
   const isAdmin = await getIsUserAdmin();
 
@@ -20,6 +21,41 @@ export async function generateBinaryTestQuestion(
 
   const currentDate = new Date();
 
+  const questionTemplate = {
+    question: `${tag}: Lorem ipsum?`,
+    type: QuestionType.BinaryQuestion,
+    revealToken: Token.Bonk,
+    revealTokenAmount: 10,
+    revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+    durationMiliseconds: BigInt(60000),
+    creditCostPerQuestion,
+    questionOptions: {
+      create: [
+        {
+          option: "A",
+          isCorrect: correctOption === "A",
+          isLeft: true,
+        },
+        {
+          option: "B",
+          isCorrect: correctOption === "B",
+          isLeft: false,
+        },
+      ],
+    },
+  };
+
+  const questions = Array(questionCount)
+    .fill(questionTemplate)
+    .map((q, i) => ({
+      question: {
+        create: {
+          ...q,
+          question: `${q.question} [Q ${i + 1}/${questionCount}]`,
+        },
+      },
+    }));
+
   // Create deck with dynamic values
   const deck = await prisma.deck.create({
     data: {
@@ -28,33 +64,7 @@ export async function generateBinaryTestQuestion(
       activeFromDate: new Date(),
       creditCostPerQuestion,
       deckQuestions: {
-        create: {
-          question: {
-            create: {
-              question: `${tag}: Lorem ipsum?`,
-              type: QuestionType.BinaryQuestion,
-              revealToken: Token.Bonk,
-              revealTokenAmount: 10,
-              revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
-              durationMiliseconds: BigInt(60000),
-              creditCostPerQuestion,
-              questionOptions: {
-                create: [
-                  {
-                    option: "A",
-                    isCorrect: correctOption === "A",
-                    isLeft: true,
-                  },
-                  {
-                    option: "B",
-                    isCorrect: correctOption === "B",
-                    isLeft: false,
-                  },
-                ],
-              },
-            },
-          },
-        },
+        create: questions,
       },
     },
   });
@@ -113,6 +123,7 @@ export async function generateMultipleChoiceTestQuestion(
   correctOption: string,
   tag: string,
   creditCostPerQuestion: number | null,
+  questionCount: number,
 ): Promise<{ deckLink: string }> {
   const isAdmin = await getIsUserAdmin();
 
@@ -122,6 +133,51 @@ export async function generateMultipleChoiceTestQuestion(
 
   const currentDate = new Date();
 
+  const questionTemplate = {
+    question: tag + ": Lorem ipsum?",
+    type: QuestionType.MultiChoice,
+    revealToken: Token.Bonk,
+    revealTokenAmount: 10,
+    revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    durationMiliseconds: BigInt(60000),
+    creditCostPerQuestion,
+    questionOptions: {
+      create: [
+        {
+          option: "A",
+          isCorrect: correctOption === "A",
+          isLeft: false,
+        },
+        {
+          option: "B",
+          isCorrect: correctOption === "B",
+          isLeft: false,
+        },
+        {
+          option: "C",
+          isCorrect: correctOption === "C",
+          isLeft: false,
+        },
+        {
+          option: "D",
+          isCorrect: correctOption === "D",
+          isLeft: false,
+        },
+      ],
+    },
+  };
+
+  const questions = Array(questionCount)
+    .fill(questionTemplate)
+    .map((q, i) => ({
+      question: {
+        create: {
+          ...q,
+          question: `${q.question} [Q ${i + 1}/${questionCount}]`,
+        },
+      },
+    }));
+
   const deck = await prisma.deck.create({
     data: {
       deck: `${tag}: Deck ${format(currentDate, "MM/dd/yyyy")}`,
@@ -129,43 +185,7 @@ export async function generateMultipleChoiceTestQuestion(
       activeFromDate: new Date(),
       creditCostPerQuestion,
       deckQuestions: {
-        create: {
-          question: {
-            create: {
-              question: tag + ": Lorem ipsum?",
-              type: QuestionType.MultiChoice,
-              revealToken: Token.Bonk,
-              revealTokenAmount: 10,
-              revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-              durationMiliseconds: BigInt(60000),
-              creditCostPerQuestion,
-              questionOptions: {
-                create: [
-                  {
-                    option: "A",
-                    isCorrect: correctOption === "A",
-                    isLeft: false,
-                  },
-                  {
-                    option: "B",
-                    isCorrect: correctOption === "B",
-                    isLeft: false,
-                  },
-                  {
-                    option: "C",
-                    isCorrect: correctOption === "C",
-                    isLeft: false,
-                  },
-                  {
-                    option: "D",
-                    isCorrect: correctOption === "D",
-                    isLeft: false,
-                  },
-                ],
-              },
-            },
-          },
-        },
+        create: questions,
       },
     },
   });

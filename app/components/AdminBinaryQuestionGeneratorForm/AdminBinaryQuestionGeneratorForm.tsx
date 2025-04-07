@@ -9,6 +9,7 @@ type AdminBinaryQuestionGeneratorFormProps = {
     correctOption: string,
     tag: string,
     creditCostPerQuestion: number | null,
+    questionCount: number,
   ) => Promise<{
     deckLink: string;
   }>;
@@ -31,6 +32,7 @@ export default function AdminBinaryQuestionGeneratorForm({
     const tag = formData.get("tag") as string;
     const creditCost = formData.get("creditCost") as string | null;
     const correctOption = formData.get("correctOption") as string | null;
+    const questionCount = Number(formData.get("questionCount"));
 
     const creditCostPerQuestion =
       creditCost === "none" ? null : Number(creditCost);
@@ -46,6 +48,7 @@ export default function AdminBinaryQuestionGeneratorForm({
         correctOption,
         tag,
         creditCostPerQuestion,
+        questionCount,
       );
 
       setDeckLink(deckLink);
@@ -121,6 +124,27 @@ export default function AdminBinaryQuestionGeneratorForm({
           >
             <option value="A">A</option>
             <option value="B">B</option>
+          </select>
+        </div>
+
+        <div>
+          <label
+            htmlFor="questionCount"
+            className="block text-sm font-medium text-gray-300"
+          >
+            Number of Questions:
+          </label>
+          <select
+            id="questionCount"
+            name="questionCount"
+            required
+            className="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
           </select>
         </div>
 
