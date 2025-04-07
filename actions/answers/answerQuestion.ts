@@ -71,11 +71,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           ? request?.percentageGiven
           : undefined;
 
-      const percentage =
-        qo.question.type === QuestionType.BinaryQuestion &&
-        !percentageForQuestionOption
-          ? 100 - request!.percentageGiven!
-          : percentageForQuestionOption;
+      const percentage = percentageForQuestionOption;
 
       if (
         qo.questionAnswers[0].questionOptionId ===

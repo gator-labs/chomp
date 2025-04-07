@@ -53,13 +53,7 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
       qo.firstOrderSelectedAnswerPercentage ?? 0,
     ),
     secondOrderAveragePercentagePicked: Number(
-      isBinary && i === 1
-        ? 100 -
-            Number(
-              questionOptionPercentages[0].secondOrderAveragePercentagePicked ??
-                0,
-            )
-        : (qo.secondOrderAveragePercentagePicked ?? 0),
+      qo.secondOrderAveragePercentagePicked ?? 0,
     ),
   }));
 }
