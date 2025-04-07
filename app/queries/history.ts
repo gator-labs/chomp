@@ -378,30 +378,30 @@ export async function getAnsweredDecksForHistory(
       d.deck,
       d."imageUrl",
       d."revealAtDate",
-      dr."bonkReward" as "total_reward_amount",
-      COALESCE((SELECT sum(q."revealTokenAmount") 
+      COALESCE(SUM(dr."bonkReward"), 0) AS "total_reward_amount",  -- Fixed aggregation
+      COALESCE((SELECT SUM(q."revealTokenAmount") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
        ON dq."questionId" = q.id
        WHERE dq."deckId" = d.id), 0) AS "total_potential_reward_amount",
-      COALESCE((SELECT sum(q."creditCostPerQuestion") 
+      COALESCE((SELECT SUM(q."creditCostPerQuestion") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
        ON dq."questionId" = q.id
        WHERE dq."deckId" = d.id), 0) AS "total_credit_cost",
-      (SELECT COUNT(DISTINCT q."id") FROM public."DeckQuestion" dq
-        JOIN public."Question" q ON dq."questionId" = q.id
-        JOIN public."QuestionOption" qo ON qo."questionId" = q.id
-        JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
-        WHERE dq."deckId" = d.id
-        AND qa."userId" = ${userId}) AS "answeredQuestions",
-        (SELECT COUNT(DISTINCT dq."questionId")
-     FROM public."DeckQuestion" dq
-     WHERE dq."deckId" = d."id"
-    ) as "totalQuestions"
+      (SELECT COUNT(DISTINCT q."id") 
+       FROM public."DeckQuestion" dq
+       JOIN public."Question" q ON dq."questionId" = q.id
+       JOIN public."QuestionOption" qo ON qo."questionId" = q.id
+       JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
+       WHERE dq."deckId" = d.id
+       AND qa."userId" = ${userId}) AS "answeredQuestions",
+      (SELECT COUNT(DISTINCT dq."questionId")
+       FROM public."DeckQuestion" dq
+       WHERE dq."deckId" = d.id) AS "totalQuestions"
     FROM 
       public."Deck" d
-      LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
+    LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
     WHERE 
       d."revealAtDate" IS NOT NULL
       AND d."revealAtDate" <= NOW()
@@ -414,20 +414,21 @@ export async function getAnsweredDecksForHistory(
         WHERE dq."deckId" = d.id
         AND qa."userId" = ${userId}
       )
-     GROUP BY 
-      d.id, d.deck, d."imageUrl", d."revealAtDate", dr."bonkReward"
-    )
-    , total_count AS (
-      SELECT COUNT(*) AS count FROM history_deck_cte
-    )
+    GROUP BY 
+      d.id, d.deck, d."imageUrl", d."revealAtDate"  -- Removed dr.bonkReward
+  ),
+  total_count AS (
+    SELECT COUNT(*) AS count FROM history_deck_cte
+  )
   SELECT
     history_deck_cte.*,
     total_count.count AS total_count
   FROM
     history_deck_cte, total_count
   ORDER BY 
-      history_deck_cte."revealAtDate" DESC
-    LIMIT ${pageSize} OFFSET ${offset}
+    history_deck_cte."revealAtDate" DESC,
+    history_deck_cte.id DESC  -- Added secondary sort
+  LIMIT ${pageSize} OFFSET ${offset}
   `;
 
   return result;
@@ -447,48 +448,48 @@ export async function getDecksForHistory(
       d.deck,
       d."imageUrl",
       d."revealAtDate",
-      dr."bonkReward" as "total_reward_amount",
-      COALESCE((SELECT sum(q."revealTokenAmount") 
+      COALESCE(SUM(dr."bonkReward"), 0) AS "total_reward_amount", -- Aggregate rewards
+      COALESCE((SELECT SUM(q."revealTokenAmount") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
        ON dq."questionId" = q.id
        WHERE dq."deckId" = d.id), 0) AS "total_potential_reward_amount",
-      COALESCE((SELECT sum(q."creditCostPerQuestion") 
+      COALESCE((SELECT SUM(q."creditCostPerQuestion") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
        ON dq."questionId" = q.id
        WHERE dq."deckId" = d.id), 0) AS "total_credit_cost",
-       (SELECT COUNT(DISTINCT q."id") FROM public."DeckQuestion" dq
-        JOIN public."Question" q ON dq."questionId" = q.id
-        JOIN public."QuestionOption" qo ON qo."questionId" = q.id
-        JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
-        WHERE dq."deckId" = d.id
-        AND qa."userId" = ${userId}) AS "answeredQuestions",
-         (SELECT COUNT(DISTINCT dq."questionId")
-     FROM public."DeckQuestion" dq
-     WHERE dq."deckId" = d."id"
-    ) as "totalQuestions"
+      (SELECT COUNT(DISTINCT q."id") 
+       FROM public."DeckQuestion" dq
+       JOIN public."Question" q ON dq."questionId" = q.id
+       JOIN public."QuestionOption" qo ON qo."questionId" = q.id
+       JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id
+       WHERE dq."deckId" = d.id
+       AND qa."userId" = ${userId}) AS "answeredQuestions",
+      (SELECT COUNT(DISTINCT dq."questionId")
+       FROM public."DeckQuestion" dq
+       WHERE dq."deckId" = d.id) AS "totalQuestions"
     FROM 
       public."Deck" d
-      LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
+    LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
     WHERE 
       d."revealAtDate" IS NOT NULL
       AND d."revealAtDate" <= NOW()
-
-     GROUP BY 
-      d.id, d.deck, d."imageUrl", d."revealAtDate", dr."bonkReward"
-    )
-    , total_count AS (
-      SELECT COUNT(*) AS count FROM history_deck_cte
-    )
+    GROUP BY 
+      d.id, d.deck, d."imageUrl", d."revealAtDate"
+  ),
+  total_count AS (
+    SELECT COUNT(*) AS count FROM history_deck_cte
+  )
   SELECT
     history_deck_cte.*,
     total_count.count AS total_count
   FROM
     history_deck_cte, total_count
   ORDER BY 
-      history_deck_cte."revealAtDate" DESC
-    LIMIT ${pageSize} OFFSET ${offset}
+    history_deck_cte."revealAtDate" DESC,
+    history_deck_cte.id DESC
+  LIMIT ${pageSize} OFFSET ${offset}
   `;
 
   return result;
