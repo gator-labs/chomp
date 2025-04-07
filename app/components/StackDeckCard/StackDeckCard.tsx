@@ -2,15 +2,13 @@
 
 import { getTimeUntilReveal } from "@/app/utils/history";
 import { formatNumber } from "@/app/utils/number";
+import DeckWrapper from "@/components/Deck/DeckWrapper";
 import { getDeckPath } from "@/lib/urls";
 import { cn } from "@/lib/utils";
 import { Clock3Icon, TrophyIcon } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
 
-import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
-import CardsIcon from "../Icons/CardsIcon";
 import { CoinsIcon } from "../Icons/CoinsIcon";
 import TrophyQuestionMarkIcon from "../Icons/TrophyQuestionMarkIcon";
 import TrophyStarMarkIcon from "../Icons/TrophyStarMarkIcon";
@@ -96,8 +94,6 @@ const StackDeckCard = ({
 
   const linkPath = getDeckPath(deckId);
 
-  const Wrapper = !!userId ? "a" : "div";
-
   return (
     <>
       <LoginPopUp
@@ -106,43 +102,18 @@ const StackDeckCard = ({
         onClose={() => setIsLoginModalOpen(false)}
         userId={userId}
       />
-      <Wrapper
+      <DeckWrapper
+        linkPath={linkPath}
         onClick={() => {
           if (!userId) setIsLoginModalOpen(true);
         }}
-        href={linkPath}
-        className="bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 h-full cursor-pointer"
+        wrapperType={!!userId ? "a" : "div"}
+        answeredQuestions={answeredQuestions}
+        progressPercentage={progressPercentage}
+        imageUrl={imageUrl}
+        deckTitle={deckName}
+        totalQuestions={totalQuestions}
       >
-        <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center relative">
-          {!(answeredQuestions === totalQuestions) && !isDeckReadyToReveal && (
-            <div
-              className="absolute top-0 left-0 h-full bg-green opacity-35 z-0 rounded-l-2xl"
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          )}
-          <div className="w-[59px] h-[60px] bg-purple-500 rounded-xl flex-shrink-0 relative p-1">
-            {imageUrl ? (
-              <>
-                <CardsIcon className="absolute top-0 left-0 w-full h-full" />
-                <Image
-                  src={imageUrl}
-                  alt="logo"
-                  width={36}
-                  height={36}
-                  className="z-10 absolute w-8 h-8 rounded-full top-1/2 left-1/2 translate-x-[-50%] -translate-y-1/2 object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = "/images/chompy.png";
-                  }}
-                />
-              </>
-            ) : (
-              <DeckGraphic className="w-full h-full" />
-            )}
-          </div>
-          <div className="text-white font-semibold text-base line-clamp-2 z-10">
-            {deckName}
-          </div>
-        </div>
         <div className="flex items-center justify-between">
           {deckCreditCost === 0 ? (
             <div className="flex items-center gap-2">
@@ -216,7 +187,7 @@ const StackDeckCard = ({
             {getButtonText(revealAtDate, answeredQuestions, totalQuestions)}
           </div>
         </div>
-      </Wrapper>
+      </DeckWrapper>
     </>
   );
 };
