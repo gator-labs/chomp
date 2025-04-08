@@ -5,6 +5,9 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import { AnswerStatus } from "@prisma/client";
+import { authGuard } from "@/app/utils/auth";
+
+jest.mock("@/app/utils/auth");
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
@@ -126,6 +129,7 @@ describe("Validate points logs for completing questions and decks", () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
     });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
     const answerData = questionOptions.map((qo) => ({
       questionOptionId: qo.id,
@@ -170,10 +174,14 @@ describe("Validate points logs for completing questions and decks", () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
     });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
     const seenQuestion = await markQuestionAsSeenButNotAnswered(deckQuestionId);
 
     randomRes = seenQuestion?.random;
+
+    expect(seenQuestion?.hasError).toBeFalsy();
+    expect(randomRes).toBeDefined();
 
     await answerQuestion({
       questionId: deckQuestionId,
@@ -192,7 +200,16 @@ describe("Validate points logs for completing questions and decks", () => {
         },
       },
     });
+    console.log(questionAnswer);
+
     expect(questionAnswer).toHaveLength(4); // We expect 4 answers because we created 4 options
+
+    for (let i = 0; i < questionAnswer.length; i++) {
+      if (i == randomRes)
+        expect(questionAnswer[i].percentage).toBe(50);
+      else
+        expect(questionAnswer[i].percentage).toBeNull();
+    }
   });
 
   it("should not allow a user to answer the same question twice", async () => {
@@ -213,6 +230,7 @@ describe("Validate points logs for completing questions and decks", () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
     });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
     await expect(
       answerQuestion({
