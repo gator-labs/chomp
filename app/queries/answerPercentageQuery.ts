@@ -10,7 +10,6 @@ type QuestionOptionPercentage = {
 };
 
 export async function answerPercentageQuery(questionOptionIds: number[]) {
-  const isBinary = questionOptionIds.length === 2;
   if (!questionOptionIds.length) {
     return [];
   }
@@ -47,7 +46,7 @@ export async function answerPercentageQuery(questionOptionIds: number[]) {
               where qo."id" in (${Prisma.join(questionOptionIds)})
             `;
 
-  return questionOptionPercentages.map((qo, i) => ({
+  return questionOptionPercentages.map((qo) => ({
     id: qo.id,
     firstOrderSelectedAnswerPercentage: Number(
       qo.firstOrderSelectedAnswerPercentage ?? 0,
