@@ -3,9 +3,9 @@ import { markQuestionAsSeenButNotAnswered } from "@/actions/answers/markQuestion
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { authGuard } from "@/app/utils/auth";
 import { generateUsers } from "@/scripts/utils";
 import { AnswerStatus } from "@prisma/client";
-import { authGuard } from "@/app/utils/auth";
 
 jest.mock("@/app/utils/auth");
 
@@ -200,15 +200,12 @@ describe("Validate points logs for completing questions and decks", () => {
         },
       },
     });
-    console.log(questionAnswer);
 
     expect(questionAnswer).toHaveLength(4); // We expect 4 answers because we created 4 options
 
     for (let i = 0; i < questionAnswer.length; i++) {
-      if (i == randomRes)
-        expect(questionAnswer[i].percentage).toBe(50);
-      else
-        expect(questionAnswer[i].percentage).toBeNull();
+      if (i == randomRes) expect(questionAnswer[i].percentage).toBe(50);
+      else expect(questionAnswer[i].percentage).toBeNull();
     }
   });
 
