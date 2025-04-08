@@ -378,7 +378,7 @@ export async function getAnsweredDecksForHistory(
       d.deck,
       d."imageUrl",
       d."revealAtDate",
-      COALESCE(SUM(dr."bonkReward"), 0) AS "total_reward_amount",  -- Fixed aggregation
+      COALESCE(SUM(CAST(dr."bonkReward" AS NUMERIC)), 0) AS "total_reward_amount",
       COALESCE((SELECT SUM(q."revealTokenAmount") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
@@ -427,7 +427,7 @@ export async function getAnsweredDecksForHistory(
     history_deck_cte, total_count
   ORDER BY 
     history_deck_cte."revealAtDate" DESC,
-    history_deck_cte.id DESC  -- Added secondary sort
+    history_deck_cte.id DESC
   LIMIT ${pageSize} OFFSET ${offset}
   `;
 
@@ -448,7 +448,7 @@ export async function getDecksForHistory(
       d.deck,
       d."imageUrl",
       d."revealAtDate",
-      COALESCE(SUM(dr."bonkReward"), 0) AS "total_reward_amount", -- Aggregate rewards
+      COALESCE(SUM(CAST(dr."bonkReward" AS NUMERIC)), 0) AS "total_reward_amount",
       COALESCE((SELECT SUM(q."revealTokenAmount") 
        FROM public."DeckQuestion" dq
        JOIN public."Question" q 
