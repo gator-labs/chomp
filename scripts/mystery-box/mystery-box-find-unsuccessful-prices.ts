@@ -1,38 +1,38 @@
-import fs from 'fs';
-import { PrismaClient, MysteryBoxPrize } from "@prisma/client";
-import logUpdate from 'log-update';
-//import { printTable } from 'console-table-printer';
-import { CONNECTION } from '../../app/utils/solana';
+import { MysteryBoxPrize, PrismaClient } from "@prisma/client";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
-import ora from 'ora';
-import util from 'node:util';
-import path from 'node:path';
-import debug from 'debug';
+import debug from "debug";
+import fs from "fs";
+import logUpdate from "log-update";
+import path from "node:path";
+import util from "node:util";
+import ora from "ora";
 
-const logMain = debug('main');
+//import { printTable } from 'console-table-printer';
+import { CONNECTION } from "../../app/utils/solana";
 
-const logProd = debug('prod');
-const logFilter = debug('filter');
-const logCsv = debug('csv');
+const logMain = debug("main");
 
-const debugProd = debug('prod:debug');
-const debugFilter = debug('filter:debug');
+const logProd = debug("prod");
+const logFilter = debug("filter");
+const logCsv = debug("csv");
+
+const debugProd = debug("prod:debug");
+const debugFilter = debug("filter:debug");
 //const debugCsv = debug('csv:debug');
 
-debug.enable('main');
+debug.enable("main");
 // verbose debug
 // debug.enable('prod:*,filter:*,csv:*,main:*');
 // normal debug
 // debug.enable('prod,filter,csv,main');
 
-
 const prisma = new PrismaClient();
 
 type MysteryBoxPrizesWTx = {
-  mbp: MysteryBoxPrize,
-  tx: ParsedTransactionWithMeta | null,
-  error: 'NOT_EXISTS' | 'FAILED'
-}
+  mbp: MysteryBoxPrize;
+  tx: ParsedTransactionWithMeta | null;
+  error: "NOT_EXISTS" | "FAILED";
+};
 
 function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
   // Check for transaction error (older versions)
@@ -43,7 +43,6 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
   return true;
 }
 
-
 /**
  * MysteryBoxPrize Token Transaction Reconciliation System
  *
@@ -51,12 +50,12 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
  * Detects and handles cases where MysteryBoxPrizes are marked as Claimed in our db
  * but have either:
  *  - No corresponding Solana transaction
- *  - Failed Solana transaction 
+ *  - Failed Solana transaction
  *
  * Architecture:
  * [Stage 1]
- * Producer: Gets MysteryBoxPrizes 
- *           → Queue<Array> 1 
+ * Producer: Gets MysteryBoxPrizes
+ *           → Queue<Array> 1
  *
  * [Stage 2]
  * Consumer/Producer: Filter MysteryBoxPrizes where TXs does not exists or is unsuccessful
@@ -64,10 +63,10 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
  *
  * [Stage 3]
  * Consumer: Save problematic MysteryBoxPrizes in CSV file
- *           → CSV file 
+ *           → CSV file
  **/
 
-logMain('Finding users with Mistery Box Prices not on chain');
+logMain("Finding users with Mistery Box Prices not on chain");
 
 async function ensureIndexesExist() {
   await prisma.$transaction([
@@ -107,27 +106,30 @@ async function ensureIndexesExist() {
             WHERE "claimHash" IS NOT NULL;
           END IF;
         END $$;
-      `
+      `,
   ]);
 
-  logMain('Index verification/creation completed');
+  logMain("Index verification/creation completed");
 }
-
 
 let mysteryBoxPricesProducerFinshed = false;
 let mbpProdCount = 0;
-async function produceMysteryBoxPrices(queue: Array<MysteryBoxPrize>, maxQueued: number, batchSize: number, pull_time: number): Promise<void> {
+async function produceMysteryBoxPrices(
+  queue: Array<MysteryBoxPrize>,
+  maxQueued: number,
+  batchSize: number,
+  pull_time: number,
+): Promise<void> {
+  logProd("[MBP Prod] Started!");
 
-  logProd('[MBP Prod] Started!');
-
-  let theresMorePricesInDb = true
+  let theresMorePricesInDb = true;
   let offset = 0;
 
   do {
     // if queue is full we wait PULL_TIME and try again
     if (queue.length >= maxQueued) {
       await new Promise((resolve) => setTimeout(resolve, pull_time));
-      debugProd('[MBP Prod]: queue 1 full, waiting ');
+      debugProd("[MBP Prod]: queue 1 full, waiting ");
       continue;
     }
 
@@ -148,13 +150,13 @@ async function produceMysteryBoxPrices(queue: Array<MysteryBoxPrize>, maxQueued:
       LIMIT ${batchSize} OFFSET ${offset};
     `);
     } catch (err) {
-      logProd('[MBP Prod]: db error, waiting a bit & trying again...');
+      logProd("[MBP Prod]: db error, waiting a bit & trying again...");
       await new Promise((resolve) => setTimeout(resolve, 1000));
       continue;
     }
 
     if (!newPrices.length) {
-      logProd('[MBP Prod]: theres no more prices on db');
+      logProd("[MBP Prod]: theres no more prices on db");
       theresMorePricesInDb = false;
       continue;
     }
@@ -175,8 +177,14 @@ let mbpWTxNotExistErrorCount = 0;
 let mbpWTxFailErrorCount = 0;
 let mysteryBoxFilterFinished = false;
 let checkTxErrorCount = 0;
-async function consumeMysteryBoxPricesCheckTXsAndFilter(queueMBPs: Array<MysteryBoxPrize>, queueMbpWTx: Array<MysteryBoxPrizesWTx>, maxWorkers: number, queuePullTime: number, workerPullTime: number): Promise<void> {
-  logFilter('[Filter] Started!');
+async function consumeMysteryBoxPricesCheckTXsAndFilter(
+  queueMBPs: Array<MysteryBoxPrize>,
+  queueMbpWTx: Array<MysteryBoxPrizesWTx>,
+  maxWorkers: number,
+  queuePullTime: number,
+  workerPullTime: number,
+): Promise<void> {
+  logFilter("[Filter] Started!");
 
   const workers: Array<Function | null> = new Array(maxWorkers).fill(null);
 
@@ -209,9 +217,11 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(queueMBPs: Array<Mystery
 
       // Transaction does not exists at all on Blockchain (problematic!)
       if (tx === null) {
-        debugFilter(`[Filter W${index}] found a TX that does not exists on Blockchain ${mbp.claimHash}`);
+        debugFilter(
+          `[Filter W${index}] found a TX that does not exists on Blockchain ${mbp.claimHash}`,
+        );
 
-        queueMbpWTx.push({ mbp, tx, error: 'NOT_EXISTS' });
+        queueMbpWTx.push({ mbp, tx, error: "NOT_EXISTS" });
         mbpWTxNotExistErrorCount++;
 
         return;
@@ -223,10 +233,10 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(queueMBPs: Array<Mystery
         debugFilter(`[Filter W${index}]`, tx.meta);
         debugFilter(tx);
 
-        queueMbpWTx.push({ mbp, tx, error: 'FAILED' });
+        queueMbpWTx.push({ mbp, tx, error: "FAILED" });
         mbpWTxFailErrorCount++;
 
-        return
+        return;
       }
 
       // tx is fine
@@ -235,7 +245,7 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(queueMBPs: Array<Mystery
     } catch (err) {
       // Error getting transaction, Ignoring it for the moment
       checkTxErrorCount++;
-      logFilter('[Filter W${index}] error getting TX adding it back to queue');
+      logFilter("[Filter W${index}] error getting TX adding it back to queue");
       queueMBPs.push(mbp);
 
       // Ignore ERROR
@@ -248,31 +258,32 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(queueMBPs: Array<Mystery
   while (!mysteryBoxPricesProducerFinshed || queueMBPs.length) {
     // if there are no queue elements wait for a bit
     if (!queueMBPs.length) {
-      debugFilter('[Filter] queue empty waiting');
+      debugFilter("[Filter] queue empty waiting");
       await new Promise((resolve) => setTimeout(resolve, queuePullTime));
       continue;
     }
 
     let availableWorkerIndex = findAvailableWorker();
     if (availableWorkerIndex === null) {
-      debugFilter('[Filter] no available workers, waiting');
+      debugFilter("[Filter] no available workers, waiting");
       await new Promise((resolve) => setTimeout(resolve, workerPullTime));
       continue;
     }
 
-    debugFilter('[Filter] available worker: ', availableWorkerIndex);
+    debugFilter("[Filter] available worker: ", availableWorkerIndex);
 
     const mysteryPriceBox = queueMBPs.pop();
 
     if (!mysteryPriceBox) {
-      throw new Error('[Filter] ERROR pop empty queueMBPs');
+      throw new Error("[Filter] ERROR pop empty queueMBPs");
     }
 
     // set the worker slot as "busy"
-    workers[availableWorkerIndex] = () => { }; // TODO: use a boolean instead
+    workers[availableWorkerIndex] = () => {}; // TODO: use a boolean instead
     // run the worker and clear worker slot when it finishes
-    checkSolTXWorker(availableWorkerIndex, mysteryPriceBox)
-      .finally(() => workers[availableWorkerIndex] = null);
+    checkSolTXWorker(availableWorkerIndex, mysteryPriceBox).finally(
+      () => (workers[availableWorkerIndex] = null),
+    );
   }
 
   mysteryBoxFilterFinished = true;
@@ -280,11 +291,15 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(queueMBPs: Array<Mystery
 }
 
 let csvProdFinished = false;
-async function consumeMysteryBoxPrizesWTxToCsv(queueMbpWTx: Array<MysteryBoxPrizesWTx>, pull_time: number, outputFilePath: string) {
-  logCsv('CSV writter started');
+async function consumeMysteryBoxPrizesWTxToCsv(
+  queueMbpWTx: Array<MysteryBoxPrizesWTx>,
+  pull_time: number,
+  outputFilePath: string,
+) {
+  logCsv("CSV writter started");
 
   // Create or truncate the output file
-  fs.writeFileSync(outputFilePath, '');
+  fs.writeFileSync(outputFilePath, "");
 
   do {
     // if there's nothing on the queue wait a bit
@@ -296,9 +311,9 @@ async function consumeMysteryBoxPrizesWTxToCsv(queueMbpWTx: Array<MysteryBoxPriz
     const mbpWTx = queueMbpWTx.pop();
 
     // Extract the required fields
-    const mbpId = mbpWTx?.mbp.id || '';
-    const claimHash = mbpWTx?.mbp.claimHash || '';
-    const txId = mbpWTx?.tx?.transaction.signatures.toString() || '';
+    const mbpId = mbpWTx?.mbp.id || "";
+    const claimHash = mbpWTx?.mbp.claimHash || "";
+    const txId = mbpWTx?.tx?.transaction.signatures.toString() || "";
     const error = mbpWTx?.error;
 
     // Create CSV line
@@ -309,15 +324,15 @@ async function consumeMysteryBoxPrizesWTxToCsv(queueMbpWTx: Array<MysteryBoxPriz
 
     logCsv(`Found problematic MBP ${mbpWTx?.mbp.id}`);
     logCsv(util.inspect(mbpWTx, { depth: null }));
-
-  } while (!mysteryBoxPricesProducerFinshed || !mysteryBoxFilterFinished || queueMbpWTx.length);
+  } while (
+    !mysteryBoxPricesProducerFinshed ||
+    !mysteryBoxFilterFinished ||
+    queueMbpWTx.length
+  );
 
   csvProdFinished = true;
-  logCsv('[CSV] Finished!');
+  logCsv("[CSV] Finished!");
 }
-
-
-
 
 async function main() {
   // MBP Producer settings
@@ -347,16 +362,27 @@ async function main() {
   logMain(`There are ${util.inspect(prizeCount, { depth: null })} MBPs in DB`);
 
   // Queue for all MBPs found in DB
-  const queueMBPs = new Array<MysteryBoxPrize>;
-  produceMysteryBoxPrices(queueMBPs, MBP_PRODUCER_MAX_QUEUED, MBP_PRODUCER_BATCH, PULL_TIME);
+  const queueMBPs = new Array<MysteryBoxPrize>();
+  produceMysteryBoxPrices(
+    queueMBPs,
+    MBP_PRODUCER_MAX_QUEUED,
+    MBP_PRODUCER_BATCH,
+    PULL_TIME,
+  );
 
   // Queue for MBPs where TX is failed
-  const queueMbpWTx = new Array<MysteryBoxPrizesWTx>;
-  consumeMysteryBoxPricesCheckTXsAndFilter(queueMBPs, queueMbpWTx, MAX_WORKERS, QUEUE_PULL_TIME, WORKER_PULL_TIME);
+  const queueMbpWTx = new Array<MysteryBoxPrizesWTx>();
+  consumeMysteryBoxPricesCheckTXsAndFilter(
+    queueMBPs,
+    queueMbpWTx,
+    MAX_WORKERS,
+    QUEUE_PULL_TIME,
+    WORKER_PULL_TIME,
+  );
 
   consumeMysteryBoxPrizesWTxToCsv(queueMbpWTx, CSV_PULL_TIME, CSV_PATH);
 
-  const intId = setInterval(function() {
+  const intId = setInterval(function () {
     logUpdate(
       `
       \n\n\n\n\n\n\n\n\n
@@ -369,16 +395,16 @@ async function main() {
       mbpWTxFailErrorCount: ${mbpWTxFailErrorCount}
       mysteryBoxFilterFinished ${mysteryBoxFilterFinished}
       checkTxErrorCount: ${checkTxErrorCount}
-      `
+      `,
     );
-    if (mysteryBoxPricesProducerFinshed && mysteryBoxFilterFinished && csvProdFinished) {
+    if (
+      mysteryBoxPricesProducerFinshed &&
+      mysteryBoxFilterFinished &&
+      csvProdFinished
+    ) {
       clearInterval(intId);
     }
   }, 50);
-
 }
-
-
-
 
 main().catch((err) => console.error(err));
