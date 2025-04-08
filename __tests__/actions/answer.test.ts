@@ -176,6 +176,8 @@ describe("Validate points logs for completing questions and decks", () => {
     });
     (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
+    await prisma.questionAnswer.deleteMany({ where: { userId } });
+
     const seenQuestion = await markQuestionAsSeenButNotAnswered(deckQuestionId);
 
     randomRes = seenQuestion?.random;
@@ -187,7 +189,7 @@ describe("Validate points logs for completing questions and decks", () => {
       questionId: deckQuestionId,
       questionOptionId: questionOptions[1].id,
       percentageGiven: 50,
-      percentageGivenForAnswerId: randomRes,
+      percentageGivenForAnswerId: questionOptions[randomRes].id,
       timeToAnswerInMiliseconds: 3638,
       deckId: deckId,
     });
