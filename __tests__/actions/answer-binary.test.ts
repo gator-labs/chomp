@@ -138,5 +138,7 @@ describe("answer binary question", () => {
       },
     });
     expect(questionAnswer).toHaveLength(2); // We expect 4 answers because we created 4 options
+    expect(questionAnswer[0].percentage).toBeNull();
+    expect(questionAnswer[1].percentage).toBe(50);
   });
 });
