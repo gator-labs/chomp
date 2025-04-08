@@ -189,7 +189,7 @@ describe("Validate points logs for completing questions and decks", () => {
       questionId: deckQuestionId,
       questionOptionId: questionOptions[1].id,
       percentageGiven: 50,
-      percentageGivenForAnswerId: questionOptions[randomRes].id,
+      percentageGivenForAnswerId: questionOptions[randomRes!].id,
       timeToAnswerInMiliseconds: 3638,
       deckId: deckId,
     });
