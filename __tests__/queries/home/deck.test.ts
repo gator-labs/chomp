@@ -49,19 +49,22 @@ describe("queryExpiringDecks", () => {
     const tomorrow = new Date(now);
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
 
+    const yestarday = new Date(now);
+    yestarday.setUTCDate(yestarday.getUTCDate() - 1);
+
     // Create decks
     const deckData = [
       {
         data: {
           deck: "Deck 1",
-          activeFromDate: now,
+          activeFromDate: yestarday,
           revealAtDate: tomorrow,
         },
       },
       {
         data: {
           deck: "Deck 2",
-          activeFromDate: now,
+          activeFromDate: yestarday,
           revealAtDate: tomorrow,
         },
       },

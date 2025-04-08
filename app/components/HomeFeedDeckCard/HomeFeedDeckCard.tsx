@@ -3,15 +3,13 @@
 import { TRACKING_EVENTS, TRACKING_METADATA } from "@/app/constants/tracking";
 import { getTimeUntilReveal } from "@/app/utils/history";
 import { formatNumber } from "@/app/utils/number";
+import DeckWrapper from "@/components/Deck/DeckWrapper";
 import trackEvent from "@/lib/trackEvent";
 import { ANSWER_PATH, getDeckPath } from "@/lib/urls";
 import classNames from "classnames";
 import { TrophyIcon } from "lucide-react";
-import Image from "next/image";
 
-import { DeckGraphic } from "../Graphics/DeckGraphic";
 import { ArrowRightCircle } from "../Icons/ArrowRightCircle";
-import CardsIcon from "../Icons/CardsIcon";
 import { CoinsIcon } from "../Icons/CoinsIcon";
 import TrophyQuestionMarkIcon from "../Icons/TrophyQuestionMarkIcon";
 import { RevealCardInfo } from "../RevealCardInfo/RevealCardInfo";
@@ -87,8 +85,8 @@ export function HomeFeedDeckCard({
       ? (answeredQuestions / totalQuestions) * 100
       : 0;
   return (
-    <a
-      href={date ? ANSWER_PATH : getDeckPath(deckId)}
+    <DeckWrapper
+      linkPath={date ? ANSWER_PATH : getDeckPath(deckId)}
       onClick={() => {
         trackEvent(TRACKING_EVENTS.DECK_CLICKED, {
           [TRACKING_METADATA.DECK_ID]: deckId,
@@ -96,35 +94,12 @@ export function HomeFeedDeckCard({
           [TRACKING_METADATA.IS_DAILY_DECK]: date ? true : false,
         });
       }}
-      className="bg-gray-700 rounded-2xl p-2 flex flex-col gap-2 cursor-pointer h-full"
+      wrapperType="a"
+      answeredQuestions={answeredQuestions}
+      progressPercentage={progressPercentage}
+      imageUrl={imageUrl}
+      deckTitle={deck}
     >
-      <div className="flex bg-gray-800 p-2 rounded-2xl gap-2 items-center relative">
-        {!(answeredQuestions === totalQuestions) && (
-          <div
-            className="absolute top-0 left-0 h-full bg-green opacity-35 z-0 rounded-l-2xl"
-            style={{ width: `${progressPercentage}%` }}
-          ></div>
-        )}
-        <div className="w-[59px] h-[60px] bg-purple-500 rounded-xl flex-shrink-0 relative p-1">
-          {imageUrl ? (
-            <>
-              <CardsIcon className="absolute top-0 left-0 w-full h-full" />
-              <Image
-                src={imageUrl}
-                alt="logo"
-                width={36}
-                height={36}
-                className="z-10 absolute w-8 h-8 rounded-full top-1/2 left-1/2 translate-x-[-50%] -translate-y-1/2 object-cover"
-              />
-            </>
-          ) : (
-            <DeckGraphic className="w-full h-full" />
-          )}
-        </div>
-        <div className="text-white font-semibold text-base line-clamp-2 z-10">
-          {deck}
-        </div>
-      </div>
       <div className="flex items-center justify-between">
         {CREDIT_COST_FEATURE_FLAG && deckCreditCost != null ? (
           deckCreditCost === 0 ? (
@@ -168,6 +143,6 @@ export function HomeFeedDeckCard({
           {status && getStatusText(status, revealAtDate, answeredQuestions)}
         </div>
       </div>
-    </a>
+    </DeckWrapper>
   );
 }

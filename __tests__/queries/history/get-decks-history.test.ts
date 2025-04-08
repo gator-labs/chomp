@@ -1,12 +1,8 @@
-import { getAnsweredDecksForHistory } from "@/app/queries/history";
+import { getDecksForHistory } from "@/app/queries/history";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import {
   AnswerStatus,
-  EBoxPrizeType,
-  EBoxTriggerType,
-  EMysteryBoxStatus,
-  EPrizeSize,
   QuestionOption,
   QuestionType,
   Token,
@@ -18,7 +14,7 @@ jest.mock("@/app/utils/auth", () => ({
 
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
-describe("getAnsweredDecksForHistory", () => {
+describe("getDecksForHistory", () => {
   let userId: string;
   let deck1Id: number;
   let deck2Id: number;
@@ -28,7 +24,6 @@ describe("getAnsweredDecksForHistory", () => {
   let question2Id: number;
   let question3Id: number;
   let question4Id: number;
-  let mysteryBoxId: string;
   let questionOptions: QuestionOption[] = [];
   let deckQuestionIds: number[] = [];
 
@@ -221,9 +216,6 @@ describe("getAnsweredDecksForHistory", () => {
     const question2Options = questionOptions.filter(
       (opt) => opt.questionId === question2Id,
     );
-    const question3Options = questionOptions.filter(
-      (opt) => opt.questionId === question3Id,
-    );
 
     await Promise.all([
       // Answer for question 1
@@ -245,37 +237,19 @@ describe("getAnsweredDecksForHistory", () => {
         },
       }),
       // Answer for question 3
-      prisma.questionAnswer.create({
-        data: {
-          userId,
-          questionOptionId: question3Options[0].id,
-          selected: true,
-          status: AnswerStatus.Submitted,
-        },
-      }),
+      // prisma.questionAnswer.create({
+      //   data: {
+      //     userId,
+      //     questionOptionId: question3Options[0].id,
+      //     selected: true,
+      //     status: AnswerStatus.Submitted,
+      //   },
+      // }),
     ]);
   });
 
   afterAll(async () => {
     // Clean up in reverse order
-
-    if (mysteryBoxId) {
-      const box = await prisma.mysteryBox.findFirstOrThrow({
-        where: { id: mysteryBoxId },
-        include: { triggers: { include: { MysteryBoxPrize: true } } },
-      });
-      const triggerIds = box.triggers.map((trigger) => trigger.id);
-      const prizeIds = box.triggers.flatMap((trigger) =>
-        trigger.MysteryBoxPrize.map((prize) => prize.id),
-      );
-      await prisma.mysteryBoxPrize.deleteMany({
-        where: { id: { in: prizeIds } },
-      });
-      await prisma.mysteryBoxTrigger.deleteMany({
-        where: { id: { in: triggerIds } },
-      });
-      await prisma.mysteryBox.delete({ where: { id: mysteryBoxId } });
-    }
 
     await prisma.questionAnswer.deleteMany({
       where: {
@@ -323,21 +297,19 @@ describe("getAnsweredDecksForHistory", () => {
     });
   });
 
-  it("should return only revealed decks with at least one answered question", async () => {
-    const result = await getAnsweredDecksForHistory(userId, 10, 1);
-
-    // Should return only deck1 and deck2 (revealed decks with answers)
-    expect(result).toHaveLength(2);
+  it("should return both answered and unanswered deck", async () => {
+    const result = await getDecksForHistory(userId, 10, 1);
+    console.log(result);
 
     const deckIds = result.map((deck) => deck.id);
     expect(deckIds).toContain(deck1Id);
     expect(deckIds).toContain(deck2Id);
+    expect(deckIds).toContain(deck4Id);
     expect(deckIds).not.toContain(deck3Id); // Future date, should not be included
-    expect(deckIds).not.toContain(deck4Id); // No answers, should not be included
   });
 
   it("should correctly calculate total_reward_amount and total_credit_cost", async () => {
-    const result = await getAnsweredDecksForHistory(userId, 10, 1);
+    const result = await getDecksForHistory(userId, 10, 1);
 
     // Find deck1 in results (the one with rewards)
     const deck1Result = result.find((deck) => deck.id === deck1Id);
@@ -356,106 +328,21 @@ describe("getAnsweredDecksForHistory", () => {
     expect(Number(deck2Result?.total_credit_cost)).toBe(0);
   });
 
-  it("should correctly calculate rewards after mystery box creation", async () => {
-    const box = await prisma.mysteryBox.create({
-      data: {
-        status: EMysteryBoxStatus.Opened,
-        userId,
-        triggers: {
-          create: [
-            {
-              questionId: question1Id,
-              triggerType: EBoxTriggerType.ValidationReward,
-              MysteryBoxPrize: {
-                createMany: {
-                  data: [
-                    {
-                      tokenAddress: process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "",
-                      prizeType: EBoxPrizeType.Token,
-                      amount: "50",
-                      size: EPrizeSize.Small,
-                    },
-                  ],
-                },
-              },
-            },
-          ],
-        },
-      },
-    });
-
-    mysteryBoxId = box.id;
-
-    const result = await getAnsweredDecksForHistory(userId, 10, 1);
-
-    const deck1Result = result.find((deck) => deck.id === deck1Id);
-    expect(deck1Result).toBeDefined();
-    expect(Number(deck1Result?.total_reward_amount)).toBe(50);
-  });
-
   it("should respect pagination parameters", async () => {
     // Test with page size 1, page 1
-    const page1Result = await getAnsweredDecksForHistory(userId, 1, 1);
+    const page1Result = await getDecksForHistory(userId, 1, 1);
     expect(page1Result).toHaveLength(1);
 
     // Test with page size 1, page 2
-    const page2Result = await getAnsweredDecksForHistory(userId, 1, 2);
+    const page2Result = await getDecksForHistory(userId, 1, 2);
     expect(page2Result).toHaveLength(1);
 
     // Ensure page 1 and page 2 return different decks
     expect(page1Result[0].id).not.toBe(page2Result[0].id);
   });
 
-  it("should return empty array when no decks match criteria", async () => {
-    // Delete all answers to simulate no matching decks
-    await prisma.questionAnswer.deleteMany({
-      where: { userId },
-    });
-
-    const result = await getAnsweredDecksForHistory(userId, 10, 1);
-    expect(result).toHaveLength(0);
-
-    // Recreate answers for cleanup
-    const question1Options = questionOptions.filter(
-      (opt) => opt.questionId === question1Id,
-    );
-    const question2Options = questionOptions.filter(
-      (opt) => opt.questionId === question2Id,
-    );
-    const question3Options = questionOptions.filter(
-      (opt) => opt.questionId === question3Id,
-    );
-
-    await Promise.all([
-      prisma.questionAnswer.create({
-        data: {
-          userId,
-          questionOptionId: question1Options[0].id,
-          selected: true,
-          status: AnswerStatus.Submitted,
-        },
-      }),
-      prisma.questionAnswer.create({
-        data: {
-          userId,
-          questionOptionId: question2Options[0].id,
-          selected: true,
-          status: AnswerStatus.Submitted,
-        },
-      }),
-      prisma.questionAnswer.create({
-        data: {
-          userId,
-          questionOptionId: question3Options[0].id,
-          selected: true,
-          status: AnswerStatus.Submitted,
-        },
-      }),
-    ]);
-  });
-
   it("should return the correct deck properties", async () => {
-    const result = await getAnsweredDecksForHistory(userId, 10, 1);
+    const result = await getDecksForHistory(userId, 10, 1);
 
     // Check that all required properties are present
     const deck = result.find((d) => d.id === deck1Id);
