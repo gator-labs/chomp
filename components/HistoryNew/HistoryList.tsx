@@ -23,7 +23,16 @@ export default function HistoryList() {
           `${process.env.NEXT_PUBLIC_API_URL}/history/deck?pageParam=${pageParam}&showAnsweredDeck=${showAnsweredDeck}`,
         );
         if (!response.ok) throw new Error("Error getting decks history");
-        return await response.json();
+        const result = await response.json();
+        if (!result?.history || !Array.isArray(result.history))
+          throw new Error("Error parsing deck history");
+
+        result.history = result.history.map((item: any) => ({
+          ...item,
+          revealAtDate: new Date(item.revealAtDate),
+        }));
+
+        return result;
       },
       initialPageParam: 1,
       getNextPageParam: (lastPage, allPages) => {
