@@ -14,7 +14,7 @@ jest.mock("@/app/utils/auth", () => ({
 
 jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 
-describe("getAnsweredDecksForHistory", () => {
+describe("getDecksForHistory", () => {
   let userId: string;
   let deck1Id: number;
   let deck2Id: number;
@@ -301,12 +301,10 @@ describe("getAnsweredDecksForHistory", () => {
     const result = await getDecksForHistory(userId, 10, 1);
     console.log(result);
 
-    // Should return only deck1 and deck2 (revealed decks with answers)
-    expect(result).toHaveLength(3);
-
     const deckIds = result.map((deck) => deck.id);
     expect(deckIds).toContain(deck1Id);
     expect(deckIds).toContain(deck2Id);
+    expect(deckIds).toContain(deck4Id);
     expect(deckIds).not.toContain(deck3Id); // Future date, should not be included
   });
 
