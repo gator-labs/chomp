@@ -1,6 +1,6 @@
 import BackButton from "@/app/components/BackButton/BackButton";
-import { QuestionCorrectIcon } from "@/app/components/Icons/QuestionCorrectIcon";
-import { formatCompactAmount } from "@/app/utils/number";
+
+import { AnswerRewards } from "./AnswerRewards";
 
 export type AnswerStatsHeaderProps = {
   title: string;
@@ -21,15 +21,62 @@ export function AnswerStatsHeader({
           {title}
         </div>
       </div>
-      <div className="bg-gray-700 rounded-md flex p-2 gap-2">
-        <QuestionCorrectIcon height={48} width={48} />
-        <div className="bg-gray-400 rounded-lg px-4 font-bold align-middle items-center flex">
-          +{formatCompactAmount(bonkReward) ?? 0} BONK
-        </div>
-        <div className="bg-gray-400 rounded-lg px-4 font-bold align-middle items-center flex">
-          +{creditsReward ?? 0} Credits
-        </div>
-      </div>
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={false}
+        isCorrect={true}
+        variant="filled"
+      />
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={false}
+        isCorrect={false}
+        variant="filled"
+      />
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={true}
+        isCorrect={true}
+        variant="filled"
+      />
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={true}
+        isCorrect={false}
+        variant="filled"
+      />
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={false}
+        isCorrect={true}
+        variant="outline"
+      />
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={false}
+        isCorrect={false}
+        variant="outline"
+      />
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={true}
+        isCorrect={true}
+        variant="outline"
+      />
+      <AnswerRewards
+        bonkReward={bonkReward}
+        creditsReward={creditsReward}
+        isPracticeQuestion={true}
+        isCorrect={false}
+        variant="outline"
+      />
     </div>
   );
 }
