@@ -4,14 +4,18 @@ import { createAskQuestion } from "@/app/actions/ask/question";
 import { useToast } from "@/app/providers/ToastProvider";
 import { askQuestionSchema } from "@/app/schemas/ask";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
+import { getAlphaIdentifier } from "@/app/utils/question";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType } from "@prisma/client";
+import { Upload } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { TextInput } from "../TextInput/TextInput";
 import { Button } from "../ui/button";
+
+const MAX_QUESTION_LENGTH = 120;
 
 const getDefaultOptions = (type: QuestionType) => {
   switch (type) {
@@ -22,7 +26,18 @@ const getDefaultOptions = (type: QuestionType) => {
   }
 };
 
-function AskForm() {
+enum Page {
+  QuestionType,
+  QuestionForm,
+  Confirmation,
+}
+
+type AskFormProps = {
+  questionType: QuestionType;
+  onSetPage: (page: Page) => void;
+};
+
+function AskForm({ questionType, onSetPage }: AskFormProps) {
   const { errorToast } = useToast();
 
   const {
@@ -44,7 +59,7 @@ function AskForm() {
 
   const file = watch("file")?.[0]; // The file for question image
   const questionPreviewUrl = file ? URL.createObjectURL(file) : null;
-  const questionType = watch("type");
+  const questionText = watch("question");
 
   // Clean up object URL when component unmounts or file changes
   useEffect(() => {
@@ -77,34 +92,44 @@ function AskForm() {
 
   return (
     <form onSubmit={onSubmit}>
-      <h1 className="text-3xl mb-3">Ask</h1>
       <div className="mb-3">
-        <label className="block mb-1">Question statement</label>
-        <TextInput variant="secondary" {...register("question")} />
+        <label className="block mb-1">Question</label>
+        <TextInput
+          variant="outline"
+          {...register("question")}
+          placeholder="What's something you want the crowd's opinion on?"
+        />
+        <div className="float:right">
+          {questionText.length}/{MAX_QUESTION_LENGTH}
+        </div>
         <div className="text-destructive">{errors.question?.message}</div>
       </div>
+      <hr className="border-gray-600 my-2 p-0" />
 
-      <div className="mb-3">
-        <label className="block mb-1">Type</label>
-        <select
-          className="text-gray-800 w-full p-2 rounded"
-          {...register("type", {
-            onChange: (e) => {
-              setValue("questionOptions", getDefaultOptions(e.target.value));
-            },
-          })}
-        >
-          {Object.values(QuestionType).map((type) => (
-            <option value={type} key={type}>
-              {type}
-            </option>
+      <div className="mb-3 flex flex-col gap-2">
+        <label className="block">Answer Choices</label>
+        {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
+          .fill(null)
+          .map((_, index) => (
+            <div key={`${questionType}-${index}`}>
+              <div className="flex gap-4">
+                <TextInput
+                  variant="outline"
+                  placeholder={`Choice ${getAlphaIdentifier(index)}`}
+                  {...register(`questionOptions.${index}.option`)}
+                />
+              </div>
+              <div className="text-destructive">
+                {errors.questionOptions?.[index]?.option?.message}
+              </div>
+            </div>
           ))}
-        </select>
-        <div className="text-destructive">{errors.type?.message}</div>
       </div>
-
+      <hr className="border-gray-600 my-2 p-0" />
       <div className="mb-3">
-        <label className="block mb-1">Image (optional)</label>
+        <label className="block mb-1">
+          Image <span className="text-gray-800">(optional)</span>
+        </label>
         {questionPreviewUrl && (
           <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg mb-2">
             <Image
@@ -139,27 +164,17 @@ function AskForm() {
         </div>
       </div>
 
-      <div className="mb-3 flex flex-col gap-2">
-        <label className="block">Options</label>
-        {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
-          .fill(null)
-          .map((_, index) => (
-            <div key={`${questionType}-${index}`}>
-              <div className="flex gap-4">
-                <TextInput
-                  variant="secondary"
-                  placeholder={`Option ${index + 1}`}
-                  {...register(`questionOptions.${index}.option`)}
-                />
-              </div>
-              <div className="text-destructive">
-                {errors.questionOptions?.[index]?.option?.message}
-              </div>
-            </div>
-          ))}
-      </div>
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="mb-2"
+        variant="outline"
+      >
+        Upload Image <Upload />
+      </Button>
+
       <Button type="submit" disabled={isSubmitting} className="mb-8">
-        Submit
+        Next →
       </Button>
     </form>
   );
