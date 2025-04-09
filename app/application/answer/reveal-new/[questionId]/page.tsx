@@ -28,6 +28,8 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     <div>
       <AnswerStatsHeader
         title={stats.question}
+        isCorrect={stats.isFirstOrderCorrect}
+        isPracticeQuestion={stats.isPracticeQuestion}
         bonkReward={stats.QuestionRewards?.[0].bonkReward}
         creditsReward={stats.QuestionRewards?.[0].creditsReward}
       />

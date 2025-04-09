@@ -36,4 +36,6 @@ export type AnswerStats = Question & {
   isCalculated: boolean;
   hasAlreadyClaimedReward: boolean;
   QuestionRewards: QuestionRewards[];
+  isFirstOrderCorrect: boolean;
+  isPracticeQuestion: boolean;
 };

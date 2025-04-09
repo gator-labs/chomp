@@ -9,12 +9,16 @@ import UnderstandYourResultsDrawer from "./UnderstandYourResultsDrawer";
 
 export type AnswerStatsHeaderProps = {
   title: string;
+  isPracticeQuestion: boolean;
+  isCorrect: boolean;
   bonkReward: string;
   creditsReward: string;
 };
 
 export function AnswerStatsHeader({
   title,
+  isPracticeQuestion,
+  isCorrect,
   bonkReward,
   creditsReward,
 }: AnswerStatsHeaderProps) {
@@ -44,32 +48,8 @@ export function AnswerStatsHeader({
       <AnswerRewards
         bonkReward={bonkReward}
         creditsReward={creditsReward}
-        isPracticeQuestion={false}
-        isCorrect={true}
-        variant="filled"
-        onInfoIconClick={handleInfoIconClick}
-      />
-      <AnswerRewards
-        bonkReward={bonkReward}
-        creditsReward={creditsReward}
-        isPracticeQuestion={false}
-        isCorrect={false}
-        variant="filled"
-        onInfoIconClick={handleInfoIconClick}
-      />
-      <AnswerRewards
-        bonkReward={bonkReward}
-        creditsReward={creditsReward}
-        isPracticeQuestion={true}
-        isCorrect={true}
-        variant="filled"
-        onInfoIconClick={handleInfoIconClick}
-      />
-      <AnswerRewards
-        bonkReward={bonkReward}
-        creditsReward={creditsReward}
-        isPracticeQuestion={true}
-        isCorrect={false}
+        isPracticeQuestion={isPracticeQuestion}
+        isCorrect={isCorrect}
         variant="filled"
         onInfoIconClick={handleInfoIconClick}
       />
