@@ -1,12 +1,18 @@
 import { Button } from "@/app/components/Button/Button";
-import { QuestionType } from "@prisma/client";
 import { Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export type AskQuestionSubmittedProps = {
   points: number;
 };
 
 export function AskQuestionSubmitted({ points }: AskQuestionSubmittedProps) {
+  const router = useRouter();
+
+  const handleGoHome = () => {
+    router.push("/application");
+  };
+
   return (
     <div className="flex flex-col gap-3 h-[calc(100vh_-_10em)] justify-center">
       <div className="bg-gray-700 rounded-2xl flex flex-col px-4 py-12 justify-center items-center gap-2">
@@ -27,7 +33,9 @@ export function AskQuestionSubmitted({ points }: AskQuestionSubmittedProps) {
           </p>
         </div>
       </div>
-      <Button variant="primary">Back to homepage</Button>
+      <Button variant="primary" onClick={handleGoHome}>
+        Back to homepage
+      </Button>
     </div>
   );
 }
