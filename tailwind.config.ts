@@ -21,6 +21,8 @@ const colors = {
   secondary: "#AFADEB",
   destructive: "#ED6A5A",
   green: "#1ED3B3",
+  "dark-green": "#3D5752",
+  "dark-red": "#694848",
   white: "#FFFFFF",
   cream: "#F6FCD6",
   darkGray50: "rgba(51, 51, 51, 0.5)",
@@ -76,6 +78,10 @@ const colors = {
     },
     pink: {
       light: "#FCD6EA",
+    },
+    gold: {
+      dark: "#71673B",
+      light: "#EDE1AB",
     },
   },
 };
