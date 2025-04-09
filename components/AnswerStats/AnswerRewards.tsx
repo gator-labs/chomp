@@ -1,3 +1,4 @@
+import { CoinsIcon } from "@/app/components/Icons/CoinsIcon";
 import { InfoIcon } from "@/app/components/Icons/InfoIcon";
 import { QuestionCorrectIcon } from "@/app/components/Icons/QuestionCorrectIcon";
 import { QuestionIncorrectIcon } from "@/app/components/Icons/QuestionIncorrectIcon";
@@ -79,8 +80,8 @@ export function AnswerRewards({
           </span>
         </div>
         <div className={pillStyle}>
-          <TrophyStarMarkIcon
-            fill={cn({
+          <CoinsIcon
+            stroke={cn({
               "#4D4D4D": isPracticeQuestion,
               "#FFFFFF": !isPracticeQuestion,
             })}
