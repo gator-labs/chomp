@@ -23,7 +23,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (result.isError) return <div>Error fetching question.</div>;
 
   const stats = result.data.stats;
-  console.log(stats);
 
   return (
     <div>
