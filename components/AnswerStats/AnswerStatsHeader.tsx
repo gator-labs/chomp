@@ -1,6 +1,10 @@
+"use client";
+
 import BackButton from "@/app/components/BackButton/BackButton";
+import { useState } from "react";
 
 import { AnswerRewards } from "./AnswerRewards";
+import UnderstandYourResultsDrawer from "./UnderstandYourResultsDrawer";
 
 export type AnswerStatsHeaderProps = {
   title: string;
@@ -13,6 +17,12 @@ export function AnswerStatsHeader({
   bonkReward,
   creditsReward,
 }: AnswerStatsHeaderProps) {
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+
+  const handleInfoIconClick = () => {
+    setIsDrawerOpen(true);
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex">
@@ -27,6 +37,7 @@ export function AnswerStatsHeader({
         isPracticeQuestion={false}
         isCorrect={true}
         variant="filled"
+        onInfoIconClick={handleInfoIconClick}
       />
       <AnswerRewards
         bonkReward={bonkReward}
@@ -34,6 +45,7 @@ export function AnswerStatsHeader({
         isPracticeQuestion={false}
         isCorrect={false}
         variant="filled"
+        onInfoIconClick={handleInfoIconClick}
       />
       <AnswerRewards
         bonkReward={bonkReward}
@@ -41,6 +53,7 @@ export function AnswerStatsHeader({
         isPracticeQuestion={true}
         isCorrect={true}
         variant="filled"
+        onInfoIconClick={handleInfoIconClick}
       />
       <AnswerRewards
         bonkReward={bonkReward}
@@ -48,34 +61,11 @@ export function AnswerStatsHeader({
         isPracticeQuestion={true}
         isCorrect={false}
         variant="filled"
+        onInfoIconClick={handleInfoIconClick}
       />
-      <AnswerRewards
-        bonkReward={bonkReward}
-        creditsReward={creditsReward}
-        isPracticeQuestion={false}
-        isCorrect={true}
-        variant="outline"
-      />
-      <AnswerRewards
-        bonkReward={bonkReward}
-        creditsReward={creditsReward}
-        isPracticeQuestion={false}
-        isCorrect={false}
-        variant="outline"
-      />
-      <AnswerRewards
-        bonkReward={bonkReward}
-        creditsReward={creditsReward}
-        isPracticeQuestion={true}
-        isCorrect={true}
-        variant="outline"
-      />
-      <AnswerRewards
-        bonkReward={bonkReward}
-        creditsReward={creditsReward}
-        isPracticeQuestion={true}
-        isCorrect={false}
-        variant="outline"
+      <UnderstandYourResultsDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
       />
     </div>
   );

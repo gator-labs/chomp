@@ -11,6 +11,7 @@ export type AnswerRewardsProps = {
   isPracticeQuestion: boolean;
   isCorrect: boolean;
   variant: "filled" | "outline";
+  onInfoIconClick?: () => void;
 };
 
 const ICON_SIZE = 45;
@@ -21,6 +22,7 @@ export function AnswerRewards({
   isPracticeQuestion,
   isCorrect,
   variant,
+  onInfoIconClick,
 }: AnswerRewardsProps) {
   const icon = isPracticeQuestion ? (
     isCorrect ? (
@@ -55,10 +57,13 @@ export function AnswerRewards({
 
   return (
     <div
-      className={cn("rounded-xl flex p-2 justify-between items-center w-full", {
-        "bg-gray-700": variant == "filled",
-        "border border-gray-[#808080]": variant == "outline",
-      })}
+      className={cn(
+        "rounded-2xl text-sm flex p-2 justify-between items-center w-full",
+        {
+          "bg-gray-700": variant == "filled",
+          "border border-gray-500": variant == "outline",
+        },
+      )}
     >
       <div className="flex gap-1">
         {icon}
@@ -85,7 +90,11 @@ export function AnswerRewards({
           </span>
         </div>
       </div>
-      <InfoIcon width={32} height={32} fill="#FFFFFF" />
+      {onInfoIconClick && (
+        <span onClick={onInfoIconClick} className="cursor-pointer">
+          <InfoIcon width={32} height={32} fill="#FFFFFF" />
+        </span>
+      )}
     </div>
   );
 }
