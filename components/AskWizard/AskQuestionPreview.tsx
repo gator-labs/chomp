@@ -8,11 +8,41 @@ export type AskQuestionPreviewProps = {
   imageUrl?: string | null;
 };
 
+export type OptionProps = {
+  option: string;
+  index: number;
+};
+
+function MultiChoiceOption({ option, index }: OptionProps) {
+  return (
+    <div className="flex gap-2">
+      <div className="bg-gray-600 text-base font-bold rounded-lg flex gap-2 items-center aspect-square justify-center p-2">
+        {getAlphaIdentifier(index)}
+      </div>
+      <div className="border border-gray-500 rounded-lg text-sm font-medium align-middle w-full p-4">
+        {option}
+      </div>
+    </div>
+  );
+}
+
+function BinaryOption({ option }: OptionProps) {
+  return (
+    <div className="flex gap-2">
+      <div className="bg-purple-500 rounded-lg text-base font-black align-middle w-full p-4">
+        {option}
+      </div>
+    </div>
+  );
+}
+
 export function AskQuestionPreview({
   title,
   options,
   imageUrl,
 }: AskQuestionPreviewProps) {
+  const isBinary = options.length == 2;
+
   return (
     <div className="flex flex-col gap-2">
       <div className="block mb-1 text-base font-medium">Preview</div>
@@ -25,16 +55,13 @@ export function AskQuestionPreview({
       <div className="bg-gray-700 rounded-xl py-4 px-6 gap-2 flex flex-col">
         <div className="block mb-1 text-base font-medium">Choices:</div>
         <div className="flex flex-col gap-2">
-          {options.map((option, index) => (
-            <div className="flex gap-2" key={index}>
-              <div className="bg-gray-600 text-base font-bold rounded-lg flex gap-2 items-center aspect-square justify-center p-2">
-                {getAlphaIdentifier(index)}
-              </div>
-              <div className="border border-gray-500 rounded-lg text-sm font-medium align-middle w-full p-4">
-                {option}
-              </div>
-            </div>
-          ))}
+          {options.map((option, index) =>
+            isBinary ? (
+              <BinaryOption option={option} index={index} key={index} />
+            ) : (
+              <MultiChoiceOption option={option} index={index} key={index} />
+            ),
+          )}
         </div>
       </div>
     </div>
