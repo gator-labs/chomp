@@ -15,7 +15,7 @@ export type AnswerRewardsProps = {
   onInfoIconClick?: () => void;
 };
 
-const ICON_SIZE = 45;
+const ICON_SIZE = 38;
 
 export function AnswerRewards({
   bonkReward,
@@ -27,24 +27,32 @@ export function AnswerRewards({
 }: AnswerRewardsProps) {
   const icon = isPracticeQuestion ? (
     isCorrect ? (
-      <QuestionCorrectIcon
-        height={ICON_SIZE}
-        width={ICON_SIZE}
-        fill="#71673B"
-        color="#EDE1AB"
-      />
+      <div className="bg-[#71673B] rounded-xl p-1">
+        <QuestionCorrectIcon
+          height={ICON_SIZE}
+          width={ICON_SIZE}
+          fill="#71673B"
+          color="#EDE1AB"
+        />
+      </div>
     ) : (
-      <QuestionIncorrectIcon
-        height={ICON_SIZE}
-        width={ICON_SIZE}
-        fill="#71673B"
-        color="#EDE1AB"
-      />
+      <div className="bg-[#71673B] rounded-xl p-1">
+        <QuestionIncorrectIcon
+          height={ICON_SIZE}
+          width={ICON_SIZE}
+          fill="#71673B"
+          color="#EDE1AB"
+        />
+      </div>
     )
   ) : isCorrect ? (
-    <QuestionCorrectIcon height={ICON_SIZE} width={ICON_SIZE} />
+    <div className="bg-[#1ED3B3] rounded-xl p-1">
+      <QuestionCorrectIcon height={ICON_SIZE} width={ICON_SIZE} />
+    </div>
   ) : (
-    <QuestionIncorrectIcon height={ICON_SIZE} width={ICON_SIZE} />
+    <div className="bg-[#ED6A5A] rounded-xl p-1">
+      <QuestionIncorrectIcon height={ICON_SIZE} width={ICON_SIZE} />
+    </div>
   );
 
   const pillStyle = cn(
@@ -70,30 +78,34 @@ export function AnswerRewards({
         {icon}
         <div className={pillStyle}>
           <TrophyStarMarkIcon
+            height={20}
+            width={20}
             fill={cn({
               "#4D4D4D": isPracticeQuestion,
               "#FFFFFF": !isPracticeQuestion,
             })}
           />
-          <span className="ml-1">
+          <span className="ml-1 text-xs">
             +{formatCompactAmount(bonkReward) ?? 0} BONK
           </span>
         </div>
         <div className={pillStyle}>
           <CoinsIcon
+            height={20}
+            width={20}
             stroke={cn({
               "#4D4D4D": isPracticeQuestion,
               "#FFFFFF": !isPracticeQuestion,
             })}
           />
-          <span className="ml-1">
+          <span className="ml-1 text-xs">
             +{formatCompactAmount(creditsReward) ?? 0} Credits
           </span>
         </div>
       </div>
       {onInfoIconClick && (
-        <span onClick={onInfoIconClick} className="cursor-pointer">
-          <InfoIcon width={32} height={32} fill="#FFFFFF" />
+        <span onClick={onInfoIconClick} className="cursor-pointer mr-1">
+          <InfoIcon width={24} height={24} fill="#FFFFFF" />
         </span>
       )}
     </div>
