@@ -3,6 +3,7 @@ import {
   Question,
   QuestionAnswer,
   QuestionOption,
+  QuestionRewards,
 } from "@prisma/client";
 
 export type ChompResultNoDecimal = Omit<ChompResult, "rewardTokenAmount"> & {
@@ -34,4 +35,5 @@ export type AnswerStats = Question & {
   isQuestionRevealable: boolean;
   isCalculated: boolean;
   hasAlreadyClaimedReward: boolean;
+  QuestionRewards: QuestionRewards[];
 };

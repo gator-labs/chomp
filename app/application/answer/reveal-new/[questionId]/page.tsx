@@ -1,6 +1,6 @@
 "use client";
 
-import BackButton from "@/app/components/BackButton/BackButton";
+import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 
 interface Props {
@@ -16,16 +16,22 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (params.questionId === undefined)
     throw new Promise((r) => setTimeout(r, 0));
 
-  const stats = useGetAnswerStatsQuery(Number(params.questionId));
+  const result = useGetAnswerStatsQuery(Number(params.questionId));
 
-  if (stats.isLoading) return <div>Loading...</div>;
+  if (result.isLoading || !result.data) return <div>Loading...</div>;
 
-  if (stats.isError) return <div>Error fetching question.</div>;
+  if (result.isError) return <div>Error fetching question.</div>;
+
+  const stats = result.data.stats;
+  console.log(stats);
 
   return (
     <div>
-      <BackButton />
-      <div>{stats.data?.stats.question}</div>
+      <AnswerStatsHeader
+        title={stats.question}
+        bonkReward={stats.QuestionRewards?.[0].bonkReward}
+        creditsReward={stats.QuestionRewards?.[0].creditsReward}
+      />
     </div>
   );
 };
