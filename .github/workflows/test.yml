@@ -9,88 +9,515 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - uses: actions/checkout@v2
+      # Step 1: Check out the repository
+      - name: Check out the repository
+        id: checkout
+        uses: actions/checkout@v2
+        
+      - name: Print debug info
+        run: |
+          echo "====================== DEBUG INFO ======================"
+          echo "GitHub event name: ${{ github.event_name }}"
+          echo "GitHub event action: ${{ github.event.action }}"
+          echo "Deployment status: ${{ github.event.deployment_status.state }}"
+          echo "Deployment URL: ${{ github.event.deployment_status.target_url }}"
+          echo "Deployment environment: ${{ github.event.deployment.environment }}"
+          echo "Ref: ${{ github.event.deployment.ref }}"
+          echo "Workspace: ${{ github.workspace }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Run attempt: ${{ github.run_attempt }}"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "====================== END DEBUG INFO =================="
 
-      # Step 2: Get branch name directly from the ref
+      # Step 2: Get Branch Name directly from the ref
       - name: Get Branch Name
         id: get-branch
         run: |
-          # The ref now contains the branch name directly
+          echo "📋 [Step 2] Getting branch name from deployment ref..."
           branch_name="${{ github.event.deployment.ref }}"
           echo "Using branch name: $branch_name"
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
+          echo "✅ [Step 2] Branch name extracted successfully: $branch_name"
 
       # Step 3: Set up Node.js
       - name: Set up Node.js
+        id: setup-node
         uses: actions/setup-node@v3
         with:
           node-version: "18"
           cache: "yarn"
+          
+      - name: Verify Node setup
+        run: |
+          echo "📋 [Step 3] Verifying Node.js setup..."
+          node --version
+          yarn --version
+          echo "✅ [Step 3] Node.js setup verified"
 
       # Step 4: Install Vercel CLI
       - name: Install Vercel CLI
-        run: yarn global add vercel
+        id: install-vercel
+        run: |
+          echo "📋 [Step 4] Installing Vercel CLI..."
+          yarn global add vercel
+          vercel --version
+          echo "✅ [Step 4] Vercel CLI installed successfully"
 
       # Step 5: Pull Vercel Environment Variables
       - name: Pull Vercel Environment Variables
+        id: pull-vercel-env
         run: |
-          echo "Starting the process to pull Vercel environment variables."
+          echo "📋 [Step 5] Starting the process to pull Vercel environment variables..."
           BRANCH_NAME="${{ steps.get-branch.outputs.branch_name }}"
           echo "Using branch name: $BRANCH_NAME"
 
-          # link to the project
+          echo "Linking to Vercel project..."
           vercel link --scope gator-labs --yes --project chomp-dev --token ${{ secrets.VERCEL_TOKEN }}
+          if [ $? -ne 0 ]; then
+            echo "❌ [Step 5] Error: Failed to link to Vercel project"
+            exit 1
+          fi
+          echo "Successfully linked to Vercel project"
           
           # pull the correct environment variables
           if [ "$BRANCH_NAME" = "main" ]; then
             echo "Main branch detected - pulling production environment variables"
             vercel env pull --environment=production .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
+            if [ $? -ne 0 ]; then
+              echo "❌ [Step 5] Error: Failed to pull production environment variables"
+              exit 1
+            fi
           else
             echo "Preview branch detected - pulling preview environment variables"
             vercel env pull --environment=preview --git-branch=$BRANCH_NAME .env --scope=gator-labs --token=${{ secrets.VERCEL_TOKEN }}
+            if [ $? -ne 0 ]; then
+              echo "❌ [Step 5] Error: Failed to pull preview environment variables"
+              exit 1
+            fi
+          fi
+          
+          echo "Checking if .env file was created..."
+          if [ -f .env ]; then
+            echo ".env file exists"
+            echo "Number of lines in .env: $(wc -l < .env)"
+            echo "First few variables (names only):"
+            grep -v "^#" .env | cut -d= -f1 | head -5
+          else
+            echo "❌ [Step 5] Warning: .env file does not exist"
+          fi
+          
+          echo "✅ [Step 5] Successfully pulled Vercel environment variables"
+
+      # Step 6: Create or reuse a Neon test branch and set DATABASE_URL
+      - name: Configure Neon Test Branch
+        id: neon
+        run: |
+          echo "📋 [Step 6] Configuring Neon test branch..."
+          set -e
+
+          echo "Installing jq for JSON parsing..."
+          sudo apt-get update && sudo apt-get install -y jq
+          jq --version
+
+          BRANCH_NAME="${{ steps.get-branch.outputs.branch_name }}"
+          NEON_PROJECT_ID="${{ secrets.NEON_PROJECT_ID }}"
+          NEON_API_KEY="${{ secrets.NEON_API_KEY }}"
+          GITHUB_RUN_ID="${{ github.run_id }}"
+          
+          echo "Variables set:"
+          echo "- BRANCH_NAME: $BRANCH_NAME"
+          echo "- NEON_PROJECT_ID: ${NEON_PROJECT_ID:0:5}... (redacted)"
+          echo "- GITHUB_RUN_ID: $GITHUB_RUN_ID"
+          
+          if [ -z "$NEON_PROJECT_ID" ]; then
+            echo "❌ [Step 6] Error: NEON_PROJECT_ID is not set. Please add it to your GitHub secrets."
+            exit 1
+          fi
+          
+          if [ -z "$NEON_API_KEY" ]; then
+            echo "❌ [Step 6] Error: NEON_API_KEY is not set. Please add it to your GitHub secrets."
+            exit 1
           fi
 
-      # Step 6: Verify and Sanitize Environment Variables
+          # 1) List all branches
+          echo "Listing all branches in Neon project..."
+          list_json=$(curl --silent --request GET \
+              --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches?sort_by=updated_at&sort_order=desc&limit=10000" \
+              --header "accept: application/json" \
+              --header "authorization: Bearer $NEON_API_KEY")
+          
+          # Check if the API request was successful
+          if [[ "$list_json" == *"\"error\":"* ]]; then
+            echo "❌ [Step 6] Error: Failed to list branches from Neon API:"
+            echo "$list_json" | jq .
+            exit 1
+          fi
+
+          # Debug: Check the structure of the response
+          echo "DEBUG: API response structure"
+          echo "$list_json" | jq 'keys'
+          echo "Number of branches: $(echo "$list_json" | jq '.branches | length')"
+          echo "First few branch names:"
+          echo "$list_json" | jq -r '.branches[0:3] | map(.name) | .[]'
+
+          # NOTE: There is duplicate logic below for main and non-main branches.
+          # At a high level, this is because we want to minimize the risk of errors on
+          # the main branch, so we create a new branch for each run.
+          #
+          # However, for non-main branches, we want to re-use the same branch for each run,
+          # so we check if the branch already exists and reuse it.
+          #
+          # In order to maintain a single function for this, we have the duplicate logic below.
+          # The flow of each section is as follows:
+          #
+          # 1) List all branches in the Neon project
+          # 2) Find the parent branch ID by name
+          # 3) Check if the test branch already exists
+          # 4) If no existing test branch, create it
+          # 5) Extract connection details from the branch creation response
+          # 6) Make sure the variables don't have quotes in them
+          # 7) Export the variables to GITHUB_ENV
+          # 8) Print a success message
+          
+          
+          if [ "$BRANCH_NAME" = "main" ]; then
+            # ================
+            # MAIN BRANCH LOGIC
+            # ================
+            echo "GitHub branch is 'main'. We'll always create a new Neon branch for each run."
+
+            # Use the Neon branch named = "main" as the parent
+            PARENT_BRANCH_NAME="main"
+            echo "Looking for parent branch with name: $PARENT_BRANCH_NAME"
+
+            parent_id=$(echo "$list_json" | jq -r --arg name "$PARENT_BRANCH_NAME" '.branches[] | select(.name == $name) | .id')
+            if [ -z "$parent_id" ]; then
+              echo "❌ [Step 6] Error: No Neon parent branch found with name '$PARENT_BRANCH_NAME'."
+              echo "Available branch names:"
+              echo "$list_json" | jq -r '.branches[] | .name'
+              exit 1
+            fi
+            echo "Found parent branch"
+
+            # Construct a fresh test branch name for each run, e.g. test/main-123456789
+            TEST_BRANCH="test/main-$GITHUB_RUN_ID"
+            echo "Creating a new Neon branch: $TEST_BRANCH"
+
+            echo "Creating branch with endpoint in a single request..."
+            create_json=$(curl --silent --request POST \
+              --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches" \
+              --header "accept: application/json" \
+              --header "authorization: Bearer $NEON_API_KEY" \
+              --header "content-type: application/json" \
+              --data "{
+                \"branch\": {
+                  \"parent_id\": \"$parent_id\",
+                  \"name\": \"$TEST_BRANCH\",
+                  \"init_source\": \"schema-only\"
+                },
+                \"endpoints\": [
+                  {
+                    \"type\": \"read_write\",
+                    \"autoscaling_limit_min_cu\": 0.25,
+                    \"autoscaling_limit_max_cu\": 2
+                  }
+                ]
+              }")
+            
+            # Check if the API request was successful
+            if [[ "$create_json" == *"\"error\":"* ]]; then
+              echo "❌ [Step 6] Error: Failed to create branch in Neon API:"
+              echo "$create_json" | jq .
+              exit 1
+            fi
+
+            test_id=$(echo "$create_json" | jq -r '.branch.id')
+            if [ -z "$test_id" ] || [ "$test_id" = "null" ]; then
+              echo "❌ [Step 6] Error: Failed to extract branch ID from API response:"
+              echo "$create_json" | jq .
+              exit 1
+            fi
+            
+            # Extract connection info directly from the creation response
+            if echo "$create_json" | jq -e '.connection_uris[0].connection_uri' > /dev/null; then
+              echo "Connection details found in creation response"
+              CONNECTION_URI=$(echo "$create_json" | jq -r '.connection_uris[0].connection_uri')
+              
+              # Extract host and password from connection parameters if available
+              if echo "$create_json" | jq -e '.connection_uris[0].connection_parameters' > /dev/null; then
+                HOST=$(echo "$create_json" | jq -r '.connection_uris[0].connection_parameters.host')
+                POOLER_HOST=$(echo "$create_json" | jq -r '.connection_uris[0].connection_parameters.pooler_host')
+                PASSWORD=$(echo "$create_json" | jq -r '.connection_uris[0].connection_parameters.password')
+                
+                # Construct connection strings from parameters
+                DATABASE_URL="postgresql://neondb_owner:${PASSWORD}@${POOLER_HOST}/neondb?sslmode=require"
+                DATABASE_URL_UNPOOLED="postgresql://neondb_owner:${PASSWORD}@${HOST}/neondb?sslmode=require"
+              else
+                # Use the provided connection URI for pooled connection
+                DATABASE_URL="$CONNECTION_URI"
+                
+                # Modify for unpooled - replace host with non-pooler host
+                # Extract host part from URI
+                if [[ $CONNECTION_URI =~ @([^/]+)/ ]]; then
+                  HOST_PART="${BASH_REMATCH[1]}"
+                  # Replace "-pooler" if present, otherwise use as-is
+                  if [[ $HOST_PART == *-pooler* ]]; then
+                    UNPOOLED_HOST="${HOST_PART/-pooler/}"
+                  else
+                    UNPOOLED_HOST="$HOST_PART"
+                  fi
+                  DATABASE_URL_UNPOOLED="${CONNECTION_URI/@$HOST_PART\//@$UNPOOLED_HOST\/}"
+                else
+                  # Fallback to the same connection if we can't parse
+                  DATABASE_URL_UNPOOLED="$CONNECTION_URI"
+                fi
+              fi
+              
+              # Make sure these variables don't have quotes in them 
+              # (in case they were set with quotes from the API response)
+              echo "Sanitizing database URLs..."
+              DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/^"\|"$//g')
+              DATABASE_URL_UNPOOLED=$(echo "$DATABASE_URL_UNPOOLED" | sed 's/^"\|"$//g')
+              
+              echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+              echo "DATABASE_URL_UNPOOLED=$DATABASE_URL_UNPOOLED" >> $GITHUB_ENV
+              echo "NEON_BRANCH_ID=$test_id" >> $GITHUB_ENV
+              echo "NEON_BRANCH_NAME=$TEST_BRANCH" >> $GITHUB_ENV
+              
+              echo "✅ [Step 6] Neon test branch configuration complete."
+              
+              # Skip the next sections since we already have the connection details
+              continue_with_password_retrieval=false
+            else
+              echo "No connection details in creation response, will proceed with regular flow"
+              echo "❌ [Step 6] Error: Unable to get connection details from branch creation response."
+              echo "This is unexpected with the new API. Dumping response for debugging:"
+              echo "$create_json" | jq .
+              exit 1
+            fi
+            
+            echo "Created test branch '$TEST_BRANCH'."
+          else
+            # =========================
+            # NON-MAIN BRANCH (PREVIEW)
+            # =========================
+            echo "GitHub branch is '$BRANCH_NAME'. We'll reuse or create a single test branch."
+
+            # The parent branch name in Neon is "preview/<GitHubBranch>"
+            PARENT_BRANCH_NAME="preview/$BRANCH_NAME"
+            echo "Looking for parent branch with name: $PARENT_BRANCH_NAME"
+
+            # The test branch name is "test/preview/<GitHubBranch>"
+            TEST_BRANCH="test/$PARENT_BRANCH_NAME"
+            echo "Target test branch name: $TEST_BRANCH"
+
+            # 2) Find the parent branch ID by name
+            parent_id=$(echo "$list_json" | jq -r --arg name "$PARENT_BRANCH_NAME" '.branches[] | select(.name == $name) | .id')
+
+            if [ -z "$parent_id" ] || [ "$parent_id" = "null" ]; then
+              echo "⚠️ [Step 6] Warning: No Neon parent branch found with name '$PARENT_BRANCH_NAME'."
+              echo "Falling back to 'main' branch as parent."
+              PARENT_BRANCH_NAME="main"
+              parent_id=$(echo "$list_json" | jq -r --arg name "$PARENT_BRANCH_NAME" '.branches[] | select(.name == $name) | .id')
+              
+              if [ -z "$parent_id" ] || [ "$parent_id" = "null" ]; then
+                echo "❌ [Step 6] Error: No Neon parent branch found with name 'main' either."
+                echo "Available branch names:"
+                echo "$list_json" | jq -r '.branches[] | .name'
+                exit 1
+              fi
+            fi
+            echo "Found parent branch"
+
+            # 3) Check if the test branch already exists
+            echo "Checking if test branch already exists..."
+            test_id=$(echo "$list_json" | jq -r --arg tname "$TEST_BRANCH" '.branches[] | select(.name == $tname) | .id')
+
+            # 4) If no existing test branch, create it
+            if [ -z "$test_id" ] || [ "$test_id" = "null" ]; then
+              echo "No existing test branch '$TEST_BRANCH' found. Creating..."
+              create_json=$(curl --silent --request POST \
+                --url "https://console.neon.tech/api/v2/projects/$NEON_PROJECT_ID/branches" \
+                --header "accept: application/json" \
+                --header "authorization: Bearer $NEON_API_KEY" \
+                --header "content-type: application/json" \
+                --data "{
+                  \"branch\": {
+                    \"parent_id\": \"$parent_id\",
+                    \"name\": \"$TEST_BRANCH\",
+                    \"init_source\": \"schema-only\"
+                  },
+                  \"endpoints\": [
+                    {
+                      \"type\": \"read_write\",
+                      \"autoscaling_limit_min_cu\": 0.25,
+                      \"autoscaling_limit_max_cu\": 2
+                    }
+                  ]
+                }")
+              
+              # Check if the API request was successful
+              if [[ "$create_json" == *"\"error\":"* ]]; then
+                echo "❌ [Step 6] Error: Failed to create branch in Neon API:"
+                echo "$create_json" | jq .
+                exit 1
+              fi
+              
+              test_id=$(echo "$create_json" | jq -r '.branch.id')
+              if [ -z "$test_id" ] || [ "$test_id" = "null" ]; then
+                echo "❌ [Step 6] Error: Failed to extract branch ID from API response:"
+                echo "$create_json" | jq .
+                exit 1
+              fi
+              
+              # Extract connection info directly from the creation response
+              if echo "$create_json" | jq -e '.connection_uris[0].connection_uri' > /dev/null; then
+                echo "Connection details found in creation response"
+                CONNECTION_URI=$(echo "$create_json" | jq -r '.connection_uris[0].connection_uri')
+                
+                # Extract host and password from connection parameters if available
+                if echo "$create_json" | jq -e '.connection_uris[0].connection_parameters' > /dev/null; then
+                  HOST=$(echo "$create_json" | jq -r '.connection_uris[0].connection_parameters.host')
+                  POOLER_HOST=$(echo "$create_json" | jq -r '.connection_uris[0].connection_parameters.pooler_host')
+                  PASSWORD=$(echo "$create_json" | jq -r '.connection_uris[0].connection_parameters.password')
+                  
+                  # Construct connection strings from parameters
+                  DATABASE_URL="postgresql://neondb_owner:${PASSWORD}@${POOLER_HOST}/neondb?sslmode=require"
+                  DATABASE_URL_UNPOOLED="postgresql://neondb_owner:${PASSWORD}@${HOST}/neondb?sslmode=require"
+                else
+                  # Use the provided connection URI for pooled connection
+                  DATABASE_URL="$CONNECTION_URI"
+                  
+                  # Modify for unpooled - replace host with non-pooler host
+                  # Extract host part from URI
+                  if [[ $CONNECTION_URI =~ @([^/]+)/ ]]; then
+                    HOST_PART="${BASH_REMATCH[1]}"
+                    # Replace "-pooler" if present, otherwise use as-is
+                    if [[ $HOST_PART == *-pooler* ]]; then
+                      UNPOOLED_HOST="${HOST_PART/-pooler/}"
+                    else
+                      UNPOOLED_HOST="$HOST_PART"
+                    fi
+                    DATABASE_URL_UNPOOLED="${CONNECTION_URI/@$HOST_PART\//@$UNPOOLED_HOST\/}"
+                  else
+                    # Fallback to the same connection if we can't parse
+                    DATABASE_URL_UNPOOLED="$CONNECTION_URI"
+                  fi
+                fi
+                
+                # Make sure these variables don't have quotes in them 
+                # (in case they were set with quotes from the API response)
+                echo "Sanitizing database URLs..."
+                DATABASE_URL=$(echo "$DATABASE_URL" | sed 's/^"\|"$//g')
+                DATABASE_URL_UNPOOLED=$(echo "$DATABASE_URL_UNPOOLED" | sed 's/^"\|"$//g')
+                
+                echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+                echo "DATABASE_URL_UNPOOLED=$DATABASE_URL_UNPOOLED" >> $GITHUB_ENV
+                echo "NEON_BRANCH_ID=$test_id" >> $GITHUB_ENV
+                echo "NEON_BRANCH_NAME=$TEST_BRANCH" >> $GITHUB_ENV
+                
+                echo "✅ [Step 6] Neon test branch configuration complete."
+                
+              else
+                echo "No connection details in creation response, will proceed with regular flow"
+                echo "❌ [Step 6] Error: Unable to get connection details from branch creation response."
+                echo "This is unexpected with the new API. Dumping response for debugging:"
+                echo "$create_json" | jq .
+                exit 1
+              fi
+              
+              echo "Created test branch '$TEST_BRANCH'."
+            else
+              echo "Found existing test branch '$TEST_BRANCH'."
+              continue_with_password_retrieval=true
+            fi
+          fi
+
+      # Step 7: Verify and Sanitize Environment Variables
       - name: Verify and Sanitize DATABASE_URL
+        id: verify-db-url
         run: |
-          echo "Loading .env file."
-          source .env
+          echo "📋 [Step 7] Verifying database connection URLs..."
+          echo "Loading .env (if present)."
+          if [ -f .env ]; then
+            source .env
+            echo ".env file loaded"
+          else
+            echo ".env file not found, continuing with environment variables from previous step"
+          fi
 
+          # The DB vars were also exported to GITHUB_ENV above; they should be in the environment now.
           echo "Verifying the DATABASE_URL and DATABASE_URL_UNPOOLED."
-          # echo "DATABASE_URL: $DATABASE_URL"
-          # echo "DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
-
+          
+          # Ensure we have the variables
+          if [ -z "$DATABASE_URL" ] || [ -z "$DATABASE_URL_UNPOOLED" ]; then
+            echo "❌ [Step 7] Error: DATABASE_URL or DATABASE_URL_UNPOOLED is empty."
+            exit 1
+          fi
+          
           # Ensure the protocol is valid
           if [[ $DATABASE_URL != postgres://* ]] && [[ $DATABASE_URL != postgresql://* ]]; then
-            echo "Error: DATABASE_URL does not have a valid protocol."
+            echo "❌ [Step 7] Error: DATABASE_URL does not have a valid protocol."
             exit 1
           fi
-
           if [[ $DATABASE_URL_UNPOOLED != postgres://* ]] && [[ $DATABASE_URL_UNPOOLED != postgresql://* ]]; then
-            echo "Error: DATABASE_URL_UNPOOLED does not have a valid protocol."
+            echo "❌ [Step 7] Error: DATABASE_URL_UNPOOLED does not have a valid protocol."
             exit 1
           fi
+          
+          echo "✅ [Step 7] DATABASE_URL and DATABASE_URL_UNPOOLED look valid."
 
-          # Remove quotes if present
-          DATABASE_URL=$(echo $DATABASE_URL | sed 's/^"\|"$//g')
-          DATABASE_URL_UNPOOLED=$(echo $DATABASE_URL_UNPOOLED | sed 's/^"\|"$//g')
-
-          # echo "Sanitized DATABASE_URL: $DATABASE_URL"
-          # echo "Sanitized DATABASE_URL_UNPOOLED: $DATABASE_URL_UNPOOLED"
-
-          # Save sanitized variables to GitHub environment
-          echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
-          echo "DATABASE_URL_UNPOOLED=$DATABASE_URL_UNPOOLED" >> $GITHUB_ENV
-
-      # Step 7: Install Dependencies
+      # Step 8: Install Dependencies
       - name: Install Dependencies
+        id: install-deps
         run: |
-          echo "Installing project dependencies."
+          echo "📋 [Step 8] Installing project dependencies..."
+          
+          # Check if package.json exists
+          if [ ! -f "package.json" ]; then
+            echo "❌ [Step 8] Error: package.json not found"
+            exit 1
+          fi
+          
+          echo "Package.json found, installing dependencies with yarn..."
           yarn install
+          if [ $? -ne 0 ]; then
+            echo "❌ [Step 8] Error: Failed to install dependencies"
+            exit 1
+          fi
+          
+          # List installed dependencies
+          echo "Listing top-level dependencies:"
+          yarn list --depth=0 | head -10
+          
+          echo "✅ [Step 8] Dependencies installed successfully"
 
-      # Step 8: Run Jest Tests
+      # Step 9: Run Jest Tests
       - name: Run Jest Tests
+        id: run-tests
         run: |
-          echo "Running Jest tests using the pulled and sanitized environment variables."
+          echo "📋 [Step 9] Running Jest tests..."
+          echo "Checking for existence of test script in package.json..."
+          
+          # Check if the gh-test-sync script exists
+          if ! grep -q "\"gh-test-sync\"" package.json; then
+            echo "❌ [Step 9] Warning: 'gh-test-sync' script not found in package.json"
+            echo "Contents of package.json 'scripts' section:"
+            grep -A 20 "\"scripts\"" package.json
+          fi
+          
+          echo "Environment variables for testing:"
+          echo "- NODE_ENV: $NODE_ENV"
+          echo "- NEON_BRANCH_NAME: $NEON_BRANCH_NAME"
+          echo "- NEON_BRANCH_ID: $NEON_BRANCH_ID"
+          
+          echo "Running tests with 'yarn gh-test-sync'..."
           yarn gh-test-sync
+          TEST_EXIT_CODE=$?
+          
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            echo "❌ [Step 9] Tests failed with exit code $TEST_EXIT_CODE"
+            exit $TEST_EXIT_CODE
+          fi
+          
+          echo "✅ [Step 9] Tests completed successfully"
