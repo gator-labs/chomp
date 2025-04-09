@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType } from "@prisma/client";
 import { ArrowRight, Trash2, Upload } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { MutableRefObject, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 
 import { TextInput } from "../TextInput/TextInput";
@@ -40,6 +40,8 @@ type AskFormProps = {
 function AskForm({ questionType }: AskFormProps) {
   const { errorToast } = useToast();
 
+  const uploadButtonRef = useRef<HTMLInputElement>(null);
+
   const {
     register,
     handleSubmit,
@@ -60,6 +62,7 @@ function AskForm({ questionType }: AskFormProps) {
   const file = watch("file")?.[0]; // The file for question image
   const questionPreviewUrl = file ? URL.createObjectURL(file) : null;
   const questionText = watch("question");
+  const fileElement = register("file");
 
   // Clean up object URL when component unmounts or file changes
   useEffect(() => {
@@ -131,12 +134,15 @@ function AskForm({ questionType }: AskFormProps) {
           Image <span className="text-gray-500">(optional)</span>
         </label>
         {questionPreviewUrl && (
-          <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg mb-2">
+          <div className="w-full relative mb-2">
             <Image
-              fill
+              width={0}
+              height={0}
               alt="preview-image"
               src={questionPreviewUrl}
-              className="object-cover w-full h-full"
+              style={{ width: "100%", height: "auto", borderRadius: "1em" }}
+              className="object-contain"
+              sizes="100vw"
             />
           </div>
         )}
@@ -145,8 +151,29 @@ function AskForm({ questionType }: AskFormProps) {
           <input
             type="file"
             accept="image/png, image/jpeg, image/webp"
+            hidden={true}
             {...register("file")}
+            ref={(e) => {
+              fileElement.ref(e);
+              (
+                uploadButtonRef as MutableRefObject<HTMLInputElement | null>
+              ).current = e;
+            }}
           />
+
+          {!questionPreviewUrl && (
+            <Button
+              disabled={isSubmitting}
+              variant="outline"
+              onClick={(e) => {
+                e.preventDefault();
+                uploadButtonRef?.current?.click();
+              }}
+            >
+              Upload Image <Upload size={18} />
+            </Button>
+          )}
+
           <div className="text-destructive">{errors.file?.message}</div>
 
           {questionPreviewUrl && (
@@ -162,17 +189,6 @@ function AskForm({ questionType }: AskFormProps) {
           )}
         </div>
       </div>
-
-      {!questionPreviewUrl && (
-        <Button
-          type="submit"
-          disabled={isSubmitting}
-          className="mb-2"
-          variant="outline"
-        >
-          Upload Image <Upload size={18} />
-        </Button>
-      )}
 
       <Button type="submit" disabled={isSubmitting} className="mb-8">
         Next <ArrowRight size={18} />
