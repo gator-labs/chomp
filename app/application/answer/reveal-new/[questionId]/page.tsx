@@ -1,6 +1,8 @@
 "use client";
 
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
+import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
+import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 
 interface Props {
@@ -24,13 +26,35 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const stats = result.data.stats;
 
+  // const isBinary = stats.type === QuestionType.BinaryQuestion;
+
+  const answerSelected = stats.userAnswers.find((ua) => ua.selected);
+
+  let answerContent = <></>;
+
+  answerContent = (
+    <>
+      <BinaryBestAnswer
+        questionOptions={stats.questionOptionPercentages}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+      />
+    </>
+  );
+
   return (
     <div>
       <AnswerStatsHeader
         title={stats.question}
-        bonkReward={stats.QuestionRewards?.[0].bonkReward}
-        creditsReward={stats.QuestionRewards?.[0].creditsReward}
+        bonkReward={stats.QuestionRewards?.[0]?.bonkReward}
+        creditsReward={stats.QuestionRewards?.[0]?.creditsReward}
       />
+      <QuestionPreviewCard
+        question={stats.question}
+        revealAtDate={stats.revealAtDate}
+        imageUrl={stats.imageUrl}
+      />
+      {answerContent}
     </div>
   );
 };
