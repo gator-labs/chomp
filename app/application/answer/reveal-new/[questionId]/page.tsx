@@ -2,8 +2,10 @@
 
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
+import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
+import { QuestionType } from "@prisma/client";
 
 interface Props {
   params: {
@@ -26,22 +28,34 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const stats = result.data.stats;
 
-  // const isBinary = stats.type === QuestionType.BinaryQuestion;
+  const isBinary = stats.type === QuestionType.BinaryQuestion;
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
   let answerContent = <></>;
 
-  answerContent = (
-    <>
-      <BinaryBestAnswer
-        questionOptions={stats.questionOptionPercentages}
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-      />
-    </>
-  );
-
+  if (!!isBinary) {
+    answerContent = (
+      <>
+        <BinaryBestAnswer
+          questionOptions={stats.questionOptionPercentages}
+          optionSelected={answerSelected?.questionOption?.option ?? null}
+          bestOption={stats.correctAnswer?.option ?? ""}
+        />
+      </>
+    );
+  }
+  if (!isBinary) {
+    answerContent = (
+      <>
+        <MultiChoiceBestAnswer
+          questionOptions={stats.questionOptionPercentages}
+          optionSelected={answerSelected?.questionOption?.option ?? null}
+          bestOption={stats.correctAnswer?.option ?? ""}
+        />
+      </>
+    );
+  }
   return (
     <div>
       <AnswerStatsHeader
