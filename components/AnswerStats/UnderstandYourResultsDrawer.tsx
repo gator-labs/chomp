@@ -56,9 +56,9 @@ const UnderstandYourResultsDrawer = ({
               isCorrect={true}
               variant="outline"
             />
-            <p className="text-sm">
-              <span className="text-green font-bold">Green</span> - Correct
-              answer in Validation Deck (earned some or all rewards).
+            <p className="text-sm font-medium">
+              <span className="text-green font-bold">Green</span> &mdash;
+              Correct answer in Validation Deck (earned some or all rewards).
             </p>
             <AnswerRewards
               bonkReward={"0"}
@@ -67,9 +67,9 @@ const UnderstandYourResultsDrawer = ({
               isCorrect={false}
               variant="outline"
             />
-            <p className="text-sm">
-              <span className="text-chomp-red-light font-bold">Red</span> -
-              Incorrect answer in Validation Deck (no rewards).
+            <p className="text-sm font-medium">
+              <span className="text-chomp-red-light font-bold">Red</span>{" "}
+              &mdash; Incorrect answer in Validation Deck (no rewards).
             </p>
           </div>
 
@@ -89,10 +89,10 @@ const UnderstandYourResultsDrawer = ({
               isCorrect={false}
               variant="outline"
             />
-            <p className="text-sm">
-              <span className="text-chomp-gold-light font-bold">Yellow</span> -
-              Practice Deck Results (✅ or ❌ icon shows if you were right, but
-              no rewards).
+            <p className="text-sm font-medium">
+              <span className="text-chomp-gold-light font-bold">Yellow</span>{" "}
+              &mdash; Practice Deck Results (✅ or ❌ icon shows if you were
+              right, but no rewards).
             </p>
           </div>
         </div>
