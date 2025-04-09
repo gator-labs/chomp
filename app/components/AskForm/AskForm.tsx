@@ -5,11 +5,13 @@ import { useToast } from "@/app/providers/ToastProvider";
 import { askQuestionSchema } from "@/app/schemas/ask";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { getAlphaIdentifier } from "@/app/utils/question";
+import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType } from "@prisma/client";
-import { ArrowRight, Trash2, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Trash2, Upload } from "lucide-react";
 import Image from "next/image";
-import React, { MutableRefObject, useEffect, useRef } from "react";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { TextInput } from "../TextInput/TextInput";
@@ -40,6 +42,8 @@ type AskFormProps = {
 function AskForm({ questionType }: AskFormProps) {
   const { errorToast } = useToast();
 
+  const [isShowingPreview, setIsShowingPreview] = useState<boolean>(false);
+
   const uploadButtonRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -53,7 +57,7 @@ function AskForm({ questionType }: AskFormProps) {
     resolver: zodResolver(askQuestionSchema),
     defaultValues: {
       question: "",
-      type: QuestionType.MultiChoice,
+      type: questionType,
       questionOptions: getDefaultOptions(QuestionType.MultiChoice),
       file: undefined,
     },
@@ -63,6 +67,10 @@ function AskForm({ questionType }: AskFormProps) {
   const questionPreviewUrl = file ? URL.createObjectURL(file) : null;
   const questionText = watch("question");
   const fileElement = register("file");
+
+  const options = watch("questionOptions")
+    .slice(0, questionType == QuestionType.BinaryQuestion ? 2 : 4)
+    .map((o) => o.option);
 
   // Clean up object URL when component unmounts or file changes
   useEffect(() => {
@@ -95,104 +103,135 @@ function AskForm({ questionType }: AskFormProps) {
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="mb-3">
-        <label className="block mb-1 text-base font-medium">Question</label>
-        <TextInput
-          variant="outline"
-          {...register("question")}
-          placeholder="What's something you want the crowd's opinion on?"
-        />
-        <div className="flex justify-end text-xs text-gray-500 font-medium pt-1">
-          {questionText.length}/{MAX_QUESTION_LENGTH}
-        </div>
-        <div className="text-destructive">{errors.question?.message}</div>
-      </div>
-      <hr className="border-gray-600 my-2 p-0" />
-
-      <div className="mb-3 flex flex-col gap-2">
-        <label className="block text-base font-medium">Answer Choices</label>
-        {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
-          .fill(null)
-          .map((_, index) => (
-            <div key={`${questionType}-${index}`}>
-              <div className="flex gap-4">
-                <TextInput
-                  variant="outline"
-                  placeholder={`Choice ${getAlphaIdentifier(index)}`}
-                  {...register(`questionOptions.${index}.option`)}
-                />
-              </div>
-              <div className="text-destructive">
-                {errors.questionOptions?.[index]?.option?.message}
-              </div>
-            </div>
-          ))}
-      </div>
-      <hr className="border-gray-600 my-2 p-0" />
-      <div className="mb-3">
-        <label className="block mb-1 text-base font-medium">
-          Image <span className="text-gray-500">(optional)</span>
-        </label>
-        {questionPreviewUrl && (
-          <div className="w-full relative mb-2">
-            <Image
-              width={0}
-              height={0}
-              alt="preview-image"
-              src={questionPreviewUrl}
-              style={{ width: "100%", height: "auto", borderRadius: "1em" }}
-              className="object-contain"
-              sizes="100vw"
-            />
-          </div>
-        )}
-
-        <div className="flex flex-col gap-2 mt-2">
-          <input
-            type="file"
-            accept="image/png, image/jpeg, image/webp"
-            hidden={true}
-            {...register("file")}
-            ref={(e) => {
-              fileElement.ref(e);
-              (
-                uploadButtonRef as MutableRefObject<HTMLInputElement | null>
-              ).current = e;
-            }}
+      <div className={cn({ hidden: isShowingPreview })}>
+        <div className="mb-3">
+          <label className="block mb-1 text-base font-medium">Question</label>
+          <TextInput hidden={true} variant="outline" {...register("type")} />
+          <TextInput
+            variant="outline"
+            {...register("question")}
+            placeholder="What's something you want the crowd's opinion on?"
           />
+          <div className="flex justify-end text-xs text-gray-500 font-medium pt-1">
+            {questionText.length}/{MAX_QUESTION_LENGTH}
+          </div>
+          <div className="text-destructive">{errors.question?.message}</div>
+        </div>
+        <hr className="border-gray-600 my-2 p-0" />
 
-          {!questionPreviewUrl && (
+        <div className="mb-3 flex flex-col gap-2">
+          <label className="block text-base font-medium">Answer Choices</label>
+          {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
+            .fill(null)
+            .map((_, index) => (
+              <div key={`${questionType}-${index}`}>
+                <div className="flex gap-4">
+                  <TextInput
+                    variant="outline"
+                    placeholder={`Choice ${getAlphaIdentifier(index)}`}
+                    {...register(`questionOptions.${index}.option`)}
+                  />
+                </div>
+                <div className="text-destructive">
+                  {errors.questionOptions?.[index]?.option?.message}
+                </div>
+              </div>
+            ))}
+        </div>
+        <hr className="border-gray-600 my-2 p-0" />
+        <div className="mb-3">
+          <label className="block mb-1 text-base font-medium">
+            Image <span className="text-gray-500">(optional)</span>
+          </label>
+          {questionPreviewUrl && (
+            <div className="w-full relative mb-2">
+              <Image
+                width={0}
+                height={0}
+                alt="preview-image"
+                src={questionPreviewUrl}
+                style={{ width: "100%", height: "auto", borderRadius: "1em" }}
+                className="object-contain"
+                sizes="100vw"
+              />
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2 mt-2">
+            <input
+              type="file"
+              accept="image/png, image/jpeg, image/webp"
+              hidden={true}
+              {...register("file")}
+              ref={(e) => {
+                fileElement.ref(e);
+                (
+                  uploadButtonRef as MutableRefObject<HTMLInputElement | null>
+                ).current = e;
+              }}
+            />
+
+            {!questionPreviewUrl && (
+              <Button
+                disabled={isSubmitting}
+                variant="outline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  uploadButtonRef?.current?.click();
+                }}
+              >
+                Upload Image <Upload size={18} />
+              </Button>
+            )}
+
+            <div className="text-destructive">{errors.file?.message}</div>
+
+            {questionPreviewUrl && (
+              <Button
+                type="button"
+                onClick={() => {
+                  setValue("file", undefined);
+                }}
+                variant="destructive"
+              >
+                Delete <Trash2 size={18} />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <Button
+          disabled={isSubmitting}
+          className="mb-8"
+          onClick={() => setIsShowingPreview(true)}
+        >
+          Next <ArrowRight size={18} />
+        </Button>
+      </div>
+      {isShowingPreview && (
+        <div className="flex flex-col gap-2">
+          <AskQuestionPreview
+            title={questionText}
+            options={options}
+            imageUrl={questionPreviewUrl}
+          />
+          <div className="flex gap-2">
             <Button
               disabled={isSubmitting}
               variant="outline"
-              onClick={(e) => {
-                e.preventDefault();
-                uploadButtonRef?.current?.click();
-              }}
-            >
-              Upload Image <Upload size={18} />
-            </Button>
-          )}
-
-          <div className="text-destructive">{errors.file?.message}</div>
-
-          {questionPreviewUrl && (
-            <Button
-              type="button"
+              className="aspect-square max-w-[4em]"
               onClick={() => {
-                setValue("file", undefined);
+                setIsShowingPreview(false);
               }}
-              variant="destructive"
             >
-              Delete <Trash2 size={18} />
+              <ArrowLeft size={18} />
             </Button>
-          )}
+            <Button type="submit" disabled={isSubmitting} className="mb-8">
+              Submit
+            </Button>
+          </div>
         </div>
-      </div>
-
-      <Button type="submit" disabled={isSubmitting} className="mb-8">
-        Next <ArrowRight size={18} />
-      </Button>
+      )}
     </form>
   );
 }
