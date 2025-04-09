@@ -5,6 +5,7 @@ import { AskQuestionType } from "@/components/AskWizard/AskQuestionType";
 import { QuestionType } from "@prisma/client";
 import React, { useState } from "react";
 
+import { AskQuestionSubmitted } from "./AskQuestionSubmitted";
 import { AskWizardHeader } from "./AskWizardHeader";
 
 enum Page {
@@ -56,6 +57,9 @@ export function AskWizard() {
           />
           <AskForm questionType={questionType} onSetPage={handleSetPage} />
         </div>
+      )}
+      {page === Page.Confirmation && (
+        <AskQuestionSubmitted points={POINTS_PER_QUESTION} />
       )}
     </>
   );
