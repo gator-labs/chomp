@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType } from "@prisma/client";
 import { Upload } from "lucide-react";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import { TextInput } from "../TextInput/TextInput";
@@ -37,7 +37,7 @@ type AskFormProps = {
   onSetPage: (page: Page) => void;
 };
 
-function AskForm({ questionType, onSetPage }: AskFormProps) {
+function AskForm({ questionType }: AskFormProps) {
   const { errorToast } = useToast();
 
   const {
