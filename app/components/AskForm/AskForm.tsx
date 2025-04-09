@@ -7,7 +7,7 @@ import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType } from "@prisma/client";
-import { Upload } from "lucide-react";
+import { ArrowRight, Trash2, Upload } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -93,13 +93,13 @@ function AskForm({ questionType }: AskFormProps) {
   return (
     <form onSubmit={onSubmit}>
       <div className="mb-3">
-        <label className="block mb-1">Question</label>
+        <label className="block mb-1 text-base font-medium">Question</label>
         <TextInput
           variant="outline"
           {...register("question")}
           placeholder="What's something you want the crowd's opinion on?"
         />
-        <div className="float:right">
+        <div className="flex justify-end text-xs text-gray-500 font-medium pt-1">
           {questionText.length}/{MAX_QUESTION_LENGTH}
         </div>
         <div className="text-destructive">{errors.question?.message}</div>
@@ -107,7 +107,7 @@ function AskForm({ questionType }: AskFormProps) {
       <hr className="border-gray-600 my-2 p-0" />
 
       <div className="mb-3 flex flex-col gap-2">
-        <label className="block">Answer Choices</label>
+        <label className="block text-base font-medium">Answer Choices</label>
         {Array(questionType === QuestionType.MultiChoice ? 4 : 2)
           .fill(null)
           .map((_, index) => (
@@ -127,8 +127,8 @@ function AskForm({ questionType }: AskFormProps) {
       </div>
       <hr className="border-gray-600 my-2 p-0" />
       <div className="mb-3">
-        <label className="block mb-1">
-          Image <span className="text-gray-800">(optional)</span>
+        <label className="block mb-1 text-base font-medium">
+          Image <span className="text-gray-500">(optional)</span>
         </label>
         {questionPreviewUrl && (
           <div className="w-[77px] h-[77px] relative overflow-hidden rounded-lg mb-2">
@@ -156,25 +156,26 @@ function AskForm({ questionType }: AskFormProps) {
                 setValue("file", undefined);
               }}
               variant="destructive"
-              className="!w-fit !h-[30px]"
             >
-              Remove Image
+              Delete <Trash2 size={18} />
             </Button>
           )}
         </div>
       </div>
 
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="mb-2"
-        variant="outline"
-      >
-        Upload Image <Upload />
-      </Button>
+      {!questionPreviewUrl && (
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="mb-2"
+          variant="outline"
+        >
+          Upload Image <Upload size={18} />
+        </Button>
+      )}
 
       <Button type="submit" disabled={isSubmitting} className="mb-8">
-        Next →
+        Next <ArrowRight size={18} />
       </Button>
     </form>
   );
