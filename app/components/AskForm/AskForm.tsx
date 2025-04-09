@@ -6,6 +6,8 @@ import { askQuestionSchema } from "@/app/schemas/ask";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
+import ConfirmRemoveImageDrawer from "@/components/AskWizard/ConfirmRemoveImageDrawer";
+import ImageUploadErrorDrawer from "@/components/AskWizard/ImageUploadErrorDrawer";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { QuestionType } from "@prisma/client";
@@ -39,10 +41,14 @@ type AskFormProps = {
   onSetPage: (page: Page) => void;
 };
 
-function AskForm({ questionType }: AskFormProps) {
+function AskForm({ questionType, onSetPage }: AskFormProps) {
   const { errorToast } = useToast();
 
   const [isShowingPreview, setIsShowingPreview] = useState<boolean>(false);
+  const [isImageUploadErrorDrawerOpen, setIsImageUploadErrorDrawerOpen] =
+    useState<boolean>(false);
+  const [isConfirmRemoveImageDrawerOpen, setIsConfirmRemoveImageDrawerOpen] =
+    useState<boolean>(false);
 
   const uploadButtonRef = useRef<HTMLInputElement>(null);
 
@@ -81,6 +87,11 @@ function AskForm({ questionType }: AskFormProps) {
     };
   }, [file, questionPreviewUrl]);
 
+  const handleRemoveImage = () => {
+    setValue("file", undefined);
+    setIsConfirmRemoveImageDrawerOpen(false);
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     let imageUrl;
 
@@ -99,6 +110,10 @@ function AskForm({ questionType }: AskFormProps) {
       errorToast("Failed to save deck", result.errorMessage);
     }
     reset();
+
+    if (!result?.errorMessage) {
+      onSetPage(Page.Confirmation);
+    }
   });
 
   return (
@@ -190,7 +205,7 @@ function AskForm({ questionType }: AskFormProps) {
               <Button
                 type="button"
                 onClick={() => {
-                  setValue("file", undefined);
+                  setIsConfirmRemoveImageDrawerOpen(true);
                 }}
                 variant="destructive"
               >
@@ -232,6 +247,15 @@ function AskForm({ questionType }: AskFormProps) {
           </div>
         </div>
       )}
+      <ImageUploadErrorDrawer
+        isOpen={isImageUploadErrorDrawerOpen}
+        onClose={() => setIsImageUploadErrorDrawerOpen(false)}
+      />
+      <ConfirmRemoveImageDrawer
+        isOpen={isConfirmRemoveImageDrawerOpen}
+        onConfirm={handleRemoveImage}
+        onCancel={() => setIsConfirmRemoveImageDrawerOpen(false)}
+      />
     </form>
   );
 }
