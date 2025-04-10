@@ -13,6 +13,7 @@ export type AnswerStatsHeaderProps = {
   isCorrect: boolean;
   bonkReward: string;
   creditsReward: string;
+  isRewardKnown: boolean;
 };
 
 export function AnswerStatsHeader({
@@ -45,14 +46,14 @@ export function AnswerStatsHeader({
           {title}
         </div>
       </div>
-      <AnswerRewards
+      { isRewardKnown && <AnswerRewards
         bonkReward={bonkReward}
         creditsReward={creditsReward}
         isPracticeQuestion={isPracticeQuestion}
         isCorrect={isCorrect}
         variant="filled"
         onInfoIconClick={handleInfoIconClick}
-      />
+      />}
       <UnderstandYourResultsDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
