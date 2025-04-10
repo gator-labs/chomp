@@ -5,7 +5,6 @@ import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
 import { useCommunityAskAddToDeck } from "@/hooks/useCommunityAskAddToDeck";
 import { CommunityAskQuestion } from "@/lib/ask/getCommunityAskList";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
-import { QuestionOption, QuestionType } from "@prisma/client";
 import Image from "next/image";
 import { useEffect } from "react";
 

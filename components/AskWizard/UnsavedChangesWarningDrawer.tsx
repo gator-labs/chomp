@@ -26,8 +26,8 @@ const UnsavedChangedsWarningDrawer = ({
           </DialogTitle>
         </Dialog>
         <p className="text-sm mb-6">
-          You're about to leave this page. All changes will be discarded if you
-          leave.
+          You&apos;re about to leave this page. All changes will be discarded if
+          you leave.
         </p>
 
         <p className="text-sm mb-6">Would you like to keep editing?</p>
