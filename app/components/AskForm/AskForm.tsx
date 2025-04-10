@@ -2,7 +2,7 @@
 
 import { createAskQuestion } from "@/app/actions/ask/question";
 import { useToast } from "@/app/providers/ToastProvider";
-import { askQuestionSchema } from "@/app/schemas/ask";
+import { MAX_QUESTION_LENGTH, askQuestionSchema } from "@/app/schemas/ask";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
@@ -18,8 +18,6 @@ import { useForm } from "react-hook-form";
 
 import { TextInput } from "../TextInput/TextInput";
 import { Button } from "../ui/button";
-
-const MAX_QUESTION_LENGTH = 120;
 
 const getDefaultOptions = (type: QuestionType) => {
   switch (type) {
@@ -122,12 +120,23 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
         <div className="mb-3">
           <label className="block mb-1 text-base font-medium">Question</label>
           <TextInput hidden={true} variant="outline" {...register("type")} />
-          <TextInput
-            variant="outline"
+          <textarea
+            rows={4}
             {...register("question")}
             placeholder="What's something you want the crowd's opinion on?"
+            className={cn(
+              "bg-black w-full border p-2 text-sm font-medium border-gray-700 rounded-lg",
+              {
+                "border-destructive": questionText.length > MAX_QUESTION_LENGTH,
+              },
+            )}
           />
-          <div className="flex justify-end text-xs text-gray-500 font-medium pt-1">
+          <div
+            className={cn(
+              "flex justify-end text-xs text-gray-500 font-medium pt-1",
+              { "text-destructive": questionText.length > MAX_QUESTION_LENGTH },
+            )}
+          >
             {questionText.length}/{MAX_QUESTION_LENGTH}
           </div>
           <div className="text-destructive">{errors.question?.message}</div>
@@ -189,17 +198,19 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
             {!questionPreviewUrl && (
               <Button
                 disabled={isSubmitting}
-                variant="outline"
+                variant="secondary"
                 onClick={(e) => {
                   e.preventDefault();
                   uploadButtonRef?.current?.click();
                 }}
               >
-                Upload Image <Upload size={18} />
+                Upload Image <Upload size={18} color="#999999" />
               </Button>
             )}
 
-            <div className="text-destructive">{errors.file?.message}</div>
+            {errors.file?.message && (
+              <div className="text-destructive">{errors.file?.message}</div>
+            )}
 
             {questionPreviewUrl && (
               <Button
@@ -212,16 +223,16 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
                 Delete <Trash2 size={18} />
               </Button>
             )}
+
+            <Button
+              disabled={isSubmitting}
+              className="mb-8"
+              onClick={() => setIsShowingPreview(true)}
+            >
+              Next <ArrowRight size={18} />
+            </Button>
           </div>
         </div>
-
-        <Button
-          disabled={isSubmitting}
-          className="mb-8"
-          onClick={() => setIsShowingPreview(true)}
-        >
-          Next <ArrowRight size={18} />
-        </Button>
       </div>
       {isShowingPreview && (
         <div className="flex flex-col gap-2">
