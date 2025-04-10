@@ -1,7 +1,11 @@
 "server-only";
 
 import prisma from "@/app/services/prisma";
-import { ESpecialStack } from "@prisma/client";
+import {
+  ESpecialStack,
+  FungibleAsset,
+  TransactionLogType,
+} from "@prisma/client";
 
 export async function addToCommunityDeck(questionId: number): Promise<void> {
   let stack = await prisma.stack.findUnique({
@@ -45,10 +49,11 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
     }
 
     // Ensure the question exists
-    await tx.question.findFirstOrThrow({
+    const question = await tx.question.findFirstOrThrow({
       where: {
         id: questionId,
         isSubmittedByUser: true,
+        createdByUserId: { not: null },
         deckQuestions: {
           none: {},
         },
@@ -73,5 +78,22 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
         id: questionId,
       },
     });
+
+    const CREDITS_REWARD = Number(
+      process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD ?? 0,
+    );
+
+    if (CREDITS_REWARD) {
+      // Reward question author
+      await tx.fungibleAssetTransactionLog.create({
+        data: {
+          type: TransactionLogType.AskQuestionAccepted,
+          questionId: questionId,
+          asset: FungibleAsset.Credit,
+          change: Number(process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD),
+          userId: question.createdByUserId!,
+        },
+      });
+    }
   });
 }
