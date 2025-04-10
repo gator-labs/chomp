@@ -1,8 +1,14 @@
 "use client";
 
 import { createAskQuestion } from "@/app/actions/ask/question";
+import { IMAGE_UPLOAD_SIZES } from "@/app/constants/images";
 import { useToast } from "@/app/providers/ToastProvider";
-import { MAX_QUESTION_LENGTH, askQuestionSchema } from "@/app/schemas/ask";
+import {
+  MAX_OPTION_LENGTH,
+  MAX_QUESTION_LENGTH,
+  MIN_QUESTION_LENGTH,
+  askQuestionSchema,
+} from "@/app/schemas/ask";
 import { uploadImageToS3Bucket } from "@/app/utils/file";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
@@ -17,6 +23,7 @@ import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { TextInput } from "../TextInput/TextInput";
+import { TextInputLimited } from "../TextInputLimited/TextInputLimited";
 import { Button } from "../ui/button";
 
 const getDefaultOptions = (type: QuestionType) => {
@@ -56,8 +63,10 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
     formState: { errors, isSubmitting },
     watch,
     setValue,
+    clearErrors,
     reset,
   } = useForm({
+    mode: "onTouched",
     resolver: zodResolver(askQuestionSchema),
     defaultValues: {
       question: "",
@@ -76,6 +85,10 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
     .slice(0, questionType == QuestionType.BinaryQuestion ? 2 : 4)
     .map((o) => o.option);
 
+  const imgSize = uploadButtonRef?.current?.files?.[0]?.size ?? 0;
+  const isImgSizeTooLarge =
+    imgSize !== undefined && imgSize > IMAGE_UPLOAD_SIZES.MEDIUM;
+
   // Clean up object URL when component unmounts or file changes
   useEffect(() => {
     return () => {
@@ -85,9 +98,37 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
     };
   }, [file, questionPreviewUrl]);
 
+  useEffect(() => {
+    if (errors.file) {
+      setIsImageUploadErrorDrawerOpen(true);
+      setValue("file", undefined);
+      clearErrors("file");
+    }
+  }, [errors.file]);
+
+  useEffect(() => {
+    if (isImgSizeTooLarge) {
+      setIsImageUploadErrorDrawerOpen(true);
+      setValue("file", undefined);
+      clearErrors("file");
+    }
+  }, [isImgSizeTooLarge]);
+
   const handleRemoveImage = () => {
     setValue("file", undefined);
+    clearErrors("file");
     setIsConfirmRemoveImageDrawerOpen(false);
+  };
+
+  const handleNext = () => {
+    const hasErrors = Object.keys(errors).length > 0;
+
+    if (hasErrors) {
+      errorToast("Please check the required field(s)");
+      return;
+    }
+
+    setIsShowingPreview(true);
   };
 
   const onSubmit = handleSubmit(async (data) => {
@@ -105,7 +146,7 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
     });
 
     if (result?.errorMessage) {
-      errorToast("Failed to save deck", result.errorMessage);
+      errorToast("Failed to save question", result.errorMessage);
     }
     reset();
 
@@ -115,7 +156,11 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
   });
 
   return (
-    <form onSubmit={onSubmit}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+      }}
+    >
       <div className={cn({ hidden: isShowingPreview })}>
         <div className="mb-3">
           <label className="block mb-1 text-base font-medium">Question</label>
@@ -125,21 +170,31 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
             {...register("question")}
             placeholder="What's something you want the crowd's opinion on?"
             className={cn(
-              "bg-black w-full border p-2 text-sm font-medium border-gray-700 rounded-lg",
+              "bg-black w-full border p-2 text-sm font-medium border-gray-700 rounded-lg focus:outline-none",
               {
-                "border-destructive": questionText.length > MAX_QUESTION_LENGTH,
+                "border-destructive":
+                  questionText.length > MAX_QUESTION_LENGTH ||
+                  (!!errors.question?.message &&
+                    questionText.length < MIN_QUESTION_LENGTH),
               },
             )}
           />
           <div
             className={cn(
               "flex justify-end text-xs text-gray-500 font-medium pt-1",
-              { "text-destructive": questionText.length > MAX_QUESTION_LENGTH },
+              {
+                "text-destructive":
+                  questionText.length > MAX_QUESTION_LENGTH ||
+                  (!!errors.question?.message &&
+                    questionText.length < MIN_QUESTION_LENGTH),
+              },
             )}
           >
             {questionText.length}/{MAX_QUESTION_LENGTH}
           </div>
-          <div className="text-destructive">{errors.question?.message}</div>
+          <div className="text-destructive text-sm">
+            {errors.question?.message}
+          </div>
         </div>
         <hr className="border-gray-600 my-2 p-0" />
 
@@ -150,13 +205,16 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
             .map((_, index) => (
               <div key={`${questionType}-${index}`}>
                 <div className="flex gap-4">
-                  <TextInput
+                  <TextInputLimited
                     variant="outline"
+                    limit={MAX_OPTION_LENGTH}
+                    currentLength={options[index].length}
+                    isError={!!errors.questionOptions?.[index]?.option?.message}
                     placeholder={`Choice ${getAlphaIdentifier(index)}`}
                     {...register(`questionOptions.${index}.option`)}
                   />
                 </div>
-                <div className="text-destructive">
+                <div className="text-destructive text-sm">
                   {errors.questionOptions?.[index]?.option?.message}
                 </div>
               </div>
@@ -167,7 +225,7 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
           <label className="block mb-1 text-base font-medium">
             Image <span className="text-gray-500">(optional)</span>
           </label>
-          {questionPreviewUrl && (
+          {questionPreviewUrl && !isImgSizeTooLarge && (
             <div className="w-full relative mb-2">
               <Image
                 width={0}
@@ -209,10 +267,12 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
             )}
 
             {errors.file?.message && (
-              <div className="text-destructive">{errors.file?.message}</div>
+              <div className="text-destructive text-sm">
+                {errors.file?.message}
+              </div>
             )}
 
-            {questionPreviewUrl && (
+            {questionPreviewUrl && !isImgSizeTooLarge && (
               <Button
                 type="button"
                 onClick={() => {
@@ -227,7 +287,7 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
             <Button
               disabled={isSubmitting}
               className="mb-8"
-              onClick={() => setIsShowingPreview(true)}
+              onClick={handleNext}
             >
               Next <ArrowRight size={18} />
             </Button>
@@ -252,7 +312,7 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
             >
               <ArrowLeft size={18} />
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="mb-8">
+            <Button onClick={onSubmit} disabled={isSubmitting} className="mb-8">
               Submit
             </Button>
           </div>
