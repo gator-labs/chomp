@@ -206,12 +206,19 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD ?? 0,
         );
 
+        const aqa = await tx.askQuestionAnswer.create({
+          data: {
+            questionId: request.questionId,
+            userId,
+          },
+        });
+
         if (CREDITS_REWARD) {
           fungibleAssetRevealTasks.push(
             tx.fungibleAssetTransactionLog.createMany({
               data: {
                 type: TransactionLogType.AskQuestionAnswered,
-                questionId: request.questionId,
+                askQuestionAnswerId: aqa.id,
                 asset: FungibleAsset.Credit,
                 change: CREDITS_REWARD,
                 userId: questionOptions[0].question.createdByUserId,

@@ -102,6 +102,12 @@ describe("Validate points logs for completing questions and decks", () => {
 
   // delete all the dummy data after test completion
   afterAll(async () => {
+    await prisma.askQuestionAnswer.deleteMany({
+      where: {
+        userId: { in: [userId, authorId] },
+      },
+    });
+
     await deleteDeck(deckId);
 
     await prisma.fungibleAssetTransactionLog.deleteMany({
