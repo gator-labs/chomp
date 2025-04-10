@@ -14,7 +14,9 @@ enum Page {
   Confirmation,
 }
 
-const POINTS_PER_QUESTION = 69;
+const POINTS_PER_QUESTION = Number(
+  process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD ?? 0,
+);
 
 export function AskWizard() {
   const [questionType, setQuestionType] = useState<QuestionType>(
