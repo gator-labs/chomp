@@ -22,6 +22,7 @@ export function AnswerStatsHeader({
   isCorrect,
   bonkReward,
   creditsReward,
+  isRewardKnown,
 }: AnswerStatsHeaderProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
