@@ -1,13 +1,13 @@
 import { QuestionUnansweredIcon } from "@/app/components/Icons/QuestionUnansweredIcon";
 import { cn } from "@/app/utils/tailwind";
-import { QuestionOrderPercentage } from "@/types/answerStats";
+import { QuestionOption } from "@prisma/client";
 import React from "react";
 
 import AquaCheckIcon from "../icons/AquaCheckIcon";
 import RedXIcon from "../icons/RedXIcon";
 
 type BinaryBestAnswerProps = {
-  questionOptions: QuestionOrderPercentage[];
+  questionOptions: QuestionOption[];
   bestOption: string;
   optionSelected?: string | null;
 };
@@ -16,7 +16,6 @@ function BinaryBestAnswer({
   bestOption,
   optionSelected,
 }: BinaryBestAnswerProps) {
-  console.log(optionSelected, "selected");
   return (
     <div className="bg-gray-700 p-4 rounded-xl my-3">
       <div className=" text-sm font-700 text-white mb-2">Best answer is...</div>

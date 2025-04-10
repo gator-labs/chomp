@@ -1,14 +1,14 @@
 import { OPTION_LABEL } from "@/app/components/AnswerResult/constants";
 import { QuestionUnansweredIcon } from "@/app/components/Icons/QuestionUnansweredIcon";
 import { cn } from "@/lib/utils";
-import { QuestionOrderPercentage } from "@/types/answerStats";
+import { QuestionOption } from "@prisma/client";
 import React from "react";
 
 import AquaCheckIcon from "../icons/AquaCheckIcon";
 import RedXIcon from "../icons/RedXIcon";
 
 type MultiChoiceBestAnswerProps = {
-  questionOptions: QuestionOrderPercentage[];
+  questionOptions: QuestionOption[];
   bestOption: string;
   optionSelected?: string | null;
 };
@@ -18,7 +18,6 @@ function MultiChoiceBestAnswer({
   bestOption,
   optionSelected,
 }: MultiChoiceBestAnswerProps) {
-  console.log(bestOption, optionSelected, questionOptions);
   return (
     <div className="bg-gray-700 p-4 rounded-xl my-3">
       <div className=" text-sm font-700 text-white mb-2">Best answer is...</div>
@@ -28,13 +27,15 @@ function MultiChoiceBestAnswer({
             className={cn(
               "w-[50px] h-[50px] bg-gray-600 rounded-lg flex items-center justify-center",
               {
-                "bg-purple-500": qo.calculatedIsCorrect,
+                "bg-aqua": qo.option === bestOption,
+                "bg-destructive":
+                  qo.option === optionSelected && qo.option !== bestOption,
               },
             )}
           >
             <p
               className={cn("text-sm font-bold text-white", {
-                "!text-gray-800": qo.calculatedIsCorrect,
+                "!text-gray-800": qo.option === bestOption,
               })}
             >
               {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
@@ -42,7 +43,7 @@ function MultiChoiceBestAnswer({
           </div>
           <div
             className={cn(
-              "flex  bg-transparent  gap-2  px-2 w-full py-3 text-sm font-semibold text-white rounded-lg border-solid border-gray-500 border",
+              "flex h-[50px] bg-transparent  gap-2  px-2 w-full py-3 text-sm font-semibold text-white rounded-lg border-solid border-gray-500 border",
             )}
           >
             <div>{qo?.option}</div>

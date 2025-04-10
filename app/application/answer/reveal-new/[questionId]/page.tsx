@@ -38,7 +38,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     answerContent = (
       <>
         <BinaryBestAnswer
-          questionOptions={stats.questionOptionPercentages}
+          questionOptions={stats.questionOptions}
           optionSelected={answerSelected?.questionOption?.option ?? null}
           bestOption={stats.correctAnswer?.option ?? ""}
         />
@@ -49,7 +49,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     answerContent = (
       <>
         <MultiChoiceBestAnswer
-          questionOptions={stats.questionOptionPercentages}
+          questionOptions={stats.questionOptions}
           optionSelected={answerSelected?.questionOption?.option ?? null}
           bestOption={stats.correctAnswer?.option ?? ""}
         />
@@ -62,8 +62,8 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         title={stats.question}
         isCorrect={stats.isFirstOrderCorrect}
         isPracticeQuestion={stats.isPracticeQuestion}
-        bonkReward={stats.QuestionRewards?.[0].bonkReward}
-        creditsReward={stats.QuestionRewards?.[0].creditsReward}
+        bonkReward={stats.QuestionRewards?.[0]?.bonkReward}
+        creditsReward={stats.QuestionRewards?.[0]?.creditsReward}
       />
       <QuestionPreviewCard
         question={stats.question}

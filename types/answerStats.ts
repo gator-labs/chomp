@@ -24,8 +24,6 @@ export type QuestionOrderPercentage = {
   id: number;
   firstOrderSelectedAnswerPercentage: number;
   secondOrderAveragePercentagePicked: number;
-  option: string;
-  calculatedIsCorrect: boolean;
 };
 
 export type AnswerStats = Question & {
@@ -34,6 +32,7 @@ export type AnswerStats = Question & {
   answerCount: number;
   correctAnswer: QuestionOption | null;
   questionOptionPercentages: QuestionOrderPercentage[];
+  questionOptions: QuestionOption[];
   isQuestionRevealable: boolean;
   isCalculated: boolean;
   hasAlreadyClaimedReward: boolean;
