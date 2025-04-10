@@ -7,13 +7,16 @@ import {
   IMAGE_VALID_TYPES,
 } from "../constants/images";
 
+export const MAX_QUESTION_LENGTH = 120;
+
 export const askQuestionSchema = z.object({
   question: z
     .string({
       invalid_type_error: "Invalid question",
       required_error: "Question is required",
     })
-    .min(5),
+    .min(5)
+    .max(MAX_QUESTION_LENGTH),
   type: z.nativeEnum(QuestionType),
   file: z
     .custom<File[]>()
