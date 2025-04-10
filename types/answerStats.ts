@@ -18,11 +18,6 @@ export type UserAnswer = QuestionAnswer & {
     updatedAt: Date;
     questionId: number;
   };
-  deckQuestions: [
-    {
-      id: number;
-    },
-  ];
 };
 
 export type QuestionOrderPercentage = {
@@ -43,4 +38,5 @@ export type AnswerStats = Question & {
   QuestionRewards: QuestionRewards[];
   isFirstOrderCorrect: boolean;
   isPracticeQuestion: boolean;
+  deckQuestions: { deckId: number }[];
 };
