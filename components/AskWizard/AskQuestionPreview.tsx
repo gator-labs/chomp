@@ -8,6 +8,7 @@ export type AskQuestionPreviewProps = {
   title: string;
   options: string[];
   imageUrl?: string | null;
+  hideHeader?: boolean;
 };
 
 export type OptionProps = {
@@ -42,12 +43,15 @@ export function AskQuestionPreview({
   title,
   options,
   imageUrl,
+  hideHeader,
 }: AskQuestionPreviewProps) {
   const isBinary = options.length == 2;
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="block mb-1 text-base font-medium">Preview</div>
+      {!hideHeader && (
+        <div className="block mb-1 text-base font-medium">Preview</div>
+      )}
       <div className="bg-purple-500 rounded-xl flex flex-col py-3 px-5 relative overflow-hidden">
         <Image
           src={gatorHeadImage}
