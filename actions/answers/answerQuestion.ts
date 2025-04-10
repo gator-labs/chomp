@@ -213,7 +213,8 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           },
         });
 
-        if (CREDITS_REWARD) {
+        // first and second order required to be eligible for a reward
+        if (CREDITS_REWARD && request.percentageGiven !== undefined) {
           fungibleAssetRevealTasks.push(
             tx.fungibleAssetTransactionLog.createMany({
               data: {
