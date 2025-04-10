@@ -1,5 +1,7 @@
 import prisma from "@/app/services/prisma";
 import { addToCommunityDeck } from "@/lib/ask/addToCommunityDeck";
+import { getCreditBalance } from "@/lib/credits/getCreditBalance";
+import { generateUsers } from "@/scripts/utils";
 import { ESpecialStack } from "@prisma/client";
 
 describe("Add to community ask list", () => {
@@ -8,8 +10,15 @@ describe("Add to community ask list", () => {
   let deck: { id: number };
   let origCommunityStack: { id: number } | null;
   let origCommunityDeck: { id: number } | null;
+  let users: { id: string; username: string }[];
 
   beforeAll(async () => {
+    users = await generateUsers(1);
+
+    await prisma.user.createMany({
+      data: users,
+    });
+
     origCommunityStack = await prisma.stack.findUnique({
       where: { specialId: ESpecialStack.CommunityAsk },
     });
@@ -25,6 +34,7 @@ describe("Add to community ask list", () => {
         type: "BinaryQuestion",
         revealTokenAmount: 10,
         isSubmittedByUser: true,
+        createdByUserId: users[0].id,
         questionOptions: {
           create: [
             {
@@ -96,10 +106,31 @@ describe("Add to community ask list", () => {
       await prisma.stack.delete({
         where: { specialId: ESpecialStack.CommunityAsk },
       });
+
+    if (users) {
+      await prisma.fungibleAssetTransactionLog.deleteMany({
+        where: {
+          userId: { in: users.map((u) => u.id) },
+        },
+      });
+
+      await prisma.user.deleteMany({
+        where: { id: { in: users.map((u) => u.id) } },
+      });
+    }
   });
 
   it("should add a community question to list", async () => {
+    const authorCreditsBalanceBefore = await getCreditBalance(users[0].id);
+
     await addToCommunityDeck(question1.id);
+
+    const authorCreditsBalanceAfter = await getCreditBalance(users[0].id);
+
+    expect(process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD).toBeDefined();
+    expect(authorCreditsBalanceAfter - authorCreditsBalanceBefore).toEqual(
+      Number(process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD),
+    );
 
     const communityStack = await prisma.stack.findUnique({
       where: { specialId: ESpecialStack.CommunityAsk },
