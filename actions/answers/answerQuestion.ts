@@ -197,6 +197,30 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           }),
         );
       }
+
+      if (
+        questionOptions[0].question.isSubmittedByUser &&
+        questionOptions[0].question.createdByUserId
+      ) {
+        const CREDITS_REWARD = Number(
+          process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD ?? 0,
+        );
+
+        if (CREDITS_REWARD) {
+          fungibleAssetRevealTasks.push(
+            tx.fungibleAssetTransactionLog.createMany({
+              data: {
+                type: TransactionLogType.AskQuestionAnswered,
+                questionId: request.questionId,
+                asset: FungibleAsset.Credit,
+                change: CREDITS_REWARD,
+                userId: questionOptions[0].question.createdByUserId,
+              },
+            }),
+          );
+        }
+      }
+
       await Promise.all(fungibleAssetRevealTasks);
     });
   } catch (error) {

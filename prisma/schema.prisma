@@ -473,6 +473,8 @@ enum TransactionLogType {
   PremiumQuestionCharge
   CreditPurchase
   CreditByAdmin
+  AskQuestionAccepted
+  AskQuestionAnswered
 }
 
 enum ResultType {
