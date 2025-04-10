@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getJwtPayload } from "../jwt";
+import { QuestionType } from "@prisma/client";
 
 export async function createAskQuestion(
   data: z.infer<typeof askQuestionSchema>,
@@ -20,6 +21,11 @@ export async function createAskQuestion(
   if (!validatedFields.success) {
     return { errorMessage: formatErrorsToString(validatedFields) };
   }
+
+  const options = validatedFields.data.questionOptions.map((qo, i) =>
+    (validatedFields.data.type === QuestionType.BinaryQuestion && i == 0)
+      ? {...qo, isLeft: true }
+      : qo);
 
   const questionData = {
     ...validatedFields.data,
@@ -36,7 +42,7 @@ export async function createAskQuestion(
       ...questionData,
       questionOptions: {
         createMany: {
-          data: validatedFields.data.questionOptions,
+          data: options,
         },
       },
     },
