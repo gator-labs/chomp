@@ -4,11 +4,11 @@ import { askQuestionSchema } from "@/app/schemas/ask";
 import prisma from "@/app/services/prisma";
 import { ONE_MINUTE_IN_MILLISECONDS } from "@/app/utils/dateUtils";
 import { formatErrorsToString } from "@/app/utils/zod";
+import { QuestionType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { getJwtPayload } from "../jwt";
-import { QuestionType } from "@prisma/client";
 
 export async function createAskQuestion(
   data: z.infer<typeof askQuestionSchema>,
@@ -23,9 +23,10 @@ export async function createAskQuestion(
   }
 
   const options = validatedFields.data.questionOptions.map((qo, i) =>
-    (validatedFields.data.type === QuestionType.BinaryQuestion && i == 0)
-      ? {...qo, isLeft: true }
-      : qo);
+    validatedFields.data.type === QuestionType.BinaryQuestion && i == 0
+      ? { ...qo, isLeft: true }
+      : qo,
+  );
 
   const questionData = {
     ...validatedFields.data,
