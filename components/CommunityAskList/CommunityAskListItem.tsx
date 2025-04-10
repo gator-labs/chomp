@@ -1,6 +1,7 @@
 import { Button } from "@/app/components/Button/Button";
 import { useToast } from "@/app/providers/ToastProvider";
 import { formatDate } from "@/app/utils/date";
+import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
 import { useCommunityAskAddToDeck } from "@/hooks/useCommunityAskAddToDeck";
 import { CommunityAskQuestion } from "@/lib/ask/getCommunityAskList";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
@@ -34,40 +35,16 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
   }, [addToDeck.isSuccess]);
 
   return (
-    <div className="border p-2 m-2 rounded-md bg-gray-700 flex flex-col gap-2">
-      <div className="bg-white text-black p-2 rounded-md">
-        {question.imageUrl && (
-          <span className="mr-1">
-            <Image
-              src={question.imageUrl}
-              alt="Avatar"
-              width={32}
-              height={32}
-              className={"rounded-full border-2 inline-block"}
-              style={{
-                width: 32,
-                height: 32,
-              }}
-            />
-          </span>
-        )}{" "}
-        <span>{question.question}</span>
-        <div className="float-right bg-gray-700 text-white px-2 rounded-md">
-          {question.type == QuestionType.BinaryQuestion
-            ? "binary"
-            : "multi-choice"}
-        </div>
-      </div>
-      <div>
-        <ul className="list-disc list-inside">
-          {question.questionOptions.map((qo: QuestionOption) => (
-            <li key={qo.id}>{qo.option}</li>
-          ))}
-        </ul>
-      </div>
-      <div className="bg-gray-600 rounded-md p-2 grid grid-cols-[1fr_auto]">
-        <div>Submitted by:</div>
-        <div className="text-right">
+    <div className="border p-2 m-2 rounded-md bg-gray-900 flex flex-col gap-2">
+      <AskQuestionPreview
+        title={question.question}
+        options={question.questionOptions.map((qo) => qo.option)}
+        imageUrl={question.imageUrl}
+        hideHeader={true}
+      />
+      <div className="bg-gray-600 rounded-md p-2 grid grid-cols-[1fr_auto] text-sm">
+        <div className="text-nowrap">Submitted by:</div>
+        <div className="text-right truncate">
           <span className="mr-1">
             <Image
               src={avatarSrc}
@@ -84,7 +61,7 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
           {question.user.username || question.user.id}
         </div>
         <div>Wallet:</div>
-        <div className="text-right">
+        <div className="text-right truncate">
           {question.user.wallets?.[0]?.address || "?"}
         </div>
         <div>At:</div>
