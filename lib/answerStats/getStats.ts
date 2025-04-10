@@ -34,6 +34,11 @@ export async function getAnswerStats(
           revealNft: true,
         },
       },
+      deckQuestions: {
+        select: {
+          deckId: true,
+        },
+      },
       QuestionRewards: true,
     },
   });

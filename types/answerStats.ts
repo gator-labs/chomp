@@ -18,6 +18,11 @@ export type UserAnswer = QuestionAnswer & {
     updatedAt: Date;
     questionId: number;
   };
+  deckQuestions: [
+    {
+      id: number;
+    },
+  ];
 };
 
 export type QuestionOrderPercentage = {
