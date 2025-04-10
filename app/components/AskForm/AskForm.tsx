@@ -71,7 +71,7 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
     defaultValues: {
       question: "",
       type: questionType,
-      questionOptions: getDefaultOptions(QuestionType.MultiChoice),
+      questionOptions: getDefaultOptions(questionType),
       file: undefined,
     },
   });
