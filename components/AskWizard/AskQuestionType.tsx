@@ -18,7 +18,7 @@ export function AskQuestionType({
 }: AskQuestionTypeProps) {
   return (
     <div
-      className="bg-purple-500 rounded-xl h-1/2 flex flex-col cursor-pointer relative overflow-hidden"
+      className="bg-purple-500 rounded-xl h-1/2 flex flex-col cursor-pointer relative overflow-hidden min-h-[16em]"
       onClick={() => onClick?.()}
     >
       <Image
