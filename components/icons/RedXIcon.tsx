@@ -16,23 +16,23 @@ function RedXIcon({ width = 38, height = 38 }: IconProps) {
       <path
         d="M16 26.2174C21.5228 26.2174 26 21.7403 26 16.2174C26 10.6946 21.5228 6.21741 16 6.21741C10.4772 6.21741 6 10.6946 6 16.2174C6 21.7403 10.4772 26.2174 16 26.2174Z"
         stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M19 13.2174L13 19.2174"
         stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
       <path
         d="M13 13.2174L19 19.2174"
         stroke="black"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
       />
     </svg>
   );
