@@ -1,5 +1,9 @@
+import { cn } from "@/lib/utils";
+import bgEllipse2 from "@/public/images/bg_ellipse2.svg";
+import bgEllipse from "@/public/images/bg_ellipse.svg";
 import { QuestionType } from "@prisma/client";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 export type AskQuestionTypeProps = {
   type: QuestionType;
@@ -14,9 +18,19 @@ export function AskQuestionType({
 }: AskQuestionTypeProps) {
   return (
     <div
-      className="bg-purple-500 rounded-xl h-1/2 flex flex-col cursor-pointer"
+      className="bg-purple-500 rounded-xl h-1/2 flex flex-col cursor-pointer relative overflow-hidden"
       onClick={() => onClick?.()}
     >
+      <Image
+        src={type == QuestionType.MultiChoice ? bgEllipse : bgEllipse2}
+        alt="ellipse"
+        className={cn("absolute z-10", {
+          "top-[0px] left-[0px] w-[70%] h-[70%]":
+            type === QuestionType.MultiChoice,
+          "bottom-[0px] right-[0px] w-[70%] h-[70%]":
+            type === QuestionType.BinaryQuestion,
+        })}
+      />
       <div className="px-4 py-6 h-full flex flex-col gap-1">
         <div className="text-base font-medium">Ask a question with</div>
         <div className="text-4xl font-black">
