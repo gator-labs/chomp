@@ -8,10 +8,10 @@ import {
 } from "../constants/images";
 
 export const MIN_QUESTION_LENGTH = 5;
-export const MIN_OPTION_LENGTH = 1;
-
 export const MAX_QUESTION_LENGTH = 120;
-export const MAX_OPTION_LENGTH = 120;
+
+export const MIN_OPTION_LENGTH = 1;
+export const MAX_OPTION_LENGTH = 40;
 
 export const askQuestionSchema = z.object({
   question: z
