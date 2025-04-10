@@ -78,8 +78,8 @@ export function AnswerRewards({
         {icon}
         <div className={pillStyle}>
           <TrophyStarMarkIcon
-            height={20}
-            width={20}
+            height={16}
+            width={16}
             fill={cn({
               "#4D4D4D": isPracticeQuestion,
               "#FFFFFF": !isPracticeQuestion,
