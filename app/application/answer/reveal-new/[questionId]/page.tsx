@@ -60,8 +60,10 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     <div>
       <AnswerStatsHeader
         title={stats.question}
-        bonkReward={stats.QuestionRewards?.[0]?.bonkReward}
-        creditsReward={stats.QuestionRewards?.[0]?.creditsReward}
+        isCorrect={stats.isFirstOrderCorrect}
+        isPracticeQuestion={stats.isPracticeQuestion}
+        bonkReward={stats.QuestionRewards?.[0].bonkReward}
+        creditsReward={stats.QuestionRewards?.[0].creditsReward}
       />
       <QuestionPreviewCard
         question={stats.question}

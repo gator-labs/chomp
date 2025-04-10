@@ -117,10 +117,17 @@ export async function getAnswerStats(
       isQuestionRevealable,
       isCalculated: false,
       hasAlreadyClaimedReward: false,
+      isFirstOrderCorrect: false,
+      isPracticeQuestion: false,
     };
   }
 
   const isLegacyQuestion = question.creditCostPerQuestion === null;
+
+  const answerSelected = userAnswers.find((ua) => ua.selected);
+  const isFirstOrderCorrect =
+    correctAnswer?.id === answerSelected?.questionOptionId;
+  const isPracticeQuestion = question.creditCostPerQuestion === 0;
 
   return {
     ...question,
@@ -139,5 +146,7 @@ export async function getAnswerStats(
     isCalculated,
     hasAlreadyClaimedReward:
       isLegacyQuestion || question.QuestionRewards.length > 0,
+    isFirstOrderCorrect,
+    isPracticeQuestion,
   };
 }
