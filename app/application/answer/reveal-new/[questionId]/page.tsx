@@ -1,7 +1,9 @@
 "use client";
 
+import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: {
@@ -10,17 +12,31 @@ interface Props {
 }
 
 const RevealAnswerPageNew = ({ params }: Props) => {
+  const loadingScreen = (
+    <ChompFullScreenLoader
+      isLoading={true}
+      loadingMessage="Loading question stats..."
+    />
+  );
+
   // Parameters can be undefined on the first render;
   // return a promise to trigger suspense further up
   // the tree until we have the values.
-  if (params.questionId === undefined)
-    throw new Promise((r) => setTimeout(r, 0));
+  if (params.questionId === undefined) return loadingScreen;
 
   const result = useGetAnswerStatsQuery(Number(params.questionId));
 
-  if (result.isLoading || !result.data) return <div>Loading...</div>;
+  if (result.isError) {
+    if (result.error.name === "NotFoundError") notFound();
+    else
+      return (
+        <div className="p-10 w-full flex justify-center">
+          Error fetching question.
+        </div>
+      );
+  }
 
-  if (result.isError) return <div>Error fetching question.</div>;
+  if (result.isLoading || !result.data) return loadingScreen;
 
   const stats = result.data.stats;
 
