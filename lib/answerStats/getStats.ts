@@ -60,14 +60,14 @@ export async function getAnswerStats(
 
   const questionOrderPercentages = isCalculated
     ? calculatedQuestionOptionPercentages.map((cqop) => ({
-        id: cqop.id,
-        firstOrderSelectedAnswerPercentage: Number(
-          cqop.firstOrderSelectedAnswerPercentage ?? 0,
-        ),
-        secondOrderAveragePercentagePicked: Number(
-          cqop.secondOrderAveragePercentagePicked ?? 0,
-        ),
-      }))
+      id: cqop.id,
+      firstOrderSelectedAnswerPercentage: Number(
+        cqop.firstOrderSelectedAnswerPercentage ?? 0,
+      ),
+      secondOrderAveragePercentagePicked: Number(
+        cqop.secondOrderAveragePercentagePicked ?? 0,
+      ),
+    }))
     : [];
 
   const populated = populateAnswerCount(question);
@@ -119,6 +119,8 @@ export async function getAnswerStats(
       hasAlreadyClaimedReward: false,
       isFirstOrderCorrect: false,
       isPracticeQuestion: false,
+      totalAnswers: 0,
+      correctAnswers: 0,
     };
   }
 
@@ -128,6 +130,17 @@ export async function getAnswerStats(
   const isFirstOrderCorrect =
     correctAnswer?.id === answerSelected?.questionOptionId;
   const isPracticeQuestion = question.creditCostPerQuestion === 0;
+
+  const questionAnswers = await prisma.questionAnswer.findMany({
+    where: {
+      questionOptionId: correctAnswer?.id,
+    },
+  });
+
+  const numSelectedCorrect = questionAnswers.reduce(
+    (count, qa) => (qa.selected ? count + 1 : count),
+    0
+  );
 
   return {
     ...question,
@@ -148,5 +161,7 @@ export async function getAnswerStats(
       isLegacyQuestion || question.QuestionRewards.length > 0,
     isFirstOrderCorrect,
     isPracticeQuestion,
+    totalAnswers: questionAnswers.length,
+    correctAnswers: numSelectedCorrect,
   };
 }
