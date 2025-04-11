@@ -1,9 +1,11 @@
 "use client";
 
 import { ChevronLeftIcon } from "@/app/components/Icons/ChevronLeftIcon";
+import { RewardStatus } from "@/types/answerStats";
 import { useState } from "react";
 
 import { AnswerRewards } from "./AnswerRewards";
+import { NoAnswerRewards } from "./NoAnswerRewards";
 import UnderstandYourResultsDrawer from "./UnderstandYourResultsDrawer";
 
 export type AnswerStatsHeaderProps = {
@@ -13,7 +15,7 @@ export type AnswerStatsHeaderProps = {
   isCorrect: boolean;
   bonkReward: string;
   creditsReward: string;
-  isRewardKnown: boolean;
+  rewardStatus: RewardStatus;
 };
 
 export function AnswerStatsHeader({
@@ -23,7 +25,7 @@ export function AnswerStatsHeader({
   isCorrect,
   bonkReward,
   creditsReward,
-  isRewardKnown,
+  rewardStatus,
 }: AnswerStatsHeaderProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
@@ -44,7 +46,7 @@ export function AnswerStatsHeader({
           {title}
         </div>
       </div>
-      {isRewardKnown && (
+      {rewardStatus === "claimed" && (
         <AnswerRewards
           bonkReward={bonkReward}
           creditsReward={creditsReward}
@@ -54,6 +56,7 @@ export function AnswerStatsHeader({
           onInfoIconClick={handleInfoIconClick}
         />
       )}
+      {rewardStatus === "claimable" && <NoAnswerRewards />}
       <UnderstandYourResultsDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}

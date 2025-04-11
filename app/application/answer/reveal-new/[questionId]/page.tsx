@@ -49,7 +49,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         isPracticeQuestion={stats.isPracticeQuestion}
         bonkReward={stats.QuestionRewards?.[0]?.bonkReward ?? "0"}
         creditsReward={stats.QuestionRewards?.[0]?.creditsReward ?? "0"}
-        isRewardKnown={stats.QuestionRewards.length > 0}
+        rewardStatus={stats.rewardStatus}
       />
     </div>
   );

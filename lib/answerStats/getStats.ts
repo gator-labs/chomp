@@ -124,6 +124,8 @@ export async function getAnswerStats(
       hasAlreadyClaimedReward: false,
       isFirstOrderCorrect: false,
       isPracticeQuestion: false,
+      isQuestionAnsweredByUser: false,
+      rewardStatus: "no-reward",
     };
   }
 
@@ -133,6 +135,16 @@ export async function getAnswerStats(
   const isFirstOrderCorrect =
     correctAnswer?.id === answerSelected?.questionOptionId;
   const isPracticeQuestion = question.creditCostPerQuestion === 0;
+
+  const isQuestionAnsweredByUser = userAnswers.length > 0;
+  const isRewardKnown = question.QuestionRewards.length > 0;
+
+  const rewardStatus =
+    isPracticeQuestion || !isQuestionAnsweredByUser
+      ? "no-reward"
+      : isRewardKnown
+        ? "claimed"
+        : "not-claimed";
 
   return {
     ...question,
@@ -153,5 +165,7 @@ export async function getAnswerStats(
       isLegacyQuestion || question.QuestionRewards.length > 0,
     isFirstOrderCorrect,
     isPracticeQuestion,
+    isQuestionAnsweredByUser,
+    rewardStatus,
   };
 }
