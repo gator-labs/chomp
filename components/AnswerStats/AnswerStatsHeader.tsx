@@ -42,7 +42,7 @@ export function AnswerStatsHeader({
         >
           <ChevronLeftIcon width={22} height={22} />
         </a>
-        <div className="bg-chomp-blue-light text-black font-bold px-4 py-2 rounded-sm">
+        <div className="bg-chomp-blue-light text-black text-sm font-bold px-3 py-2 rounded-sm">
           {title}
         </div>
       </div>
