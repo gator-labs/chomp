@@ -60,7 +60,7 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isValid, isSubmitting },
     watch,
     setValue,
     clearErrors,
@@ -121,9 +121,7 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
   };
 
   const handleNext = () => {
-    const hasErrors = Object.keys(errors).length > 0;
-
-    if (hasErrors) {
+    if (!isValid) {
       errorToast("Please check the required field(s)");
       return;
     }
@@ -145,12 +143,12 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
       questionOptions: data?.questionOptions,
     });
 
-    if (result?.errorMessage) {
-      errorToast("Failed to save question", result.errorMessage);
-    }
-    reset();
-
-    if (!result?.errorMessage) {
+    if (!result || result?.errorMessage) {
+      if (result?.errorMessage)
+        errorToast("Failed to save question:", result?.errorMessage);
+      else errorToast("Failed to save question.");
+    } else {
+      reset();
       onSetPage(Page.Confirmation);
     }
   });
@@ -312,7 +310,11 @@ function AskForm({ questionType, onSetPage }: AskFormProps) {
             >
               <ArrowLeft size={18} />
             </Button>
-            <Button onClick={onSubmit} disabled={isSubmitting} className="mb-8">
+            <Button
+              onClick={onSubmit}
+              disabled={isSubmitting || !isValid}
+              className="mb-8"
+            >
               Submit
             </Button>
           </div>
