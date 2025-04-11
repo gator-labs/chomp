@@ -39,4 +39,6 @@ export type AnswerStats = Question & {
   QuestionRewards: QuestionRewards[];
   isFirstOrderCorrect: boolean;
   isPracticeQuestion: boolean;
+  totalAnswers: number;
+  correctAnswers: number;
 };

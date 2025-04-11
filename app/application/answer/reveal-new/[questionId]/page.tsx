@@ -2,7 +2,9 @@
 
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
+import BinaryPieChart from "@/components/BinaryPieChart/BinaryPieChart";
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
+import MultiChoicePieChart from "@/components/MultiChoicePieChart/MultiChoicePieChart";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
@@ -32,30 +34,40 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
-  let answerContent = <></>;
+  console.log(stats);
 
-  if (!!isBinary) {
-    answerContent = (
-      <>
-        <BinaryBestAnswer
-          questionOptions={stats.questionOptions}
-          optionSelected={answerSelected?.questionOption?.option ?? null}
-          bestOption={stats.correctAnswer?.option ?? ""}
-        />
-      </>
-    );
-  }
-  if (!isBinary) {
-    answerContent = (
-      <>
-        <MultiChoiceBestAnswer
-          questionOptions={stats.questionOptions}
-          optionSelected={answerSelected?.questionOption?.option ?? null}
-          bestOption={stats.correctAnswer?.option ?? ""}
-        />
-      </>
-    );
-  }
+  const answerContent = !!isBinary ? (
+    <>
+      <BinaryBestAnswer
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+      />
+      <BinaryPieChart
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+        totalAnswers={stats.totalAnswers}
+        correctAnswers={stats.correctAnswers}
+      />
+    </>
+  ) : (
+    <>
+      <MultiChoiceBestAnswer
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+      />
+      <MultiChoicePieChart
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+        totalAnswers={stats.totalAnswers}
+        correctAnswers={stats.correctAnswers}
+      />
+    </>
+  );
+
   return (
     <div>
       <AnswerStatsHeader
