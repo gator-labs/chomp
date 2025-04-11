@@ -34,6 +34,7 @@ export type AnswerStats = Question & {
   answerCount: number;
   correctAnswer: QuestionOption | null;
   questionOptionPercentages: QuestionOrderPercentage[];
+  questionOptions: QuestionOption[];
   isQuestionRevealable: boolean;
   isCalculated: boolean;
   hasAlreadyClaimedReward: boolean;
