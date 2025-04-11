@@ -144,7 +144,7 @@ export async function getAnswerStats(
       ? "no-reward"
       : isRewardKnown
         ? "claimed"
-        : "not-claimed";
+        : "unclaimed";
 
   return {
     ...question,
