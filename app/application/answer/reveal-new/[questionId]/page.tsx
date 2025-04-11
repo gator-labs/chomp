@@ -1,11 +1,13 @@
 "use client";
 
+import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
+import { notFound } from "next/navigation";
 
 interface Props {
   params: {
@@ -14,17 +16,34 @@ interface Props {
 }
 
 const RevealAnswerPageNew = ({ params }: Props) => {
+  const questionId =
+    params.questionId === undefined ? undefined : Number(params.questionId);
+
+  const result = useGetAnswerStatsQuery(questionId);
+
+  const loadingScreen = (
+    <ChompFullScreenLoader
+      isLoading={true}
+      loadingMessage="Loading question stats..."
+    />
+  );
+
   // Parameters can be undefined on the first render;
   // return a promise to trigger suspense further up
   // the tree until we have the values.
-  if (params.questionId === undefined)
-    throw new Promise((r) => setTimeout(r, 0));
+  if (params.questionId === undefined) return loadingScreen;
 
-  const result = useGetAnswerStatsQuery(Number(params.questionId));
+  if (result.isError) {
+    if (result.error.name === "NotFoundError") notFound();
+    else
+      return (
+        <div className="p-10 w-full flex justify-center">
+          Error fetching question.
+        </div>
+      );
+  }
 
-  if (result.isLoading || !result.data) return <div>Loading...</div>;
-
-  if (result.isError) return <div>Error fetching question.</div>;
+  if (result.isLoading || !result.data) return loadingScreen;
 
   const stats = result.data.stats;
 
@@ -60,15 +79,18 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     <div>
       <AnswerStatsHeader
         title={stats.question}
+        deckId={stats.deckQuestions?.[0]?.deckId ?? null}
         isCorrect={stats.isFirstOrderCorrect}
         isPracticeQuestion={stats.isPracticeQuestion}
-        bonkReward={stats.QuestionRewards?.[0]?.bonkReward}
-        creditsReward={stats.QuestionRewards?.[0]?.creditsReward}
+        bonkReward={stats.QuestionRewards?.[0]?.bonkReward ?? "0"}
+        creditsReward={stats.QuestionRewards?.[0]?.creditsReward ?? "0"}
+        rewardStatus={stats.rewardStatus}
       />
       <QuestionPreviewCard
         question={stats.question}
         revealAtDate={stats.revealAtDate}
         imageUrl={stats.imageUrl}
+        
       />
       {answerContent}
     </div>

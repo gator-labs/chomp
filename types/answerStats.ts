@@ -6,6 +6,8 @@ import {
   QuestionRewards,
 } from "@prisma/client";
 
+export type RewardStatus = "claimable" | "claimed" | "no-reward";
+
 export type ChompResultNoDecimal = Omit<ChompResult, "rewardTokenAmount"> & {
   rewardTokenAmount: number | undefined;
 };
@@ -39,4 +41,7 @@ export type AnswerStats = Question & {
   QuestionRewards: QuestionRewards[];
   isFirstOrderCorrect: boolean;
   isPracticeQuestion: boolean;
+  deckQuestions: { deckId: number }[];
+  isQuestionAnsweredByUser: boolean;
+  rewardStatus: RewardStatus;
 };
