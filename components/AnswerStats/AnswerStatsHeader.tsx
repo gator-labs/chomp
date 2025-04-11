@@ -46,7 +46,7 @@ export function AnswerStatsHeader({
           {title}
         </div>
       </div>
-      {rewardStatus === "claimed" && (
+      {(rewardStatus === "claimed" || isPracticeQuestion) && (
         <AnswerRewards
           bonkReward={bonkReward}
           creditsReward={creditsReward}
