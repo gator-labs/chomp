@@ -12,6 +12,11 @@ interface Props {
 }
 
 const RevealAnswerPageNew = ({ params }: Props) => {
+  const questionId =
+    params.questionId === undefined ? undefined : Number(params.questionId);
+
+  const result = useGetAnswerStatsQuery(questionId);
+
   const loadingScreen = (
     <ChompFullScreenLoader
       isLoading={true}
@@ -23,8 +28,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   // return a promise to trigger suspense further up
   // the tree until we have the values.
   if (params.questionId === undefined) return loadingScreen;
-
-  const result = useGetAnswerStatsQuery(Number(params.questionId));
 
   if (result.isError) {
     if (result.error.name === "NotFoundError") notFound();
