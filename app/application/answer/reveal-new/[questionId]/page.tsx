@@ -1,10 +1,13 @@
 "use client";
 
 import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
+import { getAlphaIdentifier } from "@/app/utils/question";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
+import SecondOrderAnswerResultsMultiple from "@/components/SecondOrderAnswerResultMultiple";
+import SecondOrderAnswerResultsBinary from "@/components/SecondOrderAnswerResultsBinary";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
 import { notFound } from "next/navigation";
@@ -20,6 +23,9 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     params.questionId === undefined ? undefined : Number(params.questionId);
 
   const result = useGetAnswerStatsQuery(questionId);
+
+  console.log('Result:');
+  console.log(result.data);
 
   const loadingScreen = (
     <ChompFullScreenLoader
@@ -75,6 +81,59 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       </>
     );
   }
+
+  let secondOrderAnswerResults = <></>;
+
+  if (isBinary) {
+    const leftQuestionOptionP = result.data.stats.questionOptionPercentages.find((q) => q.isLeft);
+    const rightQuestionOptionP = result.data.stats.questionOptionPercentages.find((q) => !q.isLeft);
+
+    const aPercentage = leftQuestionOptionP?.secondOrderAveragePercentagePicked || -1;
+    const bPercentage = rightQuestionOptionP?.secondOrderAveragePercentagePicked || -1;
+
+    secondOrderAnswerResults = SecondOrderAnswerResultsBinary({ aPercentage, bPercentage });
+  } else {
+    const options = result.data.stats.questionOptionPercentages.map(
+      ((qop, index) =>
+      ({
+        option: qop.option,
+        label: getAlphaIdentifier(index),
+        percentage: qop.secondOrderAveragePercentagePicked,
+      })));
+
+    const selectedQOId = result.data.stats.userAnswers.find((ans) => ans.percentage != null);
+
+    // isCreditsQuestions
+    const isCreditsQuestions = questionResponse.creditCostPerQuestion !== null;
+
+    const hasAlreadyClaimedReward =
+      !isCreditsQuestion || questionResponse.MysteryBoxTrigger.length > 0;
+
+    //const isSecondOrderCorrect = isCreditsQuestion
+    //  ? hasAlreadyClaimedReward
+    //    ? bonkPrizeAmount > 0
+    //    : undefined
+    //  : (chompResult?.rewardTokenAmount ?? 0) >
+    //  questionResponse.revealTokenAmount;
+
+    let isSecondOrderCorrect;
+    if (isCreditsQuestions) {
+      // if its credit question and has already claimed 
+      if (hasAlreadyClaimedReward) {
+        isSecondOrderCorrect = bonkPrizeAmount > 0;
+      } else {
+        isSecondOrderCorrect = undefined;
+      }
+    } else {
+      isSecondOrderCorrect = (chompResult?.rewardTokenAmount ?? 0) >
+        questionResponse.revealTokenAmount;
+    }
+
+
+
+    secondOrderAnswerResults = SecondOrderAnswerResultsMultiple();
+  }
+
   return (
     <div>
       <AnswerStatsHeader
@@ -90,9 +149,10 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         question={stats.question}
         revealAtDate={stats.revealAtDate}
         imageUrl={stats.imageUrl}
-        
+
       />
       {answerContent}
+      {secondOrderAnswerResults}
     </div>
   );
 };
