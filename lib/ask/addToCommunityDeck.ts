@@ -1,11 +1,7 @@
 "server-only";
 
 import prisma from "@/app/services/prisma";
-import {
-  ESpecialStack,
-  FungibleAsset,
-  TransactionLogType,
-} from "@prisma/client";
+import { ESpecialStack } from "@prisma/client";
 
 export async function addToCommunityDeck(questionId: number): Promise<void> {
   let stack = await prisma.stack.findUnique({
@@ -49,7 +45,7 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
     }
 
     // Ensure the question exists
-    const question = await tx.question.findFirstOrThrow({
+    await tx.question.findFirstOrThrow({
       where: {
         id: questionId,
         isSubmittedByUser: true,
