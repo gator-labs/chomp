@@ -6,7 +6,9 @@ import {
   mapPercentages,
   populateAnswerCount,
 } from "@/app/utils/question";
+import { MAX_DECIMALS } from "@/constants/tokens";
 import { AnswerStats } from "@/types/answerStats";
+import Decimal from "decimal.js";
 
 export async function getAnswerStats(
   userId: string,
@@ -123,6 +125,7 @@ export async function getAnswerStats(
       isCalculated: false,
       hasAlreadyClaimedReward: false,
       isFirstOrderCorrect: false,
+      isSecondOrderCorrect: false,
       isPracticeQuestion: false,
       isQuestionAnsweredByUser: false,
       rewardStatus: "no-reward",
@@ -146,12 +149,26 @@ export async function getAnswerStats(
         ? "claimed"
         : "claimable";
 
+  const hasBonkPrize = new Decimal(
+    question.QuestionRewards?.[0]?.bonkReward ?? "0",
+  )
+    .toDP(Decimal.ROUND_DOWN, MAX_DECIMALS.BONK)
+    .greaterThan("0");
+
+  const chompResults = question.chompResults.map((chompResult) => ({
+    ...chompResult,
+    rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
+  }));
+
+  const isSecondOrderCorrect = !isLegacyQuestion
+    ? isRewardKnown
+      ? hasBonkPrize
+      : null
+    : (chompResults?.[0]?.rewardTokenAmount ?? 0) > question.revealTokenAmount;
+
   return {
     ...question,
-    chompResults: question.chompResults.map((chompResult) => ({
-      ...chompResult,
-      rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
-    })),
+    chompResults,
     userAnswers: isCalculated ? userAnswers : [],
     answerCount: populated.answerCount ?? 0,
     correctAnswer: correctAnswer ?? null,
@@ -164,6 +181,7 @@ export async function getAnswerStats(
     hasAlreadyClaimedReward:
       isLegacyQuestion || question.QuestionRewards.length > 0,
     isFirstOrderCorrect,
+    isSecondOrderCorrect,
     isPracticeQuestion,
     isQuestionAnsweredByUser,
     rewardStatus,

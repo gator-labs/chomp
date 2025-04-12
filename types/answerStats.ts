@@ -40,6 +40,7 @@ export type AnswerStats = Question & {
   hasAlreadyClaimedReward: boolean;
   QuestionRewards: QuestionRewards[];
   isFirstOrderCorrect: boolean;
+  isSecondOrderCorrect: boolean | null;
   isPracticeQuestion: boolean;
   deckQuestions: { deckId: number }[];
   isQuestionAnsweredByUser: boolean;
