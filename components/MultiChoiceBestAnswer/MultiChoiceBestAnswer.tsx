@@ -1,11 +1,11 @@
 import { OPTION_LABEL } from "@/app/components/AnswerResult/constants";
-import { QuestionUnansweredIcon } from "@/app/components/Icons/QuestionUnansweredIcon";
 import { cn } from "@/lib/utils";
 import { QuestionOption } from "@prisma/client";
 import React from "react";
 
 import AquaCheckIcon from "../icons/AquaCheckIcon";
 import RedXIcon from "../icons/RedXIcon";
+import { UnansweredQuestionIcon } from "../icons/UnansweredQuestionIcon";
 
 type MultiChoiceBestAnswerProps = {
   questionOptions: QuestionOption[];
@@ -55,23 +55,20 @@ function MultiChoiceBestAnswer({
 
       <div
         className={cn(
-          "text-gray font-bold text-sm flex items-center justify-between gap-1 mt-2 text-destructive",
-          {
-            "text-white": optionSelected === null,
-            "text-aqua": bestOption === optionSelected,
-          },
+          "text-gray font-bold text-sm flex items-center justify-between gap-1 mt-2 ",
         )}
       >
-        <p>
-          {optionSelected === null
-            ? "You did not answer"
-            : bestOption === optionSelected
-              ? "You picked best answer:"
-              : "You did not pick best answer:"}
-        </p>
+        {optionSelected === null ? (
+          <p className="text-gray-400">You didn&apos;t answer this question</p>
+        ) : bestOption === optionSelected ? (
+          <p className="text-aqua">You picked the best answer:</p>
+        ) : (
+          <p className="text-destructive">You did not pick the best answer:</p>
+        )}
+
         {optionSelected === null ? (
           <div className="rounded-full">
-            <QuestionUnansweredIcon width={24} height={24} />{" "}
+            <UnansweredQuestionIcon width={24} height={24} />{" "}
           </div>
         ) : bestOption === optionSelected ? (
           <AquaCheckIcon width={24} height={24} />
