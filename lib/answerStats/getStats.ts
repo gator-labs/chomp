@@ -6,7 +6,9 @@ import {
   mapPercentages,
   populateAnswerCount,
 } from "@/app/utils/question";
+import { MAX_DECIMALS } from "@/constants/tokens";
 import { AnswerStats } from "@/types/answerStats";
+import Decimal from "decimal.js";
 
 export async function getAnswerStats(
   userId: string,
@@ -32,6 +34,11 @@ export async function getAnswerStats(
         },
         include: {
           revealNft: true,
+        },
+      },
+      deckQuestions: {
+        select: {
+          deckId: true,
         },
       },
       QuestionRewards: true,
@@ -60,14 +67,14 @@ export async function getAnswerStats(
 
   const questionOrderPercentages = isCalculated
     ? calculatedQuestionOptionPercentages.map((cqop) => ({
-      id: cqop.id,
-      firstOrderSelectedAnswerPercentage: Number(
-        cqop.firstOrderSelectedAnswerPercentage ?? 0,
-      ),
-      secondOrderAveragePercentagePicked: Number(
-        cqop.secondOrderAveragePercentagePicked ?? 0,
-      ),
-    }))
+        id: cqop.id,
+        firstOrderSelectedAnswerPercentage: Number(
+          cqop.firstOrderSelectedAnswerPercentage ?? 0,
+        ),
+        secondOrderAveragePercentagePicked: Number(
+          cqop.secondOrderAveragePercentagePicked ?? 0,
+        ),
+      }))
     : [];
 
   const populated = populateAnswerCount(question);
@@ -118,9 +125,12 @@ export async function getAnswerStats(
       isCalculated: false,
       hasAlreadyClaimedReward: false,
       isFirstOrderCorrect: false,
+      isSecondOrderCorrect: false,
       isPracticeQuestion: false,
       totalAnswers: 0,
       correctAnswers: 0,
+      isQuestionAnsweredByUser: false,
+      rewardStatus: "no-reward",
     };
   }
 
@@ -139,15 +149,38 @@ export async function getAnswerStats(
 
   const numSelectedCorrect = questionAnswers.reduce(
     (count, qa) => (qa.selected ? count + 1 : count),
-    0
+    0,
   );
+  const isQuestionAnsweredByUser = userAnswers.length > 0;
+  const isRewardKnown = question.QuestionRewards.length > 0;
+
+  const rewardStatus =
+    isPracticeQuestion || !isQuestionAnsweredByUser
+      ? "no-reward"
+      : isRewardKnown
+        ? "claimed"
+        : "claimable";
+
+  const hasBonkPrize = new Decimal(
+    question.QuestionRewards?.[0]?.bonkReward ?? "0",
+  )
+    .toDP(Decimal.ROUND_DOWN, MAX_DECIMALS.BONK)
+    .greaterThan("0");
+
+  const chompResults = question.chompResults.map((chompResult) => ({
+    ...chompResult,
+    rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
+  }));
+
+  const isSecondOrderCorrect = !isLegacyQuestion
+    ? isRewardKnown
+      ? hasBonkPrize
+      : null
+    : (chompResults?.[0]?.rewardTokenAmount ?? 0) > question.revealTokenAmount;
 
   return {
     ...question,
-    chompResults: question.chompResults.map((chompResult) => ({
-      ...chompResult,
-      rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
-    })),
+    chompResults,
     userAnswers: isCalculated ? userAnswers : [],
     answerCount: populated.answerCount ?? 0,
     correctAnswer: correctAnswer ?? null,
@@ -160,8 +193,11 @@ export async function getAnswerStats(
     hasAlreadyClaimedReward:
       isLegacyQuestion || question.QuestionRewards.length > 0,
     isFirstOrderCorrect,
+    isSecondOrderCorrect,
     isPracticeQuestion,
     totalAnswers: questionAnswers.length,
     correctAnswers: numSelectedCorrect,
+    isQuestionAnsweredByUser,
+    rewardStatus,
   };
 }

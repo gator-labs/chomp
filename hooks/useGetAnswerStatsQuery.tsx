@@ -1,3 +1,4 @@
+import { NotFoundError } from "@/lib/error";
 import { AnswerStats } from "@/types/answerStats";
 import { useQuery } from "@tanstack/react-query";
 
@@ -10,7 +11,11 @@ export function useGetAnswerStatsQuery(questionId: number | undefined) {
           "/answer-stats/?questionId=" +
           questionId,
       );
-      if (!response.ok) throw new Error("Error getting stats");
+      if (!response.ok) {
+        if (response.status === 404)
+          throw new NotFoundError("Question not found");
+        else throw new Error("Error getting stats");
+      }
       const result = await response.json();
       return result;
     },

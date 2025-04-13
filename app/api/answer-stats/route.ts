@@ -1,10 +1,10 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import { getAnswerStats } from "@/lib/answerStats/getStats";
 import { type NextRequest } from "next/server";
-import z from "zod";
+import { z } from "zod";
 
 const schema = z.object({
-  questionId: z.string().transform((v) => parseInt(v)),
+  questionId: z.coerce.number().int().min(1),
 });
 
 export async function GET(request: NextRequest) {
