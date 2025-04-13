@@ -27,7 +27,7 @@ function MultiChoiceBestAnswer({
             className={cn(
               "w-[50px] h-[50px] bg-gray-600 rounded-lg flex items-center justify-center",
               {
-                "bg-aqua": qo.option === bestOption,
+                "bg-chomp-green-tiffany": qo.option === bestOption,
                 "bg-destructive":
                   qo.option === optionSelected && qo.option !== bestOption,
               },
@@ -44,6 +44,10 @@ function MultiChoiceBestAnswer({
           <div
             className={cn(
               "flex h-[50px] bg-transparent  gap-2  px-2 w-full py-3 text-sm font-semibold text-white rounded-lg border-solid border-gray-500 border",
+              {
+                "bg-chomp-green-turquoise": qo.option === bestOption,
+                "border-chomp-green-tiffany": qo.option === bestOption,
+              },
             )}
           >
             <div>{qo?.option}</div>
@@ -61,7 +65,9 @@ function MultiChoiceBestAnswer({
         {optionSelected === null ? (
           <p className="text-gray-400">You didn&apos;t answer this question</p>
         ) : bestOption === optionSelected ? (
-          <p className="text-aqua">You picked the best answer:</p>
+          <p className="text-chomp-green-tiffany">
+            You picked the best answer:
+          </p>
         ) : (
           <p className="text-destructive">You did not pick the best answer:</p>
         )}

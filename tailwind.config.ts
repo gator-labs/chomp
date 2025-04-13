@@ -74,6 +74,7 @@ const colors = {
     green: {
       light: "#DBFC8D",
       tiffany: "#1ED3B3",
+      turquoise: "#1ed3b31a",
     },
     grey: {
       a1: "#B3B3B3",

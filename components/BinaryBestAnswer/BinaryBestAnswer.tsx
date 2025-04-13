@@ -44,7 +44,9 @@ function BinaryBestAnswer({
         {optionSelected === null ? (
           <p className="text-gray-400">You didn&apos;t answer this question</p>
         ) : bestOption === optionSelected ? (
-          <p className="text-aqua">You picked the best answer:</p>
+          <p className="text-chomp-green-tiffany">
+            You picked the best answer:
+          </p>
         ) : (
           <p className="text-destructive">You did not pick the best answer:</p>
         )}
