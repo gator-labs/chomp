@@ -8,12 +8,14 @@ export type SecondOrderAnswerResultsMultipleProps = {
   options: SecondOrderOptionResultsMultiple;
   isSelectedCorrect: boolean | null;
   selectedPercentage: number;
+  openSecOrdAnsInfDrawer: Function;
 };
 
 export default function SecondOrderAnswerResultsMultiple({
   options,
   isSelectedCorrect,
   selectedPercentage,
+  openSecOrdAnsInfDrawer,
 }: SecondOrderAnswerResultsMultipleProps) {
   const selectedQuestion = options.find((op) => op.isSelected);
 
@@ -38,7 +40,7 @@ export default function SecondOrderAnswerResultsMultiple({
             answer.
           </p>
           <span
-            onClick={() => console.log("TODO")}
+            onClick={() => openSecOrdAnsInfDrawer()}
             className="cursor-pointer ml-6 mr-1"
           >
             <InfoIcon width={24} height={24} fill="#FFFFFF" />

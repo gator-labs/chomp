@@ -9,6 +9,7 @@ type SecondOrderAnswerResultsBinaryProps = {
   bPercentage: number;
   isSelectedCorrectNullIfNotOpened: boolean | null;
   selectedPercentage: number;
+  openSecOrdAnsInfDrawer: Function;
 };
 
 export default function SecondOrderAnswerResultsBinary({
@@ -16,6 +17,7 @@ export default function SecondOrderAnswerResultsBinary({
   bPercentage,
   isSelectedCorrectNullIfNotOpened,
   selectedPercentage,
+  openSecOrdAnsInfDrawer,
 }: SecondOrderAnswerResultsBinaryProps) {
   // Mystery Box is not opened yet so we don't know if the user is right or wrong
   const isNotOpenedYet = isSelectedCorrectNullIfNotOpened === null;
@@ -48,7 +50,7 @@ export default function SecondOrderAnswerResultsBinary({
             answer.
           </p>
           <span
-            onClick={() => console.log("TODO")}
+            onClick={() => openSecOrdAnsInfDrawer()}
             className="cursor-pointer ml-6 mr-1"
           >
             <InfoIcon width={24} height={24} fill="#FFFFFF" />

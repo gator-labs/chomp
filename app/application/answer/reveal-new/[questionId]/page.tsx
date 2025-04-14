@@ -1,6 +1,7 @@
 "use client";
 
 import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
+import InfoDrawer from "@/app/components/InfoDrawer/InfoDrawer";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
@@ -11,6 +12,7 @@ import SecondOrderAnswerResultsBinary from "@/components/SecondOrderAnswerResult
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
 import { notFound } from "next/navigation";
+import { useState } from "react";
 
 interface Props {
   params: {
@@ -19,6 +21,16 @@ interface Props {
 }
 
 const RevealAnswerPageNew = ({ params }: Props) => {
+  const [isSecOrdAnsInfDrawerOpen, setIsSecOrdAnsInfDrawerOpen] = useState(false);
+
+  const handleSecOrdAnsInfDrawerClose = () => {
+    setIsSecOrdAnsInfDrawerOpen(false);
+  }
+
+  const openSecOrdAnsInfDrawer = () => {
+    setIsSecOrdAnsInfDrawerOpen(true);
+  }
+
   const questionId =
     params.questionId === undefined ? undefined : Number(params.questionId);
 
@@ -106,6 +118,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       bPercentage,
       isSelectedCorrectNullIfNotOpened: stats.isSecondOrderCorrect,
       selectedPercentage,
+      openSecOrdAnsInfDrawer,
     });
   } else {
     // Second Order Multiple Choice Question Answers
@@ -133,6 +146,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       options,
       isSelectedCorrect: stats.isSecondOrderCorrect,
       selectedPercentage,
+      openSecOrdAnsInfDrawer,
     });
   }
 
@@ -154,6 +168,18 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       />
       {answerContent}
       {secondOrderAnswerResults}
+
+      <InfoDrawer isOpen={isSecOrdAnsInfDrawerOpen} onClose={handleSecOrdAnsInfDrawerClose} title="Your second order answer">
+        <div className="text-sm mb-6 space-y-4">
+          <p>
+            The second order answer represent what a player predicted OTHERS would guess.
+          </p>
+          <p>
+            We take the average of each user’s prediction to generate this result. Mathematically this won’t always add up to 100%!
+          </p>
+        </div>
+      </InfoDrawer>
+
     </div>
   );
 };
