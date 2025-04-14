@@ -113,9 +113,9 @@ export async function getAnswerStats(
     answerCount: question.questionOptions[0].questionAnswers.length,
   });
 
-  if (!isCalculated) {
+  if (!isQuestionRevealable || !isCalculated) {
     return {
-      ...question,
+      ...{ ...question, questionOptions: [] },
       chompResults: [],
       userAnswers: [],
       answerCount: 0,
