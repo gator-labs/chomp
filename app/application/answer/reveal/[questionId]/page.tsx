@@ -87,23 +87,23 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   const chompResult = isCreditsQuestion
     ? {
-      result: ResultType.Revealed,
-      rewardTokenAmount: bonkPrizeAmount,
-      revealNftId: null,
-      burnTransactionSignature: null,
-      sendTransactionSignature: null,
-      userId: user?.id ?? "",
-    }
-    : questionResponse.chompResults.length > 0
-      ? questionResponse.chompResults?.[0]
-      : {
         result: ResultType.Revealed,
-        rewardTokenAmount: 0,
+        rewardTokenAmount: bonkPrizeAmount,
         revealNftId: null,
         burnTransactionSignature: null,
         sendTransactionSignature: null,
         userId: user?.id ?? "",
-      };
+      }
+    : questionResponse.chompResults.length > 0
+      ? questionResponse.chompResults?.[0]
+      : {
+          result: ResultType.Revealed,
+          rewardTokenAmount: 0,
+          revealNftId: null,
+          burnTransactionSignature: null,
+          sendTransactionSignature: null,
+          userId: user?.id ?? "",
+        };
 
   const hasAlreadyClaimedReward =
     !isCreditsQuestion || questionResponse.MysteryBoxTrigger.length > 0;
@@ -139,7 +139,7 @@ const RevealAnswerPage = async ({ params }: Props) => {
       ? bonkPrizeAmount > 0
       : undefined
     : (chompResult?.rewardTokenAmount ?? 0) >
-    questionResponse.revealTokenAmount;
+      questionResponse.revealTokenAmount;
 
   let questionContent = <></>;
 

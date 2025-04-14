@@ -24,9 +24,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const result = useGetAnswerStatsQuery(questionId);
 
-  console.log('Result:');
-  console.log(result.data);
-
   const loadingScreen = (
     <ChompFullScreenLoader
       isLoading={true}
@@ -85,53 +82,58 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   let secondOrderAnswerResults = <></>;
 
   if (isBinary) {
-    const leftQuestionOptionP = result.data.stats.questionOptionPercentages.find((q) => q.isLeft);
-    const rightQuestionOptionP = result.data.stats.questionOptionPercentages.find((q) => !q.isLeft);
+    // Second Order Binary Choice Question Answers
 
-    const aPercentage = leftQuestionOptionP?.secondOrderAveragePercentagePicked || -1;
-    const bPercentage = rightQuestionOptionP?.secondOrderAveragePercentagePicked || -1;
+    const leftQuestionOptionP = stats.questionOptionPercentages.find(
+      (q) => q.isLeft,
+    );
+    const rightQuestionOptionP = stats.questionOptionPercentages.find(
+      (q) => !q.isLeft,
+    );
 
-    secondOrderAnswerResults = SecondOrderAnswerResultsBinary({ aPercentage, bPercentage });
+    const selectedAnswer = stats.userAnswers.find((ans) => ans.selected);
+    const selectedPercentage = Number(selectedAnswer?.percentage);
+
+    // if secondOrderAveragePercentagePicked is null we take it as 0
+    // TODO: Move to server?
+    const aPercentage =
+      leftQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
+    const bPercentage =
+      rightQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
+
+    secondOrderAnswerResults = SecondOrderAnswerResultsBinary({
+      aPercentage,
+      bPercentage,
+      isSelectedCorrectNullIfNotOpened: stats.isSecondOrderCorrect,
+      selectedPercentage,
+    });
   } else {
-    const options = result.data.stats.questionOptionPercentages.map(
-      ((qop, index) =>
-      ({
-        option: qop.option,
-        label: getAlphaIdentifier(index),
-        percentage: qop.secondOrderAveragePercentagePicked,
-      })));
+    // Second Order Multiple Choice Question Answers
 
-    const selectedQOId = result.data.stats.userAnswers.find((ans) => ans.percentage != null);
+    // only one Second order Answer is selected by the user,
+    // this second order answer will have a percentage number from 0 to 100
+    // this tell us that this was the answer selected by the user for this Question
+    const selectedAnswer = stats.userAnswers.find(
+      (ans) => ans.percentage != null,
+    );
+    const selectedQOId = selectedAnswer?.questionOptionId || null;
+    const selectedPercentage = Number(selectedAnswer?.percentage);
 
-    // isCreditsQuestions
-    const isCreditsQuestions = questionResponse.creditCostPerQuestion !== null;
+    const options = stats.questionOptionPercentages.map(
+      (qop, index) =>
+        ({
+          isSelected: qop.id === selectedQOId,
+          text: qop.option,
+          label: getAlphaIdentifier(index),
+          percentage: qop.secondOrderAveragePercentagePicked,
+        }) as SecondOrderOptionResultMultiple,
+    );
 
-    const hasAlreadyClaimedReward =
-      !isCreditsQuestion || questionResponse.MysteryBoxTrigger.length > 0;
-
-    //const isSecondOrderCorrect = isCreditsQuestion
-    //  ? hasAlreadyClaimedReward
-    //    ? bonkPrizeAmount > 0
-    //    : undefined
-    //  : (chompResult?.rewardTokenAmount ?? 0) >
-    //  questionResponse.revealTokenAmount;
-
-    let isSecondOrderCorrect;
-    if (isCreditsQuestions) {
-      // if its credit question and has already claimed 
-      if (hasAlreadyClaimedReward) {
-        isSecondOrderCorrect = bonkPrizeAmount > 0;
-      } else {
-        isSecondOrderCorrect = undefined;
-      }
-    } else {
-      isSecondOrderCorrect = (chompResult?.rewardTokenAmount ?? 0) >
-        questionResponse.revealTokenAmount;
-    }
-
-
-
-    secondOrderAnswerResults = SecondOrderAnswerResultsMultiple();
+    secondOrderAnswerResults = SecondOrderAnswerResultsMultiple({
+      options,
+      isSelectedCorrect: stats.isSecondOrderCorrect,
+      selectedPercentage,
+    });
   }
 
   return (
@@ -149,12 +151,21 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         question={stats.question}
         revealAtDate={stats.revealAtDate}
         imageUrl={stats.imageUrl}
-
       />
       {answerContent}
       {secondOrderAnswerResults}
     </div>
   );
 };
+
+type SecondOrderOptionResultMultiple = {
+  isSelected: boolean;
+  text: string;
+  label: string;
+  percentage: number;
+};
+
+export type SecondOrderOptionResultsMultiple =
+  SecondOrderOptionResultMultiple[];
 
 export default RevealAnswerPageNew;
