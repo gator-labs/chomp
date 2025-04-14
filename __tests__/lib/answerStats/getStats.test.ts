@@ -423,7 +423,9 @@ describe("getAnswerStats", () => {
     expect(stats?.isSecondOrderCorrect).toBe(false);
     expect(stats?.isPracticeQuestion).toBe(false);
     expect(stats?.isLegacyQuestion).toBe(true);
-    expect(stats?.QuestionRewards.length).toBe(0);
+    expect(stats?.QuestionRewards.length).toBe(1);
+    expect(stats?.QuestionRewards?.[0].bonkReward).toBe("0");
+    expect(stats?.QuestionRewards?.[0].creditsReward).toBe("0");
   });
 
   it("should get correct answered status", async () => {
