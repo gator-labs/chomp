@@ -8,7 +8,7 @@ export type SecondOrderAnswerResultsMultipleProps = {
   options: SecondOrderOptionResultsMultiple;
   isSelectedCorrect: boolean | null;
   selectedPercentage: number;
-  openSecOrdAnsInfDrawer: Function;
+  openSecOrdAnsInfDrawer: () => void;
 };
 
 export default function SecondOrderAnswerResultsMultiple({

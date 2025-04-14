@@ -55,6 +55,7 @@ export async function getAnswerStats(
       firstOrderSelectedAnswerPercentage:
         qo.calculatedPercentageOfSelectedAnswers,
       secondOrderAveragePercentagePicked: qo.calculatedAveragePercentage,
+      option: qo.option,
     }),
   );
 

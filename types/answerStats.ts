@@ -26,9 +26,7 @@ export type QuestionOrderPercentage = {
   id: number;
   firstOrderSelectedAnswerPercentage: number;
   secondOrderAveragePercentagePicked: number;
-  isLeft: boolean;
-  option: string;
-  isSecondOrderCorrect: boolean;
+  option?: string;
 };
 
 export type AnswerStats = Question & {

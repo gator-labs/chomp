@@ -21,15 +21,16 @@ interface Props {
 }
 
 const RevealAnswerPageNew = ({ params }: Props) => {
-  const [isSecOrdAnsInfDrawerOpen, setIsSecOrdAnsInfDrawerOpen] = useState(false);
+  const [isSecOrdAnsInfoDrawerOpen, setIsSecOrdAnsInfoDrawerOpen] =
+    useState(false);
 
-  const handleSecOrdAnsInfDrawerClose = () => {
-    setIsSecOrdAnsInfDrawerOpen(false);
-  }
+  const handleSecOrdAnsInfoDrawerClose = () => {
+    setIsSecOrdAnsInfoDrawerOpen(false);
+  };
 
   const openSecOrdAnsInfDrawer = () => {
-    setIsSecOrdAnsInfDrawerOpen(true);
-  }
+    setIsSecOrdAnsInfoDrawerOpen(true);
+  };
 
   const questionId =
     params.questionId === undefined ? undefined : Number(params.questionId);
@@ -96,11 +97,11 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (isBinary) {
     // Second Order Binary Choice Question Answers
 
-    const leftQuestionOptionP = stats.questionOptionPercentages.find(
-      (q) => q.isLeft,
+    const aQuestionOptionP = stats.questionOptionPercentages.find(
+      (q) => q.option === "A",
     );
-    const rightQuestionOptionP = stats.questionOptionPercentages.find(
-      (q) => !q.isLeft,
+    const bQuestionOptionP = stats.questionOptionPercentages.find(
+      (q) => q.option === "B",
     );
 
     const selectedAnswer = stats.userAnswers.find((ans) => ans.selected);
@@ -109,9 +110,9 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     // if secondOrderAveragePercentagePicked is null we take it as 0
     // TODO: Move to server?
     const aPercentage =
-      leftQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
+      aQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
     const bPercentage =
-      rightQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
+      bQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
 
     secondOrderAnswerResults = SecondOrderAnswerResultsBinary({
       aPercentage,
@@ -169,17 +170,22 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       {answerContent}
       {secondOrderAnswerResults}
 
-      <InfoDrawer isOpen={isSecOrdAnsInfDrawerOpen} onClose={handleSecOrdAnsInfDrawerClose} title="Your second order answer">
+      <InfoDrawer
+        isOpen={isSecOrdAnsInfoDrawerOpen}
+        onClose={handleSecOrdAnsInfoDrawerClose}
+        title="Your second order answer"
+      >
         <div className="text-sm mb-6 space-y-4">
           <p>
-            The second order answer represent what a player predicted OTHERS would guess.
+            The second order answer represent what a player predicted OTHERS
+            would guess.
           </p>
           <p>
-            We take the average of each user’s prediction to generate this result. Mathematically this won’t always add up to 100%!
+            We take the average of each user’s prediction to generate this
+            result. Mathematically this won’t always add up to 100%!
           </p>
         </div>
       </InfoDrawer>
-
     </div>
   );
 };

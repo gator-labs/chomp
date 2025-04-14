@@ -9,7 +9,7 @@ type SecondOrderAnswerResultsBinaryProps = {
   bPercentage: number;
   isSelectedCorrectNullIfNotOpened: boolean | null;
   selectedPercentage: number;
-  openSecOrdAnsInfDrawer: Function;
+  openSecOrdAnsInfDrawer: () => void;
 };
 
 export default function SecondOrderAnswerResultsBinary({
