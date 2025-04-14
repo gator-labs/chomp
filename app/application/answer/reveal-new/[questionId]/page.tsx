@@ -66,8 +66,8 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         questionOptions={stats.questionOptions}
         optionSelected={answerSelected?.questionOption?.option ?? null}
         bestOption={stats.correctAnswer?.option ?? ""}
-        totalAnswers={stats.totalAnswers}
-        correctAnswers={stats.correctAnswers}
+        totalAnswers={stats.questionAnswerCount}
+        correctAnswers={stats.correctAnswersCount}
       />
     </>
   ) : (
@@ -81,8 +81,8 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         questionOptions={stats.questionOptions}
         optionSelected={answerSelected?.questionOption?.option ?? null}
         bestOption={stats.correctAnswer?.option ?? ""}
-        totalAnswers={stats.totalAnswers}
-        correctAnswers={stats.correctAnswers}
+        totalAnswers={stats.questionAnswerCount}
+        correctAnswers={stats.correctAnswersCount}
       />
     </>
   );
