@@ -5,7 +5,7 @@ import AquaCheckIcon from "./icons/AquaCheckIcon";
 import RedXIcon from "./icons/RedXIcon";
 
 export type SecondOrderAnswerResultsMultipleProps = {
-  options: SecondOrderOptionResultsMultiple; // TODO: options?
+  options: SecondOrderOptionResultsMultiple;
   isSelectedCorrect: boolean | null;
   selectedPercentage: number;
 };
