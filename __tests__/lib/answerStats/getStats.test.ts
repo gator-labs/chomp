@@ -1,11 +1,14 @@
 import prisma from "@/app/services/prisma";
 import { getAnswerStats } from "@/lib/answerStats/getStats";
 import { generateUsers } from "@/scripts/utils";
+import { faker } from "@faker-js/faker";
 import {
   EBoxPrizeStatus,
   EMysteryBoxStatus,
   QuestionType,
+  ResultType,
   Token,
+  TransactionStatus,
 } from "@prisma/client";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
@@ -107,6 +110,7 @@ describe("getAnswerStats", () => {
   };
 
   let deckId: number;
+  let legacyDeckId: number;
   let questionIds: number[] = [];
   let otherUsers: { id: string; username: string }[] = [];
 
@@ -126,6 +130,9 @@ describe("getAnswerStats", () => {
       });
 
       deckId = deck.id;
+
+      // Create users
+      await Promise.all([tx.user.create({ data: user1 })]);
 
       // Create questions for decks
       const questions = await Promise.all([
@@ -195,7 +202,67 @@ describe("getAnswerStats", () => {
             questionOptions: true,
           },
         }),
+        tx.question.create({
+          data: {
+            question: "Is water wet?",
+            type: QuestionType.BinaryQuestion,
+            revealAtDate: pastDate,
+            revealToken: Token.Bonk,
+            revealTokenAmount: 5000,
+            creditCostPerQuestion: null,
+            chompResults: {
+              createMany: {
+                data: [
+                  {
+                    userId: user1.id,
+                    result: ResultType.Revealed,
+                    rewardTokenAmount: 4000,
+                    transactionStatus: TransactionStatus.Completed,
+                    burnTransactionSignature: faker.string.hexadecimal({
+                      length: 86,
+                      prefix: "",
+                    }),
+                  },
+                ],
+              },
+            },
+            questionOptions: {
+              createMany: {
+                data: [
+                  {
+                    option: "Yes",
+                    isLeft: true,
+                    calculatedIsCorrect: true,
+                    calculatedPercentageOfSelectedAnswers: 85,
+                    calculatedAveragePercentage: 60,
+                  },
+                  {
+                    option: "No",
+                    isLeft: false,
+                    calculatedIsCorrect: false,
+                    calculatedPercentageOfSelectedAnswers: 15,
+                    calculatedAveragePercentage: 40,
+                  },
+                ],
+              },
+            },
+          },
+          include: {
+            questionOptions: true,
+          },
+        }),
       ]);
+
+      const legacyDeck = await tx.deck.create({
+        data: {
+          deck: "Legacy Deck 1",
+          date: new Date(),
+          revealAtDate: pastDate,
+          creditCostPerQuestion: null,
+        },
+      });
+
+      legacyDeckId = legacyDeck.id;
 
       questionIds = questions.map((q) => q.id);
 
@@ -203,11 +270,9 @@ describe("getAnswerStats", () => {
         data: [
           { deckId: deckId, questionId: questions[0].id },
           { deckId: deckId, questionId: questions[1].id },
+          { deckId: legacyDeckId, questionId: questions[2].id },
         ],
       });
-
-      // Create users
-      await Promise.all([tx.user.create({ data: user1 })]);
 
       // Create answers for user1
       await tx.questionAnswer.createMany({
@@ -251,6 +316,9 @@ describe("getAnswerStats", () => {
 
     // Clean up the data after the test
     await prisma.$transaction(async (tx) => {
+      await tx.chompResult.deleteMany({
+        where: { userId: { equals: user1.id } },
+      });
       await tx.questionAnswer.deleteMany({
         where: { userId: { equals: user1.id } },
       });
@@ -269,6 +337,7 @@ describe("getAnswerStats", () => {
       });
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { equals: deckId } } });
+      await tx.deck.deleteMany({ where: { id: { equals: legacyDeckId } } });
       await tx.user.deleteMany({ where: { id: { equals: user1.id } } });
 
       if (otherUsers.length > 0) {
@@ -312,5 +381,48 @@ describe("getAnswerStats", () => {
     expect(stats?.QuestionRewards.length).toBeGreaterThan(0);
     expect(stats?.QuestionRewards?.[0].bonkReward).toBe("4500");
     expect(stats?.QuestionRewards?.[0].creditsReward).toBe("5");
+  });
+
+  it("should return correct practice deck status", async () => {
+    await prisma.question.update({
+      data: {
+        creditCostPerQuestion: 0,
+      },
+      where: {
+        id: questionIds[1],
+      },
+    });
+
+    const stats = await getAnswerStats(user1.id, questionIds[1]);
+    expect(stats).toBeDefined();
+    expect(stats?.isPracticeQuestion).toBe(true);
+  });
+
+  it("should get any answer stats for a legacy question", async () => {
+    const stats = await getAnswerStats(user1.id, questionIds[2]);
+    expect(stats).toBeDefined();
+    expect(stats?.rewardStatus).toBe("claimed");
+    expect(stats?.isFirstOrderCorrect).toBe(true);
+    expect(stats?.isSecondOrderCorrect).toBe(false);
+    expect(stats?.isPracticeQuestion).toBe(false);
+    expect(stats?.isLegacyQuestion).toBe(true);
+    expect(stats?.QuestionRewards.length).toBeGreaterThan(0);
+    expect(stats?.QuestionRewards?.[0].bonkReward).toBe("4000");
+    expect(stats?.QuestionRewards?.[0].creditsReward).toBe("0");
+  });
+
+  it("should get any answer stats for a legacy question without chomp result", async () => {
+    await prisma.chompResult.deleteMany({
+      where: { questionId: { equals: questionIds[2] } },
+    });
+
+    const stats = await getAnswerStats(user1.id, questionIds[2]);
+    expect(stats).toBeDefined();
+    expect(stats?.rewardStatus).toBe("no-reward");
+    expect(stats?.isFirstOrderCorrect).toBe(true);
+    expect(stats?.isSecondOrderCorrect).toBe(false);
+    expect(stats?.isPracticeQuestion).toBe(false);
+    expect(stats?.isLegacyQuestion).toBe(true);
+    expect(stats?.QuestionRewards.length).toBe(0);
   });
 });
