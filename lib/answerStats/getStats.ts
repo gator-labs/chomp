@@ -127,10 +127,11 @@ export async function getAnswerStats(
       isFirstOrderCorrect: false,
       isSecondOrderCorrect: false,
       isPracticeQuestion: false,
-      totalAnswers: 0,
-      correctAnswers: 0,
+      questionAnswerCount: 0,
+      correctAnswersCount: 0,
       isQuestionAnsweredByUser: false,
       rewardStatus: "no-reward",
+      selectionDistribution: [],
     };
   }
 
@@ -143,14 +144,39 @@ export async function getAnswerStats(
 
   const questionAnswers = await prisma.questionAnswer.findMany({
     where: {
-      questionOptionId: correctAnswer?.id,
+      questionOptionId: {
+        in: question.questionOptions.map((qo) => qo.id),
+      },
     },
   });
 
+  const selectionDistributionMap = new Map();
+  questionAnswers.forEach((qa) => {
+    const id = qa.questionOptionId;
+    if (qa.selected === true) {
+      selectionDistributionMap.set(
+        id,
+        (selectionDistributionMap.get(id) || 0) + 1,
+      );
+    }
+  });
+
+  const selectionDistribution = Array.from(
+    selectionDistributionMap,
+    ([optionId, count]) => ({
+      optionId,
+      count,
+    }),
+  );
+
   const numSelectedCorrect = questionAnswers.reduce(
-    (count, qa) => (qa.selected ? count + 1 : count),
+    (count, qa) =>
+      qa.selected && qa.questionOptionId === correctAnswer?.id
+        ? count + 1
+        : count,
     0,
   );
+
   const isQuestionAnsweredByUser = userAnswers.length > 0;
   const isRewardKnown = question.QuestionRewards.length > 0;
 
@@ -195,9 +221,13 @@ export async function getAnswerStats(
     isFirstOrderCorrect,
     isSecondOrderCorrect,
     isPracticeQuestion,
-    totalAnswers: questionAnswers.length,
-    correctAnswers: numSelectedCorrect,
+    questionAnswerCount:
+      question.type === "BinaryQuestion"
+        ? questionAnswers.length / 2
+        : questionAnswers.length / 4,
+    correctAnswersCount: numSelectedCorrect,
     isQuestionAnsweredByUser,
     rewardStatus,
+    selectionDistribution: selectionDistribution,
   };
 }
