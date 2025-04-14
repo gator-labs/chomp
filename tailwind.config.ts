@@ -70,6 +70,7 @@ const colors = {
     red: {
       light: "#ED6A5A",
       dark: "#FF0000",
+      dusty: "#694848",
     },
     green: {
       light: "#DBFC8D",

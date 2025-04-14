@@ -1,6 +1,5 @@
 "use client";
 
-import { QuestionUnansweredIcon } from "@/app/components/Icons/QuestionUnansweredIcon";
 import { cn } from "@/lib/utils";
 import { QuestionOption } from "@prisma/client";
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
@@ -46,19 +45,26 @@ function BinaryPieChart({
         borderColor: ["white"],
         borderAlign: "inner",
         hoverOffset: 20,
-        borderWidth: 0,
+        borderWidth: 1,
+        hoverBorderWidth: 0,
       },
     ],
   };
 
   return (
     <div className="bg-gray-700 rounded-xl my-3">
-      <div className="flex justify-between items-center bg-chomp-aqua-light rounded-t-xl p-2">
+      <div
+        className={cn(
+          "flex justify-between items-center bg-chomp-red-dusty rounded-t-xl p-2 pl-4",
+          {
+            "bg-gray-600": optionSelected === null,
+            "bg-chomp-aqua-light": isUserAnswerCorrect,
+          },
+        )}
+      >
         <p>First Order Answer</p>
         {optionSelected === null ? (
-          <div className="rounded-full">
-            <QuestionUnansweredIcon width={24} height={24} />{" "}
-          </div>
+          <></>
         ) : isUserAnswerCorrect ? (
           <AquaCheckIcon width={24} height={24} />
         ) : (
@@ -66,20 +72,34 @@ function BinaryPieChart({
         )}
       </div>
 
-      <div className="p-5 flex flex-col justify-between items-center">
+      <div className="p-5 flex flex-col justify-between">
         <p className="text-sm">
-          {!isUserAnswerCorrect ? (
+          {optionSelected === null ? (
+            <span className="text-white">
+              <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users choose the
+              best answer ({BestAnswerPercentage}%)
+            </span>
+          ) : !isUserAnswerCorrect ? (
             <span className="text-destructive">
-              You are not a part of the {correctAnswers} of {totalAnswers}{" "}
+              You are not a part of the <b>{correctAnswers}</b> of{" "}
+              <b>{totalAnswers}</b>{" "}
+              <span className="text-white">
+                users who chose the best answer ({BestAnswerPercentage}%)
+              </span>
             </span>
           ) : (
             <span className="text-chomp-green-tiffany">
-              You are part of the {correctAnswers} of {totalAnswers}{" "}
+              You are part of the <b>{correctAnswers}</b> of{" "}
+              <b>{totalAnswers}</b>{" "}
+              <span className="text-white">
+                users who chose the best answer ({BestAnswerPercentage}%)
+              </span>
             </span>
           )}
-          users who chose the best answer ({BestAnswerPercentage}%)
         </p>
-        <PieChart data={data} />
+        <div className="m-auto">
+          <PieChart data={data} />
+        </div>
         {questionOptions.map((qo, index) => (
           <div
             className={cn(
