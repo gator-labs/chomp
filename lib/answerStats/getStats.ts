@@ -126,7 +126,7 @@ export async function getAnswerStats(
       isCalculated: false,
       hasAlreadyClaimedReward: false,
       isFirstOrderCorrect: false,
-      isSecondOrderCorrect: false,
+      isSecondOrderCorrect: null,
       isPracticeQuestion: false,
       isLegacyQuestion,
       isQuestionAnsweredByUser: false,
