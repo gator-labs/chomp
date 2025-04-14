@@ -403,5 +403,18 @@ describe("getNextDeckIdQuery", () => {
     const nextDeckId3 = await getNextDeckId(deckIds[0], null);
 
     expect(nextDeckId3).not.toBe(nextDeckId2);
+
+    if (nextDeckId3 !== undefined) {
+      const deck = await prisma.deck.findUnique({
+        where: {
+          id: nextDeckId3,
+        },
+        include: {
+          stack: true,
+        },
+      });
+
+      expect(deck?.stack?.hideDeckFromHomepage).toBeFalsy();
+    }
   });
 });
