@@ -356,7 +356,7 @@ describe("getAnswerStats", () => {
     expect(stats?.questionOptions.length).toBe(0);
   });
 
-  it("should get any answer stats for revealed and calculated question", async () => {
+  it("should get answer stats for revealed and calculated question", async () => {
     const stats = await getAnswerStats(user1.id, questionIds[1]);
     expect(stats).toBeDefined();
     expect(stats?.rewardStatus).toBe("claimable");
@@ -367,7 +367,7 @@ describe("getAnswerStats", () => {
     expect(stats?.QuestionRewards.length).toBe(0);
   });
 
-  it("should get any answer stats for revealed, calculated and rewarded question", async () => {
+  it("should get answer stats for revealed, calculated and rewarded question", async () => {
     const mysteryBox = await createMysteryBox(user1.id, questionIds[1]);
     mysteryBoxId = mysteryBox.id;
 
@@ -398,7 +398,7 @@ describe("getAnswerStats", () => {
     expect(stats?.isPracticeQuestion).toBe(true);
   });
 
-  it("should get any answer stats for a legacy question", async () => {
+  it("should get answer stats for a legacy question", async () => {
     const stats = await getAnswerStats(user1.id, questionIds[2]);
     expect(stats).toBeDefined();
     expect(stats?.rewardStatus).toBe("claimed");
@@ -411,7 +411,7 @@ describe("getAnswerStats", () => {
     expect(stats?.QuestionRewards?.[0].creditsReward).toBe("0");
   });
 
-  it("should get any answer stats for a legacy question without chomp result", async () => {
+  it("should get answer stats for a legacy question without chomp result", async () => {
     await prisma.chompResult.deleteMany({
       where: { questionId: { equals: questionIds[2] } },
     });
@@ -424,5 +424,27 @@ describe("getAnswerStats", () => {
     expect(stats?.isPracticeQuestion).toBe(false);
     expect(stats?.isLegacyQuestion).toBe(true);
     expect(stats?.QuestionRewards.length).toBe(0);
+  });
+
+  it("should get correct answered status", async () => {
+    const stats = await getAnswerStats(user1.id, questionIds[1]);
+    expect(stats).toBeDefined();
+    expect(stats?.isQuestionAnsweredByUser).toBeTruthy();
+
+    await prisma.questionAnswer.updateMany({
+      data: {
+        selected: false,
+      },
+      where: {
+        userId: user1.id,
+        questionOption: {
+          questionId: questionIds[1],
+        },
+      },
+    });
+
+    const stats2 = await getAnswerStats(user1.id, questionIds[1]);
+    expect(stats2).toBeDefined();
+    expect(stats2?.isQuestionAnsweredByUser).toBeFalsy();
   });
 });

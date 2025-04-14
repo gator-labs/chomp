@@ -139,7 +139,8 @@ export async function getAnswerStats(
     correctAnswer?.id === answerSelected?.questionOptionId;
   const isPracticeQuestion = question.creditCostPerQuestion === 0;
 
-  const isQuestionAnsweredByUser = userAnswers.length > 0;
+  const isQuestionAnsweredByUser =
+    userAnswers.filter((ua) => !!ua.selected).length > 0;
   const isRewardKnown = question.QuestionRewards.length > 0;
 
   const chompResults = question.chompResults.map((chompResult) => ({
