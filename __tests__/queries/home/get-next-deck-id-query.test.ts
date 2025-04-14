@@ -35,6 +35,7 @@ describe("getNextDeckIdQuery", () => {
   };
 
   let deckIds: number[] = [];
+  let stackId: number;
 
   beforeAll(async () => {
     // Create users
@@ -210,6 +211,12 @@ describe("getNextDeckIdQuery", () => {
   });
 
   afterAll(async () => {
+    if (stackId) {
+      await prisma.stack.deleteMany({
+        where: { id: stackId },
+      });
+    }
+
     const deletePromises = deckIds.map((deckId) => deleteDeck(deckId));
     await Promise.all(deletePromises);
 
@@ -342,5 +349,70 @@ describe("getNextDeckIdQuery", () => {
     expect(nextDeck).not.toBeNull();
     expect(nextDeck?.revealAtDate).toBeInstanceOf(Date);
     expect(nextDeck?.revealAtDate!.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it("should not return a deck that is hidden from the homepage", async () => {
+    // Mock the authGuard to resolve with a user ID
+    (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
+
+    // Get the next deck ID
+    const nextDeckId = await getNextDeckId(deckIds[0], null);
+
+    expect(nextDeckId).toBeDefined();
+
+    // Add all the decks to a stack
+
+    const stack = await prisma.stack.create({
+      data: {
+        name: `test_stack_` + new Date().toISOString(),
+        isVisible: true,
+        isActive: true,
+        hideDeckFromHomepage: false,
+        image: "",
+      },
+    });
+
+    stackId = stack.id;
+
+    await prisma.deck.updateMany({
+      data: {
+        stackId,
+      },
+      where: {
+        id: { in: deckIds },
+      },
+    });
+
+    const nextDeckId2 = await getNextDeckId(deckIds[0], null);
+
+    expect(nextDeckId2).toBeDefined();
+
+    // Update stack to hide it
+
+    await prisma.stack.update({
+      data: {
+        hideDeckFromHomepage: true,
+      },
+      where: {
+        id: stackId,
+      },
+    });
+
+    // Should now be excluded from the rotation
+
+    const nextDeckId3 = await getNextDeckId(deckIds[0], null);
+
+    if (nextDeckId3 !== undefined) {
+      const deck = await prisma.deck.findUnique({
+        where: {
+          id: nextDeckId3,
+        },
+        include: {
+          stack: true,
+        },
+      });
+
+      expect(deck?.stack?.hideDeckFromHomepage).toBeFalsy();
+    }
   });
 });
