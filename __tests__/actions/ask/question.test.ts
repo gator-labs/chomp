@@ -61,6 +61,7 @@ describe("createAskQuestion", () => {
 
     expect(result).toEqual({
       errorMessage: "Question: String must contain at least 5 character(s)",
+      success: false,
     });
   });
 
