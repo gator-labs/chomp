@@ -53,8 +53,6 @@ const getMechanismEngineResponse = async (path: string, body: unknown) => {
       },
     );
 
-    console.log(response);
-
     if (!response.ok)
       throw new Error(
         `Mechanism engine returned error: ${response.status}: ${response.statusText}`,
