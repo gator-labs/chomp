@@ -1,5 +1,4 @@
 import {
-  ChompResult,
   Question,
   QuestionAnswer,
   QuestionOption,
@@ -8,9 +7,6 @@ import {
 
 export type RewardStatus = "claimable" | "claimed" | "no-reward";
 
-export type ChompResultNoDecimal = Omit<ChompResult, "rewardTokenAmount"> & {
-  rewardTokenAmount: number | undefined;
-};
 export type UserAnswer = QuestionAnswer & {
   questionOption: {
     id: number;
@@ -30,7 +26,6 @@ export type QuestionOrderPercentage = {
 };
 
 export type AnswerStats = Question & {
-  chompResults: ChompResultNoDecimal[];
   userAnswers: UserAnswer[];
   answerCount: number;
   correctAnswer: QuestionOption | null;
@@ -45,5 +40,6 @@ export type AnswerStats = Question & {
   isPracticeQuestion: boolean;
   deckQuestions: { deckId: number }[];
   isQuestionAnsweredByUser: boolean;
+  isLegacyQuestion: boolean;
   rewardStatus: RewardStatus;
 };

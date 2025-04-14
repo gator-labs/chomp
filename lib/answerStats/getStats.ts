@@ -114,10 +114,11 @@ export async function getAnswerStats(
     answerCount: question.questionOptions[0].questionAnswers.length,
   });
 
-  if (!isCalculated) {
+  const isLegacyQuestion = question.creditCostPerQuestion === null;
+
+  if (!isQuestionRevealable || !isCalculated) {
     return {
-      ...question,
-      chompResults: [],
+      ...{ ...question, questionOptions: [] },
       userAnswers: [],
       answerCount: 0,
       correctAnswer: null,
@@ -126,25 +127,45 @@ export async function getAnswerStats(
       isCalculated: false,
       hasAlreadyClaimedReward: false,
       isFirstOrderCorrect: false,
-      isSecondOrderCorrect: false,
+      isSecondOrderCorrect: null,
       isPracticeQuestion: false,
+      isLegacyQuestion,
       isQuestionAnsweredByUser: false,
       rewardStatus: "no-reward",
     };
   }
-
-  const isLegacyQuestion = question.creditCostPerQuestion === null;
 
   const answerSelected = userAnswers.find((ua) => ua.selected);
   const isFirstOrderCorrect =
     correctAnswer?.id === answerSelected?.questionOptionId;
   const isPracticeQuestion = question.creditCostPerQuestion === 0;
 
-  const isQuestionAnsweredByUser = userAnswers.length > 0;
+  const isQuestionAnsweredByUser =
+    userAnswers.filter((ua) => !!ua.selected).length > 0;
+
+  const chompResults = question.chompResults.map((chompResult) => ({
+    ...chompResult,
+    rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
+  }));
+
+  if (isLegacyQuestion) {
+    question.QuestionRewards = [
+      {
+        userId,
+        questionId,
+        creditsReward: "0",
+        bonkReward: Number(
+          chompResults?.[0]?.rewardTokenAmount ?? 0,
+        ).toString(),
+      },
+    ];
+  }
+
   const isRewardKnown = question.QuestionRewards.length > 0;
 
-  const rewardStatus =
-    isPracticeQuestion || !isQuestionAnsweredByUser
+  const rewardStatus = isLegacyQuestion
+    ? "claimed"
+    : isPracticeQuestion || !isQuestionAnsweredByUser
       ? "no-reward"
       : isRewardKnown
         ? "claimed"
@@ -156,11 +177,6 @@ export async function getAnswerStats(
     .toDP(Decimal.ROUND_DOWN, MAX_DECIMALS.BONK)
     .greaterThan("0");
 
-  const chompResults = question.chompResults.map((chompResult) => ({
-    ...chompResult,
-    rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
-  }));
-
   const isSecondOrderCorrect = !isLegacyQuestion
     ? isRewardKnown
       ? hasBonkPrize
@@ -169,7 +185,6 @@ export async function getAnswerStats(
 
   return {
     ...question,
-    chompResults,
     userAnswers: isCalculated ? userAnswers : [],
     answerCount: populated.answerCount ?? 0,
     correctAnswer: correctAnswer ?? null,
@@ -185,6 +200,7 @@ export async function getAnswerStats(
     isSecondOrderCorrect,
     isPracticeQuestion,
     isQuestionAnsweredByUser,
+    isLegacyQuestion,
     rewardStatus,
   };
 }

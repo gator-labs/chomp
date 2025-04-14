@@ -21,6 +21,9 @@ export function QuestionCard({
   indicatorType,
   revealAtDate,
 }: QuestionCardProps) {
+  const FF_NEW_ANSWER_PAGE =
+    process.env.NEXT_PUBLIC_FF_NEW_ANSWER_PAGE === "true";
+
   const canViewAnswer =
     (indicatorType == "correct" ||
       indicatorType == "incorrect" ||
@@ -50,7 +53,10 @@ export function QuestionCard({
   if (!canViewAnswer) return card;
 
   return (
-    <Link href={`/application/answer/reveal/${questionId}`} className="block">
+    <Link
+      href={`/application/answer/${FF_NEW_ANSWER_PAGE ? "reveal-new" : "reveal"}/${questionId}`}
+      className="block"
+    >
       {card}
     </Link>
   );
