@@ -141,7 +141,6 @@ export async function getAnswerStats(
 
   const isQuestionAnsweredByUser =
     userAnswers.filter((ua) => !!ua.selected).length > 0;
-  const isRewardKnown = question.QuestionRewards.length > 0;
 
   const chompResults = question.chompResults.map((chompResult) => ({
     ...chompResult,
@@ -158,6 +157,8 @@ export async function getAnswerStats(
       },
     ];
   }
+
+  const isRewardKnown = question.QuestionRewards.length > 0;
 
   const rewardStatus = isLegacyQuestion
     ? chompResults.length > 0
