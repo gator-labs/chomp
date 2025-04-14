@@ -1,22 +1,21 @@
 import React from "react";
 import { Pie } from "react-chartjs-2";
 
-// interface Dataset {
-//   data: (string | number)[];
-//   backgroundColor: string[];
-//   hoverBackgroundColor: string[];
-//   borderColor: string[];
-//   borderAlign: string;
-//   hoverOffset: number;
-//   borderWidth: number;
-// }
+interface Dataset {
+  data: (string | number)[];
+  backgroundColor: string[];
+  hoverBackgroundColor: string[];
+  borderColor: string[];
+  hoverOffset: number;
+  borderWidth: number;
+}
 
-// interface ChartData {
-//   labels: string[];
-//   datasets: Dataset[];
-// }
+interface ChartData {
+  labels: string[];
+  datasets: Dataset[];
+}
 
-function PieChart({ data }: { data: any }) {
+function PieChart({ data }: { data: ChartData }) {
   const options = {
     layout: {
       padding: 16,
