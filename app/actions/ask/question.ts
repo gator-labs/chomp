@@ -24,7 +24,10 @@ export async function createAskQuestion(
     const validatedFields = askQuestionSchema.safeParse(data);
 
     if (!validatedFields.success) {
-      return { errorMessage: formatErrorsToString(validatedFields) };
+      return {
+        errorMessage: formatErrorsToString(validatedFields),
+        success: false,
+      };
     }
 
     const options = validatedFields.data.questionOptions.map((qo, i) =>
@@ -67,8 +70,10 @@ export async function createAskQuestion(
     await Sentry.flush(SENTRY_FLUSH_WAIT);
 
     revalidatePath("/application/ask");
-    return null;
+    return { errorMessage: "Internal error.", success: false };
   }
 
   revalidatePath("/application/ask");
+
+  return { success: true };
 }
