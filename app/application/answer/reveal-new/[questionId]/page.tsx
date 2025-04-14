@@ -53,8 +53,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
-  console.log(stats);
-
   const answerContent = !!isBinary ? (
     <>
       <BinaryBestAnswer
@@ -80,9 +78,10 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       <MultiChoicePieChart
         questionOptions={stats.questionOptions}
         optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
+        bestOption={stats.correctAnswer?.id}
         totalAnswers={stats.questionAnswerCount}
         correctAnswers={stats.correctAnswersCount}
+        selectionDistribution={stats.selectionDistribution}
       />
     </>
   );

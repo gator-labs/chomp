@@ -12,10 +12,14 @@ import RedXIcon from "../icons/RedXIcon";
 
 type MultiChoicePieChartProps = {
   questionOptions: QuestionOption[];
-  bestOption: string;
+  bestOption: number | undefined;
   optionSelected?: string | null;
   totalAnswers: number;
   correctAnswers: number;
+  selectionDistribution: {
+    optionId: number;
+    count: number;
+  }[];
 };
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -26,24 +30,19 @@ function MultiChoicePieChart({
   questionOptions,
   totalAnswers,
   correctAnswers,
+  selectionDistribution,
 }: MultiChoicePieChartProps) {
   const isUserAnswerCorrect = bestOption === optionSelected;
-  const BestAnswerPercentage = ((correctAnswers / totalAnswers) * 100).toFixed(
-    2,
-  );
-  const incorrectPercentage = (
-    ((totalAnswers - correctAnswers) / totalAnswers) *
-    100
-  ).toFixed(2);
+  // const bestOptionPercentage = selectionDistribution[bestOption].count
 
   const colors = ["#ECEAFF", "#CCCAFF", "#9B98FF", "#706CFF"];
-  const boxShadow = ["#BFBDFF", "#7D79EA", "#6965F0", "#4741FC"];
+  const boxShadows = ["#BFBDFF", "#7D79EA", "#6965F0", "#4741FC"];
 
   const data = {
     labels: ["(Best Answer)", ""],
     datasets: [
       {
-        data: [`${BestAnswerPercentage}`, incorrectPercentage],
+        data: selectionDistribution.map((sd) => sd.count),
         backgroundColor: colors,
         hoverBackgroundColor: colors,
         borderColor: ["white"],
@@ -81,14 +80,16 @@ function MultiChoicePieChart({
           {optionSelected === null ? (
             <span className="text-white">
               <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users chose the
-              best answer ({BestAnswerPercentage}%)
+              best answer
+              {/* ({BestAnswerPercentage}%) */}
             </span>
           ) : !isUserAnswerCorrect ? (
             <span className="text-destructive">
               You are not a part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
-                users who chose the best answer ({BestAnswerPercentage}%)
+                users who chose the best answer
+                {/* ({BestAnswerPercentage}%) */}
               </span>
             </span>
           ) : (
@@ -96,7 +97,8 @@ function MultiChoicePieChart({
               You are part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
-                users who chose the best answer ({BestAnswerPercentage}%)
+                users who chose the best answer
+                {/* ({BestAnswerPercentage}%) */}
               </span>
             </span>
           )}
@@ -105,34 +107,52 @@ function MultiChoicePieChart({
           <PieChart data={data} />
         </div>
         <div className="w-full">
-          {questionOptions.map((qo, index) => (
-            <div key={qo.id} className="flex flex-row gap-1 items-center my-2">
+          {questionOptions.map((qo, index) => {
+            return (
               <div
-                className={cn(
-                  `w-[50px] h-[50px] bg-gray-600 rounded-lg flex items-center justify-center`,
-                )}
-                style={{
-                  backgroundColor: colors[index],
-                  boxShadow: `0px 3px 0px 0px ${boxShadow[index]}, 0px 4px 4px 0px rgba(0, 0, 0, 0.25)`,
-                }}
+                key={qo.id}
+                className="flex flex-row gap-1 items-center my-2"
               >
-                <p
-                  className={cn("text-sm font-bold text-white", {
-                    "!text-gray-800": qo.option === bestOption,
-                  })}
+                <div
+                  style={{
+                    boxShadow: `0px 3px 0px 0px ${boxShadows[index]}, 0px 4px 4px 0px rgba(0, 0, 0, 0.25)`,
+                  }}
+                  className={cn(
+                    `w-[50px] h-[50px] rounded-lg flex items-center justify-center cursor-pointer`,
+                    {
+                      "bg-[#ECEAFF]": index === 0,
+                      "hover:bg-[#D1CFE8]": index === 0,
+                      "bg-[#CCCAFF]": index === 1,
+                      "hover:bg-[#AFACEF]": index === 1,
+                      "bg-[#9B98FF]": index === 2,
+                      "hover:bg-[#7E7BD7]": index === 2,
+                      "bg-[#706CFF]": index === 3,
+                      "hover:bg-[#5550DE]": index === 3,
+                    },
+                  )}
                 >
-                  {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
-                </p>
+                  <p
+                    className={cn("text-sm font-bold text-white", {
+                      "text-gray-900": index === 0 || index === 1,
+                    })}
+                  >
+                    {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
+                  </p>
+                </div>
+                <div
+                  className={cn(
+                    "border-gray-500 border-solid border rounded-lg flex h-[50px] bg-transparent gap-2 w-full items-center justify-between relative overflow-hidden",
+                  )}
+                >
+                  <p className="z-10 text-sm font-medium px-3">{qo?.option}</p>
+                  <div
+                    className="bg-gray-600 h-full absolute"
+                    style={{ width: `calc(${20}% + 5px)` }}
+                  ></div>
+                </div>
               </div>
-              <div
-                className={cn(
-                  "flex h-[50px] bg-transparent  gap-2  px-2 w-full py-3 text-sm font-semibold text-white rounded-lg border-solid border-gray-500 border",
-                )}
-              >
-                <div>{qo?.option}</div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
