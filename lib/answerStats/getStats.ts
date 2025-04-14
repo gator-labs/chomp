@@ -147,15 +147,13 @@ export async function getAnswerStats(
     rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
   }));
 
-  if (isLegacyQuestion) {
+  if (chompResults.length > 0) {
     question.QuestionRewards = [
       {
         userId,
         questionId,
         creditsReward: "0",
-        bonkReward: Number(
-          chompResults?.[0]?.rewardTokenAmount ?? 0,
-        ).toString(),
+        bonkReward: Number(chompResults?.[0].rewardTokenAmount ?? 0).toString(),
       },
     ];
   }
@@ -163,7 +161,9 @@ export async function getAnswerStats(
   const isRewardKnown = question.QuestionRewards.length > 0;
 
   const rewardStatus = isLegacyQuestion
-    ? "claimed"
+    ? chompResults.length > 0
+      ? "claimed"
+      : "no-reward"
     : isPracticeQuestion || !isQuestionAnsweredByUser
       ? "no-reward"
       : isRewardKnown

@@ -56,9 +56,7 @@ export function AnswerStatsHeader({
           onInfoIconClick={handleInfoIconClick}
         />
       )}
-      {rewardStatus === "claimable" && !isPracticeQuestion && (
-        <NoAnswerRewards />
-      )}
+      {rewardStatus === "claimable" && <NoAnswerRewards />}
       <UnderstandYourResultsDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
