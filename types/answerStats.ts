@@ -44,5 +44,6 @@ export type AnswerStats = Question & {
   isPracticeQuestion: boolean;
   deckQuestions: { deckId: number }[];
   isQuestionAnsweredByUser: boolean;
+  isLegacyQuestion: boolean;
   rewardStatus: RewardStatus;
 };

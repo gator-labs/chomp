@@ -184,6 +184,7 @@ export async function getAnswerStats(
     isSecondOrderCorrect,
     isPracticeQuestion,
     isQuestionAnsweredByUser,
+    isLegacyQuestion,
     rewardStatus,
   };
 }
