@@ -142,7 +142,10 @@ export default function SecondOrderAnswerResultsBinary({
             </div>
             <div
               className="h-14 bg-gray-800"
-              style={{ width: `${100 - selectedPercentage}%`, minWidth: "0.5rem" }}
+              style={{
+                width: `${100 - selectedPercentage}%`,
+                minWidth: "0.5rem",
+              }}
             />
           </div>
         </div>
