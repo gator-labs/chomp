@@ -2,7 +2,6 @@
 
 import { cn } from "@/lib/utils";
 import { QuestionOption } from "@prisma/client";
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
 import React from "react";
 
 import PieChart from "../PieChart/PieChart";
@@ -17,7 +16,7 @@ type BinaryPieChartProps = {
   correctAnswers: number;
 };
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+const chartColors = ["#1ED3B3", "#ED6A5A"];
 
 function BinaryPieChart({
   bestOption,
@@ -28,22 +27,23 @@ function BinaryPieChart({
 }: BinaryPieChartProps) {
   const isUserAnswerCorrect = bestOption === optionSelected;
   const bestAnswerPercentage = ((correctAnswers / totalAnswers) * 100).toFixed(
-    2,
+    1,
   );
-  const incorrectPercentage = (
-    ((totalAnswers - correctAnswers) / totalAnswers) *
-    100
-  ).toFixed(2);
 
   const data = {
-    labels: ["(Best Answer)", ""],
+    labels: questionOptions.map((qo) =>
+      qo.option === bestOption ? `${qo.option} (Best Answer)` : qo.option,
+    ),
     datasets: [
       {
-        data: [Number(bestAnswerPercentage), Number(incorrectPercentage)],
-        backgroundColor: ["#1ED3B3", "#ED6A5A"], // Colors for correct and incorrect
-        hoverBackgroundColor: ["#1ED3B3", "#ED6A5A"],
+        data: questionOptions.map((qo) =>
+          qo.option === bestOption
+            ? correctAnswers
+            : totalAnswers - correctAnswers,
+        ),
+        backgroundColor: chartColors,
+        hoverBackgroundColor: chartColors,
         borderColor: ["white"],
-        borderAlign: "inner",
         hoverOffset: 20,
         borderWidth: 1,
         hoverBorderWidth: 0,
@@ -63,12 +63,14 @@ function BinaryPieChart({
         )}
       >
         <p>First Order Answer</p>
-        {optionSelected === null ? (
-          <></>
-        ) : isUserAnswerCorrect ? (
-          <AquaCheckIcon width={24} height={24} />
-        ) : (
-          <RedXIcon width={24} height={24} />
+        {optionSelected !== null && (
+          <>
+            {isUserAnswerCorrect ? (
+              <AquaCheckIcon width={24} height={24} />
+            ) : (
+              <RedXIcon width={24} height={24} />
+            )}
+          </>
         )}
       </div>
 
@@ -76,12 +78,12 @@ function BinaryPieChart({
         <p className="text-sm">
           {optionSelected === null ? (
             <span className="text-white">
-              <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users choose the
+              <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users chose the
               best answer ({bestAnswerPercentage}%)
             </span>
           ) : !isUserAnswerCorrect ? (
             <span className="text-destructive">
-              You are not a part of the <b>{correctAnswers}</b> of{" "}
+              You are not part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
                 users who chose the best answer ({bestAnswerPercentage}%)
@@ -97,18 +99,22 @@ function BinaryPieChart({
             </span>
           )}
         </p>
+
         <div className="m-auto">
           <PieChart data={data} />
         </div>
-        {questionOptions.map((qo, index) => (
+
+        {questionOptions.map((qo) => (
           <div
+            key={qo.id}
             className={cn(
               "flex items-center justify-center w-full py-3 text-sm font-semibold text-white rounded-lg my-2",
-              index === 1 ? "bg-destructive" : "bg-chomp-green-tiffany", // Apply red background for the second option
+              qo.option === bestOption
+                ? "bg-chomp-green-tiffany"
+                : "bg-destructive",
             )}
-            key={qo.id}
           >
-            <div>{qo?.option}</div>
+            {qo.option}
           </div>
         ))}
       </div>

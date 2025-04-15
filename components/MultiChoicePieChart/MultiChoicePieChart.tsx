@@ -10,7 +10,7 @@ import AquaCheckIcon from "../icons/AquaCheckIcon";
 import RedXIcon from "../icons/RedXIcon";
 
 type MultiChoicePieChartProps = {
-  bestOption: number | undefined;
+  bestOption: string;
   optionSelected?: string | null;
   totalAnswers: number;
   correctAnswers: number;
@@ -22,6 +22,29 @@ type MultiChoicePieChartProps = {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
+const colors = ["#ECEAFF", "#CCCAFF", "#9B98FF", "#706CFF"];
+const boxShadows = ["#BFBDFF", "#7D79EA", "#6965F0", "#4741FC"];
+const bgColors = [
+  "bg-[#ECEAFF]",
+  "bg-[#CCCAFF]",
+  "bg-[#9B98FF]",
+  "bg-[#706CFF]",
+];
+const hoverColors = [
+  "hover:bg-[#D1CFE8]",
+  "hover:bg-[#AFACEF]",
+  "hover:bg-[#7E7BD7]",
+  "hover:bg-[#5550DE]",
+];
+
+function getBoxShadow(index: number) {
+  return `0px 3px 0px 0px ${boxShadows[index]}, 0px 4px 4px 0px rgba(0, 0, 0, 0.25)`;
+}
+
+function getBarWidth(count: number, total: number) {
+  return `calc(${((count / total) * 100).toFixed(1)}% + 5px)`;
+}
+
 function MultiChoicePieChart({
   bestOption,
   optionSelected,
@@ -30,13 +53,18 @@ function MultiChoicePieChart({
   selectionDistribution,
 }: MultiChoicePieChartProps) {
   const isUserAnswerCorrect = bestOption === optionSelected;
-  // const bestOptionPercentage = selectionDistribution[bestOption].count
 
-  const colors = ["#ECEAFF", "#CCCAFF", "#9B98FF", "#706CFF"];
-  const boxShadows = ["#BFBDFF", "#7D79EA", "#6965F0", "#4741FC"];
+  const bestOptionData = selectionDistribution.find(
+    (sd) => sd.option === bestOption,
+  );
+  const bestAnswerPercentage = bestOptionData
+    ? ((bestOptionData.count / totalAnswers) * 100).toFixed(1)
+    : "0.0";
 
   const data = {
-    labels: ["(Best Answer)", ""],
+    labels: selectionDistribution.map((sd) =>
+      sd.option === bestOption ? `${sd.option} (Best Answer)` : sd.option,
+    ),
     datasets: [
       {
         data: selectionDistribution.map((sd) => sd.count),
@@ -63,9 +91,7 @@ function MultiChoicePieChart({
         )}
       >
         <p>First Order Answer</p>
-        {optionSelected === null ? (
-          <></>
-        ) : isUserAnswerCorrect ? (
+        {optionSelected === null ? null : isUserAnswerCorrect ? (
           <AquaCheckIcon width={24} height={24} />
         ) : (
           <RedXIcon width={24} height={24} />
@@ -77,16 +103,14 @@ function MultiChoicePieChart({
           {optionSelected === null ? (
             <span className="text-white">
               <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users chose the
-              best answer
-              {/* ({BestAnswerPercentage}%) */}
+              best answer ({bestAnswerPercentage}%)
             </span>
           ) : !isUserAnswerCorrect ? (
             <span className="text-destructive">
               You are not a part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
-                users who chose the best answer
-                {/* ({BestAnswerPercentage}%) */}
+                users who chose the best answer ({bestAnswerPercentage}%)
               </span>
             </span>
           ) : (
@@ -94,8 +118,7 @@ function MultiChoicePieChart({
               You are part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
-                users who chose the best answer
-                {/* ({BestAnswerPercentage}%) */}
+                users who chose the best answer ({bestAnswerPercentage}%)
               </span>
             </span>
           )}
@@ -104,54 +127,41 @@ function MultiChoicePieChart({
           <PieChart data={data} />
         </div>
         <div className="w-full">
-          {selectionDistribution.map((qo, index) => {
-            return (
+          {selectionDistribution.map((qo, index) => (
+            <div key={index} className="flex flex-row gap-1 items-center my-2">
               <div
-                key={index}
-                className="flex flex-row gap-1 items-center my-2"
+                style={{
+                  boxShadow: getBoxShadow(index),
+                }}
+                className={cn(
+                  "w-[50px] h-[50px] rounded-lg flex items-center justify-center cursor-pointer",
+                  bgColors[index],
+                  hoverColors[index],
+                )}
               >
-                <div
-                  style={{
-                    boxShadow: `0px 3px 0px 0px ${boxShadows[index]}, 0px 4px 4px 0px rgba(0, 0, 0, 0.25)`,
-                  }}
-                  className={cn(
-                    `w-[50px] h-[50px] rounded-lg flex items-center justify-center cursor-pointer`,
-                    {
-                      "bg-[#ECEAFF]": index === 0,
-                      "hover:bg-[#D1CFE8]": index === 0,
-                      "bg-[#CCCAFF]": index === 1,
-                      "hover:bg-[#AFACEF]": index === 1,
-                      "bg-[#9B98FF]": index === 2,
-                      "hover:bg-[#7E7BD7]": index === 2,
-                      "bg-[#706CFF]": index === 3,
-                      "hover:bg-[#5550DE]": index === 3,
-                    },
-                  )}
+                <p
+                  className={cn("text-sm font-bold text-white", {
+                    "text-gray-900": index === 0 || index === 1,
+                  })}
                 >
-                  <p
-                    className={cn("text-sm font-bold text-white", {
-                      "text-gray-900": index === 0 || index === 1,
-                    })}
-                  >
-                    {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
-                  </p>
-                </div>
-                <div
-                  className={cn(
-                    "border-gray-500 border-solid border rounded-lg flex h-[50px] bg-transparent gap-2 w-full items-center justify-between relative overflow-hidden",
-                  )}
-                >
-                  <p className="z-10 text-sm font-medium px-3">{qo?.option}</p>
-                  <div
-                    className="bg-gray-600 h-full absolute"
-                    style={{
-                      width: `calc(${((qo.count / totalAnswers) * 100).toFixed(1)}% + 5px)`,
-                    }}
-                  ></div>
-                </div>
+                  {OPTION_LABEL[index as keyof typeof OPTION_LABEL]}
+                </p>
               </div>
-            );
-          })}
+              <div
+                className={cn(
+                  "border-gray-500 border-solid border rounded-lg flex h-[50px] bg-transparent gap-2 w-full items-center justify-between relative overflow-hidden",
+                )}
+              >
+                <p className="z-10 text-sm font-medium px-3">{qo?.option}</p>
+                <div
+                  className="bg-gray-600 h-full absolute"
+                  style={{
+                    width: getBarWidth(qo.count, totalAnswers),
+                  }}
+                ></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
