@@ -155,12 +155,15 @@ export async function getAnswerStats(
 
   const selectionDistributionMap = new Map();
   questionAnswers.forEach((qa) => {
-    const id = qa.questionOption.option;
+    const option = qa.questionOption.option;
     if (qa.selected === true) {
       selectionDistributionMap.set(
-        id,
-        (selectionDistributionMap.get(id) || 0) + 1,
+        option,
+        (selectionDistributionMap.get(option) || 0) + 1,
       );
+    }
+    if (selectionDistributionMap.get(option) === undefined) {
+      selectionDistributionMap.set(option, 0);
     }
   });
 
