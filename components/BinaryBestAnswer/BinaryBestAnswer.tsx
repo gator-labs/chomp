@@ -22,7 +22,7 @@ function BinaryBestAnswer({
       {questionOptions.map((qo) => (
         <div
           className={cn(
-            "flex items-center justify-center bg-aqua gap-2 w-full  py-3 text-sm font-semibold text-white rounded-lg my-4",
+            "flex items-center justify-center bg-chomp-green-tiffany gap-2 w-full  py-3 text-sm font-semibold text-white rounded-lg my-4",
             {
               "bg-gray-600": !qo.calculatedIsCorrect,
               "text-gray-500": !qo.calculatedIsCorrect,
