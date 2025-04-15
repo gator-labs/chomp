@@ -8,7 +8,7 @@ type SecondOrderAnswerResultsBinaryProps = {
   aPercentage: number;
   bPercentage: number;
   isSelectedCorrectNullIfNotOpened: boolean | null;
-  selectedPercentage: number;
+  selectedPercentage: number | null;
   openSecOrdAnsInfDrawer: () => void;
 };
 
@@ -19,8 +19,24 @@ export default function SecondOrderAnswerResultsBinary({
   selectedPercentage,
   openSecOrdAnsInfDrawer,
 }: SecondOrderAnswerResultsBinaryProps) {
-  // Mystery Box is not opened yet so we don't know if the user is right or wrong
-  const isNotOpenedYet = isSelectedCorrectNullIfNotOpened === null;
+  // Is correct and we have an answer
+  const isSelectedCorrect =
+    isSelectedCorrectNullIfNotOpened === true && selectedPercentage !== null;
+
+  // WARNING: this could be hidding a bug, its gonna be reviewed in
+  // https://linear.app/gator/issue/PROD-1029/issecondordercorrect-true-even-though-no-2nd-order-answer
+  // Mystery Box is not opened yet so we don't know if the user is right or wrong or there's no answer
+  const isNotOpenedYet =
+    isSelectedCorrectNullIfNotOpened === null || selectedPercentage === null;
+
+  if (
+    isSelectedCorrectNullIfNotOpened === true &&
+    selectedPercentage === null
+  ) {
+    console.warn(
+      "Second Order Answser says its correct but has not selected percentage",
+    );
+  }
 
   return (
     <div className="bg-gray-700 rounded-xl my-3">
@@ -28,7 +44,7 @@ export default function SecondOrderAnswerResultsBinary({
         className={cn(
           "text-white flex justify-between items-center rounded-t-xl py-2 px-4",
           {
-            "bg-dark-green": isSelectedCorrectNullIfNotOpened === true,
+            "bg-dark-green": isSelectedCorrect,
             "bg-dark-red": isSelectedCorrectNullIfNotOpened === false,
             "bg-gray-600": isSelectedCorrectNullIfNotOpened === null,
           },
@@ -36,7 +52,7 @@ export default function SecondOrderAnswerResultsBinary({
       >
         <p className="pl-2 font-bold">Second Order Answer</p>
 
-        {isNotOpenedYet ? null : isSelectedCorrectNullIfNotOpened ? (
+        {isNotOpenedYet ? null : isSelectedCorrect ? (
           <AquaCheckIcon width={32} height={32} />
         ) : (
           <RedXIcon width={32} height={32} />
@@ -116,14 +132,14 @@ export default function SecondOrderAnswerResultsBinary({
           <div className="flex items-center mb-1 w-full rounded-full overflow-hidden mt-4">
             <div
               className={cn("h-14 flex items-center relative", {
-                "bg-green": isSelectedCorrectNullIfNotOpened === true,
+                "bg-green": isSelectedCorrect,
                 "bg-chomp-red-light":
                   isSelectedCorrectNullIfNotOpened === false,
                 "bg-gray-800": isNotOpenedYet,
               })}
               style={{
-                width: `${selectedPercentage}%`,
-                minWidth: `${selectedPercentage}%`,
+                width: `${selectedPercentage ?? 0}%`,
+                minWidth: `${selectedPercentage ?? 0}%`,
               }}
             >
               <div className="absolute whitespace-nowrap z-10">
@@ -133,7 +149,9 @@ export default function SecondOrderAnswerResultsBinary({
                     "text-gray-500 font-400": isNotOpenedYet,
                   })}
                 >
-                  {isNotOpenedYet ? "N/A" : selectedPercentage.toFixed(1) + "%"}
+                  {isNotOpenedYet
+                    ? "N/A"
+                    : (selectedPercentage?.toFixed(1) ?? "0") + "%"}
                 </p>
                 <p className="text-white ml-2 inline">
                   {isNotOpenedYet ? "" : "would choose the best answer"}
@@ -143,7 +161,7 @@ export default function SecondOrderAnswerResultsBinary({
             <div
               className="h-14 bg-gray-800"
               style={{
-                width: `${100 - selectedPercentage}%`,
+                width: `${100 - (selectedPercentage ?? 0)}%`,
                 minWidth: "0.5rem",
               }}
             />

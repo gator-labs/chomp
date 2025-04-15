@@ -70,6 +70,8 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const stats = result.data.stats;
 
+  console.log(stats);
+
   const isBinary = stats.type === QuestionType.BinaryQuestion;
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
@@ -119,10 +121,8 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       (q) => q.option === "B",
     );
 
-    const selectedAnswer = stats.userAnswers.find(
-      (ans) => ans.percentage != null,
-    );
-    const selectedPercentage = Number(selectedAnswer?.percentage);
+    const selectedAnswer = stats.userAnswers.find((ans) => ans.selected);
+    const selectedPercentage = selectedAnswer?.percentage ?? null;
 
     // if secondOrderAveragePercentagePicked is null we take it as 0
     const aPercentage =
@@ -141,10 +141,10 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     // Second Order Multiple Choice Question Answers
 
     const selectedAnswer = stats.userAnswers.find(
-      (ans) => ans.percentage != null,
+      (ans) => ans.percentage !== null,
     );
-    const selectedQOId = selectedAnswer?.questionOptionId || null;
-    const selectedPercentage = Number(selectedAnswer?.percentage);
+    const selectedQOId = selectedAnswer?.questionOptionId ?? null;
+    const selectedPercentage = selectedAnswer?.percentage ?? null;
 
     const options = stats.questionOptionPercentages.map(
       (qop, index) =>
@@ -158,7 +158,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
     secondOrderAnswerResults = SecondOrderAnswerResultsMultiple({
       options,
-      isSelectedCorrect: stats.isSecondOrderCorrect,
+      isSelectedCorrectNullIfNotOpened: stats.isSecondOrderCorrect,
       selectedPercentage,
       openSecOrdAnsInfDrawer,
     });
