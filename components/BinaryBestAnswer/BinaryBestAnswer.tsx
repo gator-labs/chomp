@@ -1,10 +1,10 @@
-import { QuestionUnansweredIcon } from "@/app/components/Icons/QuestionUnansweredIcon";
 import { cn } from "@/app/utils/tailwind";
 import { QuestionOption } from "@prisma/client";
 import React from "react";
 
 import AquaCheckIcon from "../icons/AquaCheckIcon";
 import RedXIcon from "../icons/RedXIcon";
+import { UnansweredQuestionIcon } from "../icons/UnansweredQuestionIcon";
 
 type BinaryBestAnswerProps = {
   questionOptions: QuestionOption[];
@@ -22,7 +22,7 @@ function BinaryBestAnswer({
       {questionOptions.map((qo) => (
         <div
           className={cn(
-            "flex items-center justify-center bg-aqua gap-2 w-full  py-3 text-sm font-semibold text-white rounded-lg my-4",
+            "flex items-center justify-center bg-chomp-green-tiffany gap-2 w-full  py-3 text-sm font-semibold text-white rounded-lg my-4",
             {
               "bg-gray-600": !qo.calculatedIsCorrect,
               "text-gray-500": !qo.calculatedIsCorrect,
@@ -38,23 +38,22 @@ function BinaryBestAnswer({
 
       <div
         className={cn(
-          "text-gray font-bold text-sm flex items-center justify-between gap-1 mt-2 text-destructive",
-          {
-            "text-white": optionSelected === null,
-            "text-aqua": bestOption === optionSelected,
-          },
+          "text-gray font-bold text-sm flex items-center justify-between gap-1 mt-2",
         )}
       >
-        <p>
-          {optionSelected === null
-            ? "You did not answer"
-            : bestOption === optionSelected
-              ? "You picked best answer:"
-              : "You did not pick best answer:"}
-        </p>
+        {optionSelected === null ? (
+          <p className="text-gray-400">You didn&apos;t answer this question</p>
+        ) : bestOption === optionSelected ? (
+          <p className="text-chomp-green-tiffany">
+            You picked the best answer:
+          </p>
+        ) : (
+          <p className="text-destructive">You did not pick the best answer:</p>
+        )}
+
         {optionSelected === null ? (
           <div className="rounded-full">
-            <QuestionUnansweredIcon width={24} height={24} />{" "}
+            <UnansweredQuestionIcon width={24} height={24} />{" "}
           </div>
         ) : bestOption === optionSelected ? (
           <AquaCheckIcon width={24} height={24} />

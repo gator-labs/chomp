@@ -5,7 +5,9 @@ import InfoDrawer from "@/app/components/InfoDrawer/InfoDrawer";
 import { getAlphaIdentifier } from "@/app/utils/question";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
+import BinaryPieChart from "@/components/BinaryPieChart/BinaryPieChart";
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
+import MultiChoicePieChart from "@/components/MultiChoicePieChart/MultiChoicePieChart";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
 import SecondOrderAnswerResultsMultiple from "@/components/SecondOrderAnswerResultMultiple";
 import SecondOrderAnswerResultsBinary from "@/components/SecondOrderAnswerResultsBinary";
@@ -72,30 +74,38 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
-  let answerContent = <></>;
-
-  if (!!isBinary) {
-    answerContent = (
-      <>
-        <BinaryBestAnswer
-          questionOptions={stats.questionOptions}
-          optionSelected={answerSelected?.questionOption?.option ?? null}
-          bestOption={stats.correctAnswer?.option ?? ""}
-        />
-      </>
-    );
-  }
-  if (!isBinary) {
-    answerContent = (
-      <>
-        <MultiChoiceBestAnswer
-          questionOptions={stats.questionOptions}
-          optionSelected={answerSelected?.questionOption?.option ?? null}
-          bestOption={stats.correctAnswer?.option ?? ""}
-        />
-      </>
-    );
-  }
+  const answerContent = !!isBinary ? (
+    <>
+      <BinaryBestAnswer
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+      />
+      <BinaryPieChart
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+        totalAnswers={stats.questionAnswerCount}
+        correctAnswers={stats.correctAnswersCount}
+      />
+    </>
+  ) : (
+    <>
+      <MultiChoiceBestAnswer
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+      />
+      <MultiChoicePieChart
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.id}
+        totalAnswers={stats.questionAnswerCount}
+        correctAnswers={stats.correctAnswersCount}
+        selectionDistribution={stats.selectionDistribution}
+      />
+    </>
+  );
 
   let secondOrderAnswerResults = <></>;
 

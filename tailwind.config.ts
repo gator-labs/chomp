@@ -70,9 +70,12 @@ const colors = {
     red: {
       light: "#ED6A5A",
       dark: "#FF0000",
+      dusty: "#694848",
     },
     green: {
       light: "#DBFC8D",
+      tiffany: "#1ED3B3",
+      turquoise: "#1ed3b31a",
     },
     grey: {
       a1: "#B3B3B3",
@@ -83,6 +86,9 @@ const colors = {
     gold: {
       dark: "#71673B",
       light: "#EDE1AB",
+    },
+    aqua: {
+      light: " #3D5752",
     },
   },
 };

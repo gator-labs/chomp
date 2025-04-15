@@ -105,6 +105,10 @@ async function getNextDeckIdQuery(
         (
           d."activeFromDate" <= now()
         )
+        and
+        (
+          c."hideDeckFromHomepage" IS NULL OR c."hideDeckFromHomepage" IS FALSE
+        )
         and 
         (
           d."revealAtAnswerCount" is null

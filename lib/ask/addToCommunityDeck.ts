@@ -49,6 +49,7 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
       where: {
         id: questionId,
         isSubmittedByUser: true,
+        createdByUserId: { not: null },
         deckQuestions: {
           none: {},
         },

@@ -3,8 +3,12 @@ import { markQuestionAsSeenButNotAnswered } from "@/actions/answers/markQuestion
 import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
+import { authGuard } from "@/app/utils/auth";
+import { getCreditBalance } from "@/lib/credits/getCreditBalance";
 import { generateUsers } from "@/scripts/utils";
 import { AnswerStatus } from "@prisma/client";
+
+jest.mock("@/app/utils/auth");
 
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
@@ -28,10 +32,18 @@ jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 describe("Validate points logs for completing questions and decks", () => {
   const currentDate = new Date();
   let userId: string;
+  let authorId: string;
   let deckId: number;
   let deckQuestionId: number;
   let randomRes: number | undefined;
   beforeAll(async () => {
+    const users = await generateUsers(2);
+    userId = users[0].id;
+    authorId = users[1].id;
+    await prisma.user.createMany({
+      data: users,
+    });
+
     // create a new deck
     const deck = await prisma.deck.create({
       data: {
@@ -44,6 +56,8 @@ describe("Validate points logs for completing questions and decks", () => {
               create: {
                 stackId: null,
                 question: "Bonkaton question?",
+                isSubmittedByUser: true,
+                createdByUserId: authorId,
                 type: "MultiChoice",
                 revealTokenAmount: 10,
                 revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
@@ -84,26 +98,27 @@ describe("Validate points logs for completing questions and decks", () => {
     deckId = deck.id;
     deckQuestionId = deck.deckQuestions[0].questionId; // Fix: use the actual question ID
     // create a new user
-    const user = await generateUsers(1);
-    userId = user[0].id;
-    await prisma.user.createMany({
-      data: user,
-    });
   });
 
   // delete all the dummy data after test completion
   afterAll(async () => {
+    await prisma.askQuestionAnswer.deleteMany({
+      where: {
+        userId: { in: [userId, authorId] },
+      },
+    });
+
     await deleteDeck(deckId);
 
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: {
-        userId: userId,
+        userId: { in: [userId, authorId] },
       },
     });
 
-    await prisma.user.delete({
+    await prisma.user.deleteMany({
       where: {
-        id: userId,
+        id: { in: [userId, authorId] },
       },
     });
   });
@@ -126,6 +141,7 @@ describe("Validate points logs for completing questions and decks", () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
     });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
     const answerData = questionOptions.map((qo) => ({
       questionOptionId: qo.id,
@@ -170,19 +186,34 @@ describe("Validate points logs for completing questions and decks", () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
     });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
+
+    await prisma.questionAnswer.deleteMany({ where: { userId } });
 
     const seenQuestion = await markQuestionAsSeenButNotAnswered(deckQuestionId);
 
     randomRes = seenQuestion?.random;
 
+    expect(seenQuestion?.hasError).toBeFalsy();
+    expect(randomRes).toBeDefined();
+
+    const authorCreditsBalanceBefore = await getCreditBalance(authorId);
+
     await answerQuestion({
       questionId: deckQuestionId,
       questionOptionId: questionOptions[1].id,
       percentageGiven: 50,
-      percentageGivenForAnswerId: randomRes,
+      percentageGivenForAnswerId: questionOptions[randomRes!].id,
       timeToAnswerInMiliseconds: 3638,
       deckId: deckId,
     });
+
+    const authorCreditsBalanceAfter = await getCreditBalance(authorId);
+
+    expect(process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD).toBeDefined();
+    expect(authorCreditsBalanceAfter - authorCreditsBalanceBefore).toEqual(
+      Number(process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD),
+    );
 
     const questionAnswer = await prisma.questionAnswer.findMany({
       where: {
@@ -192,7 +223,13 @@ describe("Validate points logs for completing questions and decks", () => {
         },
       },
     });
+
     expect(questionAnswer).toHaveLength(4); // We expect 4 answers because we created 4 options
+
+    for (let i = 0; i < questionAnswer.length; i++) {
+      if (i == randomRes) expect(questionAnswer[i].percentage).toBe(50);
+      else expect(questionAnswer[i].percentage).toBeNull();
+    }
   });
 
   it("should not allow a user to answer the same question twice", async () => {
@@ -213,13 +250,14 @@ describe("Validate points logs for completing questions and decks", () => {
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
     });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
     await expect(
       answerQuestion({
         questionId: deckQuestionId,
         questionOptionId: questionOptions[1].id,
         percentageGiven: 50,
-        percentageGivenForAnswerId: randomRes,
+        percentageGivenForAnswerId: questionOptions[randomRes!].id,
         timeToAnswerInMiliseconds: 3638,
         deckId: deckId,
       }),

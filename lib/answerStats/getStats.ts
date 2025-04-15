@@ -129,9 +129,12 @@ export async function getAnswerStats(
       isFirstOrderCorrect: false,
       isSecondOrderCorrect: null,
       isPracticeQuestion: false,
+      questionAnswerCount: 0,
+      correctAnswersCount: 0,
       isLegacyQuestion,
       isQuestionAnsweredByUser: false,
       rewardStatus: "no-reward",
+      selectionDistribution: [],
     };
   }
 
@@ -139,6 +142,41 @@ export async function getAnswerStats(
   const isFirstOrderCorrect =
     correctAnswer?.id === answerSelected?.questionOptionId;
   const isPracticeQuestion = question.creditCostPerQuestion === 0;
+
+  const questionAnswers = await prisma.questionAnswer.findMany({
+    where: {
+      questionOptionId: {
+        in: question.questionOptions.map((qo) => qo.id),
+      },
+    },
+  });
+
+  const selectionDistributionMap = new Map();
+  questionAnswers.forEach((qa) => {
+    const id = qa.questionOptionId;
+    if (qa.selected === true) {
+      selectionDistributionMap.set(
+        id,
+        (selectionDistributionMap.get(id) || 0) + 1,
+      );
+    }
+  });
+
+  const selectionDistribution = Array.from(
+    selectionDistributionMap,
+    ([optionId, count]) => ({
+      optionId,
+      count,
+    }),
+  );
+
+  const numSelectedCorrect = questionAnswers.reduce(
+    (count, qa) =>
+      qa.selected && qa.questionOptionId === correctAnswer?.id
+        ? count + 1
+        : count,
+    0,
+  );
 
   const isQuestionAnsweredByUser =
     userAnswers.filter((ua) => !!ua.selected).length > 0;
@@ -148,15 +186,13 @@ export async function getAnswerStats(
     rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
   }));
 
-  if (isLegacyQuestion) {
+  if (chompResults.length > 0) {
     question.QuestionRewards = [
       {
         userId,
         questionId,
         creditsReward: "0",
-        bonkReward: Number(
-          chompResults?.[0]?.rewardTokenAmount ?? 0,
-        ).toString(),
+        bonkReward: Number(chompResults?.[0].rewardTokenAmount ?? 0).toString(),
       },
     ];
   }
@@ -164,7 +200,9 @@ export async function getAnswerStats(
   const isRewardKnown = question.QuestionRewards.length > 0;
 
   const rewardStatus = isLegacyQuestion
-    ? "claimed"
+    ? chompResults.length > 0
+      ? "claimed"
+      : "no-reward"
     : isPracticeQuestion || !isQuestionAnsweredByUser
       ? "no-reward"
       : isRewardKnown
@@ -199,8 +237,14 @@ export async function getAnswerStats(
     isFirstOrderCorrect,
     isSecondOrderCorrect,
     isPracticeQuestion,
+    questionAnswerCount:
+      question.type === "BinaryQuestion"
+        ? questionAnswers.length / 2
+        : questionAnswers.length / 4,
+    correctAnswersCount: numSelectedCorrect,
     isQuestionAnsweredByUser,
     isLegacyQuestion,
     rewardStatus,
+    selectionDistribution: selectionDistribution,
   };
 }

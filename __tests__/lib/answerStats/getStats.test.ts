@@ -418,7 +418,7 @@ describe("getAnswerStats", () => {
 
     const stats = await getAnswerStats(user1.id, questionIds[2]);
     expect(stats).toBeDefined();
-    expect(stats?.rewardStatus).toBe("claimed");
+    expect(stats?.rewardStatus).toBe("no-reward");
     expect(stats?.isFirstOrderCorrect).toBe(true);
     expect(stats?.isSecondOrderCorrect).toBe(false);
     expect(stats?.isPracticeQuestion).toBe(false);
