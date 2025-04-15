@@ -39,6 +39,9 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
     const { promiseToast, errorToast } = useToast();
     const { isClaiming, setIsClaiming } = useClaiming();
 
+    const FF_NEW_ANSWER_PAGE =
+      process.env.NEXT_PUBLIC_FF_NEW_ANSWER_PAGE === "true";
+
     const claimQuestion = async (
       questionId: number,
       transactionHash: string,
@@ -82,7 +85,10 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
                   : "questions-history",
               ],
             });
-            router.push("/application/answer/reveal/" + question.id);
+            router.push(
+              `/application/answer/${FF_NEW_ANSWER_PAGE ? "reveal-new" : "reveal"}/` +
+                question.id,
+            );
             router.refresh();
             fire();
           })
@@ -119,7 +125,9 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
                 : "questions-history",
             ],
           });
-          router.push("/application/answer/reveal/" + question.id);
+          router.push(
+            `/application/answer/${FF_NEW_ANSWER_PAGE ? "reveal-new" : "reveal"}/${question.id}`,
+          );
           router.refresh();
         },
         amount: question.revealTokenAmount || 0,
@@ -195,7 +203,9 @@ const QuestionRowCard = forwardRef<HTMLLIElement, QuestionRowCardProps>(
         )}
         {(question.isClaimed || question.isRevealed) &&
           !question.isClaimable && (
-            <Link href={`/application/answer/reveal/${question.id}`}>
+            <Link
+              href={`/application/answer/${FF_NEW_ANSWER_PAGE ? "reveal-new" : "reveal"}/${question.id}`}
+            >
               <Button className="h-[50px] flex gap-1" variant="grayish">
                 View
                 <EyeIcon />

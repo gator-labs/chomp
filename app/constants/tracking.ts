@@ -48,6 +48,8 @@ export const TRACKING_EVENTS = {
     "QuestionCardIndicatorsInfoDialogOpened",
   QUESTION_CARD_INDICATORS_INFO_DIALOG_CLOSED:
     "QuestionCardIndicatorsInfoDialogClosed",
+  UNDERSTAND_YOUR_RESULTS_DIALOG_OPENED: "UnderstandYourResultsDialogOpened",
+  UNDERSTAND_YOUR_RESULTS_DIALOG_CLOSED: "UnderstandYourResultsDialogClosed",
 } as const;
 
 export const TRACKING_METADATA = {

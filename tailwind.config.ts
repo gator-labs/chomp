@@ -21,6 +21,8 @@ const colors = {
   secondary: "#AFADEB",
   destructive: "#ED6A5A",
   green: "#1ED3B3",
+  "dark-green": "#3D5752",
+  "dark-red": "#694848",
   white: "#FFFFFF",
   cream: "#F6FCD6",
   darkGray50: "rgba(51, 51, 51, 0.5)",
@@ -66,16 +68,27 @@ const colors = {
       light: "#D0CBB4",
     },
     red: {
+      light: "#ED6A5A",
       dark: "#FF0000",
+      dusty: "#694848",
     },
     green: {
       light: "#DBFC8D",
+      tiffany: "#1ED3B3",
+      turquoise: "#1ed3b31a",
     },
     grey: {
       a1: "#B3B3B3",
     },
     pink: {
       light: "#FCD6EA",
+    },
+    gold: {
+      dark: "#71673B",
+      light: "#EDE1AB",
+    },
+    aqua: {
+      light: " #3D5752",
     },
   },
 };
