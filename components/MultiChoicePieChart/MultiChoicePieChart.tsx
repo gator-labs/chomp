@@ -2,7 +2,6 @@
 
 import { OPTION_LABEL } from "@/app/components/AnswerResult/constants";
 import { cn } from "@/lib/utils";
-import { QuestionOption } from "@prisma/client";
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
 import React from "react";
 
@@ -11,13 +10,12 @@ import AquaCheckIcon from "../icons/AquaCheckIcon";
 import RedXIcon from "../icons/RedXIcon";
 
 type MultiChoicePieChartProps = {
-  questionOptions: QuestionOption[];
   bestOption: number | undefined;
   optionSelected?: string | null;
   totalAnswers: number;
   correctAnswers: number;
   selectionDistribution: {
-    optionId: number;
+    option: string;
     count: number;
   }[];
 };
@@ -27,7 +25,6 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 function MultiChoicePieChart({
   bestOption,
   optionSelected,
-  questionOptions,
   totalAnswers,
   correctAnswers,
   selectionDistribution,
@@ -107,10 +104,10 @@ function MultiChoicePieChart({
           <PieChart data={data} />
         </div>
         <div className="w-full">
-          {questionOptions.map((qo, index) => {
+          {selectionDistribution.map((qo, index) => {
             return (
               <div
-                key={qo.id}
+                key={index}
                 className="flex flex-row gap-1 items-center my-2"
               >
                 <div
@@ -147,7 +144,9 @@ function MultiChoicePieChart({
                   <p className="z-10 text-sm font-medium px-3">{qo?.option}</p>
                   <div
                     className="bg-gray-600 h-full absolute"
-                    style={{ width: `calc(${20}% + 5px)` }}
+                    style={{
+                      width: `calc(${((qo.count / totalAnswers) * 100).toFixed(1)}% + 5px)`,
+                    }}
                   ></div>
                 </div>
               </div>

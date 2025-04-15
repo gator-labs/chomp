@@ -44,7 +44,7 @@ export type AnswerStats = Question & {
   isLegacyQuestion: boolean;
   rewardStatus: RewardStatus;
   selectionDistribution: {
-    optionId: number;
     count: number;
+    option: string;
   }[];
 };

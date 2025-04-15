@@ -148,11 +148,14 @@ export async function getAnswerStats(
         in: question.questionOptions.map((qo) => qo.id),
       },
     },
+    include: {
+      questionOption: true,
+    },
   });
 
   const selectionDistributionMap = new Map();
   questionAnswers.forEach((qa) => {
-    const id = qa.questionOptionId;
+    const id = qa.questionOption.option;
     if (qa.selected === true) {
       selectionDistributionMap.set(
         id,
@@ -163,8 +166,8 @@ export async function getAnswerStats(
 
   const selectionDistribution = Array.from(
     selectionDistributionMap,
-    ([optionId, count]) => ({
-      optionId,
+    ([option, count]) => ({
+      option,
       count,
     }),
   );
