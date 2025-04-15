@@ -3,7 +3,9 @@
 import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
+import BinaryPieChart from "@/components/BinaryPieChart/BinaryPieChart";
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
+import MultiChoicePieChart from "@/components/MultiChoicePieChart/MultiChoicePieChart";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
@@ -56,30 +58,39 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
-  let answerContent = <></>;
+  const answerContent = !!isBinary ? (
+    <>
+      <BinaryBestAnswer
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+      />
+      <BinaryPieChart
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+        totalAnswers={stats.questionAnswerCount}
+        correctAnswers={stats.correctAnswersCount}
+      />
+    </>
+  ) : (
+    <>
+      <MultiChoiceBestAnswer
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.option ?? ""}
+      />
+      <MultiChoicePieChart
+        questionOptions={stats.questionOptions}
+        optionSelected={answerSelected?.questionOption?.option ?? null}
+        bestOption={stats.correctAnswer?.id}
+        totalAnswers={stats.questionAnswerCount}
+        correctAnswers={stats.correctAnswersCount}
+        selectionDistribution={stats.selectionDistribution}
+      />
+    </>
+  );
 
-  if (!!isBinary) {
-    answerContent = (
-      <>
-        <BinaryBestAnswer
-          questionOptions={stats.questionOptions}
-          optionSelected={answerSelected?.questionOption?.option ?? null}
-          bestOption={stats.correctAnswer?.option ?? ""}
-        />
-      </>
-    );
-  }
-  if (!isBinary) {
-    answerContent = (
-      <>
-        <MultiChoiceBestAnswer
-          questionOptions={stats.questionOptions}
-          optionSelected={answerSelected?.questionOption?.option ?? null}
-          bestOption={stats.correctAnswer?.option ?? ""}
-        />
-      </>
-    );
-  }
   return (
     <div>
       <AnswerStatsHeader

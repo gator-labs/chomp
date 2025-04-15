@@ -37,8 +37,14 @@ export type AnswerStats = Question & {
   isFirstOrderCorrect: boolean;
   isSecondOrderCorrect: boolean | null;
   isPracticeQuestion: boolean;
+  questionAnswerCount: number;
+  correctAnswersCount: number;
   deckQuestions: { deckId: number }[];
   isQuestionAnsweredByUser: boolean;
   isLegacyQuestion: boolean;
   rewardStatus: RewardStatus;
+  selectionDistribution: {
+    optionId: number;
+    count: number;
+  }[];
 };
