@@ -38,15 +38,22 @@ export default function SecondOrderAnswerResultsBinary({
     );
   }
 
+  // Variable to distinguish between the three states after correcting possible db inconsistencies
+  // null if unanswered
+  // replace all isSelectedCorrectNullIfNotOpened with correctIncorrectOrUnanswered
+  const correctIncorrectOrUnanswered = isNotOpenedYet
+    ? null
+    : isSelectedCorrect;
+
   return (
     <div className="bg-gray-700 rounded-xl my-3">
       <div
         className={cn(
           "text-white flex justify-between items-center rounded-t-xl py-2 px-4",
           {
-            "bg-dark-green": isSelectedCorrect,
-            "bg-dark-red": isSelectedCorrectNullIfNotOpened === false,
-            "bg-gray-600": isSelectedCorrectNullIfNotOpened === null,
+            "bg-dark-green": correctIncorrectOrUnanswered === true,
+            "bg-dark-red": correctIncorrectOrUnanswered === false,
+            "bg-gray-600": correctIncorrectOrUnanswered === null,
           },
         )}
       >
@@ -132,10 +139,9 @@ export default function SecondOrderAnswerResultsBinary({
           <div className="flex items-center mb-1 w-full rounded-full overflow-hidden mt-4">
             <div
               className={cn("h-14 flex items-center relative", {
-                "bg-green": isSelectedCorrect,
-                "bg-chomp-red-light":
-                  isSelectedCorrectNullIfNotOpened === false,
-                "bg-gray-800": isNotOpenedYet,
+                "bg-green": correctIncorrectOrUnanswered,
+                "bg-chomp-red-light": correctIncorrectOrUnanswered === false,
+                "bg-gray-800": correctIncorrectOrUnanswered === null,
               })}
               style={{
                 width: `${selectedPercentage ?? 0}%`,
