@@ -26,6 +26,18 @@ function PieChart({ data }: { data: ChartData }) {
         display: false, // This hides the legend
       },
       tooltip: {
+        callbacks: {
+          label: function (context: any) {
+            const dataset = context.dataset.data;
+            const total = dataset.reduce(
+              (acc: number, val: number) => acc + val,
+              0,
+            );
+            const value = context.parsed;
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${percentage}%`;
+          },
+        },
         backgroundColor: "#1D1D1D",
         caretSize: 0,
         displayColors: false,
