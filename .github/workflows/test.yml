@@ -212,8 +212,7 @@ jobs:
               --data "{
                 \"branch\": {
                   \"parent_id\": \"$parent_id\",
-                  \"name\": \"$TEST_BRANCH\",
-                  \"init_source\": \"schema-only\"
+                  \"name\": \"$TEST_BRANCH\"
                 },
                 \"endpoints\": [
                   {
@@ -344,8 +343,7 @@ jobs:
                 --data "{
                   \"branch\": {
                     \"parent_id\": \"$parent_id\",
-                    \"name\": \"$TEST_BRANCH\",
-                    \"init_source\": \"schema-only\"
+                    \"name\": \"$TEST_BRANCH\"
                   },
                   \"endpoints\": [
                     {
