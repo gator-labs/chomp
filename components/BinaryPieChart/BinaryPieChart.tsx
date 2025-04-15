@@ -66,9 +66,9 @@ function BinaryPieChart({
         {optionSelected === null ? (
           <></>
         ) : isUserAnswerCorrect ? (
-          <AquaCheckIcon width={24} height={24} />
+          <AquaCheckIcon width={32} height={32} />
         ) : (
-          <RedXIcon width={24} height={24} />
+          <RedXIcon width={32} height={32} />
         )}
       </div>
 
