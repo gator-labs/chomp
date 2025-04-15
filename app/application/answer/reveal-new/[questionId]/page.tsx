@@ -70,8 +70,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const stats = result.data.stats;
 
-  console.log(stats);
-
   const isBinary = stats.type === QuestionType.BinaryQuestion;
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
