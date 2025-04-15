@@ -109,7 +109,9 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       (q) => q.option === "B",
     );
 
-    const selectedAnswer = stats.userAnswers.find((ans) => ans.selected);
+    const selectedAnswer = stats.userAnswers.find(
+      (ans) => ans.percentage != null,
+    );
     const selectedPercentage = Number(selectedAnswer?.percentage);
 
     // if secondOrderAveragePercentagePicked is null we take it as 0
