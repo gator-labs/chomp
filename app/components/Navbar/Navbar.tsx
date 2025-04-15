@@ -37,7 +37,7 @@ export function Navbar({
   };
 
   return (
-    <nav className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-900 z-10 max-w-lg">
+    <nav className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-900 z-20 max-w-lg">
       <Link href={user ? "/application" : "https://chomp.games/"}>
         <ChompFlatIcon fill="#fff" />
       </Link>
