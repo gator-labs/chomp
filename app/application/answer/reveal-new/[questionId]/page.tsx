@@ -81,9 +81,8 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         bestOption={stats.correctAnswer?.option ?? ""}
       />
       <MultiChoicePieChart
-        questionOptions={stats.questionOptions}
         optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.id}
+        bestOption={stats.correctAnswer?.option ?? ""}
         totalAnswers={stats.questionAnswerCount}
         correctAnswers={stats.correctAnswersCount}
         selectionDistribution={stats.selectionDistribution}

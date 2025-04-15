@@ -148,23 +148,29 @@ export async function getAnswerStats(
         in: question.questionOptions.map((qo) => qo.id),
       },
     },
+    include: {
+      questionOption: true,
+    },
   });
 
   const selectionDistributionMap = new Map();
   questionAnswers.forEach((qa) => {
-    const id = qa.questionOptionId;
+    const option = qa.questionOption.option;
     if (qa.selected === true) {
       selectionDistributionMap.set(
-        id,
-        (selectionDistributionMap.get(id) || 0) + 1,
+        option,
+        (selectionDistributionMap.get(option) || 0) + 1,
       );
+    }
+    if (selectionDistributionMap.get(option) === undefined) {
+      selectionDistributionMap.set(option, 0);
     }
   });
 
   const selectionDistribution = Array.from(
     selectionDistributionMap,
-    ([optionId, count]) => ({
-      optionId,
+    ([option, count]) => ({
+      option,
       count,
     }),
   );
