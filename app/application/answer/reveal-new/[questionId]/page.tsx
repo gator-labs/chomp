@@ -141,9 +141,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   } else {
     // Second Order Multiple Choice Question Answers
 
-    // only one Second order Answer is selected by the user,
-    // this second order answer will have a percentage number from 0 to 100
-    // this tell us that this was the answer selected by the user for this Question
     const selectedAnswer = stats.userAnswers.find(
       (ans) => ans.percentage != null,
     );
