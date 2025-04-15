@@ -197,6 +197,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           }),
         );
       }
+
       await Promise.all(fungibleAssetRevealTasks);
     });
   } catch (error) {

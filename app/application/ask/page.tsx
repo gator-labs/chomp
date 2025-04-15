@@ -1,4 +1,4 @@
-import AskForm from "@/app/components/AskForm/AskForm";
+import { AskWizard } from "@/components/AskWizard/AskWizard";
 import { notFound } from "next/navigation";
 
 export default async function Page() {
@@ -6,5 +6,5 @@ export default async function Page() {
     return notFound();
   }
 
-  return <AskForm />;
+  return <AskWizard />;
 }

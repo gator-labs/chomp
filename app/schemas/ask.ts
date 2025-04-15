@@ -7,13 +7,20 @@ import {
   IMAGE_VALID_TYPES,
 } from "../constants/images";
 
+export const MIN_QUESTION_LENGTH = 5;
+export const MAX_QUESTION_LENGTH = 120;
+
+export const MIN_OPTION_LENGTH = 1;
+export const MAX_OPTION_LENGTH = 40;
+
 export const askQuestionSchema = z.object({
   question: z
     .string({
       invalid_type_error: "Invalid question",
       required_error: "Question is required",
     })
-    .min(5),
+    .min(MIN_QUESTION_LENGTH)
+    .max(MAX_QUESTION_LENGTH),
   type: z.nativeEnum(QuestionType),
   file: z
     .custom<File[]>()
@@ -32,7 +39,7 @@ export const askQuestionSchema = z.object({
     }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
   questionOptions: z
     .object({
-      option: z.string().min(1),
+      option: z.string().min(MIN_OPTION_LENGTH).max(MAX_OPTION_LENGTH),
     })
     .array(),
   imageUrl: z

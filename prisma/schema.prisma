@@ -37,7 +37,8 @@ model User {
   DeckRewards                 DeckRewards[]
   QuestionRewards             QuestionRewards[]
 
-  Question Question[]
+  Question          Question[]
+  AskQuestionAnswer AskQuestionAnswer[]
 }
 
 model Wallet {
@@ -81,7 +82,8 @@ model Question {
   MysteryBoxTrigger           MysteryBoxTrigger[]
   QuestionRewards             QuestionRewards[]
 
-  user User? @relation(fields: [createdByUserId], references: [id])
+  user              User?               @relation(fields: [createdByUserId], references: [id])
+  AskQuestionAnswer AskQuestionAnswer[]
 }
 
 model QuestionOption {
@@ -184,6 +186,22 @@ model QuestionAnswer {
   @@index([userId, selected])
 }
 
+// We create an entry in this table every time a
+// community ask question is answered, in order to
+// track rewards
+model AskQuestionAnswer {
+  id                          Int                           @id @default(autoincrement())
+  // Question that was answered
+  questionId                  Int
+  question                    Question?                     @relation(fields: [questionId], references: [id])
+  // User who answered the question
+  userId                      String
+  user                        User                          @relation(fields: [userId], references: [id])
+  FungibleAssetTransactionLog FungibleAssetTransactionLog[]
+
+  @@unique([questionId, userId])
+}
+
 model ChompResult {
   id                       Int               @id @default(autoincrement())
   userId                   String
@@ -208,24 +226,27 @@ model ChompResult {
 }
 
 model FungibleAssetTransactionLog {
-  id                Int                @id @default(autoincrement())
-  type              TransactionLogType
-  asset             FungibleAsset
-  createdAt         DateTime           @default(now())
-  change            Decimal
-  userId            String
-  user              User               @relation(fields: [userId], references: [id])
-  question          Question?          @relation(fields: [questionId], references: [id])
-  questionId        Int?
-  deck              Deck?              @relation(fields: [deckId], references: [id])
-  deckId            Int?
-  mysteryBoxPrize   MysteryBoxPrize?   @relation(fields: [mysteryBoxPrizeId], references: [id])
-  mysteryBoxPrizeId String?            @unique
-  chainTx           ChainTx?           @relation(fields: [chainTxHash], references: [hash])
-  chainTxHash       String?
-  creditPack        CreditPack?        @relation(fields: [creditPackId], references: [id])
-  creditPackId      String?
+  id                  Int                @id @default(autoincrement())
+  type                TransactionLogType
+  asset               FungibleAsset
+  createdAt           DateTime           @default(now())
+  change              Decimal
+  userId              String
+  user                User               @relation(fields: [userId], references: [id])
+  question            Question?          @relation(fields: [questionId], references: [id])
+  questionId          Int?
+  askQuestionAnswer   AskQuestionAnswer? @relation(fields: [askQuestionAnswerId], references: [id])
+  askQuestionAnswerId Int?
+  deck                Deck?              @relation(fields: [deckId], references: [id])
+  deckId              Int?
+  mysteryBoxPrize     MysteryBoxPrize?   @relation(fields: [mysteryBoxPrizeId], references: [id])
+  mysteryBoxPrizeId   String?            @unique
+  chainTx             ChainTx?           @relation(fields: [chainTxHash], references: [hash])
+  chainTxHash         String?
+  creditPack          CreditPack?        @relation(fields: [creditPackId], references: [id])
+  creditPackId        String?
 
+  @@unique([type, userId, askQuestionAnswerId])
   @@unique([type, userId, questionId]) // Enforce unique combination of userId and questionId
   @@unique([type, deckId, userId]) // Enforce unique combination of deckId and userId
   @@unique([type, chainTxHash, userId])
@@ -473,6 +494,8 @@ enum TransactionLogType {
   PremiumQuestionCharge
   CreditPurchase
   CreditByAdmin
+  AskQuestionAccepted
+  AskQuestionAnswered
 }
 
 enum ResultType {
