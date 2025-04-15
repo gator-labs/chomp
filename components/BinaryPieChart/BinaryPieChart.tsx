@@ -27,7 +27,7 @@ function BinaryPieChart({
   correctAnswers,
 }: BinaryPieChartProps) {
   const isUserAnswerCorrect = bestOption === optionSelected;
-  const BestAnswerPercentage = ((correctAnswers / totalAnswers) * 100).toFixed(
+  const bestAnswerPercentage = ((correctAnswers / totalAnswers) * 100).toFixed(
     2,
   );
   const incorrectPercentage = (
@@ -39,7 +39,7 @@ function BinaryPieChart({
     labels: ["(Best Answer)", ""],
     datasets: [
       {
-        data: [Number(BestAnswerPercentage), Number(incorrectPercentage)],
+        data: [Number(bestAnswerPercentage), Number(incorrectPercentage)],
         backgroundColor: ["#1ED3B3", "#ED6A5A"], // Colors for correct and incorrect
         hoverBackgroundColor: ["#1ED3B3", "#ED6A5A"],
         borderColor: ["white"],
@@ -77,14 +77,14 @@ function BinaryPieChart({
           {optionSelected === null ? (
             <span className="text-white">
               <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users choose the
-              best answer ({BestAnswerPercentage}%)
+              best answer ({bestAnswerPercentage}%)
             </span>
           ) : !isUserAnswerCorrect ? (
             <span className="text-destructive">
               You are not a part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
-                users who chose the best answer ({BestAnswerPercentage}%)
+                users who chose the best answer ({bestAnswerPercentage}%)
               </span>
             </span>
           ) : (
@@ -92,7 +92,7 @@ function BinaryPieChart({
               You are part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
-                users who chose the best answer ({BestAnswerPercentage}%)
+                users who chose the best answer ({bestAnswerPercentage}%)
               </span>
             </span>
           )}
