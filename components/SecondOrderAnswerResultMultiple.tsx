@@ -33,8 +33,8 @@ export default function SecondOrderAnswerResultsMultiple({
         )}
       </div>
 
-      <div className="p-4">
-        <div className="flex items-center text-white mb-2">
+      <div className="p-5">
+        <div className="flex items-start text-white mb-2">
           <p className="font-medium ml-2">
             This shows how users thought the crowd would vote for the best
             answer.
@@ -51,7 +51,7 @@ export default function SecondOrderAnswerResultsMultiple({
           {options.map((option, index) => (
             <div key={index} className="flex items-center mb-2">
               {/* Letter box - fixed width */}
-              <div className="flex items-center justify-center bg-gray-600 w-12 h-12 rounded-lg mr-2 flex-shrink-0">
+              <div className="flex items-center justify-center bg-gray-600 w-12 h-12 rounded-lg mr-1 flex-shrink-0">
                 <span className="text-white text-xl font-medium">
                   {option.label}
                 </span>
@@ -80,24 +80,24 @@ export default function SecondOrderAnswerResultsMultiple({
         </div>
 
         {/** Horizontal --- Line **/}
-        <div className="mt-4 border-t border-gray-600 pt-4 pr-4">
+        <div className="mt-4 border-t border-gray-600 pr-4">
           {
             // Your prediction was xxx correct
             isSelectedCorrect ? (
-              <p className="text-green font-medium mb-2 text-sm">
+              <p className="mt-4 text-green font-medium text-sm">
                 Nice! Your prediction was within the reward range.
               </p>
             ) : (
-              <p className="text-chomp-red-light font-medium mb-2 text-sm">
+              <p className="text-chomp-red-light font-medium text-sm mt-4">
                 Your prediction was not within the reward range this time, on to
                 the next one!
               </p>
             )
           }
 
-          <div className="flex items-center mb-2">
+          <div className="flex items-center mb-2 mt-4">
             {/* Letter box - fixed width */}
-            <div className="flex items-center justify-center bg-gray-600 w-12 h-12 rounded-lg mr-2 flex-shrink-0">
+            <div className="flex items-center justify-center bg-gray-600 w-12 h-12 rounded-lg mr-1 flex-shrink-0">
               <span className="text-white text-xl font-medium">
                 {selectedQuestion?.label}
               </span>

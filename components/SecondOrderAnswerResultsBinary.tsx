@@ -44,7 +44,7 @@ export default function SecondOrderAnswerResultsBinary({
       </div>
 
       <div className="p-4">
-        <div className="flex items-center text-white mb-2">
+        <div className="flex items-start text-white mb-2">
           <p className="font-medium ml-2">
             This shows how users thought the crowd would vote for the best
             answer.
@@ -65,7 +65,7 @@ export default function SecondOrderAnswerResultsBinary({
               style={{ width: `${aPercentage}%`, minWidth: `${aPercentage}%` }}
             >
               <div className="absolute whitespace-nowrap z-10">
-                <p className="text-white font-bold ml-4 inline">
+                <p className="text-white font-[900] ml-4 inline">
                   {aPercentage.toFixed(1)}%
                 </p>
                 <p className="text-white ml-2 inline">
@@ -88,7 +88,7 @@ export default function SecondOrderAnswerResultsBinary({
               style={{ width: `${bPercentage}%`, minWidth: `${bPercentage}%` }}
             >
               <div className="absolute whitespace-nowrap z-10">
-                <p className="text-white font-bold ml-4 inline">
+                <p className="text-white font-[900] font-bold ml-4 inline">
                   {bPercentage.toFixed(1)}%
                 </p>
                 <p className="text-white ml-2 inline">would not</p>
@@ -128,7 +128,7 @@ export default function SecondOrderAnswerResultsBinary({
             >
               <div className="absolute whitespace-nowrap z-10">
                 <p
-                  className={cn("font-bold ml-4 inline", {
+                  className={cn("font-[900] ml-4 inline", {
                     "text-white": !isNotOpenedYet,
                     "text-gray-500 font-400": isNotOpenedYet,
                   })}

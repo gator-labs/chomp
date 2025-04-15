@@ -112,10 +112,10 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (isBinary) {
     // Second Order Binary Choice Question Answers
 
-    const aQuestionOptionP = stats.questionOptionPercentages.find(
+    const questionOpntionPercentageA = stats.questionOptionPercentages.find(
       (q) => q.option === "A",
     );
-    const bQuestionOptionP = stats.questionOptionPercentages.find(
+    const questionOptionPercentageB = stats.questionOptionPercentages.find(
       (q) => q.option === "B",
     );
 
@@ -125,11 +125,10 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     const selectedPercentage = Number(selectedAnswer?.percentage);
 
     // if secondOrderAveragePercentagePicked is null we take it as 0
-    // TODO: Move to server?
     const aPercentage =
-      aQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
+      questionOpntionPercentageA?.secondOrderAveragePercentagePicked || 0;
     const bPercentage =
-      bQuestionOptionP?.secondOrderAveragePercentagePicked || 0;
+      questionOptionPercentageB?.secondOrderAveragePercentagePicked || 0;
 
     secondOrderAnswerResults = SecondOrderAnswerResultsBinary({
       aPercentage,
