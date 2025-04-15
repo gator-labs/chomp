@@ -74,7 +74,7 @@ function MultiChoiceBestAnswer({
 
         {optionSelected === null ? (
           <div className="rounded-full">
-            <UnansweredQuestionIcon width={32} height={32} />{" "}
+            <UnansweredQuestionIcon width={32} height={32} />
           </div>
         ) : bestOption === optionSelected ? (
           <AquaCheckIcon width={32} height={32} />
