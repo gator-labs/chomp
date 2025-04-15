@@ -1,24 +1,26 @@
 import { getJwtPayload } from "@/app/actions/jwt";
-import { getHistoryDecks } from "@/lib/history/deck";
-import { NextRequest } from "next/server";
+import { getAnswerStats } from "@/lib/answerStats/getStats";
+import { type NextRequest } from "next/server";
 import { z } from "zod";
 
 const schema = z.object({
-  pageParam: z.coerce.number().int().min(1),
-  showAnsweredDeck: z.string().transform((val) => val === "true"), // Convert to boolean
+  questionId: z.coerce.number().int().min(1),
 });
 
 export async function GET(request: NextRequest) {
   const payload = await getJwtPayload();
 
-  const userId = payload?.sub;
+  if (!payload?.sub) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+    });
+  }
 
   let req;
 
   try {
     const searchParams = request.nextUrl.searchParams;
     const params = Object.fromEntries(searchParams.entries());
-
     req = schema.parse(params);
   } catch {
     return new Response(JSON.stringify({ error: "Invalid request" }), {
@@ -26,17 +28,17 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const pageParam = req.pageParam;
-  const showAnsweredDeck = req.showAnsweredDeck;
+  const stats = await getAnswerStats(payload.sub, req.questionId);
 
-  const history = await getHistoryDecks({
-    userId,
-    pageParam,
-    showAnsweredDeck,
-  });
+  if (stats === null) {
+    return new Response(JSON.stringify({ error: "Not found" }), {
+      status: 404,
+    });
+  }
+
   return new Response(
     JSON.stringify({
-      history,
+      stats,
     }),
     {
       headers: { "Content-Type": "application/json" },

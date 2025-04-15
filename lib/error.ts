@@ -216,3 +216,10 @@ export class CreateAskQuestionError extends Error {
     this.name = "CreateAskError";
   }
 }
+
+export class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotFoundError";
+  }
+}
