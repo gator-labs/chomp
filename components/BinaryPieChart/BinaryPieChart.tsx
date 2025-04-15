@@ -76,7 +76,9 @@ function BinaryPieChart({
 
       <div className="p-5 flex flex-col justify-between">
         <p className="text-sm">
-          {optionSelected === null ? (
+          {correctAnswers === 0 ? (
+            <span>No user chose the best answer</span>
+          ) : optionSelected === null ? (
             <span className="text-white">
               <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users chose the
               best answer ({bestAnswerPercentage}%)
