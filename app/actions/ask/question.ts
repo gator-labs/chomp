@@ -16,6 +16,10 @@ import { getJwtPayload } from "../jwt";
 export async function createAskQuestion(
   data: z.infer<typeof askQuestionSchema>,
 ) {
+  const FF_ASK = process.env.NEXT_PUBLIC_FF_ASK === "true";
+
+  if (!FF_ASK) return null;
+
   const payload = await getJwtPayload();
 
   if (!payload) return null;
