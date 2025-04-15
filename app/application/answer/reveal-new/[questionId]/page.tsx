@@ -18,6 +18,11 @@ interface Props {
 }
 
 const RevealAnswerPageNew = ({ params }: Props) => {
+  const FF_NEW_ANSWER_PAGE =
+    process.env.NEXT_PUBLIC_FF_NEW_ANSWER_PAGE === "true";
+
+  if (!FF_NEW_ANSWER_PAGE) notFound();
+
   const questionId =
     params.questionId === undefined ? undefined : Number(params.questionId);
 
