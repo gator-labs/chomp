@@ -6,6 +6,7 @@ import { pointsPerAction } from "@/app/constants/points";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { addUserTutorialTimestamp } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
+import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
 import { AnswerError } from "@/lib/error";
 import {
   AnswerStatus,
@@ -199,6 +200,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       }
 
       await Promise.all(fungibleAssetRevealTasks);
+      await chargeUserCredits(request.questionId);
     });
   } catch (error) {
     const answerError = new AnswerError(
