@@ -123,6 +123,9 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       );
     }
 
+    // Charge user credits before submitting question response in the db. Process wil fail if insufficient balance
+    await chargeUserCredits(request.questionId);
+
     await prisma.$transaction(async (tx) => {
       // Question answers are deleted because they have (possibly)
       // been marked seen and will be recreated below.
@@ -200,7 +203,6 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       }
 
       await Promise.all(fungibleAssetRevealTasks);
-      await chargeUserCredits(request.questionId);
     });
   } catch (error) {
     const answerError = new AnswerError(
