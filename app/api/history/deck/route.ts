@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 
 const schema = z.object({
-  pageParam: z.string().transform((val) => parseInt(val, 10)), // Convert to number
+  pageParam: z.coerce.number().int().min(1),
   showAnsweredDeck: z.string().transform((val) => val === "true"), // Convert to boolean
 });
 

@@ -13,9 +13,37 @@ export default function Page() {
   if (askList.data.askList.length == 0)
     return <div>No unassigned questions found.</div>;
 
+  const ACCEPT_CREDITS = Number(
+    process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD ?? 0,
+  );
+  const ANSWER_CREDITS = Number(
+    process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD ?? 0,
+  );
+
   return (
-    <div className="flex flex-col gap-2">
-      <CommunityAskList askList={askList?.data?.askList} />
+    <div>
+      <div className="block mb-1 text-xl font-medium">Ask Inbox</div>
+
+      <hr className="border-gray-600 my-2 p-0" />
+
+      <div className="flex flex-col gap-4">
+        <p>
+          Adding a question to the community deck will immediately reward the
+          asker with <b className="text-purple-200">{ACCEPT_CREDITS}</b>{" "}
+          credits.
+        </p>
+
+        <p>
+          Answers to the question will earn the user{" "}
+          <b className="text-purple-200">{ANSWER_CREDITS}</b> credits.
+        </p>
+      </div>
+
+      <hr className="border-gray-600 my-2 p-0" />
+
+      <div className="flex flex-col gap-2">
+        <CommunityAskList askList={askList?.data?.askList} />
+      </div>
     </div>
   );
 }

@@ -209,3 +209,17 @@ export class CreditRateLimitExceedError extends Error {
     this.name = "CreditRateLimitExceedError";
   }
 }
+
+export class CreateAskQuestionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CreateAskError";
+  }
+}
+
+export class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotFoundError";
+  }
+}
