@@ -12,6 +12,9 @@ import { z } from "zod";
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
+jest.mock("p-retry", () => ({
+  retry: jest.fn((fn) => fn()),
+}));
 
 describe("answering already revealed question", () => {
   const userId = uuidv4();
