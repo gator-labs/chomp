@@ -90,7 +90,7 @@ function MultiChoicePieChart({
           },
         )}
       >
-        <p>First Order Answer</p>
+        <p className="pl-2 font-bold">First Order Answer</p>
         {optionSelected === null ? null : isUserAnswerCorrect ? (
           <AquaCheckIcon width={32} height={32} />
         ) : (

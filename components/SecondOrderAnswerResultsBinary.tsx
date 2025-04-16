@@ -5,16 +5,16 @@ import AquaCheckIcon from "./icons/AquaCheckIcon";
 import RedXIcon from "./icons/RedXIcon";
 
 type SecondOrderAnswerResultsBinaryProps = {
-  aPercentage: number;
-  bPercentage: number;
+  firstPercentage: number;
+  secondPercentage: number;
   isSelectedCorrectNullIfNotOpened: boolean | null;
   selectedPercentage: number | null;
   openSecOrdAnsInfDrawer: () => void;
 };
 
 export default function SecondOrderAnswerResultsBinary({
-  aPercentage,
-  bPercentage,
+  firstPercentage,
+  secondPercentage,
   isSelectedCorrectNullIfNotOpened,
   selectedPercentage,
   openSecOrdAnsInfDrawer,
@@ -49,7 +49,7 @@ export default function SecondOrderAnswerResultsBinary({
     <div className="bg-gray-700 rounded-xl my-3">
       <div
         className={cn(
-          "text-white flex justify-between items-center rounded-t-xl py-2 px-4",
+          "text-white flex justify-between items-center rounded-t-xl py-2 pl-4 pr-2",
           {
             "bg-dark-green": correctIncorrectOrUnanswered === true,
             "bg-dark-red": correctIncorrectOrUnanswered === false,
@@ -85,11 +85,14 @@ export default function SecondOrderAnswerResultsBinary({
           <div className="flex items-center mb-1 w-full rounded-full overflow-hidden">
             <div
               className="h-14 bg-purple-500 flex items-center relative"
-              style={{ width: `${aPercentage}%`, minWidth: `${aPercentage}%` }}
+              style={{
+                width: `${firstPercentage}%`,
+                minWidth: `${firstPercentage}%`,
+              }}
             >
               <div className="absolute whitespace-nowrap z-10">
                 <p className="text-white font-[900] ml-4 inline">
-                  {aPercentage.toFixed(1)}%
+                  {firstPercentage.toFixed(1)}%
                 </p>
                 <p className="text-white ml-2 inline">
                   would choose the best answer
@@ -98,7 +101,7 @@ export default function SecondOrderAnswerResultsBinary({
             </div>
             <div
               className="h-14 bg-gray-800"
-              style={{ width: `${100 - aPercentage}%`, minWidth: "0.5rem" }}
+              style={{ width: `${100 - firstPercentage}%`, minWidth: "0.5rem" }}
             ></div>
           </div>
 
@@ -108,18 +111,24 @@ export default function SecondOrderAnswerResultsBinary({
           <div className="flex items-center mb-1 w-full rounded-full overflow-hidden">
             <div
               className="h-14 bg-purple-500 flex items-center relative"
-              style={{ width: `${bPercentage}%`, minWidth: `${bPercentage}%` }}
+              style={{
+                width: `${secondPercentage}%`,
+                minWidth: `${secondPercentage}%`,
+              }}
             >
               <div className="absolute whitespace-nowrap z-10">
                 <p className="text-white font-[900] font-bold ml-4 inline">
-                  {bPercentage.toFixed(1)}%
+                  {secondPercentage.toFixed(1)}%
                 </p>
                 <p className="text-white ml-2 inline">would not</p>
               </div>
             </div>
             <div
               className="h-14 bg-gray-800"
-              style={{ width: `${100 - bPercentage}%`, minWidth: "0.5rem" }}
+              style={{
+                width: `${100 - secondPercentage}%`,
+                minWidth: "0.5rem",
+              }}
             ></div>
           </div>
         </div>

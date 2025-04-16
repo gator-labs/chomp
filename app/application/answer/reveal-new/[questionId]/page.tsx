@@ -69,6 +69,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (result.isLoading || !result.data) return loadingScreen;
 
   const stats = result.data.stats;
+  console.log(stats);
 
   const isBinary = stats.type === QuestionType.BinaryQuestion;
 
@@ -111,25 +112,20 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (isBinary) {
     // Second Order Binary Choice Question Answers
 
-    const questionOpntionPercentageA = stats.questionOptionPercentages.find(
-      (q) => q.option === "A",
-    );
-    const questionOptionPercentageB = stats.questionOptionPercentages.find(
-      (q) => q.option === "B",
-    );
-
     const selectedAnswer = stats.userAnswers.find((ans) => ans.selected);
     const selectedPercentage = selectedAnswer?.percentage ?? null;
 
     // if secondOrderAveragePercentagePicked is null we take it as 0
-    const aPercentage =
-      questionOpntionPercentageA?.secondOrderAveragePercentagePicked || 0;
-    const bPercentage =
-      questionOptionPercentageB?.secondOrderAveragePercentagePicked || 0;
+    const firstPercentage =
+      stats.questionOptionPercentages[0]?.secondOrderAveragePercentagePicked ??
+      0;
+    const secondPercentage =
+      stats.questionOptionPercentages[1]?.secondOrderAveragePercentagePicked ??
+      0;
 
     secondOrderAnswerResults = SecondOrderAnswerResultsBinary({
-      aPercentage,
-      bPercentage,
+      firstPercentage,
+      secondPercentage,
       isSelectedCorrectNullIfNotOpened: stats.isSecondOrderCorrect,
       selectedPercentage,
       openSecOrdAnsInfDrawer,

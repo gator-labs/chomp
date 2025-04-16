@@ -49,7 +49,7 @@ export default function SecondOrderAnswerResultsMultiple({
     <div className="bg-gray-700 rounded-xl my-3">
       <div
         className={cn(
-          `text-white flex justify-between items-center rounded-t-xl py-2 px-4`,
+          `text-white flex justify-between items-center rounded-t-xl py-2 pl-4 pr-2`,
           {
             "bg-dark-green": correctIncorrectOrUnanswered === true,
             "bg-dark-red": correctIncorrectOrUnanswered === false,
