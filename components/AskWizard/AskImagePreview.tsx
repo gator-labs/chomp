@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Image as ImageIcon, X } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type AskImagePreviewProps = {
   imageUrl?: string | null;
@@ -17,6 +17,22 @@ export function AskImagePreview({ imageUrl }: AskImagePreviewProps) {
   const handleHideImage = () => {
     setIsImageShowing(false);
   };
+
+  const handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === "Escape") setIsImageShowing(false);
+  };
+
+  useEffect(() => {
+    if (isImageShowing) {
+      document.addEventListener("keydown", handleKeyPress);
+    } else {
+      document.removeEventListener("keydown", handleKeyPress);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [isImageShowing]);
 
   return (
     <>
@@ -34,14 +50,20 @@ export function AskImagePreview({ imageUrl }: AskImagePreviewProps) {
         <ImageIcon size={22} color={imageUrl ? undefined : "#AFADEB"} />
       </span>
       {isImageShowing && imageUrl && (
-        <div className="fixed inset-0 z-[999] bg-black/80 flex flex-col justify-center">
-          <div className="flex flex-col">
+        <div
+          className="fixed inset-0 z-[999] bg-black/80 flex flex-col justify-center"
+          onClick={handleHideImage}
+        >
+          <div className="flex flex-col max-h-full">
             <div className="flex justify-end px-2 py-1">
               <span className="cursor-pointer" onClick={handleHideImage}>
                 <X size={28} />
               </span>
             </div>
-            <div className="w-full mb-2 px-2">
+            <div
+              className="w-full mb-2 px-2"
+              onClick={(e) => e.stopPropagation()}
+            >
               <Image
                 width={0}
                 height={0}
