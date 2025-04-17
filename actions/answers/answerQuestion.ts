@@ -6,6 +6,7 @@ import { pointsPerAction } from "@/app/constants/points";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { addUserTutorialTimestamp } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
+import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
 import { AnswerError } from "@/lib/error";
 import {
   AnswerStatus,
@@ -121,6 +122,9 @@ export async function answerQuestion(request: SaveQuestionRequest) {
         `User with id: ${payload?.sub} has not paid to answer question with id: ${request.questionId}`,
       );
     }
+
+    // Charge user credits before submitting question response in the db. Process wil fail if insufficient balance
+    await chargeUserCredits(request.questionId);
 
     await prisma.$transaction(async (tx) => {
       // Question answers are deleted because they have (possibly)

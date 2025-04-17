@@ -3,7 +3,6 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { getRandomInteger } from "@/app/utils/randomUtils";
-import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
 import { AnswerStatus, QuestionType } from "@prisma/client";
 
 export async function markQuestionAsSeenButNotAnswered(questionId: number) {
@@ -20,8 +19,6 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   });
 
   try {
-    await chargeUserCredits(questionId);
-
     const numOptions =
       questionOptions.length > 0 ? questionOptions.length - 1 : 0;
 
