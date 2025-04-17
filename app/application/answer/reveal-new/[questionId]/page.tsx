@@ -86,6 +86,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         totalAnswers={stats.questionAnswerCount}
         correctAnswers={stats.correctAnswersCount}
         selectionDistribution={stats.selectionDistribution}
+        questionOptions={stats.questionOptions}
       />
     </>
   );

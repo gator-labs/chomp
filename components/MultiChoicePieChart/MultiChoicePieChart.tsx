@@ -2,6 +2,7 @@
 
 import { OPTION_LABEL } from "@/app/components/AnswerResult/constants";
 import { cn } from "@/lib/utils";
+import { QuestionOption } from "@prisma/client";
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
 import React from "react";
 
@@ -18,6 +19,7 @@ type MultiChoicePieChartProps = {
     option: string;
     count: number;
   }[];
+  questionOptions: QuestionOption[];
 };
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -51,6 +53,7 @@ function MultiChoicePieChart({
   totalAnswers,
   correctAnswers,
   selectionDistribution,
+  questionOptions,
 }: MultiChoicePieChartProps) {
   const isUserAnswerCorrect = bestOption === optionSelected;
 
@@ -78,6 +81,9 @@ function MultiChoicePieChart({
       },
     ],
   };
+  const incorrectSelectionIndex = questionOptions.findIndex(
+    (sd) => sd.option === optionSelected,
+  );
 
   return (
     <div className="bg-gray-700 rounded-xl my-3">
@@ -109,7 +115,13 @@ function MultiChoicePieChart({
             </span>
           ) : !isUserAnswerCorrect ? (
             <span className="text-destructive">
-              You are not a part of the <b>{correctAnswers}</b> of{" "}
+              You chose{" "}
+              {
+                OPTION_LABEL?.[
+                  incorrectSelectionIndex as keyof typeof OPTION_LABEL
+                ]
+              }{" "}
+              and are not a part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
                 users who chose the best answer ({bestAnswerPercentage}%)
