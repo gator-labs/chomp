@@ -4,13 +4,7 @@ import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
-import { getCreditBalance } from "@/lib/credits/getCreditBalance";
 import { generateUsers } from "@/scripts/utils";
-import {
-  AnswerStatus,
-  FungibleAsset,
-  TransactionLogType,
-} from "@prisma/client";
 
 jest.mock("@/app/utils/auth");
 
