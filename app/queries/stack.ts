@@ -182,6 +182,9 @@ export async function getStackImage(id: number) {
   });
 }
 
+/**
+ * totalCreditCost is calculated with individual questions, not using Deck.creditCostPerQuestion
+ **/
 export async function getAllStacks() {
   const payload = await getJwtPayload();
 
@@ -316,8 +319,8 @@ function getDecksToAnswer(
       isBefore(deck.activeFromDate!, new Date()) &&
       isAfter(deck.revealAtDate!, new Date()) &&
       deck.deckQuestions.flatMap((dq) => dq.question.questionOptions).length !==
-        deck.deckQuestions.flatMap((dq) =>
-          dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
-        ).length,
+      deck.deckQuestions.flatMap((dq) =>
+        dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
+      ).length,
   );
 }

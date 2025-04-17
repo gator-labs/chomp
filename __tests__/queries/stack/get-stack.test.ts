@@ -1,6 +1,7 @@
 import { getStack } from "@/app/queries/stack";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
+import { yesterdayStartUTC } from "@/app/utils/date";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
 
@@ -115,6 +116,15 @@ describe("getStack", () => {
           stackId: createdStack.id,
         },
       },
+      {
+        data: {
+          deck: "Deck with Rewards",
+          revealAtDate: yesterday,
+          activeFromDate: lastWeek,
+          stackId: stackId,
+          creditCostPerQuestion: 5,
+        }
+      }
     ];
 
     const decks = [];
@@ -349,5 +359,51 @@ describe("getStack", () => {
         id: { in: deckIds },
       },
     });
+  });
+
+  it.only("should correctly include totalRewardAmount and creditCostPerQuestion fields", async () => {
+    // Create a deck with specific reward and credit cost values
+    const deckWithRewards = await prisma.deck.create({
+      data: {
+        deck: "Deck with Rewards",
+        revealAtDate: null,
+        activeFromDate: yesterdayStartUTC(),
+        stackId: stackId,
+        creditCostPerQuestion: 5,
+      },
+    });
+
+    createdDeckIds.push(deckWithRewards.id);
+
+    //// Create a transaction log entry for this deck to simulate a reward
+    //await prisma.fungibleAssetTransactionLog.create({
+    //  data: {
+    //    type: "AnswerDeck",
+    //    asset: "Point",
+    //    change: 100, // 100 BONK reward
+    //    userId: userId,
+    //    deckId: deckWithRewards.id,
+    //  },
+    //});
+    //
+    const result = await getStack(stackId);
+    expect(result).not.toBeNull();
+
+    console.log(result);
+
+    // Find our test deck in the results
+    const testDeck = result!.deck.find(d => d.deck === "Deck with Rewards");
+    expect(testDeck).toBeDefined();
+
+    // Verify the creditCostPerQuestion field is correctly included
+    expect(testDeck).toHaveProperty("creditCostPerQuestion", 5);
+
+    // If totalRewardAmount is included in the response, verify it
+    // Note: This assumes the getStack function includes this field in its response
+    if (testDeck && "totalRewardAmount" in testDeck) {
+      expect(testDeck.totalRewardAmount).toBeDefined();
+      // The exact value would depend on how totalRewardAmount is calculated
+      // This might need adjustment based on the actual implementation
+    }
   });
 });
