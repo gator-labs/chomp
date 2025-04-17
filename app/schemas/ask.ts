@@ -20,10 +20,10 @@ export const askQuestionSchema = z.object({
       required_error: "Question is required",
     })
     .min(MIN_QUESTION_LENGTH, {
-      message: `This field must have at least ${MIN_QUESTION_LENGTH} characters`,
+      message: `This field must have at least ${MIN_QUESTION_LENGTH} characters.`,
     })
     .max(MAX_QUESTION_LENGTH, {
-      message: `This field can have up to ${MAX_QUESTION_LENGTH} characters`,
+      message: `This field can have up to ${MAX_QUESTION_LENGTH} characters.`,
     }),
   type: z.nativeEnum(QuestionType),
   file: z
@@ -46,10 +46,10 @@ export const askQuestionSchema = z.object({
       option: z
         .string()
         .min(MIN_OPTION_LENGTH, {
-          message: `This field must have at least ${MIN_OPTION_LENGTH} characters`,
+          message: `This field must have at least ${MIN_OPTION_LENGTH} characters.`,
         })
         .max(MAX_OPTION_LENGTH, {
-          message: `This field can have up to ${MAX_OPTION_LENGTH} characters`,
+          message: `This field can have up to ${MAX_OPTION_LENGTH} characters.`,
         }),
     })
     .array(),
