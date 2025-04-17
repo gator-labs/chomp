@@ -67,7 +67,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (result.isLoading || !result.data) return loadingScreen;
 
   const stats = result.data.stats;
-  console.log(stats);
 
   const isBinary = stats.type === QuestionType.BinaryQuestion;
 
