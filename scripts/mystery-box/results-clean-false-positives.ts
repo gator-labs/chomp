@@ -4,16 +4,18 @@ import path from "path";
 
 import { CONNECTION } from "../../app/utils/solana";
 
+// ❗🙈🙉 Add name of the file you want to read here
+const FILE_NAME =
+  "results-Thu Apr 03 2025 21:09:10 GMT-0600 (Central Standard Time)-cleaned+1.csv";
+
+// set true if you are cleaning the same file again
+//❗🙈🙉 If its the first time you clean the file set it to false, if its the second time set it to true
+const IS_RE_CLEAN = true;
+
 async function main() {
-  const FILE_PATH = path.join(
-    __dirname,
-    "results-Thu Apr 03 2025 21:09:10 GMT-0600 (Central Standard Time)-cleaned+1.csv",
-  );
+  const FILE_PATH = path.join(__dirname, FILE_NAME);
   const PULL_TIME = 100;
   const ERR_WAIT_TIME = 400;
-
-  // set true if you are cleaning the same file again
-  const IS_RE_CLEAN = true;
 
   const FILE_RESULT_POSFIX = IS_RE_CLEAN ? "+1.csv" : "-cleaned.csv";
 

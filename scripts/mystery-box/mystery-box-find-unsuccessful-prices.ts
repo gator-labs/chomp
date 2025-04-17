@@ -5,9 +5,7 @@ import fs from "fs";
 import logUpdate from "log-update";
 import path from "node:path";
 import util from "node:util";
-import ora from "ora";
 
-//import { printTable } from 'console-table-printer';
 import { CONNECTION } from "../../app/utils/solana";
 
 const logMain = debug("main");
@@ -341,7 +339,7 @@ async function main() {
   const PULL_TIME = 200;
 
   // Filter consumer/producer settings
-  const MAX_WORKERS = 1; // More than 2 gives "Too Many Requests" error for me
+  const MAX_WORKERS = 1; // More than 2 gives "Too Many Requests" errors some times, use 1 to be safe
   const QUEUE_PULL_TIME = 10;
   const WORKER_PULL_TIME = 10;
 

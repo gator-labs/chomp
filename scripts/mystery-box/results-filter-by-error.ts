@@ -1,6 +1,9 @@
 import { appendFileSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 
+//❗🙈🙉 Set the error type you want to filter by
+const ERR_TYPE = "FAILED"; // "FAILED" | "NOT_EXISTS"
+
 async function main() {
   const FILE_PATH = path.join(
     __dirname,
@@ -20,7 +23,7 @@ async function main() {
 
     const errStr = cols[3];
 
-    if (errStr === "FAILED") {
+    if (errStr === ERR_TYPE) {
       appendFileSync(cleanedFilePath, row + "\n");
     }
   }

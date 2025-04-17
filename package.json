@@ -35,6 +35,7 @@
     "dev:mystery-box-prices-inspect-txs-clean": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/mystery-box/results-clean-false-positives.ts",
     "dev:mystery-box-prices-filter-failed": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/mystery-box/results-filter-failed.ts",
     "dev:mystery-box-prices-add-dates": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/mystery-box/results-add-dates.ts",
+    "dev:mystery-box-prices-update-tx": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/mystery-box/mystery-box-price-update-tx.ts",
     "build-storybook": "storybook build",
     "test": "jest --watch",
     "gh-test": "jest",
