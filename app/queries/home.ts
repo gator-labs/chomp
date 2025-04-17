@@ -1,7 +1,8 @@
 "use server";
 
+import { getCreditBalance } from "@/lib/credits/getCreditBalance";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
-import { FungibleAsset } from "@prisma/client";
+import { getPointBalance } from "@/lib/points/getPointBalance";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
@@ -321,19 +322,7 @@ export async function getUserTotalCreditAmount() {
   const payload = await getJwtPayload();
   const userId = payload?.sub;
 
-  const res = await prisma.fungibleAssetTransactionLog.aggregate({
-    where: {
-      asset: FungibleAsset.Credit,
-      userId,
-    },
-    _sum: {
-      change: true,
-    },
-  });
-
-  if (!res?._sum?.change) return 0;
-
-  return res._sum.change.toNumber();
+  return await getCreditBalance(userId);
 }
 
 /**
@@ -345,19 +334,7 @@ export async function getUserTotalPoints() {
   const payload = await getJwtPayload();
   const userId = payload?.sub;
 
-  const res = await prisma.fungibleAssetTransactionLog.aggregate({
-    where: {
-      asset: FungibleAsset.Point,
-      userId,
-    },
-    _sum: {
-      change: true,
-    },
-  });
-
-  if (!res?._sum?.change) return 0;
-
-  return res._sum.change.toNumber();
+  return await getPointBalance(userId);
 }
 
 // Get the decks with credit cost per question greater than 0 and revealAtDate greater than now
