@@ -322,6 +322,8 @@ export async function getUserTotalCreditAmount() {
   const payload = await getJwtPayload();
   const userId = payload?.sub;
 
+  if (!userId) return 0;
+
   return await getCreditBalance(userId);
 }
 
@@ -333,6 +335,8 @@ export async function getUserTotalCreditAmount() {
 export async function getUserTotalPoints() {
   const payload = await getJwtPayload();
   const userId = payload?.sub;
+
+  if (!userId) return 0;
 
   return await getPointBalance(userId);
 }
