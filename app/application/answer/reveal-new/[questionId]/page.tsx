@@ -3,9 +3,9 @@
 import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
-import BinaryPieChart from "@/components/BinaryPieChart/BinaryPieChart";
+import BinaryFirstOrderAnswerChart from "@/components/BinaryFirstOrderAnswer/BinaryFirstOrderAnswer";
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
-import MultiChoicePieChart from "@/components/MultiChoicePieChart/MultiChoicePieChart";
+import MultiChoiceFirstOrderAnswer from "@/components/MultiChoiceFirstOrderAnswer/MultiChoiceFirstOrderAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
@@ -58,39 +58,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
-  const answerContent = !!isBinary ? (
-    <>
-      <BinaryBestAnswer
-        questionOptions={stats.questionOptions}
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-      />
-      <BinaryPieChart
-        questionOptions={stats.questionOptions}
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-        totalAnswers={stats.questionAnswerCount}
-        correctAnswers={stats.correctAnswersCount}
-      />
-    </>
-  ) : (
-    <>
-      <MultiChoiceBestAnswer
-        questionOptions={stats.questionOptions}
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-      />
-      <MultiChoicePieChart
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-        totalAnswers={stats.questionAnswerCount}
-        correctAnswers={stats.correctAnswersCount}
-        selectionDistribution={stats.selectionDistribution}
-        questionOptions={stats.questionOptions}
-      />
-    </>
-  );
-
   return (
     <div>
       <AnswerStatsHeader
@@ -107,7 +74,38 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         revealAtDate={stats.revealAtDate}
         imageUrl={stats.imageUrl}
       />
-      {answerContent}
+      {!!isBinary ? (
+        <>
+          <BinaryBestAnswer
+            questionOptions={stats.questionOptions}
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+          />
+          <BinaryFirstOrderAnswerChart
+            questionOptions={stats.questionOptions}
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+            totalAnswers={stats.questionAnswerCount}
+            correctAnswers={stats.correctAnswersCount}
+          />
+        </>
+      ) : (
+        <>
+          <MultiChoiceBestAnswer
+            questionOptions={stats.questionOptions}
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+          />
+          <MultiChoiceFirstOrderAnswer
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+            totalAnswers={stats.questionAnswerCount}
+            correctAnswers={stats.correctAnswersCount}
+            selectionDistribution={stats.selectionDistribution}
+            questionOptions={stats.questionOptions}
+          />
+        </>
+      )}
     </div>
   );
 };

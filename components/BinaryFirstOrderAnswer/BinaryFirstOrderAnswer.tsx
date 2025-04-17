@@ -1,31 +1,22 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { QuestionOption } from "@prisma/client";
+import { BinaryFirstOrderAnswerProps } from "@/types/answerPage";
 import React from "react";
 
+import FirstOrderAnswerWrapper from "../FirstOrderAnswerWrapper/FirstOrderAnswerWrapper";
 import PieChart from "../PieChart/PieChart";
-import AquaCheckIcon from "../icons/AquaCheckIcon";
-import RedXIcon from "../icons/RedXIcon";
-
-type BinaryPieChartProps = {
-  questionOptions: QuestionOption[];
-  bestOption: string;
-  optionSelected?: string | null;
-  totalAnswers: number;
-  correctAnswers: number;
-};
 
 const chartColors = ["#1ED3B3", "#ED6A5A"];
 
-function BinaryPieChart({
+function BinaryFirstOrderAnswerChart({
   bestOption,
   optionSelected,
   questionOptions,
   totalAnswers,
   correctAnswers,
-}: BinaryPieChartProps) {
-  const isUserAnswerCorrect = bestOption === optionSelected;
+}: BinaryFirstOrderAnswerProps) {
+  const isBestSelected = bestOption === optionSelected;
   const bestAnswerPercentage = ((correctAnswers / totalAnswers) * 100).toFixed(
     1,
   );
@@ -52,28 +43,10 @@ function BinaryPieChart({
   };
 
   return (
-    <div className="bg-gray-700 rounded-xl my-3">
-      <div
-        className={cn(
-          "flex justify-between items-center bg-chomp-red-dusty rounded-t-xl p-2 pl-4",
-          {
-            "bg-gray-600": optionSelected === null,
-            "bg-chomp-aqua-light": isUserAnswerCorrect,
-          },
-        )}
-      >
-        <p>First Order Answer</p>
-        {optionSelected !== null && (
-          <>
-            {isUserAnswerCorrect ? (
-              <AquaCheckIcon width={24} height={24} />
-            ) : (
-              <RedXIcon width={24} height={24} />
-            )}
-          </>
-        )}
-      </div>
-
+    <FirstOrderAnswerWrapper
+      isUnanswered={optionSelected === null}
+      isBestSelected={isBestSelected}
+    >
       <div className="p-5 flex flex-col justify-between">
         <p className="text-sm">
           {correctAnswers === 0 ? (
@@ -83,7 +56,7 @@ function BinaryPieChart({
               <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users chose the
               best answer ({bestAnswerPercentage}%)
             </span>
-          ) : !isUserAnswerCorrect ? (
+          ) : !isBestSelected ? (
             <span className="text-destructive">
               You are not part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
@@ -102,9 +75,7 @@ function BinaryPieChart({
           )}
         </p>
 
-        <div className="m-auto">
-          <PieChart data={data} />
-        </div>
+        <PieChart data={data} />
 
         {questionOptions.map((qo) => (
           <div
@@ -120,8 +91,8 @@ function BinaryPieChart({
           </div>
         ))}
       </div>
-    </div>
+    </FirstOrderAnswerWrapper>
   );
 }
 
-export default BinaryPieChart;
+export default BinaryFirstOrderAnswerChart;
