@@ -1,38 +1,47 @@
 import { InfoIcon } from "@/app/components/Icons/InfoIcon";
 import { cn } from "@/lib/utils";
+import { QuestionOrderPercentage, UserAnswer } from "@/types/answerStats";
 
+import SecondOrderAnswerInfoDrawer from "./SecondOrderAnswerInfoDrawer";
 import AquaCheckIcon from "./icons/AquaCheckIcon";
 import RedXIcon from "./icons/RedXIcon";
 
 type SecondOrderAnswerResultsBinaryProps = {
-  firstPercentage: number;
-  secondPercentage: number;
-  isSelectedCorrectNullIfNotOpened: boolean | null;
-  selectedPercentage: number | null;
-  openSecOrdAnsInfDrawer: () => void;
+  userAnswers: UserAnswer[];
+  questionOptionPercentages: QuestionOrderPercentage[];
+  answerStatus: boolean | null;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 };
 
 export default function SecondOrderAnswerResultsBinary({
-  firstPercentage,
-  secondPercentage,
-  isSelectedCorrectNullIfNotOpened,
-  selectedPercentage,
-  openSecOrdAnsInfDrawer,
+  userAnswers,
+  questionOptionPercentages,
+  answerStatus,
+  isDrawerOpen,
+  openDrawer,
+  closeDrawer,
 }: SecondOrderAnswerResultsBinaryProps) {
+  const selectedAnswer = userAnswers.find((ans) => ans.selected);
+  const selectedPercentage = selectedAnswer?.percentage ?? null;
+
+  // if secondOrderAveragePercentagePicked is null we take it as 0
+  const firstPercentage =
+    questionOptionPercentages[0]?.secondOrderAveragePercentagePicked ?? 0;
+  const secondPercentage =
+    questionOptionPercentages[1]?.secondOrderAveragePercentagePicked ?? 0;
+
   // Is correct and we have an answer
   const isSelectedCorrect =
-    isSelectedCorrectNullIfNotOpened === true && selectedPercentage !== null;
+    answerStatus === true && selectedPercentage !== null;
 
   // WARNING: this could be hidding a bug, its gonna be reviewed in
   // https://linear.app/gator/issue/PROD-1029/issecondordercorrect-true-even-though-no-2nd-order-answer
   // Mystery Box is not opened yet so we don't know if the user is right or wrong or there's no answer
-  const isNotOpenedYet =
-    isSelectedCorrectNullIfNotOpened === null || selectedPercentage === null;
+  const isNotOpenedYet = answerStatus === null || selectedPercentage === null;
 
-  if (
-    isSelectedCorrectNullIfNotOpened === true &&
-    selectedPercentage === null
-  ) {
+  if (answerStatus === true && selectedPercentage === null) {
     console.warn(
       "Second Order Answser says its correct but has not selected percentage",
     );
@@ -68,12 +77,12 @@ export default function SecondOrderAnswerResultsBinary({
 
       <div className="p-4">
         <div className="flex items-start text-white mb-2">
-          <p className="font-medium ml-2">
+          <p className="font-small ml-2">
             This shows how users thought the crowd would vote for the best
             answer.
           </p>
           <span
-            onClick={() => openSecOrdAnsInfDrawer()}
+            onClick={() => openDrawer()}
             className="cursor-pointer ml-6 mr-1"
           >
             <InfoIcon width={24} height={24} fill="#FFFFFF" />
@@ -183,6 +192,11 @@ export default function SecondOrderAnswerResultsBinary({
           </div>
         </div>
       </div>
+
+      <SecondOrderAnswerInfoDrawer
+        isOpen={isDrawerOpen}
+        onClose={closeDrawer}
+      ></SecondOrderAnswerInfoDrawer>
     </div>
   );
 }

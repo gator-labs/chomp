@@ -1,8 +1,6 @@
 "use client";
 
 import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
-import InfoDrawer from "@/app/components/InfoDrawer/InfoDrawer";
-import { getAlphaIdentifier } from "@/app/utils/question";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
 import BinaryPieChart from "@/components/BinaryPieChart/BinaryPieChart";
@@ -35,7 +33,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     setIsSecOrdAnsInfoDrawerOpen(false);
   };
 
-  const openSecOrdAnsInfDrawer = () => {
+  const openSecOrdAnsInfoDrawer = () => {
     setIsSecOrdAnsInfoDrawerOpen(true);
   };
 
@@ -112,48 +110,24 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   if (isBinary) {
     // Second Order Binary Choice Question Answers
 
-    const selectedAnswer = stats.userAnswers.find((ans) => ans.selected);
-    const selectedPercentage = selectedAnswer?.percentage ?? null;
-
-    // if secondOrderAveragePercentagePicked is null we take it as 0
-    const firstPercentage =
-      stats.questionOptionPercentages[0]?.secondOrderAveragePercentagePicked ??
-      0;
-    const secondPercentage =
-      stats.questionOptionPercentages[1]?.secondOrderAveragePercentagePicked ??
-      0;
-
     secondOrderAnswerResults = SecondOrderAnswerResultsBinary({
-      firstPercentage,
-      secondPercentage,
-      isSelectedCorrectNullIfNotOpened: stats.isSecondOrderCorrect,
-      selectedPercentage,
-      openSecOrdAnsInfDrawer,
+      userAnswers: stats.userAnswers,
+      questionOptionPercentages: stats.questionOptionPercentages,
+      answerStatus: stats.isSecondOrderCorrect,
+      isDrawerOpen: isSecOrdAnsInfoDrawerOpen,
+      openDrawer: openSecOrdAnsInfoDrawer,
+      closeDrawer: handleSecOrdAnsInfoDrawerClose,
     });
   } else {
     // Second Order Multiple Choice Question Answers
 
-    const selectedAnswer = stats.userAnswers.find(
-      (ans) => ans.percentage !== null,
-    );
-    const selectedQOId = selectedAnswer?.questionOptionId ?? null;
-    const selectedPercentage = selectedAnswer?.percentage ?? null;
-
-    const options = stats.questionOptionPercentages.map(
-      (qop, index) =>
-        ({
-          isSelected: qop.id === selectedQOId,
-          text: qop.option,
-          label: getAlphaIdentifier(index),
-          percentage: qop.secondOrderAveragePercentagePicked,
-        }) as SecondOrderOptionResultMultiple,
-    );
-
     secondOrderAnswerResults = SecondOrderAnswerResultsMultiple({
-      options,
-      isSelectedCorrectNullIfNotOpened: stats.isSecondOrderCorrect,
-      selectedPercentage,
-      openSecOrdAnsInfDrawer,
+      userAnswers: stats.userAnswers,
+      questionOptionPercentages: stats.questionOptionPercentages,
+      answerStatus: stats.isSecondOrderCorrect,
+      isDrawerOpen: isSecOrdAnsInfoDrawerOpen,
+      openDrawer: openSecOrdAnsInfoDrawer,
+      closeDrawer: handleSecOrdAnsInfoDrawerClose,
     });
   }
 
@@ -175,23 +149,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
       />
       {answerContent}
       {secondOrderAnswerResults}
-
-      <InfoDrawer
-        isOpen={isSecOrdAnsInfoDrawerOpen}
-        onClose={handleSecOrdAnsInfoDrawerClose}
-        title="Your second order answer"
-      >
-        <div className="text-sm mb-6 space-y-4">
-          <p>
-            The second order answer represent what a player predicted OTHERS
-            would guess.
-          </p>
-          <p>
-            We take the average of each user’s prediction to generate this
-            result. Mathematically this won’t always add up to 100%!
-          </p>
-        </div>
-      </InfoDrawer>
     </div>
   );
 };

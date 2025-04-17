@@ -21,6 +21,7 @@ const colors = {
   secondary: "#AFADEB",
   destructive: "#ED6A5A",
   green: "#1ED3B3",
+  // TODO: this color is repreated
   "dark-green": "#3D5752",
   "dark-red": "#694848",
   white: "#FFFFFF",
