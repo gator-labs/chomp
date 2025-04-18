@@ -80,7 +80,7 @@ export default function SecondOrderAnswerResultsMultiple({
 
       <div className="p-5">
         <div className="flex items-start text-white mb-2">
-          <p className="font-small ml-2">
+          <p className="text-sm ml-2 font-medium">
             This shows how users thought the crowd would vote for the best
             answer.
           </p>
@@ -129,7 +129,7 @@ export default function SecondOrderAnswerResultsMultiple({
           {
             // Mystery box not opened or opened but no user answer
             isNotOpenedYet ? (
-              <p className="mt-4 text-gray-500 font-medium">
+              <p className="text-sm mt-4 text-gray-500 font-medium">
                 You did not answer this question
               </p>
             ) : // Your prediction was correct

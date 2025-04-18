@@ -49,10 +49,8 @@ export default function SecondOrderAnswerResultsBinary({
 
   // Variable to distinguish between the three states after correcting possible db inconsistencies
   // null if unanswered
-  // replace all isSelectedCorrectNullIfNotOpened with correctIncorrectOrUnanswered
-  const correctIncorrectOrUnanswered = isNotOpenedYet
-    ? null
-    : isSelectedCorrect;
+  // replace all correctIncorrectOrUnanswered with answerStatusFix
+  const answerStatusFix = isNotOpenedYet ? null : isSelectedCorrect;
 
   return (
     <div className="bg-gray-700 rounded-xl my-3">
@@ -60,9 +58,9 @@ export default function SecondOrderAnswerResultsBinary({
         className={cn(
           "text-white flex justify-between items-center rounded-t-xl py-2 pl-4 pr-2",
           {
-            "bg-dark-green": correctIncorrectOrUnanswered === true,
-            "bg-dark-red": correctIncorrectOrUnanswered === false,
-            "bg-gray-600": correctIncorrectOrUnanswered === null,
+            "bg-dark-green": answerStatusFix === true,
+            "bg-dark-red": answerStatusFix === false,
+            "bg-gray-600": answerStatusFix === null,
           },
         )}
       >
@@ -77,7 +75,7 @@ export default function SecondOrderAnswerResultsBinary({
 
       <div className="p-4">
         <div className="flex items-start text-white mb-2">
-          <p className="font-small ml-2">
+          <p className="text-sm ml-2 font-medium">
             This shows how users thought the crowd would vote for the best
             answer.
           </p>
@@ -144,11 +142,11 @@ export default function SecondOrderAnswerResultsBinary({
 
         <div className="mt-4 border-t border-gray-600 pt-4">
           {isNotOpenedYet ? (
-            <p className="text-gray-500 font-medium mb-2">
+            <p className="text-sm text-gray-500 font-medium mb-2">
               You did not answer this question
             </p>
           ) : (
-            <p className="text-white font-medium mb-2">
+            <p className="text-sm text-white font-medium mb-2">
               Your prediction was that
             </p>
           )}
@@ -157,9 +155,9 @@ export default function SecondOrderAnswerResultsBinary({
           <div className="flex items-center mb-1 w-full rounded-full overflow-hidden mt-4">
             <div
               className={cn("h-14 flex items-center relative", {
-                "bg-green": correctIncorrectOrUnanswered,
-                "bg-chomp-red-light": correctIncorrectOrUnanswered === false,
-                "bg-gray-800": correctIncorrectOrUnanswered === null,
+                "bg-green": answerStatusFix,
+                "bg-chomp-red-light": answerStatusFix === false,
+                "bg-gray-800": answerStatusFix === null,
               })}
               style={{
                 width: `${selectedPercentage ?? 0}%`,

@@ -88,7 +88,7 @@ function MultiChoiceFirstOrderAnswer({
               You chose{" "}
               {
                 OPTION_LABEL?.[
-                incorrectSelectionIndex as keyof typeof OPTION_LABEL
+                  incorrectSelectionIndex as keyof typeof OPTION_LABEL
                 ]
               }{" "}
               and are not a part of the <b>{correctAnswers}</b> of{" "}
