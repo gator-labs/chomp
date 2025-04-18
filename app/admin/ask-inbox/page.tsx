@@ -13,11 +13,11 @@ export default function Page() {
   if (askList.data.askList.length == 0)
     return <div>No unassigned questions found.</div>;
 
-  const ACCEPT_CREDITS = Number(
-    process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD ?? 0,
+  const ACCEPT_POINTS = Number(
+    process.env.NEXT_PUBLIC_ASK_ACCEPTED_POINTS_REWARD ?? 0,
   );
-  const ANSWER_CREDITS = Number(
-    process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD ?? 0,
+  const ANSWER_POINTS = Number(
+    process.env.NEXT_PUBLIC_ASK_ANSWERED_POINTS_REWARD ?? 0,
   );
 
   return (
@@ -29,13 +29,12 @@ export default function Page() {
       <div className="flex flex-col gap-4">
         <p>
           Adding a question to the community deck will immediately reward the
-          asker with <b className="text-purple-200">{ACCEPT_CREDITS}</b>{" "}
-          credits.
+          asker with <b className="text-purple-200">{ACCEPT_POINTS}</b> points.
         </p>
 
         <p>
           Answers to the question will earn the user{" "}
-          <b className="text-purple-200">{ANSWER_CREDITS}</b> credits.
+          <b className="text-purple-200">{ANSWER_POINTS}</b> points.
         </p>
       </div>
 

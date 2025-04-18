@@ -60,7 +60,7 @@ describe("createAskQuestion", () => {
     const result = await createAskQuestion(invalidData);
 
     expect(result).toEqual({
-      errorMessage: "Question: String must contain at least 5 character(s)",
+      errorMessage: "Question: This field must have at least 5 characters.",
       success: false,
     });
   });

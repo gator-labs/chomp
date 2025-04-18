@@ -2,25 +2,11 @@
 
 import { OPTION_LABEL } from "@/app/components/AnswerResult/constants";
 import { cn } from "@/lib/utils";
-import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
+import { MultiChoiceFirstOrderAnswerProps } from "@/types/answerPage";
 import React from "react";
 
+import FirstOrderAnswerWrapper from "../FirstOrderAnswerWrapper/FirstOrderAnswerWrapper";
 import PieChart from "../PieChart/PieChart";
-import AquaCheckIcon from "../icons/AquaCheckIcon";
-import RedXIcon from "../icons/RedXIcon";
-
-type MultiChoicePieChartProps = {
-  bestOption: string;
-  optionSelected?: string | null;
-  totalAnswers: number;
-  correctAnswers: number;
-  selectionDistribution: {
-    option: string;
-    count: number;
-  }[];
-};
-
-ChartJS.register(ArcElement, Tooltip, Legend);
 
 const colors = ["#ECEAFF", "#CCCAFF", "#9B98FF", "#706CFF"];
 const boxShadows = ["#BFBDFF", "#7D79EA", "#6965F0", "#4741FC"];
@@ -45,14 +31,15 @@ function getBarWidth(count: number, total: number) {
   return `calc(${((count / total) * 100).toFixed(1)}% + 5px)`;
 }
 
-function MultiChoicePieChart({
+function MultiChoiceFirstOrderAnswer({
   bestOption,
   optionSelected,
   totalAnswers,
   correctAnswers,
   selectionDistribution,
-}: MultiChoicePieChartProps) {
-  const isUserAnswerCorrect = bestOption === optionSelected;
+  questionOptions,
+}: MultiChoiceFirstOrderAnswerProps) {
+  const isBestSelected = bestOption === optionSelected;
 
   const bestOptionData = selectionDistribution.find(
     (sd) => sd.option === bestOption,
@@ -78,26 +65,15 @@ function MultiChoicePieChart({
       },
     ],
   };
+  const incorrectSelectionIndex = questionOptions.findIndex(
+    (sd) => sd.option === optionSelected,
+  );
 
   return (
-    <div className="bg-gray-700 rounded-xl my-3">
-      <div
-        className={cn(
-          "flex justify-between items-center bg-chomp-red-dusty rounded-t-xl p-2 pl-4",
-          {
-            "bg-gray-600": optionSelected === null,
-            "bg-chomp-aqua-light": isUserAnswerCorrect,
-          },
-        )}
-      >
-        <p className="pl-2 font-bold">First Order Answer</p>
-        {optionSelected === null ? null : isUserAnswerCorrect ? (
-          <AquaCheckIcon width={32} height={32} />
-        ) : (
-          <RedXIcon width={32} height={32} />
-        )}
-      </div>
-
+    <FirstOrderAnswerWrapper
+      isUnanswered={optionSelected === null}
+      isBestSelected={isBestSelected}
+    >
       <div className="p-5 flex flex-col justify-between">
         <p className="text-sm">
           {correctAnswers === 0 ? (
@@ -107,9 +83,15 @@ function MultiChoicePieChart({
               <b>{correctAnswers}</b> of <b>{totalAnswers}</b> users chose the
               best answer ({bestAnswerPercentage}%)
             </span>
-          ) : !isUserAnswerCorrect ? (
+          ) : !isBestSelected ? (
             <span className="text-destructive">
-              You are not a part of the <b>{correctAnswers}</b> of{" "}
+              You chose{" "}
+              {
+                OPTION_LABEL?.[
+                incorrectSelectionIndex as keyof typeof OPTION_LABEL
+                ]
+              }{" "}
+              and are not a part of the <b>{correctAnswers}</b> of{" "}
               <b>{totalAnswers}</b>{" "}
               <span className="text-white">
                 users who chose the best answer ({bestAnswerPercentage}%)
@@ -125,9 +107,8 @@ function MultiChoicePieChart({
             </span>
           )}
         </p>
-        <div className="m-auto">
-          <PieChart data={data} />
-        </div>
+        <PieChart data={data} />
+
         <div className="w-full">
           {selectionDistribution.map((qo, index) => (
             <div key={index} className="flex flex-row gap-1 items-center my-2">
@@ -166,8 +147,8 @@ function MultiChoicePieChart({
           ))}
         </div>
       </div>
-    </div>
+    </FirstOrderAnswerWrapper>
   );
 }
 
-export default MultiChoicePieChart;
+export default MultiChoiceFirstOrderAnswer;

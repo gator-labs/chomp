@@ -1,26 +1,19 @@
 import { OPTION_LABEL } from "@/app/components/AnswerResult/constants";
 import { cn } from "@/lib/utils";
-import { QuestionOption } from "@prisma/client";
+import { BestAnswerProps } from "@/types/answerPage";
 import React from "react";
 
-import AquaCheckIcon from "../icons/AquaCheckIcon";
-import RedXIcon from "../icons/RedXIcon";
-import { UnansweredQuestionIcon } from "../icons/UnansweredQuestionIcon";
-
-type MultiChoiceBestAnswerProps = {
-  questionOptions: QuestionOption[];
-  bestOption: string;
-  optionSelected?: string | null;
-};
+import BestAnswerBottomBar from "../BestAnswerBottomBar/BestAnswerBottomBar";
+import BestAnswerHeading from "../BestAnswerHeading/BestAnswerHeading";
 
 function MultiChoiceBestAnswer({
   questionOptions,
   bestOption,
   optionSelected,
-}: MultiChoiceBestAnswerProps) {
+}: BestAnswerProps) {
   return (
     <div className="bg-gray-700 p-4 rounded-xl my-3">
-      <div className=" text-sm font-700 text-white mb-2">Best answer is...</div>
+      <BestAnswerHeading />
       {questionOptions.map((qo, index) => (
         <div key={qo.id} className="flex flex-row gap-1 items-center my-2">
           <div
@@ -54,34 +47,10 @@ function MultiChoiceBestAnswer({
           </div>
         </div>
       ))}
-
-      <hr className="border-gray-600 my-4 p-0" />
-
-      <div
-        className={cn(
-          "text-gray font-bold text-sm flex items-center justify-between gap-1 mt-2 ",
-        )}
-      >
-        {optionSelected === null ? (
-          <p className="text-gray-400">You didn&apos;t answer this question</p>
-        ) : bestOption === optionSelected ? (
-          <p className="text-chomp-green-tiffany">
-            You picked the best answer:
-          </p>
-        ) : (
-          <p className="text-destructive">You did not pick the best answer:</p>
-        )}
-
-        {optionSelected === null ? (
-          <div className="rounded-full">
-            <UnansweredQuestionIcon width={32} height={32} />
-          </div>
-        ) : bestOption === optionSelected ? (
-          <AquaCheckIcon width={32} height={32} />
-        ) : (
-          <RedXIcon width={32} height={32} />
-        )}
-      </div>
+      <BestAnswerBottomBar
+        isUnanswered={optionSelected === null}
+        isBestSelected={optionSelected === bestOption}
+      />
     </div>
   );
 }
