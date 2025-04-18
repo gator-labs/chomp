@@ -1,5 +1,6 @@
 import { DECK_LIMIT } from "@/app/constants/decks";
 import { getPremiumDecks } from "@/app/queries/home";
+import TelegramInvite from "@/components/TelegramInvite";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -46,7 +47,13 @@ function PaidDeckFeed() {
     (formattedData?.length === 0 || formattedData === undefined) &&
     !isFetching
   ) {
-    return <NoDeck />;
+    return (
+      <>
+        <NoDeck />
+        <TelegramInvite />
+        <div className="pb-9" />
+      </>
+    );
   }
   return (
     <>
@@ -68,6 +75,8 @@ function PaidDeckFeed() {
           />
         </div>
       ))}
+
+      {isFetching ? null : <TelegramInvite />}
 
       <LoadMore
         isFetching={isFetching}
