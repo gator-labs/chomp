@@ -10,7 +10,10 @@ const prisma = new PrismaClient();
  */
 
 async function main() {
-  const FILE_PATH = path.join(__dirname, "results-Thu Apr 03 2025 21:09:10 GMT-0600 (Central Standard Time)-cleaned+combined.csv");
+  const FILE_PATH = path.join(
+    __dirname,
+    "results-Thu Apr 03 2025 21:09:10 GMT-0600 (Central Standard Time)-cleaned+combined.csv",
+  );
 
   const cleanedFilePath = FILE_PATH.split(".")[0] + "+info.csv";
 
@@ -68,7 +71,6 @@ async function main() {
     `);
     const user = userRes[0];
 
-
     const recipientAddress = chainTx.recipientAddress;
     const tokenAmount = chainTx.tokenAmount;
 
@@ -78,7 +80,8 @@ async function main() {
 
     appendFileSync(
       cleanedFilePath,
-      row + `,${createdAt},${chainTxId},${userId},${tokenAmount},${recipientAddress},\n`,
+      row +
+        `,${createdAt},${chainTxId},${userId},${tokenAmount},${recipientAddress},\n`,
     );
   }
 }
