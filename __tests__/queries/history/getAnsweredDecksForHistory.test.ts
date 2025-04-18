@@ -323,16 +323,16 @@ describe("getAnsweredDecksForHistory", () => {
     });
   });
 
-  it("should return only revealed decks with at least one answered question", async () => {
+  it("should return decks with at least one answered question", async () => {
     const result = await getAnsweredDecksForHistory(userId, 10, 1);
 
     // Should return only deck1 and deck2 (revealed decks with answers)
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
 
     const deckIds = result.map((deck) => deck.id);
     expect(deckIds).toContain(deck1Id);
     expect(deckIds).toContain(deck2Id);
-    expect(deckIds).not.toContain(deck3Id); // Future date, should not be included
+    expect(deckIds).toContain(deck3Id); // Future deck
     expect(deckIds).not.toContain(deck4Id); // No answers, should not be included
   });
 

@@ -404,7 +404,6 @@ export async function getAnsweredDecksForHistory(
     LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
     WHERE 
       d."revealAtDate" IS NOT NULL
-      AND d."revealAtDate" <= NOW()
       AND EXISTS (
         SELECT 1
         FROM public."DeckQuestion" dq
