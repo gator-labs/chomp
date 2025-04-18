@@ -1,3 +1,4 @@
+import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
@@ -152,24 +153,26 @@ describe("chargeUserCredits", () => {
       data: {
         type: TransactionLogType.CreditByAdmin,
         asset: FungibleAsset.Credit,
-        change: 10,
+        change: 5,
         userId: mockUserId,
       },
     });
 
-    try {
-      await chargeUserCredits(currentQuestionId);
-    } catch (error: any) {
-      expect(error.message).toBe(
-        `User has insufficient credits to charge for question ${currentQuestionId}`,
-      );
-    }
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: mockUserId,
+    });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: mockUserId });
+
+    await expect(chargeUserCredits(currentQuestionId)).rejects.toThrow(
+      `User has insufficient credits to charge for question ${currentQuestionId}`,
+    );
 
     // Verify no new transaction was created
     const transactions = await prisma.fungibleAssetTransactionLog.findMany({
       where: { userId: mockUserId },
     });
-    expect(transactions).toHaveLength(2); // Only the initial grant should exist
+
+    expect(transactions).toHaveLength(1); // Only the initial grant should exist
   });
 
   it("should successfully deduct credits when user has sufficient balance", async () => {
@@ -182,6 +185,10 @@ describe("chargeUserCredits", () => {
         userId: mockUserId,
       },
     });
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: mockUserId,
+    });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: mockUserId });
 
     await chargeUserCredits(currentQuestionId);
 
