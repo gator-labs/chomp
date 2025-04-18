@@ -93,6 +93,7 @@ model QuestionOption {
   calculatedIsCorrect                   Boolean?
   calculatedAveragePercentage           Int? // avg `percentage` column
   calculatedPercentageOfSelectedAnswers Int? // percentage of people that selected
+  // isLeft is abandoned and might have weird behaviour, don't use it
   isLeft                                Boolean          @default(false)
   createdAt                             DateTime         @default(now())
   updatedAt                             DateTime         @default(now()) @updatedAt

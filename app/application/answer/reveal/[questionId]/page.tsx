@@ -133,12 +133,14 @@ const RevealAnswerPage = async ({ params }: Props) => {
 
   const isFirstOrderCorrect =
     questionResponse.correctAnswer?.id === answerSelected?.questionOptionId;
+
   const isSecondOrderCorrect = isCreditsQuestion
     ? hasAlreadyClaimedReward
       ? bonkPrizeAmount > 0
       : undefined
     : (chompResult?.rewardTokenAmount ?? 0) >
       questionResponse.revealTokenAmount;
+
   let questionContent = <></>;
 
   if (isBinary) {
