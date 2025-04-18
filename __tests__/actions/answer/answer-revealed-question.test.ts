@@ -6,6 +6,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { deckSchema } from "@/app/schemas/deck";
 import prisma from "@/app/services/prisma";
 import { QuestionType, Token } from "@prisma/client";
+import { rejects } from "assert";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
@@ -154,12 +155,8 @@ describe("answering already revealed question", () => {
       timeToAnswerInMiliseconds: 5000,
     };
 
-    try {
-      await answerQuestion(request); // Call the method under test
-    } catch (error: any) {
-      expect(error.message).toBe(
-        `Question with id: ${request.questionId} does not exist or it is revealed and cannot be answered.`,
-      );
-    }
+    await expect(answerQuestion(request)).rejects.toThrow(
+      `Question with id: ${request.questionId} does not exist or it is revealed and cannot be answered.`,
+    );
   });
 });
