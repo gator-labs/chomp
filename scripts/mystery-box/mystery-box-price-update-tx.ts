@@ -91,19 +91,27 @@ async function main() {
       continue;
     }
 
-    await prisma.chainTx.create({
-      data: {
-        hash: newHash,
-        wallet: oldChainTx.recipientAddress,
-        type: EChainTxType.MysteryBoxClaim,
-        solAmount: "0",
-        tokenAmount: oldChainTx.tokenAmount,
-        tokenAddress: oldChainTx.tokenAddress,
-        recipientAddress: oldChainTx.recipientAddress,
-        status: EChainTxStatus.Finalized,
-        finalizedAt: new Date(),
-      },
-    });
+    try {
+      await prisma.chainTx.upsert({
+        where: { hash: newHash },
+        update: {}, // No updates if it exists
+        create: {
+          hash: newHash,
+          wallet: oldChainTx.recipientAddress,
+          type: EChainTxType.MysteryBoxClaim,
+          solAmount: "0",
+          tokenAmount: oldChainTx.tokenAmount,
+          tokenAddress: oldChainTx.tokenAddress,
+          recipientAddress: oldChainTx.recipientAddress,
+          status: EChainTxStatus.Finalized,
+          finalizedAt: new Date(),
+        },
+      });
+    } catch (err) {
+      console.error(err);
+      writeRowWithError(row, "DB_TX_UPSERT_ERROR");
+      continue;
+    }
 
     // === Step 2 Point MBP to new ChainTX
     let updatedMbp: Prisma.MysteryBoxPrizeGetPayload<{
@@ -117,7 +125,7 @@ async function main() {
       });
     } catch (err) {
       console.error(err);
-      writeRowWithError(row, "DB_UPDATE_ERROR");
+      writeRowWithError(row, "DB_MBP_UPDATE_ERROR");
       continue;
     }
 
