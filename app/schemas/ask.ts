@@ -19,8 +19,12 @@ export const askQuestionSchema = z.object({
       invalid_type_error: "Invalid question",
       required_error: "Question is required",
     })
-    .min(MIN_QUESTION_LENGTH)
-    .max(MAX_QUESTION_LENGTH),
+    .min(MIN_QUESTION_LENGTH, {
+      message: `This field must have at least ${MIN_QUESTION_LENGTH} characters.`,
+    })
+    .max(MAX_QUESTION_LENGTH, {
+      message: `This field can have up to ${MAX_QUESTION_LENGTH} characters.`,
+    }),
   type: z.nativeEnum(QuestionType),
   file: z
     .custom<File[]>()
@@ -39,7 +43,14 @@ export const askQuestionSchema = z.object({
     }, "Only .jpg, .jpeg, .png and .webp formats are supported."),
   questionOptions: z
     .object({
-      option: z.string().min(MIN_OPTION_LENGTH).max(MAX_OPTION_LENGTH),
+      option: z
+        .string()
+        .min(MIN_OPTION_LENGTH, {
+          message: `This field must have at least ${MIN_OPTION_LENGTH} characters.`,
+        })
+        .max(MAX_OPTION_LENGTH, {
+          message: `This field can have up to ${MAX_OPTION_LENGTH} characters.`,
+        }),
     })
     .array(),
   imageUrl: z
