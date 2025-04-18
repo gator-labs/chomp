@@ -66,6 +66,7 @@ const colors = {
     yellow: {
       pale: "#FBF3BA",
       light: "#D0CBB4",
+      brown: "#6C633A",
     },
     red: {
       light: "#ED6A5A",
@@ -76,6 +77,7 @@ const colors = {
       light: "#DBFC8D",
       tiffany: "#1ED3B3",
       turquoise: "#1ed3b31a",
+      muted: "#426D64",
     },
     grey: {
       a1: "#B3B3B3",
