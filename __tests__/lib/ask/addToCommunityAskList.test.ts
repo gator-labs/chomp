@@ -23,8 +23,8 @@ describe("Add to community ask list", () => {
       where: { specialId: ESpecialStack.CommunityAsk },
     });
 
-    origCommunityDeck = await prisma.stack.findUnique({
-      where: { specialId: ESpecialStack.CommunityAsk },
+    origCommunityDeck = await prisma.deck.findFirst({
+      where: { stack: { specialId: ESpecialStack.CommunityAsk } },
     });
 
     question1 = await prisma.question.create({
