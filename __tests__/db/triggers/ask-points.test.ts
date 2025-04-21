@@ -4,7 +4,6 @@ import { generateUsers } from "@/scripts/utils";
 import { ESpecialStack } from "@prisma/client";
 
 describe("Ask DB triggers", () => {
-  let questions: { id: number }[] = [];
   let deck: { id: number };
   let communityDeck: { id: number };
   let origCommunityStack: { id: number } | null;
@@ -21,7 +20,7 @@ describe("Ask DB triggers", () => {
       where: { specialId: ESpecialStack.CommunityAsk },
     });
 
-    let communityStack = origCommunityStack
+    const communityStack = origCommunityStack
       ? origCommunityStack
       : await prisma.stack.create({
           data: {
