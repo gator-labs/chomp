@@ -49,21 +49,16 @@ async function main() {
 
     console.log("Checking tx: ", txId);
 
+    // If row is missing info ignore it
     if (txId == null) {
-      // If it was EOF is all good
-      console.log("STOPPING: Record without TX ID OR END OF FILE");
-      process.exit(0);
-    }
-
-    // Pass through other errors
-    const errorType = cols[2];
-    if (errorType !== "NOT_EXISTS") {
-      appendFileSync(cleanedFilePath, row + "\n");
+      console.error(`Found row without txId: ${row}`);
       continue;
     }
 
-    if (txId == null) {
-      console.warn(`Record with txId nullish ${cols}`);
+    // Pass through rows with other errors
+    const errorType = cols[2];
+    if (errorType !== "NOT_EXISTS") {
+      appendFileSync(cleanedFilePath, row + "\n");
       continue;
     }
 

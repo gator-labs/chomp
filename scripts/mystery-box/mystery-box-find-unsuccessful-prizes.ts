@@ -2,7 +2,6 @@ import { PrismaClient } from "@prisma/client";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
 import debug from "debug";
 import fs from "fs";
-//import logUpdate from "log-update";
 import path from "node:path";
 import util from "node:util";
 
@@ -10,7 +9,7 @@ import { CONNECTION } from "../../app/utils/solana";
 
 // ❗🙈🙉 Add date to which start looking for problematic transactions, set as null to start from the beginning of time
 // considers this takes a loooong time, if you are just testing try a few days.
-const START_AT_CREATED_AT: string | null = "2025-03-01";
+const START_AT_CREATED_AT: string | null = null;
 
 const logMain = debug("main");
 
@@ -82,7 +81,7 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
  *           → CSV file
  **/
 
-logMain("Finding users with Mistery Box Prices not on chain");
+logMain("Finding users with Mistery Box Prizes not on chain");
 
 // Create needed indexes: NOTICE: this script is only intented to run on replica
 // if you want to run this script on real prod consider that the indexes are permanent
@@ -130,9 +129,9 @@ async function ensureIndexesExist() {
   logMain("Index verification/creation completed");
 }
 
-let mysteryBoxPricesProducerFinshed = false;
+let mysteryBoxPrizesProducerFinshed = false;
 let mbpProdCount = 0;
-async function produceMysteryBoxPrices(
+async function produceMysteryBoxPrizes(
   queue: Array<MysteryBoxPrizeWithChainTX>,
   maxQueued: number,
   batchSize: number,
@@ -140,7 +139,7 @@ async function produceMysteryBoxPrices(
 ): Promise<void> {
   logProd("[MBP Prod] Started!");
 
-  let theresMorePricesInDb = true;
+  let theresMorePrizesInDb = true;
   let offset = 0;
 
   do {
@@ -189,8 +188,8 @@ async function produceMysteryBoxPrices(
     }
 
     if (!newPrizes.length) {
-      logProd("[MBP Prod]: theres no more prices on db");
-      theresMorePricesInDb = false;
+      logProd("[MBP Prod]: theres no more prizes on db");
+      theresMorePrizesInDb = false;
       continue;
     }
     logProd(`[MBP Prod] got ${newPrizes.length} MBP`);
@@ -199,9 +198,9 @@ async function produceMysteryBoxPrices(
     offset += newPrizes.length;
 
     queue.unshift(...newPrizes);
-  } while (theresMorePricesInDb);
+  } while (theresMorePrizesInDb);
 
-  mysteryBoxPricesProducerFinshed = true;
+  mysteryBoxPrizesProducerFinshed = true;
   logProd(`[MBP Prod] Finished! Produced: ${mbpProdCount}`);
 }
 
@@ -210,7 +209,7 @@ let mbpWTxNotExistErrorCount = 0;
 let mbpWTxFailErrorCount = 0;
 let mysteryBoxFilterFinished = false;
 let checkTxErrorCount = 0;
-async function consumeMysteryBoxPricesCheckTXsAndFilter(
+async function consumeMysteryBoxPrizesCheckTXsAndFilter(
   queueMBPs: Array<MysteryBoxPrizeWithChainTX>,
   queueMBPWErrors: Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>,
   maxWorkers: number,
@@ -294,7 +293,7 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
     }
   }
 
-  while (!mysteryBoxPricesProducerFinshed || queueMBPs.length) {
+  while (!mysteryBoxPrizesProducerFinshed || queueMBPs.length) {
     // if there are no queue elements wait for a bit
     if (!queueMBPs.length) {
       debugFilter("[Filter] queue empty waiting");
@@ -311,16 +310,16 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
 
     debugFilter("[Filter] available worker: ", availableWorkerIndex);
 
-    const mysteryPriceBox = queueMBPs.pop();
+    const mysteryPrizeBox = queueMBPs.pop();
 
-    if (!mysteryPriceBox) {
+    if (!mysteryPrizeBox) {
       throw new Error("[Filter] ERROR pop empty queueMBPs");
     }
 
     // set the worker slot as "busy"
     workers[availableWorkerIndex] = () => {}; // TODO: use a boolean instead
     // run the worker and clear worker slot when it finishes
-    checkSolTXWorker(availableWorkerIndex, mysteryPriceBox).finally(
+    checkSolTXWorker(availableWorkerIndex, mysteryPrizeBox).finally(
       () => (workers[availableWorkerIndex] = null),
     );
   }
@@ -329,7 +328,7 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
   logFilter(`[MBP Filter] Finished! Filtered: ${filteredCount}`);
 }
 
-let csvProdFinished = false;
+//let csvProdFinished = false;
 async function consumeMysteryBoxPrizesWTxToCsv(
   queueMbpWTx: Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>,
   pull_time: number,
@@ -397,12 +396,12 @@ async function consumeMysteryBoxPrizesWTxToCsv(
     logCsv(`Found problematic MBP ${mbpWTx.mbp.mbpId}`);
     logCsv(util.inspect(mbpWTx, { depth: null }));
   } while (
-    !mysteryBoxPricesProducerFinshed ||
+    !mysteryBoxPrizesProducerFinshed ||
     !mysteryBoxFilterFinished ||
     queueMbpWTx.length
   );
 
-  csvProdFinished = true;
+  //csvProdFinished = true;
   logCsv("[CSV] Finished!");
 }
 
@@ -435,7 +434,7 @@ async function main() {
 
   // Queue for all MBPs found in DB
   const queueMBPs = new Array<MysteryBoxPrizeWithChainTX>();
-  produceMysteryBoxPrices(
+  produceMysteryBoxPrizes(
     queueMBPs,
     MBP_PRODUCER_MAX_QUEUED,
     MBP_PRODUCER_BATCH,
@@ -445,7 +444,7 @@ async function main() {
   // Queue for MBPs where TX is failed
   const queueMBPWErrors =
     new Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>();
-  consumeMysteryBoxPricesCheckTXsAndFilter(
+  consumeMysteryBoxPrizesCheckTXsAndFilter(
     queueMBPs,
     queueMBPWErrors,
     MAX_WORKERS,
@@ -454,30 +453,6 @@ async function main() {
   );
 
   consumeMysteryBoxPrizesWTxToCsv(queueMBPWErrors, CSV_PULL_TIME, CSV_PATH);
-
-  //const intId = setInterval(function() {
-  //  logUpdate(
-  //    `
-  //    \n\n\n\n\n\n\n\n\n
-  //    mysteryBoxPricesProducerFinshed: ${mysteryBoxPricesProducerFinshed}
-  //    queueMBPs: ${queueMBPs.length}
-  //    mbpProdCount: ${mbpProdCount}
-  //
-  //    filteredCount: ${filteredCount}
-  //    mbpWTxNotExistErrorCount: ${mbpWTxNotExistErrorCount}
-  //    mbpWTxFailErrorCount: ${mbpWTxFailErrorCount}
-  //    mysteryBoxFilterFinished ${mysteryBoxFilterFinished}
-  //    checkTxErrorCount: ${checkTxErrorCount}
-  //    `,
-  //  );
-  //  if (
-  //    mysteryBoxPricesProducerFinshed &&
-  //    mysteryBoxFilterFinished &&
-  //    csvProdFinished
-  //  ) {
-  //    clearInterval(intId);
-  //  }
-  //}, 50);
 }
 
 main().catch((err) => console.error(err));

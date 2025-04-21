@@ -9,7 +9,7 @@ import { appendFileSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 
 /**
- * Update a Problematic Mystery Box Price Transactions ChainTXs
+ * Update a Problematic Mystery Box Prize Transactions ChainTXs
  */
 
 const prisma = new PrismaClient();
@@ -41,7 +41,6 @@ async function main() {
     // Header row
     if (i === 0) {
       // Write column titles
-      console.log("writting headers");
       appendFileSync(cleanedFilePath, row + "\n");
       continue;
     }

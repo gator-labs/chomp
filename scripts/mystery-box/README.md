@@ -6,7 +6,7 @@ Follow these steps to identify problematic transactions:
 
 Run this script to generate a CSV file containing all problematic transactions. Note that this script may take several hours to complete execution.
 
-You can specify a date from which to start analyzing MysteryBoxPrizes by opening the file `mystery-box-find-unsuccessful-prizes.ts` and setting up the variable `START_AT_CREATED_AT` with a valid text date. If you are analyzing the complete replicate DB, the script will take several hours.
+You can specify a date from which to start analyzing MysteryBoxPrizes by opening the file `mystery-box-find-unsuccessful-prizes.ts` and setting up the variable `START_AT_CREATED_AT` with a valid text date, or set at null to start from the beginning of time. If you are analyzing the complete replicate DB, the script will take several hours.
 
 Run:
 `yarn dev:mystery-box-prizes-find-errors-txs`
