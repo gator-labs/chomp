@@ -51,10 +51,10 @@ export function AskImagePreview({ imageUrl }: AskImagePreviewProps) {
       </span>
       {isImageShowing && imageUrl && (
         <div
-          className="fixed inset-0 z-[999] bg-black/80 flex flex-col justify-center"
+          className="fixed inset-0 z-[999] bg-black/80 flex flex-col justify-center items-center"
           onClick={handleHideImage}
         >
-          <div className="flex flex-col max-h-full">
+          <div className="flex flex-col max-h-full max-w-lg">
             <div className="flex justify-end px-2 py-1">
               <span className="cursor-pointer" onClick={handleHideImage}>
                 <X size={28} />
