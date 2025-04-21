@@ -5,6 +5,7 @@ import { ESpecialStack } from "@prisma/client";
 
 describe("Ask DB triggers", () => {
   let deck: { id: number };
+  const questions: { id: number }[] = [];
   let communityDeck: { id: number };
   let origCommunityStack: { id: number } | null;
   let users: { id: string; username: string }[];
