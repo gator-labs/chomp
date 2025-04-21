@@ -7,9 +7,12 @@ import BinaryFirstOrderAnswerChart from "@/components/BinaryFirstOrderAnswer/Bin
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
 import MultiChoiceFirstOrderAnswer from "@/components/MultiChoiceFirstOrderAnswer/MultiChoiceFirstOrderAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
+import SecondOrderAnswerResultsMultiple from "@/components/SecondOrderAnswerResultMultiple";
+import SecondOrderAnswerResultsBinary from "@/components/SecondOrderAnswerResultsBinary";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
 import { notFound } from "next/navigation";
+import { useState } from "react";
 
 interface Props {
   params: {
@@ -22,6 +25,17 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     process.env.NEXT_PUBLIC_FF_NEW_ANSWER_PAGE === "true";
 
   if (!FF_NEW_ANSWER_PAGE) notFound();
+
+  const [isSecOrdAnsInfoDrawerOpen, setIsSecOrdAnsInfoDrawerOpen] =
+    useState(false);
+
+  const handleSecOrdAnsInfoDrawerClose = () => {
+    setIsSecOrdAnsInfoDrawerOpen(false);
+  };
+
+  const openSecOrdAnsInfoDrawer = () => {
+    setIsSecOrdAnsInfoDrawerOpen(true);
+  };
 
   const questionId =
     params.questionId === undefined ? undefined : Number(params.questionId);
@@ -57,6 +71,32 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   const isBinary = stats.type === QuestionType.BinaryQuestion;
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
+
+  let secondOrderAnswerResults = <></>;
+
+  if (isBinary) {
+    // Second Order Binary Choice Question Answers
+
+    secondOrderAnswerResults = SecondOrderAnswerResultsBinary({
+      userAnswers: stats.userAnswers,
+      questionOptionPercentages: stats.questionOptionPercentages,
+      answerStatus: stats.isSecondOrderCorrect,
+      isDrawerOpen: isSecOrdAnsInfoDrawerOpen,
+      openDrawer: openSecOrdAnsInfoDrawer,
+      closeDrawer: handleSecOrdAnsInfoDrawerClose,
+    });
+  } else {
+    // Second Order Multiple Choice Question Answers
+
+    secondOrderAnswerResults = SecondOrderAnswerResultsMultiple({
+      userAnswers: stats.userAnswers,
+      questionOptionPercentages: stats.questionOptionPercentages,
+      answerStatus: stats.isSecondOrderCorrect,
+      isDrawerOpen: isSecOrdAnsInfoDrawerOpen,
+      openDrawer: openSecOrdAnsInfoDrawer,
+      closeDrawer: handleSecOrdAnsInfoDrawerClose,
+    });
+  }
 
   return (
     <div>
@@ -106,8 +146,19 @@ const RevealAnswerPageNew = ({ params }: Props) => {
           />
         </>
       )}
+      {secondOrderAnswerResults}
     </div>
   );
 };
+
+type SecondOrderOptionResultMultiple = {
+  isSelected: boolean;
+  text: string;
+  label: string;
+  percentage: number;
+};
+
+export type SecondOrderOptionResultsMultiple =
+  SecondOrderOptionResultMultiple[];
 
 export default RevealAnswerPageNew;

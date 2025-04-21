@@ -22,6 +22,7 @@ export type QuestionOrderPercentage = {
   id: number;
   firstOrderSelectedAnswerPercentage: number;
   secondOrderAveragePercentagePicked: number;
+  option?: string;
 };
 
 export type AnswerStats = Question & {
