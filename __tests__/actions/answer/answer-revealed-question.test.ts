@@ -6,7 +6,6 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import { deckSchema } from "@/app/schemas/deck";
 import prisma from "@/app/services/prisma";
 import { QuestionType, Token } from "@prisma/client";
-import { rejects } from "assert";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 
