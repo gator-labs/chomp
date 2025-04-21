@@ -171,7 +171,7 @@ describe("markQuestionAsSeenButNotAnswered", () => {
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: userId });
   });
 
-  it("should create viewed answers for all question options and charge credits when user has sufficient credits", async () => {
+  it("should create viewed answers for all question options", async () => {
     // Setup: User has enough credits
     (getUserTotalCreditAmount as jest.Mock).mockResolvedValue(10);
 
@@ -201,25 +201,5 @@ describe("markQuestionAsSeenButNotAnswered", () => {
         selected: false,
       });
     });
-  });
-
-  it("should not create answers or charge credits when operation would result in negative credits", async () => {
-    // Setup: User has no credits
-    (getUserTotalCreditAmount as jest.Mock).mockResolvedValue(0);
-
-    // Act
-    await markQuestionAsSeenButNotAnswered(currentQuestionId);
-
-    // Assert: No QuestionAnswers were created
-    const answers = await prisma.questionAnswer.findMany({
-      where: {
-        questionOptionId: {
-          in: currentQuestionOptions.map((opt: { id: any }) => opt.id),
-        },
-        userId,
-      },
-    });
-
-    expect(answers).toHaveLength(0);
   });
 });

@@ -12,6 +12,9 @@ import { z } from "zod";
 jest.mock("@/app/actions/jwt", () => ({
   getJwtPayload: jest.fn(),
 }));
+jest.mock("p-retry", () => ({
+  retry: jest.fn((fn) => fn()),
+}));
 
 describe("answering already revealed question", () => {
   const userId = uuidv4();
@@ -151,12 +154,8 @@ describe("answering already revealed question", () => {
       timeToAnswerInMiliseconds: 5000,
     };
 
-    try {
-      await answerQuestion(request); // Call the method under test
-    } catch (error: any) {
-      expect(error.message).toBe(
-        `Question with id: ${request.questionId} does not exist or it is revealed and cannot be answered.`,
-      );
-    }
+    await expect(answerQuestion(request)).rejects.toThrow(
+      `Question with id: ${request.questionId} does not exist or it is revealed and cannot be answered.`,
+    );
   });
 });
