@@ -1,6 +1,6 @@
 import prisma from "@/app/services/prisma";
 import { addToCommunityDeck } from "@/lib/ask/addToCommunityDeck";
-import { getCreditBalance } from "@/lib/credits/getCreditBalance";
+import { getPointBalance } from "@/lib/points/getPointBalance";
 import { generateUsers } from "@/scripts/utils";
 import { ESpecialStack } from "@prisma/client";
 
@@ -23,8 +23,8 @@ describe("Add to community ask list", () => {
       where: { specialId: ESpecialStack.CommunityAsk },
     });
 
-    origCommunityDeck = await prisma.stack.findUnique({
-      where: { specialId: ESpecialStack.CommunityAsk },
+    origCommunityDeck = await prisma.deck.findFirst({
+      where: { stack: { specialId: ESpecialStack.CommunityAsk } },
     });
 
     question1 = await prisma.question.create({
@@ -121,15 +121,15 @@ describe("Add to community ask list", () => {
   });
 
   it("should add a community question to list", async () => {
-    const authorCreditsBalanceBefore = await getCreditBalance(users[0].id);
+    const authorPointsBalanceBefore = await getPointBalance(users[0].id);
 
     await addToCommunityDeck(question1.id);
 
-    const authorCreditsBalanceAfter = await getCreditBalance(users[0].id);
+    const authorPointsBalanceAfter = await getPointBalance(users[0].id);
 
-    expect(process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD).toBeDefined();
-    expect(authorCreditsBalanceAfter - authorCreditsBalanceBefore).toEqual(
-      Number(process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD),
+    expect(process.env.NEXT_PUBLIC_ASK_ACCEPTED_POINTS_REWARD).toBeDefined();
+    expect(authorPointsBalanceAfter - authorPointsBalanceBefore).toEqual(
+      Number(process.env.NEXT_PUBLIC_ASK_ACCEPTED_POINTS_REWARD),
     );
 
     const communityStack = await prisma.stack.findUnique({

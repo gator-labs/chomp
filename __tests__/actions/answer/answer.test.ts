@@ -4,7 +4,7 @@ import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
-import { getCreditBalance } from "@/lib/credits/getCreditBalance";
+import { getPointBalance } from "@/lib/points/getPointBalance";
 import { generateUsers } from "@/scripts/utils";
 import { AnswerStatus } from "@prisma/client";
 
@@ -197,7 +197,7 @@ describe("Validate points logs for completing questions and decks", () => {
     expect(seenQuestion?.hasError).toBeFalsy();
     expect(randomRes).toBeDefined();
 
-    const authorCreditsBalanceBefore = await getCreditBalance(authorId);
+    const authorPointsBalanceBefore = await getPointBalance(authorId);
 
     await answerQuestion({
       questionId: deckQuestionId,
@@ -208,11 +208,11 @@ describe("Validate points logs for completing questions and decks", () => {
       deckId: deckId,
     });
 
-    const authorCreditsBalanceAfter = await getCreditBalance(authorId);
+    const authorPointsBalanceAfter = await getPointBalance(authorId);
 
-    expect(process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD).toBeDefined();
-    expect(authorCreditsBalanceAfter - authorCreditsBalanceBefore).toEqual(
-      Number(process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD),
+    expect(process.env.NEXT_PUBLIC_ASK_ANSWERED_POINTS_REWARD).toBeDefined();
+    expect(authorPointsBalanceAfter - authorPointsBalanceBefore).toEqual(
+      Number(process.env.NEXT_PUBLIC_ASK_ANSWERED_POINTS_REWARD),
     );
 
     const questionAnswer = await prisma.questionAnswer.findMany({

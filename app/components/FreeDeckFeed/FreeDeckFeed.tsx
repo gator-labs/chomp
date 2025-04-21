@@ -1,5 +1,6 @@
 import { DECK_LIMIT } from "@/app/constants/decks";
 import { getFreeDecks } from "@/app/queries/home";
+import TelegramInvite from "@/components/TelegramInvite";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import React, { useMemo } from "react";
 
@@ -46,8 +47,15 @@ function FreeDeckFeed() {
     (formattedData?.length === 0 || formattedData === undefined) &&
     !isFetching
   ) {
-    return <NoDeck />;
+    return (
+      <>
+        <NoDeck />
+        <TelegramInvite />
+        <div className="pb-9" />
+      </>
+    );
   }
+
   return (
     <>
       {formattedData?.map((d) => (
@@ -68,6 +76,7 @@ function FreeDeckFeed() {
         </div>
       ))}
 
+      {isFetching ? null : <TelegramInvite />}
       <LoadMore
         isFetching={isFetching}
         fetchNextPage={fetchNextPage}

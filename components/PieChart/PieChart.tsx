@@ -54,7 +54,7 @@ function PieChart({ data }: { data: ChartData }) {
     },
   };
   return (
-    <div className="w-[288px] h-[288px]">
+    <div className="w-[288px] h-[288px] m-auto">
       <Pie data={data} options={options} />
     </div>
   );
