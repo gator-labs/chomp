@@ -16,7 +16,7 @@ const prisma = new PrismaClient();
 
 // ❗🙈🙉 Add name of the file you want to read here
 const FILE_READ_PATH =
-  "results-Thu Apr 03 2025 21:09:10 GMT-0600 (Central Standard Time)-cleaned+combined+info.csv";
+  "results-Sun Apr 20 2025 12:25:32 GMT-0600 (Central Standard Time)-cleaned+1+1.csv";
 
 async function main() {
   const FILE_PATH = path.join(__dirname, FILE_READ_PATH);
@@ -33,7 +33,7 @@ async function main() {
     appendFileSync(cleanedFilePath, row + `,${error},\n`);
   }
 
-  // Process the data rows (skip the header)
+  // Process the data rows
   for (let i = 0; i < fileTxtRows.length; i++) {
     const row = fileTxtRows[i];
     const cols = row.split(",");
@@ -42,18 +42,16 @@ async function main() {
     if (i === 0) {
       // Write column titles
       console.log("writting headers");
-      appendFileSync(cleanedFilePath, row + ",\n");
+      appendFileSync(cleanedFilePath, row + "\n");
       continue;
     }
 
     const mbpId = cols[0];
 
     if (!mbpId) {
-      console.log("Either finished or found a row without mbpId");
-      process.exit(0);
+      console.error(`Found row will num mbpId: ${row}`);
+      continue;
     }
-
-    // === Step 1 Create ChainTX
 
     const mbp = await prisma.mysteryBoxPrize.findUnique({
       where: { id: mbpId },
@@ -92,47 +90,44 @@ async function main() {
     }
 
     try {
-      await prisma.chainTx.upsert({
-        where: { hash: newHash },
-        update: {}, // No updates if it exists
-        create: {
-          hash: newHash,
-          wallet: oldChainTx.recipientAddress,
-          type: EChainTxType.MysteryBoxClaim,
-          solAmount: "0",
-          tokenAmount: oldChainTx.tokenAmount,
-          tokenAddress: oldChainTx.tokenAddress,
-          recipientAddress: oldChainTx.recipientAddress,
-          status: EChainTxStatus.Finalized,
-          finalizedAt: new Date(),
-        },
+      // Combine both operations in a single transaction
+      const result = await prisma.$transaction(async (tx) => {
+        // Step 1: Create or update ChainTx
+        const chainTx = await tx.chainTx.upsert({
+          where: { hash: newHash },
+          update: {}, // No updates if it exists
+          create: {
+            hash: newHash,
+            wallet: oldChainTx.wallet,
+            type: EChainTxType.MysteryBoxClaim,
+            solAmount: oldChainTx.solAmount,
+            tokenAmount: oldChainTx.tokenAmount,
+            tokenAddress: oldChainTx.tokenAddress,
+            recipientAddress: oldChainTx.recipientAddress,
+            status: EChainTxStatus.Finalized,
+            finalizedAt: new Date(), // update the date to now
+          },
+        });
+
+        // Step 2: Update MysteryBoxPrize to point to the new ChainTx
+        const updatedMbp = await tx.mysteryBoxPrize.update({
+          where: { id: mbpId },
+          data: { claimHash: newHash },
+          select: { claimHash: true },
+        });
+
+        return { chainTx, updatedMbp };
       });
+
+      appendFileSync(
+        cleanedFilePath,
+        row + `,UPDATED,${result.updatedMbp.claimHash}\n`,
+      );
     } catch (err) {
       console.error(err);
-      writeRowWithError(row, "DB_TX_UPSERT_ERROR");
+      writeRowWithError(row, "DB_TRANSACTION_ERROR");
       continue;
     }
-
-    // === Step 2 Point MBP to new ChainTX
-    let updatedMbp: Prisma.MysteryBoxPrizeGetPayload<{
-      select: { claimHash: true };
-    }>;
-
-    try {
-      updatedMbp = await prisma.mysteryBoxPrize.update({
-        where: { id: mbpId },
-        data: { claimHash: newHash },
-      });
-    } catch (err) {
-      console.error(err);
-      writeRowWithError(row, "DB_MBP_UPDATE_ERROR");
-      continue;
-    }
-
-    appendFileSync(
-      cleanedFilePath,
-      row + `,UPDATED,${updatedMbp.claimHash},\n`,
-    );
   }
 }
 

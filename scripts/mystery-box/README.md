@@ -1,26 +1,42 @@
-# Mystery Box Script
+# Mystery Box Scripts
 
 Follow these steps to identify problematic transactions:
 
-1. Run the mystery-box-find-unsuccessful-prices.ts script to generate a CSV file containing all problematic transactions. Note that this script may take several hours to complete execution.
+## 1 Find problematic MysteryBoxPrizes
 
-2. Once the CSV file is generated, we need to clean it for false positives. For some reason, the Solana RPC API falsely returns that a tx does not exist sometimes, even 5 times in a row! So you need to run and re-run this file until the transaction count of your file stops changing; in my case it was three times.
+Run this script to generate a CSV file containing all problematic transactions. Note that this script may take several hours to complete execution.
 
-❗Make sure to fill the variables FILE_NAME and IS_RE_CLEAN with the correct information.
+You can specify a date from which to start analyzing MysteryBoxPrizes by opening the file `mystery-box-find-unsuccessful-prizes.ts` and setting up the variable `START_AT_CREATED_AT` with a valid text date. If you are analyzing the complete replicate DB, the script will take several hours.
 
-3. (Optional) If you want to separate your file by error type for better handling, you can use results-clean-false-positives.ts file to generate a new file with your filtered MBP.
+Run:
+`yarn dev:mystery-box-prizes-find-errors-txs`
 
-4. (Optional) You can run results-add-dates.ts to add dates to MBP. TODO: Might be better to edit the script to add them from the beginning.
+This script will generate a CSV file with the following columns:
 
-5. Create each transaction manually to pay users and at the end of each record add the TX id to update the DB with `mystery-box-price-update-tx.ts`. That's it, your users are happier now!
+`mbpId	mbpClaimHash	error	ctFinalizedAt	mbUserId	chainTxTokenAmount	chainTxRecipientAddress`
 
-## Commands
+The CSV output file will be named something like: `results-Sat Apr 19 2025 15:07:13 GMT-0600 (Central Standard Time).csv`, in this folder.
 
-```bash
-yarn dev:mystery-box-prices-inspect-txs
-yarn dev:mystery-box-prices-inspect-txs-clean
-yarn dev:mystery-box-prices-filter-failed
-yarn dev:mystery-box-prices-add-dates
-yarn dev:mystery-box-prices-update-tx
-```
+## 2 Clean False Positives
+
+Once the CSV file is generated, we need to clean it for false positives. For some reason, the Solana RPC API falsely returns that a tx does not exist sometimes, even 5 times in a row waiting 500ms between calls! So you need to run and re-run this file until the transaction count of your file stops changing; in my case it was three times.
+
+Open the file `./results-clean-false-positives.ts` and on the first lines fill the variable `FILE_NAME` with the name of the output file from step 1. 
+
+Run:
+`yarn dev:mystery-box-prizes-inspect-txs-clean`
+
+Remember that every time you run it it generates a new file, so you need to edit `FILE_NAME` and run it again.
+
+## 3 Update Database with new TX Info
+
+After analyzing your file, manually send the owned BONK to our users.
+
+Then you can add a new column named `paidTx` (name doesn't matter, it's the position seven) and add the TxId there.
+
+Pro tip: You can make one transaction per user if you like. The script will re-use the ChainTX if it already exists.
+
+Run: 
+
+`yarn dev:mystery-box-prizes-update-tx`
 

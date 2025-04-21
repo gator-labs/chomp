@@ -1,12 +1,16 @@
-import { MysteryBoxPrize, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { ParsedTransactionWithMeta } from "@solana/web3.js";
 import debug from "debug";
 import fs from "fs";
-import logUpdate from "log-update";
+//import logUpdate from "log-update";
 import path from "node:path";
 import util from "node:util";
 
 import { CONNECTION } from "../../app/utils/solana";
+
+// ❗🙈🙉 Add date to which start looking for problematic transactions, set as null to start from the beginning of time
+// considers this takes a loooong time, if you are just testing try a few days.
+const START_AT_CREATED_AT: string | null = "2025-03-01";
 
 const logMain = debug("main");
 
@@ -20,14 +24,28 @@ const debugFilter = debug("filter:debug");
 
 debug.enable("main");
 // verbose debug
-// debug.enable('prod:*,filter:*,csv:*,main:*');
+//debug.enable('prod:*,filter:*,csv:*,main:*');
 // normal debug
-// debug.enable('prod,filter,csv,main');
+debug.enable("prod,filter,csv,main");
 
 const prisma = new PrismaClient();
 
-type MysteryBoxPrizesWTx = {
-  mbp: MysteryBoxPrize;
+type MysteryBoxPrizeWithChainTX = {
+  mbpId: string;
+  mbpClaimHash: string;
+  ctFinalizedAt: string | null;
+  mbUserId: string;
+  chainTxTokenAmount: number;
+  chainTxRecipientAddress: string;
+};
+
+// Output file CSV row type
+type CSVRowNormalized = MysteryBoxPrizeWithChainTX & {
+  error: "NOT_EXISTS" | "FAILED";
+};
+
+type MysteryBoxPrizeWithChainTXWithSolTxErrored = {
+  mbp: MysteryBoxPrizeWithChainTX;
   tx: ParsedTransactionWithMeta | null;
   error: "NOT_EXISTS" | "FAILED";
 };
@@ -66,6 +84,8 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
 
 logMain("Finding users with Mistery Box Prices not on chain");
 
+// Create needed indexes: NOTICE: this script is only intented to run on replica
+// if you want to run this script on real prod consider that the indexes are permanent
 async function ensureIndexesExist() {
   await prisma.$transaction([
     prisma.$executeRaw`
@@ -113,7 +133,7 @@ async function ensureIndexesExist() {
 let mysteryBoxPricesProducerFinshed = false;
 let mbpProdCount = 0;
 async function produceMysteryBoxPrices(
-  queue: Array<MysteryBoxPrize>,
+  queue: Array<MysteryBoxPrizeWithChainTX>,
   maxQueued: number,
   batchSize: number,
   pull_time: number,
@@ -131,39 +151,54 @@ async function produceMysteryBoxPrices(
       continue;
     }
 
-    let newPrices: MysteryBoxPrize[];
-
+    let newPrizes: Array<MysteryBoxPrizeWithChainTX>;
     try {
-      newPrices = await prisma.$queryRawUnsafe<MysteryBoxPrize[]>(`
-      SELECT DISTINCT ON ("claimHash") *
-      FROM "MysteryBoxPrize"
-      WHERE 
-        "prizeType" = 'Token' AND 
-        "status" = 'Claimed' AND 
-        "claimHash" IS NOT NULL
-        -- Add createdAt condition if lastCreatedAt is provided
-      ORDER BY 
-        "claimHash" ASC, 
-        "createdAt" DESC
-      LIMIT ${batchSize} OFFSET ${offset};
-    `);
+      newPrizes = await prisma.$queryRawUnsafe<
+        Array<MysteryBoxPrizeWithChainTX>
+      >(`
+        SELECT 
+          mbp."id" as "mbpId",
+          mbp."claimHash" as "mbpClaimHash",
+          ct."finalizedAt" as "ctFinalizedAt",
+          mb."userId" as "mbUserId",
+          ct."tokenAmount" as "chainTxTokenAmount",
+          ct."recipientAddress" as "chainTxRecipientAddress"
+        FROM 
+          "MysteryBoxPrize" mbp
+        JOIN 
+          "MysteryBoxTrigger" mbt ON mbp."mysteryBoxTriggerId" = mbt."id"
+        JOIN 
+          "MysteryBox" mb ON mbt."mysteryBoxId" = mb."id"
+        LEFT JOIN 
+          "ChainTx" ct ON mbp."claimHash" = ct."hash"
+        WHERE 
+          mbp."prizeType" = 'Token' AND 
+          mbp."status" = 'Claimed' AND 
+          mbp."claimHash" IS NOT NULL AND
+          mbp."createdAt" >= ${START_AT_CREATED_AT ? `'${new Date(START_AT_CREATED_AT).toISOString()}'` : "'1970-01-01'"}
+        ORDER BY 
+          mbp."claimHash" ASC, 
+          mbp."createdAt" DESC
+        LIMIT ${batchSize} OFFSET ${offset};
+      `);
     } catch (err) {
       logProd("[MBP Prod]: db error, waiting a bit & trying again...");
+      logProd(err);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       continue;
     }
 
-    if (!newPrices.length) {
+    if (!newPrizes.length) {
       logProd("[MBP Prod]: theres no more prices on db");
       theresMorePricesInDb = false;
       continue;
     }
-    logProd(`[MBP Prod] got ${newPrices.length} MBP`);
+    logProd(`[MBP Prod] got ${newPrizes.length} MBP`);
 
-    mbpProdCount += newPrices.length;
-    offset += newPrices.length;
+    mbpProdCount += newPrizes.length;
+    offset += newPrizes.length;
 
-    queue.unshift(...newPrices);
+    queue.unshift(...newPrizes);
   } while (theresMorePricesInDb);
 
   mysteryBoxPricesProducerFinshed = true;
@@ -176,8 +211,8 @@ let mbpWTxFailErrorCount = 0;
 let mysteryBoxFilterFinished = false;
 let checkTxErrorCount = 0;
 async function consumeMysteryBoxPricesCheckTXsAndFilter(
-  queueMBPs: Array<MysteryBoxPrize>,
-  queueMbpWTx: Array<MysteryBoxPrizesWTx>,
+  queueMBPs: Array<MysteryBoxPrizeWithChainTX>,
+  queueMBPWErrors: Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>,
   maxWorkers: number,
   queuePullTime: number,
   workerPullTime: number,
@@ -195,12 +230,18 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
     return null;
   }
 
-  async function checkSolTXWorker(index: number, mbp: MysteryBoxPrize) {
-    debugFilter(`[Filter W${index}] TXCheck: `, mbp.claimHash);
+  async function checkSolTXWorker(
+    index: number,
+    mbp: MysteryBoxPrizeWithChainTX,
+  ) {
+    debugFilter(`[Filter W${index}] TXCheck: `, mbp.mbpClaimHash);
 
     // this should not happen, keeping ts happy
-    if (mbp.claimHash == null) {
-      logFilter(`[Filter W${index}] Found MBP with null claimHash: `, mbp.id);
+    if (mbp.mbpClaimHash == null) {
+      logFilter(
+        `[Filter W${index}] Found MBP with null claimHash: `,
+        mbp.mbpId,
+      );
       return null;
     }
 
@@ -208,7 +249,7 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
     try {
       debugFilter(`[Filter W${index}] getting TX`);
 
-      tx = await CONNECTION.getParsedTransaction(mbp.claimHash, {
+      tx = await CONNECTION.getParsedTransaction(mbp.mbpClaimHash, {
         commitment: "confirmed",
         maxSupportedTransactionVersion: 0,
       });
@@ -216,10 +257,10 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
       // Transaction does not exists at all on Blockchain (problematic!)
       if (tx === null) {
         debugFilter(
-          `[Filter W${index}] found a TX that does not exists on Blockchain ${mbp.claimHash}`,
+          `[Filter W${index}] found a TX that does not exists on Blockchain ${mbp.mbpClaimHash}`,
         );
 
-        queueMbpWTx.push({ mbp, tx, error: "NOT_EXISTS" });
+        queueMBPWErrors.push({ mbp, tx, error: "NOT_EXISTS" });
         mbpWTxNotExistErrorCount++;
 
         return;
@@ -231,14 +272,14 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
         debugFilter(`[Filter W${index}]`, tx.meta);
         debugFilter(tx);
 
-        queueMbpWTx.push({ mbp, tx, error: "FAILED" });
+        queueMBPWErrors.push({ mbp, tx, error: "FAILED" });
         mbpWTxFailErrorCount++;
 
         return;
       }
 
       // tx is fine
-      logFilter(`[filter W${index}] tx is fine ${mbp.claimHash}`);
+      logFilter(`[filter W${index}] tx is fine ${mbp.mbpClaimHash}`);
       return null;
     } catch (err) {
       // Error getting transaction, Ignoring it for the moment
@@ -290,7 +331,7 @@ async function consumeMysteryBoxPricesCheckTXsAndFilter(
 
 let csvProdFinished = false;
 async function consumeMysteryBoxPrizesWTxToCsv(
-  queueMbpWTx: Array<MysteryBoxPrizesWTx>,
+  queueMbpWTx: Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>,
   pull_time: number,
   outputFilePath: string,
 ) {
@@ -298,6 +339,21 @@ async function consumeMysteryBoxPrizesWTxToCsv(
 
   // Create or truncate the output file
   fs.writeFileSync(outputFilePath, "");
+
+  // Create CSV file headers
+  const csvLine =
+    [
+      "mbpId",
+      "mbpClaimHash", // TxId
+      "error",
+      "ctFinalizedAt",
+      "mbUserId",
+      "chainTxTokenAmount",
+      "chainTxRecipientAddress",
+    ].join(",") + "\n";
+
+  // Append file headers to the CSV file
+  fs.appendFileSync(outputFilePath, csvLine);
 
   do {
     // if there's nothing on the queue wait a bit
@@ -308,19 +364,37 @@ async function consumeMysteryBoxPrizesWTxToCsv(
 
     const mbpWTx = queueMbpWTx.pop();
 
-    // Extract the required fields
-    const mbpId = mbpWTx?.mbp.id || "";
-    const claimHash = mbpWTx?.mbp.claimHash || "";
-    const txId = mbpWTx?.tx?.transaction.signatures.toString() || "";
-    const error = mbpWTx?.error;
+    if (mbpWTx == null) {
+      console.error("Should not happen keep ts happy");
+      continue;
+    }
+
+    const csvRow: CSVRowNormalized = {
+      mbpId: mbpWTx.mbp.mbpId,
+      mbpClaimHash: mbpWTx.mbp.mbpClaimHash,
+      error: mbpWTx.error,
+      ctFinalizedAt: mbpWTx.mbp.ctFinalizedAt,
+      mbUserId: mbpWTx.mbp.mbUserId,
+      chainTxTokenAmount: mbpWTx.mbp.chainTxTokenAmount,
+      chainTxRecipientAddress: mbpWTx.mbp.chainTxRecipientAddress,
+    };
 
     // Create CSV line
-    const csvLine = `${mbpId},${claimHash},${txId},${error}\n`;
+    const csvLine =
+      [
+        csvRow.mbpId,
+        csvRow.mbpClaimHash, // TxId
+        csvRow.error,
+        csvRow.ctFinalizedAt,
+        csvRow.mbUserId,
+        csvRow.chainTxTokenAmount.toString(),
+        csvRow.chainTxRecipientAddress,
+      ].join(",") + "\n";
 
     // Append to the CSV file
     fs.appendFileSync(outputFilePath, csvLine);
 
-    logCsv(`Found problematic MBP ${mbpWTx?.mbp.id}`);
+    logCsv(`Found problematic MBP ${mbpWTx.mbp.mbpId}`);
     logCsv(util.inspect(mbpWTx, { depth: null }));
   } while (
     !mysteryBoxPricesProducerFinshed ||
@@ -360,7 +434,7 @@ async function main() {
   logMain(`There are ${util.inspect(prizeCount, { depth: null })} MBPs in DB`);
 
   // Queue for all MBPs found in DB
-  const queueMBPs = new Array<MysteryBoxPrize>();
+  const queueMBPs = new Array<MysteryBoxPrizeWithChainTX>();
   produceMysteryBoxPrices(
     queueMBPs,
     MBP_PRODUCER_MAX_QUEUED,
@@ -369,40 +443,41 @@ async function main() {
   );
 
   // Queue for MBPs where TX is failed
-  const queueMbpWTx = new Array<MysteryBoxPrizesWTx>();
+  const queueMBPWErrors =
+    new Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>();
   consumeMysteryBoxPricesCheckTXsAndFilter(
     queueMBPs,
-    queueMbpWTx,
+    queueMBPWErrors,
     MAX_WORKERS,
     QUEUE_PULL_TIME,
     WORKER_PULL_TIME,
   );
 
-  consumeMysteryBoxPrizesWTxToCsv(queueMbpWTx, CSV_PULL_TIME, CSV_PATH);
+  consumeMysteryBoxPrizesWTxToCsv(queueMBPWErrors, CSV_PULL_TIME, CSV_PATH);
 
-  const intId = setInterval(function () {
-    logUpdate(
-      `
-      \n\n\n\n\n\n\n\n\n
-      mysteryBoxPricesProducerFinshed: ${mysteryBoxPricesProducerFinshed}
-      queueMBPs: ${queueMBPs.length}
-      mbpProdCount: ${mbpProdCount}
-      
-      filteredCount: ${filteredCount}
-      mbpWTxNotExistErrorCount: ${mbpWTxNotExistErrorCount}
-      mbpWTxFailErrorCount: ${mbpWTxFailErrorCount}
-      mysteryBoxFilterFinished ${mysteryBoxFilterFinished}
-      checkTxErrorCount: ${checkTxErrorCount}
-      `,
-    );
-    if (
-      mysteryBoxPricesProducerFinshed &&
-      mysteryBoxFilterFinished &&
-      csvProdFinished
-    ) {
-      clearInterval(intId);
-    }
-  }, 50);
+  //const intId = setInterval(function() {
+  //  logUpdate(
+  //    `
+  //    \n\n\n\n\n\n\n\n\n
+  //    mysteryBoxPricesProducerFinshed: ${mysteryBoxPricesProducerFinshed}
+  //    queueMBPs: ${queueMBPs.length}
+  //    mbpProdCount: ${mbpProdCount}
+  //
+  //    filteredCount: ${filteredCount}
+  //    mbpWTxNotExistErrorCount: ${mbpWTxNotExistErrorCount}
+  //    mbpWTxFailErrorCount: ${mbpWTxFailErrorCount}
+  //    mysteryBoxFilterFinished ${mysteryBoxFilterFinished}
+  //    checkTxErrorCount: ${checkTxErrorCount}
+  //    `,
+  //  );
+  //  if (
+  //    mysteryBoxPricesProducerFinshed &&
+  //    mysteryBoxFilterFinished &&
+  //    csvProdFinished
+  //  ) {
+  //    clearInterval(intId);
+  //  }
+  //}, 50);
 }
 
 main().catch((err) => console.error(err));
