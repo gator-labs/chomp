@@ -99,9 +99,16 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
   const deckWithQuestionsAndCount = await prisma.deck.findUnique({
     where: {
       id: deckId,
-      activeFromDate: {
-        lt: now, // activeFromDate < now (already active)
-      },
+      OR: [
+        {
+          activeFromDate: {
+            lt: now, // activeFromDate < now (already active)
+          },
+        },
+        {
+          activeFromDate: null, // No date implies a daily deck
+        },
+      ],
       revealAtDate: {
         gt: now, // revealAtDate > now (not revealed yet)
       },

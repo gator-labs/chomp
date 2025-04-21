@@ -97,6 +97,21 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
     expect(deck?.deckInfo?.heading).toEqual("Super deck");
   });
 
+  it("should not filter out daily decks", async () => {
+    await prisma.deck.update({
+      where: {
+        id: testData.deckIds[0],
+      },
+      data: {
+        activeFromDate: null, // Indicates a daily deck
+      },
+    });
+
+    const deck = await getActiveDeckForLoggedOutUsers(testData.deckIds[0]);
+
+    expect(deck).toBeDefined();
+  });
+
   it("should not return a deck that is not active yet", async () => {
     await prisma.deck.update({
       where: {
