@@ -59,6 +59,8 @@ model Email {
 
 model Question {
   id                          Int                           @id @default(autoincrement())
+  // uuid is the public ID used for API queries
+  uuid                        String                        @db.Uuid() @default(uuid())
   question                    String
   durationMiliseconds         BigInt?
   type                        QuestionType
@@ -84,6 +86,8 @@ model Question {
 
   user              User?               @relation(fields: [createdByUserId], references: [id])
   AskQuestionAnswer AskQuestionAnswer[]
+
+  @@unique([uuid])
 }
 
 model QuestionOption {
