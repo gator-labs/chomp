@@ -1,20 +1,25 @@
 import { getActiveDeckForLoggedOutUsers } from "@/app/queries/deck";
 import prisma from "@/app/services/prisma";
 import "@/app/utils/date";
-import { QuestionType } from "@prisma/client";
+import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 
-import { TestDataGenerator } from "../../__utils__/data-gen-deck";
+import { TestDataGenerator, TestScenarioResult } from "../../__utils__/data-gen";
+
+const { generateRandomUserId } = TestDataGenerator;
 
 describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
-  let testData: {
-    deckIds: number[];
-    questionIds: number[];
-    userIds: string[];
-  };
+  let testData: TestScenarioResult;
 
   beforeAll(async () => {
+    const user1 = generateRandomUserId();
+    const user2 = generateRandomUserId();
+
     testData = await TestDataGenerator.createTestScenario({
+      users: [
+        { id: user1, username: "testuser1" },
+        { id: user2, username: "testuser2" },
+      ],
       decks: [
         {
           deck: {
@@ -27,6 +32,10 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
             {
               question: "Is this a test question?",
               type: QuestionType.BinaryQuestion,
+              revealToken: Token.Bonk,
+              revealTokenAmount: 11,
+              revealAtDate: TestDataGenerator.getTomorrow(),
+              creditCostPerQuestion: 3,
               options: [
                 {
                   option: "Yes",
@@ -34,6 +43,10 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: true,
                   calculatedPercentageOfSelectedAnswers: 80,
                   calculatedAveragePercentage: 70,
+                  answers: [
+                    { userId: user1, selected: true },
+                    { userId: user2, selected: true },
+                  ],
                 },
                 {
                   option: "No",
@@ -43,12 +56,14 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   calculatedAveragePercentage: 30,
                 },
               ],
-              creditCostPerQuestion: 3,
-              revealTokenAmount: 11,
             },
             {
               question: "What is sandwitch?",
               type: QuestionType.BinaryQuestion,
+              revealToken: Token.Bonk,
+              revealTokenAmount: 3,
+              revealAtDate: TestDataGenerator.getTomorrow(),
+              creditCostPerQuestion: 2,
               options: [
                 {
                   option: "Yes",
@@ -65,19 +80,9 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   calculatedAveragePercentage: 30,
                 },
               ],
-              revealTokenAmount: 3,
-              creditCostPerQuestion: 2,
             },
           ],
         }, // deck 0
-      ],
-      users: [
-        { id: "user1", username: "testuser1" },
-        { id: "user2", username: "testuser2" },
-      ],
-      answers: [
-        { userId: "user1", questionId: 1, selectedOptionIndex: 0 },
-        { userId: "user2", questionId: 1, selectedOptionIndex: 0 },
       ],
     });
   });
