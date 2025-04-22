@@ -9,7 +9,7 @@ describe("Add to community ask list", () => {
   let question2: { id: number };
   let deck: { id: number };
   let origCommunityStack: { id: number } | null;
-  let origCommunityDeck: { id: number } | null;
+  let origCommunityDecks: { id: number }[];
   let users: { id: string; username: string }[];
 
   beforeAll(async () => {
@@ -23,7 +23,7 @@ describe("Add to community ask list", () => {
       where: { specialId: ESpecialStack.CommunityAsk },
     });
 
-    origCommunityDeck = await prisma.deck.findFirst({
+    origCommunityDecks = await prisma.deck.findMany({
       where: { stack: { specialId: ESpecialStack.CommunityAsk } },
     });
 
@@ -97,10 +97,12 @@ describe("Add to community ask list", () => {
     });
     await prisma.deck.delete({ where: { id: deck.id } });
 
-    if (!origCommunityDeck)
-      await prisma.deck.deleteMany({
-        where: { stack: { specialId: ESpecialStack.CommunityAsk } },
-      });
+    await prisma.deck.deleteMany({
+      where: {
+        stack: { specialId: ESpecialStack.CommunityAsk },
+        id: { notIn: origCommunityDecks.map((d) => d.id) },
+      },
+    });
 
     if (!origCommunityStack)
       await prisma.stack.delete({
