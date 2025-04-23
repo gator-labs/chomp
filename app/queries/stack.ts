@@ -1,5 +1,5 @@
 "use server";
-import util from 'node:util';
+
 import { stringifyDecimals } from "@/app/utils/decimal";
 import {
   Deck,
@@ -9,6 +9,7 @@ import {
   QuestionOption,
 } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
+import util from "node:util";
 
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
@@ -39,17 +40,17 @@ export async function getStacks() {
 
 /**
  * Retrieves a stack by ID with user-specific data
- * 
+ *
  * This function fetches a stack and its associated decks, questions, and answers.
  * The data is tailored to the currently authenticated user:
  * - Only includes question answers from the current user
  * - Calculates metrics like totalCreditCost, totalRewardAmount for each deck
  * - Tracks how many questions the current user has answered in each deck
  * - Sorts decks by their status (open, upcoming, closed) relative to current time
- * 
+ *
  * If no user is authenticated, it still returns the stack data but with empty
  * answer collections (using a non-existent UUID to avoid pulling all users' data).
- * 
+ *
  * @param id - The numeric ID of the stack to retrieve
  * @returns The stack with enhanced deck data and user-specific metrics, or null if not found
  */
@@ -58,10 +59,9 @@ export async function getStack(id: number) {
   const userId = jwt?.sub;
   const now = new Date();
 
-
-  console.log('==================================')
-  console.log(`looking for stack ${id}`)
-  console.log(`user id ${userId}`)
+  console.log("==================================");
+  console.log(`looking for stack ${id}`);
+  console.log(`user id ${userId}`);
 
   const stack = await prisma.stack.findUnique({
     where: {
@@ -115,7 +115,10 @@ export async function getStack(id: number) {
       const totalQuestions = deck.deckQuestions.length;
 
       // Calculate answered questions (count of distinct questions that have been answered)
-      console.log('counting answeredQuestions', util.inspect(deck.deckQuestions, { depth: null }));
+      console.log(
+        "counting answeredQuestions",
+        util.inspect(deck.deckQuestions, { depth: null }),
+      );
       const answeredQuestions = new Set(
         deck.deckQuestions
           .filter((dq) =>
@@ -341,8 +344,8 @@ function getDecksToAnswer(
       isBefore(deck.activeFromDate!, new Date()) &&
       isAfter(deck.revealAtDate!, new Date()) &&
       deck.deckQuestions.flatMap((dq) => dq.question.questionOptions).length !==
-      deck.deckQuestions.flatMap((dq) =>
-        dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
-      ).length,
+        deck.deckQuestions.flatMap((dq) =>
+          dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
+        ).length,
   );
 }

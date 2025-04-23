@@ -1,4 +1,3 @@
-import util from 'node:util';
 import {
   TestDataGenerator,
   TestScenarioResult,
@@ -9,11 +8,10 @@ import prisma from "@/app/services/prisma";
 import { yesterdayStartUTC } from "@/app/utils/date";
 import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
+import util from "node:util";
 
-const {
-  generateRandomUserId,
-  createEmptyTestScenarioResult,
-} = TestDataGenerator;
+const { generateRandomUserId, createEmptyTestScenarioResult } =
+  TestDataGenerator;
 
 // Mock JWT payload since it's used in getStack
 jest.mock("@/app/actions/jwt", () => ({
@@ -126,7 +124,7 @@ describe("getStack", () => {
     createdDeckIds = decks.map((deck) => deck.id);
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     testData = createEmptyTestScenarioResult();
   });
 
@@ -401,7 +399,9 @@ describe("getStack", () => {
     expect(result).not.toBeNull();
 
     // Find our test deck in the results
-    const testDeck = result!.deck.find(d => d.deck === "Deck with Rewards Test");
+    const testDeck = result!.deck.find(
+      (d) => d.deck === "Deck with Rewards Test",
+    );
     console.log(util.inspect(testDeck, { depth: null }));
     expect(testDeck).toBeDefined();
 
@@ -446,17 +446,13 @@ describe("getStack", () => {
                   option: "Yes",
                   isLeft: true,
                   isCorrect: true,
-                  answers: [
-                    { userId: user1, selected: true },
-                  ],
+                  answers: [{ userId: user1, selected: true }],
                 },
                 {
                   option: "No",
                   isLeft: false,
                   isCorrect: false,
-                  answers: [
-                    { userId: user2, selected: true },
-                  ],
+                  answers: [{ userId: user2, selected: true }],
                 },
               ],
             },
@@ -471,17 +467,13 @@ describe("getStack", () => {
                   option: "True",
                   isLeft: true,
                   isCorrect: true,
-                  answers: [
-                    { userId: user1, selected: true },
-                  ],
+                  answers: [{ userId: user1, selected: true }],
                 },
                 {
                   option: "False",
                   isLeft: false,
                   isCorrect: false,
-                  answers: [
-                    { userId: user2, selected: true },
-                  ],
+                  answers: [{ userId: user2, selected: true }],
                 },
               ],
             },
@@ -496,17 +488,13 @@ describe("getStack", () => {
                   option: "Option A",
                   isLeft: true,
                   isCorrect: true,
-                  answers: [
-                    { userId: user1, selected: true },
-                  ],
+                  answers: [{ userId: user1, selected: true }],
                 },
                 {
                   option: "Option B",
                   isLeft: false,
                   isCorrect: false,
-                  answers: [
-                    { userId: user2, selected: false },
-                  ],
+                  answers: [{ userId: user2, selected: false }],
                 },
                 {
                   option: "Option C",
@@ -533,9 +521,7 @@ describe("getStack", () => {
                   option: "Choice 2",
                   isLeft: false,
                   isCorrect: true,
-                  answers: [
-                    { userId: user1, selected: false },
-                  ],
+                  answers: [{ userId: user1, selected: false }],
                 },
                 {
                   option: "Choice 3",
@@ -566,7 +552,9 @@ describe("getStack", () => {
     expect(result).not.toBeNull();
 
     // Find our test deck in the results
-    const testDeck = result!.deck.find(d => d.deck === "Test Deck totalRewardAmount");
+    const testDeck = result!.deck.find(
+      (d) => d.deck === "Test Deck totalRewardAmount",
+    );
     expect(testDeck).toBeDefined();
 
     // User 1 has answered 4 questions
@@ -578,10 +566,11 @@ describe("getStack", () => {
     });
 
     const resultForUser2 = await getStack(testScenario.stackIds[0]!);
-    const testDeckForUser2 = resultForUser2!.deck.find(d => d.deck === "Test Deck totalRewardAmount");
+    const testDeckForUser2 = resultForUser2!.deck.find(
+      (d) => d.deck === "Test Deck totalRewardAmount",
+    );
 
     // User 2 has answered 3 questions
     expect(testDeckForUser2).toHaveProperty("answeredQuestions", 3);
   });
-
 });

@@ -1,5 +1,5 @@
 import prisma from "@/app/services/prisma";
-import { Prisma, Stack, Deck, Question } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 /** Test data generation for simpler tests **/
 
@@ -18,7 +18,7 @@ export class TestDataGenerator {
    * @param prefix Optional prefix for the id
    * @returns A random id
    */
-  static generateRandomUserId(prefix: string = 'user'): string {
+  static generateRandomUserId(prefix: string = "user"): string {
     const randomSuffix = Math.random().toString(36).substring(2, 10);
     return `${prefix}_${randomSuffix}`;
   }
@@ -40,9 +40,7 @@ export class TestDataGenerator {
   /**
    * Creates a test stack
    */
-  static async createStack(
-    stack: Prisma.StackCreateInput,
-  ): Promise<number> {
+  static async createStack(stack: Prisma.StackCreateInput): Promise<number> {
     const createdStack = await prisma.stack.create({
       data: stack,
     });
@@ -51,7 +49,7 @@ export class TestDataGenerator {
 
   /**
    * Creates a test deck
-   * 
+   *
    * @param deck - The deck data to create
    * @param [stackId] - Optional stack ID to associate the deck with
    * @returns The ID of the created deck
@@ -79,7 +77,7 @@ export class TestDataGenerator {
       Prisma.QuestionCreateInput & {
         options: Prisma.QuestionOptionCreateManyQuestionInput[];
       }
-    >
+    >,
   ): Promise<number[]> {
     const createdQuestionIds = [];
 
@@ -110,7 +108,7 @@ export class TestDataGenerator {
    */
   static async associateQuestionsWithDeck(
     deckId: number,
-    questionIds: number[]
+    questionIds: number[],
   ): Promise<void> {
     await prisma.deckQuestion.createMany({
       data: questionIds.map((questionId) => ({
@@ -125,9 +123,7 @@ export class TestDataGenerator {
    */
   static async createUsers(users: Prisma.UserCreateInput[]): Promise<string[]> {
     const createdUsers = await Promise.all(
-      users.map((user) =>
-        prisma.user.create({ data: user }),
-      ),
+      users.map((user) => prisma.user.create({ data: user })),
     );
     return createdUsers.map((u) => u.id);
   }
@@ -139,7 +135,7 @@ export class TestDataGenerator {
     answers: Prisma.QuestionAnswerCreateManyInput[],
   ): Promise<void> {
     await prisma.questionAnswer.createMany({
-      data: answers
+      data: answers,
     });
   }
 
@@ -190,7 +186,7 @@ export class TestDataGenerator {
             ...questionData,
             questionOptions: {
               createMany: {
-                data: options.map(({ answers, ...optionData }) => optionData),
+                data: options.map(({ ...optionData }) => optionData),
               },
             },
           },
@@ -200,7 +196,9 @@ export class TestDataGenerator {
         });
 
         createdQuestionIds.push(createdQuestion.id);
-        createdQuestionOptionIds.push(...createdQuestion.questionOptions.map(o => o.id));
+        createdQuestionOptionIds.push(
+          ...createdQuestion.questionOptions.map((o) => o.id),
+        );
 
         createdQuestions.push({
           questionId: createdQuestion.id,
@@ -214,7 +212,7 @@ export class TestDataGenerator {
       // Associate questions with deck
       await this.associateQuestionsWithDeck(
         deckId,
-        createdQuestions.map(q => q.questionId)
+        createdQuestions.map((q) => q.questionId),
       );
 
       // Create answers for question options if provided
@@ -244,7 +242,7 @@ export class TestDataGenerator {
     return {
       deckIds: createdDeckIds,
       questionIds: createdQuestionIds,
-      questionOptionIds: createdQuestionOptionIds
+      questionOptionIds: createdQuestionOptionIds,
     };
   }
 
@@ -272,9 +270,7 @@ export class TestDataGenerator {
         }
       >;
     }>;
-
   }): Promise<TestScenarioResult> {
-
     // Create users if provided
     let userIds: string[] = [];
     if (config.users) {
@@ -295,7 +291,10 @@ export class TestDataGenerator {
 
     if (config.decks) {
       // Create decks and questions
-      const result = await this.createDecksWithQuestionsWithOptionsWithAnswers(config.decks, stackId);
+      const result = await this.createDecksWithQuestionsWithOptionsWithAnswers(
+        config.decks,
+        stackId,
+      );
       deckIds = result.deckIds;
       questionIds = result.questionIds;
       questionOptionIds = result.questionOptionIds;
@@ -353,7 +352,7 @@ export class TestDataGenerator {
       answerWhereClause.questionOptionId = { in: ids.questionOptionIds };
     } else if (ids.questionIds?.length) {
       answerWhereClause.questionOption = {
-        questionId: { in: ids.questionIds }
+        questionId: { in: ids.questionIds },
       };
     } else if (ids.userIds?.length) {
       answerWhereClause.userId = { in: ids.userIds };
@@ -361,18 +360,20 @@ export class TestDataGenerator {
 
     if (Object.keys(answerWhereClause).length > 0) {
       await prisma.questionAnswer.deleteMany({
-        where: answerWhereClause
+        where: answerWhereClause,
       });
     }
 
     // Clean up deck-question associations
     const deckQuestionWhereClause: any = {};
-    if (ids.deckIds?.length) deckQuestionWhereClause.deckId = { in: ids.deckIds };
-    if (ids.questionIds?.length) deckQuestionWhereClause.questionId = { in: ids.questionIds };
+    if (ids.deckIds?.length)
+      deckQuestionWhereClause.deckId = { in: ids.deckIds };
+    if (ids.questionIds?.length)
+      deckQuestionWhereClause.questionId = { in: ids.questionIds };
 
     if (Object.keys(deckQuestionWhereClause).length > 0) {
       await prisma.deckQuestion.deleteMany({
-        where: deckQuestionWhereClause
+        where: deckQuestionWhereClause,
       });
     }
 

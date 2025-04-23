@@ -4,7 +4,10 @@ import "@/app/utils/date";
 import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 
-import { TestDataGenerator, TestScenarioResult } from "../../__utils__/data-gen";
+import {
+  TestDataGenerator,
+  TestScenarioResult,
+} from "../../__utils__/data-gen";
 
 const { generateRandomUserId } = TestDataGenerator;
 
