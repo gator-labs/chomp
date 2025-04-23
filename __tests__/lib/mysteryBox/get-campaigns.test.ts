@@ -10,7 +10,8 @@ jest.mock("@/app/actions/jwt", () => ({
 
 describe("getCampaigns", () => {
   let user: { id: string; username: string; wallet: string };
-  let campaign: { id: string };
+  let enabledCampaign: { id: string };
+  let disabledCampaign: { id: string };
 
   beforeAll(async () => {
     const users = await generateUsers(1);
@@ -27,12 +28,26 @@ describe("getCampaigns", () => {
     await prisma.wallet.createMany({
       data: [{ userId: user.id, address: user.wallet }],
     });
-    campaign = await prisma.campaignMysteryBox.create({
+
+    // Create an enabled campaign
+    enabledCampaign = await prisma.campaignMysteryBox.create({
       data: {
-        name: "test",
-        infoBody: "test",
-        infoTitle: "test",
+        name: "enabled campaign",
+        infoBody: "test enabled",
+        infoTitle: "test enabled",
         boxType: "Bis1",
+        enabled: true,
+      },
+    });
+
+    // Create a disabled campaign
+    disabledCampaign = await prisma.campaignMysteryBox.create({
+      data: {
+        name: "disabled campaign",
+        infoBody: "test disabled",
+        infoTitle: "test disabled",
+        boxType: "Bis1",
+        enabled: false,
       },
     });
   });
@@ -40,7 +55,7 @@ describe("getCampaigns", () => {
   afterAll(async () => {
     await prisma.campaignMysteryBoxAllowlist.deleteMany({
       where: {
-        campaignMysteryBoxId: campaign.id,
+        campaignMysteryBoxId: { in: [enabledCampaign.id, disabledCampaign.id] },
       },
     });
     await prisma.mysteryBoxAllowlist.deleteMany({
@@ -48,9 +63,9 @@ describe("getCampaigns", () => {
         address: { in: [user.wallet] },
       },
     });
-    await prisma.campaignMysteryBox.delete({
+    await prisma.campaignMysteryBox.deleteMany({
       where: {
-        id: campaign.id,
+        id: { in: [enabledCampaign.id, disabledCampaign.id] },
       },
     });
 
@@ -68,20 +83,16 @@ describe("getCampaigns", () => {
   });
 
   it("should return a campaign where user is not eligible", async () => {
-    // Arrange
-
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user.id });
 
-    // Act
     const campaigns = await getCampaigns();
 
-    // Assert
-    const returnedNewCampaign = campaigns?.filter(
-      (campaign) => campaign.id === campaign.id,
+    const returnedEnabledCampaign = campaigns?.find(
+      (campaign) => campaign.id === enabledCampaign.id,
     );
 
-    expect(returnedNewCampaign).toBeDefined();
-    expect(returnedNewCampaign?.[0].isEligible).toEqual(false);
+    expect(returnedEnabledCampaign).toBeDefined();
+    expect(returnedEnabledCampaign?.isEligible).toEqual(false);
   });
 
   it("should return a campaign where user eligible", async () => {
@@ -94,22 +105,50 @@ describe("getCampaigns", () => {
     await prisma.campaignMysteryBoxAllowlist.create({
       data: {
         address: user.wallet,
-        campaignMysteryBoxId: campaign.id,
+        campaignMysteryBoxId: enabledCampaign.id,
       },
     });
 
-    // Arrange
     (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user.id });
 
-    // Act
     const campaigns = await getCampaigns();
 
-    // Assert
-    const returnedNewCampaign = campaigns?.filter(
-      (cp) => cp.id === campaign.id,
+    const returnedEnabledCampaign = campaigns?.find(
+      (campaign) => campaign.id === enabledCampaign.id,
     );
 
-    expect(returnedNewCampaign).toBeDefined();
-    expect(returnedNewCampaign?.[0].isEligible).toEqual(true);
+    expect(returnedEnabledCampaign).toBeDefined();
+    expect(returnedEnabledCampaign?.isEligible).toEqual(true);
+  });
+
+  it("should only return enabled campaigns", async () => {
+    await prisma.campaignMysteryBoxAllowlist.create({
+      data: {
+        address: user.wallet,
+        campaignMysteryBoxId: disabledCampaign.id,
+      },
+    });
+
+    (getJwtPayload as jest.Mock).mockResolvedValue({ sub: user.id });
+
+    const campaigns = await getCampaigns();
+
+    // Should find the enabled campaign
+    const returnedEnabledCampaign = campaigns?.find(
+      (campaign) => campaign.id === enabledCampaign.id,
+    );
+    expect(returnedEnabledCampaign).toBeDefined();
+
+    // Should NOT find the disabled campaign
+    const returnedDisabledCampaign = campaigns?.find(
+      (campaign) => campaign.id === disabledCampaign.id,
+    );
+    expect(returnedDisabledCampaign).toBeUndefined();
+
+    // all returned campaigns should have enabled=true
+    expect(campaigns?.length).toBeGreaterThan(0);
+    expect(
+      campaigns?.every((campaign) => campaign.id !== disabledCampaign.id),
+    ).toBe(true);
   });
 });
