@@ -156,6 +156,8 @@ export async function getNewHistoryHeaderData(
       incorrectCount: 0,
       unansweredCount: 0,
       unrevealedCount: 0,
+      unseenCount: 0,
+      incompleteCount: 0,
     };
   }
 
