@@ -12,6 +12,7 @@ export type SecondOrderAnswerResultsMultipleProps = {
   questionOptionPercentages: QuestionOrderPercentage[];
   answerStatus: boolean | null;
   isDrawerOpen: boolean;
+  showLetters: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
 };
@@ -21,6 +22,7 @@ export default function SecondOrderAnswerResultsMultiple({
   questionOptionPercentages,
   answerStatus,
   isDrawerOpen,
+  showLetters,
   openDrawer,
   closeDrawer,
 }: SecondOrderAnswerResultsMultipleProps) {
@@ -96,11 +98,13 @@ export default function SecondOrderAnswerResultsMultiple({
           {options.map((option, index) => (
             <div key={index} className="flex items-center mb-2">
               {/* Letter box - fixed width */}
-              <div className="flex items-center justify-center bg-gray-600 w-12 h-12 rounded-lg mr-1 flex-shrink-0">
-                <span className="text-white text-xl font-medium">
-                  {option.label}
-                </span>
-              </div>
+              {showLetters && (
+                <div className="flex items-center justify-center bg-gray-600 w-12 h-12 rounded-lg mr-1 flex-shrink-0">
+                  <span className="text-white text-xl font-medium">
+                    {option.label}
+                  </span>
+                </div>
+              )}
 
               {/* Progress bar container - full width */}
               <div className="flex-grow relative">
