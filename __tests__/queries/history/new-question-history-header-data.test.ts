@@ -26,6 +26,8 @@ describe("getHistoryHeadersData", () => {
       incorrectCount: 3,
       unansweredCount: 7,
       unrevealedCount: 2,
+      incompleteCount: 0,
+      unseenCount: 0,
     });
   });
 
@@ -48,6 +50,8 @@ describe("getHistoryHeadersData", () => {
       incorrectCount: 3,
       unansweredCount: 7,
       unrevealedCount: 0,
+      incompleteCount: 0,
+      unseenCount: 0,
     });
   });
 });
