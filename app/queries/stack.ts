@@ -9,7 +9,6 @@ import {
   QuestionOption,
 } from "@prisma/client";
 import { isAfter, isBefore } from "date-fns";
-import util from "node:util";
 
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
@@ -58,10 +57,6 @@ export async function getStack(id: number) {
   const jwt = await getJwtPayload();
   const userId = jwt?.sub;
   const now = new Date();
-
-  console.log("==================================");
-  console.log(`looking for stack ${id}`);
-  console.log(`user id ${userId}`);
 
   const stack = await prisma.stack.findUnique({
     where: {
@@ -115,10 +110,6 @@ export async function getStack(id: number) {
       const totalQuestions = deck.deckQuestions.length;
 
       // Calculate answered questions (count of distinct questions that have been answered)
-      console.log(
-        "counting answeredQuestions",
-        util.inspect(deck.deckQuestions, { depth: null }),
-      );
       const answeredQuestions = new Set(
         deck.deckQuestions
           .filter((dq) =>
@@ -344,8 +335,8 @@ function getDecksToAnswer(
       isBefore(deck.activeFromDate!, new Date()) &&
       isAfter(deck.revealAtDate!, new Date()) &&
       deck.deckQuestions.flatMap((dq) => dq.question.questionOptions).length !==
-        deck.deckQuestions.flatMap((dq) =>
-          dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
-        ).length,
+      deck.deckQuestions.flatMap((dq) =>
+        dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
+      ).length,
   );
 }

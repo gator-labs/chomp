@@ -8,7 +8,6 @@ import prisma from "@/app/services/prisma";
 import { yesterdayStartUTC } from "@/app/utils/date";
 import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
-import util from "node:util";
 
 const { generateRandomUserId, createEmptyTestScenarioResult } =
   TestDataGenerator;
@@ -402,7 +401,6 @@ describe("getStack", () => {
     const testDeck = result!.deck.find(
       (d) => d.deck === "Deck with Rewards Test",
     );
-    console.log(util.inspect(testDeck, { depth: null }));
     expect(testDeck).toBeDefined();
 
     // sum of question.creditCostPerQuestion of each question (3 + 7 = 10)
