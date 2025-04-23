@@ -14,26 +14,34 @@ export const bonkRateLimiter = new Ratelimit({
 
 // Function to check if distribution is allowed
 export async function checkBonkRateLimit(amount: number) {
-  // Use a global identifier for tracking total Bonk distribution
   const identifier = "global_bonk_distribution";
 
-  const remainingWindow = await bonkRateLimiter.getRemaining(identifier);
+  try {
+    // Check remaining quota first
+    const remainingWindow = await bonkRateLimiter.getRemaining(identifier);
 
-  if (remainingWindow.remaining - amount < 0) {
+    if (remainingWindow.remaining - amount < 0) {
+      return {
+        isWithinBonkHourlyLimit: false,
+        remainingLimit: remainingWindow.remaining,
+      };
+    }
+
+    // Attempt to consume tokens
+    const { success, remaining } = await bonkRateLimiter.limit(identifier, {
+      rate: Math.round(amount),
+    });
+
+    return {
+      isWithinBonkHourlyLimit: success,
+      remainingLimit: remaining,
+    };
+  } catch (e) {
+    console.error("Rate limiter error:", e);
+    // Fail-safe: Block action if rate limiter unavailable
     return {
       isWithinBonkHourlyLimit: false,
-      remainingLimit: remainingWindow.remaining,
+      remainingLimit: 0,
     };
   }
-
-  // Check if distribution is possible
-  const { success, remaining } = await bonkRateLimiter.limit(identifier, {
-    rate: Math.round(amount),
-  });
-
-  // Only allow if within limits and amount doesn't exceed remaining
-  return {
-    isWithinBonkHourlyLimit: success,
-    remainingLimit: remaining,
-  };
 }
