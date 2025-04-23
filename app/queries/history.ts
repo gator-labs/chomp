@@ -47,6 +47,8 @@ export type NewQuestionHistoryData = {
   incorrectCount: number;
   unansweredCount: number;
   unrevealedCount: number;
+  unseenCount: number;
+  incompleteCount: number;
 };
 
 export type QuestionHistoryFilter = "isRevealable" | "all";
@@ -277,6 +279,8 @@ export async function getHistoryHeadersData(
     incorrectCount: transformedResult.incorrect || 0,
     unansweredCount: transformedResult.unanswered || 0,
     unrevealedCount: transformedResult.unrevealed || 0,
+    unseenCount: transformedResult.unseen || 0,
+    incompleteCount: transformedResult.incomplete || 0,
   };
 }
 

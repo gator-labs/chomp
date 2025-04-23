@@ -7,6 +7,8 @@ type QuestionCardIndicatorsProps = {
   incorrectCount: number;
   unansweredCount: number;
   unrevealedCount: number;
+  unseenCount: number;
+  incompleteCount: number;
   onInfoClick?: () => void;
 };
 
@@ -15,6 +17,8 @@ export function QuestionCardIndicators({
   incorrectCount,
   unansweredCount,
   unrevealedCount,
+  unseenCount,
+  incompleteCount,
   onInfoClick,
 }: QuestionCardIndicatorsProps) {
   return (
@@ -30,7 +34,7 @@ export function QuestionCardIndicators({
           indicatorType="unanswered"
         />
         <QuestionCardIndicator
-          count={unrevealedCount}
+          count={unrevealedCount + unseenCount + incompleteCount}
           indicatorType="unrevealed"
         />
       </div>
