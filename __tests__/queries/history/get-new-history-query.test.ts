@@ -165,7 +165,7 @@ describe("getNewHistoryQuery", () => {
     expect(result[0]).toEqual(
       expect.objectContaining({
         id: questionId,
-        indicatorType: "unanswered",
+        indicatorType: "unseen",
       }),
     );
   });
@@ -222,6 +222,99 @@ describe("getNewHistoryQuery", () => {
       expect.objectContaining({
         id: questionId,
         indicatorType: "incorrect",
+      }),
+    );
+  });
+
+  it("should return incomplete indicator type", async () => {
+    await prisma.questionAnswer.updateMany({
+      where: {
+        questionOption: {
+          question: {
+            id: questionId,
+          },
+        },
+      },
+      data: {
+        percentage: null,
+      },
+    });
+
+    const answer = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: false,
+      },
+    });
+
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "incomplete",
+      }),
+    );
+  });
+
+  it("should return incomplete indicator type", async () => {
+    await prisma.questionAnswer.updateMany({
+      where: {
+        questionOption: {
+          question: {
+            id: questionId,
+          },
+        },
+      },
+      data: {
+        selected: false,
+      },
+    });
+
+    const answer = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: false,
+      },
+    });
+
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "unanswered",
+      }),
+    );
+  });
+
+  it("should return unseen indicator type", async () => {
+    const userId = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: false,
+      },
+    })?.userId;
+
+    await prisma.questionAnswer.deleteMany({
+      where: {
+        questionOption: {
+          question: {
+            id: questionId,
+          },
+        },
+      },
+    });
+
+    const result = await getNewHistoryQuery(userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "unseen",
       }),
     );
   });
