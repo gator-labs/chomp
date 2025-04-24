@@ -4,6 +4,11 @@ import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQ
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { generateUsers } from "@/scripts/utils";
+import {
+  AnswerStatus,
+  FungibleAsset,
+  TransactionLogType,
+} from "@prisma/client";
 
 jest.mock("@/app/utils/auth");
 
@@ -43,8 +48,9 @@ describe("getValidationRewardQuestion", () => {
     const deck = await prisma.deck.create({
       data: {
         deck: `deck ${currentDate}`,
-        revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        revealAtDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
         stackId: null,
+        creditCostPerQuestion: 1,
         deckQuestions: {
           create: {
             question: {
@@ -53,8 +59,9 @@ describe("getValidationRewardQuestion", () => {
                 question: `question ${currentDate}`,
                 isSubmittedByUser: true,
                 type: "MultiChoice",
+                creditCostPerQuestion: 1,
                 revealTokenAmount: 10,
-                revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                revealAtDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
                 durationMiliseconds: BigInt(60000),
                 questionOptions: {
                   create: [
@@ -118,38 +125,98 @@ describe("getValidationRewardQuestion", () => {
     expect(result?.length).toBe(0);
   });
 
-  // Temporal & Error Handling
-  it("should not return questionId if the question has expired", async () => {
-    // Test implementation
-  });
-
-  it("should not return questionId if the mystery box is already opened for that id", async () => {
-    // Test implementation
-  });
-
-  it("should return questionId if an unopened mystery box exists for that id", async () => {
-    // Test implementation
-  });
-
-  // Answer Validation
-  it("should return questionId when the user has answered the question correctly and meets reward criteria", async () => {
-    // Test implementation
-  });
-
-  // System Configuration & Payment
   it("should not return questionId if the question percentage is not selected for any of the options", async () => {
-    // Test implementation
+    //find question options
+    const questionOptions = await prisma.questionOption.findMany({
+      where: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
+      },
+    });
+
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: userId,
+    });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
+
+    await prisma.questionOption.updateMany({
+      where: {
+        id: {
+          in: questionOptions.map((qo) => qo.id),
+        },
+      },
+      data: {
+        calculatedAveragePercentage: 25,
+      },
+    });
+
+    await prisma.fungibleAssetTransactionLog.create({
+      data: {
+        change: -1,
+        userId,
+        type: TransactionLogType.PremiumQuestionCharge,
+        asset: FungibleAsset.Credit,
+        questionId: deckQuestionId,
+      },
+    });
+
+    const answerData = questionOptions.map((qo, index) => ({
+      questionOptionId: qo.id,
+      userId,
+      status: AnswerStatus.Submitted,
+      selected: index === 0,
+    }));
+
+    await prisma.questionAnswer.createMany({
+      data: answerData,
+    });
+
+    const result = await getValidationRewardQuestions();
+
+    expect(result?.length).toBe(0);
   });
 
-  it("should not return questionId if the user is not charged for the question answer", async () => {
-    // Test implementation
-  });
+  it("should return questionId when the user has answered the question correctly and meets reward criteria", async () => {
+    //find question options
+    const questionOptions = await prisma.questionOption.findMany({
+      where: {
+        question: {
+          deckQuestions: {
+            some: {
+              deckId,
+            },
+          },
+        },
+      },
+    });
 
-  it("should handle unexpected errors gracefully", async () => {
-    // Test implementation
-  });
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: userId,
+    });
+    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
 
-  it("should not return questionId if the user does not have permission", async () => {
-    // Test implementation
+    await prisma.questionAnswer.updateMany({
+      where: {
+        userId,
+        selected: true,
+        questionOptionId: {
+          in: questionOptions.map((qo) => qo.id),
+        },
+      },
+      data: {
+        percentage: 50,
+      },
+    });
+
+    const result = await getValidationRewardQuestions();
+
+    expect(result?.length).toBe(1);
   });
 });
