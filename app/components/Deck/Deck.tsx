@@ -20,6 +20,7 @@ import { trackAnswerStatus, trackQuestionAnswer } from "@/app/utils/tracking";
 import trackEvent from "@/lib/trackEvent";
 import { QuestionStep } from "@/types/question";
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 import classNames from "classnames";
 import dayjs from "dayjs";
 import { usePathname } from "next/navigation";
@@ -150,19 +151,47 @@ export function Deck({
   // every time we have a different truthy question.id
   // we mark it as "seen"
   useEffect(() => {
-    const run = async () => {
-      const res = await markQuestionAsSeenButNotAnswered(question.id);
-      if (res?.random) {
-        setRandom(res?.random);
-      }
-      if (!!res?.hasError) {
+    const markQuestionAsSeen = async () => {
+      try {
+        const response = await markQuestionAsSeenButNotAnswered(question.id);
+
+        // NOTICE: if the response comes with an error we just
+        // go to the next question and do nothing
+        // is this the best way to handle this error?
+        if (response?.hasError) {
+          Sentry.captureMessage(
+            `Error calling markQuestionAsSeenButNotAnswered()`,
+            {
+              level: "error",
+              tags: {
+                category: "deck-errors",
+              },
+              extra: {
+                questionId: question.id,
+                deckId: deckId,
+                deckVariant: deckVariant,
+                currentQuestionIndex: currentQuestionIndex,
+              },
+            },
+          );
+
+          handleNextIndex();
+          return;
+        }
+
+        if (response?.random !== undefined) {
+          setRandom(response.random);
+        }
+      } catch (error) {
+        console.error("Error marking question as seen:", error);
         handleNextIndex();
-        return;
       }
     };
 
-    if (!!question?.id) run();
-  }, [question?.id]);
+    if (question?.id) {
+      markQuestionAsSeen();
+    }
+  }, [question?.id, handleNextIndex]);
 
   const handleNoAnswer = useCallback(async () => {
     setIsTimeOutPopUpVisible(false);
