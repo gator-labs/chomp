@@ -34,12 +34,17 @@ jest.mock("p-retry", () => jest.fn().mockImplementation((fn) => fn()));
 describe("getValidationRewardQuestion", () => {
   const currentDate = new Date();
   let userId: string;
+  let userId1: string;
+  let userId2: string;
   let deckId: number;
   let deckQuestionId: number;
+  let questionOptionsIds: number[];
 
   beforeAll(async () => {
-    const users = await generateUsers(1);
+    const users = await generateUsers(3);
     userId = users[0].id;
+    userId1 = users[1].id;
+    userId2 = users[2].id;
     await prisma.user.createMany({
       data: users,
     });
@@ -93,11 +98,38 @@ describe("getValidationRewardQuestion", () => {
         },
       },
       include: {
-        deckQuestions: true,
+        deckQuestions: {
+          include: {
+            question: {
+              include: {
+                questionOptions: true,
+              },
+            },
+          },
+        },
       },
     });
+
     deckId = deck.id;
     deckQuestionId = deck.deckQuestions[0].questionId;
+    questionOptionsIds = deck.deckQuestions[0].question.questionOptions.map(
+      (qo) => qo.id,
+    );
+
+    const userIds = [userId1, userId2];
+
+    const answerData = userIds.flatMap((userId) =>
+      questionOptionsIds.map((id, index) => ({
+        questionOptionId: id,
+        userId,
+        status: AnswerStatus.Submitted,
+        selected: index === 0,
+      })),
+    );
+
+    await prisma.questionAnswer.createMany({
+      data: answerData,
+    });
   });
 
   // delete all the dummy data after test completion
@@ -106,13 +138,13 @@ describe("getValidationRewardQuestion", () => {
 
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: {
-        userId: { in: [userId] },
+        userId: { in: [userId, userId1, userId2] },
       },
     });
 
     await prisma.user.deleteMany({
       where: {
-        id: { in: [userId] },
+        id: { in: [userId, userId1, userId2] },
       },
     });
   });
@@ -126,19 +158,6 @@ describe("getValidationRewardQuestion", () => {
   });
 
   it("should not return questionId if the question percentage is not selected for any of the options", async () => {
-    //find question options
-    const questionOptions = await prisma.questionOption.findMany({
-      where: {
-        question: {
-          deckQuestions: {
-            some: {
-              deckId,
-            },
-          },
-        },
-      },
-    });
-
     // Mock the return value of getJwtPayload to simulate the user context
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
@@ -148,7 +167,7 @@ describe("getValidationRewardQuestion", () => {
     await prisma.questionOption.updateMany({
       where: {
         id: {
-          in: questionOptions.map((qo) => qo.id),
+          in: questionOptionsIds,
         },
       },
       data: {
@@ -166,8 +185,8 @@ describe("getValidationRewardQuestion", () => {
       },
     });
 
-    const answerData = questionOptions.map((qo, index) => ({
-      questionOptionId: qo.id,
+    const answerData = questionOptionsIds.map((id, index) => ({
+      questionOptionId: id,
       userId,
       status: AnswerStatus.Submitted,
       selected: index === 0,
@@ -183,19 +202,6 @@ describe("getValidationRewardQuestion", () => {
   });
 
   it("should return questionId when the user has answered the question correctly and meets reward criteria", async () => {
-    //find question options
-    const questionOptions = await prisma.questionOption.findMany({
-      where: {
-        question: {
-          deckQuestions: {
-            some: {
-              deckId,
-            },
-          },
-        },
-      },
-    });
-
     // Mock the return value of getJwtPayload to simulate the user context
     (getJwtPayload as jest.Mock).mockReturnValue({
       sub: userId,
@@ -207,7 +213,7 @@ describe("getValidationRewardQuestion", () => {
         userId,
         selected: true,
         questionOptionId: {
-          in: questionOptions.map((qo) => qo.id),
+          in: questionOptionsIds,
         },
       },
       data: {
