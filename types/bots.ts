@@ -3,6 +3,9 @@ export enum EThreatLevelType {
   // Not allowed to access the app.
   Bot = "bot",
 
+  // User is an ATA exploiter and banned from app
+  AtaExploiter = "ata-exploiter",
+
   // User previously marked as a bot who is
   // now pardoned but will be blocked again
   // by the bot checker if they misbehave.
