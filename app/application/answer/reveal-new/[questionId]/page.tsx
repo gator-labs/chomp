@@ -3,13 +3,15 @@
 import ChompFullScreenLoader from "@/app/components/ChompFullScreenLoader/ChompFullScreenLoader";
 import { AnswerStatsHeader } from "@/components/AnswerStats/AnswerStatsHeader";
 import BinaryBestAnswer from "@/components/BinaryBestAnswer/BinaryBestAnswer";
-import BinaryPieChart from "@/components/BinaryPieChart/BinaryPieChart";
+import BinaryFirstOrderAnswerChart from "@/components/BinaryFirstOrderAnswer/BinaryFirstOrderAnswer";
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
-import MultiChoicePieChart from "@/components/MultiChoicePieChart/MultiChoicePieChart";
+import MultiChoiceFirstOrderAnswer from "@/components/MultiChoiceFirstOrderAnswer/MultiChoiceFirstOrderAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
+import SecondOrderAnswerResults from "@/components/SecondOrderAnswerResult";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
 import { notFound } from "next/navigation";
+import { useState } from "react";
 
 interface Props {
   params: {
@@ -22,6 +24,17 @@ const RevealAnswerPageNew = ({ params }: Props) => {
     process.env.NEXT_PUBLIC_FF_NEW_ANSWER_PAGE === "true";
 
   if (!FF_NEW_ANSWER_PAGE) notFound();
+
+  const [isSecOrdAnsInfoDrawerOpen, setIsSecOrdAnsInfoDrawerOpen] =
+    useState(false);
+
+  const handleSecOrdAnsInfoDrawerClose = () => {
+    setIsSecOrdAnsInfoDrawerOpen(false);
+  };
+
+  const openSecOrdAnsInfoDrawer = () => {
+    setIsSecOrdAnsInfoDrawerOpen(true);
+  };
 
   const questionId =
     params.questionId === undefined ? undefined : Number(params.questionId);
@@ -58,38 +71,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
-  const answerContent = !!isBinary ? (
-    <>
-      <BinaryBestAnswer
-        questionOptions={stats.questionOptions}
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-      />
-      <BinaryPieChart
-        questionOptions={stats.questionOptions}
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-        totalAnswers={stats.questionAnswerCount}
-        correctAnswers={stats.correctAnswersCount}
-      />
-    </>
-  ) : (
-    <>
-      <MultiChoiceBestAnswer
-        questionOptions={stats.questionOptions}
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-      />
-      <MultiChoicePieChart
-        optionSelected={answerSelected?.questionOption?.option ?? null}
-        bestOption={stats.correctAnswer?.option ?? ""}
-        totalAnswers={stats.questionAnswerCount}
-        correctAnswers={stats.correctAnswersCount}
-        selectionDistribution={stats.selectionDistribution}
-      />
-    </>
-  );
-
   return (
     <div>
       <AnswerStatsHeader
@@ -106,9 +87,59 @@ const RevealAnswerPageNew = ({ params }: Props) => {
         revealAtDate={stats.revealAtDate}
         imageUrl={stats.imageUrl}
       />
-      {answerContent}
+      {!!isBinary ? (
+        <>
+          <BinaryBestAnswer
+            questionOptions={stats.questionOptions}
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+          />
+          <BinaryFirstOrderAnswerChart
+            questionOptions={stats.questionOptions}
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+            totalAnswers={stats.questionAnswerCount}
+            correctAnswers={stats.correctAnswersCount}
+          />
+        </>
+      ) : (
+        <>
+          <MultiChoiceBestAnswer
+            questionOptions={stats.questionOptions}
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+          />
+          <MultiChoiceFirstOrderAnswer
+            optionSelected={answerSelected?.questionOption?.option ?? null}
+            bestOption={stats.correctAnswer?.option ?? ""}
+            totalAnswers={stats.questionAnswerCount}
+            correctAnswers={stats.correctAnswersCount}
+            selectionDistribution={stats.selectionDistribution}
+            questionOptions={stats.questionOptions}
+          />
+        </>
+      )}
+      <SecondOrderAnswerResults
+        showLetters={!isBinary}
+        userAnswers={stats.userAnswers}
+        questionOptionPercentages={stats.questionOptionPercentages}
+        answerStatus={stats.isSecondOrderCorrect}
+        isDrawerOpen={isSecOrdAnsInfoDrawerOpen}
+        openDrawer={openSecOrdAnsInfoDrawer}
+        closeDrawer={handleSecOrdAnsInfoDrawerClose}
+      />
     </div>
   );
 };
+
+type SecondOrderOptionResultMultiple = {
+  isSelected: boolean;
+  text: string;
+  label: string;
+  percentage: number;
+};
+
+export type SecondOrderOptionResultsMultiple =
+  SecondOrderOptionResultMultiple[];
 
 export default RevealAnswerPageNew;

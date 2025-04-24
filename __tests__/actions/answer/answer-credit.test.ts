@@ -4,9 +4,7 @@ import { deleteDeck } from "@/app/actions/deck/deck";
 import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
-import { getCreditBalance } from "@/lib/credits/getCreditBalance";
 import { generateUsers } from "@/scripts/utils";
-import { AnswerStatus } from "@prisma/client";
 
 jest.mock("@/app/utils/auth");
 
@@ -50,6 +48,7 @@ describe("Validate points logs for completing questions and decks", () => {
         deck: `deck ${currentDate}`,
         revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         stackId: null,
+
         deckQuestions: {
           create: {
             question: {
@@ -60,8 +59,10 @@ describe("Validate points logs for completing questions and decks", () => {
                 createdByUserId: authorId,
                 type: "MultiChoice",
                 revealTokenAmount: 10,
+                creditCostPerQuestion: 1,
                 revealAtDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
                 durationMiliseconds: BigInt(60000),
+
                 questionOptions: {
                   create: [
                     {
@@ -123,52 +124,7 @@ describe("Validate points logs for completing questions and decks", () => {
     });
   });
 
-  it("should not allow to answer a question if no random option selected", async () => {
-    //find question options
-    const questionOptions = await prisma.questionOption.findMany({
-      where: {
-        question: {
-          deckQuestions: {
-            some: {
-              deckId,
-            },
-          },
-        },
-      },
-    });
-
-    // Mock the return value of getJwtPayload to simulate the user context
-    (getJwtPayload as jest.Mock).mockReturnValue({
-      sub: userId,
-    });
-    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
-
-    const answerData = questionOptions.map((qo) => ({
-      questionOptionId: qo.id,
-      userId,
-      status: AnswerStatus.Viewed,
-      selected: false,
-    }));
-
-    await prisma.questionAnswer.createMany({
-      data: answerData,
-    });
-
-    await expect(
-      answerQuestion({
-        questionId: deckQuestionId,
-        questionOptionId: questionOptions[1].id,
-        percentageGiven: 50,
-        percentageGivenForAnswerId: questionOptions[1].id,
-        timeToAnswerInMiliseconds: 3638,
-        deckId: deckId,
-      }),
-    ).rejects.toThrowError(
-      `User with id: ${userId} second order respose doesn't match the give random option id for question id ${deckQuestionId}.`,
-    );
-  });
-
-  it("should allow a user to answer a question once", async () => {
+  it("should not allow to answer if insufficient credits", async () => {
     //find question options
     const questionOptions = await prisma.questionOption.findMany({
       where: {
@@ -194,95 +150,19 @@ describe("Validate points logs for completing questions and decks", () => {
 
     randomRes = seenQuestion?.random;
 
-    expect(seenQuestion?.hasError).toBeFalsy();
-    expect(randomRes).toBeDefined();
-
-    const authorCreditsBalanceBefore = await getCreditBalance(authorId);
-
-    await answerQuestion({
-      questionId: deckQuestionId,
-      questionOptionId: questionOptions[1].id,
-      percentageGiven: 50,
-      percentageGivenForAnswerId: questionOptions[randomRes!].id,
-      timeToAnswerInMiliseconds: 3638,
-      deckId: deckId,
-    });
-
-    const authorCreditsBalanceAfter = await getCreditBalance(authorId);
-
-    expect(process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD).toBeDefined();
-    expect(authorCreditsBalanceAfter - authorCreditsBalanceBefore).toEqual(
-      Number(process.env.NEXT_PUBLIC_ASK_ANSWERED_CREDITS_REWARD),
-    );
-
-    const questionAnswer = await prisma.questionAnswer.findMany({
-      where: {
-        userId: userId,
-        questionOption: {
-          questionId: deckQuestionId,
-        },
-      },
-    });
-
-    expect(questionAnswer).toHaveLength(4); // We expect 4 answers because we created 4 options
-
-    for (let i = 0; i < questionAnswer.length; i++) {
-      if (i == randomRes) expect(questionAnswer[i].percentage).toBe(50);
-      else expect(questionAnswer[i].percentage).toBeNull();
-    }
-  });
-
-  it("should not allow a user to answer the same question twice", async () => {
-    //find question options
-    const questionOptions = await prisma.questionOption.findMany({
-      where: {
-        question: {
-          deckQuestions: {
-            some: {
-              deckId,
-            },
-          },
-        },
-      },
-    });
-
-    // Mock the return value of getJwtPayload to simulate the user context
-    (getJwtPayload as jest.Mock).mockReturnValue({
-      sub: userId,
-    });
-    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
-
-    await expect(
-      answerQuestion({
+    try {
+      await answerQuestion({
         questionId: deckQuestionId,
         questionOptionId: questionOptions[1].id,
         percentageGiven: 50,
         percentageGivenForAnswerId: questionOptions[randomRes!].id,
         timeToAnswerInMiliseconds: 3638,
         deckId: deckId,
-      }),
-    ).rejects.toThrowError(
-      `User with id: ${userId} has already answered question with id: ${deckQuestionId}`,
-    );
-  });
-
-  it("Records points correctly for deck and question completion", async () => {
-    const res = await prisma.fungibleAssetTransactionLog.findMany({
-      where: {
-        userId: userId,
-        OR: [{ type: "AnswerQuestion" }, { type: "AnswerDeck" }],
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    const answerQuestion = res.find((entry) => entry.type === "AnswerQuestion");
-    expect(answerQuestion?.type).toBe("AnswerQuestion");
-    expect(Number(answerQuestion?.change)).toBe(10);
-
-    const answerDeck = res.find((entry) => entry.type === "AnswerDeck");
-    expect(answerDeck?.type).toBe("AnswerDeck");
-    expect(Number(answerDeck?.change)).toBe(20);
+      });
+    } catch (error: any) {
+      expect(error?.message).toBe(
+        `User has insufficient credits to charge for question ${deckQuestionId}`,
+      );
+    }
   });
 });

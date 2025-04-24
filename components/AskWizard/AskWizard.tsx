@@ -15,7 +15,7 @@ enum Page {
 }
 
 const POINTS_PER_QUESTION = Number(
-  process.env.NEXT_PUBLIC_ASK_ACCEPTED_CREDITS_REWARD ?? 0,
+  process.env.NEXT_PUBLIC_ASK_ACCEPTED_POINTS_REWARD ?? 0,
 );
 
 export function AskWizard() {
