@@ -186,7 +186,7 @@ export class TestDataGenerator {
             ...questionData,
             questionOptions: {
               createMany: {
-                data: options.map(function({ answers, ...optionData }) {
+                data: options.map(function ({ answers, ...optionData }) {
                   Array.isArray(answers); // Keeping linter happy
                   return optionData;
                 }),

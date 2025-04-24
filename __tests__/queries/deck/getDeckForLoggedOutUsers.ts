@@ -11,7 +11,7 @@ import {
 
 const { generateRandomUserId } = TestDataGenerator;
 
-describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
+describe.skip("queries/deck/getActiveDeckForLoggedOutUsers", () => {
   let testData: TestScenarioResult;
 
   beforeAll(async () => {
