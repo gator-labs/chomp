@@ -7,7 +7,7 @@ import SecondOrderAnswerInfoDrawer from "./SecondOrderAnswerInfoDrawer";
 import AquaCheckIcon from "./icons/AquaCheckIcon";
 import RedXIcon from "./icons/RedXIcon";
 
-export type SecondOrderAnswerResultsMultipleProps = {
+export type SecondOrderAnswerResultsProps = {
   userAnswers: UserAnswer[];
   questionOptionPercentages: QuestionOrderPercentage[];
   answerStatus: boolean | null;
@@ -17,7 +17,7 @@ export type SecondOrderAnswerResultsMultipleProps = {
   closeDrawer: () => void;
 };
 
-export default function SecondOrderAnswerResultsMultiple({
+export default function SecondOrderAnswerResults({
   userAnswers,
   questionOptionPercentages,
   answerStatus,
@@ -25,7 +25,7 @@ export default function SecondOrderAnswerResultsMultiple({
   showLetters,
   openDrawer,
   closeDrawer,
-}: SecondOrderAnswerResultsMultipleProps) {
+}: SecondOrderAnswerResultsProps) {
   const selectedAnswer = userAnswers.find((ans) => ans.percentage !== null);
   const selectedQOId = selectedAnswer?.questionOptionId ?? null;
   const selectedPercentage = selectedAnswer?.percentage ?? null;

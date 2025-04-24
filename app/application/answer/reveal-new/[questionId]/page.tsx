@@ -7,7 +7,7 @@ import BinaryFirstOrderAnswerChart from "@/components/BinaryFirstOrderAnswer/Bin
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
 import MultiChoiceFirstOrderAnswer from "@/components/MultiChoiceFirstOrderAnswer/MultiChoiceFirstOrderAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
-import SecondOrderAnswerResultsMultiple from "@/components/SecondOrderAnswerResultMultiple";
+import SecondOrderAnswerResults from "@/components/SecondOrderAnswerResult";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
 import { notFound } from "next/navigation";
@@ -119,7 +119,7 @@ const RevealAnswerPageNew = ({ params }: Props) => {
           />
         </>
       )}
-      <SecondOrderAnswerResultsMultiple
+      <SecondOrderAnswerResults
         showLetters={!isBinary}
         userAnswers={stats.userAnswers}
         questionOptionPercentages={stats.questionOptionPercentages}
