@@ -43,11 +43,13 @@ describe("markQuestionAsSeenButNotAnswered", () => {
       option: "Paris",
       isCorrect: true,
       isLeft: true,
+      index: 0,
     },
     {
       option: "London",
       isCorrect: false,
       isLeft: false,
+      index: 1,
     },
   ];
 

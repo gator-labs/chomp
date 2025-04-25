@@ -156,12 +156,14 @@ describe("getDecksForHistory", () => {
           isCorrect: true,
           isLeft: true,
           questionId,
+          index: 0,
         },
         {
           option: "Option B",
           isCorrect: false,
           isLeft: false,
           questionId,
+          index: 1,
         },
       );
     }
