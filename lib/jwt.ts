@@ -1,7 +1,7 @@
 import prisma from "@/app/services/prisma";
+import { BOT_STATUS_CODES } from "@/constants/bots";
 import { UserThreatLevelDetected } from "@/lib/error";
 import { EThreatLevelAction, EThreatLevelType } from "@/types/bots";
-import { BOT_STATUS_CODES } from '@/constants/bots';
 import { cookies } from "next/headers";
 
 export const checkThreatLevel = async (userId: string) => {
