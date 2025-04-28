@@ -301,7 +301,6 @@ describe("getDecksForHistory", () => {
 
   it("should return both answered and unanswered deck", async () => {
     const result = await getDecksForHistory(userId, 10, 1);
-    console.log(result);
 
     const deckIds = result.map((deck) => deck.id);
     expect(deckIds).toContain(deck1Id);

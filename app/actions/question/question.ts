@@ -135,22 +135,23 @@ export async function handleUpsertingQuestionOptionsConcurrently(
     id?: number | undefined;
     isCorrect?: boolean | undefined;
     isLeft?: boolean | undefined;
+    index: number;
   }[],
 ) {
-  const questionOptionUpsertPromiseArray = questionOptions.map((qo) => {
+  const questionOptionUpsertPromiseArray = questionOptions.map((qo, i) => {
     return tx.questionOption.upsert({
       create: {
         isCorrect: qo.isCorrect,
         option: qo.option,
         isLeft: qo.isLeft,
         questionId: questionId,
-        index: 0,
+        index: i,
       },
       update: {
         isCorrect: qo.isCorrect,
         isLeft: qo.isLeft,
         option: qo.option,
-        index: 1,
+        index: qo?.index,
       },
       where: {
         id: qo.id,
@@ -178,12 +179,12 @@ export async function handleAddNewQuestionOptionsConcurrently(
   });
 
   await tx.questionOption.createMany({
-    data: questionOptions.map((qo) => ({
+    data: questionOptions.map((qo, index) => ({
       questionId: questionId,
       option: qo.option,
       isCorrect: qo.isCorrect ?? false,
       isLeft: qo.isLeft ?? false,
-      index: 0,
+      index: index,
     })),
   });
 }
