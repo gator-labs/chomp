@@ -34,10 +34,12 @@ export async function createAskQuestion(
       };
     }
 
+    console.log(validatedFields.data);
+
     const options = validatedFields.data.questionOptions.map((qo, i) =>
       validatedFields.data.type === QuestionType.BinaryQuestion && i == 0
-        ? { ...qo, isLeft: true, index: i }
-        : { qo, index: 0 },
+        ? { ...qo, isLeft: true }
+        : qo,
     );
 
     const questionData = {
@@ -61,6 +63,7 @@ export async function createAskQuestion(
       },
     });
   } catch (e) {
+    console.log(e);
     const createAskQuestionError = new CreateAskQuestionError(
       `User with id: ${payload.sub} is having trouble creating an ask question`,
     );

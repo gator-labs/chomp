@@ -19,7 +19,7 @@ export const getHistoryDecks = async ({
     return [];
   }
   if (showAnsweredDeck) {
-  return getAnsweredDecksForHistory(userId, HISTORY_DECK_LIMIT, pageParam);
+    return getAnsweredDecksForHistory(userId, HISTORY_DECK_LIMIT, pageParam);
   } else {
     return getDecksForHistory(userId, HISTORY_DECK_LIMIT, pageParam);
   }
