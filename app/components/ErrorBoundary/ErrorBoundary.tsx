@@ -26,9 +26,11 @@ function ErrorBoundary({ error }: { error: Error; reset: () => void }) {
 
   // Set status code and error message
   const statusCode = isThreatLevelError
-    ? threatLevelCause.action === EThreatLevelAction.Forbidden
-      ? 403
-      : 204
+    ? threatLevelCause.statusCode
+      ? threatLevelCause.statusCode
+      : threatLevelCause.action === EThreatLevelAction.Forbidden
+        ? 403
+        : 204
     : isServerError
       ? 500
       : 400;

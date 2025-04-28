@@ -1,6 +1,7 @@
 import prisma from "@/app/services/prisma";
 import { UserThreatLevelDetected } from "@/lib/error";
 import { EThreatLevelAction, EThreatLevelType } from "@/types/bots";
+import { BOT_STATUS_CODES } from '@/constants/bots';
 import { cookies } from "next/headers";
 
 export const checkThreatLevel = async (userId: string) => {
@@ -12,6 +13,7 @@ export const checkThreatLevel = async (userId: string) => {
   if (
     user.threatLevel === EThreatLevelType.Bot ||
     user.threatLevel === EThreatLevelType.ManualBlock ||
+    user.threatLevel === EThreatLevelType.AtaExploiter ||
     user.threatLevel === EThreatLevelType.EngBlock
   ) {
     const action =
@@ -19,9 +21,18 @@ export const checkThreatLevel = async (userId: string) => {
         ? EThreatLevelAction.Forbidden
         : EThreatLevelAction.Unavailable;
 
+    const cause = {
+      userId,
+      source: "JWT",
+      action,
+      ...(user.threatLevel in BOT_STATUS_CODES
+        ? { statusCode: BOT_STATUS_CODES[user.threatLevel] }
+        : null),
+    };
+
     throw new UserThreatLevelDetected(
       `User threat level detected: user ${userId}, username: ${user.username}, wallet: ${user.wallets?.[0]?.address}`,
-      { cause: { userId, source: "JWT", action } },
+      { cause },
     );
   }
 };
