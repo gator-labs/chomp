@@ -14,7 +14,10 @@ jest.mock("next/cache", () => ({
 const mockQuestionData = {
   question: "What is the capital of France?",
   type: QuestionType.BinaryQuestion,
-  questionOptions: [{ option: "Paris" }, { option: "London" }],
+  questionOptions: [
+    { option: "Paris", index: 0 },
+    { option: "London", index: 1 },
+  ],
 };
 
 let questionId: number | undefined;
