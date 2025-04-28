@@ -291,12 +291,14 @@ describe("getNewHistoryQuery", () => {
   });
 
   it("should return unseen indicator type", async () => {
-    const userId = await prisma.questionAnswer.findFirstOrThrow({
-      where: {
-        questionOptionId: questionOptionIds[0],
-        selected: false,
-      },
-    })?.userId;
+    const userId = (
+      await prisma.questionAnswer.findFirstOrThrow({
+        where: {
+          questionOptionId: questionOptionIds[0],
+          selected: false,
+        },
+      })
+    )?.userId;
 
     await prisma.questionAnswer.deleteMany({
       where: {
