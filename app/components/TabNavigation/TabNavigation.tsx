@@ -20,7 +20,7 @@ const navigationItems = [
   { label: "Stacks", icon: <StacksIcon />, href: STACKS_PATH },
 ];
 
-if (process.env.NEXT_PUBLIC_FF_ASK === "true") {
+if (process.env.NEXT_PUBLIC_FF_ASK_IN_NAVBAR === "true") {
   navigationItems.push({
     label: "Ask",
     icon: <NotebookPen />,

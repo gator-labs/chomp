@@ -76,7 +76,7 @@ export async function copyDeck(deckId: number): Promise<number> {
       });
 
       if (newQuestion) {
-        const { id, ...newQuestionWithoutId } = newQuestion;
+        const { id, uuid, ...newQuestionWithoutId } = newQuestion;
 
         const newData = {
           ...newQuestionWithoutId,

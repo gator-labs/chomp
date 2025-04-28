@@ -60,7 +60,10 @@ model Email {
 
 model Question {
   id                          Int                           @id @default(autoincrement())
+  // uuid is the public ID used for API queries
+  uuid                        String                        @db.Uuid() @default(uuid())
   question                    String
+  description                 String?
   durationMiliseconds         BigInt?
   type                        QuestionType
   revealToken                 Token                         @default(Bonk)
@@ -79,6 +82,9 @@ model Question {
   stackId                     Int?
   isSubmittedByUser           Boolean                       @default(false)
   createdByUserId             String?
+  rules                       String?
+  source                      String?
+  onChainAddress              String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
   QuestionRewards             QuestionRewards[]
@@ -86,6 +92,8 @@ model Question {
   user                     User?                      @relation(fields: [createdByUserId], references: [id])
   AskQuestionAnswer        AskQuestionAnswer[]
   UserQuestionAnswerStatus UserQuestionAnswerStatus[]
+
+  @@unique([uuid])
 }
 
 model QuestionOption {

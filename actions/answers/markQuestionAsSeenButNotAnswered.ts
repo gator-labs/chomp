@@ -4,6 +4,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { getRandomInteger } from "@/app/utils/randomUtils";
 import { AnswerStatus, QuestionType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
 
 export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   const payload = await getJwtPayload();
@@ -43,7 +44,13 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
           : 0,
     };
   } catch (error) {
-    console.log("Error in markQuestionAsSeenButNotAnswered", error);
+    Sentry.captureException(error, {
+      extra: {
+        userId,
+      },
+    });
+
+    console.error("Error in markQuestionAsSeenButNotAnswered", error);
     return { hasError: true };
   }
 }
