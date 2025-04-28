@@ -281,6 +281,7 @@ describe("getAnswerStats", () => {
             questionOptionId: qo.id,
             userId: user1.id,
             selected: i === 0,
+            percentage: i === 1 ? 50 : null,
           })),
         ),
       });
