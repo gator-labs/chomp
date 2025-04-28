@@ -36,7 +36,7 @@ describe("getCampaigns", () => {
         infoBody: "test enabled",
         infoTitle: "test enabled",
         boxType: "Bis1",
-        enabled: true,
+        isEnabled: true,
       },
     });
 
@@ -47,7 +47,7 @@ describe("getCampaigns", () => {
         infoBody: "test disabled",
         infoTitle: "test disabled",
         boxType: "Bis1",
-        enabled: false,
+        isEnabled: false,
       },
     });
   });
@@ -145,7 +145,7 @@ describe("getCampaigns", () => {
     );
     expect(returnedDisabledCampaign).toBeUndefined();
 
-    // all returned campaigns should have enabled=true
+    // all returned campaigns should have isEnabled=true
     expect(campaigns?.length).toBeGreaterThan(0);
     expect(
       campaigns?.every((campaign) => campaign.id !== disabledCampaign.id),

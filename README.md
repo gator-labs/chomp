@@ -136,6 +136,13 @@ If you see a “restore successful” message, you can safely ignore some errors
 2. Make sure the name of file is `allowlist.csv`
 3. Verify the DATABASE_URL env
 
+** Delete the database 
+
+```sh
+../ # go up one directory
+sudo rm -fr postgres-data # probably need sudo
+```
+
 **Run the following command**
 ```sh
 yarn dev:add-allowlist-users

@@ -29,7 +29,7 @@ export const getCampaigns = async (): Promise<Array<{
   if (!userWallet) return null;
 
   const campaignBoxes = await prisma.campaignMysteryBox.findMany({
-    where: { enabled: true },
+    where: { isEnabled: true },
   });
 
   const validCampaignBoxes = await prisma.campaignMysteryBoxAllowlist.findMany({

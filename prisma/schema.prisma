@@ -390,7 +390,7 @@ model CampaignMysteryBox {
   CampaignMysteryBoxAllowlist CampaignMysteryBoxAllowlist[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
   boxType                     String
-  enabled                     Boolean                       @default(true)
+  isEnabled                   Boolean                       @default(true)
 }
 
 model CampaignMysteryBoxAllowlist {

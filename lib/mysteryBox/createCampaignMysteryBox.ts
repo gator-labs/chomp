@@ -26,10 +26,14 @@ export const createCampaignMysteryBox = async (
   if (!campaignBoxId) {
     throw new Error("Campaign doesn't exist");
   }
+
   const validCampaign = await prisma.campaignMysteryBoxAllowlist.findFirst({
     where: {
       campaignMysteryBoxId: campaignBoxId,
       address: userWallet.address,
+      campaignMysteryBox: {
+        isEnabled: true,
+      },
     },
     include: {
       campaignMysteryBox: true,
