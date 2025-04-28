@@ -287,6 +287,7 @@ describe("getAnswerStats", () => {
             questionOptionId: qo.id,
             userId: user1.id,
             selected: i === 0,
+            percentage: i === 1 ? 50 : null,
           })),
         ),
       });
@@ -387,6 +388,24 @@ describe("getAnswerStats", () => {
     expect(stats?.QuestionRewards.length).toBeGreaterThan(0);
     expect(stats?.QuestionRewards?.[0].bonkReward).toBe("4500");
     expect(stats?.QuestionRewards?.[0].creditsReward).toBe("5");
+  });
+
+  it("should get answer stats for revealed but incomplete equestion", async () => {
+    await prisma.questionAnswer.updateMany({
+      data: {
+        percentage: null,
+      },
+      where: {
+        userId: user1.id,
+        questionOption: {
+          questionId: questionIds[1],
+        },
+      },
+    });
+
+    const stats = await getAnswerStats(user1.id, questionIds[1]);
+    expect(stats).toBeDefined();
+    expect(stats?.rewardStatus).toBe("no-reward");
   });
 
   it("should return correct practice deck status", async () => {

@@ -42,6 +42,7 @@ export type AnswerStats = Question & {
   correctAnswersCount: number;
   deckQuestions: { deckId: number }[];
   isQuestionAnsweredByUser: boolean;
+  isSecondOrderAnsweredByUser: boolean;
   isLegacyQuestion: boolean;
   rewardStatus: RewardStatus;
   selectionDistribution: {

@@ -37,8 +37,9 @@ model User {
   DeckRewards                 DeckRewards[]
   QuestionRewards             QuestionRewards[]
 
-  Question          Question[]
-  AskQuestionAnswer AskQuestionAnswer[]
+  Question                 Question[]
+  AskQuestionAnswer        AskQuestionAnswer[]
+  UserQuestionAnswerStatus UserQuestionAnswerStatus[]
 }
 
 model Wallet {
@@ -88,8 +89,9 @@ model Question {
   MysteryBoxTrigger           MysteryBoxTrigger[]
   QuestionRewards             QuestionRewards[]
 
-  user              User?               @relation(fields: [createdByUserId], references: [id])
-  AskQuestionAnswer AskQuestionAnswer[]
+  user                     User?                      @relation(fields: [createdByUserId], references: [id])
+  AskQuestionAnswer        AskQuestionAnswer[]
+  UserQuestionAnswerStatus UserQuestionAnswerStatus[]
 
   @@unique([uuid])
 }
@@ -432,6 +434,16 @@ view DeckRewards {
 view QuestionRewards {
   bonkReward    String
   creditsReward String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  questionId Int      @id
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+view UserQuestionAnswerStatus {
+  indicatorType String
 
   userId String
   user   User   @relation(fields: [userId], references: [id])

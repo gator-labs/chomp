@@ -133,6 +133,7 @@ export async function getAnswerStats(
       correctAnswersCount: 0,
       isLegacyQuestion,
       isQuestionAnsweredByUser: false,
+      isSecondOrderAnsweredByUser: false,
       rewardStatus: "no-reward",
       selectionDistribution: [],
     };
@@ -187,6 +188,11 @@ export async function getAnswerStats(
   const isQuestionAnsweredByUser =
     userAnswers.filter((ua) => !!ua.selected).length > 0;
 
+  const isSecondOrderAnsweredByUser =
+    userAnswers.filter(
+      (ua) => ua.percentage !== null && ua.percentage !== undefined,
+    ).length > 0;
+
   const chompResults = question.chompResults.map((chompResult) => ({
     ...chompResult,
     rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
@@ -209,7 +215,9 @@ export async function getAnswerStats(
     ? chompResults.length > 0
       ? "claimed"
       : "no-reward"
-    : isPracticeQuestion || !isQuestionAnsweredByUser
+    : isPracticeQuestion ||
+        !isQuestionAnsweredByUser ||
+        !isSecondOrderAnsweredByUser
       ? "no-reward"
       : isRewardKnown
         ? "claimed"
@@ -249,6 +257,7 @@ export async function getAnswerStats(
         : questionAnswers.length / 4,
     correctAnswersCount: numSelectedCorrect,
     isQuestionAnsweredByUser,
+    isSecondOrderAnsweredByUser,
     isLegacyQuestion,
     rewardStatus,
     selectionDistribution: selectionDistribution,

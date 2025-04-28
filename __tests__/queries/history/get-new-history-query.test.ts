@@ -1,5 +1,8 @@
 import { deleteDeck } from "@/app/actions/deck/deck";
-import { getNewHistoryQuery } from "@/app/queries/history";
+import {
+  getHistoryHeadersData,
+  getNewHistoryQuery,
+} from "@/app/queries/history";
 import prisma from "@/app/services/prisma";
 import { generateUsers } from "@/scripts/utils";
 import { QuestionType } from "@prisma/client";
@@ -167,7 +170,20 @@ describe("getNewHistoryQuery", () => {
     expect(result[0]).toEqual(
       expect.objectContaining({
         id: questionId,
-        indicatorType: "unanswered",
+        indicatorType: "unseen",
+      }),
+    );
+
+    const counts = await getHistoryHeadersData("mock-id", deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 0,
+        incorrectCount: 0,
+        unansweredCount: 0,
+        unrevealedCount: 0,
+        unseenCount: 1,
+        incompleteCount: 0,
       }),
     );
   });
@@ -207,6 +223,19 @@ describe("getNewHistoryQuery", () => {
         indicatorType: "correct",
       }),
     );
+
+    const counts = await getHistoryHeadersData(answer?.userId, deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 1,
+        incorrectCount: 0,
+        unansweredCount: 0,
+        unrevealedCount: 0,
+        unseenCount: 0,
+        incompleteCount: 0,
+      }),
+    );
   });
 
   it("should return incorrect indicator type", async () => {
@@ -224,6 +253,153 @@ describe("getNewHistoryQuery", () => {
       expect.objectContaining({
         id: questionId,
         indicatorType: "incorrect",
+      }),
+    );
+
+    const counts = await getHistoryHeadersData(answer?.userId, deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 0,
+        incorrectCount: 1,
+        unansweredCount: 0,
+        unrevealedCount: 0,
+        unseenCount: 0,
+        incompleteCount: 0,
+      }),
+    );
+  });
+
+  it("should return incomplete indicator type", async () => {
+    await prisma.questionAnswer.updateMany({
+      where: {
+        questionOption: {
+          question: {
+            id: questionId,
+          },
+        },
+      },
+      data: {
+        percentage: null,
+      },
+    });
+
+    const answer = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: false,
+      },
+    });
+
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "incomplete",
+      }),
+    );
+
+    const counts = await getHistoryHeadersData(answer?.userId, deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 0,
+        incorrectCount: 0,
+        unansweredCount: 0,
+        unrevealedCount: 0,
+        unseenCount: 0,
+        incompleteCount: 1,
+      }),
+    );
+  });
+
+  it("should return incomplete indicator type", async () => {
+    await prisma.questionAnswer.updateMany({
+      where: {
+        questionOption: {
+          question: {
+            id: questionId,
+          },
+        },
+      },
+      data: {
+        selected: false,
+      },
+    });
+
+    const answer = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: false,
+      },
+    });
+
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "unanswered",
+      }),
+    );
+
+    const counts = await getHistoryHeadersData(answer?.userId, deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 0,
+        incorrectCount: 0,
+        unansweredCount: 1,
+        unrevealedCount: 0,
+        unseenCount: 0,
+        incompleteCount: 0,
+      }),
+    );
+  });
+
+  it("should return unseen indicator type", async () => {
+    const userId = (
+      await prisma.questionAnswer.findFirstOrThrow({
+        where: {
+          questionOptionId: questionOptionIds[0],
+          selected: false,
+        },
+      })
+    )?.userId;
+
+    await prisma.questionAnswer.deleteMany({
+      where: {
+        questionOption: {
+          question: {
+            id: questionId,
+          },
+        },
+      },
+    });
+
+    const result = await getNewHistoryQuery(userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "unseen",
+      }),
+    );
+
+    const counts = await getHistoryHeadersData(userId, deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 0,
+        incorrectCount: 0,
+        unansweredCount: 0,
+        unrevealedCount: 0,
+        unseenCount: 1,
+        incompleteCount: 0,
       }),
     );
   });
