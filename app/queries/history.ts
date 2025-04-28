@@ -259,7 +259,7 @@ export async function getHistoryHeadersData(
         JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
         LEFT JOIN "UserQuestionAnswerStatus" uqas ON uqas."questionId" = q.id AND uqas."userId" = ${userId}
     ) AS sub
-    GROUP BY sub.questionStatus
+    GROUP BY sub."indicatorType"
 `;
 
   const transformedResult: {
