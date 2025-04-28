@@ -30,11 +30,11 @@ export function QuestionCardIndicators({
           indicatorType="incorrect"
         />
         <QuestionCardIndicator
-          count={unansweredCount}
+          count={unansweredCount + unseenCount + incompleteCount}
           indicatorType="unanswered"
         />
         <QuestionCardIndicator
-          count={unrevealedCount + unseenCount + incompleteCount}
+          count={unrevealedCount}
           indicatorType="unrevealed"
         />
       </div>
