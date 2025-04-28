@@ -106,8 +106,11 @@ model QuestionOption {
   createdAt                             DateTime         @default(now())
   updatedAt                             DateTime         @default(now()) @updatedAt
   questionId                            Int
+  index                                 Int // Ordering field
   question                              Question         @relation(fields: [questionId], references: [id])
   questionAnswers                       QuestionAnswer[]
+
+  @@unique([questionId, index]) // Enforces unique index per question [2][5]
 }
 
 model Tag {

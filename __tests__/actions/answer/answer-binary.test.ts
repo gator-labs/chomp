@@ -56,11 +56,13 @@ describe("answer binary question", () => {
                       option: "E",
                       isCorrect: true,
                       isLeft: false,
+                      index: 0,
                     },
                     {
                       option: "F",
                       isCorrect: false,
                       isLeft: false,
+                      index: 1,
                     },
                   ],
                 },

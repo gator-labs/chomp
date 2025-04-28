@@ -64,11 +64,13 @@ describe("getNewHistoryQuery", () => {
                       option: "A",
                       isCorrect: false,
                       isLeft: false,
+                      index: 0,
                     },
                     {
                       option: "B",
                       isCorrect: false,
                       isLeft: false,
+                      index: 1,
                     },
                   ],
                 },

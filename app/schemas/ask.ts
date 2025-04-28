@@ -51,6 +51,7 @@ export const askQuestionSchema = z.object({
         .max(MAX_OPTION_LENGTH, {
           message: `This field can have up to ${MAX_OPTION_LENGTH} characters.`,
         }),
+      index: z.number(),
     })
     .array(),
   imageUrl: z

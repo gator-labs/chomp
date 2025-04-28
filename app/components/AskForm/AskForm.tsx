@@ -29,9 +29,17 @@ import { Button } from "../ui/button";
 const getDefaultOptions = (type: QuestionType) => {
   switch (type) {
     case QuestionType.BinaryQuestion:
-      return [{ option: "" }, { option: "" }];
+      return [
+        { option: "", index: 0 },
+        { option: "", index: 1 },
+      ];
     default:
-      return [{ option: "" }, { option: "" }, { option: "" }, { option: "" }];
+      return [
+        { option: "", index: 0 },
+        { option: "", index: 1 },
+        { option: "", index: 2 },
+        { option: "", index: 3 },
+      ];
   }
 };
 

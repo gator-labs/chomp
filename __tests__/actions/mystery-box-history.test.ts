@@ -113,11 +113,13 @@ describe("Mystery box history", () => {
               option: "A",
               isCorrect: true,
               isLeft: false,
+              index: 0,
             },
             {
               option: "B",
               isCorrect: false,
               isLeft: false,
+              index: 1,
             },
           ],
         },
