@@ -36,8 +36,8 @@ export async function createAskQuestion(
 
     const options = validatedFields.data.questionOptions.map((qo, i) =>
       validatedFields.data.type === QuestionType.BinaryQuestion && i == 0
-        ? { ...qo, isLeft: true }
-        : qo,
+        ? { ...qo, isLeft: true, index: i }
+        : { qo, index: 0 },
     );
 
     const questionData = {

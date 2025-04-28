@@ -144,11 +144,13 @@ export async function handleUpsertingQuestionOptionsConcurrently(
         option: qo.option,
         isLeft: qo.isLeft,
         questionId: questionId,
+        index: 0,
       },
       update: {
         isCorrect: qo.isCorrect,
         isLeft: qo.isLeft,
         option: qo.option,
+        index: 1,
       },
       where: {
         id: qo.id,
@@ -181,6 +183,7 @@ export async function handleAddNewQuestionOptionsConcurrently(
       option: qo.option,
       isCorrect: qo.isCorrect ?? false,
       isLeft: qo.isLeft ?? false,
+      index: 0,
     })),
   });
 }
