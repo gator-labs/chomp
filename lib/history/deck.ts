@@ -19,11 +19,7 @@ export const getHistoryDecks = async ({
     return [];
   }
   if (showAnsweredDeck) {
-    return getAnsweredDecksForHistory(
-      "1078fe24-4c96-4676-8b7f-7d1d4d611ac3",
-      HISTORY_DECK_LIMIT,
-      pageParam,
-    );
+  return getAnsweredDecksForHistory(userId, HISTORY_DECK_LIMIT, pageParam);
   } else {
     return getDecksForHistory(userId, HISTORY_DECK_LIMIT, pageParam);
   }
