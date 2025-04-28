@@ -25,7 +25,7 @@ export function QuestionCard({
     process.env.NEXT_PUBLIC_FF_NEW_ANSWER_PAGE === "true";
 
   const canViewAnswer =
-    indicatorType != "unrevealed" &&
+    indicatorType !== "unrevealed" &&
     revealAtDate !== null &&
     isPast(revealAtDate);
 
