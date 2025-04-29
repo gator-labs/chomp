@@ -40,7 +40,7 @@ export const getValidationRewardQuestions = async (): Promise<
     }[]
   >`
 SELECT 
-    q.id,
+    DISTINCT q.id,
     q.question,
     (
         SELECT COUNT(DISTINCT CONCAT(qa."userId", qo."questionId"))
@@ -52,6 +52,10 @@ FROM
     public."Question" q
 JOIN 
     public."FungibleAssetTransactionLog" fatl ON q.id = fatl."questionId"
+JOIN 
+    public."QuestionOption" qo ON q.id = qo."questionId"
+JOIN 
+    public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
 WHERE 
     q."revealAtDate" IS NOT NULL
     AND q."revealAtDate" < NOW()
@@ -64,29 +68,11 @@ WHERE
         AND mb."status" = 'Opened'
         AND mb."userId" = ${userId}
     )
-    AND EXISTS (
-        SELECT 1
-        FROM public."QuestionOption" qo
-        JOIN public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
-        WHERE 
-            qo."questionId" = q.id
-            AND qa.selected = TRUE
-            AND (qo."calculatedIsCorrect" = TRUE OR qo."calculatedAveragePercentage" IS NOT NULL)
-            AND qa."userId" = ${userId}
-    )
-    AND EXISTS (
-        SELECT 1
-        FROM public."QuestionOption" qo
-        JOIN public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
-        WHERE 
-          qo."questionId" = q.id
-          AND qa."percentage" IS NOT NULL
-          AND qa."userId" = ${userId}
-    )
     AND fatl."userId" = ${userId}
-    AND fatl."change" = -q."creditCostPerQuestion"
     AND fatl."type" = 'PremiumQuestionCharge'
-    AND fatl."change" < 0;
+    AND fatl."change" < 0
+    AND qa."percentage" IS NOT NULL
+    AND qa."userId" = ${userId};
 	`;
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
