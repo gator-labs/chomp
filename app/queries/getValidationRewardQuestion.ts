@@ -39,6 +39,18 @@ export const getValidationRewardQuestions = async (): Promise<
       question: string;
     }[]
   >`
+WITH MysteryBoxCte AS (
+    SELECT 
+        mbt."questionId"
+    FROM 
+        public."MysteryBox" mb
+    JOIN 
+        public."MysteryBoxTrigger" mbt ON mb.id = mbt."mysteryBoxId"
+    WHERE 
+        mbt."triggerType" = 'ValidationReward'
+        AND mb."status" = 'Opened'
+        AND mb."userId" = ${userId}
+)
 SELECT 
     DISTINCT q.id,
     q.question,
@@ -59,14 +71,10 @@ JOIN
 WHERE 
     q."revealAtDate" IS NOT NULL
     AND q."revealAtDate" < NOW()
-    AND NOT EXISTS (
+   AND NOT EXISTS (
         SELECT 1
-        FROM public."MysteryBox" mb
-        JOIN public."MysteryBoxTrigger" mbt ON mbt."mysteryBoxId" = mb.id
-        WHERE mbt."questionId" = q.id
-        AND mbt."triggerType" = 'ValidationReward'
-        AND mb."status" = 'Opened'
-        AND mb."userId" = ${userId}
+        FROM MysteryBoxCte
+        WHERE MysteryBoxCte."questionId" = q.id
     )
     AND fatl."userId" = ${userId}
     AND fatl."type" = 'PremiumQuestionCharge'
