@@ -123,7 +123,7 @@ describe("getStack", () => {
     createdDeckIds = decks.map((deck) => deck.id);
   });
 
-  beforeEach(function() {
+  beforeEach(function () {
     testData = createEmptyTestScenarioResult();
   });
 
@@ -487,18 +487,21 @@ describe("getStack", () => {
               revealTokenAmount: 5,
               options: [
                 {
+                  index: 0,
                   option: "Option A",
                   isLeft: true,
                   isCorrect: true,
                   answers: [{ userId: user1, selected: true }],
                 },
                 {
+                  index: 1,
                   option: "Option B",
                   isLeft: false,
                   isCorrect: false,
                   answers: [{ userId: user2, selected: false }],
                 },
                 {
+                  index: 2,
                   option: "Option C",
                   isLeft: false,
                   isCorrect: false,
@@ -514,18 +517,21 @@ describe("getStack", () => {
               revealTokenAmount: 5,
               options: [
                 {
+                  index: 0,
                   option: "Choice 1",
                   isLeft: true,
                   isCorrect: false,
                   answers: [],
                 },
                 {
+                  index: 1,
                   option: "Choice 2",
                   isLeft: false,
                   isCorrect: true,
                   answers: [{ userId: user1, selected: false }],
                 },
                 {
+                  index: 2,
                   option: "Choice 3",
                   isLeft: false,
                   isCorrect: false,
