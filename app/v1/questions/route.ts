@@ -2,9 +2,7 @@ import { questionSchema } from "@/app/schemas/v1/question";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  console.error("got request", request);
   const data = await request.json();
-  console.error("got data", data);
   // parse backend-secret and source headers
   const backendSecret = request.headers.get("backend-secret");
   if (backendSecret !== process.env.BACKEND_SECRET) {
