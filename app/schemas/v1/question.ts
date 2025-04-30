@@ -15,16 +15,16 @@ export const questionSchema = z
     rules: z.string().optional(),
     description: z.string().optional(),
     imageUrl: z.string().url().optional(),
-    startAt: z.date().optional(),
+    activeAt: z.date().optional(),
     resolveAt: z.date().optional(),
     onChainAddress: z.string().optional(),
   })
   .refine(
     (data) =>
-      !(data.resolveAt && data.startAt) ||
-      data.resolveAt > data.startAt,
+      !(data.resolveAt && data.activeAt) ||
+      data.resolveAt > data.activeAt,
     {
-      message: "resolveAt must be after startAt",
+      message: "resolveAt must be after activeAt",
       path: ["resolveAt"],
     },
   );
