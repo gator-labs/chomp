@@ -1,4 +1,3 @@
-import { isQuestionCalculatedAndPaidFor } from "@/lib/question";
 import { AnswerStatus, EBoxPrizeType, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
@@ -11,7 +10,6 @@ import {
   mapPercentages,
   populateAnswerCount,
 } from "../utils/question";
-import { getQuestionOrderPercentages } from "./answerPercentageQuery";
 
 export enum ElementType {
   Question = "Question",
@@ -190,23 +188,7 @@ export async function getQuestionWithUserAnswer(questionId: number) {
           revealNft: true,
         },
       },
-      MysteryBoxTrigger: {
-        where: {
-          questionId,
-          MysteryBox: {
-            userId,
-          },
-        },
-        include: {
-          MysteryBoxPrize: {
-            where: {
-              prizeType: {
-                in: [EBoxPrizeType.Credits, EBoxPrizeType.Token],
-              },
-            },
-          },
-        },
-      },
+      QuestionRewards: true,
     },
   });
 
@@ -223,12 +205,24 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     }),
   );
 
-  const questionOptionIds = question.questionOptions.map((qo) => qo.id);
-
-  const questionOrderPercentages = await getQuestionOrderPercentages(
-    questionOptionIds,
-    calculatedQuestionOptionPercentages,
+  // Waiting on mechanism engine calculations...
+  const isCalculated = !calculatedQuestionOptionPercentages.some(
+    (qo) =>
+      qo.firstOrderSelectedAnswerPercentage === null ||
+      qo.secondOrderAveragePercentagePicked === null,
   );
+
+  const questionOrderPercentages = isCalculated
+    ? calculatedQuestionOptionPercentages.map((cqop) => ({
+        id: cqop.id,
+        firstOrderSelectedAnswerPercentage: Number(
+          cqop.firstOrderSelectedAnswerPercentage ?? 0,
+        ),
+        secondOrderAveragePercentagePicked: Number(
+          cqop.secondOrderAveragePercentagePicked ?? 0,
+        ),
+      }))
+    : [];
 
   const populated = populateAnswerCount(question);
 
@@ -266,18 +260,29 @@ export async function getQuestionWithUserAnswer(questionId: number) {
     answerCount: question.questionOptions[0].questionAnswers.length,
   });
 
-  const isCalculatedAndPaidFor =
-    question.creditCostPerQuestion !== null
-      ? await isQuestionCalculatedAndPaidFor(userId, question.id)
-      : true;
+  if (!isCalculated) {
+    return {
+      ...question,
+      chompResult: [],
+      userAnswers: [],
+      answerCount: 0,
+      correctAnswer: null,
+      questionOptionPercentages: [],
+      isQuestionRevealable,
+      isCalculated: false,
+      hasAlreadyClaimedReward: false,
+    };
+  }
+
+  const isLegacyQuestion = question.creditCostPerQuestion === null;
 
   return {
     ...question,
     chompResults: question.chompResults.map((chompResult) => ({
       ...chompResult,
       rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
-    })),
-    userAnswers: userAnswers || null,
+    })) as ChompResult & { rewardTokenAmount: number },
+    userAnswers: (isCalculated ? userAnswers : []) ?? [],
     answerCount: populated.answerCount ?? 0,
     correctAnswer,
     questionOptionPercentages: questionOrderPercentages.map((qop) => ({
@@ -285,6 +290,8 @@ export async function getQuestionWithUserAnswer(questionId: number) {
       ...question.questionOptions.find((qo) => qo.id === qop.id),
     })),
     isQuestionRevealable,
-    isCalculatedAndPaidFor,
+    isCalculated,
+    hasAlreadyClaimedReward:
+      isLegacyQuestion || question.QuestionRewards.length > 0,
   };
 }
