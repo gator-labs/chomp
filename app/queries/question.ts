@@ -1,4 +1,4 @@
-import { AnswerStatus, Prisma } from "@prisma/client";
+import { AnswerStatus, ChompResult, Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { z } from "zod";
 
@@ -263,7 +263,7 @@ export async function getQuestionWithUserAnswer(questionId: number) {
   if (!isCalculated) {
     return {
       ...question,
-      chompResult: [],
+      chompResults: [],
       userAnswers: [],
       answerCount: 0,
       correctAnswer: null,
@@ -278,10 +278,15 @@ export async function getQuestionWithUserAnswer(questionId: number) {
 
   return {
     ...question,
-    chompResults: question.chompResults.map((chompResult) => ({
-      ...chompResult,
-      rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
-    })) as ChompResult & { rewardTokenAmount: number },
+    chompResults: question.chompResults.map(
+      (chompResult) =>
+        ({
+          ...chompResult,
+          rewardTokenAmount: chompResult.rewardTokenAmount?.toNumber(),
+        }) as Omit<ChompResult, "rewardTokenAmount"> & {
+          rewardTokenAmount: number;
+        },
+    ),
     userAnswers: (isCalculated ? userAnswers : []) ?? [],
     answerCount: populated.answerCount ?? 0,
     correctAnswer,
