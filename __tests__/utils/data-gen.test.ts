@@ -120,8 +120,8 @@ describe("TestDataGenerator", () => {
         type: QuestionType.MultiChoice,
         revealToken: Token.Bonk,
         options: [
-          { option: "Option 1", isCorrect: true },
-          { option: "Option 2", isCorrect: false },
+          { index: 0, option: "Option 1", isCorrect: true },
+          { index: 1, option: "Option 2", isCorrect: false },
         ],
       },
     ]);
@@ -176,8 +176,8 @@ describe("TestDataGenerator", () => {
         type: QuestionType.MultiChoice,
         revealToken: Token.Bonk,
         options: [
-          { option: "Association Option 1", isCorrect: true },
-          { option: "Association Option 2", isCorrect: false },
+          { index: 0, option: "Association Option 1", isCorrect: true },
+          { index: 1, option: "Association Option 2", isCorrect: false },
         ],
       },
     ]);
@@ -220,8 +220,8 @@ describe("TestDataGenerator", () => {
         type: QuestionType.MultiChoice,
         revealToken: Token.Bonk,
         options: [
-          { option: "Answer Option 1", isCorrect: true },
-          { option: "Answer Option 2", isCorrect: false },
+          { index: 0, option: "Answer Option 1", isCorrect: true },
+          { index: 1, option: "Answer Option 2", isCorrect: false },
         ],
       },
     ]);
@@ -293,6 +293,7 @@ describe("TestDataGenerator", () => {
                 revealToken: Token.Bonk,
                 options: [
                   {
+                    index: 0,
                     option: "Complex Option 1",
                     isCorrect: true,
                     answers: [
@@ -303,6 +304,7 @@ describe("TestDataGenerator", () => {
                     ],
                   },
                   {
+                    index: 1,
                     option: "Complex Option 2",
                     isCorrect: false,
                     answers: [
@@ -402,6 +404,7 @@ describe("TestDataGenerator", () => {
               revealToken: Token.Bonk,
               options: [
                 {
+                  index: 0,
                   option: "Scenario Option 1",
                   isCorrect: true,
                   answers: [
@@ -412,6 +415,7 @@ describe("TestDataGenerator", () => {
                   ],
                 },
                 {
+                  index: 1,
                   option: "Scenario Option 2",
                   isCorrect: false,
                 },
@@ -512,6 +516,7 @@ describe("TestDataGenerator", () => {
               revealToken: Token.Bonk,
               options: [
                 {
+                  index: 0,
                   option: "Query Option 1",
                   isCorrect: true,
                   answers: [
@@ -522,6 +527,7 @@ describe("TestDataGenerator", () => {
                   ],
                 },
                 {
+                  index: 1,
                   option: "Query Option 2",
                   isCorrect: false,
                 },
@@ -664,8 +670,8 @@ describe("TestDataGenerator", () => {
         type: QuestionType.MultiChoice,
         revealToken: Token.Bonk,
         options: [
-          { option: "Cleanup Option 1", isCorrect: true },
-          { option: "Cleanup Option 2", isCorrect: false },
+          { index: 0, option: "Cleanup Option 1", isCorrect: true },
+          { index: 1, option: "Cleanup Option 2", isCorrect: false },
         ],
       },
     ]);

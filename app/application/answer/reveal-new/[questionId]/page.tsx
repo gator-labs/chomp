@@ -7,8 +7,7 @@ import BinaryFirstOrderAnswerChart from "@/components/BinaryFirstOrderAnswer/Bin
 import MultiChoiceBestAnswer from "@/components/MultiChoiceBestAnswer/MultiChoiceBestAnswer";
 import MultiChoiceFirstOrderAnswer from "@/components/MultiChoiceFirstOrderAnswer/MultiChoiceFirstOrderAnswer";
 import QuestionPreviewCard from "@/components/QuestionPreviewCard/QuestionPreviewCard";
-import SecondOrderAnswerResultsMultiple from "@/components/SecondOrderAnswerResultMultiple";
-import SecondOrderAnswerResultsBinary from "@/components/SecondOrderAnswerResultsBinary";
+import SecondOrderAnswerResults from "@/components/SecondOrderAnswerResult";
 import { useGetAnswerStatsQuery } from "@/hooks/useGetAnswerStatsQuery";
 import { QuestionType } from "@prisma/client";
 import { notFound } from "next/navigation";
@@ -72,32 +71,6 @@ const RevealAnswerPageNew = ({ params }: Props) => {
 
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
-  let secondOrderAnswerResults = <></>;
-
-  if (isBinary) {
-    // Second Order Binary Choice Question Answers
-
-    secondOrderAnswerResults = SecondOrderAnswerResultsBinary({
-      userAnswers: stats.userAnswers,
-      questionOptionPercentages: stats.questionOptionPercentages,
-      answerStatus: stats.isSecondOrderCorrect,
-      isDrawerOpen: isSecOrdAnsInfoDrawerOpen,
-      openDrawer: openSecOrdAnsInfoDrawer,
-      closeDrawer: handleSecOrdAnsInfoDrawerClose,
-    });
-  } else {
-    // Second Order Multiple Choice Question Answers
-
-    secondOrderAnswerResults = SecondOrderAnswerResultsMultiple({
-      userAnswers: stats.userAnswers,
-      questionOptionPercentages: stats.questionOptionPercentages,
-      answerStatus: stats.isSecondOrderCorrect,
-      isDrawerOpen: isSecOrdAnsInfoDrawerOpen,
-      openDrawer: openSecOrdAnsInfoDrawer,
-      closeDrawer: handleSecOrdAnsInfoDrawerClose,
-    });
-  }
-
   return (
     <div>
       <AnswerStatsHeader
@@ -146,7 +119,15 @@ const RevealAnswerPageNew = ({ params }: Props) => {
           />
         </>
       )}
-      {secondOrderAnswerResults}
+      <SecondOrderAnswerResults
+        showLetters={!isBinary}
+        userAnswers={stats.userAnswers}
+        questionOptionPercentages={stats.questionOptionPercentages}
+        answerStatus={stats.isSecondOrderCorrect}
+        isDrawerOpen={isSecOrdAnsInfoDrawerOpen}
+        openDrawer={openSecOrdAnsInfoDrawer}
+        closeDrawer={handleSecOrdAnsInfoDrawerClose}
+      />
     </div>
   );
 };

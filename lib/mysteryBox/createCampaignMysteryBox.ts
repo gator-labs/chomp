@@ -13,27 +13,27 @@ import "server-only";
 import { getBonkAddress } from "../env-vars";
 
 /**
- * @description Validate campaign details. Create new mystery box if doesn't exist else return the existing mb id for new and unclaimed box.
- * @param {string} userId - The unique identifier of the user
- * @param {string} [campaignBoxId] - Optional. The identifier of the campaign box
- * @returns {Promise<string[]>} A promise that resolves to an array of string IDs representing mystery box identifiers
+ * Validate campaign details.
+ * Create new mystery box if doesn't exist else return the existing mb id for new and unclaimed box.
  */
-
 export const createCampaignMysteryBox = async (
   userId: string,
   campaignBoxId?: string,
-) => {
+): Promise<string[] | null> => {
   const userWallet = await prisma.wallet.findFirst({ where: { userId } });
-
   if (!userWallet) return null;
 
   if (!campaignBoxId) {
     throw new Error("Campaign doesn't exist");
   }
+
   const validCampaign = await prisma.campaignMysteryBoxAllowlist.findFirst({
     where: {
       campaignMysteryBoxId: campaignBoxId,
       address: userWallet.address,
+      campaignMysteryBox: {
+        isEnabled: true,
+      },
     },
     include: {
       campaignMysteryBox: true,

@@ -4,15 +4,15 @@ import { EMysteryBoxStatus } from "@prisma/client";
 import "server-only";
 
 /**
- * @description Get new and unclaimed campaigns allowed for user
- * @returns {Array<Object>} An array containing a single object with item details
- * @returns {string} returns[0].id - Unique identifier for the item
- * @returns {string} returns[0].name - Name of the item
- * @returns {string} returns[0].infoTitle - Title of the item's information
- * @returns {string} returns[0].infoBody - Body text of the item's information
- * @returns {boolean} returns[0].isEligible - Eligibility status of the item
+ * Get new and unclaimed campaigns allowed for user
  */
-export const getCampaigns = async () => {
+export const getCampaigns = async (): Promise<Array<{
+  id: string;
+  name: string;
+  infoTitle: string;
+  infoBody: string;
+  isEligible: boolean;
+}> | null> => {
   const payload = await getJwtPayload();
 
   if (!payload) {
@@ -28,7 +28,9 @@ export const getCampaigns = async () => {
 
   if (!userWallet) return null;
 
-  const campaignBoxes = await prisma.campaignMysteryBox.findMany();
+  const campaignBoxes = await prisma.campaignMysteryBox.findMany({
+    where: { isEnabled: true },
+  });
 
   const validCampaignBoxes = await prisma.campaignMysteryBoxAllowlist.findMany({
     where: {

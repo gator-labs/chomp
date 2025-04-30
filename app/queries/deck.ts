@@ -209,6 +209,9 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
           question: {
             include: {
               questionOptions: {
+                orderBy: {
+                  index: "asc",
+                },
                 include: {
                   questionAnswers: {
                     where: {
@@ -240,6 +243,9 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       question: {
         include: {
           questionOptions: {
+            orderBy: {
+              index: "asc",
+            },
             include: {
               questionAnswers: true,
             },
@@ -479,7 +485,11 @@ export async function getDeckSchema(id: number) {
         include: {
           question: {
             include: {
-              questionOptions: true,
+              questionOptions: {
+                orderBy: {
+                  index: "asc",
+                },
+              },
               questionTags: {
                 include: {
                   tag: true,

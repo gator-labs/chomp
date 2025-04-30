@@ -11,7 +11,7 @@ import {
 
 const { generateRandomUserId } = TestDataGenerator;
 
-describe.skip("queries/deck/getActiveDeckForLoggedOutUsers", () => {
+describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
   let testData: TestScenarioResult;
 
   beforeAll(async () => {
@@ -50,6 +50,7 @@ describe.skip("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                     { userId: user1, selected: true },
                     { userId: user2, selected: true },
                   ],
+                  index: 0,
                 },
                 {
                   option: "No",
@@ -57,6 +58,7 @@ describe.skip("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: false,
                   calculatedPercentageOfSelectedAnswers: 20,
                   calculatedAveragePercentage: 30,
+                  index: 1,
                 },
               ],
             },
@@ -74,6 +76,7 @@ describe.skip("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: true,
                   calculatedPercentageOfSelectedAnswers: 80,
                   calculatedAveragePercentage: 70,
+                  index: 0,
                 },
                 {
                   option: "No",
@@ -81,6 +84,7 @@ describe.skip("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: false,
                   calculatedPercentageOfSelectedAnswers: 20,
                   calculatedAveragePercentage: 30,
+                  index: 1,
                 },
               ],
             },

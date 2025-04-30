@@ -56,6 +56,7 @@ describe("Answers", () => {
                     calculatedIsCorrect: true,
                     calculatedPercentageOfSelectedAnswers: 90,
                     calculatedAveragePercentage: 70,
+                    index: 0,
                   },
                   {
                     option: "No",
@@ -63,6 +64,7 @@ describe("Answers", () => {
                     calculatedIsCorrect: false,
                     calculatedPercentageOfSelectedAnswers: 10,
                     calculatedAveragePercentage: 30,
+                    index: 1,
                   },
                 ],
               },
@@ -86,10 +88,12 @@ describe("Answers", () => {
                   {
                     option: "Yes",
                     isLeft: true,
+                    index: 0,
                   },
                   {
                     option: "No",
                     isLeft: false,
+                    index: 1,
                   },
                 ],
               },
@@ -113,10 +117,12 @@ describe("Answers", () => {
                   {
                     option: "Yes",
                     isLeft: true,
+                    index: 0,
                   },
                   {
                     option: "No",
                     isLeft: false,
+                    index: 1,
                   },
                 ],
               },

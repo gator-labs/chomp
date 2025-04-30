@@ -18,7 +18,9 @@ export function QuestionCardStatus({
       <QuestionCorrectIcon className="flex-grow" />
     ) : indicatorType == "incorrect" ? (
       <QuestionIncorrectIcon className="flex-grow" />
-    ) : indicatorType == "unanswered" ? (
+    ) : indicatorType == "unanswered" ||
+      indicatorType == "incomplete" ||
+      indicatorType == "unseen" ? (
       <QuestionUnansweredIcon className="flex-grow" />
     ) : (
       <QuestionUnrevealedIcon className="flex-grow" />

@@ -56,6 +56,7 @@ describe("getUsersLatestStreak", () => {
                     calculatedIsCorrect: true,
                     calculatedPercentageOfSelectedAnswers: 90,
                     calculatedAveragePercentage: 70,
+                    index: 0,
                   },
                   {
                     option: "No",
@@ -63,6 +64,7 @@ describe("getUsersLatestStreak", () => {
                     calculatedIsCorrect: false,
                     calculatedPercentageOfSelectedAnswers: 10,
                     calculatedAveragePercentage: 30,
+                    index: 1,
                   },
                 ],
               },
@@ -88,6 +90,7 @@ describe("getUsersLatestStreak", () => {
                     calculatedIsCorrect: true,
                     calculatedPercentageOfSelectedAnswers: 85,
                     calculatedAveragePercentage: 60,
+                    index: 0,
                   },
                   {
                     option: "No",
@@ -95,6 +98,7 @@ describe("getUsersLatestStreak", () => {
                     calculatedIsCorrect: false,
                     calculatedPercentageOfSelectedAnswers: 15,
                     calculatedAveragePercentage: 40,
+                    index: 1,
                   },
                 ],
               },
@@ -120,6 +124,7 @@ describe("getUsersLatestStreak", () => {
                     calculatedIsCorrect: false,
                     calculatedPercentageOfSelectedAnswers: 20,
                     calculatedAveragePercentage: 50,
+                    index: 0,
                   },
                   {
                     option: "No",
@@ -127,6 +132,7 @@ describe("getUsersLatestStreak", () => {
                     calculatedIsCorrect: true,
                     calculatedPercentageOfSelectedAnswers: 80,
                     calculatedAveragePercentage: 70,
+                    index: 1,
                   },
                 ],
               },
