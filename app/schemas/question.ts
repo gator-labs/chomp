@@ -22,6 +22,7 @@ export const questionSchema = z.object({
       option: z.string().min(1),
       isCorrect: z.boolean().optional(),
       isLeft: z.boolean(),
+      index: z.number(),
     })
     .array(),
 });

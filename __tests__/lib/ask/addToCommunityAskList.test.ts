@@ -39,9 +39,11 @@ describe("Add to community ask list", () => {
           create: [
             {
               option: "Cats",
+              index: 0,
             },
             {
               option: "Dogs",
+              index: 1,
             },
           ],
         },
@@ -70,9 +72,11 @@ describe("Add to community ask list", () => {
           create: [
             {
               option: "Fauna",
+              index: 0,
             },
             {
               option: "Flora",
+              index: 1,
             },
           ],
         },

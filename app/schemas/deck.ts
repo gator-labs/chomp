@@ -169,6 +169,7 @@ export const deckSchema = z
             option: z.string().min(1).max(40),
             isCorrect: z.boolean().optional(),
             isLeft: z.boolean(),
+            index: z.number(),
           })
           .array(),
       })

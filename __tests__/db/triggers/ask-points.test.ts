@@ -51,9 +51,11 @@ describe("Ask DB triggers", () => {
           create: [
             {
               option: "Cats",
+              index: 0,
             },
             {
               option: "Dogs",
+              index: 1,
             },
           ],
         },
@@ -82,9 +84,11 @@ describe("Ask DB triggers", () => {
           create: [
             {
               option: "Fauna",
+              index: 0,
             },
             {
               option: "Flora",
+              index: 1,
             },
           ],
         },

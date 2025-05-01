@@ -25,15 +25,15 @@ export const getDefaultOptions = (type: QuestionType) => {
   switch (type) {
     case QuestionType.BinaryQuestion:
       return [
-        { option: "", isCorrect: false, isLeft: true },
-        { option: "", isCorrect: false, isLeft: false },
+        { option: "", isCorrect: false, isLeft: true, index: 0 },
+        { option: "", isCorrect: false, isLeft: false, index: 1 },
       ];
     default:
       return [
-        { option: "", isCorrect: false, isLeft: false },
-        { option: "", isCorrect: false, isLeft: false },
-        { option: "", isCorrect: false, isLeft: false },
-        { option: "", isCorrect: false, isLeft: false },
+        { option: "", isCorrect: false, isLeft: false, index: 0 },
+        { option: "", isCorrect: false, isLeft: false, index: 1 },
+        { option: "", isCorrect: false, isLeft: false, index: 2 },
+        { option: "", isCorrect: false, isLeft: false, index: 3 },
       ];
   }
 };

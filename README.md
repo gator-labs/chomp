@@ -130,6 +130,14 @@ yarn dev:restore-db
 
 If you see a “restore successful” message, you can safely ignore some errors. After verifying the restored database, don’t forget to remove the backup file.
 
+## Deleting the database (Be careful)
+
+```sh
+../ # go up one directory
+sudo rm -fr postgres-data # probably need sudo
+```
+
+
 ## Add Users in MysteryBox Allowlist
 
 1. Add a csv file in the scripts folder (only addresses, no header)

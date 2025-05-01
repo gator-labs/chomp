@@ -47,6 +47,8 @@ export type NewQuestionHistoryData = {
   incorrectCount: number;
   unansweredCount: number;
   unrevealedCount: number;
+  unseenCount: number;
+  incompleteCount: number;
 };
 
 export type QuestionHistoryFilter = "isRevealable" | "all";
@@ -228,23 +230,12 @@ export async function getNewHistoryQuery(
     d.deck     AS "deckTitle",
     q.question AS "question",
     q."revealAtDate" AS "revealAtDate",
-    CASE
-        WHEN COUNT(CASE WHEN qa.selected IS NOT NULL THEN 1 ELSE NULL END) = 0 THEN 'unanswered'
-        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."calculatedIsCorrect" = true AND qa."selected" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
-        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."calculatedIsCorrect" != qa."selected" THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
-    END AS "indicatorType"
-FROM "Question" q
-         JOIN
-     public."QuestionOption" qo ON qo."questionId" = q.id
-         LEFT JOIN
-     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected IS TRUE
-         LEFT JOIN
-     public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = ${userId} AND cr."questionId" IS NOT NULL
-         JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
-         JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
-WHERE q."revealAtDate" IS NOT NULL AND q."revealAtDate" <= NOW()
-GROUP BY q.id, d.id, d.deck, q.question, q."revealAtDate"
-ORDER BY q.id DESC
+    COALESCE(uqas."indicatorType", 'unseen') AS "indicatorType"
+    FROM "Question" q
+    JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
+    JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
+    LEFT JOIN "UserQuestionAnswerStatus" uqas ON uqas."questionId" = q.id AND uqas."userId" = ${userId}
+    ORDER BY q.id DESC
     LIMIT ${pageSize} OFFSET ${offset}
   `;
 
@@ -259,33 +250,16 @@ export async function getHistoryHeadersData(
 
   const result: { count: number; indicatorType: string }[] =
     await prisma.$queryRaw`
-    SELECT COUNT(*) AS "count", sub.questionStatus AS "indicatorType" FROM (
-   SELECT
-    q.id AS "questionId",
-    d.id AS "deckId",
-    d.deck,
-    q.question,
-    q."revealAtDate",
-    CASE
-        WHEN COUNT(CASE WHEN qa.selected IS NOT NULL THEN 1 ELSE NULL END) = 0 THEN 'unanswered'
-        WHEN COUNT(CASE WHEN q."revealAtDate" > NOW() THEN 1 ELSE NULL END) > 0 THEN 'unrevealed'
-        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."calculatedIsCorrect" = true AND qa."selected" = true THEN 1 ELSE NULL END) > 0 THEN 'correct'
-        WHEN COUNT(CASE WHEN q."revealAtDate" <= NOW() AND qo.id = qa."questionOptionId" AND qo."calculatedIsCorrect" != qa."selected" THEN 1 ELSE NULL END) > 0 THEN 'incorrect'
-    END AS questionStatus
-FROM "Question" q
-         JOIN
-     public."QuestionOption" qo ON qo."questionId" = q.id
-         LEFT JOIN
-     public."QuestionAnswer" qa ON qa."questionOptionId" = qo.id AND qa."userId" = ${userId} AND qa.selected IS TRUE
-         LEFT JOIN
-     public."ChompResult" cr ON cr."questionId" = q.id AND cr."userId" = ${userId} AND cr."questionId" IS NOT NULL
-         JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
-         JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
-WHERE q."revealAtDate" IS NOT NULL
-GROUP BY q.id, d.id, d.deck, q.question, q."revealAtDate"
-ORDER BY q.id DESC
-              ) AS sub
-GROUP BY sub.questionStatus
+    SELECT COUNT(*) AS "count", sub."indicatorType" AS "indicatorType" FROM (
+        SELECT
+        q.id AS "id",
+        COALESCE(uqas."indicatorType", 'unseen') AS "indicatorType"
+        FROM "Question" q
+        JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
+        JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
+        LEFT JOIN "UserQuestionAnswerStatus" uqas ON uqas."questionId" = q.id AND uqas."userId" = ${userId}
+    ) AS sub
+    GROUP BY sub."indicatorType"
 `;
 
   const transformedResult: {
@@ -305,6 +279,8 @@ GROUP BY sub.questionStatus
     incorrectCount: transformedResult.incorrect || 0,
     unansweredCount: transformedResult.unanswered || 0,
     unrevealedCount: transformedResult.unrevealed || 0,
+    unseenCount: transformedResult.unseen || 0,
+    incompleteCount: transformedResult.incomplete || 0,
   };
 }
 

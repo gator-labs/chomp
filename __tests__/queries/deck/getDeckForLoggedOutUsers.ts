@@ -34,6 +34,7 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: true,
                   calculatedPercentageOfSelectedAnswers: 80,
                   calculatedAveragePercentage: 70,
+                  index: 0,
                 },
                 {
                   option: "No",
@@ -41,6 +42,7 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: false,
                   calculatedPercentageOfSelectedAnswers: 20,
                   calculatedAveragePercentage: 30,
+                  index: 1,
                 },
               ],
               creditCostPerQuestion: 3,
@@ -56,6 +58,7 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: true,
                   calculatedPercentageOfSelectedAnswers: 80,
                   calculatedAveragePercentage: 70,
+                  index: 0,
                 },
                 {
                   option: "No",
@@ -63,6 +66,7 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
                   isCorrect: false,
                   calculatedPercentageOfSelectedAnswers: 20,
                   calculatedAveragePercentage: 30,
+                  index: 1,
                 },
               ],
               revealTokenAmount: 3,

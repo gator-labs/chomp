@@ -4,6 +4,8 @@ export enum QuestionStep {
 }
 
 export type QuestionCardIndicatorType =
+  | "unseen"
+  | "incomplete"
   | "correct"
   | "incorrect"
   | "unanswered"

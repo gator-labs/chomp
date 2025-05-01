@@ -37,8 +37,9 @@ model User {
   DeckRewards                 DeckRewards[]
   QuestionRewards             QuestionRewards[]
 
-  Question          Question[]
-  AskQuestionAnswer AskQuestionAnswer[]
+  Question                 Question[]
+  AskQuestionAnswer        AskQuestionAnswer[]
+  UserQuestionAnswerStatus UserQuestionAnswerStatus[]
 }
 
 model Wallet {
@@ -59,7 +60,10 @@ model Email {
 
 model Question {
   id                          Int                           @id @default(autoincrement())
+  // uuid is the public ID used for API queries
+  uuid                        String                        @db.Uuid() @default(uuid())
   question                    String
+  description                 String?
   durationMiliseconds         BigInt?
   type                        QuestionType
   revealToken                 Token                         @default(Bonk)
@@ -78,12 +82,18 @@ model Question {
   stackId                     Int?
   isSubmittedByUser           Boolean                       @default(false)
   createdByUserId             String?
+  rules                       String?
+  source                      String?
+  onChainAddress              String?
   fungibleAssetTransactionLog FungibleAssetTransactionLog[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
   QuestionRewards             QuestionRewards[]
 
-  user              User?               @relation(fields: [createdByUserId], references: [id])
-  AskQuestionAnswer AskQuestionAnswer[]
+  user                     User?                      @relation(fields: [createdByUserId], references: [id])
+  AskQuestionAnswer        AskQuestionAnswer[]
+  UserQuestionAnswerStatus UserQuestionAnswerStatus[]
+
+  @@unique([uuid])
 }
 
 model QuestionOption {
@@ -98,8 +108,11 @@ model QuestionOption {
   createdAt                             DateTime         @default(now())
   updatedAt                             DateTime         @default(now()) @updatedAt
   questionId                            Int
+  index                                 Int // Ordering field
   question                              Question         @relation(fields: [questionId], references: [id])
   questionAnswers                       QuestionAnswer[]
+
+  @@unique([questionId, index]) // Enforces unique index per question [2][5]
 }
 
 model Tag {
@@ -379,6 +392,7 @@ model CampaignMysteryBox {
   CampaignMysteryBoxAllowlist CampaignMysteryBoxAllowlist[]
   MysteryBoxTrigger           MysteryBoxTrigger[]
   boxType                     String
+  isEnabled                   Boolean                       @default(true)
 }
 
 model CampaignMysteryBoxAllowlist {
@@ -420,6 +434,16 @@ view DeckRewards {
 view QuestionRewards {
   bonkReward    String
   creditsReward String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  questionId Int      @id
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+view UserQuestionAnswerStatus {
+  indicatorType String
 
   userId String
   user   User   @relation(fields: [userId], references: [id])
