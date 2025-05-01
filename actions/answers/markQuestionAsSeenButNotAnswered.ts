@@ -35,6 +35,11 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
           questionId,
         },
       },
+      orderBy: {
+        questionOption: {
+          index: "asc",
+        },
+      },
     });
 
     if (existingAnswers.length) {
