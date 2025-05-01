@@ -202,7 +202,11 @@ export async function getAllStacks() {
                     include: {
                       questionAnswers: {
                         where: {
-                          userId,
+                          // If user isn't logged in, match against a non-existent user
+                          // to avoid pulling records for ALL users. We keep this clause
+                          // so the type contains chompResult (empty array).
+                          userId:
+                            userId ?? "00000000-0000-0000-0000-000000000000",
                         },
                       },
                     },
