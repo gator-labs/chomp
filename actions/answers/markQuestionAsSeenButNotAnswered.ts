@@ -12,14 +12,41 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
   if (!payload) return;
 
   const userId = payload.sub;
-  const questionOptions = await prisma.questionOption.findMany({
-    where: { questionId },
-    include: {
-      question: true,
-    },
-  });
 
   try {
+    const questionOptions = await prisma.questionOption.findMany({
+      where: { questionId },
+      include: {
+        question: true,
+      },
+      orderBy: { index: "asc" },
+    });
+
+    const question = questionOptions?.[0]?.question;
+
+    if (!question) {
+      throw new Error("Question not found");
+    }
+
+    const existingAnswers = await prisma.questionAnswer.findMany({
+      where: {
+        userId,
+        questionOption: {
+          questionId,
+        },
+      },
+    });
+
+    if (existingAnswers.length) {
+      const assigned2ndOrderIndex = existingAnswers.findIndex(
+        (a) => !!a.isAssigned2ndOrderOption,
+      );
+
+      return {
+        random: assigned2ndOrderIndex > 0 ? assigned2ndOrderIndex : 0,
+      };
+    }
+
     const numOptions =
       questionOptions.length > 0 ? questionOptions.length - 1 : 0;
 
@@ -30,18 +57,14 @@ export async function markQuestionAsSeenButNotAnswered(questionId: number) {
       userId,
       status: AnswerStatus.Viewed,
       isAssigned2ndOrderOption:
-        index === random &&
-        questionOptions[0].question.type === QuestionType.MultiChoice,
+        index === random && question.type === QuestionType.MultiChoice,
       selected: false,
     }));
     await prisma.questionAnswer.createMany({
       data: answerData,
     });
     return {
-      random:
-        questionOptions[0].question.type === QuestionType.MultiChoice
-          ? random
-          : 0,
+      random: question.type === QuestionType.MultiChoice ? random : 0,
     };
   } catch (error) {
     Sentry.captureException(error, {

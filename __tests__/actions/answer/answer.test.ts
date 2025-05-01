@@ -234,6 +234,14 @@ describe("Validate points logs for completing questions and decks", () => {
       if (i == randomRes) expect(questionAnswer[i].percentage).toBe(50);
       else expect(questionAnswer[i].percentage).toBeNull();
     }
+
+    // Calling again should succeed and return the existing result
+
+    await expect(
+      markQuestionAsSeenButNotAnswered(deckQuestionId),
+    ).resolves.toEqual(
+      expect.objectContaining({ random: seenQuestion?.random }),
+    );
   });
 
   it("should not allow a user to answer the same question twice", async () => {
