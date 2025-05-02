@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: NextRequest) {
-  const data = await request.json();
   // parse backend-secret and source headers
   const backendSecret = request.headers.get("backend-secret");
   if (backendSecret !== process.env.BACKEND_SECRET) {
@@ -14,6 +13,8 @@ export async function POST(request: NextRequest) {
 
   // source corresponds to Zuplo -> Services -> API Key Service -> select consumer -> metadata -> source
   const source = request.headers.get("source");
+
+  const data = await request.json();
 
   try {
     const validation = questionSchema.safeParse(data);
@@ -126,6 +127,9 @@ export async function POST(request: NextRequest) {
       options: res.questionOptions,
     });
   } catch {
-    return NextResponse.json({ status: "Internal Server Error" });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }
