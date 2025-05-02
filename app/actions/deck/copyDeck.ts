@@ -77,11 +77,14 @@ export async function copyDeck(deckId: number): Promise<number> {
 
       if (newQuestion) {
         const { id, uuid, ...newQuestionWithoutId } = newQuestion;
+        const questionOptionsDataWithoutId = questionOptionsData.map(
+          ({ uuid, ...rest }) => rest,
+        );
 
         const newData = {
           ...newQuestionWithoutId,
           deckQuestions: { create: newDeckQuestion },
-          questionOptions: { create: questionOptionsData },
+          questionOptions: { create: questionOptionsDataWithoutId },
           questionTags: { create: questionTagsData },
         };
 
