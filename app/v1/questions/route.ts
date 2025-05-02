@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
       description,
       options,
       resolveAt,
+      activeAt,
       imageUrl,
       rules,
       onChainAddress,
@@ -99,6 +100,7 @@ export async function POST(request: NextRequest) {
             ? QuestionType.BinaryQuestion
             : QuestionType.MultiChoice,
         revealAtDate: resolveAt,
+        activeFromDate: activeAt,
         imageUrl: imageUrl,
         rules: rules,
         onChainAddress: onChainAddress,
@@ -110,7 +112,12 @@ export async function POST(request: NextRequest) {
         },
       },
       include: {
-        questionOptions: true,
+        questionOptions: {
+          select: {
+            index: true,
+            uuid: true,
+          },
+        },
       },
     });
 
