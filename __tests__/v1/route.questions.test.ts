@@ -38,6 +38,7 @@ describe("POST /v1/questions", () => {
         questionOptions: true,
       },
     });
+
     await prisma.questionOption.deleteMany({
       where: {
         id: {
@@ -123,7 +124,7 @@ describe("POST /v1/questions", () => {
 
     const json = await res.json();
 
-    questionUuid = json.uuid;
+    questionUuid = json.questionId;
 
     const getQuestion = await prisma.question.findFirst({
       where: {
