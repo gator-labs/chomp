@@ -24,27 +24,13 @@ export async function POST(request: NextRequest) {
       for (const issue of issues) {
         // Option errors
         if (issue.path[0] === "options") {
-          if (issue.code === "too_small" || issue.code === "too_big") {
-            return NextResponse.json(
-              {
-                error: "question_invalid",
-                message: "Exactly 2 or 4 options must be provided",
-              },
-              { status: 400 },
-            );
-          }
-          if (
-            issue.path.length === 3 &&
-            (issue.path[2] === "title" || issue.path[2] === "index")
-          ) {
-            return NextResponse.json(
-              {
-                error: "option_invalid",
-                message: "Option missing title/index",
-              },
-              { status: 400 },
-            );
-          }
+          return NextResponse.json(
+            {
+              error: "option_invalid",
+              message: issue.message,
+            },
+            { status: 400 },
+          );
         }
         // Title missing
         if (issue.path[0] === "title") {
@@ -123,8 +109,11 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({
-      id: res.uuid,
-      options: res.questionOptions,
+      questionId: res.uuid,
+      options: res.questionOptions.map(({ index, uuid }) => ({
+        index,
+        optionId: uuid,
+      })),
     });
   } catch {
     return NextResponse.json(
