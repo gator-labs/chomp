@@ -1,15 +1,6 @@
 import prisma from "@/app/services/prisma";
 import { POST } from "@/app/v1/questions/route";
-
-jest.mock("@/app/services/prisma", () => ({
-  question: {
-    create: jest.fn(),
-  },
-}));
-
-jest.mock("uuid", () => ({
-  v4: jest.fn(() => "mock-uuid"),
-}));
+import { v4 as uuidv4 } from "uuid";
 
 // Helper to create a mock NextRequest
 function createMockRequest({
@@ -29,12 +20,28 @@ function createMockRequest({
 
 describe("POST /v1/questions", () => {
   const BACKEND_SECRET = "test-secret";
+  let questionUuid: string;
   beforeAll(() => {
     process.env.BACKEND_SECRET = BACKEND_SECRET;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(async () => {
+    const res = await prisma.question.findFirst({
+      where: {
+        uuid: questionUuid,
+      },
+    });
+    await prisma.questionOption.deleteMany({
+      where: { questionId: res?.id },
+    });
+
+    await prisma.question.delete({
+      where: { id: res?.id },
+    });
   });
 
   it("returns 401 if backend-secret is missing or incorrect", async () => {
@@ -93,16 +100,14 @@ describe("POST /v1/questions", () => {
       resolveAt: new Date(now.getTime() + 23 * 60 * 60 * 1000).toISOString(),
       activeAt: new Date().toISOString(),
     };
-    (prisma.question.create as jest.Mock).mockResolvedValue({
-      uuid: "mock-uuid",
-      questionOptions: [
-        { index: 0, uuid: "option-uuid-0" },
-        { index: 1, uuid: "option-uuid-1" },
-      ],
-    });
+
+    const source = `v1-questions-test-${uuidv4()}`;
 
     const req = createMockRequest({
-      headers: { "backend-secret": BACKEND_SECRET },
+      headers: {
+        "backend-secret": BACKEND_SECRET,
+        source: source,
+      },
       body: mockBody,
     });
 
@@ -110,12 +115,29 @@ describe("POST /v1/questions", () => {
     expect(res.status).toBe(200);
 
     const json = await res.json();
+
+    questionUuid = json.uuid;
+
+    const getQuestion = await prisma.question.findFirst({
+      where: {
+        source: source,
+      },
+      include: {
+        questionOptions: {
+          select: {
+            index: true,
+            uuid: true,
+          },
+        },
+      },
+    });
+
     expect(json).toEqual({
-      questionId: "mock-uuid",
-      options: [
-        { index: 0, optionId: "option-uuid-0" },
-        { index: 1, optionId: "option-uuid-1" },
-      ],
+      questionId: getQuestion?.uuid,
+      options: getQuestion?.questionOptions.map(({ index, uuid }) => ({
+        index,
+        optionId: uuid,
+      })),
     });
   });
 });
