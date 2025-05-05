@@ -49,30 +49,36 @@ describe("POST /v1/questions", () => {
     const req = createMockRequest({
       headers: { "backend-secret": BACKEND_SECRET },
       body: {
+        description: "desc",
         options: [
           { title: "A", index: 0 },
           { title: "B", index: 1 },
         ],
+        activeAt: new Date().toISOString(),
       },
     });
     const res = await POST(req as any);
     expect(res.status).toBe(400);
     const json = await res.json();
     expect(json.error).toBe("question_invalid");
+    expect(json.message).toBe("Title must be defined");
   });
 
   it("returns 400 for invalid number of options", async () => {
     const req = createMockRequest({
       headers: { "backend-secret": BACKEND_SECRET },
       body: {
-        title: "Test",
-        options: [{ title: "A", index: 0 }], // only 1 option
+        title: "Test Q",
+        description: "desc",
+        options: [{ title: "A", index: 0 }],
+        activeAt: new Date().toISOString(),
       },
     });
     const res = await POST(req as any);
     expect(res.status).toBe(400);
     const json = await res.json();
-    expect(json.error).toBe("question_invalid");
+    expect(json.error).toBe("option_invalid");
+    expect(json.message).toBe("Array must have exactly 2 or 4 options");
   });
 
   it("creates a question and returns id/options on success", async () => {
@@ -105,10 +111,10 @@ describe("POST /v1/questions", () => {
 
     const json = await res.json();
     expect(json).toEqual({
-      id: "mock-uuid",
+      questionId: "mock-uuid",
       options: [
-        { index: 0, uuid: "option-uuid-0" },
-        { index: 1, uuid: "option-uuid-1" },
+        { index: 0, optionId: "option-uuid-0" },
+        { index: 1, optionId: "option-uuid-1" },
       ],
     });
   });
