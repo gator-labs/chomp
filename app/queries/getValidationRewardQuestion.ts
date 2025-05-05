@@ -81,6 +81,7 @@ WHERE
     AND fatl."change" < 0
     AND fatl.change = -q."creditCostPerQuestion"
     AND qa."percentage" IS NOT NULL
+    AND qo."calculatedAveragePercentage" IS NOT NULL
     AND qa."userId" = ${userId};
 	`;
 
