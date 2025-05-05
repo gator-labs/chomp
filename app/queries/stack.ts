@@ -37,6 +37,22 @@ export async function getStacks() {
   });
 }
 
+/**
+ * Retrieves a stack by ID with user-specific data
+ *
+ * This function fetches a stack and its associated decks, questions, and answers.
+ * The data is tailored to the currently authenticated user:
+ * - Only includes question answers from the current user
+ * - Calculates metrics like totalCreditCost, totalRewardAmount for each deck
+ * - Tracks how many questions the current user has answered in each deck
+ * - Sorts decks by their status (open, upcoming, closed) relative to current time
+ *
+ * If no user is authenticated, it still returns the stack data but with empty
+ * answer collections (using a non-existent UUID to avoid pulling all users' data).
+ *
+ * @param id - The numeric ID of the stack to retrieve
+ * @returns The stack with enhanced deck data and user-specific metrics, or null if not found
+ */
 export async function getStack(id: number) {
   const jwt = await getJwtPayload();
   const userId = jwt?.sub;
