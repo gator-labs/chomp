@@ -34,9 +34,16 @@ describe("POST /v1/questions", () => {
       where: {
         uuid: questionUuid,
       },
+      include: {
+        questionOptions: true,
+      },
     });
     await prisma.questionOption.deleteMany({
-      where: { questionId: res?.id },
+      where: {
+        id: {
+          in: res?.questionOptions.map((qo) => qo.id),
+        },
+      },
     });
 
     await prisma.question.delete({
