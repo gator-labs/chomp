@@ -10,8 +10,12 @@ export const questionSchema = z
     title: z.string().min(1),
     options: z
       .array(OptionSchema)
-      .length(2)
-      .or(z.array(OptionSchema).length(4)),
+      .length(2, { message: "Array must have exactly 2 or 4 options" })
+      .or(
+        z
+          .array(OptionSchema)
+          .length(4, { message: "Array must have exactly 2 or 4 options" }),
+      ),
     rules: z.string().optional(),
     description: z.string().optional(),
     imageUrl: z.string().url().optional(),
