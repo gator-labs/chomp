@@ -79,6 +79,7 @@ WHERE
     AND fatl."userId" = ${userId}
     AND fatl."type" = 'PremiumQuestionCharge'
     AND fatl."change" < 0
+    AND fatl.change = -q.creditCostPerQuestion
     AND qa."percentage" IS NOT NULL
     AND qa."userId" = ${userId};
 	`;
