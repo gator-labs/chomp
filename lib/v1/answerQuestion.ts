@@ -58,6 +58,10 @@ export async function answerQuestion(
     throw new ApiQuestionInactiveError("Question is not answerable yet");
   }
 
+  if (question.revealAtDate && new Date(question.revealAtDate) <= now) {
+    throw new ApiQuestionInactiveError("Question is already resolved");
+  }
+
   const firstOrder = options.find(
     (option) => option.uuid === firstOrderOptionId,
   );
