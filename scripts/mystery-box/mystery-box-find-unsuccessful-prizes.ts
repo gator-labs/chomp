@@ -3,29 +3,25 @@ import { ParsedTransactionWithMeta } from "@solana/web3.js";
 import debug from "debug";
 import fs from "fs";
 import path from "node:path";
-import util from "node:util";
 
 import { CONNECTION } from "../../app/utils/solana";
 
+const isMainModule = require.main === module;
+
 // ❗🙈🙉 Add date to which start looking for problematic transactions, set as null to start from the beginning of time
 // considers this takes a loooong time, if you are just testing try a few days.
-const START_AT_CREATED_AT: string | null = null;
+let START_AT_CREATED_AT: string | null = null;
 
 const logMain = debug("main");
-
-const logProd = debug("prod");
-const logFilter = debug("filter");
+const logProcess = debug("process");
 const logCsv = debug("csv");
-
-const debugProd = debug("prod:debug");
-const debugFilter = debug("filter:debug");
-//const debugCsv = debug('csv:debug');
+const debugProcess = debug("process:debug");
 
 debug.enable("main");
 // verbose debug
-//debug.enable('prod:*,filter:*,csv:*,main:*');
+//debug.enable('process:*,csv:*,main:*');
 // normal debug
-debug.enable("prod,filter,csv,main");
+debug.enable("process,csv,main");
 
 const prisma = new PrismaClient();
 
@@ -40,13 +36,7 @@ type MysteryBoxPrizeWithChainTX = {
 
 // Output file CSV row type
 type CSVRowNormalized = MysteryBoxPrizeWithChainTX & {
-  error: "NOT_EXISTS" | "FAILED";
-};
-
-type MysteryBoxPrizeWithChainTXWithSolTxErrored = {
-  mbp: MysteryBoxPrizeWithChainTX;
-  tx: ParsedTransactionWithMeta | null;
-  error: "NOT_EXISTS" | "FAILED";
+  error: "NOT_EXISTS" | "FAILED" | "SCRIPT_ERROR";
 };
 
 function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
@@ -68,20 +58,12 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
  *  - Failed Solana transaction
  *
  * Architecture:
- * [Stage 1]
- * Producer: Gets MysteryBoxPrizes
- *           → Queue<Array> 1
- *
- * [Stage 2]
- * Consumer/Producer: Filter MysteryBoxPrizes where TXs does not exists or is unsuccessful
- *           → Queue 2<Array>
- *
- * [Stage 3]
- * Consumer: Save problematic MysteryBoxPrizes in CSV file
- *           → CSV file
+ * 1. Get MysteryBoxPrizes in batches
+ * 2. For each prize, check if the transaction exists and is successful
+ * 3. If there's an issue, write it to the CSV file
  **/
 
-logMain("Finding users with Mistery Box Prizes not on chain");
+logMain("Finding users with Mystery Box Prizes not on chain");
 
 // Create needed indexes: NOTICE: this script is only intented to run on replica
 // if you want to run this script on real prod consider that the indexes are permanent
@@ -129,30 +111,136 @@ async function ensureIndexesExist() {
   logMain("Index verification/creation completed");
 }
 
-let mysteryBoxPrizesProducerFinshed = false;
-let mbpProdCount = 0;
-async function produceMysteryBoxPrizes(
-  queue: Array<MysteryBoxPrizeWithChainTX>,
-  maxQueued: number,
-  batchSize: number,
-  pull_time: number,
+// Function to check a single transaction
+async function checkSolTransaction(
+  mbp: MysteryBoxPrizeWithChainTX,
+  csvWriter: (row: CSVRowNormalized) => void,
 ): Promise<void> {
-  logProd("[MBP Prod] Started!");
+  logProcess(`Processing: ${mbp.mbpClaimHash}`);
 
-  let theresMorePrizesInDb = true;
-  let offset = 0;
+  // Keeping ts happy
+  // This should not happen we only query records with claimHash
+  if (mbp.mbpClaimHash == null) {
+    logProcess(`[ERROR] Found MBP with null claimHash: ${mbp.mbpId}`);
+    return;
+  }
 
-  do {
-    // if queue is full we wait PULL_TIME and try again
-    if (queue.length >= maxQueued) {
-      await new Promise((resolve) => setTimeout(resolve, pull_time));
-      debugProd("[MBP Prod]: queue 1 full, waiting ");
-      continue;
+  try {
+    debugProcess(`Getting TX: ${mbp.mbpClaimHash}`);
+
+    const tx = await CONNECTION.getParsedTransaction(mbp.mbpClaimHash, {
+      commitment: "confirmed",
+      maxSupportedTransactionVersion: 0,
+    });
+
+    // Transaction does not exist at all on Blockchain (problematic!)
+    if (tx === null) {
+      logProcess(
+        `Found a TX that does not exist on Blockchain: ${mbp.mbpClaimHash}`,
+      );
+
+      csvWriter({
+        ...mbp,
+        error: "NOT_EXISTS",
+      });
+
+      return;
     }
 
-    let newPrizes: Array<MysteryBoxPrizeWithChainTX>;
+    // Transaction has error (problematic!)
+    if (!isTransactionSuccessful(tx)) {
+      logProcess(`Found TX not successful: ${mbp.mbpClaimHash}`);
+      debugProcess(tx.meta);
+
+      csvWriter({
+        ...mbp,
+        error: "FAILED",
+      });
+
+      return;
+    }
+
+    // TX is fine
+    logProcess(`TX is fine: ${mbp.mbpClaimHash}`);
+  } catch (err) {
+    // Error getting transaction
+    logProcess(`Error getting TX ${mbp.mbpClaimHash}: ${err}`);
+
+    // Record this mbp as error: "SCRIPT_ERROR" in the csv
+    // it will be retried again in the next script
+    csvWriter({
+      ...mbp,
+      error: "SCRIPT_ERROR" as any, // Type assertion to handle the new error type
+    });
+  }
+}
+
+// Process mystery box prizes in batches, but handle each one sequentially
+async function processMysteryBoxPrizes(
+  batchSize: number,
+  csvPath: string,
+): Promise<void> {
+  logMain("Starting sequential processing of Mystery Box Prizes");
+
+  // Initialize counters
+  let processedCount = 0;
+  let errorCount = 0;
+  let notExistsCount = 0;
+  let failedCount = 0;
+  let scriptErrorCount = 0;
+
+  // Create or truncate the output file
+  fs.writeFileSync(csvPath, "");
+
+  // Create CSV file headers
+  const headers =
+    [
+      "mbpId",
+      "mbpClaimHash", // TxId
+      "error",
+      "ctFinalizedAt",
+      "mbUserId",
+      "chainTxTokenAmount",
+      "chainTxRecipientAddress",
+    ].join(",") + "\n";
+
+  // Write headers to the CSV file
+  fs.appendFileSync(csvPath, headers);
+
+  // CSV writer function
+  const writeToCsv = (row: CSVRowNormalized) => {
+    const csvLine =
+      [
+        row.mbpId,
+        row.mbpClaimHash,
+        row.error,
+        row.ctFinalizedAt,
+        row.mbUserId,
+        row.chainTxTokenAmount.toString(),
+        row.chainTxRecipientAddress,
+      ].join(",") + "\n";
+
+    fs.appendFileSync(csvPath, csvLine);
+
+    if (row.error === "NOT_EXISTS") {
+      notExistsCount++;
+    } else if (row.error === "FAILED") {
+      failedCount++;
+    } else if (row.error === "SCRIPT_ERROR") {
+      scriptErrorCount++;
+    }
+
+    errorCount++;
+    logCsv(`Found problematic MBP ${row.mbpId} (${row.error})`);
+  };
+
+  let offset = 0;
+  let hasMoreRecords = true;
+
+  while (hasMoreRecords) {
     try {
-      newPrizes = await prisma.$queryRawUnsafe<
+      // Fetch a batch of records
+      const prizes = await prisma.$queryRawUnsafe<
         Array<MysteryBoxPrizeWithChainTX>
       >(`
         SELECT 
@@ -180,279 +268,64 @@ async function produceMysteryBoxPrizes(
           mbp."createdAt" DESC
         LIMIT ${batchSize} OFFSET ${offset};
       `);
-    } catch (err) {
-      logProd("[MBP Prod]: db error, waiting a bit & trying again...");
-      logProd(err);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      continue;
-    }
 
-    if (!newPrizes.length) {
-      logProd("[MBP Prod]: theres no more prizes on db");
-      theresMorePrizesInDb = false;
-      continue;
-    }
-    logProd(`[MBP Prod] got ${newPrizes.length} MBP`);
-
-    mbpProdCount += newPrizes.length;
-    offset += newPrizes.length;
-
-    queue.unshift(...newPrizes);
-  } while (theresMorePrizesInDb);
-
-  mysteryBoxPrizesProducerFinshed = true;
-  logProd(`[MBP Prod] Finished! Produced: ${mbpProdCount}`);
-}
-
-let filteredCount = 0;
-let mbpWTxNotExistErrorCount = 0;
-let mbpWTxFailErrorCount = 0;
-let mysteryBoxFilterFinished = false;
-let checkTxErrorCount = 0;
-async function consumeMysteryBoxPrizesCheckTXsAndFilter(
-  queueMBPs: Array<MysteryBoxPrizeWithChainTX>,
-  queueMBPWErrors: Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>,
-  maxWorkers: number,
-  queuePullTime: number,
-  workerPullTime: number,
-): Promise<void> {
-  logFilter("[Filter] Started!");
-
-  const workers: Array<Function | null> = new Array(maxWorkers).fill(null);
-
-  function findAvailableWorker(): number | null {
-    for (let i = 0; i < maxWorkers; i++) {
-      if (!workers[i]) {
-        return i;
+      if (prizes.length === 0) {
+        hasMoreRecords = false;
+        continue;
       }
-    }
-    return null;
-  }
 
-  async function checkSolTXWorker(
-    index: number,
-    mbp: MysteryBoxPrizeWithChainTX,
-  ) {
-    debugFilter(`[Filter W${index}] TXCheck: `, mbp.mbpClaimHash);
-
-    // this should not happen, keeping ts happy
-    if (mbp.mbpClaimHash == null) {
-      logFilter(
-        `[Filter W${index}] Found MBP with null claimHash: `,
-        mbp.mbpId,
+      logMain(
+        `Processing batch of ${prizes.length} records (offset: ${offset})`,
       );
-      return null;
-    }
 
-    let tx: ParsedTransactionWithMeta | null = null;
-    try {
-      debugFilter(`[Filter W${index}] getting TX`);
+      // Process each record sequentially
+      for (const prize of prizes) {
+        await checkSolTransaction(prize, writeToCsv);
+        processedCount++;
 
-      tx = await CONNECTION.getParsedTransaction(mbp.mbpClaimHash, {
-        commitment: "confirmed",
-        maxSupportedTransactionVersion: 0,
-      });
-
-      // Transaction does not exists at all on Blockchain (problematic!)
-      if (tx === null) {
-        debugFilter(
-          `[Filter W${index}] found a TX that does not exists on Blockchain ${mbp.mbpClaimHash}`,
-        );
-
-        queueMBPWErrors.push({ mbp, tx, error: "NOT_EXISTS" });
-        mbpWTxNotExistErrorCount++;
-
-        return;
+        if (processedCount % 10 === 0) {
+          logMain(
+            `Processed ${processedCount} records, found ${errorCount} errors (${notExistsCount} not exist, ${failedCount} failed, ${scriptErrorCount} script errors)`,
+          );
+        }
       }
 
-      // Transaction has error (problematic!)
-      if (!isTransactionSuccessful(tx)) {
-        debugFilter(`[Filter W${index}] found tx not successful`);
-        debugFilter(`[Filter W${index}]`, tx.meta);
-        debugFilter(tx);
-
-        queueMBPWErrors.push({ mbp, tx, error: "FAILED" });
-        mbpWTxFailErrorCount++;
-
-        return;
-      }
-
-      // tx is fine
-      logFilter(`[filter W${index}] tx is fine ${mbp.mbpClaimHash}`);
-      return null;
+      offset += prizes.length;
     } catch (err) {
-      // Error getting transaction, Ignoring it for the moment
-      checkTxErrorCount++;
-      logFilter("[Filter W${index}] error getting TX adding it back to queue");
-      queueMBPs.push(mbp);
-
-      // Ignore ERROR
-      return;
-    } finally {
-      filteredCount++;
+      logMain(`Database error: ${err}`);
+      // Wait a bit before retrying
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
-  while (!mysteryBoxPrizesProducerFinshed || queueMBPs.length) {
-    // if there are no queue elements wait for a bit
-    if (!queueMBPs.length) {
-      debugFilter("[Filter] queue empty waiting");
-      await new Promise((resolve) => setTimeout(resolve, queuePullTime));
-      continue;
-    }
-
-    let availableWorkerIndex = findAvailableWorker();
-    if (availableWorkerIndex === null) {
-      debugFilter("[Filter] no available workers, waiting");
-      await new Promise((resolve) => setTimeout(resolve, workerPullTime));
-      continue;
-    }
-
-    debugFilter("[Filter] available worker: ", availableWorkerIndex);
-
-    const mysteryPrizeBox = queueMBPs.pop();
-
-    if (!mysteryPrizeBox) {
-      throw new Error("[Filter] ERROR pop empty queueMBPs");
-    }
-
-    // set the worker slot as "busy"
-    workers[availableWorkerIndex] = () => {}; // TODO: use a boolean instead
-    // run the worker and clear worker slot when it finishes
-    checkSolTXWorker(availableWorkerIndex, mysteryPrizeBox).finally(
-      () => (workers[availableWorkerIndex] = null),
-    );
-  }
-
-  mysteryBoxFilterFinished = true;
-  logFilter(`[MBP Filter] Finished! Filtered: ${filteredCount}`);
-}
-
-//let csvProdFinished = false;
-async function consumeMysteryBoxPrizesWTxToCsv(
-  queueMbpWTx: Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>,
-  pull_time: number,
-  outputFilePath: string,
-) {
-  logCsv("CSV writter started");
-
-  // Create or truncate the output file
-  fs.writeFileSync(outputFilePath, "");
-
-  // Create CSV file headers
-  const csvLine =
-    [
-      "mbpId",
-      "mbpClaimHash", // TxId
-      "error",
-      "ctFinalizedAt",
-      "mbUserId",
-      "chainTxTokenAmount",
-      "chainTxRecipientAddress",
-    ].join(",") + "\n";
-
-  // Append file headers to the CSV file
-  fs.appendFileSync(outputFilePath, csvLine);
-
-  do {
-    // if there's nothing on the queue wait a bit
-    if (!queueMbpWTx.length) {
-      await new Promise((resolve) => setTimeout(resolve, pull_time));
-      continue;
-    }
-
-    const mbpWTx = queueMbpWTx.pop();
-
-    if (mbpWTx == null) {
-      console.error("Should not happen keep ts happy");
-      continue;
-    }
-
-    const csvRow: CSVRowNormalized = {
-      mbpId: mbpWTx.mbp.mbpId,
-      mbpClaimHash: mbpWTx.mbp.mbpClaimHash,
-      error: mbpWTx.error,
-      ctFinalizedAt: mbpWTx.mbp.ctFinalizedAt,
-      mbUserId: mbpWTx.mbp.mbUserId,
-      chainTxTokenAmount: mbpWTx.mbp.chainTxTokenAmount,
-      chainTxRecipientAddress: mbpWTx.mbp.chainTxRecipientAddress,
-    };
-
-    // Create CSV line
-    const csvLine =
-      [
-        csvRow.mbpId,
-        csvRow.mbpClaimHash, // TxId
-        csvRow.error,
-        csvRow.ctFinalizedAt,
-        csvRow.mbUserId,
-        csvRow.chainTxTokenAmount.toString(),
-        csvRow.chainTxRecipientAddress,
-      ].join(",") + "\n";
-
-    // Append to the CSV file
-    fs.appendFileSync(outputFilePath, csvLine);
-
-    logCsv(`Found problematic MBP ${mbpWTx.mbp.mbpId}`);
-    logCsv(util.inspect(mbpWTx, { depth: null }));
-  } while (
-    !mysteryBoxPrizesProducerFinshed ||
-    !mysteryBoxFilterFinished ||
-    queueMbpWTx.length
+  logMain(
+    `Processing complete. Total processed: ${processedCount}, errors: ${errorCount} (${notExistsCount} not exist, ${failedCount} failed, ${scriptErrorCount} script errors)`,
   );
-
-  //csvProdFinished = true;
-  logCsv("[CSV] Finished!");
 }
 
-async function main() {
-  // MBP Producer settings
-  const MBP_PRODUCER_MAX_QUEUED = 100;
-  const MBP_PRODUCER_BATCH = 20;
-  const PULL_TIME = 200;
-
-  // Filter consumer/producer settings
-  const MAX_WORKERS = 1; // More than 2 gives "Too Many Requests" errors some times, use 1 to be safe
-  const QUEUE_PULL_TIME = 10;
-  const WORKER_PULL_TIME = 10;
-
-  // CSV Consumer settings
-  const CSV_PULL_TIME = 50;
-  const CSV_PATH = path.join(__dirname, `results-${new Date()}.csv`);
+export async function main(startAtCreatedAt?: string) {
+  if (startAtCreatedAt) {
+    START_AT_CREATED_AT = startAtCreatedAt;
+  }
+  const BATCH_SIZE = 20;
+  const CSV_PATH = path.join(
+    __dirname,
+    `results-${new Date().toISOString().replace(/:/g, "-")}.csv`,
+  );
 
   await ensureIndexesExist();
 
-  const prizeCount = await prisma.$queryRawUnsafe(`
-    SELECT COUNT(DISTINCT "claimHash") as count
-    FROM "MysteryBoxPrize"
-    WHERE "prizeType" = 'Token'
-    AND "status" = 'Claimed'
-    AND "claimHash" IS NOT NULL
-  `);
+  await processMysteryBoxPrizes(BATCH_SIZE, CSV_PATH);
 
-  logMain(`There are ${util.inspect(prizeCount, { depth: null })} MBPs in DB`);
+  logMain(`Results written to ${CSV_PATH}`);
 
-  // Queue for all MBPs found in DB
-  const queueMBPs = new Array<MysteryBoxPrizeWithChainTX>();
-  produceMysteryBoxPrizes(
-    queueMBPs,
-    MBP_PRODUCER_MAX_QUEUED,
-    MBP_PRODUCER_BATCH,
-    PULL_TIME,
-  );
-
-  // Queue for MBPs where TX is failed
-  const queueMBPWErrors =
-    new Array<MysteryBoxPrizeWithChainTXWithSolTxErrored>();
-  consumeMysteryBoxPrizesCheckTXsAndFilter(
-    queueMBPs,
-    queueMBPWErrors,
-    MAX_WORKERS,
-    QUEUE_PULL_TIME,
-    WORKER_PULL_TIME,
-  );
-
-  consumeMysteryBoxPrizesWTxToCsv(queueMBPWErrors, CSV_PULL_TIME, CSV_PATH);
+  return CSV_PATH;
 }
 
-main().catch((err) => console.error(err));
+if (isMainModule) {
+  main()
+    .catch((err) => console.error(err))
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
