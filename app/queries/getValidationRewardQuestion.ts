@@ -84,7 +84,6 @@ WHERE
     AND fatl."type" = 'PremiumQuestionCharge'
     AND fatl."change" < 0;
 	`;
-  console.log(questions);
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
 };
