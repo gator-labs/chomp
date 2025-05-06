@@ -184,6 +184,53 @@ describe("API answer question", () => {
     });
   });
 
+  it("should reject request with missing parameter", async () => {
+    const mockRequest = {
+      json: jest.fn().mockResolvedValue({
+        source: "crocodile",
+        firstOrderOptionId: question0OptionUuids[0],
+        secondOrderOptionId: question0OptionUuids[1],
+        secondOrderEstimate: 0.5,
+      }),
+      headers: new Headers({
+        source: "crocodile",
+        "backend-secret": process.env.BACKEND_SECRET || "",
+      }),
+    } as unknown as NextRequest;
+
+    const response = await POST(mockRequest, {
+      params: { id: questionUuids[0] },
+    });
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe("answer_invalid");
+  });
+
+  it("should reject out of range estimate", async () => {
+    const mockRequest = {
+      json: jest.fn().mockResolvedValue({
+        userAddress: user1.wallet,
+        source: "crocodile",
+        firstOrderOptionId: question0OptionUuids[0],
+        secondOrderOptionId: question0OptionUuids[1],
+        secondOrderEstimate: 1.1,
+      }),
+      headers: new Headers({
+        source: "crocodile",
+        "backend-secret": process.env.BACKEND_SECRET || "",
+      }),
+    } as unknown as NextRequest;
+
+    const response = await POST(mockRequest, {
+      params: { id: questionUuids[0] },
+    });
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe("answer_invalid");
+  });
+
   it("should not answer inactive question", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
