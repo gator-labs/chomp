@@ -15,7 +15,22 @@ async function findOrCreateUser(wallet: string) {
 
   if (user) return user.userId;
 
-  const newUserId = createDynamicUser(wallet);
+  const newUserId = await createDynamicUser(wallet);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.user.create({
+      data: {
+        id: newUserId,
+      },
+    });
+
+    await tx.wallet.create({
+      data: {
+        userId: newUserId,
+        address: wallet,
+      },
+    });
+  });
 
   return newUserId;
 }
