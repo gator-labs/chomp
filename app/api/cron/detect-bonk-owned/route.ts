@@ -15,11 +15,10 @@ export async function GET(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  //const startOfDayUTCMinusOneHour = dayjs().utc().startOf("day").subtract(15, "days").toDate().toISOString();
-  //const startOfDayUTCMinusOneHour = dayjs().utc().startOf("day").toDate().toISOString();
   const startOfDayUTCMinusOneHour = dayjs()
     .utc()
-    .subtract(2, "hour")
+    .startOf("day")
+    .subtract(1, "hour")
     .toDate()
     .toISOString();
   const resFindFilePath = await findUnsuccessfulPrices(
@@ -29,14 +28,11 @@ export async function GET(request: Request) {
   const resCleanFilePath = await resultsCleanFalsePositives(resFindFilePath);
 
   const fileTxt = readFileSync(resCleanFilePath, { encoding: "utf8" });
-  console.log("fileTxt", fileTxt);
   const fileTxtRowsLength = fileTxt
     .split(/\n/)
     .filter((line) => line.trim() !== "").length;
-  console.log("fileTxtRowsLength");
 
   if (fileTxtRowsLength > 1) {
-    console.log("Found problematic transactions");
     Sentry.getCurrentScope().addAttachment({
       filename: `problematic-prices-${new Date().toISOString().replace(/:/g, "-")}.csv`,
       data: fileTxt,
@@ -57,7 +53,6 @@ export async function GET(request: Request) {
       },
     );
   } else {
-    console.log("Did Not found problematic prizes");
     Sentry.captureMessage("Not found problematic MysteryBoxPrices today :)");
   }
 
