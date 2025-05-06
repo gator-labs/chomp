@@ -29,7 +29,6 @@ export const getValidationRewardQuestions = async (): Promise<
   if (!payload) {
     return null;
   }
-
   const userId = payload.sub;
 
   const questions = await prisma.$queryRaw<
@@ -52,37 +51,32 @@ WITH MysteryBoxCte AS (
         AND mb."userId" = ${userId}
 )
 SELECT 
-    DISTINCT q.id,
-    q.question,
-    (
-        SELECT COUNT(DISTINCT CONCAT(qa."userId", qo."questionId"))
-        FROM public."QuestionOption" qo
-        JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
-        WHERE qo."questionId" = q."id"
-    ) AS "answerCount"
+    q.id,
 FROM 
     public."Question" q
 JOIN 
     public."FungibleAssetTransactionLog" fatl ON q.id = fatl."questionId"
-JOIN 
-    public."QuestionOption" qo ON q.id = qo."questionId"
-JOIN 
-    public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
 WHERE 
     q."revealAtDate" IS NOT NULL
     AND q."revealAtDate" < NOW()
-   AND NOT EXISTS (
+  AND NOT EXISTS (
         SELECT 1
         FROM MysteryBoxCte
         WHERE MysteryBoxCte."questionId" = q.id
     )
+    AND EXISTS (
+    SELECT 1
+    FROM public."QuestionOption" qo
+    JOIN public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+    WHERE 
+        qo."questionId" = q.id
+        AND qa."userId" = ${userId}
+        AND qo."calculatedAveragePercentage" IS NOT NULL
+        AND qa."percentage" IS NOT NULL)
     AND fatl."userId" = ${userId}
+    AND fatl."change" = -q."creditCostPerQuestion"
     AND fatl."type" = 'PremiumQuestionCharge'
-    AND fatl."change" < 0
-    AND fatl.change = -q."creditCostPerQuestion"
-    AND qa."percentage" IS NOT NULL
-    AND qo."calculatedAveragePercentage" IS NOT NULL
-    AND qa."userId" = ${userId};
+    AND fatl."change" < 0;
 	`;
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
