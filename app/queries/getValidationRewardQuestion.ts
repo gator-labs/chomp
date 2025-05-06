@@ -51,7 +51,13 @@ WITH MysteryBoxCte AS (
         AND mb."userId" = ${userId}
 )
 SELECT 
-    q.id
+    q.id,
+      (
+        SELECT COUNT(DISTINCT CONCAT(qa."userId", qo."questionId"))
+        FROM public."QuestionOption" qo
+        JOIN public."QuestionAnswer" qa ON qa."questionOptionId" = qo."id"
+        WHERE qo."questionId" = q."id"
+    ) AS "answerCount"
 FROM 
     public."Question" q
 JOIN 
@@ -78,6 +84,7 @@ WHERE
     AND fatl."type" = 'PremiumQuestionCharge'
     AND fatl."change" < 0;
 	`;
+  console.log(questions);
 
   return filterQuestionsByMinimalNumberOfAnswers(questions);
 };
