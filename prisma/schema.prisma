@@ -185,6 +185,8 @@ model DeckQuestion {
 
 model QuestionAnswer {
   id                       Int            @id @default(autoincrement())
+  // uuid is not unique because we will have 2 or 4 per question/user pair
+  uuid                     String         @default(uuid()) @db.Uuid()
   questionOptionId         Int
   questionOption           QuestionOption @relation(fields: [questionOptionId], references: [id])
   userId                   String
