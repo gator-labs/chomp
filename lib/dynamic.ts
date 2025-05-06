@@ -15,7 +15,7 @@ export const revokeDynamicSession = async (userId: string) => {
     throw new Error(`Dynamic revoke call: status code: ${response.status}`);
 };
 
-export const createDynamicUser = async (wallet: string) => {
+export const createDynamicUser = async (wallet: string): Promise<string> => {
   const dynamicBearer = process.env.DYNAMIC_BEARER_TOKEN;
   const dynamicEnv = process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID;
 
@@ -25,6 +25,7 @@ export const createDynamicUser = async (wallet: string) => {
       method: "POST",
       headers: {
         Authorization: `Bearer ${dynamicBearer}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         wallet: {
