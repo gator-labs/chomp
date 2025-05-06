@@ -51,7 +51,7 @@ WITH MysteryBoxCte AS (
         AND mb."userId" = ${userId}
 )
 SELECT 
-    q.id,
+    q.id
 FROM 
     public."Question" q
 JOIN 
