@@ -1,4 +1,4 @@
-import { main as findUnsuccessfulPrices } from "@/scripts/mystery-box/mystery-box-find-unsuccessful-prizes";
+import { main as findUnsuccessfulPrizes } from "@/scripts/mystery-box/mystery-box-find-unsuccessful-prizes";
 import { main as resultsCleanFalsePositives } from "@/scripts/mystery-box/results-clean-false-positives";
 import * as Sentry from "@sentry/nextjs";
 import dayjs from "dayjs";
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     .subtract(1, "hour")
     .toDate()
     .toISOString();
-  const resFindFilePath = await findUnsuccessfulPrices(
+  const resFindFilePath = await findUnsuccessfulPrizes(
     startOfDayUTCMinusOneHour,
   );
 
@@ -34,17 +34,17 @@ export async function GET(request: Request) {
 
   if (fileTxtRowsLength > 1) {
     Sentry.getCurrentScope().addAttachment({
-      filename: `problematic-prices-${new Date().toISOString().replace(/:/g, "-")}.csv`,
+      filename: `problematic-prizes-${new Date().toISOString().replace(/:/g, "-")}.csv`,
       data: fileTxt,
       contentType: "text/csv",
     });
 
     Sentry.captureMessage(
-      `Found problematic MysteryBoxPrices PLEASE CHECK - ${dayjs().utc().format("YYYY-MM-DD HH:mm:ss")} UTC`,
+      `Found problematic MysteryBoxPrizes PLEASE CHECK - ${dayjs().utc().format("YYYY-MM-DD HH:mm:ss")} UTC`,
       {
         level: "error",
         tags: {
-          category: "mystery-box-prices-error-owned",
+          category: "mystery-box-prizes-error-owned",
         },
         extra: {
           instructions:
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
       },
     );
   } else {
-    Sentry.captureMessage("Not found problematic MysteryBoxPrices today :)");
+    Sentry.captureMessage("Not found problematic MysteryBoxPrizes today :)");
   }
 
   await Sentry.flush(20000);
