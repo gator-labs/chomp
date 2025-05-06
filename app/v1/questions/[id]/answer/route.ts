@@ -48,7 +48,7 @@ type AnswerQuestionParams = z.infer<typeof AnswerQuestionParamsSchema>;
 export async function POST(request: NextRequest, params: AnswerQuestionParams) {
   const backendSecret = request.headers.get("backend-secret");
 
-  if (backendSecret !== process.env.BACKEND_SECRET) {
+  if (!backendSecret || backendSecret !== process.env.BACKEND_SECRET) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
