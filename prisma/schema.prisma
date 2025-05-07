@@ -61,7 +61,7 @@ model Email {
 model Question {
   id                          Int                           @id @default(autoincrement())
   // uuid is the public ID used for API queries
-  uuid                        String                        @db.Uuid() @default(uuid())
+  uuid                        String                        @default(uuid()) @db.Uuid()
   question                    String
   description                 String?
   durationMiliseconds         BigInt?
@@ -69,6 +69,7 @@ model Question {
   revealToken                 Token                         @default(Bonk)
   revealTokenAmount           Int                           @default(0)
   revealAtDate                DateTime?
+  activeFromDate              DateTime?
   creditCostPerQuestion       Int?
   revealAtAnswerCount         Int?
   imageUrl                    String?
@@ -98,6 +99,7 @@ model Question {
 
 model QuestionOption {
   id                                    Int              @id @default(autoincrement())
+  uuid                                  String           @default(uuid()) @db.Uuid()
   option                                String
   isCorrect                             Boolean          @default(false)
   calculatedIsCorrect                   Boolean?
@@ -113,6 +115,7 @@ model QuestionOption {
   questionAnswers                       QuestionAnswer[]
 
   @@unique([questionId, index]) // Enforces unique index per question [2][5]
+  @@unique([uuid])
 }
 
 model Tag {
