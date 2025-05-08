@@ -21,6 +21,7 @@ export async function GET(request: Request) {
     .subtract(1, "hour")
     .toDate()
     .toISOString();
+
   const resFindFilePath = await findUnsuccessfulPrizes(
     startOfDayUTCMinusOneHour,
   );
@@ -44,11 +45,11 @@ export async function GET(request: Request) {
       {
         level: "error",
         tags: {
-          category: "mystery-box-prizes-error-owned",
+          category: "mystery-box-prizes-error-owed",
         },
         extra: {
           instructions:
-            "Please download the attached CSV and follow the instructions in scripts/mystery-box/README.md to pay the owned users",
+            "Please download the attached CSV and follow the instructions in scripts/mystery-box/README.md to pay the owed users",
         },
       },
     );

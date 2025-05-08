@@ -22,7 +22,7 @@
       "schedule": "58 * * * *"
     },
     {
-      "path": "/api/cron/detect-bonk-owned",
+      "path": "/api/cron/detect-bonk-owed",
       "schedule": "0 1 * * *"
     }
   ]

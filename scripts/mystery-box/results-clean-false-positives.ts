@@ -1,8 +1,8 @@
-import { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Connection, ParsedTransactionWithMeta } from "@solana/web3.js";
 import { appendFileSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 
-import { CONNECTION } from "../../app/utils/solana";
+const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_CRON_URL!);
 
 const isMainModule = require.main === module;
 

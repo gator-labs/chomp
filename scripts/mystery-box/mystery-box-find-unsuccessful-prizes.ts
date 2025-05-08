@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client";
-import { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Connection, ParsedTransactionWithMeta } from "@solana/web3.js";
 import debug from "debug";
 import fs from "fs";
 import path from "node:path";
 
-import { CONNECTION } from "../../app/utils/solana";
+const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_CRON_URL!);
 
 const isMainModule = require.main === module;
 
@@ -65,8 +65,8 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
 
 logMain("Finding users with Mystery Box Prizes not on chain");
 
-// Create needed indexes: NOTICE: this script is only intented to run on replica
-// if you want to run this script on real prod consider that the indexes are permanent
+// NOTICE: leaving the index creating for cases when you want to run the script
+// manually using replica, in prod they should already exist so this do nothing
 async function ensureIndexesExist() {
   await prisma.$transaction([
     prisma.$executeRaw`
