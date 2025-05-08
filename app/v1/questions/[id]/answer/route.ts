@@ -87,7 +87,7 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
 
     try {
       userId = await findOrCreateUser(req.data.userAddress);
-    } catch (e) {
+    } catch {
       throw new ApiUserInvalidError("Could not find or create user account");
     }
 
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
     return NextResponse.json({
       answerId: uuid,
     });
-  } catch {
+  } catch (e) {
     if (e instanceof ApiError) {
       return NextResponse.json(
         { error: e.error, message: e.message },
