@@ -298,7 +298,7 @@ describe("Ask DB triggers", () => {
     await prisma.deckQuestion.delete({ where: { id: dq.id } });
   });
 
-  it("should invoke acceptance trigger for community deck", async () => {
+  it("should verify the trigger can handle an unexpected schema prefix context", async () => {
     const schemaName = `test_schema_${new Date().getTime()}`;
     const userId = users[1].id;
 
