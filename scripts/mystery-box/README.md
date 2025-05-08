@@ -30,7 +30,7 @@ Remember that every time you run it it generates a new file, so you need to edit
 
 ## 3 Update Database with new TX Info
 
-After analyzing your file, manually send the owned BONK to our users.
+After analyzing your file, manually send the owed BONK to our users.
 
 Then you can add a new column named `paidTx` (name doesn't matter, it's the position seven) and add the TxId there.
 

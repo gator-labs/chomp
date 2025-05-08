@@ -151,7 +151,7 @@ describe("Mystery box history", () => {
         status: EMysteryBoxStatus.Opened,
       }));
 
-    // Make one owned by another user
+    // Make one owed by another user
     boxes[boxes.length - 1].userId = user1.id;
 
     // Make another one unopened

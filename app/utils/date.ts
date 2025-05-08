@@ -74,3 +74,10 @@ export const formatDate = (date: Date | string) => {
 export const yesterdayStartUTC = (): Date => {
   return dayjs().utc().subtract(1, "day").startOf("day").toDate();
 };
+
+/**
+ * Returns a date at the beginning of today in UTC
+ **/
+export const todayStartUTC = (): Date => {
+  return dayjs().utc().startOf("day").toDate();
+};
