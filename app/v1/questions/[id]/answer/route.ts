@@ -103,7 +103,7 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
     return NextResponse.json({
       answerId: uuid,
     });
-  } catch (e) {
+  } catch {
     if (e instanceof ApiError) {
       return NextResponse.json(
         { error: e.error, message: e.message },
