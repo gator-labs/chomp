@@ -87,7 +87,7 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
 
     try {
       userId = await findOrCreateUser(req.data.userAddress);
-    } catch (e) {
+    } catch {
       throw new ApiUserInvalidError("Could not find or create user account");
     }
 

@@ -231,10 +231,10 @@ export async function getNewHistoryQuery(
     q.question AS "question",
     q."revealAtDate" AS "revealAtDate",
     COALESCE(uqas."indicatorType", 'unseen') AS "indicatorType"
-    FROM "Question" q
+    FROM public."Question" q
     JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
     JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
-    LEFT JOIN "UserQuestionAnswerStatus" uqas ON uqas."questionId" = q.id AND uqas."userId" = ${userId}
+    LEFT JOIN public."UserQuestionAnswerStatus" uqas ON uqas."questionId" = q.id AND uqas."userId" = ${userId}
     ORDER BY q.id DESC
     LIMIT ${pageSize} OFFSET ${offset}
   `;
@@ -254,10 +254,10 @@ export async function getHistoryHeadersData(
         SELECT
         q.id AS "id",
         COALESCE(uqas."indicatorType", 'unseen') AS "indicatorType"
-        FROM "Question" q
+        FROM public."Question" q
         JOIN public."DeckQuestion" dq ON dq."questionId" = q.id
         JOIN public."Deck" d ON d.id = dq."deckId" AND (${getAllDecks} IS TRUE OR dq."deckId" = ${deckId})
-        LEFT JOIN "UserQuestionAnswerStatus" uqas ON uqas."questionId" = q.id AND uqas."userId" = ${userId}
+        LEFT JOIN public."UserQuestionAnswerStatus" uqas ON uqas."questionId" = q.id AND uqas."userId" = ${userId}
     ) AS sub
     GROUP BY sub."indicatorType"
 `;
@@ -320,14 +320,14 @@ export async function getAllDeckQuestionsReadyForReveal(
 FROM 
     public."Question" q
 LEFT JOIN 
-    "ChompResult" cr ON cr."questionId" = q.id
+    public."ChompResult" cr ON cr."questionId" = q.id
     AND cr."userId" = ${userId}
     AND cr."transactionStatus" IN ('Completed', 'Pending')
 JOIN 
-    "QuestionOption" qo ON q.id = qo."questionId"
+    public."QuestionOption" qo ON q.id = qo."questionId"
 JOIN 
-    "QuestionAnswer" qa ON qo.id = qa."questionOptionId"
-JOIN "DeckQuestion" dc ON q.id = dc."questionId"
+    public."QuestionAnswer" qa ON qo.id = qa."questionOptionId"
+JOIN public."DeckQuestion" dc ON q.id = dc."questionId"
 WHERE 
     (cr."transactionStatus" IS NULL OR cr."transactionStatus" != 'Completed')
     AND q."revealAtDate" IS NOT NULL
@@ -377,7 +377,7 @@ export async function getAnsweredDecksForHistory(
        WHERE dq."deckId" = d.id) AS "totalQuestions"
     FROM 
       public."Deck" d
-    LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
+    LEFT JOIN public."DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
     WHERE 
       d."revealAtDate" IS NOT NULL
       AND EXISTS (
@@ -446,7 +446,7 @@ export async function getDecksForHistory(
        WHERE dq."deckId" = d.id) AS "totalQuestions"
     FROM 
       public."Deck" d
-    LEFT JOIN "DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
+    LEFT JOIN public."DeckRewards" dr ON dr."userId" = ${userId} AND dr."deckId" = d.id
     WHERE 
       d."revealAtDate" IS NOT NULL
       AND d."revealAtDate" <= NOW()

@@ -17,8 +17,6 @@ describe("answerQuestion", () => {
   let questionIds: number[] = [];
   let questionUuids: string[] = [];
   let question0OptionUuids: string[] = [];
-  let question1OptionUuids: string[] = [];
-  let otherUsers: { id: string; username: string }[] = [];
 
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
@@ -117,7 +115,6 @@ describe("answerQuestion", () => {
       questionUuids = questions.map((q) => q.uuid);
 
       question0OptionUuids = questions[0].questionOptions.map((qo) => qo.uuid);
-      question1OptionUuids = questions[1].questionOptions.map((qo) => qo.uuid);
 
       await tx.deckQuestion.createMany({
         data: [
@@ -150,12 +147,6 @@ describe("answerQuestion", () => {
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { equals: deckId } } });
       await tx.user.deleteMany({ where: { id: { equals: user1.id } } });
-
-      if (otherUsers.length > 0) {
-        await tx.user.deleteMany({
-          where: { id: { in: otherUsers.map((user) => user.id) } },
-        });
-      }
     });
   });
 

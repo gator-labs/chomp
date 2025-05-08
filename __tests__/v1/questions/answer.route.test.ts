@@ -1,6 +1,5 @@
 import prisma from "@/app/services/prisma";
 import { POST } from "@/app/v1/questions/[id]/answer/route";
-import { faker } from "@faker-js/faker";
 import { QuestionType, Token } from "@prisma/client";
 import bs58 from "bs58";
 import dayjs from "dayjs";
