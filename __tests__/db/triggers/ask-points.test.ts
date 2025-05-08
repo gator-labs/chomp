@@ -297,4 +297,33 @@ describe("Ask DB triggers", () => {
 
     await prisma.deckQuestion.delete({ where: { id: dq.id } });
   });
+
+  it("should invoke acceptance trigger for community deck", async () => {
+    const schemaName = `test_schema_${new Date().getTime()}`;
+    const userId = users[1].id;
+
+    const option = await prisma.questionOption.findFirstOrThrow({
+      where: {
+        questionId: questions[1].id,
+      },
+    });
+
+    const optionId = option.id;
+
+    await prisma.$queryRawUnsafe(`CREATE SCHEMA ${schemaName}`);
+    await prisma.$queryRawUnsafe(`SET search_path TO ${schemaName}`);
+
+    await expect(prisma.$queryRaw`
+      INSERT INTO public."QuestionAnswer" (
+        "questionOptionId", "userId", "status", "selected", "percentage", "uuid"
+      ) VALUES (
+        ${optionId}, ${userId}, 'Viewed', true, 50, gen_random_uuid()
+      )`).resolves.not.toThrow();
+
+    await prisma.$queryRawUnsafe(`DROP SCHEMA ${schemaName}`);
+
+    await prisma.questionAnswer.deleteMany({
+      where: { questionOptionId: optionId, userId: userId },
+    });
+  });
 });
