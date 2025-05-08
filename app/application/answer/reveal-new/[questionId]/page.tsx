@@ -72,11 +72,11 @@ const RevealAnswerPageNew = ({ params }: Props) => {
   const answerSelected = stats.userAnswers.find((ua) => ua.selected);
 
   if (!stats.isCalculated) {
-      return (
-        <div className="p-10 w-full flex justify-center">
-          Results not calculated yet.
-        </div>
-      );
+    return (
+      <div className="p-10 w-full flex justify-center">
+        Results not calculated yet.
+      </div>
+    );
   }
 
   return (
