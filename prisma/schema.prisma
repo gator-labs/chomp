@@ -111,6 +111,7 @@ model QuestionOption {
   updatedAt                             DateTime         @default(now()) @updatedAt
   questionId                            Int
   index                                 Int // Ordering field
+  score                                 Float?
   question                              Question         @relation(fields: [questionId], references: [id])
   questionAnswers                       QuestionAnswer[]
 
@@ -200,6 +201,7 @@ model QuestionAnswer {
   timeToAnswer             BigInt?
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @default(now()) @updatedAt
+  score                    Float?
 
   @@unique([questionOptionId, userId], name: "question_option_user")
   @@index([userId, selected])
