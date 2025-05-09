@@ -48,6 +48,17 @@ function isTransactionSuccessful(tx: ParsedTransactionWithMeta): boolean {
   return true;
 }
 
+export function tmpDirectoryExists(): boolean {
+  const tmpPath = path.join("/", "tmp");
+
+  try {
+    fs.accessSync(tmpPath, fs.constants.R_OK | fs.constants.W_OK);
+    return fs.statSync(tmpPath).isDirectory();
+  } catch (error) {
+    return false;
+  }
+}
+
 /**
  * MysteryBoxPrize Token Transaction Reconciliation System
  *
@@ -309,8 +320,8 @@ export async function main(startAtCreatedAt?: string) {
   }
   const BATCH_SIZE = 20;
   const CSV_PATH = path.join(
-    __dirname,
-    `results-${new Date().toISOString().replace(/:/g, "-")}.csv`,
+    tmpDirectoryExists() ? "/tmp" : __dirname,
+    `results-${new Date().toISOString().split("T")[0]}.csv`,
   );
 
   await ensureIndexesExist();

@@ -6,9 +6,8 @@ const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_CRON_URL!);
 
 const isMainModule = require.main === module;
 
-// ❗🙈🙉 Add name of the file you want to read here
-const FILE_NAME =
-  "results-Sun Apr 20 2025 12:25:32 GMT-0600 (Central Standard Time)-cleaned+1.csv";
+// ❗🙈🙉 Add name of the file you want to read from this folder
+const FILE_NAME = "ADD_FILE_NAME.csv";
 
 export async function main(filename?: string) {
   let FILE_PATH: string;
@@ -33,7 +32,9 @@ export async function main(filename?: string) {
     FILE_RESULT_POSFIX = "-cleaned.csv";
   }
 
-  const cleanedFilePath = FILE_PATH.split(".")[0] + FILE_RESULT_POSFIX;
+  // Create the output file path by replacing the original file extension with a suffix
+  // that indicates this is a cleaned version ("-cleaned.csv") or a subsequent cleaning ("+1.csv")
+  const cleanedFilePath = FILE_PATH.replace(/\.([^.]+)$/, FILE_RESULT_POSFIX);
 
   // Create or truncate the output file
   writeFileSync(cleanedFilePath, "");
