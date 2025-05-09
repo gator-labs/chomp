@@ -7,6 +7,7 @@ interface QuestionAnswer {
   percentage: number | null;
   questionOption: { uuid: string };
   uuid: string;
+  score: number | null;
 }
 
 export async function GET(
@@ -53,10 +54,11 @@ export async function GET(
         id: true,
         uuid: true,
         isCorrect: true,
+        score: true,
       },
     });
 
-    let correctAnswer = questionOptions.find((option) => option.isCorrect);
+    const correctAnswer = questionOptions.find((option) => option.isCorrect);
 
     const questionAnswers = await prisma.questionAnswer.findMany({
       where: {
@@ -68,6 +70,7 @@ export async function GET(
         questionOption: {
           select: {
             uuid: true,
+            score: true,
           },
         },
       },
@@ -92,6 +95,7 @@ export async function GET(
             if (ua.selected) {
               answer.firstOrderOptionId = ua.questionOption.uuid;
               answer.answerId = ua.uuid;
+              answer.score = ua.score;
             }
             if (ua.percentage !== null) {
               answer.secondOrderOptionId = ua.questionOption.uuid;
@@ -110,9 +114,9 @@ export async function GET(
       answers: transformedAnswers,
       options: questionOptions.map((qo) => ({
         optionId: qo.uuid,
-        optionScore: 0,
+        optionScore: qo.score,
       })),
-      bestOption: correctAnswer?.uuid,
+      bestOption: correctAnswer?.uuid ? correctAnswer.uuid : null,
     });
   } catch {
     return NextResponse.json(
