@@ -50,8 +50,9 @@ afterAll(async () => {
 
   for (const [table, initialCount] of Object.entries(global.initialRowCounts)) {
     if (finalRowCounts[table] !== initialCount) {
-      console.error("InitialCount", global.initialRowCounts);
-      console.error("FinalCount", finalRowCounts);
+      console.error(
+        `❌ TABLE MISMATCH ❌ ${table}: Initial count ${initialCount}, Final count ${finalRowCounts[table]}`,
+      );
       throw new Error(`Row count mismatch for table ${table}`);
     }
   }

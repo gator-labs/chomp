@@ -223,3 +223,61 @@ export class NotFoundError extends Error {
     this.name = "NotFoundError";
   }
 }
+
+/**
+ * API errors.
+ */
+
+export class ApiError extends Error {
+  name = "ApiError";
+  error = "error";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ApiUserInvalidError extends ApiError {
+  name = "ApiUserInvalidError";
+  error = "user_invalid";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ApiQuestionInvalidError extends ApiError {
+  name = "ApiQuestionInvalid";
+  error = "question_invalid";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ApiAnswerInvalidError extends ApiError {
+  name = "ApiAnswerInvalidError";
+  error = "answer_invalid";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ApiOptionInvalidError extends ApiError {
+  name = "ApiOptionInvalidError";
+  error = "option_invalid";
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ApiQuestionInactiveError extends ApiError {
+  name = "ApiQuestionInactiveError";
+  error = "question_inactive";
+
+  constructor(message: string) {
+    super(message);
+  }
+}

@@ -26,7 +26,7 @@ export type MysteryBoxResult = {
 /**
  * Reveals the contents of a mystery box, without actually opening it.
  *
- * @param mysteryBoxId The ID of a mystery box that is owned by the
+ * @param mysteryBoxId The ID of a mystery box that is owed by the
  *                     authenticated user and in the new state.
  *
  * @param isDismissed Whether the mystery box has been dismissed

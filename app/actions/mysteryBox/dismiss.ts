@@ -13,7 +13,7 @@ import { getJwtPayload } from "../jwt";
  * to immediately open a box that is presented to them. This is
  * an explicit refusal, as opposed to just navigating away.
  *
- * @param mysteryBoxId The box to dismiss. Must be owned by the
+ * @param mysteryBoxId The box to dismiss. Must be owed by the
  *                     user and in the New state.
  */
 export async function dismissMysteryBox(mysteryBoxId: string) {

@@ -28,11 +28,11 @@ export async function calculateTotalPrizeTokens(
 ) {
   const result = (await prisma.$queryRaw`
     SELECT SUM(CAST(amount AS NUMERIC)) FROM
-      "MysteryBoxPrize" mbp
-      LEFT JOIN "MysteryBoxTrigger" mbt
+      public."MysteryBoxPrize" mbp
+      LEFT JOIN public."MysteryBoxTrigger" mbt
       ON mbp."mysteryBoxTriggerId" = mbt."id"
       LEFT JOIN
-      "MysteryBox" mb
+      public."MysteryBox" mb
       ON mbt."mysteryBoxId" = mb."id"
       WHERE mb."userId" = ${userId}
       AND mbp."prizeType" = 'Token'

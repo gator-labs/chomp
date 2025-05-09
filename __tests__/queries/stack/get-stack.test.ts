@@ -1,18 +1,16 @@
+import {
+  TestDataGenerator,
+  TestScenarioResult,
+} from "@/__tests__/__utils__/data-gen";
+import { getJwtPayload } from "@/app/actions/jwt";
 import { getStack } from "@/app/queries/stack";
 import prisma from "@/app/services/prisma";
-import { authGuard } from "@/app/utils/auth";
+import { yesterdayStartUTC } from "@/app/utils/date";
+import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
-import { v4 as uuidv4 } from "uuid";
 
-// Mock retry since it's used in the codebase
-jest.mock("p-retry", () => ({
-  retry: jest.fn((fn) => fn()),
-}));
-
-// Mock authGuard since it's used in getStack
-jest.mock("@/app/utils/auth", () => ({
-  authGuard: jest.fn(),
-}));
+const { generateRandomUserId, createEmptyTestScenarioResult } =
+  TestDataGenerator;
 
 // Mock JWT payload since it's used in getStack
 jest.mock("@/app/actions/jwt", () => ({
@@ -22,14 +20,10 @@ jest.mock("@/app/actions/jwt", () => ({
 describe("getStack", () => {
   let stackId: number;
   let createdDeckIds: number[] = [];
-  let userId: string;
+
+  let testData: TestScenarioResult;
 
   beforeAll(async () => {
-    userId = uuidv4();
-
-    // Mock auth guard to return our test user
-    (authGuard as jest.Mock).mockResolvedValue({ sub: userId });
-
     // Create a test stack
     const createdStack = await prisma.stack.create({
       data: {
@@ -127,6 +121,14 @@ describe("getStack", () => {
     }
 
     createdDeckIds = decks.map((deck) => deck.id);
+  });
+
+  beforeEach(function () {
+    testData = createEmptyTestScenarioResult();
+  });
+
+  afterEach(async () => {
+    await TestDataGenerator.cleanup(testData);
   });
 
   afterAll(async () => {
@@ -349,5 +351,234 @@ describe("getStack", () => {
         id: { in: deckIds },
       },
     });
+  });
+
+  it("should correctly include totalRewardAmount and creditCostPerQuestion fields", async () => {
+    // Create a deck with questions having different credit costs using TestDataGenerator
+    const testScenario = await TestDataGenerator.createTestScenario({
+      stack: {
+        name: "Rewards Test Stack",
+        isActive: true,
+        isVisible: true,
+        image: "https://example.com/rewards-stack-image.jpg",
+      },
+      decks: [
+        {
+          deck: {
+            deck: "Deck with Rewards Test",
+            revealAtDate: null,
+            activeFromDate: yesterdayStartUTC(),
+          },
+          questions: [
+            {
+              question: "Question 1",
+              type: QuestionType.BinaryQuestion,
+              revealTokenAmount: 3,
+              creditCostPerQuestion: 4,
+              options: [],
+            },
+            {
+              question: "Question 2",
+              type: QuestionType.BinaryQuestion,
+              revealTokenAmount: 7,
+              creditCostPerQuestion: 2,
+              options: [],
+            },
+          ],
+        },
+      ],
+    });
+
+    // Add data to the cleanup list
+    testData.stackIds.push(...testScenario.stackIds);
+    testData.deckIds.push(...testScenario.deckIds);
+    testData.questionIds.push(...testScenario.questionIds);
+
+    const result = await getStack(testScenario.stackIds[0]!);
+    expect(result).not.toBeNull();
+
+    // Find our test deck in the results
+    const testDeck = result!.deck.find(
+      (d) => d.deck === "Deck with Rewards Test",
+    );
+    expect(testDeck).toBeDefined();
+
+    // sum of question.creditCostPerQuestion of each question (3 + 7 = 10)
+    expect(testDeck).toHaveProperty("totalRewardAmount", 10);
+
+    // Sum of question.creditCostPerQuestion (4 + 2 = 6)
+    expect(testDeck).toHaveProperty("totalCreditCost", 6);
+  });
+
+  it("should correctly include answeredQuestions count for each deck", async () => {
+    const user1 = generateRandomUserId();
+    const user2 = generateRandomUserId();
+
+    const testScenario = await TestDataGenerator.createTestScenario({
+      users: [
+        { id: user1, username: "testuser_a" },
+        { id: user2, username: "testuser_b" },
+      ],
+      stack: {
+        name: "Answered Questions Test Stack",
+        isActive: true,
+        isVisible: true,
+        image: "https://example.com/answered-questions-stack-image.jpg",
+      },
+      decks: [
+        {
+          deck: {
+            deck: "Test Deck totalRewardAmount",
+            revealAtDate: null,
+            activeFromDate: yesterdayStartUTC(),
+          },
+          questions: [
+            // Binary question 1
+            {
+              question: "Binary Question 1",
+              type: QuestionType.BinaryQuestion,
+              revealToken: Token.Bonk,
+              revealTokenAmount: 5,
+              options: [
+                {
+                  index: 0,
+                  option: "Yes",
+                  isLeft: true,
+                  isCorrect: true,
+                  answers: [{ userId: user1, selected: true }],
+                },
+                {
+                  index: 1,
+                  option: "No",
+                  isLeft: false,
+                  isCorrect: false,
+                  answers: [{ userId: user2, selected: true }],
+                },
+              ],
+            },
+            // Binary question 2
+            {
+              question: "Binary Question 2",
+              type: QuestionType.BinaryQuestion,
+              revealToken: Token.Bonk,
+              revealTokenAmount: 5,
+              options: [
+                {
+                  index: 0,
+                  option: "True",
+                  isLeft: true,
+                  isCorrect: true,
+                  answers: [{ userId: user1, selected: true }],
+                },
+                {
+                  index: 1,
+                  option: "False",
+                  isLeft: false,
+                  isCorrect: false,
+                  answers: [{ userId: user2, selected: true }],
+                },
+              ],
+            },
+            // Multiple choice question 1
+            {
+              question: "Multiple Choice Question 1",
+              type: QuestionType.MultiChoice,
+              revealToken: Token.Bonk,
+              revealTokenAmount: 5,
+              options: [
+                {
+                  index: 0,
+                  option: "Option A",
+                  isLeft: true,
+                  isCorrect: true,
+                  answers: [{ userId: user1, selected: true }],
+                },
+                {
+                  index: 1,
+                  option: "Option B",
+                  isLeft: false,
+                  isCorrect: false,
+                  answers: [{ userId: user2, selected: false }],
+                },
+                {
+                  index: 2,
+                  option: "Option C",
+                  isLeft: false,
+                  isCorrect: false,
+                  answers: [],
+                },
+              ],
+            },
+            // Multiple choice question 2
+            {
+              question: "Multiple Choice Question 2",
+              type: QuestionType.MultiChoice,
+              revealToken: Token.Bonk,
+              revealTokenAmount: 5,
+              options: [
+                {
+                  index: 0,
+                  option: "Choice 1",
+                  isLeft: true,
+                  isCorrect: false,
+                  answers: [],
+                },
+                {
+                  index: 1,
+                  option: "Choice 2",
+                  isLeft: false,
+                  isCorrect: true,
+                  answers: [{ userId: user1, selected: false }],
+                },
+                {
+                  index: 2,
+                  option: "Choice 3",
+                  isLeft: false,
+                  isCorrect: false,
+                  answers: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    // Add data to the cleanup list
+    testData.stackIds.push(...testScenario.stackIds);
+    testData.deckIds.push(...testScenario.deckIds);
+    testData.questionIds.push(...testScenario.questionIds);
+    testData.userIds.push(...testScenario.userIds);
+
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: user1,
+    });
+
+    // Get the stack with the deck
+    const result = await getStack(testScenario.stackIds[0]!);
+    expect(result).not.toBeNull();
+
+    // Find our test deck in the results
+    const testDeck = result!.deck.find(
+      (d) => d.deck === "Test Deck totalRewardAmount",
+    );
+    expect(testDeck).toBeDefined();
+
+    // User 1 has answered 4 questions
+    expect(testDeck).toHaveProperty("answeredQuestions", 4);
+
+    // Mock the return value of getJwtPayload to simulate the user context
+    (getJwtPayload as jest.Mock).mockReturnValue({
+      sub: user2,
+    });
+
+    const resultForUser2 = await getStack(testScenario.stackIds[0]!);
+    const testDeckForUser2 = resultForUser2!.deck.find(
+      (d) => d.deck === "Test Deck totalRewardAmount",
+    );
+
+    // User 2 has answered 3 questions
+    expect(testDeckForUser2).toHaveProperty("answeredQuestions", 3);
   });
 });

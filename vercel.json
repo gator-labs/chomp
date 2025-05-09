@@ -14,12 +14,12 @@
       "schedule": "*/1 * * * *"
     },
     {
-      "path": "/api/cron/calculate-correct-answers",
-      "schedule": "* * * * *"
-    },
-    {
       "path": "/api/cron/detect-bot-activity",
       "schedule": "58 * * * *"
+    },
+    {
+      "path": "/api/cron/detect-bonk-owed",
+      "schedule": "0 1 * * *"
     }
   ]
 }

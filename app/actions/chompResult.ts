@@ -12,7 +12,7 @@ import { revalidatePath } from "next/cache";
 import { SENTRY_FLUSH_WAIT } from "../constants/sentry";
 import { questionAnswerCountQuery } from "../queries/questionAnswerCountQuery";
 import prisma from "../services/prisma";
-import { calculateCorrectAnswer, calculateReward } from "../utils/algo";
+import { calculateReward } from "../utils/algo";
 import { acquireMutex } from "../utils/mutex";
 import { calculateRevealPoints } from "../utils/points";
 import { isEntityRevealable } from "../utils/question";
@@ -512,6 +512,6 @@ async function handleFirstRevealToPopulateSubjectiveQuestion(
   });
 
   if (uncalculatedQuestionOptionCount > 0) {
-    await calculateCorrectAnswer(revealableQuestionIds);
+    throw new Error("Unsupported operation. Unable to calculate answer.");
   }
 }

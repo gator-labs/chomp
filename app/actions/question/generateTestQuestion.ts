@@ -12,7 +12,7 @@ export async function generateBinaryTestQuestion(
   tag: string,
   creditCostPerQuestion: number | null,
   questionCount: number,
-): Promise<{ deckLink: string }> {
+): Promise<{ deckLink: string; deckId: number }> {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
@@ -87,30 +87,42 @@ export async function generateBinaryTestQuestion(
         },
       },
     },
+    include: {
+      question: true,
+    },
   });
+
+  const questionIds = Array.from(
+    new Set(questionOptions.map((qo) => qo.question.id)),
+  );
 
   await Promise.all(
     users.map(async (user) => {
-      const selectedOption = questionOptions[Math.floor(Math.random() * 2)];
-      const secondOrderOption = questionOptions[Math.floor(Math.random() * 2)];
-
       await Promise.all(
-        questionOptions.map(async (option) => {
-          const isSelectedOption = option.id === selectedOption.id;
-          const percentage =
-            secondOrderOption.id === option.id
-              ? Math.floor(Math.random() * 100)
-              : null;
+        questionIds.map(async (qid) => {
+          const options = questionOptions.filter((qo) => qo.questionId === qid);
+          const selectedOption = options[Math.floor(Math.random() * 2)];
+          const secondOrderOption = options[Math.floor(Math.random() * 2)];
 
-          await prisma.questionAnswer.create({
-            data: {
-              userId: user.id,
-              questionOptionId: option.id,
-              percentage: percentage,
-              selected: isSelectedOption,
-              timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
-            },
-          });
+          await Promise.all(
+            options.map(async (option) => {
+              const isSelectedOption = option.id === selectedOption.id;
+              const percentage =
+                secondOrderOption.id === option.id
+                  ? Math.floor(Math.random() * 100)
+                  : null;
+
+              await prisma.questionAnswer.create({
+                data: {
+                  userId: user.id,
+                  questionOptionId: option.id,
+                  percentage: percentage,
+                  selected: isSelectedOption,
+                  timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
+                },
+              });
+            }),
+          );
         }),
       );
     }),
@@ -118,6 +130,7 @@ export async function generateBinaryTestQuestion(
 
   return {
     deckLink: "/application/decks/" + deck.id,
+    deckId: deck.id,
   };
 }
 
@@ -126,7 +139,7 @@ export async function generateMultipleChoiceTestQuestion(
   tag: string,
   creditCostPerQuestion: number | null,
   questionCount: number,
-): Promise<{ deckLink: string }> {
+): Promise<{ deckLink: string; deckId: number }> {
   const isAdmin = await getIsUserAdmin();
 
   if (!isAdmin) {
@@ -212,30 +225,42 @@ export async function generateMultipleChoiceTestQuestion(
         },
       },
     },
+    include: {
+      question: true,
+    },
   });
+
+  const questionIds = Array.from(
+    new Set(questionOptions.map((qo) => qo.question.id)),
+  );
 
   await Promise.all(
     users.map(async (user) => {
-      const selectedOption = questionOptions[Math.floor(Math.random() * 4)];
-      const secondOrderOption = questionOptions[Math.floor(Math.random() * 4)];
-
       await Promise.all(
-        questionOptions.map(async (option) => {
-          const isSelectedOption = option.id === selectedOption.id;
-          const percentage =
-            secondOrderOption.id === option.id
-              ? Math.floor(Math.random() * 100)
-              : null;
+        questionIds.map(async (qid) => {
+          const options = questionOptions.filter((qo) => qo.questionId === qid);
+          const selectedOption = options[Math.floor(Math.random() * 4)];
+          const secondOrderOption = options[Math.floor(Math.random() * 4)];
 
-          await prisma.questionAnswer.create({
-            data: {
-              userId: user.id,
-              questionOptionId: option.id,
-              percentage: percentage,
-              selected: isSelectedOption,
-              timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
-            },
-          });
+          await Promise.all(
+            options.map(async (option) => {
+              const isSelectedOption = option.id === selectedOption.id;
+              const percentage =
+                secondOrderOption.id === option.id
+                  ? Math.floor(Math.random() * 100)
+                  : null;
+
+              await prisma.questionAnswer.create({
+                data: {
+                  userId: user.id,
+                  questionOptionId: option.id,
+                  percentage: percentage,
+                  selected: isSelectedOption,
+                  timeToAnswer: BigInt(Math.floor(Math.random() * 60000)),
+                },
+              });
+            }),
+          );
         }),
       );
     }),
@@ -243,5 +268,6 @@ export async function generateMultipleChoiceTestQuestion(
 
   return {
     deckLink: "/application/decks/" + deck.id,
+    deckId: deck.id,
   };
 }
