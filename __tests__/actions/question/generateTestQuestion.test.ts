@@ -4,7 +4,6 @@ import {
 } from "@/app/actions/question/generateTestQuestion";
 import { getIsUserAdmin } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
-import { ESpecialStack } from "@prisma/client";
 
 jest.mock("@/app/queries/user", () => ({
   getIsUserAdmin: jest.fn(),
