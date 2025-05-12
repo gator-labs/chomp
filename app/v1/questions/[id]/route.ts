@@ -65,8 +65,17 @@ export async function GET(
         questionOptionId: {
           in: questionOptions.map((qo) => qo.id),
         },
+        NOT: {
+          percentage: null,
+          selected: false,
+        },
       },
-      include: {
+      select: {
+        userId: true,
+        selected: true,
+        percentage: true,
+        uuid: true,
+        score: true,
         questionOption: {
           select: {
             uuid: true,
