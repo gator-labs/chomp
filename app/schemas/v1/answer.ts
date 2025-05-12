@@ -24,4 +24,5 @@ export const AnswerSchema = z.object({
     .min(0)
     .max(1)
     .transform((v) => Math.round((v * 100) / 100)),
+  weight: z.coerce.number().min(0),
 });

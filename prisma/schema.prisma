@@ -202,6 +202,7 @@ model QuestionAnswer {
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @default(now()) @updatedAt
   score                    Float?
+  weight                   Float          @default(1)
 
   @@unique([questionOptionId, userId], name: "question_option_user")
   @@index([userId, selected])
