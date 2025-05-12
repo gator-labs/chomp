@@ -159,6 +159,7 @@ describe("answerQuestion", () => {
         question0OptionUuids[0],
         question0OptionUuids[0],
         55,
+        1.0,
       ),
     ).rejects.toThrowError("Question not found or not answerable");
   });
@@ -172,6 +173,7 @@ describe("answerQuestion", () => {
         question0OptionUuids[0],
         question0OptionUuids[0],
         55,
+        1.0,
       ),
     ).rejects.toThrowError("Question is not answerable yet");
   });
@@ -185,6 +187,7 @@ describe("answerQuestion", () => {
         question0OptionUuids[0],
         question0OptionUuids[0],
         55,
+        1.0,
       ),
     ).rejects.toThrowError("Question not found or not answerable");
   });
@@ -206,6 +209,7 @@ describe("answerQuestion", () => {
       question0OptionUuids[0],
       question0OptionUuids[0],
       55,
+      6.66,
     );
 
     expect(answerUuid).toBeDefined();
@@ -234,6 +238,8 @@ describe("answerQuestion", () => {
       if (qans[i].questionOption.uuid === question0OptionUuids[0])
         expect(qans[i].percentage).toBe(55);
       else expect(qans[i].percentage).toBeNull();
+
+      expect(qans[i].weight).toBe(6.66);
     }
   });
 
@@ -254,6 +260,7 @@ describe("answerQuestion", () => {
         question0OptionUuids[0],
         question0OptionUuids[0],
         55,
+        1.0,
       ),
     ).rejects.toThrowError(
       "User already submitted an answer for this question",

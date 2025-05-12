@@ -190,6 +190,7 @@ describe("API answer question", () => {
         firstOrderOptionId: question0OptionUuids[0],
         secondOrderOptionId: question0OptionUuids[1],
         secondOrderEstimate: 0.5,
+        weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -214,6 +215,7 @@ describe("API answer question", () => {
         firstOrderOptionId: question0OptionUuids[0],
         secondOrderOptionId: question0OptionUuids[1],
         secondOrderEstimate: 1.1,
+        weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -238,6 +240,7 @@ describe("API answer question", () => {
         firstOrderOptionId: question0OptionUuids[0],
         secondOrderOptionId: question0OptionUuids[1],
         secondOrderEstimate: 0.5,
+        weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -262,6 +265,7 @@ describe("API answer question", () => {
         firstOrderOptionId: question0OptionUuids[0],
         secondOrderOptionId: question0OptionUuids[1],
         secondOrderEstimate: 0.5,
+        weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -286,6 +290,7 @@ describe("API answer question", () => {
         firstOrderOptionId: question1OptionUuids[0],
         secondOrderOptionId: question1OptionUuids[1],
         secondOrderEstimate: 0.5,
+        weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -311,6 +316,7 @@ describe("API answer question", () => {
         firstOrderOptionId: question1OptionUuids[0],
         secondOrderOptionId: question1OptionUuids[1],
         secondOrderEstimate: 0.5,
+        weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
