@@ -157,7 +157,9 @@ describe("GET /v1/question/[id]", () => {
     });
     expect(res.status).toBe(200);
     const json = await res.json();
-    console.log(json);
+
+    expect(json.answers[0].firstOrderOptionId).toBe(questionOptionUuids[1]);
+    expect(json.answers[0].secondOrderOptionId).toBe(questionOptionUuids[0]);
 
     expect(json).toHaveProperty("answers");
     expect(json).toHaveProperty("options");
