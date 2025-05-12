@@ -86,8 +86,8 @@ describe("GET /v1/question/[id]", () => {
           data: {
             userId: user.id,
             questionOptionId: option,
-            percentage: 50,
-            selected: true,
+            percentage: option === questionOptionIds[0] ? 50 : null,
+            selected: option === questionOptionIds[1] ? true : false,
             timeToAnswer: BigInt(Math.floor(Math.random() * 60000)), // Random time to answer within 60 seconds
           },
         });
@@ -157,6 +157,7 @@ describe("GET /v1/question/[id]", () => {
     });
     expect(res.status).toBe(200);
     const json = await res.json();
+    console.log(json);
 
     expect(json).toHaveProperty("answers");
     expect(json).toHaveProperty("options");
