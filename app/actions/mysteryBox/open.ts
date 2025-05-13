@@ -29,7 +29,7 @@ export type MysteryBoxRewardRewardTxHashes = TokenTxHashes;
  * Currently we refuse to open dismissed boxes or prizes in the
  * "unopened" state (boxes start as "new").
  *
- * @param mysteryBoxId The ID of a mystery box that is owned by the
+ * @param mysteryBoxId The ID of a mystery box that is owed by the
  *                     authenticated user and in the new state.
  *
  * @param isDismissed Whether the mystery box has been dismissed

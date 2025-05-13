@@ -61,7 +61,7 @@ model Email {
 model Question {
   id                          Int                           @id @default(autoincrement())
   // uuid is the public ID used for API queries
-  uuid                        String                        @db.Uuid() @default(uuid())
+  uuid                        String                        @default(uuid()) @db.Uuid()
   question                    String
   description                 String?
   durationMiliseconds         BigInt?
@@ -69,6 +69,7 @@ model Question {
   revealToken                 Token                         @default(Bonk)
   revealTokenAmount           Int                           @default(0)
   revealAtDate                DateTime?
+  activeFromDate              DateTime?
   creditCostPerQuestion       Int?
   revealAtAnswerCount         Int?
   imageUrl                    String?
@@ -98,6 +99,7 @@ model Question {
 
 model QuestionOption {
   id                                    Int              @id @default(autoincrement())
+  uuid                                  String           @default(uuid()) @db.Uuid()
   option                                String
   isCorrect                             Boolean          @default(false)
   calculatedIsCorrect                   Boolean?
@@ -109,10 +111,12 @@ model QuestionOption {
   updatedAt                             DateTime         @default(now()) @updatedAt
   questionId                            Int
   index                                 Int // Ordering field
+  score                                 Float?
   question                              Question         @relation(fields: [questionId], references: [id])
   questionAnswers                       QuestionAnswer[]
 
   @@unique([questionId, index]) // Enforces unique index per question [2][5]
+  @@unique([uuid])
 }
 
 model Tag {
@@ -182,6 +186,8 @@ model DeckQuestion {
 
 model QuestionAnswer {
   id                       Int            @id @default(autoincrement())
+  // uuid is not unique because we will have 2 or 4 per question/user pair
+  uuid                     String         @default(uuid()) @db.Uuid()
   questionOptionId         Int
   questionOption           QuestionOption @relation(fields: [questionOptionId], references: [id])
   userId                   String
@@ -195,6 +201,8 @@ model QuestionAnswer {
   timeToAnswer             BigInt?
   createdAt                DateTime       @default(now())
   updatedAt                DateTime       @default(now()) @updatedAt
+  score                    Float?
+  weight                   Float          @default(1)
 
   @@unique([questionOptionId, userId], name: "question_option_user")
   @@index([userId, selected])

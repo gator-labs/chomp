@@ -1,15 +1,24 @@
-import { ParsedTransactionWithMeta } from "@solana/web3.js";
+import { Connection, ParsedTransactionWithMeta } from "@solana/web3.js";
 import { appendFileSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 
-import { CONNECTION } from "../../app/utils/solana";
+const CONNECTION = new Connection(process.env.NEXT_PUBLIC_RPC_CRON_URL!);
 
-// ❗🙈🙉 Add name of the file you want to read here
-const FILE_NAME =
-  "results-Sun Apr 20 2025 12:25:32 GMT-0600 (Central Standard Time)-cleaned+1.csv";
+const isMainModule = require.main === module;
 
-async function main() {
-  const FILE_PATH = path.join(__dirname, FILE_NAME);
+// ❗🙈🙉 Add name of the file you want to read from this folder
+const FILE_NAME = "ADD_FILE_NAME.csv";
+
+export async function main(filename?: string) {
+  let FILE_PATH: string;
+
+  if (filename) {
+    FILE_PATH = filename;
+  } else {
+    FILE_PATH = path.join(__dirname, FILE_NAME);
+  }
+
+  const MAX_RETRY_TIMES = 5; // How many times you want to check the record for false positives
   const PULL_TIME = 100;
   const ERR_WAIT_TIME = 400;
 
@@ -23,7 +32,9 @@ async function main() {
     FILE_RESULT_POSFIX = "-cleaned.csv";
   }
 
-  const cleanedFilePath = FILE_PATH.split(".")[0] + FILE_RESULT_POSFIX;
+  // Create the output file path by replacing the original file extension with a suffix
+  // that indicates this is a cleaned version ("-cleaned.csv") or a subsequent cleaning ("+1.csv")
+  const cleanedFilePath = FILE_PATH.replace(/\.([^.]+)$/, FILE_RESULT_POSFIX);
 
   // Create or truncate the output file
   writeFileSync(cleanedFilePath, "");
@@ -41,7 +52,6 @@ async function main() {
     }
 
     let gotNullNTimes = 0;
-    const MAX_RETRY_TIMES = 5;
 
     const cols = row.split(",");
 
@@ -51,7 +61,7 @@ async function main() {
 
     // If row is missing info ignore it
     if (txId == null) {
-      console.error(`Found row without txId: ${row}`);
+      console.log(`Ignoring row without txId: ${row}`);
       continue;
     }
 
@@ -74,7 +84,7 @@ async function main() {
           maxSupportedTransactionVersion: 0,
         });
       } catch (err) {
-        console.error("TX ERR: ", err);
+        console.warn("TX ERR: ", err);
 
         // If network error or other error wait a bit, ignore and retry
         await new Promise((resolve) => setTimeout(resolve, ERR_WAIT_TIME));
@@ -103,6 +113,10 @@ async function main() {
       console.log(tx);
     }
   } // for (let row in fileTxtRows)
+
+  return cleanedFilePath;
 }
 
-main().then(() => console.log("Finished!"));
+if (isMainModule) {
+  main().then(() => console.log("Finished!"));
+}
