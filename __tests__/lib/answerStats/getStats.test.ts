@@ -1,10 +1,11 @@
-import prisma from "@/app/services/prisma";
+import prisma, { PrismaTransactionClient } from "@/app/services/prisma";
 import { getAnswerStats } from "@/lib/answerStats/getStats";
 import { generateUsers } from "@/scripts/utils";
 import { faker } from "@faker-js/faker";
 import {
   EBoxPrizeStatus,
   EMysteryBoxStatus,
+  PrismaClient,
   QuestionType,
   ResultType,
   Token,
@@ -13,17 +14,21 @@ import {
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from "uuid";
 
-async function createMysteryBox(userId: string, questionId: number) {
+async function createMysteryBox(
+  userId: string,
+  questionId: number,
+  tx: PrismaClient | PrismaTransactionClient,
+) {
   const bonkAddress = process.env.NEXT_PUBLIC_BONK_ADDRESS ?? "";
 
-  const res = await prisma.mysteryBox.create({
+  const res = await tx.mysteryBox.create({
     data: {
       userId,
       status: EMysteryBoxStatus.Opened,
     },
   });
 
-  await prisma.mysteryBoxTrigger.create({
+  await tx.mysteryBoxTrigger.create({
     data: {
       questionId: questionId,
       triggerType: "ValidationReward",
@@ -103,6 +108,7 @@ export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
 
 describe("getAnswerStats", () => {
   let mysteryBoxId: string;
+  let otherMysteryBoxIds: string[] = [];
 
   const user1 = {
     id: uuidv4(),
@@ -296,14 +302,16 @@ describe("getAnswerStats", () => {
         process.env.MINIMAL_ANSWERS_PER_QUESTION ?? 0,
       );
 
-      if (minAnswersPerQuestion > 0) {
-        otherUsers = await generateUsers(minAnswersPerQuestion);
+      const extraUserCount = Math.max(minAnswersPerQuestion, 20);
+
+      if (extraUserCount > 0) {
+        otherUsers = await generateUsers(extraUserCount);
 
         await tx.user.createMany({
           data: otherUsers,
         });
 
-        for (let userIdx = 0; userIdx < minAnswersPerQuestion; userIdx++) {
+        for (let userIdx = 0; userIdx < extraUserCount; userIdx++) {
           await tx.questionAnswer.createMany({
             data: questions.flatMap((question) =>
               question.questionOptions.map((qo, i) => ({
@@ -313,6 +321,14 @@ describe("getAnswerStats", () => {
               })),
             ),
           });
+
+          // Create boxes to test rewards regression
+          const box = await createMysteryBox(
+            otherUsers[userIdx].id,
+            questionIds[1],
+            tx,
+          );
+          otherMysteryBoxIds.push(box.id);
         }
       }
     });
@@ -320,6 +336,7 @@ describe("getAnswerStats", () => {
 
   afterAll(async () => {
     await deleteMysteryBoxes([mysteryBoxId]);
+    await deleteMysteryBoxes(otherMysteryBoxIds);
 
     // Clean up the data after the test
     await prisma.$transaction(async (tx) => {
@@ -375,7 +392,7 @@ describe("getAnswerStats", () => {
   });
 
   it("should get answer stats for revealed, calculated and rewarded question", async () => {
-    const mysteryBox = await createMysteryBox(user1.id, questionIds[1]);
+    const mysteryBox = await createMysteryBox(user1.id, questionIds[1], prisma);
     mysteryBoxId = mysteryBox.id;
 
     const stats = await getAnswerStats(user1.id, questionIds[1]);
