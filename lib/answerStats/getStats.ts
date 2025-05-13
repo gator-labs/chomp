@@ -41,7 +41,12 @@ export async function getAnswerStats(
           deckId: true,
         },
       },
-      QuestionRewards: true,
+      QuestionRewards: {
+        where: {
+          userId,
+          questionId,
+        },
+      },
     },
   });
 
