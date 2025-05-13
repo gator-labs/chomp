@@ -108,7 +108,7 @@ export async function deleteMysteryBoxes(mysteryBoxIds: string[]) {
 
 describe("getAnswerStats", () => {
   let mysteryBoxId: string;
-  let otherMysteryBoxIds: string[] = [];
+  const otherMysteryBoxIds: string[] = [];
 
   const user1 = {
     id: uuidv4(),
