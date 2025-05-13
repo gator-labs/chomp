@@ -1,8 +1,8 @@
 "use client";
 
 import { STACKS_PATH } from "@/lib/urls";
-import { NotebookPen } from "lucide-react";
 
+import { AddIcon } from "../Icons/AddIcon";
 import { ChallengeIcon } from "../Icons/ChallengeIcon";
 import { HomeIcon } from "../Icons/HomeIcon";
 import { SettingsIcon } from "../Icons/SettingsIcon";
@@ -23,7 +23,7 @@ const navigationItems = [
 if (process.env.NEXT_PUBLIC_FF_ASK_IN_NAVBAR === "true") {
   navigationItems.push({
     label: "Ask",
-    icon: <NotebookPen />,
+    icon: <AddIcon />,
     href: "/application/ask",
   });
 }

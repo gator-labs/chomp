@@ -1,11 +1,8 @@
 import prisma from "@/app/services/prisma";
-import { POST } from "@/app/v1/questions/[id]/answer/route";
+import { PUT } from "@/app/v1/questions/[id]/route";
 import { QuestionType, Token } from "@prisma/client";
-import bs58 from "bs58";
 import dayjs from "dayjs";
 import { NextRequest } from "next/server";
-import crypto from "node:crypto";
-import { v4 as uuidv4 } from "uuid";
 
 // Mock dependencies
 jest.mock("next/headers", () => ({
@@ -14,37 +11,19 @@ jest.mock("next/headers", () => ({
     set: jest.fn(),
   })),
 }));
-jest.mock("mixpanel", () => {
-  return {
-    init: jest.fn(() => ({
-      track: jest.fn(),
-    })),
-  };
-});
+
 jest.mock("@/app/queries/user", () => ({
   getCurrentUser: jest.fn(),
 }));
 
-const generateWallet = () => {
-  const keyBytes = crypto.randomBytes(32);
-  return bs58.encode(keyBytes);
-};
-
-describe("API answer question", () => {
-  const user1 = {
-    id: uuidv4(),
-    username: `user1`,
-    wallet: generateWallet(),
-  };
-
-  const futureDate = dayjs().add(30, "day").toDate();
-  const pastDate = dayjs().subtract(30, "day").toDate();
+describe("API update question", () => {
+  const futureDate = dayjs().add(15, "day").toDate();
+  const farFutureDate = dayjs().add(30, "day").toDate();
+  const pastDate = dayjs().subtract(15, "day").toDate();
 
   let deckId: number;
   let questionIds: number[] = [];
   let questionUuids: string[] = [];
-  let question0OptionUuids: string[] = [];
-  let question1OptionUuids: string[] = [];
 
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
@@ -60,12 +39,6 @@ describe("API answer question", () => {
 
       deckId = deck.id;
 
-      // Create users
-      await Promise.all([
-        tx.user.create({ data: { id: user1.id } }),
-        tx.wallet.create({ data: { userId: user1.id, address: user1.wallet } }),
-      ]);
-
       // Create questions for decks
       const questions = await Promise.all([
         tx.question.create({
@@ -73,7 +46,7 @@ describe("API answer question", () => {
             question: "Is the sky blue?",
             source: "crocodile",
             type: QuestionType.BinaryQuestion,
-            activeFromDate: futureDate,
+            activeFromDate: farFutureDate,
             revealToken: Token.Bonk,
             revealTokenAmount: 5000,
             creditCostPerQuestion: 2,
@@ -145,9 +118,6 @@ describe("API answer question", () => {
       questionIds = questions.map((q) => q.id);
       questionUuids = questions.map((q) => q.uuid);
 
-      question0OptionUuids = questions[0].questionOptions.map((qo) => qo.uuid);
-      question1OptionUuids = questions[1].questionOptions.map((qo) => qo.uuid);
-
       await tx.deckQuestion.createMany({
         data: [
           { deckId: deckId, questionId: questions[0].id },
@@ -158,17 +128,7 @@ describe("API answer question", () => {
   });
 
   afterAll(async () => {
-    // Clean up the data after the test
     await prisma.$transaction(async (tx) => {
-      await tx.chompResult.deleteMany({
-        where: { userId: { equals: user1.id } },
-      });
-      await tx.questionAnswer.deleteMany({
-        where: { userId: { equals: user1.id } },
-      });
-      await tx.questionOption.deleteMany({
-        where: { questionId: { in: questionIds } },
-      });
       await tx.deckQuestion.deleteMany({
         where: {
           questionId: {
@@ -176,21 +136,19 @@ describe("API answer question", () => {
           },
         },
       });
+      await tx.questionOption.deleteMany({
+        where: { questionId: { in: questionIds } },
+      });
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { equals: deckId } } });
-      await tx.wallet.deleteMany({ where: { userId: { equals: user1.id } } });
-      await tx.user.deleteMany({ where: { id: { equals: user1.id } } });
     });
   });
 
-  it("should reject request with missing parameter", async () => {
+  it("should reject resolvesAt < activeDate", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
         source: "crocodile",
-        firstOrderOptionId: question0OptionUuids[0],
-        secondOrderOptionId: question0OptionUuids[1],
-        secondOrderEstimate: 0.5,
-        weight: 1.0,
+        resolvesAt: futureDate,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -198,24 +156,21 @@ describe("API answer question", () => {
       }),
     } as unknown as NextRequest;
 
-    const response = await POST(mockRequest, {
+    const response = await PUT(mockRequest, {
       params: { id: questionUuids[0] },
     });
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe("answer_invalid");
+    expect(data.error).toBe("question_invalid");
+    expect(data.message).toBe("resolvesAt must be after activeDate");
   });
 
-  it("should reject out of range estimate", async () => {
+  it("should reject past resolvesAt date", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
-        userAddress: user1.wallet,
         source: "crocodile",
-        firstOrderOptionId: question0OptionUuids[0],
-        secondOrderOptionId: question0OptionUuids[1],
-        secondOrderEstimate: 1.1,
-        weight: 1.0,
+        resolvesAt: pastDate,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -223,24 +178,21 @@ describe("API answer question", () => {
       }),
     } as unknown as NextRequest;
 
-    const response = await POST(mockRequest, {
+    const response = await PUT(mockRequest, {
       params: { id: questionUuids[0] },
     });
     const data = await response.json();
 
     expect(response.status).toBe(400);
-    expect(data.error).toBe("answer_invalid");
+    expect(data.error).toBe("question_invalid");
+    expect(data.message).toBe("resolvesAt must be in the future");
   });
 
-  it("should not answer inactive question", async () => {
+  it("should update question", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
-        userAddress: user1.wallet,
         source: "crocodile",
-        firstOrderOptionId: question0OptionUuids[0],
-        secondOrderOptionId: question0OptionUuids[1],
-        secondOrderEstimate: 0.5,
-        weight: 1.0,
+        resolvesAt: futureDate,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -248,75 +200,28 @@ describe("API answer question", () => {
       }),
     } as unknown as NextRequest;
 
-    const response = await POST(mockRequest, {
-      params: { id: questionUuids[0] },
-    });
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data.error).toBe("question_inactive");
-  });
-
-  it("should not answer when when options are from another question", async () => {
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        userAddress: user1.wallet,
-        source: "crocodile",
-        firstOrderOptionId: question0OptionUuids[0],
-        secondOrderOptionId: question0OptionUuids[1],
-        secondOrderEstimate: 0.5,
-        weight: 1.0,
-      }),
-      headers: new Headers({
-        source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
-      }),
-    } as unknown as NextRequest;
-
-    const response = await POST(mockRequest, {
+    const response = await PUT(mockRequest, {
       params: { id: questionUuids[1] },
     });
-    const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe("option_invalid");
-  });
-
-  it("should successfully answer a question", async () => {
-    const mockRequest = {
-      json: jest.fn().mockResolvedValue({
-        userAddress: user1.wallet,
-        source: "crocodile",
-        firstOrderOptionId: question1OptionUuids[0],
-        secondOrderOptionId: question1OptionUuids[1],
-        secondOrderEstimate: 0.5,
-        weight: 1.0,
-      }),
-      headers: new Headers({
-        source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
-      }),
-    } as unknown as NextRequest;
-
-    const response = await POST(mockRequest, {
-      params: { id: questionUuids[1] },
-    });
-    const data = await response.json();
+    await response.json();
 
     expect(response.status).toBe(200);
-    expect(data).toBeDefined();
-    expect(data.answerId).toBeDefined();
+
+    const question = await prisma.question.findUniqueOrThrow({
+      where: {
+        id: questionIds[1],
+      },
+    });
+
+    expect(question).toBeDefined();
+    expect(question.revealAtDate?.toISOString()).toBe(futureDate.toISOString());
   });
 
-  it("should not answer a question twice", async () => {
+  it("should do nothing if no value provided", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
-        userAddress: user1.wallet,
         source: "crocodile",
-        firstOrderOptionId: question1OptionUuids[0],
-        secondOrderOptionId: question1OptionUuids[1],
-        secondOrderEstimate: 0.5,
-        weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
@@ -324,12 +229,51 @@ describe("API answer question", () => {
       }),
     } as unknown as NextRequest;
 
-    const response = await POST(mockRequest, {
+    const response = await PUT(mockRequest, {
       params: { id: questionUuids[1] },
     });
-    const data = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(data.error).toBe("answer_invalid");
+    await response.json();
+
+    expect(response.status).toBe(200);
+
+    const question = await prisma.question.findUniqueOrThrow({
+      where: {
+        id: questionIds[1],
+      },
+    });
+
+    expect(question).toBeDefined();
+    expect(question.revealAtDate?.toISOString()).toBe(futureDate.toISOString());
+  });
+
+  it("should clear the resolution date", async () => {
+    const mockRequest = {
+      json: jest.fn().mockResolvedValue({
+        source: "crocodile",
+        resolvesAt: null,
+      }),
+      headers: new Headers({
+        source: "crocodile",
+        "backend-secret": process.env.BACKEND_SECRET || "",
+      }),
+    } as unknown as NextRequest;
+
+    const response = await PUT(mockRequest, {
+      params: { id: questionUuids[1] },
+    });
+
+    await response.json();
+
+    expect(response.status).toBe(200);
+
+    const question = await prisma.question.findUniqueOrThrow({
+      where: {
+        id: questionIds[1],
+      },
+    });
+
+    expect(question).toBeDefined();
+    expect(question.revealAtDate?.toISOString()).toBeUndefined();
   });
 });

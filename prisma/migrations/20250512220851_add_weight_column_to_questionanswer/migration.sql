@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "QuestionAnswer" ADD COLUMN     "weight" DOUBLE PRECISION NOT NULL DEFAULT 1;

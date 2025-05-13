@@ -98,6 +98,7 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
       req.data.firstOrderOptionId,
       req.data.secondOrderOptionId,
       req.data.secondOrderEstimate,
+      req.data.weight,
     );
 
     return NextResponse.json({

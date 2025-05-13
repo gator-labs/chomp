@@ -16,6 +16,7 @@ export async function answerQuestion(
   firstOrderOptionId: string,
   secondOrderOptionId: string,
   secondOrderEstimate: number,
+  weight: number,
 ): Promise<string> {
   const now = new Date();
 
@@ -84,6 +85,7 @@ export async function answerQuestion(
     selected: option.uuid === firstOrderOptionId,
     percentage:
       option.uuid === secondOrderOptionId ? secondOrderEstimate : null,
+    weight,
   }));
 
   const res = await prisma.questionAnswer.createManyAndReturn({
