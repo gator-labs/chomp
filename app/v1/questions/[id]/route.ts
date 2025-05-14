@@ -3,23 +3,15 @@ import {
   UpdateQuestionParamsSchema,
   UpdateQuestionSchema,
 } from "@/app/schemas/v1/update";
+import prisma from "@/app/services/prisma";
 import {
   ApiAnswerInvalidError,
   ApiError,
   ApiQuestionInvalidError,
 } from "@/lib/error";
+import { transformQuestionAnswers } from "@/lib/v1/transforQuestionAnswers";
 import { updateQuestion } from "@/lib/v1/updateQuestion";
-import prisma from "@/app/services/prisma";
 import { NextRequest, NextResponse } from "next/server";
-
-interface QuestionAnswer {
-  userId: string;
-  selected: boolean;
-  percentage: number | null;
-  questionOption: { uuid: string };
-  uuid: string;
-  score: number | null;
-}
 
 export async function GET(
   request: NextRequest,
@@ -96,39 +88,7 @@ export async function GET(
       },
     });
 
-    // Group answers by userId
-    const groupedAnswersByUser: Record<string, QuestionAnswer[]> = {};
-
-    for (const answer of questionAnswers) {
-      if (!groupedAnswersByUser[answer.userId]) {
-        groupedAnswersByUser[answer.userId] = [];
-      }
-      groupedAnswersByUser[answer.userId].push(answer);
-    }
-    // Transform and flatten into final array
-    const transformedAnswers = Object.values(groupedAnswersByUser).map(
-      (userAnswers) => {
-        // Map each user's answers to the desired format, filter out empty/null
-        const mappedAnswers = userAnswers
-          .map((ua) => {
-            const answer: any = {};
-            if (ua.selected) {
-              answer.firstOrderOptionId = ua.questionOption.uuid;
-              answer.answerId = ua.uuid;
-              answer.score = ua.score;
-            }
-            if (ua.percentage !== null) {
-              answer.secondOrderOptionId = ua.questionOption.uuid;
-              answer.secondOrderOptionEstimate = ua.percentage;
-            }
-            return Object.keys(answer).length > 0 ? answer : null;
-          })
-          .filter(Boolean);
-
-        // Merge all mapped answers into a single object per user
-        return Object.assign({}, ...mappedAnswers);
-      },
-    );
+    const transformedAnswers = transformQuestionAnswers(questionAnswers);
 
     return NextResponse.json({
       answers: transformedAnswers,
