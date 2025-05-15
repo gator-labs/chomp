@@ -15,6 +15,7 @@ function MysteryBoxReward({
   title,
   type,
   isActive,
+  userHasBonkAtaAccount,
   icon,
   infoTitle,
   infoBody,
@@ -24,6 +25,7 @@ function MysteryBoxReward({
   type: EMysteryBoxCategory;
   isActive: boolean;
   icon: StaticImageData;
+  userHasBonkAtaAccount: boolean;
   infoTitle?: string;
   infoBody?: string;
   campaignBoxId?: string;
@@ -37,10 +39,11 @@ function MysteryBoxReward({
 
   const { promiseToast, infoToast } = useToast();
 
-  const showTooltip = !!infoBody && !!infoTitle && !isActive;
+  const showTooltip =
+    !!infoBody && !!infoTitle && !(isActive && userHasBonkAtaAccount);
 
   const rewardBoxHandler = async () => {
-    if (!isActive) return;
+    if (!isActive || !userHasBonkAtaAccount) return;
     if (isSubmitting) {
       infoToast("Please wait while we are processing you reward!");
       return;
@@ -85,7 +88,11 @@ function MysteryBoxReward({
       >
         <div
           className={`flex flex-row items-center rounded-lg px-3 md:px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
-            (isActive && !isSubmitting && !wasOpened) || showTooltip
+            (isActive &&
+              userHasBonkAtaAccount &&
+              !isSubmitting &&
+              !wasOpened) ||
+            showTooltip
               ? "cursor-pointer"
               : "cursor-not-allowed"
           }`}
@@ -101,13 +108,18 @@ function MysteryBoxReward({
               setIsOpen(true);
             }
 
-            if (isActive && !isSubmitting && !wasOpened) {
+            if (
+              isActive &&
+              userHasBonkAtaAccount &&
+              !isSubmitting &&
+              !wasOpened
+            ) {
               rewardBoxHandler();
             }
           }}
         >
           <Image
-            src={isActive ? icon : OpenedMysteryBox}
+            src={isActive && userHasBonkAtaAccount ? icon : OpenedMysteryBox}
             alt="Mystery box"
             className="w-[140px] h-[140px]"
           />
@@ -116,21 +128,28 @@ function MysteryBoxReward({
               className={classNames(
                 "text-sm md:text-base inline-block text-transparent bg-clip-text font-black",
                 {
-                  "bg-gray-400": !isActive,
-                  "bg-blue-pink-gradient": isActive,
+                  "bg-gray-400": !(isActive && userHasBonkAtaAccount),
+                  "bg-blue-pink-gradient": isActive && userHasBonkAtaAccount,
                 },
               )}
             >
               {title}
             </h1>
             <p className={classNames("text-purple-100 text-xs  font-black")}>
-              {isActive ? "OPEN NOW!" : "Come back later!"}
+              {isActive
+                ? userHasBonkAtaAccount
+                  ? "OPEN NOW!"
+                  : "BONK required to open"
+                : "Come back later!"}
             </p>
             <div className="flex flex-row gap-1 justify-start items-center">
               <MysteryBoxCategoryPill
                 category={type}
                 disabled={
-                  !isActive || isSubmitting || showBoxOverlay || wasOpened
+                  !(isActive && userHasBonkAtaAccount) ||
+                  isSubmitting ||
+                  showBoxOverlay ||
+                  wasOpened
                 }
               />
               <button
