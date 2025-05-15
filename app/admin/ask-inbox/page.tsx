@@ -1,17 +1,13 @@
 "use client";
 
 import { CommunityAskList } from "@/components/CommunityAskList/CommunityAskList";
+import { CommunityAskStats } from "@/components/CommunityAskList/CommunityAskStats";
 import { useCommunityAskListQuery } from "@/hooks/useCommunityAskListQuery";
+import { useCommunityAskStatsQuery } from "@/hooks/useCommunityAskStatsQuery";
 
 export default function Page() {
   const askList = useCommunityAskListQuery();
-
-  if (askList.isError) return <div>Error fetching ask list.</div>;
-
-  if (askList.isLoading || !askList.data) return <div>Loading...</div>;
-
-  if (askList.data.askList.length == 0)
-    return <div>No unassigned questions found.</div>;
+  const stats = useCommunityAskStatsQuery();
 
   const ACCEPT_POINTS = Number(
     process.env.NEXT_PUBLIC_ASK_ACCEPTED_POINTS_REWARD ?? 0,
@@ -40,9 +36,29 @@ export default function Page() {
 
       <hr className="border-gray-600 my-2 p-0" />
 
-      <div className="flex flex-col gap-2">
-        <CommunityAskList askList={askList?.data?.askList} />
-      </div>
+      {stats.isError ? (
+        <div>Error loading stats.</div>
+      ) : stats.isLoading || !stats.data?.stats ? (
+        <div>Loading stats...</div>
+      ) : (
+        <CommunityAskStats stats={stats.data.stats} />
+      )}
+
+      <hr className="border-gray-600 my-2 p-0" />
+
+      {askList.isError ? (
+        <div>Error fetching ask list.</div>
+      ) : askList.isLoading || !askList.data ? (
+        <div>Loading...</div>
+      ) : askList.data?.askList.length === 0 ? (
+        <div>No unassigned questions found.</div>
+      ) : null}
+
+      {askList.data?.askList && (
+        <div className="flex flex-col gap-2">
+          <CommunityAskList askList={askList?.data?.askList} />
+        </div>
+      )}
     </div>
   );
 }
