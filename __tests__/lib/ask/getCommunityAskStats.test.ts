@@ -1,5 +1,4 @@
 import prisma from "@/app/services/prisma";
-import { getCommunityAskList } from "@/lib/ask/getCommunityAskList";
 import {
   CommunityAskPeriodStats,
   getCommunityAskStats,
@@ -12,7 +11,7 @@ import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 
 describe("Get community ask list", () => {
-  let questionIds: number[] = [];
+  const questionIds: number[] = [];
   let deck: { id: number };
   let users: { id: string }[];
   let origStats: CommunityAskPeriodStats;
