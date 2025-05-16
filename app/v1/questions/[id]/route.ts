@@ -58,6 +58,7 @@ export async function GET(
         uuid: true,
         isCorrect: true,
         score: true,
+        option: true,
       },
     });
 
@@ -91,10 +92,20 @@ export async function GET(
     const transformedAnswers = transformQuestionAnswers(questionAnswers);
 
     return NextResponse.json({
+      title: question.question,
+      description: question.description,
+      type: question.type,
+      resolveAt: question.revealAtDate,
+      activeAt: question.activeFromDate,
+      imageUrl: question.imageUrl,
+      rules: question.rules,
+      onChainAddress: question.onChainAddress,
+      source: question.source,
       answers: transformedAnswers,
       options: questionOptions.map((qo) => ({
         optionId: qo.uuid,
         optionScore: qo.score,
+        title: qo.option,
       })),
       bestOption: correctAnswer?.uuid ? correctAnswer.uuid : null,
     });

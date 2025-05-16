@@ -161,6 +161,15 @@ describe("GET /v1/question/[id]", () => {
     expect(json.answers[0].firstOrderOptionId).toBe(questionOptionUuids[1]);
     expect(json.answers[0].secondOrderOptionId).toBe(questionOptionUuids[0]);
 
+    expect(json).toHaveProperty("title");
+    expect(json).toHaveProperty("description");
+    expect(json).toHaveProperty("type");
+    expect(json).toHaveProperty("resolveAt");
+    expect(json).toHaveProperty("activeAt");
+    expect(json).toHaveProperty("imageUrl");
+    expect(json).toHaveProperty("rules");
+    expect(json).toHaveProperty("onChainAddress");
+    expect(json).toHaveProperty("source");
     expect(json).toHaveProperty("answers");
     expect(json).toHaveProperty("options");
     expect(json).toHaveProperty("bestOption");
