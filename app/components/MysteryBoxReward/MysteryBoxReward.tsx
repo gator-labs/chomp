@@ -39,11 +39,12 @@ function MysteryBoxReward({
 
   const { promiseToast, infoToast } = useToast();
 
-  const showTooltip =
-    !!infoBody && !!infoTitle && !(isActive && userHasBonkAtaAccount);
+  const isActiveWithAta = isActive && userHasBonkAtaAccount;
+
+  const showTooltip = !!infoBody && !!infoTitle && !isActiveWithAta;
 
   const rewardBoxHandler = async () => {
-    if (!isActive || !userHasBonkAtaAccount) return;
+    if (!isActiveWithAta) return;
     if (isSubmitting) {
       infoToast("Please wait while we are processing you reward!");
       return;
@@ -88,11 +89,7 @@ function MysteryBoxReward({
       >
         <div
           className={`flex flex-row items-center rounded-lg px-3 md:px-6 border-2 border-[#0000] [background:var(--bg-color)] w-full ${
-            (isActive &&
-              userHasBonkAtaAccount &&
-              !isSubmitting &&
-              !wasOpened) ||
-            showTooltip
+            (isActiveWithAta && !isSubmitting && !wasOpened) || showTooltip
               ? "cursor-pointer"
               : "cursor-not-allowed"
           }`}
@@ -108,18 +105,13 @@ function MysteryBoxReward({
               setIsOpen(true);
             }
 
-            if (
-              isActive &&
-              userHasBonkAtaAccount &&
-              !isSubmitting &&
-              !wasOpened
-            ) {
+            if (isActiveWithAta && !isSubmitting && !wasOpened) {
               rewardBoxHandler();
             }
           }}
         >
           <Image
-            src={isActive && userHasBonkAtaAccount ? icon : OpenedMysteryBox}
+            src={isActiveWithAta ? icon : OpenedMysteryBox}
             alt="Mystery box"
             className="w-[140px] h-[140px]"
           />
@@ -128,8 +120,8 @@ function MysteryBoxReward({
               className={classNames(
                 "text-sm md:text-base inline-block text-transparent bg-clip-text font-black",
                 {
-                  "bg-gray-400": !(isActive && userHasBonkAtaAccount),
-                  "bg-blue-pink-gradient": isActive && userHasBonkAtaAccount,
+                  "bg-gray-400": !isActiveWithAta,
+                  "bg-blue-pink-gradient": isActiveWithAta,
                 },
               )}
             >
@@ -146,7 +138,7 @@ function MysteryBoxReward({
               <MysteryBoxCategoryPill
                 category={type}
                 disabled={
-                  !(isActive && userHasBonkAtaAccount) ||
+                  !isActiveWithAta ||
                   isSubmitting ||
                   showBoxOverlay ||
                   wasOpened
