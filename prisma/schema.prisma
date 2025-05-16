@@ -95,6 +95,7 @@ model Question {
   UserQuestionAnswerStatus UserQuestionAnswerStatus[]
 
   @@unique([uuid])
+  @@index([createdByUserId])
 }
 
 model QuestionOption {
