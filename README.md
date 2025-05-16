@@ -14,7 +14,7 @@ CHOMP is the first mini-game product created by Gator Labs. We intend to build o
 
 Prerequisites:
 
-- Install Docker
+- Postgres DB: Neon or your favorite provider
 - Create a [Dynamic](https://www.dynamic.xyz/) account
 - Solana RPC like Helius
 - Solana account priv key for the Treasury

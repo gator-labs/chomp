@@ -123,11 +123,13 @@ jobs:
           NEON_PROJECT_ID="${{ secrets.NEON_PROJECT_ID }}"
           NEON_API_KEY="${{ secrets.NEON_API_KEY }}"
           GITHUB_RUN_ID="${{ github.run_id }}"
+          GITHUB_RUN_ATTEMPT="${{ github.run_attempt }}"
           
           echo "Variables set:"
           echo "- BRANCH_NAME: $BRANCH_NAME"
           echo "- NEON_PROJECT_ID: ${NEON_PROJECT_ID:0:5}... (redacted)"
           echo "- GITHUB_RUN_ID: $GITHUB_RUN_ID"
+          echo "- GITHUB_RUN_ATTEMPT: $GITHUB_RUN_ATTEMPT"
           
           if [ -z "$NEON_PROJECT_ID" ]; then
             echo "❌ [Step 6] Error: NEON_PROJECT_ID is not set. Please add it to your GitHub secrets."
@@ -199,8 +201,8 @@ jobs:
             fi
             echo "Found parent branch"
 
-            # Construct a fresh test branch name for each run, e.g. test/main-123456789
-            TEST_BRANCH="test/main-$GITHUB_RUN_ID"
+            # Construct a fresh test branch name for each run, e.g. test/main-123456789-1
+            TEST_BRANCH="test/main-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
             echo "Creating a new Neon branch: $TEST_BRANCH"
 
             echo "Creating branch with endpoint in a single request..."
