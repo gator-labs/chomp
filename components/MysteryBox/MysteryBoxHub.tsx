@@ -9,9 +9,11 @@ import React, { useState } from "react";
 import { InfoIcon } from "../../app/components/Icons/InfoIcon";
 import InfoDrawer from "../../app/components/InfoDrawer/InfoDrawer";
 import MysteryBoxReward from "../../app/components/MysteryBoxReward/MysteryBoxReward";
+import { BonkRequiredBanner } from "../BonkRequiredBanner";
 
 interface MysteryBoxHubProps {
   isUserEligibleForValidationReward: boolean;
+  userHasBonkAtaAccount: boolean;
   campaignBoxes:
     | {
         id: string;
@@ -25,6 +27,7 @@ interface MysteryBoxHubProps {
 
 function MysteryBoxHub({
   isUserEligibleForValidationReward,
+  userHasBonkAtaAccount,
   campaignBoxes,
 }: MysteryBoxHubProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +44,7 @@ function MysteryBoxHub({
           activities. The more you CHOMP, the more boxes you unlock!
         </p>
       </InfoDrawer>
+      {!userHasBonkAtaAccount && <BonkRequiredBanner />}
       <div className="bg-darkGray50 rounded-2xl p-2">
         <h1 className="flex items-center justify-center">
           <span className="bg-blue-pink-gradient text-transparent bg-clip-text font-black text-4xl py-2 mx-auo text-center">
@@ -57,6 +61,7 @@ function MysteryBoxHub({
           <MysteryBoxReward
             title="Validation Rewards"
             isActive={isUserEligibleForValidationReward}
+            userHasBonkAtaAccount={userHasBonkAtaAccount}
             icon={MysteryBoxIcon}
             type={EMysteryBoxCategory.Validation}
           />
@@ -65,6 +70,7 @@ function MysteryBoxHub({
             <MysteryBoxReward
               title={box.name}
               isActive={box.isEligible}
+              userHasBonkAtaAccount={userHasBonkAtaAccount}
               icon={CampaignBoxIcon}
               type={EMysteryBoxCategory.Campaign}
               infoTitle={box?.infoTitle}

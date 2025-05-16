@@ -224,6 +224,13 @@ export class NotFoundError extends Error {
   }
 }
 
+export class NoTokenAtaAccountError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NoTokenAtaAccountError";
+  }
+}
+
 /**
  * API errors.
  */
