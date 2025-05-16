@@ -17,6 +17,17 @@ export type CommunityAskPeriodStats = {
   acceptedAllTime: number;
 };
 
+type CommunityAskPeriodStatsFromDb = {
+  [K in keyof CommunityAskPeriodStats]: number | bigint;
+};
+
+const convertBigInts = (
+  input: CommunityAskPeriodStatsFromDb,
+): CommunityAskPeriodStats =>
+  Object.fromEntries(
+    Object.entries(input).map((entry) => [entry[0], Number(entry[1])]),
+  ) as CommunityAskPeriodStats;
+
 export async function getCommunityAskStats(): Promise<CommunityAskPeriodStats> {
   const startOfDay = dayjs().startOf("day").utc().toISOString();
   const startOfWeek = dayjs().startOf("week").utc().toISOString();
@@ -37,9 +48,9 @@ export async function getCommunityAskStats(): Promise<CommunityAskPeriodStats> {
     ON q.id = dq."questionId"
     WHERE q."isSubmittedByUser" IS TRUE
     AND q."createdByUserId" IS NOT NULL
-  `) as CommunityAskPeriodStats[];
+  `) as CommunityAskPeriodStatsFromDb[];
 
   if (stats.length === 0) throw new Error("Stats query failed.");
 
-  return stats[0];
+  return convertBigInts(stats[0]) as CommunityAskPeriodStats;
 }
