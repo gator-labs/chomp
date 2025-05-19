@@ -25,12 +25,16 @@ jest.mock("@/app/queries/user", () => ({
   getCurrentUser: jest.fn(),
 }));
 
+const TEST_BACKEND_SECRET = "test-secret-for-answers-abc";
+
 const generateWallet = () => {
   const keyBytes = crypto.randomBytes(32);
   return bs58.encode(keyBytes);
 };
 
 describe("API answer question", () => {
+  process.env.BACKEND_SECRET = TEST_BACKEND_SECRET; // Set for all tests in this describe block
+
   const user1 = {
     id: uuidv4(),
     username: `user1`,
@@ -158,6 +162,7 @@ describe("API answer question", () => {
   });
 
   afterAll(async () => {
+    delete process.env.BACKEND_SECRET; // Clean up
     // Clean up the data after the test
     await prisma.$transaction(async (tx) => {
       await tx.chompResult.deleteMany({
@@ -194,7 +199,7 @@ describe("API answer question", () => {
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET,
       }),
     } as unknown as NextRequest;
 
@@ -219,7 +224,7 @@ describe("API answer question", () => {
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET,
       }),
     } as unknown as NextRequest;
 
@@ -244,7 +249,7 @@ describe("API answer question", () => {
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET,
       }),
     } as unknown as NextRequest;
 
@@ -269,7 +274,7 @@ describe("API answer question", () => {
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET,
       }),
     } as unknown as NextRequest;
 
@@ -294,7 +299,7 @@ describe("API answer question", () => {
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET,
       }),
     } as unknown as NextRequest;
 
@@ -306,6 +311,40 @@ describe("API answer question", () => {
     expect(response.status).toBe(200);
     expect(data).toBeDefined();
     expect(data.answerId).toBeDefined();
+
+    // Verify the stored percentage in the database
+    const qAnswers = await prisma.questionAnswer.findMany({
+      where: {
+        uuid: data.answerId,
+      },
+      include: {
+        questionOption: true,
+      },
+    });
+
+    expect(qAnswers.length).toBeGreaterThan(0);
+
+    // Find the answer for the first order option (should have null percentage)
+    const firstOrderAnswer = qAnswers.find(
+      (qa) => qa.questionOption.uuid === question1OptionUuids[0]
+    );
+    expect(firstOrderAnswer).toBeDefined();
+    expect(firstOrderAnswer?.selected).toBe(true);
+    expect(firstOrderAnswer?.percentage).toBeNull();
+
+    // Find the answer for the second order option (this is where the percentage is set)
+    const secondOrderAnswer = qAnswers.find(
+      (qa) => qa.questionOption.uuid === question1OptionUuids[1]
+    );
+    expect(secondOrderAnswer).toBeDefined();
+    expect(secondOrderAnswer?.selected).toBe(false);
+    expect(secondOrderAnswer?.percentage).toBe(50);
+
+    // Verify other answers for the same batch if necessary (e.g. for multi-choice)
+    const questionOptionsForQuestion1 = await prisma.questionOption.count({
+      where: { questionId: questionIds[1] }
+    });
+    expect(qAnswers.length).toBe(questionOptionsForQuestion1);
   });
 
   it("should not answer a question twice", async () => {
@@ -315,12 +354,12 @@ describe("API answer question", () => {
         source: "crocodile",
         firstOrderOptionId: question1OptionUuids[0],
         secondOrderOptionId: question1OptionUuids[1],
-        secondOrderOptionEstimate: 0.5,
+        secondOrderOptionEstimate: 0.75,
         weight: 1.0,
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET,
       }),
     } as unknown as NextRequest;
 
