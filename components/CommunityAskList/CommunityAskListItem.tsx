@@ -5,6 +5,7 @@ import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
 import { useCommunityAskAddToDeck } from "@/hooks/useCommunityAskAddToDeck";
 import { CommunityAskQuestion } from "@/lib/ask/getCommunityAskList";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect } from "react";
 
@@ -14,6 +15,7 @@ export type CommunityAskListItemProps = {
 
 export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
   const { successToast, errorToast } = useToast();
+  const queryClient = useQueryClient();
 
   const addToDeck = useCommunityAskAddToDeck();
 
@@ -29,8 +31,10 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
   }, [addToDeck.isError]);
 
   useEffect(() => {
-    if (addToDeck.isSuccess)
+    if (addToDeck.isSuccess) {
       successToast("Successfully added question to the community deck");
+      queryClient.invalidateQueries({ queryKey: ["communityAskStats"] });
+    }
   }, [addToDeck.isSuccess]);
 
   return (
