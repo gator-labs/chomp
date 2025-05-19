@@ -255,6 +255,10 @@ async function queryUsersLatestStreak(userId: string): Promise<number> {
     SELECT DISTINCT DATE("createdAt") AS activityDate
     FROM public."MysteryBox" mbox
     WHERE "userId" = ${userId}
+    UNION
+    SELECT DISTINCT DATE("createdAt") AS activityDate
+    FROM public."Question" mbox
+    WHERE "createdByUserId" = ${userId}
   ),
   consecutiveDays AS (
     SELECT
