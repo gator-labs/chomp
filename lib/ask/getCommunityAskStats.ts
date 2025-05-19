@@ -43,8 +43,8 @@ export async function getCommunityAskStats(): Promise<CommunityAskPeriodStats> {
       COUNT(CASE WHEN dq."deckId" IS NOT NULL AND dq."createdAt" >= ${startOfWeek}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "acceptedWeek",
       COUNT(CASE WHEN dq."deckId" IS NOT NULL AND dq."createdAt" >= ${startOfMonth}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "acceptedMonth",
       COUNT(CASE WHEN dq."deckId" IS NOT NULL THEN 1 ELSE NULL END) AS "acceptedAllTime"
-    FROM "Question" q
-    LEFT JOIN "DeckQuestion" dq
+    FROM public."Question" q
+    LEFT JOIN public."DeckQuestion" dq
     ON q.id = dq."questionId"
     WHERE q."isSubmittedByUser" IS TRUE
     AND q."createdByUserId" IS NOT NULL
