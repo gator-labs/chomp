@@ -30,7 +30,7 @@ export const chargeUserCredits = async (questionId: number) => {
 
   if (userTotalCreditAmount < creditCostPerQuestion) {
     throw new InsufficientCreditsError(
-      `User has insufficient credits to charge for question ${questionId}`,
+      `User ${payload.sub} has insufficient credits to charge for question ${questionId} [User amount: ${userTotalCreditAmount}, Credit cost: ${creditCostPerQuestion}]`,
     );
   }
 
