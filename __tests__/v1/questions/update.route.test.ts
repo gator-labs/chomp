@@ -4,6 +4,8 @@ import { QuestionType, Token } from "@prisma/client";
 import dayjs from "dayjs";
 import { NextRequest } from "next/server";
 
+const TEST_BACKEND_SECRET = "test-update-secret-789"; // Added a unique secret for this test suite
+
 // Mock dependencies
 jest.mock("next/headers", () => ({
   cookies: jest.fn(() => ({
@@ -26,6 +28,7 @@ describe("API update question", () => {
   let questionUuids: string[] = [];
 
   beforeAll(async () => {
+    process.env.BACKEND_SECRET = TEST_BACKEND_SECRET; // Set the secret
     await prisma.$transaction(async (tx) => {
       // Create deck
       const deck = await tx.deck.create({
@@ -142,17 +145,20 @@ describe("API update question", () => {
       await tx.question.deleteMany({ where: { id: { in: questionIds } } });
       await tx.deck.deleteMany({ where: { id: { equals: deckId } } });
     });
+    delete process.env.BACKEND_SECRET; // Clean up the secret
   });
 
-  it("should reject resolvesAt < activeDate", async () => {
+  it("should reject resolveAt < activeDate", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
         source: "crocodile",
-        resolvesAt: futureDate,
+        activeDate: futureDate,
+        resolveAt: futureDate,
+        options: [{ title: "Option 1", imageUrl: "http://example.com/image1.png" }],
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET, // Use the constant
       }),
     } as unknown as NextRequest;
 
@@ -163,18 +169,20 @@ describe("API update question", () => {
 
     expect(response.status).toBe(400);
     expect(data.error).toBe("question_invalid");
-    expect(data.message).toBe("resolvesAt must be after activeDate");
+    expect(data.message).toBe("resolveAt must be after activeDate");
   });
 
-  it("should reject past resolvesAt date", async () => {
+  it("should reject past resolveAt date", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
         source: "crocodile",
-        resolvesAt: pastDate,
+        activeDate: pastDate,
+        resolveAt: pastDate,
+        options: [{ title: "Option 1", imageUrl: "http://example.com/image1.png" }],
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET, // Use the constant
       }),
     } as unknown as NextRequest;
 
@@ -185,18 +193,22 @@ describe("API update question", () => {
 
     expect(response.status).toBe(400);
     expect(data.error).toBe("question_invalid");
-    expect(data.message).toBe("resolvesAt must be in the future");
+    expect(data.message).toBe("resolveAt must be in the future");
   });
 
   it("should update question", async () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
         source: "crocodile",
-        resolvesAt: futureDate,
+        activeDate: futureDate,
+        resolveAt: futureDate,
+        options: [
+          { title: "Updated Question 1", imageUrl: "http://example.com/image1.png" },
+        ],
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET, // Use the constant
       }),
     } as unknown as NextRequest;
 
@@ -222,10 +234,14 @@ describe("API update question", () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
         source: "crocodile",
+        activeDate: futureDate,
+        options: [
+          { title: "Updated Question 1", imageUrl: "http://example.com/image1.png" },
+        ],
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET, // Use the constant
       }),
     } as unknown as NextRequest;
 
@@ -251,11 +267,15 @@ describe("API update question", () => {
     const mockRequest = {
       json: jest.fn().mockResolvedValue({
         source: "crocodile",
-        resolvesAt: null,
+        activeDate: futureDate,
+        resolveAt: null,
+        options: [
+          { title: "Updated Question 1", imageUrl: "http://example.com/image1.png" },
+        ],
       }),
       headers: new Headers({
         source: "crocodile",
-        "backend-secret": process.env.BACKEND_SECRET || "",
+        "backend-secret": TEST_BACKEND_SECRET, // Use the constant
       }),
     } as unknown as NextRequest;
 

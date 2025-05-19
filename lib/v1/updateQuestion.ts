@@ -22,34 +22,34 @@ export async function updateQuestion(
     throw new ApiQuestionInvalidError("There is no question with that ID");
   }
 
-  if (update.resolvesAt && new Date(update.resolvesAt) <= now) {
-    throw new ApiQuestionInvalidError("resolvesAt must be in the future");
+  if (update.resolveAt && new Date(update.resolveAt) <= now) {
+    throw new ApiQuestionInvalidError("resolveAt must be in the future");
   }
 
   if (
-    update.resolvesAt &&
+    update.resolveAt &&
     question.activeFromDate &&
-    new Date(update.resolvesAt) <= new Date(question.activeFromDate)
+    new Date(update.resolveAt) <= new Date(question.activeFromDate)
   ) {
-    throw new ApiQuestionInvalidError("resolvesAt must be after activeDate");
+    throw new ApiQuestionInvalidError("resolveAt must be after activeDate");
   }
 
   // Nothing to do if value omitted
-  if (update.resolvesAt === undefined) return;
+  if (update.resolveAt === undefined) return;
 
   const rv = await prisma.question.updateMany({
     data: {
-      revealAtDate: update.resolvesAt,
+      revealAtDate: update.resolveAt,
     },
     where: {
       id: question.id,
       // Enforced again here to protect against race
-      ...(update.resolvesAt !== null
+      ...(update.resolveAt !== null
         ? {
             OR: [
               {
                 activeFromDate: {
-                  lt: update.resolvesAt,
+                  lt: update.resolveAt,
                 },
               },
               { activeFromDate: null },
