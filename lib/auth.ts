@@ -1,3 +1,4 @@
+import { kv } from "@vercel/kv";
 import jwt, { Secret } from "jsonwebtoken";
 import { JwksClient } from "jwks-rsa";
 
@@ -23,7 +24,16 @@ export interface DynamicJwtPayload {
   new_user: boolean;
 }
 
+// Dynamic endpoint may fail if queried too often, so we cache the key in Redis
+const DYNAMIC_JWKS_PUBLIC_KEY = 'DYNAMIC_JWKS_PUBLIC_KEY'
+const DYNAMIC_JWKS_PUBLIC_KEY_TTL = 86400 // 1 day
+
 export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
+  const dynamicJwksPublicKey = await kv.get(DYNAMIC_JWKS_PUBLIC_KEY)
+  if (dynamicJwksPublicKey) {
+    return { key: dynamicJwksPublicKey as Secret };
+  }
+
   try {
     const jwksUrl = `https://app.dynamic.xyz/api/v0/sdk/${process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID}/.well-known/jwks`;
 
@@ -37,6 +47,8 @@ export const getKey = async (): Promise<{ error?: unknown; key?: Secret }> => {
 
     const signingKey = await client.getSigningKey();
     const publicKey = signingKey.getPublicKey();
+    // Save key to global cache
+    await kv.set(DYNAMIC_JWKS_PUBLIC_KEY, publicKey, { ex: DYNAMIC_JWKS_PUBLIC_KEY_TTL });
     return { key: publicKey };
   } catch (ex: unknown) {
     console.error(ex);
