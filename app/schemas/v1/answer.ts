@@ -19,7 +19,7 @@ export const AnswerSchema = z.object({
   userAddress: SolanaAddressSchema,
   firstOrderOptionId: z.string().uuid(),
   secondOrderOptionId: z.string().uuid(),
-  secondOrderEstimate: z.coerce
+  secondOrderOptionEstimate: z.coerce
     .number()
     .min(0)
     .max(1)
