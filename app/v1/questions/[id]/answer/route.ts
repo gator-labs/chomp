@@ -97,7 +97,7 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
       source,
       req.data.firstOrderOptionId,
       req.data.secondOrderOptionId,
-      req.data.secondOrderEstimate,
+      req.data.secondOrderOptionEstimate,
       req.data.weight,
     );
 
