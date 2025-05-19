@@ -6,7 +6,7 @@
 DROP VIEW IF EXISTS public."UserQuestionAnswerStatus";
 
 CREATE VIEW public."UserQuestionAnswerStatus" AS
-WITH public."QuestionInfo" AS (
+WITH "QuestionInfo" AS (
     SELECT
         qo."questionId",
         COUNT(*) FILTER (WHERE qo."isCorrect" IS TRUE) > 0 AS "isObjective"
@@ -61,6 +61,6 @@ SELECT
     END
     AS "indicatorType"
 FROM
-    public."QuestionInfo" qi
-LEFT JOIN public."AnswerInfo" ai
+    "QuestionInfo" qi
+LEFT JOIN "AnswerInfo" ai
 ON ai."questionId" = qi."questionId";
