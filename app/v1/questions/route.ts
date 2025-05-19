@@ -1,8 +1,39 @@
+import { getQuestions } from "@/lib/v1/getQuestions";
 import { questionSchema } from "@/app/schemas/v1/question";
 import prisma from "@/app/services/prisma";
 import { QuestionType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
+
+export async function GET(request: NextRequest) {
+  // API Key Authentication (using backend-secret as per user's previous POST update)
+  const backendSecret = request.headers.get("backend-secret");
+  if (backendSecret !== process.env.BACKEND_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Source header
+  const source = request.headers.get("source");
+  if (!source) {
+    return NextResponse.json(
+      { error: "missing_source_header", message: "'source' header is required" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const questions = await getQuestions(source);
+    return NextResponse.json(questions);
+  } catch (error) {
+    console.error("Error fetching questions:", error);
+    // It's good practice to avoid sending detailed internal error messages to the client.
+    // Consider a generic error message for production.
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   // parse backend-secret and source headers
