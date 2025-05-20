@@ -25,7 +25,7 @@ export function transformQuestionAnswers(questionAnswers: QuestionAnswer[]) {
         if (ua.selected) {
           answer.firstOrderOptionId = ua.questionOption.uuid;
           answer.answerId = ua.uuid;
-          answer.score = ua.score;
+          answer.answerScore = ua.score;
         }
         if (ua.percentage !== null) {
           answer.secondOrderOptionId = ua.questionOption.uuid;
