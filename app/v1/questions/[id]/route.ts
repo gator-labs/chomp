@@ -56,13 +56,13 @@ export async function GET(
       select: {
         id: true,
         uuid: true,
-        isCorrect: true,
+        calculatedIsCorrect: true,
         score: true,
         option: true,
       },
     });
 
-    const correctAnswer = questionOptions.find((option) => option.isCorrect);
+    const correctAnswer = questionOptions.find((option) => option.calculatedIsCorrect);
 
     const questionAnswers = await prisma.questionAnswer.findMany({
       where: {

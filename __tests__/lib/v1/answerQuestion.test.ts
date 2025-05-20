@@ -263,7 +263,41 @@ describe("answerQuestion", () => {
         1.0,
       ),
     ).rejects.toThrowError(
-      "User already submitted an answer for this question",
+      "User already submitted an answer for this question"
+    );
+  });
+
+  it("should throw error if first and second order options mismatch for binary question", async () => {
+    // Ensure the question is active
+    await prisma.question.update({
+      data: {
+        activeFromDate: pastDate,
+      },
+      where: {
+        // Use a question that is confirmed to be BinaryQuestion type
+        // questionUuids[0] is created with QuestionType.BinaryQuestion
+        id: questionIds[0],
+      },
+    });
+
+    // Ensure question0OptionUuids has at least two different options
+    if (question0OptionUuids.length < 2) {
+      // This should not happen based on current setup, but as a safeguard:
+      throw new Error("Test setup error: Need at least two distinct options for question 0 to test mismatch.");
+    }
+
+    await expect(
+      answerQuestion(
+        uuidv4(),
+        questionUuids[0], // This is a binary question
+        "mustard",
+        question0OptionUuids[0], // First option
+        question0OptionUuids[1], // Different second option
+        55, // secondOrderEstimate, value doesn't matter for this test
+        1.0, // weight, value doesn't matter for this test
+      ),
+    ).rejects.toThrowError(
+      "For binary questions, the second order option must be the same as the first order option",
     );
   });
 });

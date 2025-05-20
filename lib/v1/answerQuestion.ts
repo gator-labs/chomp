@@ -8,6 +8,7 @@ import {
   ApiQuestionInactiveError,
   ApiQuestionInvalidError,
 } from "../error";
+import { QuestionType } from "@prisma/client";
 
 export async function answerQuestion(
   userId: string,
@@ -75,6 +76,12 @@ export async function answerQuestion(
 
   if (!secondOrder)
     throw new ApiOptionInvalidError("Second order option not valid");
+
+  const isBinary = question.type === QuestionType.BinaryQuestion;
+  const is2ndOrderMismatch = firstOrderOptionId !== secondOrderOptionId;
+  if (isBinary && is2ndOrderMismatch) {
+    throw new ApiOptionInvalidError("For binary questions, the second order option must be the same as the first order option");
+  }
 
   const uuid = uuidv4();
 

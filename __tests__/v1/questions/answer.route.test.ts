@@ -293,7 +293,7 @@ describe("API answer question", () => {
         userAddress: user1.wallet,
         source: "crocodile",
         firstOrderOptionId: question1OptionUuids[0],
-        secondOrderOptionId: question1OptionUuids[1],
+        secondOrderOptionId: question1OptionUuids[0],
         secondOrderOptionEstimate: 0.5,
         weight: 1.0,
       }),
@@ -330,7 +330,7 @@ describe("API answer question", () => {
     );
     expect(firstOrderAnswer).toBeDefined();
     expect(firstOrderAnswer?.selected).toBe(true);
-    expect(firstOrderAnswer?.percentage).toBeNull();
+    expect(firstOrderAnswer?.percentage).toBe(50);
 
     // Find the answer for the second order option (this is where the percentage is set)
     const secondOrderAnswer = qAnswers.find(
@@ -338,7 +338,7 @@ describe("API answer question", () => {
     );
     expect(secondOrderAnswer).toBeDefined();
     expect(secondOrderAnswer?.selected).toBe(false);
-    expect(secondOrderAnswer?.percentage).toBe(50);
+    expect(secondOrderAnswer?.percentage).toBeNull();
 
     // Verify other answers for the same batch if necessary (e.g. for multi-choice)
     const questionOptionsForQuestion1 = await prisma.questionOption.count({
@@ -353,7 +353,7 @@ describe("API answer question", () => {
         userAddress: user1.wallet,
         source: "crocodile",
         firstOrderOptionId: question1OptionUuids[0],
-        secondOrderOptionId: question1OptionUuids[1],
+        secondOrderOptionId: question1OptionUuids[0],
         secondOrderOptionEstimate: 0.75,
         weight: 1.0,
       }),
