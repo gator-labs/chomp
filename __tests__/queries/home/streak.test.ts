@@ -204,6 +204,46 @@ describe("getUsersLatestStreak", () => {
         },
       });
 
+      const userQuestion = await tx.question.create({
+        data: {
+          question: "User1's question",
+          type: QuestionType.BinaryQuestion,
+          revealAtDate: new Date("2024-10-13 16:00:00.000"),
+          revealToken: Token.Bonk,
+          revealTokenAmount: 5000,
+          createdAt: subDays(new Date(), 5),
+          isSubmittedByUser: true,
+          createdByUserId: user1.id,
+          questionOptions: {
+            createMany: {
+              data: [
+                {
+                  option: "Yes",
+                  isLeft: true,
+                  calculatedIsCorrect: false,
+                  calculatedPercentageOfSelectedAnswers: 20,
+                  calculatedAveragePercentage: 50,
+                  index: 0,
+                },
+                {
+                  option: "No",
+                  isLeft: false,
+                  calculatedIsCorrect: true,
+                  calculatedPercentageOfSelectedAnswers: 80,
+                  calculatedAveragePercentage: 70,
+                  index: 1,
+                },
+              ],
+            },
+          },
+        },
+        include: {
+          questionOptions: true,
+        },
+      });
+
+      questionsIds.push(userQuestion.id);
+
       // User 2 answers questions but has a gap (2 consecutive days, then 1 day gap)
       await tx.questionAnswer.createMany({
         data: [
@@ -387,7 +427,7 @@ describe("getUsersLatestStreak", () => {
     (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
     const latestStreak = await getUsersLatestStreak();
 
-    expect(latestStreak).toBe(5); // User1's streak ends today after answering for 3 consecutive days
+    expect(latestStreak).toBe(6); // User1's streak ends today after answering for 3 consecutive days
   });
 
   it("should return the latest streak for user2 ending today", async () => {

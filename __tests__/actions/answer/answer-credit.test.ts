@@ -164,8 +164,8 @@ describe("Validate points logs for completing questions and decks", () => {
         deckId: deckId,
       });
     } catch (error: any) {
-      expect(error?.message).toBe(
-        `User has insufficient credits to charge for question ${deckQuestionId}`,
+      expect(error?.message).toMatch(
+        `User ${userId} has insufficient credits to charge for question ${deckQuestionId}`,
       );
     }
   });

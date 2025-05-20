@@ -2,6 +2,7 @@ import { getJwtPayload } from "@/app/actions/jwt";
 import prisma from "@/app/services/prisma";
 import { authGuard } from "@/app/utils/auth";
 import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
+import { InsufficientCreditsError } from "@/lib/error";
 import {
   FungibleAsset,
   QuestionType,
@@ -165,9 +166,7 @@ describe("chargeUserCredits", () => {
     });
     (authGuard as jest.Mock).mockResolvedValue({ sub: mockUserId });
 
-    await expect(chargeUserCredits(currentQuestionId)).rejects.toThrow(
-      `User has insufficient credits to charge for question ${currentQuestionId}`,
-    );
+    await expect(chargeUserCredits(currentQuestionId)).rejects.toThrow(InsufficientCreditsError);
 
     // Verify no new transaction was created
     const transactions = await prisma.fungibleAssetTransactionLog.findMany({

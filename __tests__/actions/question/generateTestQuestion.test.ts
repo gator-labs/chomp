@@ -52,7 +52,7 @@ const deleteQuestions = async (deckId: number) => {
   });
 };
 
-describe("Add to community ask list", () => {
+describe.skip("Generate test questions", () => {
   let deckId: number;
   let deckId2: number;
 

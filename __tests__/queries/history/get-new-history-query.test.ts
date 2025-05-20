@@ -270,6 +270,119 @@ describe("getNewHistoryQuery", () => {
     );
   });
 
+  it("should return correct (for objective) indicator type", async () => {
+    await prisma.questionOption.updateMany({
+      where: {
+        id: {
+          in: questionOptionIds,
+        },
+      },
+      data: {
+        calculatedIsCorrect: false,
+      },
+    });
+
+    await prisma.questionOption.update({
+      where: {
+        id: questionOptionIds[0],
+      },
+      data: {
+        isCorrect: true,
+      },
+    });
+
+    const answer = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: true,
+      },
+    });
+
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "correct",
+      }),
+    );
+
+    const counts = await getHistoryHeadersData(answer?.userId, deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 1,
+        incorrectCount: 0,
+        unansweredCount: 0,
+        unrevealedCount: 0,
+        unseenCount: 0,
+        incompleteCount: 0,
+      }),
+    );
+  });
+
+  it("should return incorrect (for objective) indicator type", async () => {
+    await prisma.questionOption.updateMany({
+      where: {
+        id: {
+          in: questionOptionIds,
+        },
+      },
+      data: {
+        calculatedIsCorrect: false,
+      },
+    });
+
+    await prisma.questionOption.update({
+      where: {
+        id: questionOptionIds[0],
+      },
+      data: {
+        isCorrect: false,
+      },
+    });
+
+    await prisma.questionOption.update({
+      where: {
+        id: questionOptionIds[1],
+      },
+      data: {
+        isCorrect: true,
+      },
+    });
+
+    const answer = await prisma.questionAnswer.findFirstOrThrow({
+      where: {
+        questionOptionId: questionOptionIds[0],
+        selected: true,
+      },
+    });
+
+    const result = await getNewHistoryQuery(answer?.userId, 1, 1);
+
+    expect(result).toBeDefined();
+    expect(result[0]).toEqual(
+      expect.objectContaining({
+        id: questionId,
+        indicatorType: "incorrect",
+      }),
+    );
+
+    const counts = await getHistoryHeadersData(answer?.userId, deckId);
+
+    expect(counts).toEqual(
+      expect.objectContaining({
+        correctCount: 0,
+        incorrectCount: 1,
+        unansweredCount: 0,
+        unrevealedCount: 0,
+        unseenCount: 0,
+        incompleteCount: 0,
+      }),
+    );
+  });
+
   it("should return incomplete indicator type", async () => {
     await prisma.questionAnswer.updateMany({
       where: {
@@ -315,7 +428,7 @@ describe("getNewHistoryQuery", () => {
     );
   });
 
-  it("should return incomplete indicator type", async () => {
+  it("should return unanswered indicator type", async () => {
     await prisma.questionAnswer.updateMany({
       where: {
         questionOption: {

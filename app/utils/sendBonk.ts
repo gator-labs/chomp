@@ -1,4 +1,5 @@
 import {
+  NoTokenAtaAccountError,
   TransactionFailedError,
   TransactionFailedToConfirmError,
 } from "@/lib/error";
@@ -81,15 +82,9 @@ export const sendBonk = async (
     ),
   ];
 
-  // If the receiver doesn't have an ATA, add one more instruction to create ATA
   if (!receiverAccountInfo) {
-    simulateTransactionInstructions.unshift(
-      createAssociatedTokenAccountInstruction(
-        fromWallet.publicKey,
-        receiverAssociatedAddress,
-        toWallet,
-        bonkMint,
-      ),
+    throw new NoTokenAtaAccountError(
+      "No BONK ATA account. Unable to send tokens.",
     );
   }
 
