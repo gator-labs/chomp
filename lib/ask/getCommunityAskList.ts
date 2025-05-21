@@ -1,5 +1,7 @@
 "server-only";
 
+import { CommunityAskFilter } from '@/types/ask';
+
 import prisma from "@/app/services/prisma";
 import { Question, QuestionOption, User, Wallet } from "@prisma/client";
 
@@ -9,14 +11,32 @@ export type CommunityAskQuestion = Question & {
   user: User & { wallets: Wallet[] };
 };
 
-export async function getCommunityAskList(): Promise<CommunityAskQuestion[]> {
+export async function getCommunityAskList(
+  filter: CommunityAskFilter,
+): Promise<CommunityAskQuestion[]> {
+  const filterQuery =
+    filter === "pending"
+      ? {
+          deckQuestions: {
+            none: {},
+          },
+          isArchived: false,
+        }
+      : filter === "accepted"
+        ? {
+            deckQuestions: {
+              some: {},
+            },
+          }
+        : {
+            isArchived: true,
+          };
+
   const askList = (await prisma.question.findMany({
     where: {
       isSubmittedByUser: true,
-      deckQuestions: {
-        none: {},
-      },
       createdByUserId: { not: null },
+      ...filterQuery,
     },
     include: {
       user: {
