@@ -25,9 +25,10 @@ export function transformQuestionAnswers(questionAnswers: QuestionAnswer[]) {
         if (ua.selected) {
           answer.firstOrderOptionId = ua.questionOption.uuid;
           answer.answerId = ua.uuid;
-          answer.answerScore = ua.score;
         }
         if (ua.percentage !== null) {
+          // Use score, from 2nd order response, to populate answerScore
+          answer.answerScore = ua.score;
           answer.secondOrderOptionId = ua.questionOption.uuid;
           answer.secondOrderOptionEstimate = ua.percentage;
         }
