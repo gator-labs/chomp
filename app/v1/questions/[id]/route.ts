@@ -12,6 +12,7 @@ import {
 import { transformQuestionAnswers } from "@/lib/v1/transforQuestionAnswers";
 import { updateQuestion } from "@/lib/v1/updateQuestion";
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 
 export async function GET(
   request: NextRequest,
@@ -26,12 +27,12 @@ export async function GET(
   // source corresponds to Zuplo -> Services -> API Key Service -> select consumer -> metadata -> source
   const source = request.headers.get("source");
 
-  const { id } = params;
+  const { id: questionUuidFromParams } = params;
 
   try {
     const question = await prisma.question.findUnique({
       where: {
-        uuid: id,
+        uuid: questionUuidFromParams,
         source,
       },
     });
@@ -46,48 +47,73 @@ export async function GET(
       );
     }
 
-    const questionOptions = await prisma.questionOption.findMany({
-      where: {
-        question: {
-          uuid: id,
-          source,
-        },
-      },
-      select: {
-        id: true,
-        uuid: true,
-        calculatedIsCorrect: true,
-        score: true,
-        option: true,
-      },
-    });
+    // Use the integer ID of the question for the raw query
+    const questionIdInt = question.id;
+    // Prisma cannot handle scores with NaN values.
+    // https://github.com/prisma/prisma/issues/3492
+    // We must use a raw query, not primsa, to get the desired output
+    const rawQuestionOptions: Array<{ id: number; uuid: string; calculatedIsCorrect: boolean | null; score: number | null; option: string }> = await prisma.$queryRaw`
+      SELECT
+        id,
+        uuid,
+        "calculatedIsCorrect",
+        CASE WHEN score = 'NaN'::float THEN NULL ELSE score END AS score,
+        option
+      FROM "QuestionOption"
+      WHERE "questionId" = ${questionIdInt};
+    `;
+
+    // Ensure the structure matches what the rest of the code expects, or adapt if necessary
+    const questionOptions = rawQuestionOptions.map(opt => ({
+      ...opt,
+      // Prisma normally returns boolean for calculatedIsCorrect, ensure type consistency if it was nullable in DB
+      calculatedIsCorrect: opt.calculatedIsCorrect === null ? null : Boolean(opt.calculatedIsCorrect),
+      // Score is already number | null from the CASE statement
+    }));
 
     const correctAnswer = questionOptions.find((option) => option.calculatedIsCorrect);
 
-    const questionAnswers = await prisma.questionAnswer.findMany({
-      where: {
-        questionOptionId: {
-          in: questionOptions.map((qo) => qo.id),
-        },
-        NOT: {
-          percentage: null,
-          selected: false,
-        },
+    const questionOptionIds = questionOptions.map((qo) => qo.id);
+
+    let rawQuestionAnswers: Array<{
+      userId: string;
+      selected: boolean;
+      percentage: number | null;
+      uuid: string; // QuestionAnswer UUID
+      qa_score: number | null; // QuestionAnswer score
+      qo_uuid: string; // QuestionOption UUID
+      qo_score: number | null; // QuestionOption score
+    }> = [];
+
+    if (questionOptionIds.length > 0) {
+      rawQuestionAnswers = await prisma.$queryRaw`
+        SELECT
+          qa."userId",
+          qa."selected",
+          qa."percentage",
+          qa."uuid",
+          CASE WHEN qa."score" = 'NaN'::float THEN NULL ELSE qa."score" END AS qa_score,
+          qo."uuid" AS qo_uuid,
+          CASE WHEN qo."score" = 'NaN'::float THEN NULL ELSE qo."score" END AS qo_score
+        FROM "QuestionAnswer" qa
+        JOIN "QuestionOption" qo ON qa."questionOptionId" = qo.id
+        WHERE qa."questionOptionId" IN (${Prisma.join(questionOptionIds)})
+          AND NOT (qa."percentage" IS NULL AND qa."selected" = FALSE);
+      `;
+    }
+
+    // Manually reconstruct the nested structure Prisma provided
+    const questionAnswers = rawQuestionAnswers.map(rqa => ({
+      userId: rqa.userId,
+      selected: rqa.selected,
+      percentage: rqa.percentage,
+      uuid: rqa.uuid,
+      score: rqa.qa_score,
+      questionOption: {
+        uuid: rqa.qo_uuid,
+        score: rqa.qo_score,
       },
-      select: {
-        userId: true,
-        selected: true,
-        percentage: true,
-        uuid: true,
-        score: true,
-        questionOption: {
-          select: {
-            uuid: true,
-            score: true,
-          },
-        },
-      },
-    });
+    }));
 
     const transformedAnswers = transformQuestionAnswers(questionAnswers);
 

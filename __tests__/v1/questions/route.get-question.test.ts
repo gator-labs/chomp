@@ -23,6 +23,10 @@ describe("GET /v1/question/[id]", () => {
     username: `user1`,
   };
 
+  let questionWithNaNScoreUuid: string;
+  let optionWithNaNScoreUuid: string;
+  let optionWithNormalScoreUuid: string;
+
   beforeAll(async () => {
     process.env.BACKEND_SECRET = BACKEND_SECRET;
 
@@ -80,6 +84,43 @@ describe("GET /v1/question/[id]", () => {
       questionOptionUuids = question.questionOptions.map((qo) => qo.uuid);
       questionOptionIds = question.questionOptions.map((qo) => qo.id);
 
+      // Setup for NaN score test
+      const nanQuestion = await tx.question.create({
+        data: {
+          question: "Test NaN score?",
+          activeFromDate: pastDate,
+          source: "crocodile_nan_test", // Use a distinct source
+          type: QuestionType.BinaryQuestion,
+          revealToken: Token.Bonk,
+          revealTokenAmount: 100,
+          uuid: uuidv4(),
+          questionOptions: {
+            createMany: {
+              data: [
+                {
+                  option: "Option A (NaN score)",
+                  index: 0,
+                  uuid: uuidv4(),
+                  score: NaN, // Set score to NaN
+                },
+                {
+                  option: "Option B (Normal score)",
+                  index: 1,
+                  uuid: uuidv4(),
+                  score: 0.75,
+                },
+              ],
+            },
+          },
+        },
+        include: {
+          questionOptions: true,
+        },
+      });
+      questionWithNaNScoreUuid = nanQuestion.uuid;
+      optionWithNaNScoreUuid = nanQuestion.questionOptions.find(opt => opt.option === "Option A (NaN score)")!.uuid;
+      optionWithNormalScoreUuid = nanQuestion.questionOptions.find(opt => opt.option === "Option B (Normal score)")!.uuid;
+
       for (const option of questionOptionIds) {
         // Apply percentages such that they sum up to 100 for each user's answer set
         await tx.questionAnswer.create({
@@ -110,6 +151,15 @@ describe("GET /v1/question/[id]", () => {
 
     await prisma.question.delete({
       where: { uuid: questionUuid },
+    });
+
+    // Cleanup for NaN test question
+    const nanQuestionOptions = await prisma.questionOption.findMany({where: {question: {uuid: questionWithNaNScoreUuid}}});
+    await prisma.questionOption.deleteMany({
+        where: { uuid: {in: nanQuestionOptions.map(o => o.uuid)} },
+    });
+    await prisma.question.delete({
+      where: { uuid: questionWithNaNScoreUuid },
     });
 
     await prisma.user.delete({
@@ -144,6 +194,29 @@ describe("GET /v1/question/[id]", () => {
     const json = await res.json();
     expect(json.error).toBe("question_not_found");
     expect(json.message).toBe("No question exists with this id and source");
+  });
+
+  it("should handle NaN option score gracefully", async () => {
+    const req = createMockRequest({
+      headers: { "backend-secret": BACKEND_SECRET, source: "crocodile_nan_test" },
+    });
+    const res = await GET(req as any, {
+      params: {
+        id: questionWithNaNScoreUuid,
+      },
+    });
+    expect(res.status).toBe(200);
+    const json = await res.json();
+
+    expect(json.options.length).toBe(2);
+
+    const nanOptionData = json.options.find((opt: any) => opt.optionId === optionWithNaNScoreUuid);
+    expect(nanOptionData).toBeDefined();
+    expect(nanOptionData.optionScore).toBeNull();
+
+    const normalOptionData = json.options.find((opt: any) => opt.optionId === optionWithNormalScoreUuid);
+    expect(normalOptionData).toBeDefined();
+    expect(normalOptionData.optionScore).toBe(0.75);
   });
 
   it("should correctly return question and its realted data", async () => {
