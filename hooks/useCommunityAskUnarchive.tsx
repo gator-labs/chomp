@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 
-export function useCommunityAskArchive() {
+export function useCommunityAskUnarchive() {
   return useMutation({
     mutationFn: async (questionId: number): Promise<void> => {
       const response = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/ask/archive",
+        process.env.NEXT_PUBLIC_API_URL + "/ask/unarchive",
         {
           method: "PATCH",
           body: JSON.stringify({ questionId }),
@@ -12,6 +12,6 @@ export function useCommunityAskArchive() {
       );
       if (!response.ok) throw new Error("Error making request");
     },
-    mutationKey: ["communityAskArchive"],
+    mutationKey: ["communityAskUnarchive"],
   });
 }

@@ -4,6 +4,7 @@ import { formatDate } from "@/app/utils/date";
 import { AskQuestionPreview } from "@/components/AskWizard/AskQuestionPreview";
 import { useCommunityAskAddToDeck } from "@/hooks/useCommunityAskAddToDeck";
 import { useCommunityAskArchive } from "@/hooks/useCommunityAskArchive";
+import { useCommunityAskUnarchive } from "@/hooks/useCommunityAskUnarchive";
 import { CommunityAskQuestion } from "@/lib/ask/getCommunityAskList";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
 
   const addToDeck = useCommunityAskAddToDeck();
   const archive = useCommunityAskArchive();
+  const unarchive = useCommunityAskUnarchive();
 
   const avatarSrc = question.user?.profileSrc || AvatarPlaceholder.src;
 
@@ -29,6 +31,10 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
 
   const handleArchive = async () => {
     archive.mutate(question.id);
+  };
+
+  const handleUnarchive = async () => {
+    unarchive.mutate(question.id);
   };
 
   useEffect(() => {
@@ -54,8 +60,23 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
     }
   }, [archive.isSuccess]);
 
+  useEffect(() => {
+    if (unarchive.isSuccess) {
+      successToast("Successfully unarchived question");
+      queryClient.invalidateQueries({ queryKey: ["communityAskStats"] });
+    }
+  }, [unarchive.isSuccess]);
+
+  const isLoading =
+    addToDeck.isPending || archive.isPending || unarchive.isPending;
+
   return (
-    <div className="border p-2 m-2 rounded-md bg-gray-900 flex flex-col gap-2">
+    <div className="border p-2 m-2 rounded-md bg-gray-900 flex flex-col gap-2 relative">
+      {(question.isArchived || archive.isSuccess) && !unarchive.isSuccess && (
+        <div className="bg-red-400 text-xs font-bold float-right z-[100] absolute right-[3em] rounded-b-lg px-2 py-1">
+          Archived
+        </div>
+      )}
       <AskQuestionPreview
         title={question.question}
         options={question.questionOptions.map((qo) => qo.option)}
@@ -88,41 +109,52 @@ export function CommunityAskListItem({ question }: CommunityAskListItemProps) {
         <div className="text-right">{formatDate(question.createdAt)}</div>
       </div>
       <div className="flex gap-2">
-        {question.addedToDeckAt ? (
-          <Button variant="primary" disabled={true}>
-            Added at {formatDate(question.addedToDeckAt)}
-          </Button>
-        ) : addToDeck.isSuccess ? (
-          <Button variant="secondary" disabled={true}>
-            ✔️ Added to Community Deck
-          </Button>
-        ) : (
-          <Button
-            variant="primary"
-            onClick={handleAddToDeck}
-            disabled={
-              addToDeck.isPending || archive.isPending || archive.isSuccess
-            }
-          >
-            {addToDeck.isPending ? "Adding..." : "Add to Community Deck"}
-          </Button>
-        )}
         {question.isArchived ? (
-          <Button variant="primary" disabled={true}>
-            Archived at {formatDate(question.updatedAt)}
+          <Button
+            variant={unarchive.isSuccess ? "secondary" : "primary"}
+            onClick={handleUnarchive}
+            disabled={isLoading || unarchive.isSuccess}
+          >
+            {unarchive.isPending
+              ? "Unarchiving..."
+              : unarchive.isSuccess
+                ? "✔️ Unarchived"
+                : "Unarchive"}
           </Button>
-        ) : archive.isSuccess ? (
-          <Button variant="secondary" disabled={true}>
-            ✔️ Archived
+        ) : question.addedToDeckAt ? (
+          <Button variant="primary" disabled={true}>
+            Accepted at {formatDate(question.addedToDeckAt)}
           </Button>
         ) : (
-          <Button
-            variant="warning"
-            onClick={handleArchive}
-            disabled={archive.isPending || addToDeck.isPending}
-          >
-            {archive.isPending ? "Archiving..." : "Archive"}
-          </Button>
+          <>
+            <Button
+              variant={addToDeck.isSuccess ? "secondary" : "primary"}
+              onClick={handleAddToDeck}
+              disabled={
+                isLoading ||
+                addToDeck.isSuccess ||
+                archive.isSuccess ||
+                unarchive.isSuccess
+              }
+            >
+              {addToDeck.isPending
+                ? "Adding..."
+                : addToDeck.isSuccess
+                  ? "✔️ Added to Community Deck"
+                  : "Add to Community Deck"}
+            </Button>
+            <Button
+              variant={addToDeck.isSuccess ? "secondary" : "warning"}
+              onClick={handleArchive}
+              disabled={isLoading || archive.isSuccess || addToDeck.isSuccess}
+            >
+              {archive.isPending
+                ? "Archiving..."
+                : archive.isSuccess
+                  ? "✔️ Archived"
+                  : "Archive"}
+            </Button>
+          </>
         )}
       </div>
     </div>
