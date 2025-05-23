@@ -34,10 +34,24 @@ export function CommunityAskStats({ stats }: CommunityAskStatsProps) {
       <div>{formatNumber(stats.archivedAllTime)}</div>
 
       <div className="font-medium">Total</div>
-      <div>{formatNumber(stats.submittedDay)}</div>
-      <div>{formatNumber(stats.submittedWeek)}</div>
-      <div>{formatNumber(stats.submittedMonth)}</div>
-      <div>{formatNumber(stats.submittedAllTime)}</div>
+      <div>
+        {formatNumber(stats.pendingDay + stats.acceptedDay + stats.archivedDay)}
+      </div>
+      <div>
+        {formatNumber(
+          stats.pendingWeek + stats.acceptedWeek + stats.archivedWeek,
+        )}
+      </div>
+      <div>
+        {formatNumber(
+          stats.pendingMonth + stats.acceptedMonth + stats.archivedMonth,
+        )}
+      </div>
+      <div>
+        {formatNumber(
+          stats.pendingAllTime + stats.acceptedAllTime + stats.archivedAllTime,
+        )}
+      </div>
     </div>
   );
 }
