@@ -118,8 +118,12 @@ describe("GET /v1/question/[id]", () => {
         },
       });
       questionWithNaNScoreUuid = nanQuestion.uuid;
-      optionWithNaNScoreUuid = nanQuestion.questionOptions.find(opt => opt.option === "Option A (NaN score)")!.uuid;
-      optionWithNormalScoreUuid = nanQuestion.questionOptions.find(opt => opt.option === "Option B (Normal score)")!.uuid;
+      optionWithNaNScoreUuid = nanQuestion.questionOptions.find(
+        (opt) => opt.option === "Option A (NaN score)",
+      )!.uuid;
+      optionWithNormalScoreUuid = nanQuestion.questionOptions.find(
+        (opt) => opt.option === "Option B (Normal score)",
+      )!.uuid;
 
       for (const option of questionOptionIds) {
         // Apply percentages such that they sum up to 100 for each user's answer set
@@ -154,9 +158,11 @@ describe("GET /v1/question/[id]", () => {
     });
 
     // Cleanup for NaN test question
-    const nanQuestionOptions = await prisma.questionOption.findMany({where: {question: {uuid: questionWithNaNScoreUuid}}});
+    const nanQuestionOptions = await prisma.questionOption.findMany({
+      where: { question: { uuid: questionWithNaNScoreUuid } },
+    });
     await prisma.questionOption.deleteMany({
-        where: { uuid: {in: nanQuestionOptions.map(o => o.uuid)} },
+      where: { uuid: { in: nanQuestionOptions.map((o) => o.uuid) } },
     });
     await prisma.question.delete({
       where: { uuid: questionWithNaNScoreUuid },
@@ -198,7 +204,10 @@ describe("GET /v1/question/[id]", () => {
 
   it("should handle NaN option score gracefully", async () => {
     const req = createMockRequest({
-      headers: { "backend-secret": BACKEND_SECRET, source: "crocodile_nan_test" },
+      headers: {
+        "backend-secret": BACKEND_SECRET,
+        source: "crocodile_nan_test",
+      },
     });
     const res = await GET(req as any, {
       params: {
@@ -210,11 +219,15 @@ describe("GET /v1/question/[id]", () => {
 
     expect(json.options.length).toBe(2);
 
-    const nanOptionData = json.options.find((opt: any) => opt.optionId === optionWithNaNScoreUuid);
+    const nanOptionData = json.options.find(
+      (opt: any) => opt.optionId === optionWithNaNScoreUuid,
+    );
     expect(nanOptionData).toBeDefined();
     expect(nanOptionData.optionScore).toBeNull();
 
-    const normalOptionData = json.options.find((opt: any) => opt.optionId === optionWithNormalScoreUuid);
+    const normalOptionData = json.options.find(
+      (opt: any) => opt.optionId === optionWithNormalScoreUuid,
+    );
     expect(normalOptionData).toBeDefined();
     expect(normalOptionData.optionScore).toBe(0.75);
   });

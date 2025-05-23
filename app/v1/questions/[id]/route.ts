@@ -11,8 +11,8 @@ import {
 } from "@/lib/error";
 import { transformQuestionAnswers } from "@/lib/v1/transforQuestionAnswers";
 import { updateQuestion } from "@/lib/v1/updateQuestion";
-import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
@@ -52,7 +52,13 @@ export async function GET(
     // Prisma cannot handle scores with NaN values.
     // https://github.com/prisma/prisma/issues/3492
     // We must use a raw query, not primsa, to get the desired output
-    const rawQuestionOptions: Array<{ id: number; uuid: string; calculatedIsCorrect: boolean | null; score: number | null; option: string }> = await prisma.$queryRaw`
+    const rawQuestionOptions: Array<{
+      id: number;
+      uuid: string;
+      calculatedIsCorrect: boolean | null;
+      score: number | null;
+      option: string;
+    }> = await prisma.$queryRaw`
       SELECT
         id,
         uuid,
@@ -64,14 +70,19 @@ export async function GET(
     `;
 
     // Ensure the structure matches what the rest of the code expects, or adapt if necessary
-    const questionOptions = rawQuestionOptions.map(opt => ({
+    const questionOptions = rawQuestionOptions.map((opt) => ({
       ...opt,
       // Prisma normally returns boolean for calculatedIsCorrect, ensure type consistency if it was nullable in DB
-      calculatedIsCorrect: opt.calculatedIsCorrect === null ? null : Boolean(opt.calculatedIsCorrect),
+      calculatedIsCorrect:
+        opt.calculatedIsCorrect === null
+          ? null
+          : Boolean(opt.calculatedIsCorrect),
       // Score is already number | null from the CASE statement
     }));
 
-    const correctAnswer = questionOptions.find((option) => option.calculatedIsCorrect);
+    const correctAnswer = questionOptions.find(
+      (option) => option.calculatedIsCorrect,
+    );
 
     const questionOptionIds = questionOptions.map((qo) => qo.id);
 
@@ -103,7 +114,7 @@ export async function GET(
     }
 
     // Manually reconstruct the nested structure Prisma provided
-    const questionAnswers = rawQuestionAnswers.map(rqa => ({
+    const questionAnswers = rawQuestionAnswers.map((rqa) => ({
       userId: rqa.userId,
       selected: rqa.selected,
       percentage: rqa.percentage,

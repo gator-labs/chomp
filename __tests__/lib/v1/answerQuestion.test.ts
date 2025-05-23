@@ -263,7 +263,7 @@ describe("answerQuestion", () => {
         1.0,
       ),
     ).rejects.toThrowError(
-      "User already submitted an answer for this question"
+      "User already submitted an answer for this question",
     );
   });
 
@@ -283,7 +283,9 @@ describe("answerQuestion", () => {
     // Ensure question0OptionUuids has at least two different options
     if (question0OptionUuids.length < 2) {
       // This should not happen based on current setup, but as a safeguard:
-      throw new Error("Test setup error: Need at least two distinct options for question 0 to test mismatch.");
+      throw new Error(
+        "Test setup error: Need at least two distinct options for question 0 to test mismatch.",
+      );
     }
 
     await expect(
