@@ -166,7 +166,9 @@ describe("chargeUserCredits", () => {
     });
     (authGuard as jest.Mock).mockResolvedValue({ sub: mockUserId });
 
-    await expect(chargeUserCredits(currentQuestionId)).rejects.toThrow(InsufficientCreditsError);
+    await expect(chargeUserCredits(currentQuestionId)).rejects.toThrow(
+      InsufficientCreditsError,
+    );
 
     // Verify no new transaction was created
     const transactions = await prisma.fungibleAssetTransactionLog.findMany({

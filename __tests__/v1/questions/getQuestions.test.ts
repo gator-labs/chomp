@@ -56,9 +56,9 @@ describe("GET /v1/questions API Endpoint", () => {
     await prisma.question.deleteMany({
       where: {
         source: {
-          in: [SOURCE_ONE, SOURCE_TWO]
-        }
-      }
+          in: [SOURCE_ONE, SOURCE_TWO],
+        },
+      },
     });
 
     // Then create our test questions
@@ -69,9 +69,15 @@ describe("GET /v1/questions API Endpoint", () => {
 
   afterAll(async () => {
     const questionIds = createdQuestionsDb.map((q) => q.id);
-    await prisma.questionAnswer.deleteMany({ where: { questionOption: { questionId: { in: questionIds } } } });
-    await prisma.questionOption.deleteMany({ where: { questionId: { in: questionIds } } });
-    await prisma.deckQuestion.deleteMany({ where: { questionId: { in: questionIds } } });
+    await prisma.questionAnswer.deleteMany({
+      where: { questionOption: { questionId: { in: questionIds } } },
+    });
+    await prisma.questionOption.deleteMany({
+      where: { questionId: { in: questionIds } },
+    });
+    await prisma.deckQuestion.deleteMany({
+      where: { questionId: { in: questionIds } },
+    });
     await prisma.question.deleteMany({ where: { id: { in: questionIds } } });
     delete process.env.BACKEND_SECRET;
   });
@@ -132,13 +138,15 @@ describe("GET /v1/questions API Endpoint", () => {
     const response = await makeRequest({ source: SOURCE_ONE });
     expect(response.status).toBe(200);
     const questions = await response.json();
-    const expectedQuestions = questionData.filter(q => q.source === SOURCE_ONE);
+    const expectedQuestions = questionData.filter(
+      (q) => q.source === SOURCE_ONE,
+    );
     expect(questions.length).toBe(expectedQuestions.length);
     questions.forEach((q: any) => expect(q.title).toBeDefined()); // Basic check
-    expectedQuestions.forEach(expQ => {
-        const found = questions.find((q:any) => q.questionId === expQ.uuid);
-        expect(found).toBeDefined();
-        expect(found.title).toEqual(expQ.question);
+    expectedQuestions.forEach((expQ) => {
+      const found = questions.find((q: any) => q.questionId === expQ.uuid);
+      expect(found).toBeDefined();
+      expect(found.title).toEqual(expQ.question);
     });
   });
 
@@ -146,12 +154,14 @@ describe("GET /v1/questions API Endpoint", () => {
     const response = await makeRequest({ source: SOURCE_TWO });
     expect(response.status).toBe(200);
     const questions = await response.json();
-    const expectedQuestions = questionData.filter(q => q.source === SOURCE_TWO);
+    const expectedQuestions = questionData.filter(
+      (q) => q.source === SOURCE_TWO,
+    );
     expect(questions.length).toBe(expectedQuestions.length);
-    expectedQuestions.forEach(expQ => {
-        const found = questions.find((q:any) => q.questionId === expQ.uuid);
-        expect(found).toBeDefined();
-        expect(found.title).toEqual(expQ.question);
+    expectedQuestions.forEach((expQ) => {
+      const found = questions.find((q: any) => q.questionId === expQ.uuid);
+      expect(found).toBeDefined();
+      expect(found.title).toEqual(expQ.question);
     });
   });
 
@@ -166,19 +176,27 @@ describe("GET /v1/questions API Endpoint", () => {
     const response = await makeRequest({ source: SOURCE_ONE });
     expect(response.status).toBe(200);
     const questions = await response.json();
-    const expectedQuestions = questionData.filter(q => q.source === SOURCE_ONE);
+    const expectedQuestions = questionData.filter(
+      (q) => q.source === SOURCE_ONE,
+    );
     expect(questions.length).toBe(expectedQuestions.length);
 
     // Verify content and order (assuming activeFromDate is correctly used by getQuestions)
-    const sortedExpected = expectedQuestions.sort((a,b) => b.activeFromDate.getTime() - a.activeFromDate.getTime());
+    const sortedExpected = expectedQuestions.sort(
+      (a, b) => b.activeFromDate.getTime() - a.activeFromDate.getTime(),
+    );
     questions.forEach((fetchedQ: any, index: number) => {
       expect(fetchedQ.questionId).toBe(sortedExpected[index].uuid);
       expect(fetchedQ.title).toBe(sortedExpected[index].question);
     });
 
     if (questions.length >= 2) {
-      const date1 = questions[0].activeAt ? new Date(questions[0].activeAt).getTime() : 0;
-      const date2 = questions[1].activeAt ? new Date(questions[1].activeAt).getTime() : 0;
+      const date1 = questions[0].activeAt
+        ? new Date(questions[0].activeAt).getTime()
+        : 0;
+      const date2 = questions[1].activeAt
+        ? new Date(questions[1].activeAt).getTime()
+        : 0;
       expect(date1).toBeGreaterThanOrEqual(date2);
     }
   });
@@ -187,4 +205,3 @@ describe("GET /v1/questions API Endpoint", () => {
   // The test for "empty array if no questions exist overall" is more complex with source filtering.
   // The most direct test for an empty array is providing a source that yields no results.
 });
-

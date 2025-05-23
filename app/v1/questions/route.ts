@@ -1,6 +1,6 @@
-import { getQuestions } from "@/lib/v1/getQuestions";
 import { questionSchema } from "@/app/schemas/v1/question";
 import prisma from "@/app/services/prisma";
+import { getQuestions } from "@/lib/v1/getQuestions";
 import { QuestionType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
@@ -16,7 +16,10 @@ export async function GET(request: NextRequest) {
   const source = request.headers.get("source");
   if (!source) {
     return NextResponse.json(
-      { error: "missing_source_header", message: "'source' header is required" },
+      {
+        error: "missing_source_header",
+        message: "'source' header is required",
+      },
       { status: 400 },
     );
   }
