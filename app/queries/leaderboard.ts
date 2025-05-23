@@ -58,8 +58,6 @@ export const getAllTimeChompedQuestionsQuery = async () => {
       public."QuestionOption" qo 
       ON 
       qa."questionOptionId" = qo."id"
-      JOIN public."Question" 
-      q ON q.id  = qo."questionId" 
       GROUP BY 
       qa."userId"
       ORDER BY "questionsAnswered" desc
