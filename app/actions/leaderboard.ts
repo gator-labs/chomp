@@ -8,6 +8,7 @@ import {
   isWithinInterval,
   subDays,
 } from "date-fns";
+import { Prisma } from "@prisma/client";
 
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
@@ -135,6 +136,7 @@ export const getLeaderboard = async ({
   variant,
   stackId,
 }: LeaderboardProps) => {
+  console.log("getLeaderboard", filter, variant, stackId);
   let dateFilter = {};
 
   if (variant !== "stack" && variant !== "all-time") {
@@ -240,35 +242,89 @@ export const getLeaderboardPointsStats = async (
   return mapLeaderboardData(leaderboard, userIds);
 };
 
-const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number) => {
-  const whereStackClause = !!stackId ? { question: { stackId } } : {};
+export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number) => {
+  const whereStackClauseChomp = !!stackId ? { question: { stackId } } : {};
 
-  const res = await prisma.chompResult.groupBy({
+  const chompResults = await prisma.chompResult.groupBy({
     by: ["userId"],
     where: {
       rewardTokenAmount: {
         gt: 0,
       },
       result: ResultType.Claimed,
-      ...whereStackClause,
+      ...whereStackClauseChomp,
       ...dateFilter,
     },
     _sum: {
       rewardTokenAmount: true,
     },
-    orderBy: {
-      _sum: {
-        rewardTokenAmount: "desc",
+  });
+
+  const mysteryBoxWhereConditions: Prisma.MysteryBoxPrizeWhereInput = {
+    prizeType: "Token",
+    status: "Claimed",
+    tokenAddress: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    amount: { not: "0" },
+  };
+
+  if (stackId) {
+    mysteryBoxWhereConditions.mysteryBoxTrigger = {
+      OR: [
+        { question: { stackId } },
+        { deck: { stackId } },
+      ],
+    };
+  }
+
+  if (dateFilter && (dateFilter as any).createdAt) {
+    mysteryBoxWhereConditions.claimedAt = (dateFilter as any).createdAt;
+  }
+
+  const mysteryBoxPrizes = await prisma.mysteryBoxPrize.findMany({
+    where: mysteryBoxWhereConditions,
+    select: {
+      amount: true,
+      mysteryBoxTrigger: {
+        select: {
+          MysteryBox: {
+            select: {
+              userId: true,
+            },
+          },
+        },
       },
     },
   });
 
-  const leaderboard = res.map((item) => ({
-    userId: item.userId,
-    value: Math.round(item._sum.rewardTokenAmount!.toNumber()),
-  }));
+  const combinedLeaderboardMap = new Map<string, number>();
 
-  const userIds = res.map((entry) => entry.userId);
+  chompResults.forEach((item) => {
+    const currentAmount = combinedLeaderboardMap.get(item.userId) || 0;
+    combinedLeaderboardMap.set(
+      item.userId,
+      currentAmount + Math.round(item._sum.rewardTokenAmount!.toNumber()),
+    );
+  });
+
+  mysteryBoxPrizes.forEach((prize) => {
+    if (prize.mysteryBoxTrigger?.MysteryBox?.userId) {
+      const userId = prize.mysteryBoxTrigger.MysteryBox.userId;
+      const prizeAmount = parseFloat(prize.amount);
+      if (!isNaN(prizeAmount) && prizeAmount > 0) {
+        const currentAmount = combinedLeaderboardMap.get(userId) || 0;
+        combinedLeaderboardMap.set(userId, currentAmount + prizeAmount);
+      }
+    }
+  });
+  
+  const leaderboard = Array.from(combinedLeaderboardMap.entries())
+    .map(([userId, value]) => ({
+      userId,
+      value: Math.round(value),
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  const userIds = leaderboard.map((entry) => entry.userId);
   return mapLeaderboardData(leaderboard, userIds);
 };
 
