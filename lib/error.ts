@@ -288,3 +288,12 @@ export class ApiQuestionInactiveError extends ApiError {
     super(message);
   }
 }
+
+export class RewardsPromiseError extends Error {
+  name = "RewardsPromiseError";
+  error = "rewards_page_promise_error";
+
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+  }
+}
