@@ -136,7 +136,6 @@ export const getLeaderboard = async ({
   variant,
   stackId,
 }: LeaderboardProps) => {
-  console.log("getLeaderboard", filter, variant, stackId);
   let dateFilter = {};
 
   if (variant !== "stack" && variant !== "all-time") {
