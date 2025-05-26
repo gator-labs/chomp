@@ -18,6 +18,8 @@ const filterListQuerySchema = z.object({
     z.literal("accepted"),
     z.literal("archived"),
   ]),
+  sortBy: z.union([z.literal("createdAt"), z.literal("userId")]),
+  sortOrder: z.union([z.literal("asc"), z.literal("desc")]),
 });
 
 export async function GET(request: NextRequest) {
@@ -56,7 +58,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const askList = await getCommunityAskList(req.filter);
+  const askList = await getCommunityAskList(
+    req.filter,
+    req.sortBy,
+    req.sortOrder,
+  );
 
   return new Response(
     JSON.stringify({

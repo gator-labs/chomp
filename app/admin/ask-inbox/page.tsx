@@ -5,13 +5,17 @@ import { CommunityAskListTabs } from "@/components/CommunityAskList/CommunityAsk
 import { CommunityAskStats } from "@/components/CommunityAskList/CommunityAskStats";
 import { useCommunityAskListQuery } from "@/hooks/useCommunityAskListQuery";
 import { useCommunityAskStatsQuery } from "@/hooks/useCommunityAskStatsQuery";
+import { CommunityAskFilter, CommunityAskSortBy, SortOrder } from "@/types/ask";
 import { useState } from "react";
-import { CommunityAskFilter } from '@/types/ask';
+
+type SortPair = `${CommunityAskSortBy}-${SortOrder}`;
 
 export default function Page() {
   const [selectedTab, setSelectedTab] = useState<CommunityAskFilter>("pending");
+  const [sortBy, setSortBy] = useState<CommunityAskSortBy>("createdAt");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
-  const askList = useCommunityAskListQuery(selectedTab);
+  const askList = useCommunityAskListQuery(selectedTab, sortBy, sortOrder);
   const stats = useCommunityAskStatsQuery();
 
   const ACCEPT_POINTS = Number(
@@ -30,6 +34,19 @@ export default function Page() {
   const pendingCount = stats?.data?.stats
     ? stats?.data?.stats.pendingAllTime
     : null;
+
+  const handleSetFilter = (value: SortPair) => {
+    if (value === "createdAt-asc") {
+      setSortOrder("asc");
+      setSortBy("createdAt");
+    } else if (value === "createdAt-desc") {
+      setSortOrder("desc");
+      setSortBy("createdAt");
+    } else {
+      setSortOrder("desc");
+      setSortBy("userId");
+    }
+  };
 
   return (
     <div>
@@ -60,6 +77,19 @@ export default function Page() {
       )}
 
       <hr className="border-gray-600 my-2 p-0" />
+
+      <div className="float-right pb-2 flex items-center gap-2">
+        {!askList.isLoading && askList.isRefetching && <span>Loading...</span>}
+        <select
+          disabled={askList.isFetching}
+          onChange={(e) => handleSetFilter(e.target.value as SortPair)}
+          className="mt-1 block w-full px-4 py-2 border border-gray-600 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+        >
+          <option value="createdAt-desc">Submitted at (newest first)</option>
+          <option value="createdAt-asc">Submitted at (oldest first)</option>
+          <option value="userId-desc">User</option>
+        </select>
+      </div>
 
       <CommunityAskListTabs
         options={[
