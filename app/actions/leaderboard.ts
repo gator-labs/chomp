@@ -242,19 +242,25 @@ export const getLeaderboardPointsStats = async (
   return mapLeaderboardData(leaderboard, userIds);
 };
 
-export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number) => {
+export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number, allowedUserIds?: string[]) => {
   const whereStackClauseChomp = !!stackId ? { question: { stackId } } : {};
+
+  const chompWhere: Prisma.ChompResultWhereInput = {
+    rewardTokenAmount: {
+      gt: 0,
+    },
+    result: ResultType.Claimed,
+    ...whereStackClauseChomp,
+    ...dateFilter,
+  };
+
+  if (allowedUserIds) {
+    chompWhere.userId = { in: allowedUserIds };
+  }
 
   const chompResults = await prisma.chompResult.groupBy({
     by: ["userId"],
-    where: {
-      rewardTokenAmount: {
-        gt: 0,
-      },
-      result: ResultType.Claimed,
-      ...whereStackClauseChomp,
-      ...dateFilter,
-    },
+    where: chompWhere,
     _sum: {
       rewardTokenAmount: true,
     },
@@ -278,6 +284,23 @@ export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number) => 
 
   if (dateFilter && (dateFilter as any).createdAt) {
     mysteryBoxWhereConditions.claimedAt = (dateFilter as any).createdAt;
+  }
+
+  if (allowedUserIds) {
+    const userFilterForMysteryBox = { userId: { in: allowedUserIds } };
+    
+    if (mysteryBoxWhereConditions.mysteryBoxTrigger) {
+      const existingTriggerFilter = mysteryBoxWhereConditions.mysteryBoxTrigger as Prisma.MysteryBoxTriggerWhereInput;
+      
+      mysteryBoxWhereConditions.mysteryBoxTrigger = {
+        AND: [
+          existingTriggerFilter,
+          { MysteryBox: userFilterForMysteryBox }
+        ]
+      } as any;
+    } else {
+      mysteryBoxWhereConditions.mysteryBoxTrigger = { MysteryBox: userFilterForMysteryBox } as any;
+    }
   }
 
   const mysteryBoxPrizes = await prisma.mysteryBoxPrize.findMany({

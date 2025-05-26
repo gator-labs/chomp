@@ -76,7 +76,7 @@ async function createChompResult(chompResultData: {
     rewardTokenAmount?: number | string | Decimal;
     result?: ResultType;
     transactionStatus?: TransactionStatus;
-    customData?: Omit<Prisma.ChompResultCreateInput, 'user' | 'question' | 'rewardTokenAmount' | 'result' | 'transactionStatus'>
+    customData?: Omit<Prisma.ChompResultCreateInput, 'user' | 'question' | 'rewardTokenAmount' | 'result' | 'transactionStatus' | 'revealNft'>
 }): Promise<ChompResult> {
     const dataToCreate: Prisma.ChompResultCreateInput = {
         user: { connect: { id: chompResultData.userId } },
@@ -84,8 +84,25 @@ async function createChompResult(chompResultData: {
         rewardTokenAmount: chompResultData.rewardTokenAmount ? new Decimal(chompResultData.rewardTokenAmount) : new Decimal(0),
         result: chompResultData.result || ResultType.Claimed,
         transactionStatus: chompResultData.transactionStatus || TransactionStatus.Completed,
-        ...(chompResultData.customData || {})
+        ...(chompResultData.customData || {}),
     };
+
+    // Add revealNft if result is Claimed or Revealed and no other identifier is present
+    if (
+        (dataToCreate.result === ResultType.Claimed || dataToCreate.result === ResultType.Revealed) &&
+        !(chompResultData.customData && 'revealNft' in chompResultData.customData) && // check if revealNft is already in customData
+        !(chompResultData.customData && 'burnTransactionSignature' in chompResultData.customData) && // check if burnTransactionSignature is in customData
+        !dataToCreate.burnTransactionSignature // check if burnTransactionSignature is directly on dataToCreate (less likely with current structure)
+    ) {
+        dataToCreate.revealNft = {
+            create: {
+                nftId: `test-nft-${uuidv4()}`,
+                userId: chompResultData.userId,
+                nftType: 'Genesis', // Or some other default/configurable type
+            }
+        };
+    }
+
     const result = await prisma.chompResult.create({ data: dataToCreate });
     createdChompResultIds.push(result.id); // id should be number if auto-increment
     return result;
@@ -98,18 +115,33 @@ async function cleanupDatabase() {
     await prisma.mysteryBoxPrize.deleteMany({ where: { id: { in: createdMysteryBoxPrizeIds } } });
     await prisma.mysteryBoxTrigger.deleteMany({ where: { id: { in: createdMysteryBoxTriggerIds } } });
     await prisma.mysteryBox.deleteMany({ where: { id: { in: createdMysteryBoxIds } } });
+    
+    // ChompResult might have a RevealNft. Ensure RevealNft is deleted if not cascaded from ChompResult.
+    // Prisma schema for ChompResult has: revealNft   RevealNft?  @relation(fields: [revealNftId], references: [nftId])
+    // Prisma schema for RevealNft has: chompResult ChompResult? (no explicit @relation)
+    // If onDelete: Cascade is not on RevealNft field in ChompResult, explicit delete of RevealNft might be needed first.
+    // However, the current ChompResult delete should handle related RevealNfts if they were created *through* the ChompResult relation.
+    // Let's ensure any RevealNfts tied to users are cleaned up before users if they are not linked via ChompResults being deleted.
+    // This would primarily be if RevealNfts were created independently and linked to users directly in tests.
+
     await prisma.chompResult.deleteMany({ where: { id: { in: createdChompResultIds } } }); 
+    
+    // It's safer to delete RevealNfts linked to test users directly after ChompResults, 
+    // in case some were created but not linked via a ChompResult that gets deleted.
+    await prisma.revealNft.deleteMany({ where: { userId: { in: createdUserIds } } });
+
     await prisma.questionOption.deleteMany({ where: { questionId: { in: createdQuestionIds } } });
     await prisma.deckQuestion.deleteMany({ where: { questionId: { in: createdQuestionIds } } });
-    await prisma.fungibleAssetTransactionLog.deleteMany({ where: { questionId: { in: createdQuestionIds } } });
-    await prisma.mysteryBoxTrigger.deleteMany({ where: { questionId: { in: createdQuestionIds } } }); 
+    // FungibleAssetTransactionLog can be linked to questionId or userId
+    await prisma.fungibleAssetTransactionLog.deleteMany({ where: { OR: [{questionId: { in: createdQuestionIds }}, {userId: { in: createdUserIds }}] } });
+    // MysteryBoxTrigger can also be linked to deckId (not currently tracked for cleanup, but good to note)
+    // Re-check dependencies: MysteryBoxTrigger is deleted above. Questions are deleted below.
     await prisma.question.deleteMany({ where: { id: { in: createdQuestionIds } } });
-     await prisma.mysteryBoxTrigger.deleteMany({ where: { deckId: { in: createdDeckIds } } }); 
-    await prisma.deck.deleteMany({ where: { id: { in: createdDeckIds } } });
+    // Decks are not explicitly created in these leaderboard tests, but if they were, they'd be here.
+    await prisma.deck.deleteMany({ where: { id: { in: createdDeckIds } } }); 
     await prisma.stack.deleteMany({ where: { id: { in: createdStackIds } } });
     await prisma.wallet.deleteMany({ where: { userId: { in: createdUserIds } } });
-    await prisma.fungibleAssetTransactionLog.deleteMany({ where: { userId: { in: createdUserIds } } });
-    await prisma.mysteryBox.deleteMany({where: {userId: { in: createdUserIds}}}); 
+    // MysteryBox also has a direct link to userId, already handled by createdMysteryBoxIds, but good to be aware.
     await prisma.user.deleteMany({ where: { id: { in: createdUserIds } } });
 
   createdUserIds = [];
@@ -142,7 +174,7 @@ describe('getTotalBonkClaimed', () => {
     const stack1 = await createStack();
     const question1 = await createQuestion({ stackId: stack1.id });
     await createChompResult({ userId: user1.id, questionId: question1.id, rewardTokenAmount: 100 });
-    const result = await getTotalBonkClaimed();
+    const result = await getTotalBonkClaimed({}, undefined, createdUserIds);
     expect(result.ranking).toHaveLength(1);
     expect(result.ranking[0].user.id).toBe(user1.id);
     expect(result.ranking[0].value).toBe(100);
@@ -207,7 +239,7 @@ describe('getTotalBonkClaimed', () => {
     const mb = await createMysteryBox({ userId: user1.id });
     const mbt = await createMysteryBoxTrigger({ mysteryBoxId: mb.id, questionId: question1.id });
     await createMysteryBoxPrize({ mysteryBoxTriggerId: mbt.id, amount: '200', tokenAddress: BONK_TOKEN_ADDRESS });
-    const result = await getTotalBonkClaimed();
+    const result = await getTotalBonkClaimed({}, undefined, createdUserIds);
     expect(result.ranking).toHaveLength(1);
     expect(result.ranking[0].user.id).toBe(user1.id);
     expect(result.ranking[0].value).toBe(200);
@@ -223,7 +255,7 @@ describe('getTotalBonkClaimed', () => {
     const mb = await createMysteryBox({ userId: user1.id });
     const mbt = await createMysteryBoxTrigger({ mysteryBoxId: mb.id, questionId: q2.id });
     await createMysteryBoxPrize({ mysteryBoxTriggerId: mbt.id, amount: '250', tokenAddress: BONK_TOKEN_ADDRESS });
-    const result = await getTotalBonkClaimed();
+    const result = await getTotalBonkClaimed({}, undefined, createdUserIds);
     expect(result.ranking).toHaveLength(1);
     expect(result.ranking[0].user.id).toBe(user1.id);
     expect(result.ranking[0].value).toBe(400); 
@@ -247,7 +279,7 @@ describe('getTotalBonkClaimed', () => {
     const mb3 = await createMysteryBox({ userId: user3.id, id: 'mb3_rank' });
     const mbt3 = await createMysteryBoxTrigger({ mysteryBoxId: mb3.id, questionId: q4.id });
     await createMysteryBoxPrize({ mysteryBoxTriggerId: mbt3.id, amount: '400', tokenAddress: BONK_TOKEN_ADDRESS });
-    const result = await getTotalBonkClaimed();
+    const result = await getTotalBonkClaimed({}, undefined, createdUserIds);
     expect(result.ranking).toHaveLength(3); 
     expect(result.ranking[0].user.id).toBe(user3.id);
     expect(result.ranking[0].value).toBe(400);
@@ -276,18 +308,18 @@ describe('getTotalBonkClaimed', () => {
     const mbt_u2_s2 = await createMysteryBoxTrigger({ mysteryBoxId: mb_u2_s2.id, questionId: q_s2_1.id });
     await createMysteryBoxPrize({ mysteryBoxTriggerId: mbt_u2_s2.id, amount: '75', tokenAddress: BONK_TOKEN_ADDRESS });
     await createChompResult({ userId: user1.id, questionId: q_s2_1.id, rewardTokenAmount: 30 });
-    const resultStack1 = await getTotalBonkClaimed({}, stack1.id);
+    const resultStack1 = await getTotalBonkClaimed({}, stack1.id, createdUserIds);
     expect(resultStack1.ranking).toHaveLength(1);
     expect(resultStack1.ranking[0].user.id).toBe(user1.id);
     expect(resultStack1.ranking[0].value).toBe(150);
-    const resultStack2 = await getTotalBonkClaimed({}, stack2.id);
+    const resultStack2 = await getTotalBonkClaimed({}, stack2.id, createdUserIds);
     expect(resultStack2.ranking).toHaveLength(2);
     expect(resultStack2.ranking[0].user.id).toBe(user2.id);
     expect(resultStack2.ranking[0].value).toBe(275);
     const user1Stack2Data = resultStack2.ranking.find(r => r.user.id === user1.id);
     expect(user1Stack2Data).toBeDefined();
     expect(user1Stack2Data!.value).toBe(30); 
-    const resultGlobal = await getTotalBonkClaimed({});
+    const resultGlobal = await getTotalBonkClaimed({}, undefined, createdUserIds);
     expect(resultGlobal.ranking).toHaveLength(2);
     expect(resultGlobal.ranking[0].user.id).toBe(user2.id);
     expect(resultGlobal.ranking[0].value).toBe(275); 
@@ -298,7 +330,9 @@ describe('getTotalBonkClaimed', () => {
   test('should filter by dateFilter correctly for claimedAt (MysteryBox) and createdAt (Chomp)', async () => {
     const user1 = await createUser({ id: 'user1_date_filter' });
     const stack = await createStack();
-    const question = await createQuestion({ stackId: stack.id });
+    const question1 = await createQuestion({ stackId: stack.id }); // Unique question
+    const question2 = await createQuestion({ stackId: stack.id }); // Another unique question
+
     const dateInFilter = new Date('2023-07-15T12:00:00.000Z');
     const dateBeforeFilter = new Date('2023-07-10T12:00:00.000Z');
     const dateAfterFilter = new Date('2023-07-20T12:00:00.000Z');
@@ -308,27 +342,34 @@ describe('getTotalBonkClaimed', () => {
         lte: new Date('2023-07-15T23:59:59.999Z') 
       }
     };
-    await createChompResult({ userId: user1.id, questionId: question.id, rewardTokenAmount: 100, customData: { createdAt: dateInFilter } });
-    await createChompResult({ userId: user1.id, questionId: question.id, rewardTokenAmount: 500, customData: { createdAt: dateBeforeFilter }});
+    // Chomp result within the date filter range (uses question1)
+    await createChompResult({ userId: user1.id, questionId: question1.id, rewardTokenAmount: 100, customData: { createdAt: dateInFilter } });
+    // Chomp result outside the date filter range (uses question2)
+    await createChompResult({ userId: user1.id, questionId: question2.id, rewardTokenAmount: 500, customData: { createdAt: dateBeforeFilter }});
+    
     const mb_in = await createMysteryBox({ userId: user1.id, id: 'mb_in_date' });
-    const mbt_in = await createMysteryBoxTrigger({ mysteryBoxId: mb_in.id, questionId: question.id });
+    // Link mystery box to one of the questions, e.g., question1 for consistency, or a new one if needed
+    const mbt_in = await createMysteryBoxTrigger({ mysteryBoxId: mb_in.id, questionId: question1.id });
     await createMysteryBoxPrize({ mysteryBoxTriggerId: mbt_in.id, amount: '200', tokenAddress: BONK_TOKEN_ADDRESS, claimedAt: dateInFilter });
+    
     const mb_after = await createMysteryBox({ userId: user1.id, id: 'mb_after_date' });
-    const mbt_after = await createMysteryBoxTrigger({ mysteryBoxId: mb_after.id, questionId: question.id });
+    const mbt_after = await createMysteryBoxTrigger({ mysteryBoxId: mb_after.id, questionId: question2.id });
     await createMysteryBoxPrize({ mysteryBoxTriggerId: mbt_after.id, amount: '700', tokenAddress: BONK_TOKEN_ADDRESS, claimedAt: dateAfterFilter });
-    const result = await getTotalBonkClaimed(dateFilter);
+    
+    const result = await getTotalBonkClaimed(dateFilter, undefined, createdUserIds);
     expect(result.ranking).toHaveLength(1);
     expect(result.ranking[0].user.id).toBe(user1.id);
     expect(result.ranking[0].value).toBe(300);
   });
 
   test('should return empty ranking if no rewards found', async () => {
-    const result = await getTotalBonkClaimed();
+    const result = await getTotalBonkClaimed({}, undefined, createdUserIds);
     expect(result.ranking).toHaveLength(0);
   });
 
   test('should handle non-numeric or zero amounts from MysteryBoxPrizes gracefully', async () => {
-    const user1 = await createUser({ id: 'user1_invalid_amount' });
+    // User will be created with a dynamic UUID by default
+    const user1 = await createUser(); 
     const stack = await createStack();
     const q1 = await createQuestion({ stackId: stack.id });
     const q2 = await createQuestion({ stackId: stack.id });
@@ -362,7 +403,7 @@ describe('getTotalBonkClaimed', () => {
         tokenAddress: BONK_TOKEN_ADDRESS 
     });
 
-    const result = await getTotalBonkClaimed();
+    const result = await getTotalBonkClaimed({}, undefined, createdUserIds);
     expect(result.ranking).toHaveLength(1);
     expect(result.ranking[0].user.id).toBe(user1.id);
     // Expected: 50 (chomp) + 75.5 (valid mystery prize) = 125.5, rounded to 126
@@ -393,7 +434,7 @@ describe('getTotalBonkClaimed', () => {
     // LoggedInUser (user2) gets fewer points
     await createChompResult({ userId: loggedInUser.id, questionId: q2.id, rewardTokenAmount: 50 });
     
-    const result = await getTotalBonkClaimed();
+    const result = await getTotalBonkClaimed({}, undefined, createdUserIds);
 
     expect(result.ranking).toHaveLength(2);
     // User1: 100 (Rank 1)
