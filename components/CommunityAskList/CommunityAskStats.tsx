@@ -16,10 +16,10 @@ export function CommunityAskStats({ stats }: CommunityAskStatsProps) {
       <div className="font-medium border-b">All Time</div>
 
       <div className="font-medium">Pending</div>
-      <div>{formatNumber(stats.submittedDay - stats.acceptedDay)}</div>
-      <div>{formatNumber(stats.submittedWeek - stats.acceptedWeek)}</div>
-      <div>{formatNumber(stats.submittedMonth - stats.acceptedMonth)}</div>
-      <div>{formatNumber(stats.submittedAllTime - stats.acceptedAllTime)}</div>
+      <div>{formatNumber(stats.pendingDay)}</div>
+      <div>{formatNumber(stats.pendingWeek)}</div>
+      <div>{formatNumber(stats.pendingMonth)}</div>
+      <div>{formatNumber(stats.pendingAllTime)}</div>
 
       <div className="font-medium">Accepted</div>
       <div>{formatNumber(stats.acceptedDay)}</div>
@@ -27,11 +27,31 @@ export function CommunityAskStats({ stats }: CommunityAskStatsProps) {
       <div>{formatNumber(stats.acceptedMonth)}</div>
       <div>{formatNumber(stats.acceptedAllTime)}</div>
 
+      <div className="font-medium">Archived</div>
+      <div>{formatNumber(stats.archivedDay)}</div>
+      <div>{formatNumber(stats.archivedWeek)}</div>
+      <div>{formatNumber(stats.archivedMonth)}</div>
+      <div>{formatNumber(stats.archivedAllTime)}</div>
+
       <div className="font-medium">Total</div>
-      <div>{formatNumber(stats.submittedDay)}</div>
-      <div>{formatNumber(stats.submittedWeek)}</div>
-      <div>{formatNumber(stats.submittedMonth)}</div>
-      <div>{formatNumber(stats.submittedAllTime)}</div>
+      <div>
+        {formatNumber(stats.pendingDay + stats.acceptedDay + stats.archivedDay)}
+      </div>
+      <div>
+        {formatNumber(
+          stats.pendingWeek + stats.acceptedWeek + stats.archivedWeek,
+        )}
+      </div>
+      <div>
+        {formatNumber(
+          stats.pendingMonth + stats.acceptedMonth + stats.archivedMonth,
+        )}
+      </div>
+      <div>
+        {formatNumber(
+          stats.pendingAllTime + stats.acceptedAllTime + stats.archivedAllTime,
+        )}
+      </div>
     </div>
   );
 }

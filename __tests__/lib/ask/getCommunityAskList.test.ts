@@ -94,7 +94,7 @@ describe("Get community ask list", () => {
   });
 
   it("should fetch community quesitons", async () => {
-    const askList = await getCommunityAskList();
+    const askList = await getCommunityAskList('pending', 'createdAt', 'desc');
 
     expect(askList.length).toBeGreaterThanOrEqual(1);
 

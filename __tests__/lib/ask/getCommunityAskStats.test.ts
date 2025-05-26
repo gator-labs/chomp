@@ -175,4 +175,25 @@ describe("Get community ask list", () => {
 
     origStats = stats;
   });
+
+  it("should fetch archived stats", async () => {
+    await prisma.question.update({
+      data: {
+        isArchived: true,
+      },
+      where: {
+        id: questionIds[0],
+      },
+    });
+
+    const stats = await getCommunityAskStats();
+
+    // Every timeframe should be affected
+    expect(stats.archivedDay).toBe(origStats.archivedDay + 1);
+    expect(stats.archivedWeek).toBe(origStats.archivedWeek + 1);
+    expect(stats.archivedMonth).toBe(origStats.archivedMonth + 1);
+    expect(stats.archivedAllTime).toBe(origStats.archivedAllTime + 1);
+
+    origStats = stats;
+  });
 });

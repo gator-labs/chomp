@@ -94,8 +94,12 @@ model Question {
   AskQuestionAnswer        AskQuestionAnswer[]
   UserQuestionAnswerStatus UserQuestionAnswerStatus[]
 
+  // If true, this is a community ask question which was rejected
+  isArchived Boolean @default(false)
+
   @@unique([uuid])
   @@index([createdByUserId])
+  @@index([isArchived])
 }
 
 model QuestionOption {
