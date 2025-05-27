@@ -326,7 +326,7 @@ describe("API answer question", () => {
 
     // Find the answer for the first order option (should have null percentage)
     const firstOrderAnswer = qAnswers.find(
-      (qa) => qa.questionOption.uuid === question1OptionUuids[0]
+      (qa) => qa.questionOption.uuid === question1OptionUuids[0],
     );
     expect(firstOrderAnswer).toBeDefined();
     expect(firstOrderAnswer?.selected).toBe(true);
@@ -334,7 +334,7 @@ describe("API answer question", () => {
 
     // Find the answer for the second order option (this is where the percentage is set)
     const secondOrderAnswer = qAnswers.find(
-      (qa) => qa.questionOption.uuid === question1OptionUuids[1]
+      (qa) => qa.questionOption.uuid === question1OptionUuids[1],
     );
     expect(secondOrderAnswer).toBeDefined();
     expect(secondOrderAnswer?.selected).toBe(false);
@@ -342,7 +342,7 @@ describe("API answer question", () => {
 
     // Verify other answers for the same batch if necessary (e.g. for multi-choice)
     const questionOptionsForQuestion1 = await prisma.questionOption.count({
-      where: { questionId: questionIds[1] }
+      where: { questionId: questionIds[1] },
     });
     expect(qAnswers.length).toBe(questionOptionsForQuestion1);
   });
