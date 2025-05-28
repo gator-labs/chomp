@@ -362,8 +362,9 @@ async function queryExpiringPremiumDecks(
   userId: string,
   currentPage: number,
 ): Promise<DeckExpiringSoon[]> {
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDateTime = new Date();
+
   //skip the offset decks and get the next DECK_LIMIT decks
   const offset = (currentPage - 1) * DECK_LIMIT;
 
@@ -407,7 +408,7 @@ WHERE
     d."revealAtDate" > NOW() 
     AND (d."activeFromDate" <= NOW() OR  
     d."activeFromDate" IS NULL
-    AND d."date" >= ${currentDayStart}
+    AND d."date" >= ${currentDateTime}
     AND d."date" <= ${currentDayEnd})
     AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (
@@ -460,8 +461,8 @@ async function queryExpiringFreeDecks(
 ): Promise<DeckExpiringSoon[]> {
   const offset = (currentPage - 1) * DECK_LIMIT;
 
-  const currentDayStart = dayjs(new Date()).startOf("day").toDate();
   const currentDayEnd = dayjs(new Date()).endOf("day").toDate();
+  const currentDateTime = new Date();
 
   const deckExpiringSoon: DeckExpiringSoon[] = await prisma.$queryRaw`
   WITH free_deck_cte AS (
@@ -493,7 +494,7 @@ WHERE
     d."revealAtDate" > NOW() 
     AND (d."activeFromDate" <= NOW() OR  
     d."activeFromDate" IS NULL
-    AND d."date" >= ${currentDayStart}
+    AND d."date" >= ${currentDateTime}
     AND d."date" <= ${currentDayEnd})
     AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (

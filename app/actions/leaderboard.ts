@@ -2,13 +2,13 @@
 
 import { kv } from "@/lib/kv";
 import { FungibleAsset, ResultType } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import {
   differenceInSeconds,
   isSameDay,
   isWithinInterval,
   subDays,
 } from "date-fns";
-import { Prisma } from "@prisma/client";
 
 import { Ranking } from "../components/Leaderboard/Leaderboard";
 import {
@@ -241,7 +241,11 @@ export const getLeaderboardPointsStats = async (
   return mapLeaderboardData(leaderboard, userIds);
 };
 
-export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number, allowedUserIds?: string[]) => {
+export const getTotalBonkClaimed = async (
+  dateFilter = {},
+  stackId?: number,
+  allowedUserIds?: string[],
+) => {
   const whereStackClauseChomp = !!stackId ? { question: { stackId } } : {};
 
   const chompWhere: Prisma.ChompResultWhereInput = {
@@ -274,10 +278,7 @@ export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number, all
 
   if (stackId) {
     mysteryBoxWhereConditions.mysteryBoxTrigger = {
-      OR: [
-        { question: { stackId } },
-        { deck: { stackId } },
-      ],
+      OR: [{ question: { stackId } }, { deck: { stackId } }],
     };
   }
 
@@ -287,18 +288,18 @@ export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number, all
 
   if (allowedUserIds) {
     const userFilterForMysteryBox = { userId: { in: allowedUserIds } };
-    
+
     if (mysteryBoxWhereConditions.mysteryBoxTrigger) {
-      const existingTriggerFilter = mysteryBoxWhereConditions.mysteryBoxTrigger as Prisma.MysteryBoxTriggerWhereInput;
-      
+      const existingTriggerFilter =
+        mysteryBoxWhereConditions.mysteryBoxTrigger as Prisma.MysteryBoxTriggerWhereInput;
+
       mysteryBoxWhereConditions.mysteryBoxTrigger = {
-        AND: [
-          existingTriggerFilter,
-          { MysteryBox: userFilterForMysteryBox }
-        ]
+        AND: [existingTriggerFilter, { MysteryBox: userFilterForMysteryBox }],
       } as any;
     } else {
-      mysteryBoxWhereConditions.mysteryBoxTrigger = { MysteryBox: userFilterForMysteryBox } as any;
+      mysteryBoxWhereConditions.mysteryBoxTrigger = {
+        MysteryBox: userFilterForMysteryBox,
+      } as any;
     }
   }
 
@@ -338,7 +339,7 @@ export const getTotalBonkClaimed = async (dateFilter = {}, stackId?: number, all
       }
     }
   });
-  
+
   const leaderboard = Array.from(combinedLeaderboardMap.entries())
     .map(([userId, value]) => ({
       userId,
