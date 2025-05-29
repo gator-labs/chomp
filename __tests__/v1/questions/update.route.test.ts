@@ -154,7 +154,9 @@ describe("API update question", () => {
         source: "crocodile",
         activeDate: futureDate,
         resolveAt: futureDate,
-        options: [{ title: "Option 1", imageUrl: "http://example.com/image1.png" }],
+        options: [
+          { title: "Option 1", imageUrl: "http://example.com/image1.png" },
+        ],
       }),
       headers: new Headers({
         source: "crocodile",
@@ -178,7 +180,9 @@ describe("API update question", () => {
         source: "crocodile",
         activeDate: pastDate,
         resolveAt: pastDate,
-        options: [{ title: "Option 1", imageUrl: "http://example.com/image1.png" }],
+        options: [
+          { title: "Option 1", imageUrl: "http://example.com/image1.png" },
+        ],
       }),
       headers: new Headers({
         source: "crocodile",
@@ -203,7 +207,10 @@ describe("API update question", () => {
         activeDate: futureDate,
         resolveAt: futureDate,
         options: [
-          { title: "Updated Question 1", imageUrl: "http://example.com/image1.png" },
+          {
+            title: "Updated Question 1",
+            imageUrl: "http://example.com/image1.png",
+          },
         ],
       }),
       headers: new Headers({
@@ -236,7 +243,10 @@ describe("API update question", () => {
         source: "crocodile",
         activeDate: futureDate,
         options: [
-          { title: "Updated Question 1", imageUrl: "http://example.com/image1.png" },
+          {
+            title: "Updated Question 1",
+            imageUrl: "http://example.com/image1.png",
+          },
         ],
       }),
       headers: new Headers({
@@ -270,7 +280,10 @@ describe("API update question", () => {
         activeDate: futureDate,
         resolveAt: null,
         options: [
-          { title: "Updated Question 1", imageUrl: "http://example.com/image1.png" },
+          {
+            title: "Updated Question 1",
+            imageUrl: "http://example.com/image1.png",
+          },
         ],
       }),
       headers: new Headers({

@@ -94,8 +94,12 @@ model Question {
   AskQuestionAnswer        AskQuestionAnswer[]
   UserQuestionAnswerStatus UserQuestionAnswerStatus[]
 
+  // If true, this is a community ask question which was rejected
+  isArchived Boolean @default(false)
+
   @@unique([uuid])
   @@index([createdByUserId])
+  @@index([isArchived])
 }
 
 model QuestionOption {
@@ -118,6 +122,7 @@ model QuestionOption {
 
   @@unique([questionId, index]) // Enforces unique index per question [2][5]
   @@unique([uuid])
+  @@index([questionId])
 }
 
 model Tag {
@@ -207,6 +212,7 @@ model QuestionAnswer {
 
   @@unique([questionOptionId, userId], name: "question_option_user")
   @@index([userId, selected])
+  @@index([questionOptionId])
 }
 
 // We create an entry in this table every time a

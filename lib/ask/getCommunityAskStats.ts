@@ -15,6 +15,14 @@ export type CommunityAskPeriodStats = {
   acceptedWeek: number;
   acceptedMonth: number;
   acceptedAllTime: number;
+  archivedDay: number;
+  archivedWeek: number;
+  archivedMonth: number;
+  archivedAllTime: number;
+  pendingDay: number;
+  pendingWeek: number;
+  pendingMonth: number;
+  pendingAllTime: number;
 };
 
 type CommunityAskPeriodStatsFromDb = {
@@ -39,6 +47,14 @@ export async function getCommunityAskStats(): Promise<CommunityAskPeriodStats> {
       COUNT(CASE WHEN q."createdAt" >= ${startOfWeek}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "submittedWeek",
       COUNT(CASE WHEN q."createdAt" >= ${startOfMonth}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "submittedMonth",
       COUNT(*) AS "submittedAllTime",
+      COUNT(CASE WHEN dq."deckId" IS NULL AND q."isArchived" IS FALSE AND dq."createdAt" >= ${startOfDay}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "pendingDay",
+      COUNT(CASE WHEN dq."deckId" IS NULL AND q."isArchived" IS FALSE AND dq."createdAt" >= ${startOfWeek}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "pendingWeek",
+      COUNT(CASE WHEN dq."deckId" IS NULL AND q."isArchived" IS FALSE AND dq."createdAt" >= ${startOfMonth}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "pendingMonth",
+      COUNT(CASE WHEN dq."deckId" IS NULL AND q."isArchived" IS FALSE THEN 1 ELSE NULL END) AS "pendingAllTime",
+      COUNT(CASE WHEN q."isArchived" IS TRUE AND q."updatedAt" >= ${startOfDay}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "archivedDay",
+      COUNT(CASE WHEN q."isArchived" IS TRUE AND q."updatedAt" >= ${startOfWeek}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "archivedWeek",
+      COUNT(CASE WHEN q."isArchived" IS TRUE AND q."updatedAt" >= ${startOfMonth}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "archivedMonth",
+      COUNT(CASE WHEN q."isArchived" IS TRUE THEN 1 ELSE NULL END) AS "archivedAllTime",
       COUNT(CASE WHEN dq."deckId" IS NOT NULL AND dq."createdAt" >= ${startOfDay}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "acceptedDay",
       COUNT(CASE WHEN dq."deckId" IS NOT NULL AND dq."createdAt" >= ${startOfWeek}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "acceptedWeek",
       COUNT(CASE WHEN dq."deckId" IS NOT NULL AND dq."createdAt" >= ${startOfMonth}::TIMESTAMPTZ THEN 1 ELSE NULL END) AS "acceptedMonth",
