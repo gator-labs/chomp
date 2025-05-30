@@ -40,6 +40,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 
 export type Option = {
   id: number;
@@ -85,6 +86,8 @@ export function Deck({
   creditCostFeatureFlag,
   totalCredits,
 }: DeckProps) {
+  const { user } = useDynamicContext();
+ 
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
@@ -106,6 +109,7 @@ export function Deck({
   const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
   const [isCreditsLow, setIsCreditsLow] = useState(false);
   const [random, setRandom] = useState(0);
+
 
   useEffect(() => {
     start();
@@ -174,6 +178,7 @@ export function Deck({
                 deckId: deckId,
                 deckVariant: deckVariant,
                 currentQuestionIndex,
+                userId: user?.userId,
               },
             },
           );
@@ -186,6 +191,7 @@ export function Deck({
         }
       } catch (error) {
         console.error("Error marking question as seen:", error);
+        // Note: This has a different error message than the other captureMessage above. We can differentiate
         Sentry.captureMessage(
           `Caught exception when calling markQuestionAsSeenButNotAnswered. `,
           {
@@ -199,6 +205,7 @@ export function Deck({
               deckVariant: deckVariant,
               currentQuestionIndex,
               error: error,
+              userId: user?.userId,
             },
           },
         );
