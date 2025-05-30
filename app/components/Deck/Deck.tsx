@@ -96,6 +96,7 @@ export function Deck({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(
     questions.findIndex((q) => q.status === undefined),
   );
+  const currentQuestionIndexRef = useRef(currentQuestionIndex);
 
   const [currentOptionSelected, setCurrentOptionSelected] = useState<number>();
   const [optionPercentage, setOptionPercentage] = useState(50);
@@ -111,23 +112,39 @@ export function Deck({
     start();
   }, [start]);
 
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentQuestionIndexRef.current = currentQuestionIndex;
+  }, [currentQuestionIndex]);
+
   // handle next question
   const handleNextIndex = useCallback(async () => {
     if (creditCostFeatureFlag && deckCost !== null && deckCost > 0) {
       const userCreditBal = await getUserTotalCreditAmount();
       const costPerQuestion = deckCost / questions.length;
-      const isLastQuestion = currentQuestionIndex + 1 === questions.length;
+      const isLastQuestion =
+        currentQuestionIndexRef.current + 1 === questions.length;
       if (userCreditBal < costPerQuestion && !isLastQuestion) {
         setIsCreditsLow(true);
         return;
       }
     }
-    if (currentQuestionIndex + 1 < questions.length) {
-      setDueAt(getDueAt(questions, currentQuestionIndex + 1));
-    }
+
+    // Use functional updates to remove dependencies on current state
+    setCurrentQuestionIndex((currentIndex) => {
+      const nextIndex = currentIndex + 1;
+      
+      // Prevent going beyond the last question
+      if (nextIndex >= questions.length) {
+        return questions.length; // This will trigger hasReachedEnd = true
+      }
+      
+      setDueAt(getDueAt(questions, nextIndex));
+      return nextIndex;
+    });
+
     setDeckResponse([]);
     setRandom(0);
-    setCurrentQuestionIndex((index) => index + 1);
     setCurrentQuestionStep(QuestionStep.AnswerQuestion);
     setOptionPercentage(50);
     setCurrentOptionSelected(undefined);
@@ -135,12 +152,10 @@ export function Deck({
     reset();
     setIsSubmitting(false);
   }, [
-    currentQuestionIndex,
-    setCurrentQuestionIndex,
-    setCurrentQuestionStep,
-    setCurrentOptionSelected,
-    reset,
+    creditCostFeatureFlag,
+    deckCost,
     questions,
+    // reset should be stable since it's useCallback with stable deps
   ]);
 
   const question = useMemo(
@@ -151,9 +166,18 @@ export function Deck({
   // every time we have a different truthy question.id
   // we mark it as "seen"
   useEffect(() => {
+    let aborted = false;
+
     const markQuestionAsSeen = async () => {
       try {
+        // If there's an error marking the question as seen
+        // we track the error but don't take any other action
+        // Previously, we were going to the next question but due to some other
+        // unknown error, this was leading to multiple questions being skipped from the UI.
         const response = await markQuestionAsSeenButNotAnswered(question.id);
+
+        // Check if this effect was aborted (component unmounted or question changed)
+        if (aborted) return;
 
         // NOTICE: if the response comes with an error we just
         // go to the next question and do nothing
@@ -170,12 +194,11 @@ export function Deck({
                 questionId: question.id,
                 deckId: deckId,
                 deckVariant: deckVariant,
-                currentQuestionIndex: currentQuestionIndex,
+                currentQuestionIndex: currentQuestionIndexRef.current,
               },
             },
           );
 
-          handleNextIndex();
           return;
         }
 
@@ -183,29 +206,52 @@ export function Deck({
           setRandom(response.random);
         }
       } catch (error) {
+        // Only handle error if this effect hasn't been aborted
+        if (aborted) return;
+
         console.error("Error marking question as seen:", error);
-        handleNextIndex();
+        Sentry.captureMessage(
+          `Caught exception when calling markQuestionAsSeenButNotAnswered. `,
+          {
+            level: "error",
+            tags: {
+              category: "deck-errors",
+            },
+            extra: {
+              questionId: question?.id,
+              deckId: deckId,
+              deckVariant: deckVariant,
+              currentQuestionIndex: currentQuestionIndexRef.current,
+              error: error,
+            },
+          },
+        );
       }
     };
 
     if (question?.id) {
       markQuestionAsSeen();
     }
-  }, [question?.id, handleNextIndex]);
+
+    // Cleanup function to abort this effect
+    return () => {
+      aborted = true;
+    };
+  }, [question?.id]);
 
   const handleNoAnswer = useCallback(async () => {
     setIsTimeOutPopUpVisible(false);
     handleNextIndex();
-  }, [question, handleNextIndex, setDeckResponse]);
+  }, [handleNextIndex]);
 
   const handleOnDurationRanOut = useCallback(async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || !question?.id) return;
     await markQuestionAsTimedOut(question.id);
     setIsTimeOutPopUpVisible(true);
-  }, [question, handleNextIndex, setDeckResponse, isSubmitting]);
+  }, [question?.id, isSubmitting]);
 
   const handleSkipQuestion = async () => {
-    if (processingSkipQuestion) return;
+    if (processingSkipQuestion || !question?.id) return;
     setProcessingSkipQuestion(true);
     await markQuestionAsSkipped(question.id);
     handleNextIndex();
@@ -214,6 +260,9 @@ export function Deck({
 
   const onQuestionActionClick = useCallback(
     async (number: number | undefined) => {
+      // Guard against undefined question (when deck is completed)
+      if (!question?.id) return;
+      
       if (
         currentQuestionStep === QuestionStep.AnswerQuestion &&
         question.type === "BinaryQuestion"
@@ -302,10 +351,10 @@ export function Deck({
       setCurrentQuestionStep,
       currentQuestionStep,
       question,
-      handleNextIndex,
       currentOptionSelected,
       optionPercentage,
       random,
+      handleNextIndex,
     ],
   );
 
@@ -353,18 +402,31 @@ export function Deck({
         <NoQuestionsCard
           variant={deckVariant || variant}
           nextDeckId={nextDeckId}
-          deckRevealAtDate={questions[0].deckRevealAtDate}
+          deckRevealAtDate={questions[0]?.deckRevealAtDate}
         />
       </div>
     );
   }
+  
+  // Guard against undefined question (edge case during state transitions)
+  if (!question) {
+    return (
+      <div className="flex flex-col justify-evenly h-full pb-4">
+        <NoQuestionsCard
+          variant={deckVariant || "regular-deck"}
+          nextDeckId={nextDeckId}
+        />
+      </div>
+    );
+  }
+  
   // get random option for 2nd order question.
   const randomQuestionMarker =
     random === undefined
       ? undefined
       : question?.type === QuestionType.MultiChoice
         ? getAlphaIdentifier(random)
-        : question.questionOptions[random].option;
+        : question?.questionOptions?.[random]?.option;
 
   return (
     <div className="flex flex-col justify-start h-full pb-4 w-full">
