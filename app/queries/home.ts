@@ -406,9 +406,9 @@ FULL JOIN
 WHERE
     d."revealAtDate" > NOW() 
     AND (d."activeFromDate" <= NOW() OR  
-    d."activeFromDate" IS NULL)
+    d."activeFromDate" IS NULL
     AND ${currentDateTime} >= d."date"
-    AND ${currentDateTime}::timestamp <= d."date" + INTERVAL '24 hours'
+    AND ${currentDateTime}::timestamp <= d."date" + INTERVAL '24 hours')
     AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (
         SELECT 1
@@ -490,9 +490,9 @@ FULL JOIN
 WHERE
     d."revealAtDate" > NOW() 
     AND (d."activeFromDate" <= NOW() OR  
-    d."activeFromDate" IS NULL)
+    d."activeFromDate" IS NULL
     AND ${currentDateTime} >= d."date"
-    AND ${currentDateTime}::timestamp <= d."date" + INTERVAL '24 hours'
+    AND ${currentDateTime}::timestamp <= d."date" + INTERVAL '24 hours')
     AND (c."hideDeckFromHomepage" = false OR c."hideDeckFromHomepage" IS NULL)
     AND EXISTS (
         SELECT 1
