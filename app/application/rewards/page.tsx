@@ -5,7 +5,7 @@ import { hasBonkAtaAccount } from "@/lib/bonk/hasBonkAtaAccount";
 import { RewardsPromiseError } from "@/lib/error";
 import { getCampaigns } from "@/lib/mysteryBox/getCampaigns";
 import { captureException } from "@sentry/nextjs";
-import pRetry, { Options as RetryOptions, FailedAttemptError } from "p-retry";
+import pRetry, { FailedAttemptError, Options as RetryOptions } from "p-retry";
 
 async function Page() {
   const CREDIT_COST_FEATURE_FLAG =
@@ -25,7 +25,7 @@ async function Page() {
           captureException(wrappedError);
 
           console.warn(
-            `Attempt ${error.attemptNumber} to fetch rewards page data failed. Retries left: ${error.retriesLeft}. Error: ${error.message}`
+            `Attempt ${error.attemptNumber} to fetch rewards page data failed. Retries left: ${error.retriesLeft}. Error: ${error.message}`,
           );
         },
       };
@@ -44,14 +44,18 @@ async function Page() {
         <div className="mb-6">
           <ProfileNavigation />
           <MysteryBoxHub
-            isUserEligibleForValidationReward={isUserEligibleForValidationReward}
+            isUserEligibleForValidationReward={
+              isUserEligibleForValidationReward
+            }
             userHasBonkAtaAccount={userHasBonkAtaAccount}
             campaignBoxes={campaignBoxes}
           />
         </div>
       );
     } catch {
-      throw new Error("Failed to load rewards page. Please try refreshing the page.");
+      throw new Error(
+        "Failed to load rewards page. Please try refreshing the page.",
+      );
     }
   } else {
     throw new Error("Content Unavailable");
