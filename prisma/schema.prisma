@@ -40,6 +40,7 @@ model User {
   Question                 Question[]
   AskQuestionAnswer        AskQuestionAnswer[]
   UserQuestionAnswerStatus UserQuestionAnswerStatus[]
+  UserBalance              UserBalance[]
 }
 
 model Wallet {
@@ -465,6 +466,15 @@ view UserQuestionAnswerStatus {
 
   questionId Int      @id
   question   Question @relation(fields: [questionId], references: [id])
+}
+
+view UserBalance {
+  userId String
+  user   User          @relation(fields: [userId], references: [id])
+  asset  FungibleAsset
+  change Decimal
+
+  @@unique([userId, asset])
 }
 
 enum ESpecialStack {
