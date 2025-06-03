@@ -469,10 +469,10 @@ view UserQuestionAnswerStatus {
 }
 
 view UserBalance {
-  userId String
-  user   User          @relation(fields: [userId], references: [id])
-  asset  FungibleAsset
-  change Decimal
+  userId  String
+  user    User          @relation(fields: [userId], references: [id])
+  asset   FungibleAsset
+  balance Decimal
 
   @@unique([userId, asset])
 }
