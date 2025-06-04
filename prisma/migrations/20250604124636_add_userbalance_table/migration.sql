@@ -10,3 +10,11 @@ CREATE UNIQUE INDEX "UserBalance_userId_asset_key" ON "UserBalance"("userId", "a
 
 -- AddForeignKey
 ALTER TABLE "UserBalance" ADD CONSTRAINT "UserBalance_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+INSERT INTO "UserBalance" ("userId", "asset", "balance")
+SELECT
+    "userId",
+    asset,
+    SUM(change)
+FROM "FungibleAssetTransactionLog"
+GROUP BY "userId", asset;
