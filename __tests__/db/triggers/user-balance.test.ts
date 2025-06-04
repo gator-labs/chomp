@@ -3,16 +3,11 @@ import { getCreditBalance } from "@/lib/credits/getCreditBalance";
 import { getPointBalance } from "@/lib/points/getPointBalance";
 import { generateUsers } from "@/scripts/utils";
 import {
-  ESpecialStack,
   FungibleAsset,
   TransactionLogType,
 } from "@prisma/client";
 
 describe("User balance trigger", () => {
-  let deck: { id: number };
-  const questions: { id: number }[] = [];
-  let communityDeck: { id: number };
-  let origCommunityStack: { id: number } | null;
   let users: { id: string; username: string }[];
 
   beforeAll(async () => {
