@@ -84,7 +84,6 @@ export default async function Page({ params: { id } }: PageProps) {
   // User is logged in
 
   const hydratedDeck = await getDeckQuestionsForAnswerById(currentDeckId);
-
   return (
     <div className="h-full pt-3 pb-4">
       {hydratedDeck === null ? (

@@ -6,6 +6,7 @@ import {
   QuestionType,
   Token,
 } from "@prisma/client";
+import { ESpecialStack } from "@prisma/client";
 
 import {
   TestDataGenerator,
@@ -33,6 +34,8 @@ describe("getDeckQuestionsForAnswerById", () => {
   let communityUser1Id: string;
   let communityUser2Id: string;
   let communityUser3Id: string;
+  let origCommunityStack: { id: number } | null;
+  let origCommunityDecks: { id: number }[];
 
   beforeAll(async () => {
     user1Id = TestDataGenerator.generateRandomUserId();
@@ -43,6 +46,15 @@ describe("getDeckQuestionsForAnswerById", () => {
     communityUser1Id = TestDataGenerator.generateRandomUserId();
     communityUser2Id = TestDataGenerator.generateRandomUserId();
     communityUser3Id = TestDataGenerator.generateRandomUserId();
+
+    // Check if CommunityAsk stack already exists
+    origCommunityStack = await prisma.stack.findUnique({
+      where: { specialId: ESpecialStack.CommunityAsk },
+    });
+
+    origCommunityDecks = await prisma.deck.findMany({
+      where: { stack: { specialId: ESpecialStack.CommunityAsk } },
+    });
 
     // Create test data for regular deck (not CommunityAsk) - no stack needed
     testData = await TestDataGenerator.createTestScenario({
@@ -116,7 +128,7 @@ describe("getDeckQuestionsForAnswerById", () => {
       ],
       stack: {
         name: "Community Ask Stack",
-        specialId: "CommunityAsk",
+        specialId: ESpecialStack.CommunityAsk,
         isActive: true,
         isVisible: true,
         image: "community-stack.jpg",
@@ -228,8 +240,40 @@ describe("getDeckQuestionsForAnswerById", () => {
       where: { userId: { in: [communityUser1Id, communityUser2Id, communityUser3Id] } },
     });
     
-    await TestDataGenerator.cleanup(testData);
-    await TestDataGenerator.cleanup(communityAskTestData);
+    // Clean up test data but exclude stack cleanup (we'll handle stacks manually)
+    if (testData) {
+      await TestDataGenerator.cleanup({
+        ...testData,
+        stackIds: [], // Don't delete any stacks via TestDataGenerator
+      });
+    }
+    
+    if (communityAskTestData) {
+      await TestDataGenerator.cleanup({
+        ...communityAskTestData,
+        stackIds: [], // Don't delete any stacks via TestDataGenerator
+      });
+    }
+
+    // Clean up any CommunityAsk decks created during testing (but preserve original ones)
+    await prisma.deck.deleteMany({
+      where: {
+        stack: { specialId: ESpecialStack.CommunityAsk },
+        id: { notIn: origCommunityDecks.map((d) => d.id) },
+      },
+    });
+
+    // Only delete the CommunityAsk stack if it didn't exist originally AND we actually created one
+    if (!origCommunityStack && communityAskTestData?.stackIds?.length) {
+      // Check if the stack we have in communityAskTestData is actually a new one
+      // by comparing against what existed originally
+      await prisma.stack.deleteMany({
+        where: { 
+          specialId: ESpecialStack.CommunityAsk,
+          id: { in: communityAskTestData.stackIds }
+        },
+      });
+    }
   });
 
   beforeEach(() => {

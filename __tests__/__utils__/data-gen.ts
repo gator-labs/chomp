@@ -41,6 +41,16 @@ export class TestDataGenerator {
    * Creates a test stack
    */
   static async createStack(stack: Prisma.StackCreateInput): Promise<number> {
+    // If specialId is provided, try to find an existing stack
+    if (stack.specialId) {
+      const existingStack = await prisma.stack.findUnique({
+        where: { specialId: stack.specialId },
+      });
+      if (existingStack) {
+        return existingStack.id; // Return existing stack's ID
+      }
+    }
+    // If no specialId or not found, create a new stack
     const createdStack = await prisma.stack.create({
       data: stack,
     });
@@ -340,7 +350,7 @@ export class TestDataGenerator {
    * Cleans up test data
    * @param ids Object containing IDs to clean up
    */
-  static async cleanup(ids: {
+  static async cleanup(ids?: {
     stackIds?: number[];
     deckIds?: number[];
     questionIds?: number[];
@@ -348,6 +358,10 @@ export class TestDataGenerator {
     userIds?: string[];
     stackId?: number;
   }): Promise<void> {
+    if (!ids) {
+      // console.warn("TestDataGenerator.cleanup called with undefined ids. Skipping cleanup.");
+      return;
+    }
     // First, clean up all answers
     const answerWhereClause: any = {};
 
