@@ -44,11 +44,6 @@ describe("getDeckQuestionsForAnswerById", () => {
     communityUser2Id = TestDataGenerator.generateRandomUserId();
     communityUser3Id = TestDataGenerator.generateRandomUserId();
 
-    // Clean up any existing CommunityAsk stack before creating our test scenarios
-    await prisma.stack.deleteMany({
-      where: { specialId: "CommunityAsk" },
-    });
-
     // Create test data for regular deck (not CommunityAsk) - no stack needed
     testData = await TestDataGenerator.createTestScenario({
       users: [
@@ -372,32 +367,28 @@ describe("getDeckQuestionsForAnswerById", () => {
       mockIsBefore.mockReturnValue(false);
     });
 
-    it("should return questions with empty authors array for regular decks", async () => {
+    it("should return empty authors array for regular decks", async () => {
       const result = await getDeckQuestionsForAnswerById(testData.deckIds[0]);
 
       expect(result).not.toBeNull();
       expect(result?.questions?.length).toBeGreaterThan(0);
       
-      // Each question should have authors property as empty array
-      result?.questions?.forEach(question => {
-        expect(question).toHaveProperty('authors');
-        expect(Array.isArray((question as any).authors)).toBe(true);
-        expect((question as any).authors).toEqual([]);
-      });
+      // Deck should have authors property as empty array for regular decks
+      expect(result).toHaveProperty('authors');
+      expect(Array.isArray(result!.authors)).toBe(true);
+      expect(result!.authors).toEqual([]);
     });
 
-    it("should return questions with populated authors array for CommunityAsk decks", async () => {
+    it("should return populated authors array at deck level for CommunityAsk decks", async () => {
       const result = await getDeckQuestionsForAnswerById(communityAskTestData.deckIds[0]);
 
       expect(result).not.toBeNull();
       expect(result?.questions?.length).toBeGreaterThan(0);
 
-      // Find questions with authors
-      const questionsWithAuthors = result?.questions?.filter(q => 
-        (q as any).authors && (q as any).authors.length > 0
-      );
-      
-      expect(questionsWithAuthors?.length).toBeGreaterThan(0);
+      // Deck should have authors property with populated array
+      expect(result).toHaveProperty('authors');
+      expect(Array.isArray(result!.authors)).toBe(true);
+      expect((result!.authors as any[]).length).toBeGreaterThan(0);
     });
 
     it("should return correct author structure with address, username, and avatarUrl", async () => {
@@ -405,17 +396,11 @@ describe("getDeckQuestionsForAnswerById", () => {
 
       expect(result).not.toBeNull();
       
-      // Find the first question created by user1Id
-      const user1Question = result?.questions?.find(q => 
-        (q as any).authors && (q as any).authors.some((author: any) => author.address === "wallet1address123")
-      );
+      // Find the author created by user1Id
+      const user1Author = result!.authors?.find(author => author.address === "wallet1address123");
 
-      expect(user1Question).toBeDefined();
-      expect((user1Question as any)?.authors).toBeDefined();
-      expect((user1Question as any)?.authors?.length).toBe(1);
-      
-      const author = (user1Question as any)?.authors?.[0];
-      expect(author).toEqual({
+      expect(user1Author).toBeDefined();
+      expect(user1Author).toEqual({
         address: "wallet1address123",
         username: "communityUser1",
         avatarUrl: "https://example.com/avatar1.jpg"
@@ -427,54 +412,45 @@ describe("getDeckQuestionsForAnswerById", () => {
 
       expect(result).not.toBeNull();
       
-      // Find the question created by user3Id (who has null username)
-      const user3Question = result?.questions?.find(q => 
-        (q as any).authors && (q as any).authors.some((author: any) => author.address === "wallet3address789")
-      );
+      // Find the author created by user3Id (who has null username)
+      const user3Author = result!.authors?.find(author => author.address === "wallet3address789");
 
-      expect(user3Question).toBeDefined();
-      expect((user3Question as any)?.authors).toBeDefined();
-      expect((user3Question as any)?.authors?.length).toBe(1);
-      
-      const author = (user3Question as any)?.authors?.[0];
-      expect(author).toEqual({
+      expect(user3Author).toBeDefined();
+      expect(user3Author).toEqual({
         address: "wallet3address789",
         username: undefined,
         avatarUrl: "https://example.com/avatar3.jpg"
       });
     });
 
-    it("should return empty authors array for questions without createdByUserId", async () => {
+    it("should not include authors for questions without createdByUserId", async () => {
       const result = await getDeckQuestionsForAnswerById(communityAskTestData.deckIds[0]);
 
       expect(result).not.toBeNull();
       
-      // Find the question created without createdByUserId (Community Question 4)
-      const questionWithoutCreator = result?.questions?.find(q => 
-        q.question === "Community Question 4?"
-      );
-
-      expect(questionWithoutCreator).toBeDefined();
-      expect((questionWithoutCreator as any)?.authors).toBeDefined();
-      expect(Array.isArray((questionWithoutCreator as any)?.authors)).toBe(true);
-      expect((questionWithoutCreator as any)?.authors).toEqual([]);
+      // The authors array should only contain the 3 authors with createdByUserId set
+      // (not the question without createdByUserId - Community Question 4)
+      expect(result!.authors?.length).toBe(3);
+      
+      // Verify all expected authors are present
+      const addresses = result!.authors?.map(author => author.address) || [];
+      expect(addresses).toContain("wallet1address123");
+      expect(addresses).toContain("wallet2address456");
+      expect(addresses).toContain("wallet3address789");
     });
 
-    it("should return multiple unique authors when questions have different creators", async () => {
+    it("should return unique authors when questions have different creators", async () => {
       const result = await getDeckQuestionsForAnswerById(communityAskTestData.deckIds[0]);
 
       expect(result).not.toBeNull();
       
-      // Collect all authors from all questions
-      const allAuthors = result?.questions?.flatMap(q => (q as any).authors || []) || [];
+      // Should have exactly 3 unique authors (user1, user2, user3)
+      expect(result!.authors?.length).toBe(3);
       
-      // Should have authors from user1Id and user2Id (user3Id has no username, user4 has no creator)
-      expect(allAuthors.length).toBeGreaterThan(0);
-      
-      // Check that we have the expected authors
-      const user1Author = allAuthors.find((author: any) => author.address === "wallet1address123");
-      const user2Author = allAuthors.find((author: any) => author.address === "wallet2address456");
-      const user3Author = allAuthors.find((author: any) => author.address === "wallet3address789");
+      // Check that we have all the expected unique authors
+      const user1Author = result!.authors?.find(author => author.address === "wallet1address123");
+      const user2Author = result!.authors?.find(author => author.address === "wallet2address456");
+      const user3Author = result!.authors?.find(author => author.address === "wallet3address789");
       
       expect(user1Author).toEqual({
         address: "wallet1address123",
@@ -532,15 +508,13 @@ describe("getDeckQuestionsForAnswerById", () => {
 
       expect(result).not.toBeNull();
       
-      // Find the question created by user without wallet
-      const questionWithoutWallet = result?.questions?.find(q => 
-        q.question === "Question by user without wallet?"
-      );
-
-      expect(questionWithoutWallet).toBeDefined();
-      expect((questionWithoutWallet as any)?.authors).toBeDefined();
-      expect(Array.isArray((questionWithoutWallet as any)?.authors)).toBe(true);
-      expect((questionWithoutWallet as any)?.authors).toEqual([]);
+      // The authors array should still only contain the 3 authors with wallets
+      // (the user without wallet should not be included)
+      expect(result!.authors?.length).toBe(3);
+      
+      // Verify the user without wallet is not included
+      const authorAddresses = result!.authors?.map(author => author.address) || [];
+      expect(authorAddresses).not.toContain(userWithoutWallet);
 
       // Cleanup
       await prisma.deckQuestion.deleteMany({

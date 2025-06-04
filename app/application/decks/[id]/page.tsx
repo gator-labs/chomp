@@ -69,6 +69,7 @@ export default async function Page({ params: { id } }: PageProps) {
             ...hydratedDeck.deckInfo,
             totalNumberOfQuestions: hydratedDeck.totalDeckQuestions,
           }}
+          authors={[]}
           numberOfUserAnswers={0}
           totalCredits={totalCredits}
           deckCreditCost={hydratedDeck.deckCreditCost}
@@ -112,6 +113,7 @@ export default async function Page({ params: { id } }: PageProps) {
             ...hydratedDeck!.deckInfo!,
             totalNumberOfQuestions: hydratedDeck!.questions.length,
           }}
+          authors={hydratedDeck!.authors}
           numberOfUserAnswers={hydratedDeck!.numberOfUserAnswers!}
           totalCredits={totalCredits}
           deckCreditCost={hydratedDeck!.deckCreditCost}
