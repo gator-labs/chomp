@@ -436,6 +436,15 @@ model CreditPack {
   createdAt                   DateTime                      @default(now())
 }
 
+model UserBalance {
+  userId  String
+  user    User          @relation(fields: [userId], references: [id])
+  asset   FungibleAsset
+  balance Decimal
+
+  @@unique([userId, asset])
+}
+
 view DeckRewards {
   bonkReward    String
   creditsReward String
@@ -466,15 +475,6 @@ view UserQuestionAnswerStatus {
 
   questionId Int      @id
   question   Question @relation(fields: [questionId], references: [id])
-}
-
-view UserBalance {
-  userId  String
-  user    User          @relation(fields: [userId], references: [id])
-  asset   FungibleAsset
-  balance Decimal
-
-  @@unique([userId, asset])
 }
 
 enum ESpecialStack {
