@@ -119,6 +119,12 @@ describe("GET /api/cron/process-credits", () => {
       },
     });
 
+    await prisma.userBalance.deleteMany({
+      where: {
+        userId: { in: [users[0].id, users[1].id, users[2].id] },
+      },
+    });
+
     await prisma.chainTx.deleteMany({
       where: {
         hash: { in: [validTxHash, validTxHash2, invalidTxHash] },

@@ -98,6 +98,9 @@ describe("updateTxStatusToConfirmed", () => {
         },
       },
     });
+    await prisma.userBalance.deleteMany({
+      where: { userId: user.id },
+    });
     await prisma.chainTx.deleteMany({
       where: { wallet: user.wallet },
     });

@@ -194,6 +194,11 @@ async function cleanupDatabase() {
       ],
     },
   });
+  await prisma.userBalance.deleteMany({
+    where: {
+      userId: { in: createdUserIds },
+    },
+  });
   // MysteryBoxTrigger can also be linked to deckId (not currently tracked for cleanup, but good to note)
   // Re-check dependencies: MysteryBoxTrigger is deleted above. Questions are deleted below.
   await prisma.question.deleteMany({

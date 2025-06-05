@@ -183,6 +183,9 @@ describe("Create mystery box", () => {
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: { userId: user0.id },
     });
+    await prisma.userBalance.deleteMany({
+      where: { userId: user0.id },
+    });
 
     await deleteDeck(deckId);
 

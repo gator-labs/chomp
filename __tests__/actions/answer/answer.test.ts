@@ -120,6 +120,12 @@ describe("Validate points logs for completing questions and decks", () => {
       },
     });
 
+    await prisma.userBalance.deleteMany({
+      where: {
+        userId: { in: [userId, authorId] },
+      },
+    });
+
     await prisma.user.deleteMany({
       where: {
         id: { in: [userId, authorId] },
