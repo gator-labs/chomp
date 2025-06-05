@@ -135,6 +135,7 @@ export default async function Page({ params: { id } }: PageProps) {
           blurData={blurData?.base64}
           totalCredits={totalCredits}
           deckRewardAmount={hydratedDeck?.deckRewardAmount ?? 0}
+          authors={hydratedDeck!.authors}
         />
       ) : (
         <ComingSoonDeck deckName={hydratedDeck?.name} />

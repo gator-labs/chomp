@@ -18,7 +18,6 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
   let communityUser2Id: string;
   let communityUser3Id: string;
   let origCommunityStack: { id: number } | null;
-  let origCommunityDecks: { id: number }[];
 
   beforeAll(async () => {
     const user1 = generateRandomUserId();
@@ -32,10 +31,6 @@ describe("queries/deck/getActiveDeckForLoggedOutUsers", () => {
     // Check if CommunityAsk stack already exists
     origCommunityStack = await prisma.stack.findUnique({
       where: { specialId: ESpecialStack.CommunityAsk },
-    });
-
-    origCommunityDecks = await prisma.deck.findMany({
-      where: { stack: { specialId: ESpecialStack.CommunityAsk } },
     });
 
     testData = await TestDataGenerator.createTestScenario({

@@ -1,5 +1,4 @@
 import { Avatar } from "@/app/components/Avatar/Avatar";
-import { Button } from "@/app/components/ui/button";
 import { QuestionAuthor } from "@/app/types/question-author";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -18,7 +17,7 @@ function DeckAuthors({
   deckInfoAuthor,
   deckInfoAuthorImageUrl,
 }: DeckAuthorsProps) {
-    console.log(questionAuthors);
+
     const [isOpen, setIsOpen] = useState(false);
 
     // Helper function to truncate address to "first3..last3" format

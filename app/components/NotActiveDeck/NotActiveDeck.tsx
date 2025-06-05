@@ -2,6 +2,7 @@
 
 import HourGlassIcon from "@/app/components/Icons/HourGlassIcon";
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
+import { QuestionAuthor } from "@/app/types/question-author";
 import { useRouter } from "next-nprogress-bar";
 import { useEffect, useState } from "react";
 
@@ -23,6 +24,7 @@ type NotActiveDeckProps = {
   deckRewardAmount: number;
   blurData: string | undefined;
   totalCredits: number;
+  authors: QuestionAuthor[] | undefined;
 };
 
 const NotActiveDeck = ({
@@ -35,6 +37,7 @@ const NotActiveDeck = ({
   deckRewardAmount,
   blurData,
   totalCredits,
+  authors,
 }: NotActiveDeckProps) => {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState<string>("");
@@ -93,6 +96,7 @@ const NotActiveDeck = ({
         blurData={blurData}
         totalCredits={totalCredits}
         deckRewardAmount={deckRewardAmount}
+        questionAuthors={authors}
       />
       <div className="flex flex-col mt-auto gap-y-[16px] mb-[16px] w-full">
         <Button disabled>

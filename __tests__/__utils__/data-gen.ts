@@ -359,7 +359,7 @@ export class TestDataGenerator {
     stackId?: number;
   }): Promise<void> {
     if (!ids) {
-      // console.warn("TestDataGenerator.cleanup called with undefined ids. Skipping cleanup.");
+      console.warn("TestDataGenerator.cleanup called with undefined ids. Skipping cleanup.");
       return;
     }
     // First, clean up all answers

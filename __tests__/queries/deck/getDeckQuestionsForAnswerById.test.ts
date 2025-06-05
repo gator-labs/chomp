@@ -30,17 +30,14 @@ describe("getDeckQuestionsForAnswerById", () => {
   let communityAskTestData: TestScenarioResult;
   let user1Id: string;
   let user2Id: string;
-  let user3Id: string;
   let communityUser1Id: string;
   let communityUser2Id: string;
   let communityUser3Id: string;
   let origCommunityStack: { id: number } | null;
-  let origCommunityDecks: { id: number }[];
 
   beforeAll(async () => {
     user1Id = TestDataGenerator.generateRandomUserId();
     user2Id = TestDataGenerator.generateRandomUserId();
-    user3Id = TestDataGenerator.generateRandomUserId();
     
     // Use different user IDs for community ask scenario
     communityUser1Id = TestDataGenerator.generateRandomUserId();
@@ -50,10 +47,6 @@ describe("getDeckQuestionsForAnswerById", () => {
     // Check if CommunityAsk stack already exists
     origCommunityStack = await prisma.stack.findUnique({
       where: { specialId: ESpecialStack.CommunityAsk },
-    });
-
-    origCommunityDecks = await prisma.deck.findMany({
-      where: { stack: { specialId: ESpecialStack.CommunityAsk } },
     });
 
     // Create test data for regular deck (not CommunityAsk) - no stack needed

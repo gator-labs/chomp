@@ -1,4 +1,3 @@
-import { Avatar } from "@/app/components/Avatar/Avatar";
 import { formatNumber } from "@/app/utils/number";
 import classNames from "classnames";
 import Image from "next/image";
