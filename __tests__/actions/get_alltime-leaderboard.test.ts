@@ -163,6 +163,13 @@ describe("Get All-time leaderboard data", () => {
         },
       },
     });
+
+    await prisma.userBalance.deleteMany({
+      where: {
+        userId: { in: users.map((user) => user.id) },
+      },
+    });
+
     await deleteDeck(deckId);
 
     await prisma.user.deleteMany({

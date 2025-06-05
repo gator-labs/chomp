@@ -2,10 +2,7 @@ import prisma from "@/app/services/prisma";
 import { getCreditBalance } from "@/lib/credits/getCreditBalance";
 import { getPointBalance } from "@/lib/points/getPointBalance";
 import { generateUsers } from "@/scripts/utils";
-import {
-  FungibleAsset,
-  TransactionLogType,
-} from "@prisma/client";
+import { FungibleAsset, TransactionLogType } from "@prisma/client";
 
 describe("User balance trigger", () => {
   let users: { id: string; username: string }[];

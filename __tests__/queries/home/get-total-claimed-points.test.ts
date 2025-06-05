@@ -56,6 +56,11 @@ describe("getUserTotalPoints", () => {
       await prisma.fungibleAssetTransactionLog.deleteMany({
         where: { userId: user1.id },
       });
+      await prisma.userBalance.deleteMany({
+        where: {
+          userId: user1.id,
+        },
+      });
       await prisma.user.delete({
         where: {
           id: user1.id,
