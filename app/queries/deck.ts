@@ -90,8 +90,9 @@ export async function getDailyDeck() {
 }
 
 /**
- * Gets a deck and calculates its cost and reward for all its questions
- * used for logged out users, only get active decks that are not revealed yet
+ * Gets a deck by id for logged-out users
+ * @param deckId
+ * @returns the deck with questions for logged-out users, or null if not found/not active
  */
 export async function getActiveDeckForLoggedOutUsers(deckId: number) {
   const now = new Date();
@@ -114,6 +115,7 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
       },
     },
     include: {
+      stack: true, // Include stack information to check for CommunityAsk
       deckQuestions: {
         include: {
           question: {
@@ -122,6 +124,12 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
               questionTags: {
                 include: {
                   tag: true,
+                },
+              },
+              // Include user and wallet data for authors functionality
+              user: {
+                include: {
+                  wallets: true,
                 },
               },
             },
@@ -169,6 +177,31 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
     return total + (dq.revealTokenAmount || 0);
   }, 0);
 
+  // Collect all unique authors from all questions in the deck (deck-level authors)
+  const isCommunityAsk = deckWithQuestionsAndCount.stack?.specialId === "CommunityAsk";
+  let deckAuthors: Array<QuestionAuthor> = [];
+
+  if (isCommunityAsk) {
+    const authorsMap = new Map<string, QuestionAuthor>();
+    
+    deckWithQuestionsAndCount.deckQuestions.forEach((dq) => {
+      if (dq.question.user && dq.question.user.wallets && dq.question.user.wallets.length > 0) {
+        const user = dq.question.user;
+        const authorKey = user.wallets[0].address; // Use wallet address as unique key
+        
+        if (!authorsMap.has(authorKey)) {
+          authorsMap.set(authorKey, {
+            address: user.wallets[0].address,
+            username: user.username || undefined,
+            avatarUrl: user.profileSrc || undefined,
+          });
+        }
+      }
+    });
+    
+    deckAuthors = Array.from(authorsMap.values());
+  }
+
   return {
     ...deckWithQuestionsAndCount,
     totalDeckQuestions: deckWithQuestionsAndCount._count.deckQuestions,
@@ -183,7 +216,8 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
       author: deckWithQuestionsAndCount.author,
       authorImageUrl: deckWithQuestionsAndCount.authorImageUrl,
     },
-    questions: mapQuestionFromDeck(deckWithQuestionsAndCount),
+    questions: mapQuestionFromDeckWithAuthors(deckWithQuestionsAndCount),
+    authors: deckAuthors,
   };
 }
 

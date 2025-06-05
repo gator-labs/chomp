@@ -69,7 +69,7 @@ export default async function Page({ params: { id } }: PageProps) {
             ...hydratedDeck.deckInfo,
             totalNumberOfQuestions: hydratedDeck.totalDeckQuestions,
           }}
-          authors={[]}
+          authors={hydratedDeck.authors}
           numberOfUserAnswers={0}
           totalCredits={totalCredits}
           deckCreditCost={hydratedDeck.deckCreditCost}

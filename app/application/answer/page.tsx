@@ -64,6 +64,7 @@ export default async function Page() {
             author: deck.deckInfo.author,
             authorImageUrl: deck.deckInfo.authorImageUrl,
           }}
+          authors={deck.authors}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}
           deckCreditCost={deck?.deckCreditCost}

@@ -232,48 +232,23 @@ describe("getDeckQuestionsForAnswerById", () => {
         data: { createdByUserId: null },
       });
     }
+
+    // If a CommunityAsk stack already existed, remove it from communityAskTestData.stackIds
+    // so TestDataGenerator.cleanup won't try to delete it
+    if (origCommunityStack && communityAskTestData.stackIds.includes(origCommunityStack.id)) {
+      communityAskTestData.stackIds = communityAskTestData.stackIds.filter(id => id !== origCommunityStack!.id);
+    }
   });
 
   afterAll(async () => {
-    // Clean up wallets
+    // Clean up wallets first
     await prisma.wallet.deleteMany({
       where: { userId: { in: [communityUser1Id, communityUser2Id, communityUser3Id] } },
     });
     
-    // Clean up test data but exclude stack cleanup (we'll handle stacks manually)
-    if (testData) {
-      await TestDataGenerator.cleanup({
-        ...testData,
-        stackIds: [], // Don't delete any stacks via TestDataGenerator
-      });
-    }
-    
-    if (communityAskTestData) {
-      await TestDataGenerator.cleanup({
-        ...communityAskTestData,
-        stackIds: [], // Don't delete any stacks via TestDataGenerator
-      });
-    }
-
-    // Clean up any CommunityAsk decks created during testing (but preserve original ones)
-    await prisma.deck.deleteMany({
-      where: {
-        stack: { specialId: ESpecialStack.CommunityAsk },
-        id: { notIn: origCommunityDecks.map((d) => d.id) },
-      },
-    });
-
-    // Only delete the CommunityAsk stack if it didn't exist originally AND we actually created one
-    if (!origCommunityStack && communityAskTestData?.stackIds?.length) {
-      // Check if the stack we have in communityAskTestData is actually a new one
-      // by comparing against what existed originally
-      await prisma.stack.deleteMany({
-        where: { 
-          specialId: ESpecialStack.CommunityAsk,
-          id: { in: communityAskTestData.stackIds }
-        },
-      });
-    }
+    // Standard cleanup for both test scenarios
+    await TestDataGenerator.cleanup(testData);
+    await TestDataGenerator.cleanup(communityAskTestData);
   });
 
   beforeEach(() => {
