@@ -390,6 +390,11 @@ describe("getUsersLatestStreak", () => {
           userId: { in: [user1.id, user2.id, user3.id] },
         },
       });
+      await prisma.userBalance.deleteMany({
+        where: {
+          userId: { in: [user1.id, user2.id, user3.id] },
+        },
+      });
       await tx.mysteryBox.deleteMany({
         where: {
           userId: { in: [user1.id, user2.id, user3.id] },

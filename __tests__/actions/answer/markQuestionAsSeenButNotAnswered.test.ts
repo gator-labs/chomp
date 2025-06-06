@@ -138,6 +138,9 @@ describe("markQuestionAsSeenButNotAnswered", () => {
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: { userId },
     });
+    await prisma.userBalance.deleteMany({
+      where: { userId },
+    });
     await prisma.questionAnswer.deleteMany({
       where: { userId },
     });

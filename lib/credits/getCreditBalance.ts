@@ -3,17 +3,14 @@ import { FungibleAsset } from "@prisma/client";
 import "server-only";
 
 export async function getCreditBalance(userId: string) {
-  const res = await prisma.fungibleAssetTransactionLog.aggregate({
+  const res = await prisma.userBalance.findUnique({
     where: {
-      asset: FungibleAsset.Credit,
-      userId,
-    },
-    _sum: {
-      change: true,
+      userId_asset: {
+        asset: FungibleAsset.Credit,
+        userId,
+      },
     },
   });
 
-  if (!res?._sum?.change) return 0;
-
-  return res._sum.change.toNumber();
+  return res?.balance.toNumber() ?? 0;
 }

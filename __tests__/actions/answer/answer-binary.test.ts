@@ -97,6 +97,12 @@ describe("answer binary question", () => {
       },
     });
 
+    await prisma.userBalance.deleteMany({
+      where: {
+        userId: userId,
+      },
+    });
+
     await prisma.user.delete({
       where: {
         id: userId,

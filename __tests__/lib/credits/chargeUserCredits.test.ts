@@ -110,6 +110,11 @@ describe("chargeUserCredits", () => {
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: { userId: mockUserId },
     });
+    await prisma.userBalance.deleteMany({
+      where: {
+        userId: mockUserId,
+      },
+    });
     await prisma.questionAnswer.deleteMany({
       where: {
         questionOptionId: {

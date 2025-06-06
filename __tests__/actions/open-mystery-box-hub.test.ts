@@ -149,6 +149,14 @@ describe("openMysteryBoxHub", () => {
       },
     });
 
+    await prisma.userBalance.deleteMany({
+      where: {
+        userId: {
+          in: [user.id, user1.id],
+        },
+      },
+    });
+
     const trigger = mysteryBox.flatMap((mb) => mb.triggers);
 
     await prisma.mysteryBoxPrize.deleteMany({

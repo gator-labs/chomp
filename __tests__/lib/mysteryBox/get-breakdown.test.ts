@@ -206,6 +206,10 @@ describe("Create mystery box", () => {
       where: { userId: user0.id },
     });
 
+    await prisma.userBalance.deleteMany({
+      where: { userId: user0.id },
+    });
+
     await deleteDeck(deckId);
 
     await deleteMysteryBoxes(

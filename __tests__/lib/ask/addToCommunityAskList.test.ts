@@ -120,6 +120,12 @@ describe("Add to community ask list", () => {
         },
       });
 
+      await prisma.userBalance.deleteMany({
+        where: {
+          userId: { in: users.map((u) => u.id) },
+        },
+      });
+
       await prisma.user.deleteMany({
         where: { id: { in: users.map((u) => u.id) } },
       });
