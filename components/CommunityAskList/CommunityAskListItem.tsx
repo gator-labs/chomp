@@ -69,6 +69,8 @@ export function CommunityAskListItem({
     if (addToDeck.isSuccess) {
       successToast("Successfully added question to the community deck");
       queryClient.invalidateQueries({ queryKey: ["communityAskStats"] });
+      if (selectedDeckId === "new-deck")
+        queryClient.invalidateQueries({ queryKey: ["communityAskDecks"] });
       setIsModalOpen(false);
     }
   }, [addToDeck.isSuccess]);
