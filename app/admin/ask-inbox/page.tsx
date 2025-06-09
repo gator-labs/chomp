@@ -4,6 +4,7 @@ import { CommunityAskList } from "@/components/CommunityAskList/CommunityAskList
 import { CommunityAskListTabs } from "@/components/CommunityAskList/CommunityAskListTabs";
 import { CommunityAskStats } from "@/components/CommunityAskList/CommunityAskStats";
 import { useCommunityAskListQuery } from "@/hooks/useCommunityAskListQuery";
+import { useCommunityAskDecksQuery } from "@/hooks/useCommunityAskDecksQuery";
 import { useCommunityAskStatsQuery } from "@/hooks/useCommunityAskStatsQuery";
 import { CommunityAskFilter, CommunityAskSortBy, SortOrder } from "@/types/ask";
 import { useState } from "react";
@@ -16,6 +17,7 @@ export default function Page() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
   const askList = useCommunityAskListQuery(selectedTab, sortBy, sortOrder);
+  const decks = useCommunityAskDecksQuery();
   const stats = useCommunityAskStatsQuery();
 
   const ACCEPT_POINTS = Number(
@@ -111,7 +113,7 @@ export default function Page() {
 
       {askList.data?.askList && (
         <div className="flex flex-col gap-2">
-          <CommunityAskList askList={askList?.data?.askList} />
+          <CommunityAskList askList={askList?.data?.askList} decks={decks?.data?.decks} />
         </div>
       )}
     </div>
