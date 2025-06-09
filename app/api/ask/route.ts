@@ -3,6 +3,7 @@ import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getIsUserAdmin } from "@/app/queries/user";
 import { acquireMutex } from "@/app/utils/mutex";
 import { addToCommunityDeck } from "@/lib/ask/addToCommunityDeck";
+import { createCommunityDeck } from "@/lib/ask/createCommunityDeck";
 import { getCommunityAskList } from "@/lib/ask/getCommunityAskList";
 import * as Sentry from "@sentry/nextjs";
 import { type NextRequest } from "next/server";
@@ -10,6 +11,11 @@ import z from "zod";
 
 const addToDeckSchema = z.object({
   questionId: z.number().int().gt(0).lte(Number.MAX_SAFE_INTEGER),
+  deckId: z.union([
+    z.number().int().gt(0).lte(Number.MAX_SAFE_INTEGER),
+    z.literal("new-deck"),
+  ]),
+  deckTitle: z.string().trim().min(1).optional(),
 });
 
 const filterListQuerySchema = z.object({
@@ -115,7 +121,14 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    await addToCommunityDeck(req.questionId);
+    if (req.deckId === "new-deck") {
+      if (req.deckTitle === undefined) throw new Error("Invalid deck title");
+
+      const deckId = await createCommunityDeck(req.deckTitle);
+      await addToCommunityDeck(req.questionId, deckId);
+    } else {
+      await addToCommunityDeck(req.questionId, req.deckId);
+    }
   } catch (error) {
     Sentry.captureException(error, {
       tags: {

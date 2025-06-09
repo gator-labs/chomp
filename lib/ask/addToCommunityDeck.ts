@@ -3,7 +3,10 @@
 import prisma from "@/app/services/prisma";
 import { ESpecialStack } from "@prisma/client";
 
-export async function addToCommunityDeck(questionId: number): Promise<void> {
+export async function addToCommunityDeck(
+  questionId: number,
+  deckId: number,
+): Promise<void> {
   let stack = await prisma.stack.findUnique({
     where: {
       specialId: ESpecialStack.CommunityAsk,
@@ -25,8 +28,9 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
   await prisma.$transaction(async (tx) => {
     const now = new Date();
 
-    let deck = await tx.deck.findFirst({
+    let deck = await tx.deck.findFirstOrThrow({
       where: {
+        id: deckId,
         stackId: stack.id,
         OR: [{ activeFromDate: null }, { activeFromDate: { gt: now } }],
       },
@@ -34,15 +38,6 @@ export async function addToCommunityDeck(questionId: number): Promise<void> {
         createdAt: "desc",
       },
     });
-
-    if (!deck) {
-      deck = await tx.deck.create({
-        data: {
-          stackId: stack.id,
-          deck: "Community Deck",
-        },
-      });
-    }
 
     // Ensure the question exists
     await tx.question.findFirstOrThrow({
