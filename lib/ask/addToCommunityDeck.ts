@@ -28,7 +28,7 @@ export async function addToCommunityDeck(
   await prisma.$transaction(async (tx) => {
     const now = new Date();
 
-    let deck = await tx.deck.findFirstOrThrow({
+    const deck = await tx.deck.findFirstOrThrow({
       where: {
         id: deckId,
         stackId: stack.id,

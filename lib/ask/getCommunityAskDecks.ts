@@ -5,7 +5,7 @@ import { CommunityAskDeck } from "@/types/ask";
 import { ESpecialStack } from "@prisma/client";
 
 export async function getCommunityAskDecks(): Promise<CommunityAskDeck[]> {
-  let stack = await prisma.stack.findUnique({
+  const stack = await prisma.stack.findUnique({
     where: {
       specialId: ESpecialStack.CommunityAsk,
     },
