@@ -66,7 +66,7 @@ export async function GET(
         "calculatedIsCorrect",
         CASE WHEN score = 'NaN'::float THEN NULL ELSE score END AS score,
         option
-      FROM "QuestionOption"
+      FROM public."QuestionOption"
       WHERE "questionId" = ${questionIdInt};
     `;
 
@@ -107,8 +107,8 @@ export async function GET(
           CASE WHEN qa."score" = 'NaN'::float THEN NULL ELSE qa."score" END AS qa_score,
           qo."uuid" AS qo_uuid,
           CASE WHEN qo."score" = 'NaN'::float THEN NULL ELSE qo."score" END AS qo_score
-        FROM "QuestionAnswer" qa
-        JOIN "QuestionOption" qo ON qa."questionOptionId" = qo.id
+        FROM public."QuestionAnswer" qa
+        JOIN public."QuestionOption" qo ON qa."questionOptionId" = qo.id
         WHERE qa."questionOptionId" IN (${Prisma.join(questionOptionIds)})
           AND NOT (qa."percentage" IS NULL AND qa."selected" = FALSE);
       `;
