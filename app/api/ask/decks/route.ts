@@ -1,7 +1,6 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import { getIsUserAdmin } from "@/app/queries/user";
 import { getCommunityAskDecks } from "@/lib/ask/getCommunityAskDecks";
-import { type NextRequest } from "next/server";
 
 export async function GET() {
   const payload = await getJwtPayload();
