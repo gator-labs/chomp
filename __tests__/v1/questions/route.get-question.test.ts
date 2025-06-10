@@ -34,7 +34,7 @@ describe("GET /v1/question/[id]", () => {
     const pastDate = dayjs().subtract(30, "day").toDate();
 
     await prisma.$transaction(async (tx) => {
-      await prisma.user.createMany({
+      await tx.user.createMany({
         data: user,
       });
 
@@ -125,6 +125,7 @@ describe("GET /v1/question/[id]", () => {
         (opt) => opt.option === "Option B (Normal score)",
       )!.uuid;
 
+      // Create question answers
       for (const option of questionOptionIds) {
         // Apply percentages such that they sum up to 100 for each user's answer set
         await tx.questionAnswer.create({
@@ -214,6 +215,13 @@ describe("GET /v1/question/[id]", () => {
         id: questionWithNaNScoreUuid,
       },
     });
+    
+    // Log error details if test fails
+    if (res.status !== 200) {
+      const errorBody = await res.json();
+      console.error("Test failed with status:", res.status, "Body:", errorBody);
+    }
+    
     expect(res.status).toBe(200);
     const json = await res.json();
 
@@ -241,6 +249,13 @@ describe("GET /v1/question/[id]", () => {
         id: questionUuid,
       },
     });
+    
+    // Log error details if test fails
+    if (res.status !== 200) {
+      const errorBody = await res.json();
+      console.error("Test failed with status:", res.status, "Body:", errorBody);
+    }
+    
     expect(res.status).toBe(200);
     const json = await res.json();
 

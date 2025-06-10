@@ -1,3 +1,6 @@
+import { Prisma } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import {
   UpdateQuestionParams,
   UpdateQuestionParamsSchema,
@@ -11,8 +14,6 @@ import {
 } from "@/lib/error";
 import { transformQuestionAnswers } from "@/lib/v1/transforQuestionAnswers";
 import { updateQuestion } from "@/lib/v1/updateQuestion";
-import { Prisma } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
@@ -146,7 +147,10 @@ export async function GET(
       })),
       bestOption: correctAnswer?.uuid ? correctAnswer.uuid : null,
     });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
+    // Log error for debugging in tests
+    console.error("Error in GET /v1/questions/[id]:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
