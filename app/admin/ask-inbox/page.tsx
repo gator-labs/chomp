@@ -113,7 +113,7 @@ export default function Page() {
 
       {askList.data?.askList && (
         <div className="flex flex-col gap-2">
-          <CommunityAskList askList={askList?.data?.askList} decks={decks?.data?.decks} />
+          <CommunityAskList askList={askList?.data?.askList} decks={decks?.data?.decks ?? []} />
         </div>
       )}
     </div>
