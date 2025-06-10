@@ -1,3 +1,6 @@
+import { Prisma } from "@prisma/client";
+import { NextRequest, NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import {
   UpdateQuestionParams,
   UpdateQuestionParamsSchema,
@@ -11,8 +14,6 @@ import {
 } from "@/lib/error";
 import { transformQuestionAnswers } from "@/lib/v1/transforQuestionAnswers";
 import { updateQuestion } from "@/lib/v1/updateQuestion";
-import { Prisma } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
@@ -65,7 +66,7 @@ export async function GET(
         "calculatedIsCorrect",
         CASE WHEN score = 'NaN'::float THEN NULL ELSE score END AS score,
         option
-      FROM "QuestionOption"
+      FROM public."QuestionOption"
       WHERE "questionId" = ${questionIdInt};
     `;
 
@@ -106,8 +107,8 @@ export async function GET(
           CASE WHEN qa."score" = 'NaN'::float THEN NULL ELSE qa."score" END AS qa_score,
           qo."uuid" AS qo_uuid,
           CASE WHEN qo."score" = 'NaN'::float THEN NULL ELSE qo."score" END AS qo_score
-        FROM "QuestionAnswer" qa
-        JOIN "QuestionOption" qo ON qa."questionOptionId" = qo.id
+        FROM public."QuestionAnswer" qa
+        JOIN public."QuestionOption" qo ON qa."questionOptionId" = qo.id
         WHERE qa."questionOptionId" IN (${Prisma.join(questionOptionIds)})
           AND NOT (qa."percentage" IS NULL AND qa."selected" = FALSE);
       `;
@@ -146,7 +147,10 @@ export async function GET(
       })),
       bestOption: correctAnswer?.uuid ? correctAnswer.uuid : null,
     });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
+    // Log error for debugging in tests
+    console.error("Error in GET /v1/questions/[id]:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
