@@ -10,6 +10,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import bs58 from "bs58";
+import pRetry from "p-retry";
 
 import { HIGH_PRIORITY_FEE } from "../constants/fee";
 import { getRecentPrioritizationFees } from "../queries/getPriorityFeeEstimate";
@@ -128,10 +129,17 @@ export const getSolBalance = async (address: string): Promise<number> => {
     return 0;
   }
 
-  const walletPublickey = new PublicKey(address);
-  const balance = await CONNECTION.getBalance(walletPublickey);
+  try {
+    const walletPublickey = new PublicKey(address);
+    const balance = await pRetry(
+      () => CONNECTION.getBalance(walletPublickey),
+      { retries: 2, minTimeout: 1000 }
+    );
 
-  return balance / LAMPORTS_PER_SOL;
+    return balance / LAMPORTS_PER_SOL;
+  } catch {
+    return 0;
+  }
 };
 
 export function isValidSignature(
