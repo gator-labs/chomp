@@ -1,5 +1,6 @@
 import prisma from "@/app/services/prisma";
 import { addToCommunityDeck } from "@/lib/ask/addToCommunityDeck";
+import { createCommunityDeck } from "@/lib/ask/createCommunityDeck";
 import { getPointBalance } from "@/lib/points/getPointBalance";
 import { generateUsers } from "@/scripts/utils";
 import { ESpecialStack } from "@prisma/client";
@@ -11,6 +12,7 @@ describe("Add to community ask list", () => {
   let origCommunityStack: { id: number } | null;
   let origCommunityDecks: { id: number }[];
   let users: { id: string; username: string }[];
+  let communityDeckId: number;
 
   beforeAll(async () => {
     users = await generateUsers(1);
@@ -120,16 +122,56 @@ describe("Add to community ask list", () => {
         },
       });
 
+      await prisma.userBalance.deleteMany({
+        where: {
+          userId: { in: users.map((u) => u.id) },
+        },
+      });
+
       await prisma.user.deleteMany({
         where: { id: { in: users.map((u) => u.id) } },
       });
     }
   });
 
+  it("should create a community deck", async () => {
+    const title = "Test" + new Date().getTime();
+    communityDeckId = await createCommunityDeck(title);
+
+    expect(communityDeckId).toBeDefined();
+
+    const deck = await prisma.deck.findFirst({
+      where: {
+        id: communityDeckId,
+      },
+      include: {
+        stack: true,
+      },
+    });
+
+    expect(deck).toBeDefined();
+    expect(deck?.stack?.specialId).toBe(ESpecialStack.CommunityAsk);
+    expect(deck?.deck).toBe(title);
+  });
+
+  it("should not add a question to an arbitrary deck", async () => {
+    const newDeck = await prisma.deck.create({
+      data: {
+        deck: "TestDeck",
+      },
+    });
+
+    await expect(
+      addToCommunityDeck(question1.id, newDeck.id),
+    ).rejects.toThrow();
+
+    await prisma.deck.delete({ where: { id: newDeck.id } });
+  });
+
   it("should add a community question to list", async () => {
     const authorPointsBalanceBefore = await getPointBalance(users[0].id);
 
-    await addToCommunityDeck(question1.id);
+    await addToCommunityDeck(question1.id, communityDeckId);
 
     const authorPointsBalanceAfter = await getPointBalance(users[0].id);
 
@@ -165,6 +207,8 @@ describe("Add to community ask list", () => {
   });
 
   it("should not add an arbitrary question to list", async () => {
-    await expect(addToCommunityDeck(question2.id)).rejects.toThrow();
+    await expect(
+      addToCommunityDeck(question2.id, communityDeckId),
+    ).rejects.toThrow();
   });
 });

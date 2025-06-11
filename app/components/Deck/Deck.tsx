@@ -40,6 +40,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 
 export type Option = {
   id: number;
@@ -85,6 +86,8 @@ export function Deck({
   creditCostFeatureFlag,
   totalCredits,
 }: DeckProps) {
+  const { user } = useDynamicContext();
+ 
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
@@ -106,6 +109,7 @@ export function Deck({
   const [numberOfAnsweredQuestions, setNumberOfAnsweredQuestions] = useState(0);
   const [isCreditsLow, setIsCreditsLow] = useState(false);
   const [random, setRandom] = useState(0);
+
 
   useEffect(() => {
     start();
@@ -152,6 +156,9 @@ export function Deck({
   // we mark it as "seen"
   useEffect(() => {
     const markQuestionAsSeen = async () => {
+      // Note: We used to move to next question if problem marking question as seen/.
+      // This led to a bug where we would skip questions if there was an error.
+      // We removed that, so now users may potentially see the same question again.
       try {
         const response = await markQuestionAsSeenButNotAnswered(question.id);
 
@@ -170,12 +177,12 @@ export function Deck({
                 questionId: question.id,
                 deckId: deckId,
                 deckVariant: deckVariant,
-                currentQuestionIndex: currentQuestionIndex,
+                currentQuestionIndex,
+                userId: user?.userId,
               },
             },
           );
 
-          handleNextIndex();
           return;
         }
 
@@ -184,7 +191,24 @@ export function Deck({
         }
       } catch (error) {
         console.error("Error marking question as seen:", error);
-        handleNextIndex();
+        // Note: This has a different error message than the other captureMessage above. We can differentiate
+        Sentry.captureMessage(
+          `Caught exception when calling markQuestionAsSeenButNotAnswered. `,
+          {
+            level: "error",
+            tags: {
+              category: "deck-errors",
+            },
+            extra: {
+              questionId: question?.id,
+              deckId: deckId,
+              deckVariant: deckVariant,
+              currentQuestionIndex,
+              error: error,
+              userId: user?.userId,
+            },
+          },
+        );
       }
     };
 

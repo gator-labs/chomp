@@ -128,6 +128,9 @@ describe("getUserTotalCreditAmount", () => {
     await prisma.fungibleAssetTransactionLog.deleteMany({
       where: { userId: user1.id },
     });
+    await prisma.userBalance.deleteMany({
+      where: { userId: user1.id },
+    });
     await deleteMysteryBoxes([mysteryBox1, mysteryBox2]);
     await prisma.user.delete({
       where: {

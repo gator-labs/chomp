@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 import { getJwtPayload } from "../actions/jwt";
 import prisma from "../services/prisma";
 import { getTotalNumberOfDeckQuestions } from "../utils/question";
-
+import { QuestionAuthor } from "../types/question-author";
 export async function getRawDeck(deckId: number) {
   const deck = await prisma.deck.findUnique({
     where: {
@@ -90,8 +90,9 @@ export async function getDailyDeck() {
 }
 
 /**
- * Gets a deck and calculates its cost and reward for all its questions
- * used for logged out users, only get active decks that are not revealed yet
+ * Gets a deck by id for logged-out users
+ * @param deckId
+ * @returns the deck with questions for logged-out users, or null if not found/not active
  */
 export async function getActiveDeckForLoggedOutUsers(deckId: number) {
   const now = new Date();
@@ -114,6 +115,7 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
       },
     },
     include: {
+      stack: true, // Include stack information to check for CommunityAsk
       deckQuestions: {
         include: {
           question: {
@@ -122,6 +124,12 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
               questionTags: {
                 include: {
                   tag: true,
+                },
+              },
+              // Include user and wallet data for authors functionality
+              user: {
+                include: {
+                  wallets: true,
                 },
               },
             },
@@ -169,6 +177,31 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
     return total + (dq.revealTokenAmount || 0);
   }, 0);
 
+  // Collect all unique authors from all questions in the deck (deck-level authors)
+  const isCommunityAsk = deckWithQuestionsAndCount.stack?.specialId === "CommunityAsk";
+  let deckAuthors: Array<QuestionAuthor> = [];
+
+  if (isCommunityAsk) {
+    const authorsMap = new Map<string, QuestionAuthor>();
+    
+    deckWithQuestionsAndCount.deckQuestions.forEach((dq) => {
+      if (dq.question.user && dq.question.user.wallets && dq.question.user.wallets.length > 0) {
+        const user = dq.question.user;
+        const authorKey = user.wallets[0].address; // Use wallet address as unique key
+        
+        if (!authorsMap.has(authorKey)) {
+          authorsMap.set(authorKey, {
+            address: user.wallets[0].address,
+            username: user.username || undefined,
+            avatarUrl: user.profileSrc || undefined,
+          });
+        }
+      }
+    });
+    
+    deckAuthors = Array.from(authorsMap.values());
+  }
+
   return {
     ...deckWithQuestionsAndCount,
     totalDeckQuestions: deckWithQuestionsAndCount._count.deckQuestions,
@@ -183,7 +216,8 @@ export async function getActiveDeckForLoggedOutUsers(deckId: number) {
       author: deckWithQuestionsAndCount.author,
       authorImageUrl: deckWithQuestionsAndCount.authorImageUrl,
     },
-    questions: mapQuestionFromDeck(deckWithQuestionsAndCount),
+    questions: mapQuestionFromDeckWithAuthors(deckWithQuestionsAndCount),
+    authors: deckAuthors,
   };
 }
 
@@ -204,6 +238,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
       id: deckId,
     },
     include: {
+      stack: true, // Include stack information to check for CommunityAsk
       deckQuestions: {
         include: {
           question: {
@@ -223,6 +258,12 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
               questionTags: {
                 include: {
                   tag: true,
+                },
+              },
+              // Include user and wallet data for authors functionality
+              user: {
+                include: {
+                  wallets: true,
                 },
               },
             },
@@ -297,9 +338,10 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     return total + (dq?.question?.revealTokenAmount || 0);
   }, 0);
 
+  // if deck will be active in the future, return the deck
   if (!!deck.activeFromDate && isAfter(deck.activeFromDate, new Date())) {
     return {
-      questions: deck?.deckQuestions,
+      questions: mapQuestionFromDeck(deck),
       id: deck.id,
       date: deck.date,
       stackId: deck.stackId,
@@ -336,7 +378,33 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     };
   }
 
-  const questions = mapQuestionFromDeck(deck);
+  // Use new mapping function that handles authors
+  const questions = mapQuestionFromDeckWithAuthors(deck);
+
+  // Collect all unique authors from all questions in the deck (deck-level authors)
+  const isCommunityAsk = deck.stack?.specialId === "CommunityAsk";
+  let deckAuthors: Array<QuestionAuthor> = [];
+
+  if (isCommunityAsk) {
+    const authorsMap = new Map<string, QuestionAuthor>();
+    
+    deck.deckQuestions.forEach((dq) => {
+      if (dq.question.user && dq.question.user.wallets && dq.question.user.wallets.length > 0) {
+        const user = dq.question.user;
+        const authorKey = user.wallets[0].address; // Use wallet address as unique key
+        
+        if (!authorsMap.has(authorKey)) {
+          authorsMap.set(authorKey, {
+            address: user.wallets[0].address,
+            username: user.username || undefined,
+            avatarUrl: user.profileSrc || undefined,
+          });
+        }
+      }
+    });
+    
+    deckAuthors = Array.from(authorsMap.values());
+  }
 
   return {
     questions,
@@ -348,6 +416,7 @@ export async function getDeckQuestionsForAnswerById(deckId: number) {
     numberOfUserAnswers: deck.deckQuestions.flatMap((dq) =>
       dq.question.questionOptions.flatMap((qo) => qo.questionAnswers),
     ).length,
+    authors: deckAuthors, // Add authors at deck level
     deckInfo: {
       heading: deck.heading || deck.deck,
       description: deck.description,
@@ -387,8 +456,50 @@ const mapQuestionFromDeck = (
     })),
     questionTags: dq.question.questionTags,
     deckRevealAtDate: deck.revealAtDate,
-    status: dq.question.questionOptions[0].questionAnswers?.[0]?.status,
-    createdAt: dq.question.questionOptions[0].questionAnswers?.[0]?.createdAt,
+    status: dq.question.questionOptions[0]?.questionAnswers?.[0]?.status,
+    createdAt: dq.question.questionOptions[0]?.questionAnswers?.[0]?.createdAt,
+  }));
+
+  return questions;
+};
+
+// New mapping function that handles authors for CommunityAsk stacks
+const mapQuestionFromDeckWithAuthors = (
+  deck: Deck & {
+    stack?: { specialId?: string | null } | null;
+    deckQuestions: Array<
+      DeckQuestion & {
+        question: Question & {
+          questionOptions: (QuestionOption & {
+            questionAnswers?: QuestionAnswer[];
+          })[];
+          questionTags: (QuestionTag & { tag: Tag })[];
+          user?: {
+            id: string;
+            username?: string | null;
+            profileSrc?: string | null;
+            wallets: { address: string }[];
+          } | null;
+        };
+      }
+    >;
+  },
+) => {
+  const questions = deck?.deckQuestions.map((dq) => ({
+    id: dq.questionId,
+    durationMiliseconds: Number(dq.question.durationMiliseconds),
+    question: dq.question.question,
+    type: dq.question.type,
+    imageUrl: dq.question.imageUrl ?? undefined,
+    questionOptions: dq.question.questionOptions.map((qo) => ({
+      id: qo.id,
+      option: qo.option,
+      isLeft: qo.isLeft,
+    })),
+    questionTags: dq.question.questionTags,
+    deckRevealAtDate: deck.revealAtDate,
+    status: dq.question.questionOptions[0]?.questionAnswers?.[0]?.status,
+    createdAt: dq.question.questionOptions[0]?.questionAnswers?.[0]?.createdAt,
   }));
 
   return questions;

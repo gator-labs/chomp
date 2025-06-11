@@ -64,6 +64,7 @@ export default async function Page() {
             author: deck.deckInfo.author,
             authorImageUrl: deck.deckInfo.authorImageUrl,
           }}
+          authors={deck.authors}
           numberOfUserAnswers={deck.numberOfUserAnswers!}
           totalCredits={totalCredits}
           deckCreditCost={deck?.deckCreditCost}
@@ -84,6 +85,7 @@ export default async function Page() {
           blurData={blurData?.base64}
           totalCredits={totalCredits}
           deckRewardAmount={deck?.deckRewardAmount ?? 0}
+          authors={deck.authors}
         />
       ) : (
         <ComingSoonDeck deckName={deck?.name} />

@@ -1,4 +1,3 @@
-import { Avatar } from "@/app/components/Avatar/Avatar";
 import { formatNumber } from "@/app/utils/number";
 import classNames from "classnames";
 import Image from "next/image";
@@ -9,15 +8,19 @@ import { InfoIcon } from "../Icons/InfoIcon";
 import TrophyQuestionMarkIcon from "../Icons/TrophyQuestionMarkIcon";
 import InfoDrawer from "../InfoDrawer/InfoDrawer";
 import QuestionCardLayout from "../QuestionCardLayout/QuestionCardLayout";
-
+import { QuestionAuthor } from "@/app/types/question-author";
+import DeckAuthors from "@/components/DeckAuthors";
 type PreviewDeckCardProps = {
   className?: string;
   heading: string;
   description?: string | null;
   footer?: string | null;
   imageUrl?: string | null;
+  // comes from deck info
   author?: string | null;
   authorImageUrl?: string | null;
+  // comes from deck questions that have been community asked
+  questionAuthors: QuestionAuthor[] | undefined;
   totalNumberOfQuestions: number;
   stackImage: string;
   blurData: string | undefined;
@@ -34,6 +37,7 @@ const PreviewDeckCard = ({
   heading,
   description,
   footer,
+  questionAuthors,
   author,
   authorImageUrl,
   stackImage,
@@ -62,8 +66,6 @@ const PreviewDeckCard = ({
 
   const deckImage = imageUrl || stackImage;
 
-  const showTotalCardsOnTheRight = !deckImage;
-
   return (
     <QuestionCardLayout className={className}>
       <div className="flex flex-col gap-5">
@@ -88,18 +90,19 @@ const PreviewDeckCard = ({
                   style={{ objectFit: "cover" }}
                 />
               </div>
-
-              {/** Total n Cards (show under image when image exist) **/}
-              <p className="text-[14px] font-medium">
-                Total {totalNumberOfQuestions} card
-                {totalNumberOfQuestions > 1 && "s"}
-              </p>
             </div>
           )}
 
           {/** Entry Fee and Rewards buttons **/}
           <div className="flex flex-col gap-4 h-full mr-4 justify-end">
             {!!footer && <p className="text-[14px]">{footer}</p>}
+
+            <div className="flex items-end h-full">
+              <span className="text-[14px] font-medium">
+                Total {totalNumberOfQuestions} card
+                {totalNumberOfQuestions > 1 && "s"}
+              </span>
+            </div>
 
             {CREDIT_COST_FEATURE_FLAG && deckCreditCost !== null ? (
               <>
@@ -164,33 +167,12 @@ const PreviewDeckCard = ({
               </>
             ) : null}
 
-            <div className="flex gap-2 items-center">
-              {!!authorImageUrl && (
-                <div className="">
-                  <Avatar
-                    size="small"
-                    className="border-purple-200"
-                    src={authorImageUrl}
-                  />
-                </div>
-              )}
-              {!!author && (
-                <p className="text-[12px] font-bold leading-[16.5px]">
-                  By {author}
-                </p>
-              )}
-            </div>
+            <DeckAuthors
+              questionAuthors={questionAuthors}
+              deckInfoAuthor={author}
+              deckInfoAuthorImageUrl={authorImageUrl}
+            />
           </div>
-
-          {/** Total n Cards (show on the right when there's no image) **/}
-          {showTotalCardsOnTheRight && (
-            <div className="flex items-end h-full mb-6">
-              <p className="text-[14px] font-medium">
-                Total {totalNumberOfQuestions} card
-                {totalNumberOfQuestions > 1 && "s"}
-              </p>
-            </div>
-          )}
         </div>
       </div>
       <InfoDrawer isOpen={isOpen} onClose={onClose} title="What are credits?">

@@ -384,43 +384,65 @@ describe("getUsersLatestStreak", () => {
   });
 
   afterAll(async () => {
-    await prisma.$transaction(async (tx) => {
-      await tx.fungibleAssetTransactionLog.deleteMany({
+    // Break cleanup into smaller transactions to avoid timeout
+    try {
+      // Clean up transaction logs and user balances first
+      await prisma.fungibleAssetTransactionLog.deleteMany({
         where: {
           userId: { in: [user1.id, user2.id, user3.id] },
         },
       });
-      await tx.mysteryBox.deleteMany({
+      
+      await prisma.userBalance.deleteMany({
         where: {
           userId: { in: [user1.id, user2.id, user3.id] },
         },
       });
-      await tx.chompResult.deleteMany({
+
+      // Clean up mystery boxes
+      await prisma.mysteryBox.deleteMany({
         where: {
           userId: { in: [user1.id, user2.id, user3.id] },
         },
       });
-      await tx.questionAnswer.deleteMany({
+
+      // Clean up chomp results
+      await prisma.chompResult.deleteMany({
         where: {
           userId: { in: [user1.id, user2.id, user3.id] },
         },
       });
-      await tx.questionOption.deleteMany({
+
+      // Clean up question answers
+      await prisma.questionAnswer.deleteMany({
+        where: {
+          userId: { in: [user1.id, user2.id, user3.id] },
+        },
+      });
+
+      // Clean up question options and questions
+      await prisma.questionOption.deleteMany({
         where: {
           questionId: { in: questionsIds },
         },
       });
-      await tx.question.deleteMany({
+
+      await prisma.question.deleteMany({
         where: {
           id: { in: questionsIds },
         },
       });
-      await tx.user.deleteMany({
+
+      // Finally clean up users
+      await prisma.user.deleteMany({
         where: {
           id: { in: [user1.id, user2.id, user3.id] },
         },
       });
-    });
+    } catch (error) {
+      console.error("Cleanup error in streak.test.ts:", error);
+      // Don't throw to avoid masking test results
+    }
   });
 
   it("should return the latest streak for user1 ending today", async () => {

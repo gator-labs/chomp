@@ -1,3 +1,7 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
+
 import { AnswerSchema } from "@/app/schemas/v1/answer";
 import prisma from "@/app/services/prisma";
 import { createDynamicUser } from "@/lib/dynamic";
@@ -7,8 +11,6 @@ import {
   ApiUserInvalidError,
 } from "@/lib/error";
 import { answerQuestion } from "@/lib/v1/answerQuestion";
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 
 async function findOrCreateUser(wallet: string) {
   const user = await prisma.wallet.findFirst({ where: { address: wallet } });
@@ -111,6 +113,8 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
         { status: 400 },
       );
     } else {
+      Sentry.captureException(e);
+      console.error("Error answering question:", e);
       return NextResponse.json(
         { error: "Internal Server Error" },
         { status: 500 },

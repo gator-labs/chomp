@@ -69,6 +69,7 @@ export default async function Page({ params: { id } }: PageProps) {
             ...hydratedDeck.deckInfo,
             totalNumberOfQuestions: hydratedDeck.totalDeckQuestions,
           }}
+          authors={hydratedDeck.authors}
           numberOfUserAnswers={0}
           totalCredits={totalCredits}
           deckCreditCost={hydratedDeck.deckCreditCost}
@@ -83,7 +84,6 @@ export default async function Page({ params: { id } }: PageProps) {
   // User is logged in
 
   const hydratedDeck = await getDeckQuestionsForAnswerById(currentDeckId);
-
   return (
     <div className="h-full pt-3 pb-4">
       {hydratedDeck === null ? (
@@ -112,6 +112,7 @@ export default async function Page({ params: { id } }: PageProps) {
             ...hydratedDeck!.deckInfo!,
             totalNumberOfQuestions: hydratedDeck!.questions.length,
           }}
+          authors={hydratedDeck!.authors}
           numberOfUserAnswers={hydratedDeck!.numberOfUserAnswers!}
           totalCredits={totalCredits}
           deckCreditCost={hydratedDeck!.deckCreditCost}
@@ -134,6 +135,7 @@ export default async function Page({ params: { id } }: PageProps) {
           blurData={blurData?.base64}
           totalCredits={totalCredits}
           deckRewardAmount={hydratedDeck?.deckRewardAmount ?? 0}
+          authors={hydratedDeck!.authors}
         />
       ) : (
         <ComingSoonDeck deckName={hydratedDeck?.name} />

@@ -146,6 +146,12 @@ describe("getValidationRewardQuestion", () => {
       },
     });
 
+    await prisma.userBalance.deleteMany({
+      where: {
+        userId: { in: [userId, userId1, userId2] },
+      },
+    });
+
     await prisma.user.deleteMany({
       where: {
         id: { in: [userId, userId1, userId2] },

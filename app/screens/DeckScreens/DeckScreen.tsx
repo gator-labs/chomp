@@ -4,6 +4,7 @@ import { Deck, Question } from "@/app/components/Deck/Deck";
 import DeckScreenAction from "@/app/components/DeckScreenAction/DeckScreenAction";
 import PreviewDeckCard from "@/app/components/PreviewDeckCard";
 import Stepper from "@/app/components/Stepper/Stepper";
+import { QuestionAuthor } from "@/app/types/question-author";
 import { BuyBulkCreditsButton } from "@/components/BuyBulkCreditsButton";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { useState } from "react";
@@ -20,6 +21,7 @@ type DeckScreenProps = {
     revealAtDate?: Date | null;
   };
   questions: Question[];
+  authors: QuestionAuthor[] | undefined;
   currentDeckId: number;
   stackImage: string;
   nextDeckId?: number;
@@ -33,6 +35,7 @@ type DeckScreenProps = {
 
 const DeckScreen = ({
   deckInfo,
+  authors,
   questions,
   currentDeckId,
   nextDeckId,
@@ -84,6 +87,7 @@ const DeckScreen = ({
           />
           <PreviewDeckCard
             {...deckInfo}
+            questionAuthors={authors}
             stackImage={stackImage}
             totalNumberOfQuestions={questions.length}
             totalCredits={totalCredits}

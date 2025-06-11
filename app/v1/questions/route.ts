@@ -1,9 +1,11 @@
-import { questionSchema } from "@/app/schemas/v1/question";
-import prisma from "@/app/services/prisma";
-import { getQuestions } from "@/lib/v1/getQuestions";
 import { QuestionType } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
+import * as Sentry from "@sentry/nextjs";
+
+import { questionSchema } from "@/app/schemas/v1/question";
+import prisma from "@/app/services/prisma";
+import { getQuestions } from "@/lib/v1/getQuestions";
 
 export async function GET(request: NextRequest) {
   // API Key Authentication (using backend-secret as per user's previous POST update)
@@ -149,7 +151,9 @@ export async function POST(request: NextRequest) {
         optionId: uuid,
       })),
     });
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error("Error creating question:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 },
