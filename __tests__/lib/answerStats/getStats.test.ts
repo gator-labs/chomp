@@ -331,7 +331,7 @@ describe("getAnswerStats", () => {
           otherMysteryBoxIds.push(box.id);
         }
       }
-    });
+    }, { timeout: 30_000 });
   });
 
   afterAll(async () => {
@@ -392,7 +392,12 @@ describe("getAnswerStats", () => {
   });
 
   it("should get answer stats for revealed, calculated and rewarded question", async () => {
-    const mysteryBox = await createMysteryBox(user1.id, questionIds[1], prisma);
+    // Default timeout is 5s. Because the beforeAll hook writes so much to the database,
+    // this first test sometimes takes just a bit longer thant 5s. This syntax allows us to 
+    // increase the timeout for this test only.
+    const mysteryBox = await prisma.$transaction(async (tx) => {
+      return await createMysteryBox(user1.id, questionIds[1], tx);
+    }, { timeout: 10_000 });
     mysteryBoxId = mysteryBox.id;
 
     const stats = await getAnswerStats(user1.id, questionIds[1]);
