@@ -12,7 +12,6 @@ import { AnswerError } from "@/lib/error";
 import {
   AnswerStatus,
   FungibleAsset,
-  QuestionAnswer,
   QuestionType,
   TransactionLogType,
 } from "@prisma/client";
@@ -91,6 +90,9 @@ export async function answerQuestion(request: SaveQuestionRequest) {
         selected: isOptionSelected,
         percentage,
         questionOptionId: qo.id,
+        questionOption: {
+          questionId: qo.questionId
+        },
         timeToAnswer: request?.timeToAnswerInMiliseconds
           ? BigInt(request?.timeToAnswerInMiliseconds)
           : null,
@@ -99,7 +101,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
         status: AnswerStatus.Viewed,
         isAssigned2ndOrderOption:
           qo.questionAnswers[0].isAssigned2ndOrderOption,
-      } as QuestionAnswer;
+      } as any; // Cast to any to allow adding the extra property
     });
 
 

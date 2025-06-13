@@ -1,5 +1,9 @@
-import { AnswerStatus, QuestionAnswer } from "@prisma/client";
+import { AnswerStatus, QuestionAnswer, QuestionOption } from "@prisma/client";
 import { InvalidAnswerError } from "@/lib/error";
+
+type QuestionAnswerForStatus = QuestionAnswer & {
+  questionOption: QuestionOption;
+};
 
 /*
     This function is used to get the status of an answer.
@@ -7,7 +11,7 @@ import { InvalidAnswerError } from "@/lib/error";
     - Considered fully answered if exactly one answer has percentage and one has selected=true.
     - For a single question and user
 */
-export default function getAnswerStatus(questionAnswers: QuestionAnswer[]) {
+export default function getAnswerStatus(questionAnswers: QuestionAnswerForStatus[]) {
     if (questionAnswers.length === 0) {
         return AnswerStatus.Viewed;
     }
@@ -16,7 +20,7 @@ export default function getAnswerStatus(questionAnswers: QuestionAnswer[]) {
     const firstAnswer = questionAnswers[0];
     const allSameUserAndQuestion = questionAnswers.every(
         (qa) => qa.userId === firstAnswer.userId && 
-        qa.questionOptionId === firstAnswer.questionOptionId
+        qa.questionOption.questionId === firstAnswer.questionOption.questionId
     );
 
     if (!allSameUserAndQuestion) {
