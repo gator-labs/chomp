@@ -6,6 +6,7 @@ import { pointsPerAction } from "@/app/constants/points";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { addUserTutorialTimestamp } from "@/app/queries/user";
 import prisma from "@/app/services/prisma";
+import getAnswerStatus from "@/lib/answers/getAnswerStatus";
 import { chargeUserCredits } from "@/lib/credits/chargeUserCredits";
 import { AnswerError } from "@/lib/error";
 import {
@@ -64,7 +65,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
       );
     }
 
-    const questionAnswers = questionOptions.map((qo) => {
+    const newQuestionAnswers = questionOptions.map((qo) => {
       const isOptionSelected = qo.id === request?.questionOptionId;
 
       const percentageForQuestionOption =
@@ -84,6 +85,7 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           `User with id: ${payload?.sub} second order respose doesn't match the give random option id for question id ${request.questionId}.`,
         );
       }
+      
       return {
         id: qo.questionAnswers[0].id,
         selected: isOptionSelected,
@@ -93,11 +95,13 @@ export async function answerQuestion(request: SaveQuestionRequest) {
           ? BigInt(request?.timeToAnswerInMiliseconds)
           : null,
         userId,
-        status: AnswerStatus.Submitted,
+        // Default to Viewed, then update to Submitted if the answer is fully answered
+        status: AnswerStatus.Viewed,
         isAssigned2ndOrderOption:
           qo.questionAnswers[0].isAssigned2ndOrderOption,
       } as QuestionAnswer;
     });
+
 
     const userQuestionAnswers = await prisma.questionAnswer.findMany({
       where: {
@@ -125,6 +129,10 @@ export async function answerQuestion(request: SaveQuestionRequest) {
 
     // Charge user credits before submitting question response in the db. Process wil fail if insufficient balance
     await chargeUserCredits(request.questionId);
+
+    // Set the status of the answer to Submitted if it is fully answered
+    const status = getAnswerStatus(newQuestionAnswers);
+    const questionAnswers = newQuestionAnswers.map(qa => ({...qa, status}));
 
     await prisma.$transaction(async (tx) => {
       // Question answers are deleted because they have (possibly)

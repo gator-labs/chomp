@@ -297,3 +297,10 @@ export class RewardsPromiseError extends Error {
     super(message, options);
   }
 }
+
+export class InvalidAnswerError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "InvalidAnswerError";
+  }
+}
