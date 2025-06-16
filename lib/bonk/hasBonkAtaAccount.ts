@@ -9,25 +9,40 @@ import { PublicKey } from "@solana/web3.js";
 export const hasBonkAtaAccount = async () => {
   const payload = await getJwtPayload();
 
-  if (!payload) throw new Error("Unauthorized");
+  // If no authentication, user doesn't have BONK ATA account
+  if (!payload) {
+    return false;
+  }
 
-  const wallet = await prisma.wallet.findFirstOrThrow({
+  // Use findFirst instead of findFirstOrThrow to handle missing wallet gracefully
+  const wallet = await prisma.wallet.findFirst({
     where: {
       userId: payload.sub,
     },
   });
 
-  const userWallet = new PublicKey(wallet.address);
-  const bonkAddress = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
+  // If user has no wallet, they definitely don't have a BONK ATA account
+  if (!wallet) {
+    return false;
+  }
 
-  const receiverAssociatedAddress = await getAssociatedTokenAddress(
-    bonkAddress,
-    userWallet,
-  );
+  try {
+    const userWallet = new PublicKey(wallet.address);
+    const bonkAddress = new PublicKey(process.env.NEXT_PUBLIC_BONK_ADDRESS!);
 
-  const receiverAccountInfo = await CONNECTION.getAccountInfo(
-    receiverAssociatedAddress,
-  );
+    const receiverAssociatedAddress = await getAssociatedTokenAddress(
+      bonkAddress,
+      userWallet,
+    );
 
-  return !!receiverAccountInfo;
+    const receiverAccountInfo = await CONNECTION.getAccountInfo(
+      receiverAssociatedAddress,
+    );
+
+    return !!receiverAccountInfo;
+  } catch (error) {
+    // Log the error but don't throw - return false as fallback
+    console.error("Error checking BONK ATA account:", error);
+    return false;
+  }
 };
