@@ -36,6 +36,7 @@ describe("getUsersLatestStreak", () => {
   };
 
   let questionsIds: number[] = [];
+  let streakExtensions: number[] = [];
 
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
@@ -392,7 +393,7 @@ describe("getUsersLatestStreak", () => {
           userId: { in: [user1.id, user2.id, user3.id] },
         },
       });
-      
+
       await prisma.userBalance.deleteMany({
         where: {
           userId: { in: [user1.id, user2.id, user3.id] },
@@ -433,6 +434,12 @@ describe("getUsersLatestStreak", () => {
         },
       });
 
+      await prisma.streakExtension.deleteMany({
+        where: {
+          id: { in: streakExtensions },
+        },
+      });
+
       // Finally clean up users
       await prisma.user.deleteMany({
         where: {
@@ -464,5 +471,81 @@ describe("getUsersLatestStreak", () => {
     const latestStreak = await getUsersLatestStreak();
 
     expect(latestStreak).toBe(1); // User3's streak ends today after answering on one day only
+  });
+
+  it("should test user streak extensions", async () => {
+    (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
+
+    const ext1 = await prisma.streakExtension.create({
+      data: {
+        userId: user1.id,
+        activityDate: subDays(new Date(), 6),
+        streakValue: 0,
+        reason: "Test",
+      },
+    });
+
+    streakExtensions.push(ext1.id);
+
+    // Extension at beginning of streak (with 0 value) should not change the streak
+
+    const streak1 = await getUsersLatestStreak();
+    expect(streak1).toBe(6);
+
+    // Insert a streak event before the extension
+
+    await prisma.fungibleAssetTransactionLog.create({
+      data: {
+        type: TransactionLogType.CreditPurchase,
+        userId: user1.id,
+        createdAt: subDays(new Date(), 7),
+        change: 100,
+        asset: FungibleAsset.Credit,
+      },
+    });
+
+    // The extension should be activated, and the streak preserved
+    // (but the length is not changed by the extension itself).
+
+    const streak2 = await getUsersLatestStreak();
+    expect(streak2).toBe(7);
+  });
+
+  it("should test global streak extensions", async () => {
+    (authGuard as jest.Mock).mockResolvedValue({ sub: user1.id });
+
+    const ext1 = await prisma.streakExtension.create({
+      data: {
+        userId: null,
+        activityDate: subDays(new Date(), 8),
+        streakValue: 0,
+        reason: "Test",
+      },
+    });
+
+    streakExtensions.push(ext1.id);
+
+    // Extension at beginning of streak (with 0 value) should not change the streak
+
+    const streak1 = await getUsersLatestStreak();
+    expect(streak1).toBe(7);
+
+    // Insert a streak event before the extension
+
+    await prisma.fungibleAssetTransactionLog.create({
+      data: {
+        type: TransactionLogType.CreditPurchase,
+        userId: user1.id,
+        createdAt: subDays(new Date(), 9),
+        change: 100,
+        asset: FungibleAsset.Credit,
+      },
+    });
+
+    // The extension should be activated, and the streak preserved
+    // (but the length is not changed by the extension itself).
+
+    const streak2 = await getUsersLatestStreak();
+    expect(streak2).toBe(8);
   });
 });
