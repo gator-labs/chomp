@@ -36,7 +36,7 @@ describe("getUsersLatestStreak", () => {
   };
 
   let questionsIds: number[] = [];
-  let streakExtensions: number[] = [];
+  const streakExtensions: number[] = [];
 
   beforeAll(async () => {
     await prisma.$transaction(async (tx) => {
