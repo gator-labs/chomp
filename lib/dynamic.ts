@@ -8,11 +8,6 @@ type DynamicUserResult = {
   }[];
 };
 
-type CreatedUser = {
-  address: string;
-  userId: string;
-}
-
 export const revokeDynamicSession = async (userId: string) => {
   const dynamicBearer = process.env.DYNAMIC_BEARER_TOKEN;
 
@@ -74,12 +69,12 @@ export const createDynamicUser = async (wallet: string): Promise<string> => {
  *
  * @param wallets - Array of all wallets to create.
  *
- * @return created - Array of {address, userId} pairs. Failed wallets
+ * @return created - Map of address => userId pairs successfully created. Failed wallets
  *                   (e.g. duplicates) are not included in the output.
  */
 export const createDynamicUsers = async (
   wallets: string[],
-): Promise<CreatedUser[]> => {
+): Promise<Record<string, string>> => {
   const dynamicBearer = process.env.DYNAMIC_BEARER_TOKEN;
   const dynamicEnv = process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID;
 
@@ -114,11 +109,10 @@ export const createDynamicUsers = async (
   try {
     const data = await response.json();
 
-    return (data.created ?? []).flatMap((user: DynamicUserResult) =>
-      user.wallets.map((wallet) => ({
-        address: wallet.publicKey,
-        userId: wallet.userId,
-      })),
+    return Object.fromEntries(
+      (data.created ?? []).flatMap((user: DynamicUserResult) =>
+        user.wallets.map((wallet) => [wallet.publicKey, wallet.userId]),
+      ),
     );
   } catch {
     throw new Error("Failed to create Dynamic user");

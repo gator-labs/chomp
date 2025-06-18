@@ -111,6 +111,6 @@ describe("Create Dynamic users", () => {
 
     const results = await createDynamicUsers(wallets);
 
-    expect(results.length).toBe(wallets.length - 1);
+    expect(Object.keys(results).length).toBe(wallets.length - 1);
   });
 });
