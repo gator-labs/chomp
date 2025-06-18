@@ -69,8 +69,8 @@ export const createDynamicUser = async (wallet: string): Promise<string> => {
  *
  * @param wallets - Array of all wallets to create.
  *
- * @return walletMap - Mapping of wallet -> userId (if successful), or
- *                     wallet -> null in the case of failure.
+ * @return created - Array of {address, userId} pairs. Failed wallets
+ *                   (e.g. duplicates) are not included in the output.
  */
 export const createDynamicUsers = async (
   wallets: string[],
