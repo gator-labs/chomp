@@ -8,6 +8,11 @@ type DynamicUserResult = {
   }[];
 };
 
+type CreatedUser = {
+  address: string;
+  userId: string;
+}
+
 export const revokeDynamicSession = async (userId: string) => {
   const dynamicBearer = process.env.DYNAMIC_BEARER_TOKEN;
 
@@ -74,7 +79,7 @@ export const createDynamicUser = async (wallet: string): Promise<string> => {
  */
 export const createDynamicUsers = async (
   wallets: string[],
-): Promise<Record<string, string | null>> => {
+): Promise<CreatedUser[]> => {
   const dynamicBearer = process.env.DYNAMIC_BEARER_TOKEN;
   const dynamicEnv = process.env.NEXT_PUBLIC_DYNAMIC_ENVIRONMENT_ID;
 
