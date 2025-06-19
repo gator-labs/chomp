@@ -249,38 +249,76 @@ describe("API answer question", () => {
     expect(data?.[2].error).toBe("answer_invalid");
     expect(data?.[2].success).toBeFalsy();
 
-    // Verify the stored percentage in the database
-    const qAnswers = await prisma.questionAnswer.findMany({
-      where: {
-        uuid: data.answerId,
-      },
-      include: {
-        questionOption: true,
-      },
-    });
+    {
+      // Verify the stored percentage in the database
+      const qAnswers = await prisma.questionAnswer.findMany({
+        where: {
+          uuid: data?.[0]?.answerId,
+        },
+        include: {
+          questionOption: true,
+        },
+      });
 
-    expect(qAnswers.length).toBeGreaterThan(0);
+      expect(qAnswers.length).toBeGreaterThan(0);
 
-    // Find the answer for the first order option (should have null percentage)
-    const firstOrderAnswer = qAnswers.find(
-      (qa) => qa.questionOption.uuid === question1OptionUuids[0],
-    );
-    expect(firstOrderAnswer).toBeDefined();
-    expect(firstOrderAnswer?.selected).toBe(true);
-    expect(firstOrderAnswer?.percentage).toBe(50);
+      // Find the answer for the first order option (should have null percentage)
+      const firstOrderAnswer = qAnswers.find(
+        (qa) => qa.questionOption.uuid === question1OptionUuids[0],
+      );
+      expect(firstOrderAnswer).toBeDefined();
+      expect(firstOrderAnswer?.selected).toBe(true);
+      expect(firstOrderAnswer?.percentage).toBe(50);
 
-    // Find the answer for the second order option (this is where the percentage is set)
-    const secondOrderAnswer = qAnswers.find(
-      (qa) => qa.questionOption.uuid === question1OptionUuids[1],
-    );
-    expect(secondOrderAnswer).toBeDefined();
-    expect(secondOrderAnswer?.selected).toBe(false);
-    expect(secondOrderAnswer?.percentage).toBeNull();
+      // Find the answer for the second order option (this is where the percentage is set)
+      const secondOrderAnswer = qAnswers.find(
+        (qa) => qa.questionOption.uuid === question1OptionUuids[1],
+      );
+      expect(secondOrderAnswer).toBeDefined();
+      expect(secondOrderAnswer?.selected).toBe(false);
+      expect(secondOrderAnswer?.percentage).toBeNull();
 
-    // Verify other answers for the same batch if necessary (e.g. for multi-choice)
-    const questionOptionsForQuestion1 = await prisma.questionOption.count({
-      where: { questionId: questionIds[1] },
-    });
-    expect(qAnswers.length).toBe(2 * questionOptionsForQuestion1);
+      // Verify other answers for the same batch if necessary (e.g. for multi-choice)
+      const questionOptionsForQuestion1 = await prisma.questionOption.count({
+        where: { questionId: questionIds[1] },
+      });
+      expect(qAnswers.length).toBe(questionOptionsForQuestion1);
+    }
+
+    {
+      // Verify the stored percentage in the database
+      const qAnswers = await prisma.questionAnswer.findMany({
+        where: {
+          uuid: data?.[1]?.answerId,
+        },
+        include: {
+          questionOption: true,
+        },
+      });
+
+      expect(qAnswers.length).toBeGreaterThan(0);
+
+      // Find the answer for the first order option (should have null percentage)
+      const firstOrderAnswer = qAnswers.find(
+        (qa) => qa.questionOption.uuid === question1OptionUuids[1],
+      );
+      expect(firstOrderAnswer).toBeDefined();
+      expect(firstOrderAnswer?.selected).toBe(true);
+      expect(firstOrderAnswer?.percentage).toBe(50);
+
+      // Find the answer for the second order option (this is where the percentage is set)
+      const secondOrderAnswer = qAnswers.find(
+        (qa) => qa.questionOption.uuid === question1OptionUuids[0],
+      );
+      expect(secondOrderAnswer).toBeDefined();
+      expect(secondOrderAnswer?.selected).toBe(false);
+      expect(secondOrderAnswer?.percentage).toBeNull();
+
+      // Verify other answers for the same batch if necessary (e.g. for multi-choice)
+      const questionOptionsForQuestion1 = await prisma.questionOption.count({
+        where: { questionId: questionIds[1] },
+      });
+      expect(qAnswers.length).toBe(questionOptionsForQuestion1);
+    }
   });
 });
