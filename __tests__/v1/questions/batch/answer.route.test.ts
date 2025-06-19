@@ -237,17 +237,17 @@ describe("API answer question", () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data?.answers).toBeDefined();
-    expect(data?.answers.length).toBe(3);
-    expect(data?.answers?.[0].answerId).toBeDefined();
-    expect(data?.answers?.[0].success).toBeTruthy();
-    expect(data?.answers?.[0].error).not.toBeDefined();
-    expect(data?.answers?.[1].answerId).toBeDefined();
-    expect(data?.answers?.[1].success).toBeTruthy();
-    expect(data?.answers?.[1].error).not.toBeDefined();
-    expect(data?.answers?.[0].answerId).not.toBe(data?.answers?.[1].answerId);
-    expect(data?.answers?.[2].error).toBe("answer_invalid");
-    expect(data?.answers?.[2].success).toBeFalsy();
+    expect(data).toBeDefined();
+    expect(data.length).toBe(3);
+    expect(data?.[0].answerId).toBeDefined();
+    expect(data?.[0].success).toBeTruthy();
+    expect(data?.[0].error).not.toBeDefined();
+    expect(data?.[1].answerId).toBeDefined();
+    expect(data?.[1].success).toBeTruthy();
+    expect(data?.[1].error).not.toBeDefined();
+    expect(data?.[0].answerId).not.toBe(data?.answers?.[1].answerId);
+    expect(data?.[2].error).toBe("answer_invalid");
+    expect(data?.[2].success).toBeFalsy();
 
     // Verify the stored percentage in the database
     const qAnswers = await prisma.questionAnswer.findMany({

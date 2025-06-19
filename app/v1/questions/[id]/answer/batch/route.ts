@@ -137,9 +137,7 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
       }
     }
 
-    return NextResponse.json({
-      answers: results,
-    });
+    return NextResponse.json(results);
   } catch (e) {
     if (e instanceof ApiError) {
       return NextResponse.json(
