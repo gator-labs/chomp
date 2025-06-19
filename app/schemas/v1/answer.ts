@@ -27,3 +27,17 @@ export const AnswerSchema = z.object({
     .transform((v) => Math.round(new Decimal(v).mul(100).toNumber())),
   weight: z.coerce.number().min(0).optional(),
 });
+
+export const AnswerBatchSchema = z.array(
+  z.object({
+    userAddress: SolanaAddressSchema,
+    firstOrderOptionId: z.string().uuid(),
+    secondOrderOptionId: z.string().uuid(),
+    secondOrderOptionEstimate: z.coerce
+      .number()
+      .min(0)
+      .max(1)
+      .transform((v) => Math.round(new Decimal(v).mul(100).toNumber())),
+    weight: z.coerce.number().min(0).optional(),
+  }),
+);

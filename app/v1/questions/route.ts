@@ -1,11 +1,10 @@
-import { QuestionType } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
-import * as Sentry from "@sentry/nextjs";
-
 import { questionSchema } from "@/app/schemas/v1/question";
 import prisma from "@/app/services/prisma";
 import { getQuestions } from "@/lib/v1/getQuestions";
+import { QuestionType } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
+import { NextRequest, NextResponse } from "next/server";
+import { v4 as uuidv4 } from "uuid";
 
 export async function GET(request: NextRequest) {
   // API Key Authentication (using backend-secret as per user's previous POST update)
