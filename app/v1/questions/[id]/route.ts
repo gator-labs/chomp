@@ -1,6 +1,3 @@
-import { Prisma } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
-import * as Sentry from "@sentry/nextjs";
 import {
   UpdateQuestionParams,
   UpdateQuestionParamsSchema,
@@ -14,6 +11,9 @@ import {
 } from "@/lib/error";
 import { transformQuestionAnswers } from "@/lib/v1/transforQuestionAnswers";
 import { updateQuestion } from "@/lib/v1/updateQuestion";
+import { Prisma } from "@prisma/client";
+import * as Sentry from "@sentry/nextjs";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
