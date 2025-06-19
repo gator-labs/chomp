@@ -30,7 +30,7 @@ export function UserViewStreakInfo() {
           onChange={(e) => setWallet(e.target.value)}
         />
       </div>
-      {streak.data?.streak && !streak.isFetching && (
+      {streak.isSuccess && !streak.isFetching && (
         <div className="flex justify-center p-4 border-2 font-bold">
           {streak.data.streak === null && <div>No streak</div>}
           {streak.data.streak !== null && (
