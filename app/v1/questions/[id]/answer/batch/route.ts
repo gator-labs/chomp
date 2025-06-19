@@ -22,11 +22,12 @@ async function findOrCreateUsers(wallets: string[]) {
   if (unseenWallets.length > 0) {
     const created = await createDynamicUsers(unseenWallets);
 
-    const newUserIds = Object.keys(created);
+    const newUserIds = Object.values(created);
+    const newUserWallets = Object.keys(created);
     const newUserRecords = newUserIds.map((userId) => ({ id: userId }));
-    const newWalletRecords = newUserIds.map((userId) => ({
-      userId,
-      address: created[userId],
+    const newWalletRecords = newUserWallets.map((wallet) => ({
+      userId: created[wallet],
+      address: wallet,
     }));
 
     await prisma.$transaction(async (tx) => {
