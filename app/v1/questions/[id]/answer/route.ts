@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { AnswerSchema } from "@/app/schemas/v1/answer";
 import prisma from "@/app/services/prisma";
-import { createDynamicUser } from "@/lib/dynamic";
+import { createDynamicUsers } from "@/lib/dynamic";
 import {
   ApiAnswerInvalidError,
   ApiError,
@@ -17,7 +17,11 @@ async function findOrCreateUser(wallet: string) {
 
   if (user) return user.userId;
 
-  const newUserId = await createDynamicUser(wallet);
+  const created = await createDynamicUsers([wallet]);
+
+  if (!created[wallet]) throw new Error("Error creating Dynamic user");
+
+  const newUserId = created[wallet];
 
   await prisma.$transaction(async (tx) => {
     await tx.user.create({
