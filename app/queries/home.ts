@@ -3,6 +3,7 @@
 import { getCreditBalance } from "@/lib/credits/getCreditBalance";
 import { calculateTotalPrizeTokens } from "@/lib/mysteryBox";
 import { getPointBalance } from "@/lib/points/getPointBalance";
+import { getUserStreak } from "@/lib/streaks/getUserStreak";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 
@@ -235,56 +236,9 @@ export async function getUsersLatestStreak(): Promise<number> {
 }
 
 async function queryUsersLatestStreak(userId: string): Promise<number> {
-  const streaks: Streak[] = await prisma.$queryRaw`
-  WITH userActivity AS (
-    SELECT DISTINCT DATE("createdAt") AS activityDate
-    FROM public."ChompResult"
-    WHERE "userId" = ${userId}
-    UNION
-    SELECT DISTINCT DATE("createdAt") AS activityDate
-    FROM public."QuestionAnswer" qa
-    WHERE "userId" = ${userId}
-    AND qa."status" = 'Submitted'
-    UNION
-    SELECT DISTINCT DATE("createdAt") AS activityDate
-    FROM public."FungibleAssetTransactionLog" fatl
-    WHERE "userId" = ${userId}
-    AND fatl."asset" = 'Credit'
-    AND fatl."type" = 'CreditPurchase'
-    UNION
-    SELECT DISTINCT DATE("createdAt") AS activityDate
-    FROM public."MysteryBox" mbox
-    WHERE "userId" = ${userId}
-    UNION
-    SELECT DISTINCT DATE("createdAt") AS activityDate
-    FROM public."Question" mbox
-    WHERE "createdByUserId" = ${userId}
-  ),
-  consecutiveDays AS (
-    SELECT
-      activityDate,
-      LAG(activityDate) OVER (ORDER BY activityDate) AS previousDate
-    FROM userActivity
-  ),
-  "streakGroups" AS (
-    SELECT
-      activityDate,
-      SUM(CASE WHEN activityDate = previousDate + INTERVAL '1 day' THEN 0 ELSE 1 END)
-      OVER (ORDER BY activityDate) AS "streakGroup"
-    FROM consecutiveDays
-  )
-  SELECT
-    MIN(activityDate) AS "streakStartDate",
-    MAX(activityDate) AS "streakEndDate",
-    COUNT(*) AS "streakLength"
-  FROM "streakGroups"
-  GROUP BY "streakGroup"
-  HAVING MAX(activityDate) IN (CURRENT_DATE, CURRENT_DATE - INTERVAL '1 day')
-  ORDER BY MAX(activityDate) DESC
-  LIMIT 1
-  `;
+  const streak = await getUserStreak(userId);
 
-  return Number(streaks?.[0]?.streakLength || 0);
+  return Number(streak?.streakLength ?? 0);
 }
 
 export async function getUsersTotalClaimedAmount(): Promise<number> {

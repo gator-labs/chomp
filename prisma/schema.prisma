@@ -41,6 +41,7 @@ model User {
   AskQuestionAnswer        AskQuestionAnswer[]
   UserQuestionAnswerStatus UserQuestionAnswerStatus[]
   UserBalance              UserBalance[]
+  StreakExtension          StreakExtension[]
 }
 
 model Wallet {
@@ -443,6 +444,17 @@ model UserBalance {
   balance Decimal
 
   @@unique([userId, asset])
+}
+
+model StreakExtension {
+  id           Int      @id @default(autoincrement())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id])
+  activityDate DateTime @db.Date
+  streakValue  Int
+  reason       String
+
+  @@unique([userId, activityDate])
 }
 
 view DeckRewards {
