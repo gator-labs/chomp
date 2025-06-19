@@ -53,7 +53,6 @@ describe("API answer question", () => {
   let deckId: number;
   let questionIds: number[] = [];
   let questionUuids: string[] = [];
-  let question0OptionUuids: string[] = [];
   let question1OptionUuids: string[] = [];
 
   beforeAll(async () => {
@@ -157,7 +156,6 @@ describe("API answer question", () => {
       questionIds = questions.map((q) => q.id);
       questionUuids = questions.map((q) => q.uuid);
 
-      question0OptionUuids = questions[0].questionOptions.map((qo) => qo.uuid);
       question1OptionUuids = questions[1].questionOptions.map((qo) => qo.uuid);
 
       await tx.deckQuestion.createMany({
