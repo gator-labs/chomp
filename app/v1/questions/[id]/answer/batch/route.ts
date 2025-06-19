@@ -72,7 +72,9 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
   }
 
   try {
-    const data = await request.json();
+    const data = await request.json().catch(() => {
+      throw new ApiError("Invalid input");
+    });
     const req = AnswerBatchSchema.safeParse(data);
 
     const urlParams = AnswerQuestionParamsSchema.safeParse(params);
@@ -85,7 +87,9 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
       const issues = req.error.issues;
       for (const issue of issues) {
         throw new ApiAnswerInvalidError(
-          `${issue.path[0]} is missing or invalid`,
+          issue?.path?.[1]
+            ? `${issue.path[1]} is missing or invalid`
+            : issue.message,
         );
       }
       throw new ApiAnswerInvalidError("Answer data invalid");

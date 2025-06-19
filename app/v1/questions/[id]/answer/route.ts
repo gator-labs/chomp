@@ -1,7 +1,3 @@
-import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-import * as Sentry from "@sentry/nextjs";
-
 import { AnswerSchema } from "@/app/schemas/v1/answer";
 import prisma from "@/app/services/prisma";
 import { createDynamicUsers } from "@/lib/dynamic";
@@ -11,6 +7,9 @@ import {
   ApiUserInvalidError,
 } from "@/lib/error";
 import { answerQuestion } from "@/lib/v1/answerQuestion";
+import * as Sentry from "@sentry/nextjs";
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 async function findOrCreateUser(wallet: string) {
   const user = await prisma.wallet.findFirst({ where: { address: wallet } });
@@ -68,7 +67,9 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
   }
 
   try {
-    const data = await request.json();
+    const data = await request.json().catch(() => {
+      throw new ApiError("Invalid input");
+    });
     const req = AnswerSchema.safeParse(data);
 
     const urlParams = AnswerQuestionParamsSchema.safeParse(params);
@@ -81,7 +82,9 @@ export async function POST(request: NextRequest, params: AnswerQuestionParams) {
       const issues = req.error.issues;
       for (const issue of issues) {
         throw new ApiAnswerInvalidError(
-          `${issue.path[0]} is missing or invalid`,
+          issue?.path?.[0]
+            ? `${issue.path[0]} is missing or invalid`
+            : issue.message,
         );
       }
       throw new ApiAnswerInvalidError("Answer data invalid");
