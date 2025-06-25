@@ -18,8 +18,11 @@ export function UserRepairStreak() {
   const isGlobalMode = wallet.trim() === "";
 
   useEffect(() => {
-    if (streak.isError) errorToast("Failed to repair streak.");
-  }, [streak.isError]);
+    if (streak.isError) {
+      const errorMessage = streak.error?.message || "Failed to repair streak.";
+      errorToast(errorMessage);
+    }
+  }, [streak.isError, streak.error]);
 
   useEffect(() => {
     if (streak.isSuccess) {

@@ -1,6 +1,7 @@
 import { getJwtPayload } from "@/app/actions/jwt";
 import { SENTRY_FLUSH_WAIT } from "@/app/constants/sentry";
 import { getIsUserAdmin } from "@/app/queries/user";
+import { AdminActionError } from "@/lib/error";
 import { getUserStreak } from "@/lib/streaks/getUserStreak";
 import { repairAllStreaks, repairUserStreak } from "@/lib/streaks/repairStreak";
 import { getWalletOwner } from "@/lib/wallet";
@@ -108,6 +109,12 @@ export async function PATCH(request: NextRequest) {
       await repairUserStreak(userId, req.date, req.reason);
     }
   } catch (error) {
+    if (error instanceof AdminActionError) {
+      return new Response(JSON.stringify({ error: error.message }), {
+        status: 400,
+      });
+    }
+
     Sentry.captureException(error, {
       tags: {
         category: "admin",
@@ -117,7 +124,7 @@ export async function PATCH(request: NextRequest) {
     await Sentry.flush(SENTRY_FLUSH_WAIT);
 
     return new Response(
-      JSON.stringify({ error: "Unable to complete action", exception: error }),
+      JSON.stringify({ error: "Unable to complete action" }),
       {
         status: 500,
       },
