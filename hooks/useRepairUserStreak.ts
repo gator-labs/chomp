@@ -28,7 +28,11 @@ export function useRepairUserStreak() {
           body: JSON.stringify(params),
         },
       );
-      if (!response.ok) throw new Error("Error making request");
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Error making request");
+      }
 
       return await response.json();
     },
