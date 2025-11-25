@@ -12,7 +12,7 @@ const SlideshowScreen = () => {
       <SunsetBanner />
 
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full justify-between pb-6">
-        <div className="h-[9em] min-h-[9em]"></div>
+        <div className="h-[3em] min-h-[3em] sm:h-[9em] sm:min-h-[9em]"></div>
         <div className="flex flex-col gap-5 items-center">
           <Image
             src={ChompyHeart.src}
@@ -44,7 +44,7 @@ const SlideshowScreen = () => {
           <div className="flex flex-col gap-[14px] items-center w-full pt-4 px-12">
             <DynamicConnectButton
               buttonContainerClassName="w-full flex justify-center"
-              buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-3 px-16 rounded-full text-lg font-bold"
+              buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-2 px-16 rounded-full text-lg font-bold"
             >
               <span className="flex items-center gap-2">
                 <WalletOutlineIcon />
