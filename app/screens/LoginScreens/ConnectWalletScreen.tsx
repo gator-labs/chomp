@@ -1,74 +1,76 @@
 "use client";
 
-import { ConcentricCirclesIcon } from "@/app/components/Icons/ConcentricCirclesIcon";
+import { SunsetBanner } from "@/components/SunsetBanner";
 import { WalletOutlineIcon } from "@/app/components/Icons/WalletOutlineIcon";
-import MysteryBox from "@/public/images/mysterybox.png";
+import ChompyHeart from "@/public/images/chompy_heart.png";
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
 import Image from "next/image";
 
 const SlideshowScreen = () => {
   return (
     <main className="h-dvh bg-gray-800">
-      <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full justify-between py-8">
-        <div className="relative w-full flex mb-4 items-center justify-center">
-          <ConcentricCirclesIcon className="absolute mx-auto my-auto" />
+      <SunsetBanner />
+
+      <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full justify-between pb-6">
+        <div className="h-[9em] min-h-[9em]"></div>
+        <div className="flex flex-col gap-5 items-center">
           <Image
-            src={MysteryBox.src}
-            width={134}
-            height={109}
+            src={ChompyHeart.src}
+            width={200}
+            height={175}
             alt="chomp"
-            className="absolute"
+            className="mb-8"
           />
-        </div>
-        <div className="flex flex-col gap-4 items-center">
-          <h3 className="text-center text-xl leading-6 font-black">
-            Believe in something? CHOMP it
+
+          <h3 className="text-center text-3xl leading-6 font-black">
+            CHOMPY IS MOVING!
           </h3>
 
           <div className="flex flex-col gap-4 items-center w-full justify-between">
-            <p className="text-sm text-center flex flex-col gap-5">
-              Opinions are like assholes, we&apos;re sure you&apos;ve
+            <p className="text-xl text-center flex flex-col gap-5">
+              He has loved his home and the friends
               <br />
-              got one. Express your opinions on CHOMP,
+              he has made. He's packing his boxes
               <br />
-              and get rewarded for being right.
-            </p>
-
-            <p className="text-sm text-center flex flex-col gap-5">
-              Compatible with all major Solana wallets -<br />
-              connect, CHOMP, and earn. 🐊
+              and venturing on a nomadic journey
+              <br />
+              until he figures out where to settle
+              <br />
+              down next.
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-[14px] items-center w-full pt-4">
-          <DynamicConnectButton
-            buttonContainerClassName="w-full flex justify-center"
-            buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-3 px-16 rounded-lg text-sm font-semibold"
-          >
-            <span className="flex items-center gap-1">
-              Connect Wallet
-              <WalletOutlineIcon />
-            </span>
-          </DynamicConnectButton>
-        </div>
+        <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-[14px] items-center w-full pt-4 px-12">
+            <DynamicConnectButton
+              buttonContainerClassName="w-full flex justify-center"
+              buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-3 px-16 rounded-full text-lg font-bold"
+            >
+              <span className="flex items-center gap-2">
+                <WalletOutlineIcon />
+                Connect Wallet
+              </span>
+            </DynamicConnectButton>
+          </div>
 
-        <div className="text-xs font-weight-500 text-center">
-          By using connecting your wallet and using this platform, you are
-          <br /> agreeing to our{" "}
-          <a
-            href="https://docs.chomp.games/legal/terms-of-service"
-            className="underline"
-          >
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a
-            href="https://docs.chomp.games/legal/privacy-policy"
-            className="underline"
-          >
-            Privacy Policy
-          </a>
-          .
+          <div className="text-sm font-weight-500 text-center">
+            By connecting your wallet and using this platform, you are
+            <br /> agreeing to our{" "}
+            <a
+              href="https://docs.chomp.games/legal/terms-of-service"
+              className="underline"
+            >
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://docs.chomp.games/legal/privacy-policy"
+              className="underline"
+            >
+              Privacy Policy
+            </a>
+            .
+          </div>
         </div>
       </div>
     </main>
