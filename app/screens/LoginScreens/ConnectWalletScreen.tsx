@@ -9,7 +9,7 @@ import Image from "next/image";
 const SlideshowScreen = () => {
   return (
     <main className="h-dvh bg-gray-800">
-      <SunsetBanner />
+      <SunsetBanner className="fixed" />
 
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full justify-between pb-6">
         <div className="h-[3em] min-h-[3em] sm:h-[9em] sm:min-h-[9em]"></div>
