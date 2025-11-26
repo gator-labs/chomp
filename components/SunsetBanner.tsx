@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function SunsetBanner() {
   return (
-    <div className="bg-[#ED6A5A] p-5 fixed">
+    <div className="bg-[#ED6A5A] p-5">
       <div className="font-bold font-black text-xs sm:text-lg">CHOMPY IS MOVING</div>
       <div className="text-xs sm:text-sm">
         This version of CHOMP will go offline on December 19th 11:59pm UTC.

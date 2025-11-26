@@ -9,6 +9,7 @@ import { Avatar } from "../Avatar/Avatar";
 import { ChompFlatIcon } from "../Icons/ChompFlatIcon";
 import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
 import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
+import { SunsetBanner } from "@/components/SunsetBanner";
 
 export type NavbarProps = {
   avatarSrc: string;
@@ -37,7 +38,9 @@ export function Navbar({
   };
 
   return (
-    <nav className="flex justify-between w-full py-3 items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-900 z-20 max-w-lg">
+    <nav className="flex flex-col justify-between w-full items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-900 z-20 max-w-lg">
+      <SunsetBanner />
+      <div className="flex justify-between w-full py-3 items-center px-4 bg-gray-900 z-20 max-w-lg">
       <Link href={user ? "/application" : "https://chomp.games/"}>
         <ChompFlatIcon fill="#fff" />
       </Link>
@@ -61,6 +64,7 @@ export function Navbar({
           />
         </div>
       )}
+      </div>
     </nav>
   );
 }
