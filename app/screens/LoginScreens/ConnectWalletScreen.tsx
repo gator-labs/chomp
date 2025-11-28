@@ -44,7 +44,7 @@ const SlideshowScreen = () => {
           <div className="flex flex-col gap-[14px] items-center w-full pt-4 px-12">
             <DynamicConnectButton
               buttonContainerClassName="w-full flex justify-center"
-              buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-2 px-16 rounded-full text-lg font-bold"
+              buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-2 px-16 rounded-full text-md font-bold"
             >
               <span className="flex items-center gap-2">
                 <WalletOutlineIcon />
