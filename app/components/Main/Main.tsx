@@ -15,7 +15,7 @@ const Main = ({ children, className }: Props) => {
   return (
     <main
       className={cn(
-        "flex-grow overflow-y-auto w-full max-w-lg mx-auto flex flex-col pt-12 overflow-x-hidden",
+        "flex-grow overflow-y-auto w-full max-w-lg mx-auto flex flex-col pt-12 overflow-x-hidden mt-[6em] sm:mt-[8em]",
         {
           "px-4": !pathname.endsWith("application"),
         },
