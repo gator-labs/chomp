@@ -1,7 +1,7 @@
 "use client";
 
-import { SunsetBanner } from "@/components/SunsetBanner";
 import { WalletOutlineIcon } from "@/app/components/Icons/WalletOutlineIcon";
+import { SunsetBanner } from "@/components/SunsetBanner";
 import ChompyHeart from "@/public/images/chompy_heart.png";
 import { DynamicConnectButton } from "@dynamic-labs/sdk-react-core";
 import Image from "next/image";
@@ -30,7 +30,7 @@ const SlideshowScreen = () => {
             <p className="text-xl text-center flex flex-col gap-5">
               He has loved his home and the friends
               <br />
-              he has made. He's packing his boxes
+              he has made. He&apos;s packing his boxes
               <br />
               and venturing on a nomadic journey
               <br />
