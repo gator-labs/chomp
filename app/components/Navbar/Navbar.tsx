@@ -1,5 +1,6 @@
 "use client";
 
+import { SunsetBanner } from "@/components/SunsetBanner";
 import AvatarPlaceholder from "@/public/images/avatar_placeholder.png";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import Link from "next/link";
@@ -9,7 +10,6 @@ import { Avatar } from "../Avatar/Avatar";
 import { ChompFlatIcon } from "../Icons/ChompFlatIcon";
 import { QuickViewProfile } from "../QuickViewProfile/QuickViewProfile";
 import { TransactionData } from "../TransactionsTable/TransactionRow/TransactionRow";
-import { SunsetBanner } from "@/components/SunsetBanner";
 
 export type NavbarProps = {
   avatarSrc: string;
@@ -41,29 +41,29 @@ export function Navbar({
     <nav className="flex flex-col justify-between w-full items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-900 z-20 max-w-lg">
       <SunsetBanner />
       <div className="flex justify-between w-full py-3 items-center px-4 bg-gray-900 z-20 max-w-lg">
-      <Link href={user ? "/application" : "https://chomp.games/"}>
-        <ChompFlatIcon fill="#fff" />
-      </Link>
-      {!user ? null : (
-        <div className="flex gap-6 items-center">
-          <button onClick={openQuickProfile}>
-            <Avatar
-              src={avatarSrc || AvatarPlaceholder.src}
-              size="small"
-              className="border-white"
+        <Link href={user ? "/application" : "https://chomp.games/"}>
+          <ChompFlatIcon fill="#fff" />
+        </Link>
+        {!user ? null : (
+          <div className="flex gap-6 items-center">
+            <button onClick={openQuickProfile}>
+              <Avatar
+                src={avatarSrc || AvatarPlaceholder.src}
+                size="small"
+                className="border-white"
+              />
+            </button>
+            <QuickViewProfile
+              isOpen={isOpen}
+              onClose={closeQuickProfile}
+              transactions={transactions}
+              avatarSrc={avatarSrc}
+              address={address}
+              bonkAmount={bonkBalance}
+              solAmount={solBalance}
             />
-          </button>
-          <QuickViewProfile
-            isOpen={isOpen}
-            onClose={closeQuickProfile}
-            transactions={transactions}
-            avatarSrc={avatarSrc}
-            address={address}
-            bonkAmount={bonkBalance}
-            solAmount={solBalance}
-          />
-        </div>
-      )}
+          </div>
+        )}
       </div>
     </nav>
   );
