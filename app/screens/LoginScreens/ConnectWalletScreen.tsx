@@ -27,7 +27,7 @@ const SlideshowScreen = () => {
           </h3>
 
           <div className="flex flex-col gap-4 items-center w-full justify-between">
-            <p className="text-xl text-center flex flex-col gap-5">
+            <p className="text-[20px]/[1.2] text-center flex flex-col gap-5 font-medium">
               He has loved his home and the friends
               <br />
               he has made. He&apos;s packing his boxes
@@ -53,7 +53,7 @@ const SlideshowScreen = () => {
             </DynamicConnectButton>
           </div>
 
-          <div className="text-sm font-weight-500 text-center">
+          <div className="text-xs font-medium text-center">
             By connecting your wallet and using this platform, you are
             <br /> agreeing to our{" "}
             <a
