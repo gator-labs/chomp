@@ -365,8 +365,8 @@ export const calculateMysteryBoxHubReward = async (
 
     questionRewards.push({
       questionId: question.id,
-      creditRewardAmount: Number(rewards?.credits),
-      bonkRewardAmount: Number(rewards?.bonk),
+      creditRewardAmount: Number(rewards?.credits) * Number(process.env.CREDITS_REWARD_MULTIPLIER ?? 1),
+      bonkRewardAmount: Number(rewards?.bonk) * Number(process.env.BONK_REWARD_MULTIPLIER ?? 1),
     });
   }
 

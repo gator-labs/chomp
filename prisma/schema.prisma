@@ -457,6 +457,11 @@ model StreakExtension {
   @@unique([userId, activityDate])
 }
 
+model BonkTreasury {
+  id      String @id
+  balance String
+}
+
 view DeckRewards {
   bonkReward    String
   creditsReward String
