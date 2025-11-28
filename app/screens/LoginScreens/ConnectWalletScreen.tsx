@@ -26,16 +26,12 @@ const SlideshowScreen = () => {
             CHOMPY IS MOVING!
           </h3>
 
-          <div className="flex flex-col gap-4 items-center w-full justify-between">
-            <p className="text-[16px]/[1.2] text-center flex flex-col gap-5 font-medium">
+          <div className="flex flex-col gap-4 items-center justify-between max-w-xs">
+            <p className="text-[12px]/[1.2] text-center flex flex-col gap-5 font-medium">
               He has loved his home and the friends
-              <br />
               he has made. He&apos;s packing his boxes
-              <br />
               and venturing on a nomadic journey
-              <br />
               until he figures out where to settle
-              <br />
               down next.
             </p>
           </div>
@@ -44,7 +40,7 @@ const SlideshowScreen = () => {
           <div className="flex flex-col gap-[14px] items-center w-full pt-4 px-12">
             <DynamicConnectButton
               buttonContainerClassName="w-full flex justify-center"
-              buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-2 px-16 rounded-full text-md font-bold"
+              buttonClassName="w-full max-w-[30rem] flex bg-purple-500 text-white items-center justify-center py-2 px-16 rounded-full text-xs font-bold"
             >
               <span className="flex items-center gap-2">
                 <WalletOutlineIcon />

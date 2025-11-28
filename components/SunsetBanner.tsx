@@ -12,7 +12,7 @@ export function SunsetBanner({ className }: SunsetBannerProps) {
         <div className="font-black text-md/2xl sm:text-lg">
           CHOMPY IS MOVING
         </div>
-        <div className="text-xs sm:text-[15px]/[1.2] font-medium">
+        <div className="text-xs sm:text-[12px]/[1.2] font-medium">
           This version of CHOMP will go offline on December 19th 11:59pm UTC. Be
           in Top 100 All Time Points{" "}
           <Link href="/application/leaderboard" className="underline">
