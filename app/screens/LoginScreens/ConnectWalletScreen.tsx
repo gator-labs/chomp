@@ -22,12 +22,12 @@ const SlideshowScreen = () => {
             className="mb-8"
           />
 
-          <h3 className="text-center text-3xl leading-6 font-black">
+          <h3 className="text-center text-2xl leading-6 font-black">
             CHOMPY IS MOVING!
           </h3>
 
           <div className="flex flex-col gap-4 items-center w-full justify-between">
-            <p className="text-[20px]/[1.2] text-center flex flex-col gap-5 font-medium">
+            <p className="text-[16px]/[1.2] text-center flex flex-col gap-5 font-medium">
               He has loved his home and the friends
               <br />
               he has made. He&apos;s packing his boxes
