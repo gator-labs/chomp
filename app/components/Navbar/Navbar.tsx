@@ -38,8 +38,9 @@ export function Navbar({
   };
 
   return (
-    <nav className="flex flex-col justify-between w-full items-center fixed top-0 left-1/2 -translate-x-1/2 px-4 bg-gray-900 z-20 max-w-lg">
-      <SunsetBanner />
+    <div className="sticky top-0 flex flex-col">
+      <SunsetBanner className="w-screen max-w-lg bg-[#ED6A5A]" />
+    <nav className="flex flex-col justify-between w-full items-center px-4 bg-gray-900 z-20 max-w-lg">
       <div className="flex justify-between w-full py-3 items-center px-4 bg-gray-900 z-20 max-w-lg">
         <Link href={user ? "/application" : "https://chomp.games/"}>
           <ChompFlatIcon fill="#fff" />
@@ -66,5 +67,6 @@ export function Navbar({
         )}
       </div>
     </nav>
+    </div>
   );
 }

@@ -12,7 +12,7 @@ export default async function Page() {
   return (
     <>
       <ErrorHandler />
-      <div className="flex flex-col gap-4 px-4">
+      <div className="flex flex-col gap-4">
         <ProfileNavigation />
         <Suspense fallback={<Spinner />}>
           <Profile />

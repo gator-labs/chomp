@@ -8,11 +8,12 @@ import Image from "next/image";
 
 const SlideshowScreen = () => {
   return (
-    <main className="h-dvh bg-gray-800">
-      <SunsetBanner className="fixed" />
+    <main className="h-dvh bg-gray-800 flex flex-col">
+      <SunsetBanner className="sticky" />
 
       <div className="w-full max-w-4xl mx-auto flex flex-col gap-3 px-4 h-full justify-between pb-6">
-        <div className="h-[6em] min-h-[6em] sm:h-[9em] sm:min-h-[9em]"></div>
+        <div></div>
+
         <div className="flex flex-col gap-5 items-center">
           <Image
             src={ChompyHeart.src}

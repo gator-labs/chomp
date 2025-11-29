@@ -1,13 +1,13 @@
-import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
 import { getJwtPayload } from "@/app/actions/jwt";
+import ProfileNavigation from "@/app/components/ProfileNavigation/ProfileNavigation";
 import { getValidationRewardQuestions } from "@/app/queries/getValidationRewardQuestion";
 import MysteryBoxHub from "@/components/MysteryBox/MysteryBoxHub";
 import { hasBonkAtaAccount } from "@/lib/bonk/hasBonkAtaAccount";
 import { RewardsPromiseError } from "@/lib/error";
 import { getCampaigns } from "@/lib/mysteryBox/getCampaigns";
 import { captureException } from "@sentry/nextjs";
-import pRetry, { FailedAttemptError, Options as RetryOptions } from "p-retry";
 import { redirect } from "next/navigation";
+import pRetry, { FailedAttemptError, Options as RetryOptions } from "p-retry";
 
 async function Page() {
   // Check authentication first
