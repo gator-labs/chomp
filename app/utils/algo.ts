@@ -363,10 +363,15 @@ export const calculateMysteryBoxHubReward = async (
 
     const rewards = await getMechanismEngineResponse("rewards", body);
 
+    const NOTIONAL_CREDITS_VALUE = 1000; // BONK value of one credit
+
+    const bonkMultiplied = Number(rewards?.bonk) * Number(process.env.BONK_REWARD_MULTIPLIER ?? 1);
+    const creditsMultiplied = Number(rewards?.credits * NOTIONAL_CREDITS_VALUE) * Number(process.env.BONK_REWARD_MULTIPLIER ?? 1);
+
     questionRewards.push({
       questionId: question.id,
-      creditRewardAmount: Number(rewards?.credits) * Number(process.env.CREDITS_REWARD_MULTIPLIER ?? 1),
-      bonkRewardAmount: Number(rewards?.bonk) * Number(process.env.BONK_REWARD_MULTIPLIER ?? 1),
+      creditRewardAmount: 0,
+      bonkRewardAmount: bonkMultiplied + creditsMultiplied,
     });
   }
 
