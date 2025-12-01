@@ -54,7 +54,7 @@ export const createValidationMysteryBox = async (userId: string) => {
     return null;
   }
 
-  const totalBonkReward = rewards.reduce((total, reward) => total + reward.creditRewardAmount, 0);
+  const totalBonkReward = rewards.reduce((total, reward) => total + reward.bonkRewardAmount, 0);
 
   const newMysteryBoxId = await prisma.$transaction(
     async (tx) => {
