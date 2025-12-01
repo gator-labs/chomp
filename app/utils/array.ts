@@ -11,6 +11,8 @@ export function onlyUniqueBy<T, U>(selector: (value: T) => U) {
 }
 
 export function getAverage(numbers: number[]): number {
+  if (numbers.length === 0) return 0;
+
   return Math.floor(
     numbers.reduce((sum, currentValue) => {
       return sum + currentValue;
