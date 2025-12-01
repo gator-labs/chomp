@@ -29,11 +29,9 @@ const SlideshowScreen = () => {
 
           <div className="flex flex-col gap-4 items-center justify-between max-w-xs">
             <p className="text-[12px]/[1.2] text-center flex flex-col gap-5 font-medium">
-              He has loved his home and the friends
-              he has made. He&apos;s packing his boxes
-              and venturing on a nomadic journey
-              until he figures out where to settle
-              down next.
+              He&apos;s loved his time with all of you, but it&apos;s time to
+              move out of his first home. CHOMP sunsets Dec 19. See the full
+              plan + farewell gift inside.
             </p>
           </div>
         </div>
