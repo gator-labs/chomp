@@ -15,7 +15,7 @@ export function SunsetBanner({ className }: SunsetBannerProps) {
         <div className="text-xs sm:text-[12px]/[1.2] font-medium">
           This version of CHOMP will sunset on Dec 19 at 11:59pm UTC. Chompy’s
           leaving you a farewell gift, read the full plan{" "}
-          <Link href="/" className="underline">
+          <Link href="https://x.com/chompdotgames/status/1995928443272528169?s=20" className="underline">
             here
           </Link>
           .
