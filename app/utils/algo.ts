@@ -243,6 +243,8 @@ export const calculateMysteryBoxHubReward = async (
     questionId: number;
     creditRewardAmount: number;
     bonkRewardAmount: number;
+    origCreditRewardAmount: number;
+    origBonkRewardAmount: number;
   }[] = [];
 
   for (const question of questions) {
@@ -268,6 +270,8 @@ export const calculateMysteryBoxHubReward = async (
         questionId: question.id,
         creditRewardAmount: 0,
         bonkRewardAmount: 0,
+        origCreditRewardAmount: 0,
+        origBonkRewardAmount: 0,
       });
       continue;
     }
@@ -372,6 +376,8 @@ export const calculateMysteryBoxHubReward = async (
       questionId: question.id,
       creditRewardAmount: 0,
       bonkRewardAmount: bonkMultiplied + creditsMultiplied,
+      origCreditRewardAmount: Number(rewards?.credits),
+      origBonkRewardAmount: Number(rewards?.bonk)
     });
   }
 
