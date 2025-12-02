@@ -210,6 +210,8 @@ export async function getAnswerStats(
         questionId,
         creditsReward: "0",
         bonkReward: Number(chompResults?.[0].rewardTokenAmount ?? 0).toString(),
+        origCreditsReward: "0",
+        origBonkReward: Number(chompResults?.[0].rewardTokenAmount ?? 0).toString(),
       },
     ];
   }
