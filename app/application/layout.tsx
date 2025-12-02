@@ -49,7 +49,7 @@ export default async function Layout({ children }: PageLayoutProps) {
                 }))}
                 address={address}
               />
-              <div className="flex-grow pb-20">{children}</div>
+              <div className="flex-grow pb-20 px-4">{children}</div>
             </Main>
             <div className="fixed bottom-0 left-0 right-0 z-50">
               <TabNavigation isAdmin={!!user?.isAdmin} />

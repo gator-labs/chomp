@@ -8,6 +8,8 @@ import { getBonkAddress } from "../env-vars";
 export const getPrizePerTrigger = (reward: {
   creditRewardAmount: number;
   bonkRewardAmount: number;
+  origCreditRewardAmount: number;
+  origBonkRewardAmount: number;
 }) => {
   const tokenAddress = getBonkAddress();
   return [
@@ -15,10 +17,14 @@ export const getPrizePerTrigger = (reward: {
       prizeType: EBoxPrizeType.Credits,
       size: EPrizeSize.Hub,
       amount: reward.creditRewardAmount.toString(),
+      origAmount: reward.origCreditRewardAmount.toString(),
     },
     {
       prizeType: EBoxPrizeType.Token,
       amount: new Decimal(reward.bonkRewardAmount)
+        .toDP(MAX_DECIMALS.BONK, Decimal.ROUND_DOWN)
+        .toString(),
+      origAmount: new Decimal(reward.origBonkRewardAmount)
         .toDP(MAX_DECIMALS.BONK, Decimal.ROUND_DOWN)
         .toString(),
       size: EPrizeSize.Hub,

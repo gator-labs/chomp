@@ -243,6 +243,8 @@ export const calculateMysteryBoxHubReward = async (
     questionId: number;
     creditRewardAmount: number;
     bonkRewardAmount: number;
+    origCreditRewardAmount: number;
+    origBonkRewardAmount: number;
   }[] = [];
 
   for (const question of questions) {
@@ -268,6 +270,8 @@ export const calculateMysteryBoxHubReward = async (
         questionId: question.id,
         creditRewardAmount: 0,
         bonkRewardAmount: 0,
+        origCreditRewardAmount: 0,
+        origBonkRewardAmount: 0,
       });
       continue;
     }
@@ -363,10 +367,17 @@ export const calculateMysteryBoxHubReward = async (
 
     const rewards = await getMechanismEngineResponse("rewards", body);
 
+    const NOTIONAL_CREDITS_VALUE = 5000; // BONK value of one credit
+
+    const bonkMultiplied = Number(rewards?.bonk) * Number(process.env.BONK_REWARD_MULTIPLIER ?? 1);
+    const creditsMultiplied = Number(rewards?.credits * NOTIONAL_CREDITS_VALUE) * Number(process.env.BONK_REWARD_MULTIPLIER ?? 1);
+
     questionRewards.push({
       questionId: question.id,
-      creditRewardAmount: Number(rewards?.credits),
-      bonkRewardAmount: Number(rewards?.bonk),
+      creditRewardAmount: 0,
+      bonkRewardAmount: bonkMultiplied + creditsMultiplied,
+      origCreditRewardAmount: Number(rewards?.credits),
+      origBonkRewardAmount: Number(rewards?.bonk)
     });
   }
 

@@ -297,3 +297,10 @@ export class RewardsPromiseError extends Error {
     super(message, options);
   }
 }
+
+export class AdminActionError extends Error {
+  constructor(message: string, options?: ErrorOptions) {
+    super(message, options);
+    this.name = "AdminActionError";
+  }
+}

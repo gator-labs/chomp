@@ -64,7 +64,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${satoshi.variable} h-full`}>
-      <body className="bg-gray-900 text-white h-full">
+      <body className="bg-gray-900 text-white h-full min-w-lg">
         <LinkProgressBar />
         <ReactQueryProvider>
           <DynamicProvider>

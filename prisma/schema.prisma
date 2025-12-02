@@ -360,6 +360,7 @@ model MysteryBoxPrize {
   prizeType                   EBoxPrizeType
   tokenAddress                String?
   amount                      String
+  origAmount                  String?
   claimHash                   String?
   claimFungibleTxId           Int?
   createdAt                   DateTime                     @default(now())
@@ -457,6 +458,11 @@ model StreakExtension {
   @@unique([userId, activityDate])
 }
 
+model BonkTreasury {
+  id      String @id
+  balance String
+}
+
 view DeckRewards {
   bonkReward    String
   creditsReward String
@@ -471,6 +477,9 @@ view DeckRewards {
 view QuestionRewards {
   bonkReward    String
   creditsReward String
+
+  origBonkReward String
+  origCreditsReward String
 
   userId String
   user   User   @relation(fields: [userId], references: [id])

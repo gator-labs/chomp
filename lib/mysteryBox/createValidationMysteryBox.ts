@@ -54,12 +54,25 @@ export const createValidationMysteryBox = async (userId: string) => {
     return null;
   }
 
+  const totalBonkReward = rewards.reduce((total, reward) => total + reward.bonkRewardAmount, 0);
+
   const newMysteryBoxId = await prisma.$transaction(
     async (tx) => {
       const mb = await tx.mysteryBox.create({
         data: {
           userId: userId,
         },
+      });
+
+      const treasury = await tx.bonkTreasury.findUnique({ where: { id: 'treasury' } });
+      const treasuryBalance = Number(treasury?.balance ?? 0);
+
+      if (treasuryBalance < totalBonkReward)
+        throw new Error('Insufficient treasury funds');
+
+      await tx.bonkTreasury.update({
+        where: { id: 'treasury' },
+        data: { balance: String(treasuryBalance - totalBonkReward) }
       });
 
       for (const reward of rewards) {

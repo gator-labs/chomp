@@ -26,7 +26,7 @@ export function CommunityAskListItem({
   const [newDeckTitle, setNewDeckTitle] = useState<string>("");
   const [selectedDeckId, setSelectedDeckId] = useState<
     number | "new-deck" | null
-  >(decks?.[0]?.id ?? null);
+  >(decks?.[0]?.id ?? "new-deck");
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(
     null,
   );

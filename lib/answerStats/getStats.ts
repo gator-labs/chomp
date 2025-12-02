@@ -210,6 +210,8 @@ export async function getAnswerStats(
         questionId,
         creditsReward: "0",
         bonkReward: Number(chompResults?.[0].rewardTokenAmount ?? 0).toString(),
+        origCreditsReward: "0",
+        origBonkReward: Number(chompResults?.[0].rewardTokenAmount ?? 0).toString(),
       },
     ];
   }
@@ -229,7 +231,7 @@ export async function getAnswerStats(
         : "claimable";
 
   const hasBonkPrize = new Decimal(
-    question.QuestionRewards?.[0]?.bonkReward ?? "0",
+    question.QuestionRewards?.[0]?.origBonkReward ?? "0",
   )
     .toDP(Decimal.ROUND_DOWN, MAX_DECIMALS.BONK)
     .greaterThan("0");

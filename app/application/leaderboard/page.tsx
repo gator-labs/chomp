@@ -5,7 +5,7 @@ import StackLeaderboard from "@/app/components/StackLeaderboard/StackLeaderboard
 const LeaderboardPage = async () => {
   return (
     <>
-      <div>
+      <div className="flex flex-col">
         <ProfileNavigation />
         <div className="flex flex-col gap-4 pb-4">
           <ChompLeaderboard />
