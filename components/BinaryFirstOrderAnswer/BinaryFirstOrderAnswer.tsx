@@ -7,7 +7,7 @@ import React from "react";
 import FirstOrderAnswerWrapper from "../FirstOrderAnswerWrapper/FirstOrderAnswerWrapper";
 import PieChart from "../PieChart/PieChart";
 
-const chartColors = ["#1ED3B3", "#ED6A5A"];
+const chartColors = { correct: "#1ED3B3", incorrect: "#ED6A5A" };
 
 function BinaryFirstOrderAnswerChart({
   bestOption,
@@ -21,6 +21,10 @@ function BinaryFirstOrderAnswerChart({
     1,
   );
 
+  const orderedColors = questionOptions.map((qo) =>
+    qo.option === bestOption ? chartColors.correct : chartColors.incorrect,
+  );
+
   const data = {
     labels: questionOptions.map((qo) =>
       qo.option === bestOption ? `${qo.option} (Best Answer)` : qo.option,
@@ -32,8 +36,8 @@ function BinaryFirstOrderAnswerChart({
             ? correctAnswers
             : totalAnswers - correctAnswers,
         ),
-        backgroundColor: chartColors,
-        hoverBackgroundColor: chartColors,
+        backgroundColor: orderedColors,
+        hoverBackgroundColor: orderedColors,
         borderColor: ["white"],
         hoverOffset: 20,
         borderWidth: 1,
