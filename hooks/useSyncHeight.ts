@@ -6,6 +6,9 @@ export function useSyncHeight(ref: any, initial = 0) {
   useLayoutEffect(() => {
     if (!ref.current) return;
 
+    const rect = ref.current.getBoundingClientRect();
+    setHeight(rect.height);
+
     const observer = new ResizeObserver(([entry]) => {
       setHeight(entry.contentRect.height);
     });

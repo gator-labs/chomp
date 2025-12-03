@@ -31,7 +31,7 @@ export function Navbar({
   const [isOpen, setIsOpen] = useState(false);
 
   const navContainerRef = useRef(null);
-  const shimHeight = useSyncHeight(navContainerRef, 120);
+  const shimHeight = useSyncHeight(navContainerRef, 150);
 
   const closeQuickProfile = () => {
     setIsOpen(false);
