@@ -2,6 +2,7 @@ export enum EMysteryBoxType {
   Regular = "Regular",
   Tutorial = "Tutorial",
   Chompmas = "Chompmas",
+  Sunset = "Sunset",
 }
 
 export enum EMysteryBoxCategory {

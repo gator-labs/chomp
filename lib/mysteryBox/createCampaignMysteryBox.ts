@@ -37,6 +37,7 @@ export const createCampaignMysteryBox = async (
     },
     include: {
       campaignMysteryBox: true,
+      sunsetReward: true,
     },
   });
 
@@ -44,9 +45,24 @@ export const createCampaignMysteryBox = async (
     throw new Error("User is not eligible for reward");
   }
 
-  const calculatedReward = await calculateMysteryBoxReward(
-    validCampaign.campaignMysteryBox.boxType,
-  );
+  const boxType = validCampaign.campaignMysteryBox.boxType;
+
+  let calculatedReward;
+
+  if (boxType === "Sunset") {
+    const sunsetReward = validCampaign.sunsetReward;
+    if (!sunsetReward) {
+      throw new Error("Sunset reward not found for this allowlist entry");
+    }
+    // Sunset boxes only give BONK, no credits
+    calculatedReward = {
+      bonk: sunsetReward.bonkReward,
+      credits: 0,
+    };
+  } else {
+    // For other box types, use the mechanism engine
+    calculatedReward = await calculateMysteryBoxReward(boxType);
+  }
 
   const tokenAddress = getBonkAddress();
 
@@ -80,6 +96,26 @@ export const createCampaignMysteryBox = async (
       });
 
       // Then, create the associated trigger
+      // Build prizes array - only include credits if non-zero
+      const prizes = [];
+
+      if (calculatedReward.credits > 0) {
+        prizes.push({
+          prizeType: EBoxPrizeType.Credits,
+          size: EPrizeSize.Hub,
+          amount: calculatedReward.credits.toString(),
+        });
+      }
+
+      prizes.push({
+        prizeType: EBoxPrizeType.Token,
+        amount: new Decimal(calculatedReward.bonk)
+          .toDP(MAX_DECIMALS.BONK, Decimal.ROUND_DOWN)
+          .toString(),
+        size: EPrizeSize.Hub,
+        tokenAddress: tokenAddress,
+      });
+
       await tx.mysteryBoxTrigger.create({
         data: {
           triggerType: EBoxTriggerType.CampaignReward,
@@ -88,21 +124,7 @@ export const createCampaignMysteryBox = async (
           campaignMysteryBoxId: campaignBoxId,
           MysteryBoxPrize: {
             createMany: {
-              data: [
-                {
-                  prizeType: EBoxPrizeType.Credits,
-                  size: EPrizeSize.Hub,
-                  amount: calculatedReward.credits.toString(),
-                },
-                {
-                  prizeType: EBoxPrizeType.Token,
-                  amount: new Decimal(calculatedReward.bonk)
-                    .toDP(MAX_DECIMALS.BONK, Decimal.ROUND_DOWN)
-                    .toString(),
-                  size: EPrizeSize.Hub,
-                  tokenAddress: tokenAddress,
-                },
-              ],
+              data: prizes,
             },
           },
         },
