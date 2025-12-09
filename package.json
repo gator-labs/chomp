@@ -18,6 +18,7 @@
     "prisma:generate": "prisma generate",
     "postinstall": "prisma generate",
     "storybook": "storybook dev -p 6006",
+    "dev:sunset-create": "dotenv -c -- ts-node scripts/createSunsetRewards.ts",
     "dev:subj-question": "dotenv -c -- ts-node scripts/CreateSubjectiveWithAnswers.ts",
     "dev:mc-obj": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/objective-multiple-choice-questions.ts",
     "dev:binary-obj": "dotenv -c -- ts-node -P tsconfig.scripts.json scripts/objective-binary-questions.ts",
