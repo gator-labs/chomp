@@ -19,6 +19,7 @@ import {
 import { trackAnswerStatus, trackQuestionAnswer } from "@/app/utils/tracking";
 import trackEvent from "@/lib/trackEvent";
 import { QuestionStep } from "@/types/question";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { AnswerStatus, QuestionTag, QuestionType, Tag } from "@prisma/client";
 import * as Sentry from "@sentry/nextjs";
 import classNames from "classnames";
@@ -40,7 +41,6 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Button } from "../ui/button";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 
 export type Option = {
   id: number;
@@ -87,7 +87,7 @@ export function Deck({
   totalCredits,
 }: DeckProps) {
   const { user } = useDynamicContext();
- 
+
   const questionsRef = useRef<HTMLDivElement>(null);
   const [dueAt, setDueAt] = useState<Date>(getDueAt(questions, 0));
   const [deckResponse, setDeckResponse] = useState<SaveQuestionRequest[]>([]);
@@ -110,6 +110,7 @@ export function Deck({
   const [isCreditsLow, setIsCreditsLow] = useState(false);
   const [random, setRandom] = useState(0);
 
+  const SUNSET_FEATURE_FLAG = process.env.NEXT_PUBLIC_FF_SUNSET_MODE === "true";
 
   useEffect(() => {
     start();
@@ -449,7 +450,7 @@ export function Deck({
       )}
 
       <BuyCreditsDrawer
-        isOpen={isCreditsLow}
+        isOpen={isCreditsLow && !SUNSET_FEATURE_FLAG}
         onClose={() => setIsCreditsLow(false)}
         creditsToBuy={deckCost ? deckCost - totalCredits : 0}
       />

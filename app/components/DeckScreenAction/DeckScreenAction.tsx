@@ -38,6 +38,8 @@ const DeckScreenAction = ({
   const creditsRequired = deckCreditCost ? deckCreditCost - totalCredits : 0;
   const isCurrentDeckFree = deckCreditCost === 0;
 
+  const SUNSET_FEATURE_FLAG = process.env.NEXT_PUBLIC_FF_SUNSET_MODE === "true";
+
   const onClose = () => {
     setIsOpen(false);
   };
@@ -61,6 +63,8 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={async () => {
+          if (SUNSET_FEATURE_FLAG) return;
+
           /**
            * Handle paid decks:
            * - Check if the user has sufficient credits to start the deck.
@@ -109,6 +113,7 @@ const DeckScreenAction = ({
             setIsDeckStarted(true);
           }
         }}
+        disabled={SUNSET_FEATURE_FLAG}
       >
         {creditCostFeatureFlag &&
         !hasEnoughCredits &&
