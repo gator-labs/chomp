@@ -55,6 +55,8 @@ const DeckScreen = ({
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
+  const SUNSET_FEATURE_FLAG = process.env.NEXT_PUBLIC_FF_SUNSET_MODE === "true";
+
   // If no preview deck info and not a premium deck start the deck immediately
   const [isDeckStarted, setIsDeckStarted] = useState(
     deckCreditCost === null && (numberOfUserAnswers > 0 || !hasDeckInfo),
@@ -76,7 +78,7 @@ const DeckScreen = ({
                 )}
                 {totalCredits} {totalCredits === 1 ? "Credit" : "Credits"}
               </div>
-              <BuyBulkCreditsButton text="Buy More" size="tiny" />
+              {!SUNSET_FEATURE_FLAG && <BuyBulkCreditsButton text="Buy More" size="tiny" />}
             </div>
           ) : null}
           <Stepper
