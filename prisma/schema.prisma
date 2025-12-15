@@ -424,6 +424,9 @@ model CampaignMysteryBoxAllowlist {
   address             String
   mysteryBoxAllowList MysteryBoxAllowlist @relation(fields: [address], references: [address])
 
+  sunsetReward   SunsetReward? @relation(fields: [sunsetRewardId], references: [id])
+  sunsetRewardId Int?          @unique
+
   @@unique([campaignMysteryBoxId, address])
 }
 
@@ -461,6 +464,14 @@ model StreakExtension {
 model BonkTreasury {
   id      String @id
   balance String
+}
+
+model SunsetReward {
+  id                          Int                          @id @default(autoincrement())
+  rank                        Int
+  points                      Int
+  bonkReward                  String
+  campaignMysteryBoxAllowlist CampaignMysteryBoxAllowlist?
 }
 
 view DeckRewards {

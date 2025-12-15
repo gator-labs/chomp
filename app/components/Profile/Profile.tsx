@@ -23,6 +23,8 @@ export async function Profile({
   const address = user?.wallets?.[0]?.address || "";
   const avatarSrc = user?.profileSrc || AvatarPlaceholder.src;
 
+  const SUNSET_FEATURE_FLAG = process.env.NEXT_PUBLIC_FF_SUNSET_MODE === "true";
+
   return (
     <div
       className={cn(
@@ -49,7 +51,7 @@ export async function Profile({
         <div className="flex gap-2">
           <div className="flex gap-2 justify-center">
             <ProfileWalletAddressButton address={address} />
-            <BuyBulkCreditsButton size="small" />
+            {!SUNSET_FEATURE_FLAG && <BuyBulkCreditsButton size="small" />}
           </div>
 
           {showLeaderboardButton && (

@@ -30,6 +30,14 @@ export async function initiateCreditPurchase(
     };
   }
 
+  const SUNSET_FEATURE_FLAG = process.env.NEXT_PUBLIC_FF_SUNSET_MODE === "true";
+
+  if (SUNSET_FEATURE_FLAG) {
+    return {
+      error: "Credit purchases disabled",
+    };
+  }
+
   const creditPack = creditPackId ? await getCreditPack(creditPackId) : null;
 
   const release = await acquireMutex({

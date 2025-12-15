@@ -19,6 +19,8 @@ async function Page() {
   const CREDIT_COST_FEATURE_FLAG =
     process.env.NEXT_PUBLIC_FF_CREDIT_COST_PER_QUESTION === "true";
 
+  const SUNSET_FEATURE_FLAG = process.env.NEXT_PUBLIC_FF_SUNSET_MODE === "true";
+
   if (CREDIT_COST_FEATURE_FLAG) {
     try {
       const retryOptions: RetryOptions = {
@@ -46,7 +48,9 @@ async function Page() {
         ]);
 
       const isUserEligibleForValidationReward: boolean =
-        !!validationRewardQuestions && validationRewardQuestions.length > 0;
+        !SUNSET_FEATURE_FLAG &&
+        !!validationRewardQuestions &&
+        validationRewardQuestions.length > 0;
 
       return (
         <div className="mb-6">

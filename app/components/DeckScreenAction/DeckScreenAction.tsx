@@ -38,6 +38,8 @@ const DeckScreenAction = ({
   const creditsRequired = deckCreditCost ? deckCreditCost - totalCredits : 0;
   const isCurrentDeckFree = deckCreditCost === 0;
 
+  const SUNSET_FEATURE_FLAG = process.env.NEXT_PUBLIC_FF_SUNSET_MODE === "true";
+
   const onClose = () => {
     setIsOpen(false);
   };
@@ -73,6 +75,8 @@ const DeckScreenAction = ({
           ) {
             // Open "Buy Credits" drawer if the user doesn't have enough credits.
             if (!hasEnoughCredits) {
+              if (SUNSET_FEATURE_FLAG) return;
+
               setIsOpen(true);
               return;
             }
@@ -109,6 +113,7 @@ const DeckScreenAction = ({
             setIsDeckStarted(true);
           }
         }}
+        disabled={SUNSET_FEATURE_FLAG && !hasEnoughCredits}
       >
         {creditCostFeatureFlag &&
         !hasEnoughCredits &&
