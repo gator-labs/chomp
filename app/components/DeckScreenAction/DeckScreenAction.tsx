@@ -113,7 +113,7 @@ const DeckScreenAction = ({
             setIsDeckStarted(true);
           }
         }}
-        disabled={SUNSET_FEATURE_FLAG}
+        disabled={SUNSET_FEATURE_FLAG && !hasEnoughCredits}
       >
         {creditCostFeatureFlag &&
         !hasEnoughCredits &&
