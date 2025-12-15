@@ -63,8 +63,6 @@ const DeckScreenAction = ({
     <div className="flex flex-col gap-4 py-4">
       <Button
         onClick={async () => {
-          if (SUNSET_FEATURE_FLAG) return;
-
           /**
            * Handle paid decks:
            * - Check if the user has sufficient credits to start the deck.
@@ -77,6 +75,8 @@ const DeckScreenAction = ({
           ) {
             // Open "Buy Credits" drawer if the user doesn't have enough credits.
             if (!hasEnoughCredits) {
+              if (SUNSET_FEATURE_FLAG) return;
+
               setIsOpen(true);
               return;
             }
